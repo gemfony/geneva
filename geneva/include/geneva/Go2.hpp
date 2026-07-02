@@ -185,7 +185,7 @@ public:
      *  early error. Call after construction and before optimize().
      *  @param builder A closure returning the ready-to-use GPU consumer (as the courtier base pointer). */
     void registerGPUConsumerBuilder(
-        std::function<std::shared_ptr<Gem::Courtier::GBaseConsumerT<gen::GOptimizableEntity>>()> builder);
+        std::move_only_function<std::shared_ptr<Gem::Courtier::GBaseConsumerT<gen::GOptimizableEntity>>()> builder);
 
     /**
      * @brief Retrieves the currently registered number of algorithms.
@@ -473,12 +473,12 @@ private:
     /** @brief Builder for the GPU consumer, contributed by the problem via registerGPUConsumerBuilder().
      *  Type-erased to the courtier-core base type so geneva carries no GPU dependency; invoked lazily by
      *  ensureGPUConsumerBuilt() when the gpu mnemonic is selected. Empty unless a GPU program set it. */
-    std::function<std::shared_ptr<Gem::Courtier::GBaseConsumerT<gen::GOptimizableEntity>>()>
+    std::move_only_function<std::shared_ptr<Gem::Courtier::GBaseConsumerT<gen::GOptimizableEntity>>()>
         gpu_consumer_builder_;
     /** @brief Set on a courtier MPI WORKER rank: runs the courtier worker loop (clientRun_ invokes
      *  it instead of the legacy client). Type-erased so Go2.hpp needs no MPI headers; the captured
      *  consumer shared_ptr keeps the worker node alive. Empty on master / non-MPI / legacy paths. */
-    std::function<void()> mpi_run_worker_;
+    std::move_only_function<void()> mpi_run_worker_;
     /** @brief The transport-agnostic spec for the chosen consumer, assembled from the command line in
      *  setupChosenConsumer(). Held so clientRun_() can build the matching networked client through the
      *  courtier setup layer (buildConsumerClient) without re-touching the command line or the

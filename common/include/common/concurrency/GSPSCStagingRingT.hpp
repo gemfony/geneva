@@ -167,7 +167,7 @@ public:
 
     /** @brief Bulk-fills @p n_words words at @p dst. Invoked only from the constructor and the single
      *  producer thread, so it need not be thread-safe with respect to itself. */
-    using fill_function = std::function<void(word_type *dst, std::size_t n_words)>;
+    using fill_function = std::move_only_function<void(word_type *dst, std::size_t n_words)>;
 
     /** @brief Builds the ring, fills the initial @c NPools generations and starts the producer thread.
      *  @param fill The bulk-fill callback that populates one pool's worth of words. */

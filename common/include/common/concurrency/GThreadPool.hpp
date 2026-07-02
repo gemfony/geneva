@@ -74,11 +74,11 @@ namespace Gem::Common::Concurrency {
  * wait() blocks until the pool has run empty. Workers are started eagerly in the
  * constructor, so getNThreads() always reports the live worker count.
  *
- * Note: the submitted callable plus its bound arguments must be copyable, because
- * tasks are type-erased through std::function. Geneva's usage (closures capturing
- * std::shared_ptr) satisfies this. If move-only tasks are ever needed, the
- * std::function task type can be swapped for a move-only type-erased wrapper
- * without touching the public API.
+ * Note: tasks are type-erased through std::move_only_function, so the submitted
+ * callable plus its bound arguments only need to be movable, not copyable. Geneva's
+ * usage (closures capturing std::shared_ptr) satisfies this. The single-owner task
+ * type expresses that a queued task is never copied, only moved to the worker that
+ * runs it.
  *
  * This class is neither copyable nor movable (it owns threads, a queue, mutexes
  * and condition variables). wait() / setNThreads() must NOT be called from inside
@@ -180,7 +180,7 @@ public:
 
         // Submitters take a SHARED lock; wait()/setNThreads() take it exclusively,
         // so submissions run concurrently except while the pool is being drained.
-        if(not enqueue(std::function<void()>(std::move(task)))) {
+        if(not enqueue(std::move_only_function<void()>(std::move(task)))) {
             // The queue is closed (pool shutting down): surface the failure through
             // the future rather than losing it silently.
             promise_ptr->set_exception(std::make_exception_ptr(geneva_exception(
@@ -225,7 +225,7 @@ public:
                         << GWARNING;
             }
         };
-        if(not enqueue(std::function<void()>(std::move(task)))) {
+        if(not enqueue(std::move_only_function<void()>(std::move(task)))) {
             glogger << "In GThreadPool::post(): submission after the pool was closed;"
                     << " task dropped." << '\n'
                     << GWARNING;
@@ -243,7 +243,7 @@ private:
      * @param task The type-erased task to enqueue (moved into the queue)
      * @return true if the task was enqueued, false if the queue was already closed
      */
-    bool enqueue(std::function<void()> task);
+    bool enqueue(std::move_only_function<void()> task);
 
     /***************************************************************************/
     /** @brief Worker body: drains the queue until it is closed and empty. Observes the
@@ -265,7 +265,7 @@ private:
     // The task queue is held in an optional so setNThreads() can replace it (the
     // queue's close() is terminal). It is unbounded (capacity 0): submission never
     // blocks on fullness. Always engaged after construction.
-    std::optional<GBlockingMPMCQueueT<std::function<void()>, 0>> task_queue_;
+    std::optional<GBlockingMPMCQueueT<std::move_only_function<void()>, 0>> task_queue_;
 
     GThreadGroup worker_group_; ///< Holds the worker threads (std::jthread)
 

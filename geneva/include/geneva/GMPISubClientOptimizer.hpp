@@ -34,6 +34,7 @@
 #include "common/GGlobalDefines.hpp"
 
 // Standard header files go here
+#include <functional>
 #include <optional>
 
 // Boost header files go here
@@ -86,7 +87,7 @@ public:
          * @return A reference to this object, allowing call chaining
          */
     GMPISubClientOptimizer &
-    registerSubClientJob(std::function<int(MPI_Comm)> callback);
+    registerSubClientJob(std::move_only_function<int(MPI_Comm)> callback);
 
     /**
          * @brief Checks whether the current process is a sub-client.
@@ -151,13 +152,13 @@ private:
     /**
          * Callback function which is executed by sub-clients when clientRun() is called
          */
-    std::function<int(MPI_Comm)> subClientJob_{[]([[maybe_unused]] MPI_Comm comm) -> int {
+    std::move_only_function<int(MPI_Comm)> subClientJob_{[]([[maybe_unused]] MPI_Comm comm) -> int {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "GMPISubClientOptimizer::subClientJob_(MPI_Comm comm): Error!" << '\n'
             << "The sub-client job has not been set. Set it using the `GMPISubClientOptimizer "
-               "&GMPISubClientOptimizer::registerSubClientJob(std::function<int(MPI_Comm)> "
-               "&callback)` method."
+               "&GMPISubClientOptimizer::registerSubClientJob(std::move_only_function<int(MPI_Comm)> "
+               "callback)` method."
             << '\n'
         );
     }};

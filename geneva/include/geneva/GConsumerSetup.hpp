@@ -89,7 +89,7 @@ struct ConsumerSetup {
     std::shared_ptr<Gem::Courtier::GBaseConsumerT<gen::GOptimizableEntity>> consumer;
     /** @brief When this process must serve as a worker (an MPI worker rank), the loop to run; null
      *  otherwise. The caller invokes it instead of submitting. */
-    std::function<void()> run_worker;
+    std::move_only_function<void()> run_worker;
 };
 
 /******************************************************************************/

@@ -837,10 +837,10 @@ public:
     GWebsocketConsumerSessionT(
         boost::asio::io_context &io_context,
         boost::asio::ip::tcp::socket socket,
-        std::function<std::unique_ptr<processable_type>()> get_payload_item,
-        std::function<void(std::unique_ptr<processable_type>)> put_payload_item,
-        std::function<bool()> check_server_stopped,
-        std::function<void(bool)> server_sign_on,
+        std::move_only_function<std::unique_ptr<processable_type>()> get_payload_item,
+        std::move_only_function<void(std::unique_ptr<processable_type>)> put_payload_item,
+        std::move_only_function<bool()> check_server_stopped,
+        std::move_only_function<void(bool)> server_sign_on,
         Gem::Common::serializationMode serialization_mode,
         std::size_t ping_interval,
         bool verbose_control_frames,
@@ -1330,10 +1330,10 @@ private:
 
     boost::asio::steady_timer timer_;
 
-    std::function<std::unique_ptr<processable_type>()> get_payload_item_;
-    std::function<void(std::unique_ptr<processable_type>)> put_payload_item_;
-    std::function<bool()> check_server_stopped_;
-    std::function<void(bool)> server_sign_on_;
+    std::move_only_function<std::unique_ptr<processable_type>()> get_payload_item_;
+    std::move_only_function<void(std::unique_ptr<processable_type>)> put_payload_item_;
+    std::move_only_function<bool()> check_server_stopped_;
+    std::move_only_function<void(bool)> server_sign_on_;
 
     boost::beast::websocket::close_code close_code_ = boost::beast::websocket::close_code::
         normal; ///< Holds the close code when terminating the connection

@@ -218,7 +218,7 @@ protected:
         // correlation ids (a borrow). The owning copy stays in the consumer's batch; on abandon the
         // lease asks the consumer to requeue those ids.
         Gem::Common::Concurrency::GThreadSafeSetT<Gem::Courtier::CORRELATION_ID_TYPE> in_flight;
-        std::function<void(Gem::Courtier::CORRELATION_ID_TYPE)> on_abandon;
+        std::move_only_function<void(Gem::Courtier::CORRELATION_ID_TYPE)> on_abandon;
 
         CheckoutLease() = default;
         CheckoutLease(const CheckoutLease &) = delete;

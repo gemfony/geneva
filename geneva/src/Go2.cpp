@@ -1119,7 +1119,7 @@ void Go2::registerConsumer(
  * @param builder A closure returning the ready-to-use GPU consumer (as the courtier base pointer).
  */
 void Go2::registerGPUConsumerBuilder(
-    std::function<std::shared_ptr<Gem::Courtier::GBaseConsumerT<gen::GOptimizableEntity>>()> builder) {
+    std::move_only_function<std::shared_ptr<Gem::Courtier::GBaseConsumerT<gen::GOptimizableEntity>>()> builder) {
     gpu_consumer_builder_ = std::move(builder);
 }
 
@@ -1220,7 +1220,7 @@ void Go2::setupChosenConsumer(boost::program_options::variables_map const &vm) {
     if(consumer_name_ == "mpi" || not client_mode_) {
         auto setup = Gem::Geneva::buildConsumerSetup(consumer_spec_);
         consumer_       = setup.consumer;   // also registered as the process consumer (null on an MPI worker)
-        mpi_run_worker_ = setup.run_worker; // MPI worker rank: clientRun_ serves through it
+        mpi_run_worker_ = std::move(setup.run_worker); // MPI worker rank: clientRun_ serves through it
 
         // MPI fixes the client/server role by rank: a worker rank yields a run_worker loop (and a null
         // consumer). Reflect that in client_mode_ so the caller dispatches to clientRun_().

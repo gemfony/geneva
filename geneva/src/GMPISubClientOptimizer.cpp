@@ -190,7 +190,7 @@ void GMPISubClientOptimizer::addConfigurationOptions_(Gem::Common::GParserBuilde
  * @return A reference to this optimizer, to allow call chaining.
  */
 GMPISubClientOptimizer &
-GMPISubClientOptimizer::registerSubClientJob(std::function<int(MPI_Comm)> callback) {
+GMPISubClientOptimizer::registerSubClientJob(std::move_only_function<int(MPI_Comm)> callback) {
     subClientJob_ = std::move(callback);
 
     // return reference to self for chaining calls

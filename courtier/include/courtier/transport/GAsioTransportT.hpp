@@ -836,11 +836,11 @@ public:
     GAsioConsumerSessionT(
         boost::asio::io_context &io_context,
         boost::asio::ip::tcp::socket socket,
-        std::function<std::unique_ptr<processable_type>()> get_payload_item,
-        std::function<void(std::unique_ptr<processable_type>)> put_payload_item,
-        std::function<bool()> check_server_stopped,
+        std::move_only_function<std::unique_ptr<processable_type>()> get_payload_item,
+        std::move_only_function<void(std::unique_ptr<processable_type>)> put_payload_item,
+        std::move_only_function<bool()> check_server_stopped,
         Gem::Common::serializationMode serialization_mode,
-        std::function<void(bool)> sign_on,
+        std::move_only_function<void(bool)> sign_on,
         Gem::Courtier::GWireLayoutRegistry *wire_registry = nullptr
     )
       : socket_(std::move(socket))
@@ -1137,10 +1137,10 @@ private:
     boost::asio::steady_timer deadline_timer_;
     const std::chrono::seconds session_timeout_{300};
 
-    std::function<std::unique_ptr<processable_type>()> get_payload_item_;
-    std::function<void(std::unique_ptr<processable_type>)> put_payload_item_;
-    std::function<bool()> check_server_stopped_;
-    std::function<void(bool)> f_sign_on_; ///< Signs the session on (true) / off (false) with the consumer
+    std::move_only_function<std::unique_ptr<processable_type>()> get_payload_item_;
+    std::move_only_function<void(std::unique_ptr<processable_type>)> put_payload_item_;
+    std::move_only_function<bool()> check_server_stopped_;
+    std::move_only_function<void(bool)> f_sign_on_; ///< Signs the session on (true) / off (false) with the consumer
 
     Gem::Common::serializationMode serialization_mode_ = Gem::Common::serializationMode::BINARY;
 

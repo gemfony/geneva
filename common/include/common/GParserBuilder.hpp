@@ -637,7 +637,7 @@ public:
 	  *
 	  * @param call_back The function to be executed
 	  */
-    void registerCallBackFunction(std::function<void(parameter_type)> call_back) {
+    void registerCallBackFunction(std::move_only_function<void(parameter_type)> call_back) {
         if(not call_back) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
@@ -646,7 +646,7 @@ public:
             );
         }
 
-        call_back_func_ = call_back;
+        call_back_func_ = std::move(call_back);
     }
 
 private:
@@ -715,7 +715,7 @@ private:
 
     /***************************************************************************/
 
-    std::function<void(parameter_type)> call_back_func_; ///< Holds the call-back function
+    std::move_only_function<void(parameter_type)> call_back_func_; ///< Holds the call-back function
 };
 
 /******************************************************************************/
@@ -1071,7 +1071,7 @@ public:
 	  *
 	  * @param call_back The function to be executed
 	  */
-    void registerCallBackFunction(std::function<void(par_type0, par_type1)> call_back) {
+    void registerCallBackFunction(std::move_only_function<void(par_type0, par_type1)> call_back) {
         if(not call_back) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
@@ -1081,7 +1081,7 @@ public:
             );
         }
 
-        call_back_func_ = call_back;
+        call_back_func_ = std::move(call_back);
     }
 
 private:
@@ -1199,7 +1199,7 @@ private:
 
     /***************************************************************************/
 
-    std::function<void(par_type0, par_type1)> call_back_func_; ///< Holds the call-back function
+    std::move_only_function<void(par_type0, par_type1)> call_back_func_; ///< Holds the call-back function
 };
 
 /******************************************************************************/
@@ -1367,7 +1367,7 @@ public:
 	  *
 	  * @param call_back The function to be executed
 	  */
-    void registerCallBackFunction(std::function<void(std::vector<parameter_type>)> call_back) {
+    void registerCallBackFunction(std::move_only_function<void(std::vector<parameter_type>)> call_back) {
         if(not call_back) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
@@ -1377,7 +1377,7 @@ public:
             );
         }
 
-        call_back_func_ = call_back;
+        call_back_func_ = std::move(call_back);
     }
 
 private:
@@ -1468,7 +1468,7 @@ private:
 
     /***************************************************************************/
 
-    std::function<void(std::vector<parameter_type>)>
+    std::move_only_function<void(std::vector<parameter_type>)>
         call_back_func_; ///< Holds the call-back function
 };
 
@@ -1794,7 +1794,7 @@ public:
 	  *
 	  * @param call_back The function to be executed
 	  */
-    void registerCallBackFunction(std::function<void(std::array<parameter_type, N>)> call_back) {
+    void registerCallBackFunction(std::move_only_function<void(std::array<parameter_type, N>)> call_back) {
         if(not call_back) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
@@ -1803,7 +1803,7 @@ public:
             );
         }
 
-        call_back_func_ = call_back;
+        call_back_func_ = std::move(call_back);
     }
 
 private:
@@ -1893,7 +1893,7 @@ private:
 
     /***************************************************************************/
 
-    std::function<void(std::array<parameter_type, N>)>
+    std::move_only_function<void(std::array<parameter_type, N>)>
         call_back_func_; ///< Holds the call-back function
 };
 
@@ -2376,7 +2376,7 @@ public:
     GParsableI &registerFileParameter(
         std::string const &option_name,
         parameter_type def_val,
-        std::function<void(parameter_type)> call_back,
+        std::move_only_function<void(parameter_type)> call_back,
         bool is_essential = Gem::Common::VAR_IS_ESSENTIAL,
         std::string const &comment = std::string()
     ) {
@@ -2414,7 +2414,7 @@ public:
             );
         }
 
-        single_parm_ptr->registerCallBackFunction(call_back);
+        single_parm_ptr->registerCallBackFunction(std::move(call_back));
 
         // Add to the proxy store
         file_parameter_proxies_.push_back(single_parm_ptr);
@@ -2539,7 +2539,7 @@ public:
         std::string const &option_name2,
         par_type1 def_val1,
         par_type2 def_val2,
-        std::function<void(par_type1, par_type2)> call_back,
+        std::move_only_function<void(par_type1, par_type2)> call_back,
         std::string const &combined_label,
         bool is_essential = Gem::Common::VAR_IS_ESSENTIAL,
         std::string const &comment1 = std::string(),
@@ -2587,7 +2587,7 @@ public:
             );
         }
 
-        comb_parm_ptr->registerCallBackFunction(call_back);
+        comb_parm_ptr->registerCallBackFunction(std::move(call_back));
 
         // Add to the proxy store
         file_parameter_proxies_.push_back(comb_parm_ptr);
@@ -2650,7 +2650,7 @@ public:
     GParsableI &registerFileParameter(
         std::string const &option_name,
         std::vector<parameter_type> const &def_val,
-        std::function<void(std::vector<parameter_type>)> call_back,
+        std::move_only_function<void(std::vector<parameter_type>)> call_back,
         bool is_essential = Gem::Common::VAR_IS_ESSENTIAL,
         std::string const &comment = std::string()
     ) {
@@ -2689,7 +2689,7 @@ public:
             );
         }
 
-        vec_parm_ptr->registerCallBackFunction(call_back);
+        vec_parm_ptr->registerCallBackFunction(std::move(call_back));
 
         // Add to the proxy store
         file_parameter_proxies_.push_back(vec_parm_ptr);
@@ -2814,7 +2814,7 @@ public:
     GParsableI &registerFileParameter(
         std::string const &option_name,
         std::array<parameter_type, N> const &def_val,
-        std::function<void(std::array<parameter_type, N>)> call_back,
+        std::move_only_function<void(std::array<parameter_type, N>)> call_back,
         bool is_essential = Gem::Common::VAR_IS_ESSENTIAL,
         std::string const &comment = std::string()
     ) {
@@ -2854,7 +2854,7 @@ public:
         }
 
         // Register the call back function
-        array_parm_ptr->registerCallBackFunction(call_back);
+        array_parm_ptr->registerCallBackFunction(std::move(call_back));
 
         // Add to the proxy store
         file_parameter_proxies_.push_back(array_parm_ptr);

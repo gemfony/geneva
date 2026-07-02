@@ -271,8 +271,8 @@ public:
          */
     explicit GMPIConsumerWorkerNodeT(
         std::int32_t commRank,
-        std::function<bool()> halt,
-        std::function<void()> incrementProcessingCounter,
+        std::move_only_function<bool()> halt,
+        std::move_only_function<void()> incrementProcessingCounter,
         const MPIConsumerConfig &config
     )
       : commRank_{commRank}
@@ -718,11 +718,11 @@ private:
     /**
          * Callback function that returns true if the halt criterion has been reached
          */
-    std::function<bool()> halt_;
+    std::move_only_function<bool()> halt_;
     /**
          * Increments the counter for processed work items of the calling instance of GConsumerBaseT.
          */
-    std::function<void()> incrementProcessingCounter_;
+    std::move_only_function<void()> incrementProcessingCounter_;
     /**
          * reference to configuration specified by the end-user.
          */
@@ -791,8 +791,8 @@ public:
     GMPIConsumerSessionT(
         MPI_Status status,
         std::string requestMessage,
-        std::function<std::unique_ptr<processable_type>()> getPayloadItem,
-        std::function<void(std::unique_ptr<processable_type>)> putPayloadItem,
+        std::move_only_function<std::unique_ptr<processable_type>()> getPayloadItem,
+        std::move_only_function<void(std::unique_ptr<processable_type>)> putPayloadItem,
         Gem::Common::serializationMode serializationMode,
         bool stopRequested,
         Gem::Courtier::GWireLayoutRegistry *wireRegistry = nullptr
@@ -1092,11 +1092,11 @@ private:
     /**
          * function to retrieve a work item from the broker
          */
-    std::function<std::unique_ptr<processable_type>()> getPayloadItem_;
+    std::move_only_function<std::unique_ptr<processable_type>()> getPayloadItem_;
     /**
          * function to deliver a processed work item to the broker
          */
-    std::function<void(std::unique_ptr<processable_type>)> putPayloadItem_;
+    std::move_only_function<void(std::unique_ptr<processable_type>)> putPayloadItem_;
     /**
          * Command and payload received/processed (depends on current state of session)
          */
@@ -1488,8 +1488,8 @@ public:
          * @param putPayloadItemFn Sink callback receiving each processed work item
          */
     void setPayloadFunctors(
-        std::function<std::unique_ptr<processable_type>()> getPayloadItemFn,
-        std::function<void(std::unique_ptr<processable_type>)> putPayloadItemFn
+        std::move_only_function<std::unique_ptr<processable_type>()> getPayloadItemFn,
+        std::move_only_function<void(std::unique_ptr<processable_type>)> putPayloadItemFn
     ) {
         getPayloadItemFn_ = std::move(getPayloadItemFn);
         putPayloadItemFn_ = std::move(putPayloadItemFn);
@@ -1531,8 +1531,8 @@ private:
     std::atomic_bool isToldToStop_;
     // whether the stop request has been sent to all clients
     /// External source/sink injected by the courtier consumer via setPayloadFunctors().
-    std::function<std::unique_ptr<processable_type>()> getPayloadItemFn_;
-    std::function<void(std::unique_ptr<processable_type>)> putPayloadItemFn_;
+    std::move_only_function<std::unique_ptr<processable_type>()> getPayloadItemFn_;
+    std::move_only_function<void(std::unique_ptr<processable_type>)> putPayloadItemFn_;
 
     /// layout send-once registry shared by every session this master opens. MPI ranks are
     /// persistent, so each session keys its per-peer ack tracking on the requesting worker's rank
