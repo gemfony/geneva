@@ -72,13 +72,8 @@ GOptimizableEntity::GOptimizableEntity(GOptimizableEntity const &cp)
   , post_processing_disabled_(cp.post_processing_disabled_)
   , stored_results_cnt_(cp.stored_results_cnt_)
   , policy_(cp.policy_) // shared 1:N -- the clone references the same policy
-  , best_past_primary_fitness_(cp.best_past_primary_fitness_)
-  , n_stalls_(cp.n_stalls_)
   , assigned_iteration_(cp.assigned_iteration_)
   , validity_level_(cp.validity_level_)
-  , n_adaptions_(cp.n_adaptions_)
-  , max_unsuccessful_adaptions_(cp.max_unsuccessful_adaptions_)
-  , max_retries_until_valid_(cp.max_retries_until_valid_)
   // The OA-owned scratch is deep-copied (a clone mid-optimization keeps the live personality + adaption
   // state, e.g. an EA child inheriting its parent's sigma).
   , scratch_(cp.scratch_ ? std::make_unique<GAuxiliaryStore>(*cp.scratch_) : nullptr) {
@@ -651,21 +646,6 @@ void GOptimizableEntity::addConfigurationOptions_(Gem::Common::GParserBuilder &g
     ) << "When using a sigmoid function to transform the individual's fitness," << '\n'
       << "this parameter sets the upper/lower boundary of the sigmoid." << '\n'
       << "The parameter must have a value > 0.;";
-
-    gpb.registerFileParameter<std::size_t>(
-        "max_unsuccessful_adaptions",
-        DEFMAXUNSUCCESSFULADAPTIONS,
-        [this](const std::size_t mua) { this->setMaxUnsuccessfulAdaptions(mua); }
-    ) << "The maximum number of unsuccessful adaptions in a row for one call to adapt()";
-
-    gpb.registerFileParameter<std::size_t>(
-        "max_retries_until_valid",
-        DEFMAXRETRIESUNTILVALID,
-        [this](const std::size_t mruv) { this->setMaxRetriesUntilValid(mruv); }
-    ) << "The maximum allowed number of retries during the" << '\n'
-      << "adaption of individuals until a valid solution was found" << '\n'
-      << "A parameter set is considered to be \"valid\" if" << '\n'
-      << "it passes all validity checks;";
 
     gpb.registerFileParameter<maxMode>(
         "maxmode",

@@ -260,8 +260,8 @@ inline std::size_t adaptIndividual(
 ) {
     Gem::Hap::GRandomBase &gr = ind.getRandomEngine();
 
-    const std::size_t max_unsuccessful = ind.getMaxUnsuccessfulAdaptions();
-    const std::size_t max_retries = ind.getMaxRetriesUntilValid();
+    const std::size_t max_unsuccessful = cfg.getMaxUnsuccessfulAdaptions();
+    const std::size_t max_retries = cfg.getMaxRetriesUntilValid();
 
     std::size_t n_adaption_attempts = 0;
     std::size_t n_adaptions = 0;
@@ -287,7 +287,7 @@ inline std::size_t adaptIndividual(
     if(n_adaptions > 0) {
         ind.mark_as_due_for_processing();
     }
-    ind.setNAdaptions(n_adaptions);
+    scratch.setNAdaptions(n_adaptions);
     return n_adaptions;
 }
 

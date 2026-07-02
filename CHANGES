@@ -71,6 +71,20 @@ Recommended Versions:
   GFlatIndividualT<Derived> -> GFlatGenomeT<Derived> (derive that, or GFlatGenome
   directly). The per-individual debugging "random crash" facility was retired.
 
+- INDIVIDUAL FURTHER SLIMMED (serialization-affecting; part of the same
+  checkpoint-breaking individual-architecture window). Optimization-algorithm
+  state that was redundantly carried on every individual has been removed or
+  relocated so the genome stays pure data: the per-individual best-known-fitness
+  and stall counters (which the OA merely pushed down each generation and nothing
+  read back) are gone -- that bookkeeping lives solely on the optimization
+  algorithm; the adaption-retry limits (max_unsuccessful_adaptions,
+  max_retries_until_valid) moved onto the OA-owned adaption configuration
+  (GAdaptionConfig, set via its API); and the per-adaption count (n_adaptions)
+  moved into the OA-side scratch. Consequently the individual's config file no
+  longer accepts "max_unsuccessful_adaptions" / "max_retries_until_valid" (set
+  them on the adaption config instead). The self-adaptive stall response
+  (re-widening the mutation range on stagnation) is unchanged.
+
 - LATE-RETURN REUNION AND DE-DUPLICATION: every work item now carries a stable
   per-individual lineage id (GProcessable submission uuid), a 128-bit identity minted
   once at construction and preserved across every re-dispatch and serialized round-trip

@@ -702,6 +702,25 @@ public:
     const std::vector<std::string> &labels() const { return labels_; }
 
     /***************************************************************************/
+    // Adaption-retry policy (moved off the individual). Bounds adaptIndividual()'s retry loop.
+
+    /** @brief Sets the max consecutive unsuccessful adaptions per adaption (0 disables the check).
+     *  @param max_unsuccessful_adaptions The maximum number of consecutive unsuccessful adaptions */
+    void setMaxUnsuccessfulAdaptions(std::size_t max_unsuccessful_adaptions) {
+        max_unsuccessful_adaptions_ = max_unsuccessful_adaptions;
+    }
+    /** @brief @return The max consecutive unsuccessful adaptions per adaption */
+    std::size_t getMaxUnsuccessfulAdaptions() const { return max_unsuccessful_adaptions_; }
+
+    /** @brief Sets the max adaption retries until a valid solution is found (0 disables the check).
+     *  @param max_retries_until_valid The maximum number of retries */
+    void setMaxRetriesUntilValid(std::size_t max_retries_until_valid) {
+        max_retries_until_valid_ = max_retries_until_valid;
+    }
+    /** @brief @return The max adaption retries until a valid solution is found */
+    std::size_t getMaxRetriesUntilValid() const { return max_retries_until_valid_; }
+
+    /***************************************************************************/
     // Step-size-control strategy (used by GEvolutionaryAlgorithm; default reproduces the
     // classic σSA behaviour, so the stock EA is unaffected).
 
@@ -1054,6 +1073,15 @@ private:
     std::vector<GroupSpec<std::int32_t>> i_;
     std::vector<GroupSpec<bool>> b_;
     std::vector<std::string> labels_;
+
+    /***************************************************************************/
+    // Adaption-retry policy (moved off the individual: the retry loop is an OA-owned adaption concern,
+    // not per-individual data). Bounds the "guarantee a change, then a valid solution" loop in
+    // adaptIndividual(). Defaults reproduce the previous per-individual values.
+    std::size_t max_unsuccessful_adaptions_ =
+        Gem::Geneva::DEFMAXUNSUCCESSFULADAPTIONS; ///< Max consecutive unsuccessful adaptions per adaption (0 disables)
+    std::size_t max_retries_until_valid_ =
+        Gem::Geneva::DEFMAXRETRIESUNTILVALID; ///< Max adaption retries until a valid solution is found (0 disables)
 
     /***************************************************************************/
     // Step-size-control strategy + its tunables. The default reproduces the classic σSA behaviour, so

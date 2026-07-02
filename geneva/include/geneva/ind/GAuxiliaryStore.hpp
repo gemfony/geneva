@@ -164,7 +164,8 @@ public:
      * @param cp A constant reference to another GAuxiliaryStore object to be copied
      */
     GAuxiliaryStore(const GAuxiliaryStore &cp)
-      : pods_(cp.pods_) {
+      : pods_(cp.pods_)
+      , n_adaptions_(cp.n_adaptions_) {
         Gem::Common::copyCloneableSmartPointer(cp.personality_, personality_);
     }
 
@@ -184,6 +185,7 @@ public:
         if(this != &cp) {
             Gem::Common::copyCloneableSmartPointer(cp.personality_, personality_);
             pods_ = cp.pods_;
+            n_adaptions_ = cp.n_adaptions_;
         }
         return *this;
     }
@@ -323,6 +325,16 @@ public:
         pods_.clear();
     }
 
+    /***************************************************************************/
+    // Diagnostic adaption counter (OA-side scratch; a transient per-individual count of how many values
+    // the last adaption changed -- read by the adaption monitor). Lives here rather than on the genome so
+    // the individual stays pure data; nulled on the wire with the rest of the scratch.
+
+    /** @brief @return The number of adaptions performed during the individual's last adaption */
+    std::size_t getNAdaptions() const { return n_adaptions_; }
+    /** @brief Records the number of adaptions performed during the last adaption. @param n The count */
+    void setNAdaptions(std::size_t n) { n_adaptions_ = n; }
+
 private:
     /***************************************************************************/
     // Full-state serialization (personality OBJECT + the opaque POD blocks). Used ONLY for
@@ -343,6 +355,7 @@ private:
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         ar &boost::serialization::make_nvp("personality_", personality_);
         ar &boost::serialization::make_nvp("pods_", pods_);
+        ar &boost::serialization::make_nvp("n_adaptions_", n_adaptions_);
     }
 
     /***************************************************************************/
@@ -416,6 +429,9 @@ private:
 
     /** @brief Opaque per-group/per-individual OA metadata blocks (adaptor state, …), keyed; transient scratch */
     std::map<AuxKey, AuxBlock> pods_;
+
+    /** @brief Number of adaptions performed during the individual's last adaption (diagnostic) */
+    std::size_t n_adaptions_ = 0;
 };
 
 /******************************************************************************/

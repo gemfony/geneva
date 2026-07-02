@@ -443,10 +443,7 @@ TEST_CASE(
 
     auto make_original = []() {
         gind::GTestIndividual1 ind;
-        ind.setMaxUnsuccessfulAdaptions(17);
-        ind.setMaxRetriesUntilValid(5);
-        ind.setNStalls(3);
-        ind.setBestKnownPrimaryFitness(std::make_tuple(1.25, 2.5));
+        ind.setAssignedIteration(7);
         ind.setMaxMode(maxMode::MAXIMIZE);
         return ind;
     };
@@ -458,10 +455,7 @@ TEST_CASE(
 
         REQUIRE_NOTHROW(restored.load(original));
 
-        CHECK(restored.getMaxUnsuccessfulAdaptions() == 17);
-        CHECK(restored.getMaxRetriesUntilValid() == 5);
-        CHECK(restored.getNStalls() == 3);
-        CHECK(restored.getBestKnownPrimaryFitness() == std::make_tuple(1.25, 2.5));
+        CHECK(restored.getAssignedIteration() == 7);
         CHECK(restored.getMaxMode() == maxMode::MAXIMIZE);
 
         GEqualityPrinter gep(
@@ -482,10 +476,7 @@ TEST_CASE(
             restored.fromString(original.toString(mode), mode)
         );
 
-        CHECK(restored.getMaxUnsuccessfulAdaptions() == 17);
-        CHECK(restored.getMaxRetriesUntilValid() == 5);
-        CHECK(restored.getNStalls() == 3);
-        CHECK(restored.getBestKnownPrimaryFitness() == std::make_tuple(1.25, 2.5));
+        CHECK(restored.getAssignedIteration() == 7);
         CHECK(restored.getMaxMode() == maxMode::MAXIMIZE);
 
         GEqualityPrinter gep(

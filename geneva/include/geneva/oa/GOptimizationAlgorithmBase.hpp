@@ -771,9 +771,6 @@ protected:
     /** @brief Lets individuals know about the current iteration of the optimization cycle. */
     void markIteration();
 
-    /** @brief Let individuals know the number of stalls encountered so far */
-    void markNStalls();
-
     /**
      * @brief Whether this optimization run was just resumed from a checkpoint. Set by loadCheckpoint()
      * (after the population -- with its OA-owned scratch -- has been deserialised) and cleared once the
@@ -970,8 +967,6 @@ private:
      * @return true if a quality-threshold halt criterion is active, false otherwise
      */
     bool qualityThresholdHaltSet() const;
-    /** @brief Marks the globally best known fitness in all individuals */
-    void markBestFitness();
 
     /**
      * @brief Indicates whether the stall_counter_threshold_ has been exceeded.

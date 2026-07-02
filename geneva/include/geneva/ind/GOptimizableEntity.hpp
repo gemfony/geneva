@@ -57,7 +57,7 @@
 #include "common/GLogger.hpp"
 #include "common/GSerializableFunctionObjectT.hpp"
 #include "common/GSerializationHelperFunctionsT.hpp" // serialization of std::chrono time_point (GProcessable timing)
-#include "common/GSerializeTupleT.hpp"               // serialization of std::tuple (best_past_primary_fitness_)
+#include "common/GSerializeTupleT.hpp"               // Boost serialization of std::tuple (result / fitness tuples across the geneva graph)
 #include "courtier/GProcessable.hpp" // the non-generic processing-lifecycle base
 #include "courtier/GWireSerializationContext.hpp" // the wire scope: scratch is skipped on transport
 #include "geneva/GMultiConstraintT.hpp" // GPreEvaluationValidityCheckT (registered on the shared policy)
@@ -127,13 +127,8 @@ class GOptimizableEntity // NOLINT(cppcoreguidelines-special-member-functions)
         return std::make_tuple(
             Gem::Common::make_member("pre_processing_disabled_", self.pre_processing_disabled_),
             Gem::Common::make_member("post_processing_disabled_", self.post_processing_disabled_),
-            Gem::Common::make_member("best_past_primary_fitness_", self.best_past_primary_fitness_),
-            Gem::Common::make_member("n_stalls_", self.n_stalls_),
             Gem::Common::make_member("assigned_iteration_", self.assigned_iteration_),
-            Gem::Common::make_member("validity_level_", self.validity_level_),
-            Gem::Common::make_member("n_adaptions_", self.n_adaptions_),
-            Gem::Common::make_member("max_unsuccessful_adaptions_", self.max_unsuccessful_adaptions_),
-            Gem::Common::make_member("max_retries_until_valid_", self.max_retries_until_valid_)
+            Gem::Common::make_member("validity_level_", self.validity_level_)
         );
     }
 
@@ -375,14 +370,9 @@ public:
     bool isInValid() const { return not this->isValid(); }
 
     /***************************************************************************/
-    // Best-known fitness / stall / iteration bookkeeping (per individual; moved to the OA in a later step).
-
-    /** @brief Sets the globally best known primary fitness. @param bnf The (raw, transformed) tuple */
-    void setBestKnownPrimaryFitness(std::tuple<double, double> const &bnf) {
-        best_past_primary_fitness_ = bnf;
-    }
-    /** @brief @return The globally best known primary fitness, as a (raw, transformed) tuple */
-    std::tuple<double, double> getBestKnownPrimaryFitness() const { return best_past_primary_fitness_; }
+    // Iteration bookkeeping (per individual). The stall count and best-known fitness are OA state and
+    // live on GOptimizationAlgorithmBase; the adaption-retry limits are OA adaption policy and live on
+    // the OA-owned GAdaptionConfig -- neither is carried on the individual any more.
 
     /** @brief Sets the parent algorithm's iteration. @param parent_alg_iteration The iteration */
     void setAssignedIteration(std::uint32_t const &parent_alg_iteration) {
@@ -391,34 +381,9 @@ public:
     /** @brief @return The parent algorithm's current iteration */
     std::uint32_t getAssignedIteration() const { return assigned_iteration_; }
 
-    /** @brief Sets the number of stalled optimization cycles. @param n_stalls The stall count */
-    void setNStalls(std::uint32_t const &n_stalls) { n_stalls_ = n_stalls; }
-    /** @brief @return The number of stalled optimization cycles */
-    std::uint32_t getNStalls() const { return n_stalls_; }
-
-    /***************************************************************************/
-    // Adaption-control knobs (per individual; the OA-owned adaption free functions read them).
-
-    /** @brief Sets the maximum number of consecutive unsuccessful adaptions (0 disables the check).
-     *  @param max_unsuccessful_adaptions The maximum number of consecutive unsuccessful adaptions */
-    void setMaxUnsuccessfulAdaptions(std::size_t max_unsuccessful_adaptions) {
-        max_unsuccessful_adaptions_ = max_unsuccessful_adaptions;
-    }
-    /** @brief @return The maximum number of consecutive unsuccessful adaptions */
-    std::size_t getMaxUnsuccessfulAdaptions() const { return max_unsuccessful_adaptions_; }
-
-    /** @brief Sets the maximum number of adaption retries until a valid solution is found (0 disables).
-     *  @param max_retries_until_valid The maximum number of retries */
-    void setMaxRetriesUntilValid(std::size_t max_retries_until_valid) {
-        max_retries_until_valid_ = max_retries_until_valid;
-    }
-    /** @brief @return The maximum number of adaption retries until a valid solution is found */
-    std::size_t getMaxRetriesUntilValid() const { return max_retries_until_valid_; }
-
-    /** @brief @return The number of adaptions performed during the last adaption */
-    std::size_t getNAdaptions() const { return n_adaptions_; }
-    /** @brief Records the number of adaptions performed. @param n The number of adaptions */
-    void setNAdaptions(std::size_t n) { n_adaptions_ = n; }
+    /** @brief @return The number of adaptions performed during the last adaption (read from the OA
+     *  scratch, where the adaption machinery records it; 0 if no scratch is attached) */
+    std::size_t getNAdaptions() const { return scratch_ ? scratch_->getNAdaptions() : 0; }
 
     /**
      * @brief Public, non-folding access to this candidate's per-individual RNG stream (the OA-owned
@@ -1049,16 +1014,8 @@ private:
     /** @brief The shared, problem-uniform feasibility / ranking policy (referenced 1:N) */
     std::shared_ptr<GProblemPolicy> policy_ = std::make_shared<GProblemPolicy>();
 
-    std::tuple<double, double> best_past_primary_fitness_{std::make_tuple(0., 0.)}; ///< Globally best known primary fitness
-    std::uint32_t n_stalls_ = 0;        ///< Number of stalls of the primary fitness criterion
     std::uint32_t assigned_iteration_ = 0; ///< The parent algorithm's optimization-cycle iteration
     double validity_level_ = 0.;        ///< How valid the current solution is (<= 1 == feasible)
-
-    std::size_t n_adaptions_ = 0; ///< Number of adaptions performed during the last adaption
-    std::size_t max_unsuccessful_adaptions_ =
-        Gem::Geneva::DEFMAXUNSUCCESSFULADAPTIONS; ///< Max consecutive unsuccessful adaptions per adapt()
-    std::size_t max_retries_until_valid_ =
-        Gem::Geneva::DEFMAXRETRIESUNTILVALID; ///< Max adaption retries until a valid solution is found
 
     /** @brief The OA-owned scratch (personality object + per-group adaption POD blocks). Always allocated
      *  (so the accessors never null-check); deep-copied on clone/load; serialized only on a checkpoint

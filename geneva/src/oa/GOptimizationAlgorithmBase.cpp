@@ -680,12 +680,6 @@ GOptimizationAlgorithmBase const *GOptimizationAlgorithmBase::optimize_(std::uin
         // Check whether a better value was found, and do the check-pointing, if necessary and requested.
         checkpoint(progress());
 
-        // Let all individuals know about the best fitness known so far
-        markBestFitness();
-
-        // Let individuals know about the stalls encountered so far
-        markNStalls();
-
         // Give derived classes an opportunity to act on stalls. NOTE that no action
         // may be taken that affects the "dirty" state of individuals
         if(stall_counter_threshold_ && stallCounterThresholdExceeded()) {
@@ -2036,16 +2030,6 @@ void GOptimizationAlgorithmBase::markIteration() {
 
 /******************************************************************************/
 /**
- * @brief Let individuals know the number of stalls encountered so far
- */
-void GOptimizationAlgorithmBase::markNStalls() {
-    for(auto const &ind_ptr : *this) {
-        ind_ptr->setNStalls(stall_counter_);
-    }
-}
-
-/******************************************************************************/
-/**
  * @brief Update the stall counter. We use the transformed fitness for comparison
  * here, so we can usually deal with finite values (due to the transformation
  * in the case of a constraint violation).
@@ -2397,16 +2381,6 @@ bool GOptimizationAlgorithmBase::maxDurationHaltSet() const {
  */
 bool GOptimizationAlgorithmBase::qualityThresholdHaltSet() const {
     return has_quality_threshold_;
-}
-
-/******************************************************************************/
-/**
- * @brief Marks the globally best known fitness in all individuals
- */
-void GOptimizationAlgorithmBase::markBestFitness() {
-    for(auto const &ind_ptr : *this) {
-        ind_ptr->setBestKnownPrimaryFitness(this->getBestKnownPrimaryFitness());
-    }
 }
 
 /******************************************************************************/

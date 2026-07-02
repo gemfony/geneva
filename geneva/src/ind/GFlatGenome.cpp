@@ -594,7 +594,11 @@ bool GFlatGenome::modify_GUnitTests_() {
         result = true;
     }
 
-    this->setNStalls(this->getNStalls() + 1);
+    // Guarantee an observable change to a compared member even for individuals with no randomisable
+    // parameters (e.g. GDelayIndividual), so the clone-independence / serialize-round-trip tests remain
+    // meaningful. This bumps assigned_iteration_ (a compared base member) -- the data-oriented successor
+    // of the old n_stalls_ bump, which was retired when stall bookkeeping moved wholly onto the OA.
+    this->setAssignedIteration(this->getAssignedIteration() + 1);
     result = true;
 
     return result;
