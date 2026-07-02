@@ -336,6 +336,11 @@ protected:
      */
     void load_(const GOptimizationAlgorithmBase *cp) override;
 
+    /** @brief The swarm reuses late returns: a particle that returns asynchronously is re-attached to its
+     *  neighborhood and folded into the next iteration (no age window -- the base default keeps all ages).
+     *  @return true (the swarm algorithm reaps late returns) */
+    bool reapsLateReturns() const override { return true; }
+
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GSwarmAlgorithm>(
         GSwarmAlgorithm const &,

@@ -35,8 +35,10 @@
 // Standard header files go here
 #include <chrono>
 #include <concepts>
+#include <cstdint>
 #include <ctime>
 #include <iostream>
+#include <limits>
 #include <set>
 #include <tuple>
 #include <type_traits>
@@ -704,11 +706,35 @@ protected:
      *    represented in the live population (a re-dispatched individual whose fresh copy already
      *    returned) or duplicated within this drained batch (a reclaimed lease re-dispatched one
      *    individual to two clients, both returning late) is dropped, so a lineage is never counted twice.
-     * Algorithm-specific reaping policy (age windowing, personality re-stamping, neighborhood handling)
-     * stays in the calling algorithm.
-     * @return The integrable (clean, de-duplicated) late returns the consumer buffered
+     * On top of those two universal filters, an OPTIONAL per-algorithm age window is applied here via
+     * the virtual lateReturnMaxAge() (default: no window). The remaining reaping policy (personality
+     * re-stamping, neighborhood handling) stays in the calling algorithm.
+     * @return The integrable (clean, de-duplicated, in-age-window) late returns the consumer buffered
      */
     std::vector<std::unique_ptr<gen::GOptimizableEntity>> getOldWorkItems() const;
+
+    /**
+     * @brief Whether this algorithm reuses late returns -- results that arrived after their submission
+     *  batch had already been reconciled in place. Default: FALSE, in which case the networked consumer's
+     *  late-return buffer is left DISABLED (nothing is retained on this algorithm's behalf, see
+     *  consumerForSubmission_). Population-based algorithms whose selection can absorb an extra candidate
+     *  (EA/SA via GParChild, and the swarm algorithm) override this to true. Algorithms whose population
+     *  is bound to the current iteration -- gradient descent's finite-difference stencil -- or walked as
+     *  an ordered grid (parameter scan) leave it false, so they neither buffer nor reap.
+     * @return true if the algorithm reaps and integrates late returns; false to disable late-return buffering
+     */
+    virtual bool reapsLateReturns() const { return false; }
+
+    /**
+     * @brief The maximum age (in optimization iterations since submission) of a late return this
+     *  algorithm will integrate, applied by getOldWorkItems() ON TOP of the consumer-side TTL. Default:
+     *  std::numeric_limits<std::uint32_t>::max(), i.e. NO age window -- integrate any clean, de-duplicated
+     *  late return the consumer still holds. GParChild (EA/SA) overrides this to 1: a child evaluated in
+     *  iteration N typically returns during N+1, so a one-generation window admits exactly those late
+     *  returns and drops staler ones. Only consulted for reaping algorithms (reapsLateReturns() == true).
+     * @return The maximum admissible late-return age in iterations (max() disables the age window)
+     */
+    virtual std::uint32_t lateReturnMaxAge() const { return std::numeric_limits<std::uint32_t>::max(); }
 
     /**
      * @brief Returns a fresh personality-traits object for this algorithm. Protected, non-virtual

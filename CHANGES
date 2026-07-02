@@ -108,8 +108,14 @@ Recommended Versions:
   selection -- and only if its lineage is not already represented in the live population
   or within the drained batch, so a re-dispatched individual or a lease-reclaimed
   duplicate that returns late cannot be counted twice. Because the gate is in the shared
-  base, every algorithm (EA, SA, swarm, ...) benefits uniformly; algorithm-specific
-  reaping policy (the EA/SA age window, personality re-stamping) stays in the algorithm.
+  base, every algorithm (EA, SA, swarm, ...) benefits uniformly. Whether an algorithm
+  reuses late returns at all is now an explicit per-algorithm policy: a virtual
+  reapsLateReturns() (default false) says whether the algorithm reaps -- EA/SA and the
+  swarm override it to true, while gradient descent, parameter scan and the other
+  non-population algorithms leave it false, so their networked consumer no longer buffers
+  late returns nobody drains. The optional age window is likewise a virtual
+  lateReturnMaxAge() (default: no window), which EA/SA set to one generation; personality
+  re-stamping and neighborhood handling stay in the algorithm.
   The networked late-return buffer is now configurable per algorithm: late_return_ttl
   (dispatch-round time-to-live, default 2) and late_return_cap_factor (buffer capacity as
   a multiple of the population size, default 2.0; 0 disables buffering), exposed both in

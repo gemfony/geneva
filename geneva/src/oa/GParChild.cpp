@@ -627,16 +627,10 @@ void GParChild::fixAfterJobSubmission() {
     // with a wire-stripped scratch and a stale personality, so we re-stamp a fresh concrete personality
     // below and let the subsequent selection keep each return only if it is competitive -- which makes
     // this MO-safe without any bespoke "fitness >" comparison.
+    // getOldWorkItems() has also already applied this algorithm's one-generation age window (via the
+    // lateReturnMaxAge() override) -- a child evaluated in iteration N typically returns during N+1, so
+    // returns staler than one generation are dropped there. Only the current re-stamp remains here.
     auto old_work_items = this->getOldWorkItems();
-
-    // Algorithm-specific age window (on top of the consumer-side TTL): admit late returns from the
-    // current OR the immediately-preceding iteration. A child evaluated in iteration N typically returns
-    // during N+1, so a strict "== current iteration" test would discard exactly the late returns we want
-    // to reap. Items staler than one generation are dropped. iteration >= getAssignedIteration() always
-    // (no items from the future), so the subtraction cannot underflow.
-    std::erase_if(old_work_items, [iteration](const auto &x) -> bool {
-        return (iteration - x->getAssignedIteration()) > 1;
-    });
 
     // Make it known to remaining old individuals that they are now part of a new iteration
     std::for_each(

@@ -34,6 +34,7 @@
 
 // Standard headers go here
 #include <concepts>
+#include <cstdint>
 #include <memory>
 #include <tuple>
 #include <type_traits>
@@ -280,6 +281,16 @@ protected:
      *  parents/children. Shared by all mu/lambda algorithms (EA, SA); the per-algorithm selection
      *  scheme runs afterwards in selectBest_(). */
     void fixAfterJobSubmission();
+
+    /** @brief EA/SA reuse late returns: an asynchronously-returned child is admitted as an extra
+     *  candidate and kept only if the subsequent selection finds it competitive.
+     *  @return true (mu/lambda algorithms reap late returns) */
+    bool reapsLateReturns() const override { return true; }
+    /** @brief EA/SA admit a late return only from the current or immediately-preceding iteration: a child
+     *  evaluated in iteration N typically returns during N+1, so a one-generation window catches exactly
+     *  those late returns and drops staler ones.
+     *  @return 1 (a one-generation age window) */
+    std::uint32_t lateReturnMaxAge() const override { return 1; }
 
     /** @brief Increases the population size if requested by the user */
     void performScheduledPopulationGrowth();

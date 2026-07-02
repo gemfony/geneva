@@ -54,6 +54,7 @@
 #include <filesystem>
 #include <iomanip>
 #include <iostream>
+#include <limits>
 #include <memory>
 #include <span>
 #include <tuple>
@@ -1683,11 +1684,17 @@ GOptimizationAlgorithmBase::consumerForSubmission_() {
             });
             return c;
         });
-    // Enable the late-return buffer. The cap scales with the live population (cap_factor x size) so it
-    // is independent of how a generation is chunked into submission batches; cap_factor 0 disables
-    // buffering. TTL and cap_factor are configurable (see set/getLateReturnTTL / set/getLateReturnCapFactor).
-    // Idempotent: re-setting the knobs each submission is harmless.
-    const auto cap = static_cast<std::size_t>(late_return_cap_factor_ * static_cast<double>(this->size()));
+    // Enable the late-return buffer -- but ONLY for algorithms that actually reap late returns
+    // (reapsLateReturns()); a non-reaping algorithm (gradient descent, parameter scan, ...) passes cap 0
+    // so nothing is retained on its behalf. For a reaper the cap scales with the live population
+    // (cap_factor x size) so it is independent of how a generation is chunked into submission batches;
+    // cap_factor 0 also disables buffering. TTL and cap_factor are configurable (see
+    // set/getLateReturnTTL / set/getLateReturnCapFactor). Idempotent: re-setting the knobs each
+    // submission is harmless.
+    const std::size_t cap =
+        this->reapsLateReturns()
+            ? static_cast<std::size_t>(late_return_cap_factor_ * static_cast<double>(this->size()))
+            : 0;
     consumer->enableLateReturns(cap, late_return_ttl_);
     return consumer;
 }
@@ -1719,6 +1726,19 @@ std::vector<std::unique_ptr<gen::GOptimizableEntity>> GOptimizationAlgorithmBase
         seen.insert(p->getSubmissionUuid());
     }
     retainIntegrableLateReturns(items, seen);
+
+    // OPTIONAL per-algorithm age window (on top of the consumer-side TTL): drop late returns older than
+    // lateReturnMaxAge() iterations. The default (max()) means "no window" -- the common case, skipped
+    // entirely. GParChild (EA/SA) returns 1 here: a child evaluated in iteration N typically returns
+    // during N+1, so a one-generation window admits exactly those and discards staler returns. iteration
+    // >= getAssignedIteration() always holds (no item from the future), so the subtraction cannot underflow.
+    const std::uint32_t max_age = this->lateReturnMaxAge();
+    if(max_age != std::numeric_limits<std::uint32_t>::max()) {
+        const std::uint32_t iteration = this->getIteration();
+        std::erase_if(items, [iteration, max_age](const auto &x) -> bool {
+            return (iteration - x->getAssignedIteration()) > max_age;
+        });
+    }
     return items;
 }
 
