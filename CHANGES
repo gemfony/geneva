@@ -85,6 +85,17 @@ Recommended Versions:
   them on the adaption config instead). The self-adaptive stall response
   (re-widening the mutation range on stagnation) is unchanged.
 
+- NEW: a pluggable evaluation FAULT INJECTOR replaces the retired per-individual
+  "random crash" facility. A single GFaultInjector is registered process-wide
+  (directly via GFaultInjectorRegistry, or through Go2::registerFaultInjector,
+  like a pluggable monitor) and consulted inside each individual's process(): it
+  can request a THROW (surfaces as EXCEPTION_CAUGHT) or a FLAG_ERROR (surfaces as
+  ERROR_FLAGGED) -- deterministically or by drawing from the individual's RNG --
+  to exercise the broker's and optimization algorithms' error-handling / recovery
+  paths. It carries no per-individual state and no courtier dependency; with none
+  registered (the default) the consultation is a single null-pointer check, so
+  production runs are unaffected.
+
 - LATE-RETURN REUNION AND DE-DUPLICATION: every work item now carries a stable
   per-individual lineage id (GProcessable submission uuid), a 128-bit identity minted
   once at construction and preserved across every re-dispatch and serialized round-trip

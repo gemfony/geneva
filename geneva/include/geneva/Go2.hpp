@@ -51,6 +51,7 @@
 #include "courtier/GConsumerRegistry.hpp"
 #include "geneva/GConsumerSetup.hpp"
 #include "geneva/GOptimizationEnums.hpp"
+#include "geneva/GFaultInjector.hpp"
 #include "geneva/GSigHupHandler.hpp"
 #include "geneva/ind/GOptimizableEntity.hpp"
 #include "geneva/Interface/GOptimizerIT.hpp"
@@ -256,6 +257,21 @@ public:
     void registerPluggableOM(const std::shared_ptr<oa::GBasePluggableOM> &pluggable_om);
     /** @brief Allows to reset the local pluggable optimization monitors */
     void resetPluggableOM();
+
+    /**
+     * @brief Registers a process-global evaluation fault injector (for testing broker / algorithm
+     * error-handling and recovery paths). Registered like a pluggable monitor; pass nullptr to clear.
+     * Carries no per-individual state and is a no-op on production runs where none is registered.
+     * @param injector The fault injector to consult during each individual's process() (nullptr clears)
+     */
+    void registerFaultInjector(std::shared_ptr<GFaultInjector> injector) {
+        if(injector) {
+            GFaultInjectorRegistry::set(std::move(injector));
+        }
+        else {
+            GFaultInjectorRegistry::clear();
+        }
+    }
     /**
      * @brief Allows to check whether pluggable optimization monitors were registered.
      * @return True if at least one pluggable optimization monitor is registered

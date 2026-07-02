@@ -49,6 +49,7 @@ SET ( ${EXECUTABLENAME}_SRCS
 	GProgressPlotterTests.cpp
 	GMultiConstraintTests.cpp
 	GLateReturnIntegrationTests.cpp
+	GFaultInjectorTests.cpp
 )
 
 ADD_EXECUTABLE(${EXECUTABLENAME}

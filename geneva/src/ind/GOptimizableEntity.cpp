@@ -29,6 +29,8 @@
 
 #include "geneva/ind/GOptimizableEntity.hpp"
 
+#include "geneva/GFaultInjector.hpp" // the pluggable, process-global evaluation fault injector
+
 #include <chrono>
 #include <cmath>
 #include <limits>
@@ -176,7 +178,23 @@ GOptimizableEntity::process(const std::vector<individual_processing_result> &res
 
     std::ostringstream error_description_stream; // NOLINT(cppcoreguidelines-init-variables)
 
+    // Consult the process-global fault injector once (no-op unless a GFaultInjector is registered -- a
+    // single null-pointer check on the default path). A THROW fault is raised inside the try below so it
+    // surfaces as EXCEPTION_CAUGHT; a FLAG_ERROR fault is applied AFTER the try/catch (the catch would
+    // otherwise force EXCEPTION_CAUGHT, and the try's terminal PROCESSED assignment would clobber it).
+    GFaultInjector::Fault injected_fault = GFaultInjector::Fault::NONE;
+    if(GFaultInjector *injector = GFaultInjectorRegistry::get(); injector != nullptr) {
+        injected_fault = injector->evaluate(*this, this->getRandomEngine());
+    }
+
     try {
+        if(injected_fault == GFaultInjector::Fault::THROW) {
+            throw geneva_exception(
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+                << "Fault injected during GOptimizableEntity::process() (THROW)" << '\n'
+            );
+        }
+
         const auto start_time = std::chrono::high_resolution_clock::now();
         this->preProcess_();
         const auto after_pre_processing = std::chrono::high_resolution_clock::now();
@@ -214,6 +232,12 @@ GOptimizableEntity::process(const std::vector<individual_processing_result> &res
         processing_status_ = processingStatus::EXCEPTION_CAUGHT;
         error_description_stream << "In GOptimizableEntity::process():" << '\n'
                                  << "Processing has thrown an unknown exception." << '\n';
+    }
+
+    // Apply an injected FLAG_ERROR fault now, after the try/catch, so it surfaces as ERROR_FLAGGED
+    // (rather than being overridden by the catch's EXCEPTION_CAUGHT or the try's terminal PROCESSED).
+    if(injected_fault == GFaultInjector::Fault::FLAG_ERROR && not this->has_errors()) {
+        this->force_set_error("Fault injected during GOptimizableEntity::process() (FLAG_ERROR)\n");
     }
 
     if(this->has_errors()) { // Either an exception was caught or the user flagged an error

@@ -31,6 +31,7 @@ SET ( OPTIMIZATIONSOURCES
 	Interface/GRateableI.cpp
 	GenevaHelperFunctions.cpp
 	GConsumerSetup.cpp
+	GFaultInjector.cpp
 	GenevaInitializer.cpp
 	GIndividualMultiConstraint.cpp
 	GOptimizableEntityCommandContainerExport.cpp
