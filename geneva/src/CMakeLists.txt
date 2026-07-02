@@ -203,25 +203,22 @@ SET_TARGET_PROPERTIES(
     ${GENEVA_LIBNAME}
     PROPERTIES
     VERSION ${GENEVA_VERSION}
-	CXX_STANDARD 20
-	CXX_STANDARD_REQUIRED ON
-	CXX_EXTENSIONS OFF
 	EXPORT_NAME geneva
 )
 
 
 
-# Export the include directory and require C++20 transitively.
+# Export the include directory. The C++ standard is selected centrally in
+# CMakeModules/CommonGenevaBuild.cmake.
 TARGET_INCLUDE_DIRECTORIES(
 	${GENEVA_LIBNAME}
 	PUBLIC
 	$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/geneva/include>
 	$<INSTALL_INTERFACE:include>
 )
-TARGET_COMPILE_FEATURES(${GENEVA_LIBNAME} PUBLIC cxx_std_20)
 
 # Inter-library dependency: geneva builds on courtier (and transitively on hap
-# and common). PUBLIC so the full include/Boost/C++20 interface propagates to
+# and common). PUBLIC so the full include/Boost interface propagates to
 # downstream consumers that link Geneva::geneva.
 TARGET_LINK_LIBRARIES(${GENEVA_LIBNAME} PUBLIC ${COURTIER_LIBNAME})
 

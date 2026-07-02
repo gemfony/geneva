@@ -99,6 +99,16 @@ IF(NOT COMMON_GENEVA_BUILD_INCLUDED)
 	SET(CMAKE_CXX_STANDARD_REQUIRED ON)
 	set(CMAKE_CXX_EXTENSIONS OFF)
 
+	# The CUDA device dialect is set centrally here too, and DELIBERATELY trails the host C++ standard:
+	# nvcc (CUDA 13.3) does not implement a C++23 device dialect yet, and Geneva's device code (.cu) is
+	# intentionally kept at C++20. Setting it centrally keeps every CUDA target off the inherited C++23
+	# (which nvcc would reject) without any per-target restatement. Only relevant when CUDA is enabled;
+	# harmless as an unused variable otherwise. Raise this in lockstep once nvcc gains C++23 device support.
+	IF( NOT DEFINED CMAKE_CUDA_STANDARD )
+		SET( CMAKE_CUDA_STANDARD "20" )
+	ENDIF()
+	SET(CMAKE_CUDA_STANDARD_REQUIRED ON)
+
 	################################################################################
 	# Set the compiler and linker flags
 

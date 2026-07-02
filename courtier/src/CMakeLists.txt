@@ -55,7 +55,6 @@ set_source_files_properties(
         ${COMMUNICATIONSOURCES}
         PROPERTIES
         LANGUAGE CXX
-        CXX_STANDARD 20
 )
 
 ADD_LIBRARY(${COURTIER_LIBNAME} SHARED ${COMMUNICATIONSOURCES})
@@ -64,20 +63,17 @@ SET_TARGET_PROPERTIES(
         ${COURTIER_LIBNAME}
         PROPERTIES
         VERSION ${GENEVA_VERSION}
-        CXX_STANDARD 20
-        CXX_STANDARD_REQUIRED ON
-        CXX_EXTENSIONS OFF
         EXPORT_NAME courtier
 )
 
-# Export the include directory and require C++20 transitively.
+# Export the include directory. The C++ standard is selected centrally in
+# CMakeModules/CommonGenevaBuild.cmake.
 TARGET_INCLUDE_DIRECTORIES(
         ${COURTIER_LIBNAME}
         PUBLIC
         $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/courtier/include>
         $<INSTALL_INTERFACE:include>
 )
-TARGET_COMPILE_FEATURES(${COURTIER_LIBNAME} PUBLIC cxx_std_20)
 
 # Inter-library dependency: courtier builds on hap (and transitively common).
 TARGET_LINK_LIBRARIES(${COURTIER_LIBNAME} PUBLIC ${HAP_LIBNAME})

@@ -35,7 +35,6 @@ set_source_files_properties(
     ${DIETRICHSOURCES}
     PROPERTIES
     LANGUAGE CXX
-    CXX_STANDARD 20
 )
 
 ADD_LIBRARY ( ${DIETRICH_LIBNAME} SHARED ${DIETRICHSOURCES} )
@@ -44,9 +43,6 @@ SET_TARGET_PROPERTIES(
     ${DIETRICH_LIBNAME}
     PROPERTIES
     VERSION ${GENEVA_VERSION}
-	CXX_STANDARD 20
-	CXX_STANDARD_REQUIRED ON
-	CXX_EXTENSIONS OFF
 	EXPORT_NAME dietrich
 )
 
@@ -62,7 +58,6 @@ TARGET_INCLUDE_DIRECTORIES(
 
 # Dietrich depends ONLY on common (and the Boost components that appear in the
 # public plotting headers). It must NOT link hap, courtier or geneva.
-TARGET_COMPILE_FEATURES(${DIETRICH_LIBNAME} PUBLIC cxx_std_20)
 TARGET_LINK_LIBRARIES(
     ${DIETRICH_LIBNAME}
     PUBLIC

@@ -75,7 +75,7 @@ ENDIF ()
 # The GStarter executable.
 #
 # Linking Geneva::geneva transitively pulls in courtier/hap/common, the Geneva
-# include directories, Boost, the C++20 requirement and (when the install was
+# include directories, Boost, the C++23 requirement and (when the install was
 # built with it) the MPI consumer dependencies.
 
 SET(EXECUTABLENAME GStarter)
@@ -87,9 +87,9 @@ ADD_EXECUTABLE(${EXECUTABLENAME}
 
 TARGET_LINK_LIBRARIES(${EXECUTABLENAME} PRIVATE Geneva::geneva)
 
-# The imported targets already propagate cxx_std_20; stated here explicitly so
+# The imported targets already propagate cxx_std_23; stated here explicitly so
 # the requirement is visible at the consumer level as well.
-TARGET_COMPILE_FEATURES(${EXECUTABLENAME} PRIVATE cxx_std_20)
+TARGET_COMPILE_FEATURES(${EXECUTABLENAME} PRIVATE cxx_std_23)
 
 INSTALL(TARGETS ${EXECUTABLENAME} DESTINATION bin)
 
@@ -143,7 +143,7 @@ IF (Catch2_FOUND AND EXISTS "${GENEVA_TEST_INCLUDE_DIR}/Geneva_tests.hpp")
 		Catch2::Catch2WithMain
 	)
 
-	TARGET_COMPILE_FEATURES(${TESTNAME} PRIVATE cxx_std_20)
+	TARGET_COMPILE_FEATURES(${TESTNAME} PRIVATE cxx_std_23)
 
 	# The Geneva testing code (modify_GUnitTests / specificTests*) is compiled in
 	# only when GEM_TESTING is defined; the in-tree build sets this globally via
