@@ -277,25 +277,22 @@ public:
     std::shared_ptr<const GGenomeLayout> getLayout() const noexcept { return layout_; }
 
     /***************************************************************************/
-    // Mutable access to the raw INTERNAL (normalized) value arrays (the OA-owned adaption kernels write here).
+    // Access to the raw INTERNAL (normalized) value arrays (the OA-owned adaption kernels write here).
+    // One accessor per channel: the explicit object parameter lets constness flow from the caller --
+    // a mutable genome yields std::span<T>, a const genome std::span<const T> (span CTAD over the vector).
 
-    /** @brief @return A mutable span over the raw internal double channel */
-    std::span<double> internalDoubleValues() noexcept { return {dv_.data(), dv_.size()}; }
-    /** @brief @return A mutable span over the raw internal float channel */
-    std::span<float> internalFloatValues() noexcept { return {fv_.data(), fv_.size()}; }
-    /** @brief @return A mutable span over the raw internal int32 channel */
-    std::span<std::int32_t> internalInt32Values() noexcept { return {iv_.data(), iv_.size()}; }
-    /** @brief @return A mutable span over the raw internal bool channel (bytes, 1/0) */
-    std::span<std::uint8_t> internalBoolValues() noexcept { return {bv_.data(), bv_.size()}; }
-
-    /** @brief @return A read-only span over the raw internal double channel */
-    std::span<const double> internalDoubleValues() const noexcept { return {dv_.data(), dv_.size()}; }
-    /** @brief @return A read-only span over the raw internal float channel */
-    std::span<const float> internalFloatValues() const noexcept { return {fv_.data(), fv_.size()}; }
-    /** @brief @return A read-only span over the raw internal int32 channel */
-    std::span<const std::int32_t> internalInt32Values() const noexcept { return {iv_.data(), iv_.size()}; }
-    /** @brief @return A read-only span over the raw internal bool channel (bytes, 1/0) */
-    std::span<const std::uint8_t> internalBoolValues() const noexcept { return {bv_.data(), bv_.size()}; }
+    /** @brief @return A span over the raw internal double channel (const iff *this is const) */
+    template <typename Self>
+    auto internalDoubleValues(this Self &&self) noexcept { return std::span{self.dv_}; }
+    /** @brief @return A span over the raw internal float channel (const iff *this is const) */
+    template <typename Self>
+    auto internalFloatValues(this Self &&self) noexcept { return std::span{self.fv_}; }
+    /** @brief @return A span over the raw internal int32 channel (const iff *this is const) */
+    template <typename Self>
+    auto internalInt32Values(this Self &&self) noexcept { return std::span{self.iv_}; }
+    /** @brief @return A span over the raw internal bool channel, bytes 1/0 (const iff *this is const) */
+    template <typename Self>
+    auto internalBoolValues(this Self &&self) noexcept { return std::span{self.bv_}; }
 
     /***************************************************************************/
     // Bulk-flatten fast path (the GPU marshallers) -- see GFlatGenome's historical notes.
