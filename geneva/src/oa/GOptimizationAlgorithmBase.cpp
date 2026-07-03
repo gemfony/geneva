@@ -1643,40 +1643,6 @@ GOptimizationAlgorithmBase::workOnPopulation(std::size_t start, std::size_t end)
 
 /******************************************************************************/
 /**
- * Launches the per-individual RNG prefetch over a snapshot of individual object pointers (see header).
- * Fire-and-forget on tp_ptr_: each task tops up one individual's standard-normal cache from that
- * individual's OWN separate prefetch engine, so the tasks are embarrassingly parallel and touch only
- * transient, disjoint per-individual state -- safe to overlap the evaluation that follows. Returns
- * immediately; joinNormalPrefetch_() blocks for completion.
- */
-void GOptimizationAlgorithmBase::startNormalPrefetch_(
-    std::span<gen::GOptimizableEntity *const> snapshot
-) {
-    if(not normal_prefetch_enabled_ || not tp_ptr_ || snapshot.empty()) {
-        return; // disabled, no pool yet, or no individuals to prefetch for
-    }
-    for(gen::GOptimizableEntity *ind : snapshot) {
-        if(ind != nullptr) {
-            // post() is fire-and-forget and swallows/logs any exception, so a rare refill failure never
-            // escapes a worker thread -- the cache simply falls back to inline draws on the next adaption.
-            tp_ptr_->post([ind]() { ind->prefetchRandom(); });
-        }
-    }
-}
-
-/******************************************************************************/
-/**
- * Joins the RNG prefetch launched by startNormalPrefetch_() (see header). Idempotent: tp_ptr_->wait()
- * is a no-op when nothing is in flight, and it is skipped entirely if the pool was never created.
- */
-void GOptimizationAlgorithmBase::joinNormalPrefetch_() {
-    if(tp_ptr_) {
-        tp_ptr_->wait();
-    }
-}
-
-/******************************************************************************/
-/**
  * Submit through courtier's span+policy executor. The algorithm passes the contiguous sub-range
  * [start, end) it wants evaluated; we submit a std::span over exactly that range. The span aliases the
  * live population sub-range, so results -- and any cloned refills, written in place over the slot --

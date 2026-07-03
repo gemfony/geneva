@@ -316,19 +316,6 @@ public:
     [[nodiscard]] std::uint16_t getNThreads() const;
 
     /******************************************************************************/
-    /**
-     * @brief Enables or disables the per-individual RNG prefetch (default: enabled). When enabled, an
-     *  algorithm that uses the startNormalPrefetch_()/joinNormalPrefetch_() seam tops up each individual's
-     *  standard-normal cache on the organizational pool during the evaluation gap; when disabled, the
-     *  trigger is a no-op and every Gauss draw is taken inline. A runtime kill-switch (no ABI split -- the
-     *  cache members are always present): use it to opt out, or to A/B the overlap. Transient run config.
-     * @param enabled Whether the RNG prefetch trigger fires (true by default)
-     */
-    void setNormalPrefetchEnabled(bool enabled) { normal_prefetch_enabled_ = enabled; }
-    /** @brief @return Whether the per-individual RNG prefetch trigger is enabled */
-    [[nodiscard]] bool getNormalPrefetchEnabled() const { return normal_prefetch_enabled_; }
-
-    /******************************************************************************/
 
     /**
      * @brief Emits information specific to this class.
@@ -673,9 +660,6 @@ protected:
     std::shared_ptr<Gem::Common::Concurrency::GThreadPool> tp_ptr_;
     /** @brief The number of threads used for parallel organizational work. */
     std::uint16_t n_threads_ = Gem::Common::DEFAULTNHARDWARETHREADS;
-    /** @brief Runtime kill-switch for the per-individual RNG prefetch trigger (default on; transient,
-     *  not serialized -- a run-time choice, not part of the algorithm's persisted identity). */
-    bool normal_prefetch_enabled_ = true;
 
     /** @brief Applies modifications to this object */
     bool modify_GUnitTests_() override;
@@ -711,26 +695,6 @@ protected:
      * @return The executor status describing the outcome of the submission
      */
     Gem::Courtier::executor_status_t workOnPopulation(std::size_t start, std::size_t end);
-
-    /**
-     * @brief Launches the per-individual RNG prefetch (top up each individual's standard-normal cache)
-     * across the organizational thread pool @c tp_ptr_, over a SNAPSHOT of individual object pointers.
-     * Non-blocking: it returns immediately so the refill overlaps the (long) evaluation that follows.
-     *
-     * A general seam any algorithm may use: it is called after adaption+submission and joined before the
-     * next draw site (see joinNormalPrefetch_()). Safe to overlap evaluation because the refill touches
-     * only transient, disjoint per-individual state (a separate prefetch engine + the individual's cache),
-     * and because population elements never change address during a submission (the consumers reconcile
-     * returns in place). The snapshot -- NOT the live population -- is walked so it is immune to any
-     * in-place slot reconciliation the consumer performs meanwhile. A no-op if the snapshot is empty.
-     * @param snapshot The individual object pointers whose caches are topped up (captured before submission)
-     */
-    void startNormalPrefetch_(std::span<gen::GOptimizableEntity *const> snapshot);
-    /**
-     * @brief Joins the RNG prefetch launched by startNormalPrefetch_(): blocks until every refill task has
-     * finished (via @c tp_ptr_->wait()). Idempotent -- safe to call with nothing in flight.
-     */
-    void joinNormalPrefetch_();
 
     /**
      * @brief Drains the consumer's late-return buffer and returns only the late returns that are SAFE

@@ -179,11 +179,14 @@ inline std::size_t runAdaptionKernels(
 ) {
     using namespace Gem::Geneva::Genome;
 
-    // The individual's standard-normal prefetch cache: the dominant per-value Gauss step pops a
-    // pre-transformed z ~ N(0,1) from it (the kernel applies sigma*z), moving the sqrt/log off the burst
-    // when it was filled during the prior evaluation gap. Self-warming, so it is correct on the first
-    // (unwarmed) generation too -- an empty cache just draws inline.
-    NormalPrefetchCache *ncache = &ind.normalCache();
+    // Standard-normal prefetch is DISABLED for now: the per-value Gauss step draws each z ~ N(0,1)
+    // inline. The former per-individual prefetch cache -- filled asynchronously on the OA's
+    // organizational thread pool during the evaluation gap -- has been switched off pending a redesign
+    // that moves prefetching into Hap itself (submit a buffer to Hap's own pool, gate the result with a
+    // std::future) rather than racing the evaluator on the OA's pool. See
+    // prompts/2026-07-03-rng-prefetch-redesign.md. Passing nullptr draws inline, the historical
+    // bit-identical path (and restores strict draw-order reproducibility).
+    NormalPrefetchCache *ncache = nullptr;
 
     std::size_t n = 0;
     n += detail::adaptGaussChannel<double>(scratch, cfg.doubleGroups(), ind.internalDoubleValues(), AUXKEY_GAUSS_DOUBLE, gr, ncache);

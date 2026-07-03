@@ -118,6 +118,16 @@ Recommended Versions:
   converge cleanly. A regression test exercises all four step_control strategies in
   both the plus and comma sorting modes.
 
+- CHANGED: the per-individual RNG prefetch (which overlapped the adaption's
+  standard-normal draws with fitness evaluation by refilling a per-individual cache on
+  the optimization algorithm's own thread pool) has been removed for now. It competed
+  with the evaluator for cores on the local path and relied on a fragile, implicit
+  no-concurrent-access contract around a non-thread-safe cache, for a benefit that only
+  materialises against a genuine external (network/GPU) evaluation gap. Adaption again
+  draws its standard normals inline (the historical, strictly reproducible path). The
+  lower-level cache facility and the kernels' optional cache hook are retained; a
+  cleaner Hap-side redesign is sketched in prompts/2026-07-03-rng-prefetch-redesign.md.
+
 - NEW: a pluggable evaluation FAULT INJECTOR replaces the retired per-individual
   "random crash" facility. A single GFaultInjector is registered process-wide
   (directly via GFaultInjectorRegistry, or through Go2::registerFaultInjector,
