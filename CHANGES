@@ -101,6 +101,23 @@ Recommended Versions:
   GRandomFactory::finalized() query distinguishes a transient empty buffer from a
   permanent shutdown).
 
+- FIXED: the evolutionary algorithm's global-sigma step controllers (ONE_FIFTH and
+  CSA) no longer let the step size run away. They estimated their success rate
+  against a NON-MONOTONE reference (the surviving parents compared to the previous
+  generation's best), which under comma selection is a positive-feedback loop: an
+  over-large sigma scatters the offspring, the generation's best turns mediocre, the
+  next generation easily beats that mediocre reference, and sigma grows further. The
+  EA then converged for a handful of iterations and afterwards bounced over orders of
+  magnitude and stalled out. The success signal is now the textbook Rechenberg
+  quantity -- the fraction of offspring that improve on THEIR OWN PARENT, measured
+  before selection reorders the population -- which is stable in every sorting mode.
+  The global sigma is now clamped to the authored per-group max_sigma (a fraction of
+  the parameter range) instead of a hard-coded constant that imposed no real ceiling.
+  The default step_control is SELF_ADAPT_SCALED again (it had been changed to CSA,
+  which is when the regression began); ONE_FIFTH and CSA remain selectable and now
+  converge cleanly. A regression test exercises all four step_control strategies in
+  both the plus and comma sorting modes.
+
 - NEW: a pluggable evaluation FAULT INJECTOR replaces the retired per-individual
   "random crash" facility. A single GFaultInjector is registered process-wide
   (directly via GFaultInjectorRegistry, or through Go2::registerFaultInjector,

@@ -502,6 +502,35 @@ inline double readRepresentativeSigma(
 
 /******************************************************************************/
 /**
+ * @brief Reads back one representative per-group MAXIMUM sigma from the adaption config (the first
+ * installed Gauss group, double channel preferred, else float). Used by the global-σ step controllers
+ * (ONE_FIFTH / CSA) to clamp the single global sigma to the authored per-group band rather than to a
+ * hard-coded constant: in the normalized coordinate model sigma is a fraction of the parameter range,
+ * so max_sigma is the meaningful ceiling. Returns the fallback when no Gauss group is installed.
+ *
+ * @param cfg The shared adaption config supplying the per-channel group specs.
+ * @param fallback The value returned when no Gauss group is installed.
+ * @return The first installed Gauss group's authored max_sigma, or @p fallback.
+ */
+inline double readRepresentativeMaxSigma(const GAdaptionConfigBase &cfg, double fallback) {
+    using namespace Gem::Geneva::Genome;
+    const auto &dg = cfg.doubleGroups();
+    for(std::size_t gi = 0; gi < dg.size(); ++gi) {
+        if(dg[gi].has_gauss) {
+            return static_cast<double>(dg[gi].gauss.max_sigma);
+        }
+    }
+    const auto &fg = cfg.floatGroups();
+    for(std::size_t gi = 0; gi < fg.size(); ++gi) {
+        if(fg[gi].has_gauss) {
+            return static_cast<double>(fg[gi].gauss.max_sigma);
+        }
+    }
+    return fallback;
+}
+
+/******************************************************************************/
+/**
  * @brief A small RAII helper that gives a single, slot-less individual its own adaption scratch + config
  * so the data-oriented adaption can be driven outside an optimization algorithm (test individuals'
  * modify hooks, standalone perturbation loops, serialization benchmarks). Construct once with the

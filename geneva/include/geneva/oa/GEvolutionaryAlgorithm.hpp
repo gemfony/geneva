@@ -128,10 +128,11 @@ constexpr auto DEFAULTEASORTINGMODE = sortingMode::MUCOMMANU_SINGLEEVAL;
  * log-normal update random-walks \f$\sigma\f$ instead of letting it settle and fine convergence stalls.
  *
  * @par Step-control modes (selected on the GAdaptionConfig)
- * The default is @b CSA: a derandomized step-size controller that is robust across landscapes (it is the
- * step-size principle of CMA-ES) and the strongest of these modes on realistic multimodal / bounded
- * problems. @b SELF_ADAPT_SCALED is better on smooth high-dimensional unimodal problems (e.g. the sphere)
- * and remains available; @b SELF_ADAPT is the bit-for-bit legacy behaviour.
+ * The default is @b SELF_ADAPT_SCALED: the textbook dimension-scaled per-parameter self-adaption, which
+ * converges cleanly across sorting modes and dimensions. @b SELF_ADAPT is the bit-for-bit legacy
+ * behaviour. @b ONE_FIFTH and @b CSA are the single-global-\f$\sigma\f$ controllers; they are sound when
+ * their success signal is the textbook Rechenberg quantity (below) and remain available for problems where
+ * one robustly-controlled global step size is preferable to per-coordinate self-adaption.
  *
  * @par Tradeoff: per-parameter vs. global \f$\sigma\f$
  * @b SELF_ADAPT and @b SELF_ADAPT_SCALED keep the legacy structure of one self-adapting \f$\sigma\f$ @e per
@@ -139,12 +140,12 @@ constexpr auto DEFAULTEASORTINGMODE = sortingMode::MUCOMMANU_SINGLEEVAL;
  * acquire its own step size. @b ONE_FIFTH and @b CSA instead control a @e single global \f$\sigma\f$ shared
  * by all parameters (the per-group self-adaption is switched off); the per-parameter @c range factor in the
  * step \f$ r\,\sigma\,\mathcal{N}(0,1) \f$ still scales by each parameter's bounds, but there is no longer an
- * independently-adapting \f$\sigma\f$ per coordinate. This is why CSA is the better default at high dimension
- * (the per-coordinate @e mutative self-adaption is too noisy there to learn useful per-axis scales, so one
- * robustly-controlled \f$\sigma\f$ wins) but @b SELF_ADAPT_SCALED can be preferable on low-dimensional or
- * strongly heterogeneous-scale problems where per-coordinate \f$\sigma\f$ is both reliable and useful.
- * (Robust @e derandomized per-coordinate scaling is what GSepCmaEvolutionStrategy's diagonal covariance
- * provides, which is why it outperforms both.)
+ * independently-adapting \f$\sigma\f$ per coordinate. The global-\f$\sigma\f$ controllers can be preferable
+ * where the per-coordinate @e mutative self-adaption is too noisy to learn useful per-axis scales (high
+ * dimension), while @b SELF_ADAPT_SCALED — the default — is a robust all-round choice and is preferable on
+ * low-dimensional or strongly heterogeneous-scale problems where per-coordinate \f$\sigma\f$ is both
+ * reliable and useful. (Robust @e derandomized per-coordinate scaling is what GSepCmaEvolutionStrategy's
+ * diagonal covariance provides, which is why it outperforms both.)
  * - @b SELF_ADAPT — the classic σSA above, unchanged; reproduces the legacy EA bit-for-bit.
  * - @b SELF_ADAPT_SCALED — the same log-normal rule with the textbook dimension-scaled rate
  *   \f[
@@ -154,11 +155,14 @@ constexpr auto DEFAULTEASORTINGMODE = sortingMode::MUCOMMANU_SINGLEEVAL;
  *   \f]
  *   for the user constant \f$c=\,\f$@c learning_rate_c (default 1). (Schwefel 1981; Beyer & Schwefel 2002.)
  * - @b ONE_FIFTH — Rechenberg's \f$1/5\f$ success rule on a single global \f$\sigma\f$. With
- *   \f$p_{\mathrm{succ}}\f$ the fraction of the \f$\mu\f$ survivors that improved on the previous
- *   generation's best, and damping \f$d=0.2\f$,
+ *   \f$p_{\mathrm{succ}}\f$ the fraction of the offspring that improved on THEIR OWN PARENT (the textbook
+ *   per-offspring success rate, measured before selection reorders the population), and damping
+ *   \f$d=0.2\f$,
  *   \f[ \sigma \leftarrow \sigma\,\exp\!\Bigl(\tfrac{p_{\mathrm{succ}}-1/5}{1+d}\Bigr). \f]
- *   (Rechenberg 1973.)
- * - @b CSA @e (default) — a scalar cumulative step-size adaptation: an evolution-path proxy \f$p_\sigma\f$ accumulates
+ *   (Rechenberg 1973.) Measuring against each child's own parent — rather than a moving population-best
+ *   reference — is what keeps the controller stable under comma selection (where the reference would
+ *   otherwise degrade as \f$\sigma\f$ overshoots, driving \f$\sigma\f$ to run away instead of annealing).
+ * - @b CSA — a scalar cumulative step-size adaptation: an evolution-path proxy \f$p_\sigma\f$ accumulates
  *   the normalised success-rate deviation \f$s=(p_{\mathrm{succ}}-1/5)/(1-1/5)\f$ from the \f$1/5\f$
  *   target, with cumulation constant \f$c_\sigma=1/(1+\sqrt{n}/4)\f$:
  *   \f[
@@ -166,7 +170,9 @@ constexpr auto DEFAULTEASORTINGMODE = sortingMode::MUCOMMANU_SINGLEEVAL;
  *     \qquad
  *     \sigma \leftarrow \sigma\,\exp(0.3\,p_\sigma),
  *   \f]
- *   with \f$\sigma\f$ clamped to \f$[10^{-12},10]\f$. (The scalar analogue of the vector evolution-path
+ *   with \f$\sigma\f$ clamped to \f$[10^{-12},\sigma_{\max}]\f$, where \f$\sigma_{\max}\f$ is the authored
+ *   per-group @c max_sigma (in the normalized model \f$\sigma\f$ is a fraction of the parameter range, so
+ *   the config's ceiling is the meaningful bound). (The scalar analogue of the vector evolution-path
  *   step control of Hansen & Ostermeier 2001 — the same principle used at covariance level 0 in
  *   GSepCmaEvolutionStrategy.)
  *
@@ -249,7 +255,7 @@ public:
     /** @brief Retrieves the current sorting scheme. @return The currently configured sorting scheme */
     sortingMode getSortingScheme() const;
 
-    /** @brief Sets the step-size-control strategy. The default is CSA.
+    /** @brief Sets the step-size-control strategy. The default is SELF_ADAPT_SCALED.
      *  @param sc The strategy (SELF_ADAPT, SELF_ADAPT_SCALED, ONE_FIFTH or CSA) */
     void setStepControl(stepControl sc);
     /** @brief Retrieves the step-size-control strategy. @return The configured strategy. */
@@ -356,9 +362,14 @@ private:
     /** @brief Installs the step-size controller onto the OA-owned adaption config at init() (rescales /
      *  suppresses self-adaption per the chosen mode) and seeds the controller's global-sigma state. */
     void installStepController();
+    /** @brief Measures the offspring success rate (fraction of children whose fitness beats their OWN
+     *  parent) BEFORE selection reorders the population, storing it in last_p_success_ for the global
+     *  step controller to consume. The Rechenberg success signal; a no-op for the self-adaptive modes
+     *  and in the first generation (no meaningful parents yet). Called at the top of selectBest_. */
+    void measureOffspringSuccess_();
     /** @brief Drives the global-sigma controller (ONE_FIFTH / CSA) once per generation after selection,
-     *  then pushes the updated global sigma into every population slot's scratch. A no-op for the
-     *  self-adaptive modes. */
+     *  consuming the pre-selection success rate from measureOffspringSuccess_(), then pushes the updated
+     *  global sigma into every population slot's scratch. A no-op for the self-adaptive modes. */
     void driveGlobalSigmaController();
 
     /***************************************************************************/
@@ -381,8 +392,8 @@ private:
 
     sortingMode sorting_mode_ = DEFAULTEASORTINGMODE; ///< The chosen sorting scheme
 
-    /** @brief The step-size-control strategy applied to the adaption config (default CSA). */
-    stepControl step_control_ = stepControl::CSA;
+    /** @brief The step-size-control strategy applied to the adaption config (default SELF_ADAPT_SCALED). */
+    stepControl step_control_ = stepControl::SELF_ADAPT_SCALED;
     /** @brief The learning-rate constant c for SELF_ADAPT_SCALED (tau = c/sqrt(2n)). */
     double learning_rate_c_ = 1.;
     /** @brief Whether to intermediate-recombine the per-individual sigma after recombination. */
@@ -396,8 +407,9 @@ private:
     // / part of localMembers(): rebuilt at init() from the seed sigma in the adaption config.
     double global_sigma_ = 1.;       ///< the single global step size (ONE_FIFTH / CSA)
     double p_sigma_ = 0.;            ///< the CSA evolution-path accumulator (scalar proxy)
-    double prev_best_fitness_ = 0.;  ///< the previous generation's best transformed (min-only) fitness
-    bool   have_prev_best_ = false;  ///< whether prev_best_fitness_ is meaningful yet
+    double last_p_success_ = 0.;     ///< offspring success rate (fraction of children beating their own parent),
+                                     ///< measured before selection reorders the population (see measureOffspringSuccess_)
+    bool   have_prev_best_ = false;  ///< whether at least one generation's success rate has been measured (warm-up guard)
     std::size_t controller_dim_ = 0; ///< the adapted dimension n the controller reasons about
 
     /***************************************************************************/
