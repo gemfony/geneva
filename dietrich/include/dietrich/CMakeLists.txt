@@ -45,9 +45,17 @@ SET ( GENEVADIETRICHPLOTTINGINCLUDES
 	plotting/GPlotDesigner.hpp
 )
 
+# Library-private plotting headers: shared across the dietrich implementation TUs but NOT part of the
+# installed public API, so they live under plotting/detail/ and are deliberately absent from the
+# INSTALL lists below. Listed here only so IDEs surface them.
+SET ( GENEVADIETRICHPLOTTINGDETAILINCLUDES
+	plotting/detail/GPlotDetail.hpp
+)
+
 # This is a workaround for a CLion-problem -- see CPP270 in the JetBrains issue tracker
 ADD_CUSTOM_TARGET(CLION_ALL_DIETRICH_HEADERS SOURCES
-	${GENEVADIETRICHINCLUDES} ${GENEVADIETRICHPLOTTINGINCLUDES})
+	${GENEVADIETRICHINCLUDES} ${GENEVADIETRICHPLOTTINGINCLUDES}
+	${GENEVADIETRICHPLOTTINGDETAILINCLUDES})
 
 INSTALL ( FILES ${GENEVADIETRICHINCLUDES} DESTINATION ${INSTALL_PREFIX_INCLUDES}/dietrich )
 INSTALL ( FILES ${GENEVADIETRICHPLOTTINGINCLUDES} DESTINATION ${INSTALL_PREFIX_INCLUDES}/dietrich/plotting )

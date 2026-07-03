@@ -29,6 +29,13 @@
 
 SET ( DIETRICHSOURCES
 	GPlotDesigner.cpp
+	GGraphPlots.cpp
+	GHistogramPlots.cpp
+	GRootEmitter.cpp
+	GGnuplotEmitter.cpp
+	GMatplotlibEmitter.cpp
+	GOctaveEmitter.cpp
+	GDataEmitter.cpp
 )
 
 set_source_files_properties(
