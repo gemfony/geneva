@@ -40,7 +40,17 @@
 #include "geneva/ind/GOptimizableEntity.hpp"
 #include "geneva/GPostProcessorT.hpp"
 
+// Forward declarations (kept light so this header carries no OA / flat-genome dependency): the base
+// getAdaptionConfig() hook below refers to them only by shared_ptr / const-ref.
+namespace Gem::Geneva::OptimizationAlgorithms {
+class GAdaptionConfigBase;
+} // namespace Gem::Geneva::OptimizationAlgorithms
+
 namespace Gem::Geneva::Genome {
+
+class GFlatGenome;
+
+
 
 /******************************************************************************/
 /**
@@ -131,6 +141,24 @@ public:
                 << "Got empty post-processor" << '\n'
             );
         }
+    }
+
+    /***************************************************************************/
+    /**
+     * @brief Returns the OA-owned adaption configuration for a genome this factory produces.
+     *
+     * This lets an adapting algorithm be configured WITHOUT the caller knowing the concrete individual
+     * type -- essential when the individual is supplied at runtime through a plugin (a generic launcher
+     * pulls the config from the loaded factory through this base interface). The base returns a null
+     * pointer (no adaption config); GFlatIndividualFactory overrides it to delegate to the individual's
+     * @c buildAdaptionConfig hook.
+     *
+     * @param sample A sample genome produced by this factory (passed to the individual's hook)
+     * @return The OA-owned adaption configuration, or a null pointer if the individual provides none
+     */
+    virtual std::shared_ptr<Gem::Geneva::OptimizationAlgorithms::GAdaptionConfigBase>
+    getAdaptionConfig([[maybe_unused]] const GFlatGenome &sample) const {
+        return {};
     }
 
 protected:

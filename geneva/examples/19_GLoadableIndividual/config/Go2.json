@@ -1,0 +1,23 @@
+{
+    "header": {
+        "comment": "Go2 configuration for the loadable-individual example"
+    },
+    "n_producer_threads": {
+        "comment": "The number of threads simultaneously producing random numbers",
+        "default": "0",
+        "value": "0"
+    },
+    "copy_best_individuals_only": {
+        "comment": "Indicates whether only the best individuals should be copied when",
+        "comment": "switching from one optimization algorithm to the next",
+        "default": "true",
+        "value": "true"
+    },
+    "individual_plugin_path": {
+        "comment": "Filesystem path to a runtime individual (optimization-problem) plugin (.so) to load at startup.",
+        "comment": "Empty (the default) means the individual is compiled into this binary. The --individual",
+        "comment": "command-line option overrides this setting.",
+        "default": "",
+        "value": ""
+    }
+}

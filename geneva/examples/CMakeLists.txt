@@ -42,7 +42,8 @@ SET(DEPENDENCIES
 		GExternalEvaluator
 		GPluggableOptimizationMonitors
 		GDependentConstraints
-		GAlgorithmChaining)
+		GAlgorithmChaining
+		GGenericOptimizer)
 
 IF(GENEVA_BUILD_WITH_MPI_CONSUMER)
 	SET(DEPENDENCIES
@@ -90,5 +91,6 @@ IF(GENEVA_BUILD_WITH_MPI_CONSUMER)
 ENDIF()
 
 ADD_SUBDIRECTORY( 18_GAlgorithmChaining )
+ADD_SUBDIRECTORY( 19_GLoadableIndividual )
 
 GENEVA_AGGREGATE_TARGET( "examples-geneva" )

@@ -62,8 +62,10 @@
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/ind/GGenomeLayout.hpp"
 #include "geneva/ind/GGenomeLayoutSerialization.hpp" // ChannelLayout (de)serialisation (layout interning)
+#include "geneva/Go2.hpp"
 #include "geneva/ind/GFlatGenome.hpp"
 #include "geneva/ind/GFlatIndividualFactory.hpp"
+#include "geneva/ind/GIndividualPluginLoader.hpp"
 #include "geneva/ind/GFlatGenomeT.hpp"
 #include "geneva/ind/GGenomeArchitecture.hpp"
 #include "geneva/ind/GGenomeBuilder.hpp"
@@ -2016,6 +2018,37 @@ TEST_CASE("RNG prefetch wall-clock A/B over a real threaded consumer", "[.prefet
          << " s\n  prefetch ON  = " << best_on << " s\n  speedup = " << (best_off / best_on) << "x");
     CHECK(best_off > 0.);
     CHECK(best_on > 0.);
+}
+
+/******************************************************************************/
+// Runtime individual-plugin mechanism: the loader's failure handling and the one-individual-per-process
+// rule. The successful load-and-optimize path is exercised end-to-end by example 19's integration test
+// (it must build a .so, which a unit test cannot).
+TEST_CASE("Individual plugin loader rejects a missing library cleanly", "[flat][plugin]") {
+    // A missing file must raise a clean geneva exception (a "could not load" diagnostic), never crash.
+    const std::filesystem::path missing =
+        std::filesystem::temp_directory_path() / "geneva_no_such_individual_plugin_xyz.so";
+    CHECK_THROWS(Gem::Geneva::loadIndividualPlugin(missing));
+}
+
+TEST_CASE("Go2 enforces exactly one individual (optimization problem) per process", "[flat][plugin][go2]") {
+    namespace fs = std::filesystem;
+    const fs::path base = fs::temp_directory_path() / "geneva_claimonce_tests";
+    fs::create_directories(base);
+
+    int argc = 1;
+    char arg0[] = "unit-test";
+    char *argv[] = {arg0, nullptr};
+    Go2 go(argc, argv, base / "Go2.json");
+
+    auto f1 = std::make_shared<GFlatIndividualFactory<FactorySphere>>(base / "claimonce1.json");
+    auto f2 = std::make_shared<GFlatIndividualFactory<FactorySphere>>(base / "claimonce2.json");
+
+    go.registerContentCreator(f1); // first claim succeeds
+    REQUIRE(go.getContentCreator());
+    // A second registration (here a second compiled-in creator; the same guard fires for a plugin load
+    // when one is already provided) is refused: one individual type per process.
+    CHECK_THROWS(go.registerContentCreator(f2));
 }
 
 /******************************************************************************/

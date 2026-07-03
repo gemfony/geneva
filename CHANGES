@@ -232,6 +232,46 @@ Recommended Versions:
   population addresses across a submission. Guarded by a new regression test asserting
   address stability across a websocket round-trip.
 
+- NEW: OPTIMIZATION PROBLEMS (INDIVIDUALS) CAN NOW BE LOADED AT RUNTIME as plugins, so a
+  new problem can be run WITHOUT recompiling Geneva. A problem author turns an ordinary
+  individual into a loadable shared object with a single macro line,
+  GENEVA_INDIVIDUAL_PLUGIN(GFlatIndividualFactory<MyProblem>, "./config/MyProblem.json")
+  (in include/geneva/ind/GIndividualPlugin.hpp), alongside the individual's usual
+  BOOST_CLASS_EXPORT. A generic optimizer with NO problem compiled in then loads it with
+  --individual <path>.so (or the individual_plugin_path config-file key, parsed through the
+  existing Go2 GParserBuilder / program_options surface). Server and client are the same
+  binary launched with different options, so both load the same .so identically -- on an HPC
+  shared filesystem nothing extra is staged; in the cloud the .so ships next to the binary.
+  Details:
+    * The loader (Gem::Geneva::loadIndividualPlugin, using Boost.DLL) loads with RTLD_GLOBAL
+      so the plugin shares one symbol namespace with the process -- a single
+      Boost.Serialization type registry and single Geneva singletons -- which is what lets a
+      plugin-defined individual cross the networked wire and a checkpoint. The loaded library
+      is kept resident for the process lifetime.
+    * VERSION SAFETY: the macro bakes the building GENEVA_VERSION into an exported ABI marker.
+      The loader checks it before constructing anything and REFUSES a plugin built against a
+      different Geneva version with a precise message (Boost.DLL performs no compatibility
+      check itself; a missing marker -- a .so that is not a Geneva plugin -- is likewise
+      rejected cleanly). Zero author burden: the version is compile-time, not hand-written.
+    * ONE INDIVIDUAL PER PROCESS: a single content-creator slot is now claim-once. Compiling
+      an individual in AND loading one (or loading two) is a hard error naming both sources;
+      providing none is a clear error listing the three ways to supply a problem (compile in
+      / push_back / --individual). This mirrors the one-consumer-per-process rule.
+    * GOptimizableEntityFactory gained a virtual getAdaptionConfig(const GFlatGenome&) (the
+      base returns none; GFlatIndividualFactory overrides it), so a generic launcher can wire
+      an adapting algorithm's OA-owned adaption config from a loaded factory WITHOUT knowing
+      the concrete problem type -- the config-strip model made type-erased.
+    * CHECKPOINTS: a checkpoint stores the concrete individuals, so resuming one needs the
+      SAME individual provided the same way that wrote it. loadCheckpoint() now translates a
+      deserialization failure (e.g. the individual type is unavailable) into actionable
+      guidance instead of an opaque Boost archive error.
+    * Boost.DLL is linked only in the loader (one file); the plugin-author macro uses none of
+      it (plain extern "C" + BOOST_SYMBOL_EXPORT), so the loader backend could be swapped for
+      raw dlopen with no change to any plugin. geneva now links ${CMAKE_DL_LIBS}.
+    * New example geneva/examples/19_GLoadableIndividual (a from-scratch loadable paraboloid +
+      a generic optimizer that loads it, registered as an end-to-end test) plus unit tests for
+      the loader's rejection paths and the one-individual-per-process guard.
+
 - The GPU consumer is now an opt-in add-on folded INTO the one gemfony-courtier library,
   exactly like the MPI consumer -- there is no separate gemfony-courtier-gpu library any
   more. A new build flag GENEVA_BUILD_WITH_GPU_CONSUMER (genevaConfig.gcfg:

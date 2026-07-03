@@ -220,7 +220,7 @@ public:
      * @return The OA-owned adaption configuration, or a null pointer if the individual provides no hook
      */
     std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase>
-    getAdaptionConfig(const GFlatGenome &sample) const {
+    getAdaptionConfig(const GFlatGenome &sample) const override {
         if constexpr (HasBuildAdaptionConfigHook<Derived>) {
             return Derived::buildAdaptionConfig(sample, config_);
         }

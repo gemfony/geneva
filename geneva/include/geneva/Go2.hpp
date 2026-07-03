@@ -200,6 +200,15 @@ public:
     void
         registerContentCreator(const std::shared_ptr<Gem::Common::GFactoryT<gen::GOptimizableEntity>> &cc_ptr);
 
+    /**
+     * @brief @return The registered content-creator factory (compiled-in or loaded from a plugin), or an
+     *  empty pointer if none. A generic launcher uses this to pull e.g. the OA-owned adaption config from a
+     *  runtime-loaded individual it does not know the concrete type of.
+     */
+    std::shared_ptr<Gem::Common::GFactoryT<gen::GOptimizableEntity>> getContentCreator() const {
+        return content_creator_ptr_;
+    }
+
     /***************************************************************************/
     // The following is a trivial list of getters and setters
     /**
@@ -332,6 +341,25 @@ protected:
 
 private:
     /***************************************************************************/
+
+    /** @brief Where the single optimization problem (individual) came from, so the one-individual-per-
+     *  process rule can name the incumbent when a second registration is refused. */
+    enum class individualSource {
+        NONE,        ///< no individual provided yet
+        COMPILED_IN, ///< registered by user code via registerContentCreator()
+        LOADED       ///< loaded at runtime from an individual plugin (--individual)
+    };
+
+    /** @brief Claims the single content-creator slot for the optimization problem, enforcing "exactly one
+     *  individual per process": a second claim (a compiled-in registration when a plugin was loaded, or a
+     *  second plugin) throws, naming both the incumbent and the newcomer. Shared by
+     *  registerContentCreator() (COMPILED_IN) and the plugin load (LOADED).
+     *  @param cc_ptr The content-creator factory to install (must not be empty)
+     *  @param source Where this content creator came from (for the diagnostic on a double claim) */
+    void claimContentCreator_(
+        const std::shared_ptr<Gem::Common::GFactoryT<gen::GOptimizableEntity>> &cc_ptr,
+        individualSource source
+    );
 
     // GOptimizerIT NVI hooks: keep these overrides private (do not
     // widen access -- matches oa::GOptimizationAlgorithmBase and the base's NVI contract).
@@ -520,6 +548,11 @@ private:
     const std::string default_algorithm_str_ = DEFAULTOPTALG; ///< This is the last fall-back
     // Holds an object capable of producing objects of the desired type
     std::shared_ptr<Gem::Common::GFactoryT<gen::GOptimizableEntity>> content_creator_ptr_;
+    // Where content_creator_ptr_ came from (enforces one-individual-per-process, see claimContentCreator_)
+    individualSource content_creator_source_ = individualSource::NONE;
+    // Filesystem path to a runtime individual plugin (.so) to load; settable via config or --individual.
+    // Empty (the default) means no plugin is loaded -- the individual is expected to be compiled in.
+    std::string individual_plugin_path_;
     // A user-defined means for information retrieval
     std::vector<std::shared_ptr<oa::GBasePluggableOM>> pluggable_monitors_cnt_;
 };

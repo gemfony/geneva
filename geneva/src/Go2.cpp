@@ -44,6 +44,7 @@
 #include "geneva/GenevaHelperFunctions.hpp"
 #include "geneva/oa/GOptimizationAlgorithmBase.hpp"
 #include "geneva/oa/GFactoryStore.hpp"
+#include "geneva/ind/GIndividualPluginLoader.hpp"
 #include "geneva/ind/GOptimizableEntity.hpp"
 #include "hap/GRandomFactory.hpp"
 #include <boost/program_options.hpp>
@@ -110,6 +111,16 @@ Go2::Go2(
     //--------------------------------------------
     // Load configuration options from the command line
     parseCommandLine(argc, argv, user_descriptions);
+
+    //--------------------------------------------
+    // If a runtime individual (optimization-problem) plugin was requested -- via the config file or the
+    // command line -- load it now, before any population is built or (on a client) any work item /
+    // checkpoint is deserialized. The load claims the single content-creator slot; a compiled-in
+    // registerContentCreator() or a second plugin then hits the one-individual-per-process guard. Server
+    // and client are the same binary launched with different options, so both load it identically here.
+    if(not individual_plugin_path_.empty()) {
+        this->claimContentCreator_(loadIndividualPlugin(individual_plugin_path_), individualSource::LOADED);
+    }
 
     //--------------------------------------------
     // Random numbers are our most valuable good.
@@ -457,15 +468,52 @@ Go2 &Go2::operator&(std::string const &mn) {
  * @param cc_ptr A smart pointer to a factory that produces optimizable entities (must not be empty)
  */
 void Go2::registerContentCreator(const std::shared_ptr<Gem::Common::GFactoryT<gen::GOptimizableEntity>> &cc_ptr) {
+    // A user-compiled-in individual: claim the single slot, so a later plugin load (or a second
+    // registration) is refused by the one-individual-per-process guard.
+    this->claimContentCreator_(cc_ptr, individualSource::COMPILED_IN);
+}
+
+/******************************************************************************/
+/**
+ * Claims the single content-creator slot, enforcing that exactly one optimization problem (individual)
+ * exists per process: whichever source registers first wins, and any second claim -- a compiled-in
+ * registration when a plugin was already loaded, or a second plugin -- throws, naming both sources.
+ */
+void Go2::claimContentCreator_(
+    const std::shared_ptr<Gem::Common::GFactoryT<gen::GOptimizableEntity>> &cc_ptr,
+    individualSource source
+) {
+    auto sourceStr = [](individualSource s) -> const char * {
+        switch(s) {
+            case individualSource::COMPILED_IN: return "compiled in (registerContentCreator)";
+            case individualSource::LOADED: return "loaded from a plugin (--individual)";
+            default: return "none";
+        }
+    };
+
     if(not cc_ptr) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In Go2::registerContentCreator(): Error!" << '\n'
-            << "Tried to register an empty pointer" << '\n'
+            << "In Go2::claimContentCreator_(): Error!" << '\n'
+            << "Tried to register an empty content creator (source: " << sourceStr(source) << ")" << '\n'
+        );
+    }
+
+    if(content_creator_source_ != individualSource::NONE) {
+        throw geneva_exception(
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+            << "In Go2::claimContentCreator_(): Error!" << '\n'
+            << "An optimization problem (individual) is already provided (" << sourceStr(content_creator_source_)
+            << ");" << '\n'
+            << "refusing to add another (" << sourceStr(source) << ")." << '\n'
+            << "Exactly one individual may exist per process -- compile one in OR load one, not both, and"
+            << '\n'
+            << "never two. (If you compiled an individual in, do not also pass --individual.)" << '\n'
         );
     }
 
     content_creator_ptr_ = cc_ptr;
+    content_creator_source_ = source;
 }
 
 /******************************************************************************/
@@ -579,9 +627,13 @@ std::uint32_t Go2::prepareInitialPopulation(std::uint32_t offset) {
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                     << "In Go2::optimize(): Error!" << '\n'
-                    << "Neither a content creator nor individuals have been registered."
+                    << "No optimization problem (individual) is available: no content creator and no"
                     << '\n'
-                    << "No way to continue." << '\n'
+                    << "individuals have been registered. Provide exactly one of:" << '\n'
+                    << "  (1) compile an individual in and call registerContentCreator();" << '\n'
+                    << "  (2) add individuals directly via push_back();" << '\n'
+                    << "  (3) load one at runtime with --individual <path>.so (or the" << '\n'
+                    << "      individual_plugin_path config-file setting)." << '\n'
                 );
             }
         }
@@ -852,6 +904,16 @@ void Go2::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) {
     ) << "Indicates whether only the best individuals should be copied when"
       << '\n'
       << "switching from one optimization algorithm to the next";
+
+    gpb.registerFileParameter<std::string>(
+        "individual_plugin_path",
+        std::string(),
+        [this](std::string const &p) { individual_plugin_path_ = p; }
+    ) << "Filesystem path to a runtime individual (optimization-problem) plugin (.so) to load at startup."
+      << '\n'
+      << "Empty (the default) means the individual is compiled into this binary. The --individual"
+      << '\n'
+      << "command-line option overrides this setting.";
 }
 
 /******************************************************************************/
@@ -985,7 +1047,11 @@ void Go2::parseCommandLine(
 				("client", "Indicates that this program should run as a client or in server mode. Note that this setting will trigger an error unless called in conjunction with a consumer capable of dealing with clients. This option is ignored when working with the mpi consumer, because the mpi consumer will configure itself to be a client or server depending on its rank.")
 				("max_client_duration", po::value<std::string>(&max_client_duration)->default_value(EMPTYDURATION),
 				 R"(The maximum runtime for a client in the form "hh:mm:ss". Note that a client may run longer as this time-frame if its work load still runs. The default value "00:00:00" means: "no time limit")")
-				("consumer,c", po::value<std::string>(&consumer_name_)->default_value("stc"), consumer_help.str().c_str());
+				("consumer,c", po::value<std::string>(&consumer_name_)->default_value("stc"), consumer_help.str().c_str())
+				("individual,i", po::value<std::string>(&individual_plugin_path_),
+				 "Filesystem path to a runtime individual (optimization-problem) plugin (.so) to load at "
+				 "startup. Overrides the individual_plugin_path config-file setting. Omit it to use an "
+				 "individual compiled into this binary.");
 
         // Add additional options coming from the algorithms and consumers
         boost::program_options::options_description visible(

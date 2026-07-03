@@ -61,6 +61,7 @@ SET ( OPTIMIZATIONSOURCES
 	GSigHupHandler.cpp
 	par/GParameterPropertyParser.cpp
 	ind/GIndividualProcessingResult.cpp
+	ind/GIndividualPluginLoader.cpp
 	ind/GProblemPolicy.cpp
 	ind/GOptimizableEntity.cpp
 	ind/GFlatGenome.cpp
@@ -224,6 +225,11 @@ TARGET_LINK_LIBRARIES(${GENEVA_LIBNAME} PUBLIC ${COURTIER_LIBNAME})
 
 # geneva's pluggable monitors render through the dietrich plotting library.
 TARGET_LINK_LIBRARIES(${GENEVA_LIBNAME} PUBLIC ${DIETRICH_LIBNAME})
+
+# The runtime individual-plugin loader (GIndividualPluginLoader) uses Boost.DLL, which needs the dynamic
+# loading library (libdl) on platforms that provide it. Boost.Filesystem (already a Geneva Boost
+# component) supplies the rest of Boost.DLL's needs.
+TARGET_LINK_LIBRARIES(${GENEVA_LIBNAME} PRIVATE ${CMAKE_DL_LIBS})
 
 IF ( GENEVA_BUILD_TESTS )
 	# When built with testing support (-DGEM_TESTING), the library embeds

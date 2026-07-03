@@ -329,7 +329,27 @@ void GOptimizationAlgorithmBase::loadCheckpoint(std::filesystem::path const &cp_
         );
     }
 
-    this->fromFile(cp_file, this->getCheckpointSerializationMode());
+    // Deserialize the checkpoint. A checkpoint is a Boost archive of this algorithm AND its polymorphic
+    // population, so the concrete individual type must be registered (compiled in, or loaded from an
+    // --individual plugin) BEFORE this point -- exactly like the networked wire. If it is not, Boost throws
+    // deep inside deserialization (typically unregistered_class); translate that into actionable guidance
+    // rather than an opaque archive error, while preserving the original message.
+    try {
+        this->fromFile(cp_file, this->getCheckpointSerializationMode());
+    }
+    catch(const std::exception &e) {
+        throw geneva_exception(
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+            << "In GOptimizationAlgorithmBase<>::loadCheckpoint(): Error!" << '\n'
+            << "Failed to deserialize the checkpoint file " << cp_file << '\n'
+            << "Underlying error: " << e.what() << '\n'
+            << "This usually means the individual (optimization-problem) type stored in the checkpoint is"
+            << '\n'
+            << "not available. Resume with the SAME individual that wrote the checkpoint -- compiled in, or"
+            << '\n'
+            << "loaded via --individual <path>.so -- built against the same Geneva version." << '\n'
+        );
+    }
 
     // The population (with its OA-owned scratch: personality + adaption / swarm / CG POD blocks) has
     // just been restored. Mark the run as resumed so the upcoming setup PRESERVES that scratch instead
