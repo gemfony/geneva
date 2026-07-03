@@ -51,11 +51,13 @@
 #include "courtier/GWireSerializationContext.hpp" // layout send-once: wire context + registry
 #include "courtier/GConsumerRegistry.hpp"
 #include "courtier/GSubmissionPolicy.hpp"
+#include "courtier/consumers/GStdThreadConsumerT.hpp"
 #include "courtier/consumers/GWebsocketConsumerT.hpp"
 #include "courtier/transport/GWebsocketTransportT.hpp"
 #include "courtier/consumers/GAsioConsumerT.hpp"
 #include "courtier/transport/GAsioTransportT.hpp"
 #include <atomic>
+#include <chrono>
 #include <thread>
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/ind/GGenomeLayout.hpp"
@@ -127,6 +129,58 @@ private:
         );
     }
 };
+
+/******************************************************************************/
+/**
+ * A high-dimensional sphere whose fitness sleeps a fixed amount, modeling a real (I/O- or compute-bound)
+ * evaluation gap. Used ONLY by the hidden RNG-prefetch wall-clock benchmark below: the many-dimensional
+ * genome makes the per-generation Gauss adaption (sqrt/log per draw) a meaningful cost, and the sleep
+ * gives the prefetch a real gap to overlap into.
+ */
+class SlowSphere : public GFlatGenomeT<SlowSphere> {
+public:
+    SlowSphere() { buildGenome(1000); }
+    explicit SlowSphere(std::size_t n) { buildGenome(n); }
+    SlowSphere(const SlowSphere &) = default;
+
+    std::shared_ptr<oa::GAdaptionConfigBase> getAdaptionConfig() const {
+        auto cfg = oa::makeAdaptionConfig<oa::GAdaptionConfigBase>(*this);
+        for(std::size_t i = 0; i < cfg->doubleGroups().size(); i++) {
+            cfg->groupDouble(i).gauss(0.5, 0.8, 1e-3, 2., 1.);
+        }
+        return cfg;
+    }
+
+    static std::chrono::microseconds eval_delay; ///< the modeled per-evaluation gap
+
+protected:
+    double fitnessCalculation() override {
+        std::this_thread::sleep_for(eval_delay); // the modeled evaluation gap
+        std::vector<double> v;
+        this->streamline<double>(v);
+        double sum = 0.;
+        for(double x : v) {
+            sum += x * x;
+        }
+        return sum;
+    }
+
+private:
+    void buildGenome(std::size_t n) {
+        GGenomeBuilder b;
+        b.addDoubleGroup(n, -10., 10.).init(1.0);
+        this->setGenome(b.build());
+    }
+
+    friend class boost::serialization::access;
+    template <typename Archive>
+    void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
+        ar &boost::serialization::make_nvp(
+            "GFlatGenomeT", boost::serialization::base_object<GFlatGenomeT<SlowSphere>>(*this)
+        );
+    }
+};
+std::chrono::microseconds SlowSphere::eval_delay{200};
 
 /******************************************************************************/
 /**
@@ -210,6 +264,7 @@ BOOST_CLASS_EXPORT(Gem::Tests::FactorySphere) // NOLINT
 
 using Gem::Tests::FactorySphere;
 using Gem::Tests::FlatSphere;
+using Gem::Tests::SlowSphere;
 
 /******************************************************************************/
 TEST_CASE("GGenomeBuilder produces the expected shared layout", "[flat]") {
@@ -1907,6 +1962,60 @@ TEST_CASE("EA over a websocket consumer with results-only returns keeps full gen
     best->streamline<double>(v);
     CHECK(v.size() == 8);          // the best individual must keep its full genome
     CHECK_FALSE(any_threw.load());
+}
+
+/******************************************************************************/
+// Hidden ([.]) wall-clock A/B for the per-individual RNG prefetch, over a REAL threaded consumer (the
+// true evaluation gap, not the synthetic GAdaptionPrefetch microbenchmark). Runs the SAME high-dimensional
+// EA twice -- prefetch off then on -- and reports the wall-clock of each plus the speedup. Not run by
+// ctest (the [.] tag hides it); invoke explicitly:
+//     ./GenevaStandardTests "[prefetch-bench]"
+// The overlap benefit is the adaption RNG fraction of wall-clock: it grows with genome dimension (more
+// Gauss draws) and shrinks as the evaluation gap dominates -- so the numbers are honest, not a headline.
+TEST_CASE("RNG prefetch wall-clock A/B over a real threaded consumer", "[.prefetch-bench]") {
+    namespace c2 = Gem::Courtier;
+    namespace oa = Gem::Geneva::OptimizationAlgorithms;
+
+    constexpr std::size_t DIM = 3000;      // many Gauss draws per individual -> adaption RNG is visible
+    constexpr std::size_t POP = 100, PARENTS = 20;
+    constexpr std::uint32_t GENS = 50;
+    SlowSphere::eval_delay = std::chrono::microseconds(150); // a real (I/O-like) per-evaluation gap
+
+    auto run = [&](bool prefetch_on) {
+        auto consumer = std::make_shared<c2::GStdThreadConsumerT<GOptimizableEntity>>();
+        consumer->setCloneFunction(
+            [](const std::unique_ptr<GOptimizableEntity> &p) { return p->clone_unique(); }
+        );
+        c2::GConsumerRegistryT<GOptimizableEntity>::instance().setConsumer(consumer);
+
+        auto pop = std::make_shared<oa::GEvolutionaryAlgorithm>();
+        pop->setPopulationSizes(POP, PARENTS);
+        pop->setMaxIteration(GENS);
+        pop->setNormalPrefetchEnabled(prefetch_on);
+        SlowSphere proto(DIM);
+        for(std::size_t i = 0; i < POP; ++i) {
+            pop->push_back(proto.clone_unique());
+        }
+        pop->setAdaptionConfig(proto.getAdaptionConfig());
+
+        const auto t0 = std::chrono::steady_clock::now();
+        pop->optimize();
+        const auto t1 = std::chrono::steady_clock::now();
+        c2::GConsumerRegistryT<GOptimizableEntity>::instance().clear();
+        return std::chrono::duration<double>(t1 - t0).count();
+    };
+
+    const double off = run(false); // warm the allocator/pool with the OFF run first
+    const double off2 = run(false);
+    const double on = run(true);
+    const double on2 = run(true);
+    const double best_off = std::min(off, off2);
+    const double best_on = std::min(on, on2);
+    WARN("RNG prefetch A/B (DIM=" << DIM << ", POP=" << POP << ", GENS=" << GENS << ", eval_delay="
+         << SlowSphere::eval_delay.count() << "us):\n  prefetch OFF = " << best_off
+         << " s\n  prefetch ON  = " << best_on << " s\n  speedup = " << (best_off / best_on) << "x");
+    CHECK(best_off > 0.);
+    CHECK(best_on > 0.);
 }
 
 /******************************************************************************/

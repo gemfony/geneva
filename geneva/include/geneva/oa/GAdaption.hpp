@@ -90,7 +90,8 @@ std::size_t adaptGaussChannel(
     const std::vector<GroupSpec<T>> &groups,
     std::span<T> values,
     AuxKey key,
-    Gem::Hap::GRandomBase &gr
+    Gem::Hap::GRandomBase &gr,
+    Gem::Geneva::Genome::NormalPrefetchCache *ncache = nullptr
 ) {
     if(not scratch.hasAux(key)) {
         return 0;
@@ -104,9 +105,11 @@ std::size_t adaptGaussChannel(
         }
         // The FP value step is taken in the NORMALIZED internal coordinate (interval width 1), so the
         // gaussian step is dimensionless (sigma is a fraction of the parameter's range); the physical
-        // scale is reapplied by the external transform when the objective reads the value (§2.4).
+        // scale is reapplied by the external transform when the objective reads the value (§2.4). When a
+        // prefetch cache is supplied the dominant per-value step pops a pre-transformed standard normal;
+        // nullptr draws inline (bit-identical to the historical kernel).
         n += Gem::Geneva::Genome::adaptGaussGroup<T>(
-            g.gauss, states[gi], values.subspan(g.start, g.len), gr
+            g.gauss, states[gi], values.subspan(g.start, g.len), gr, ncache
         );
     }
     return n;
@@ -176,9 +179,15 @@ inline std::size_t runAdaptionKernels(
 ) {
     using namespace Gem::Geneva::Genome;
 
+    // The individual's standard-normal prefetch cache: the dominant per-value Gauss step pops a
+    // pre-transformed z ~ N(0,1) from it (the kernel applies sigma*z), moving the sqrt/log off the burst
+    // when it was filled during the prior evaluation gap. Self-warming, so it is correct on the first
+    // (unwarmed) generation too -- an empty cache just draws inline.
+    NormalPrefetchCache *ncache = &ind.normalCache();
+
     std::size_t n = 0;
-    n += detail::adaptGaussChannel<double>(scratch, cfg.doubleGroups(), ind.internalDoubleValues(), AUXKEY_GAUSS_DOUBLE, gr);
-    n += detail::adaptGaussChannel<float>(scratch, cfg.floatGroups(), ind.internalFloatValues(), AUXKEY_GAUSS_FLOAT, gr);
+    n += detail::adaptGaussChannel<double>(scratch, cfg.doubleGroups(), ind.internalDoubleValues(), AUXKEY_GAUSS_DOUBLE, gr, ncache);
+    n += detail::adaptGaussChannel<float>(scratch, cfg.floatGroups(), ind.internalFloatValues(), AUXKEY_GAUSS_FLOAT, gr, ncache);
     n += detail::adaptBiGaussChannel<double>(scratch, cfg.doubleGroups(), ind.internalDoubleValues(), AUXKEY_BIGAUSS_DOUBLE, gr);
     n += detail::adaptBiGaussChannel<float>(scratch, cfg.floatGroups(), ind.internalFloatValues(), AUXKEY_BIGAUSS_FLOAT, gr);
 

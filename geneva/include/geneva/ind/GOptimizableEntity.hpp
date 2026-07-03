@@ -66,6 +66,8 @@
 #include "geneva/ind/GAuxiliaryStore.hpp" // the OA-owned scratch (personality + per-group adaption PODs)
 #include "geneva/ind/GIndividualProcessingResult.hpp"
 #include "geneva/ind/GProblemPolicy.hpp"
+#include "hap/GDistributionCache.hpp" // the self-sizing standard-normal prefetch cache (RNG prefetch)
+#include "hap/GRandomDistributionsT.hpp" // g_normal_distribution (the cached distribution)
 #include "hap/GRandomT.hpp"
 
 // aliases for ease of use
@@ -392,6 +394,20 @@ public:
      * @return A reference to this candidate's per-individual random engine
      */
     Gem::Hap::GRandomBase &getRandomEngine() { return gr_; }
+
+    /**
+     * @brief This candidate's standard-normal prefetch cache (the OA-owned Gauss adaption pops from it
+     * when a cache is threaded in). @return A reference to the per-individual N(0,1) prefetch cache
+     */
+    Gem::Hap::GRNGDistributionCacheT<Gem::Hap::g_normal_distribution<double>> &normalCache() { return normalCache_; }
+
+    /**
+     * @brief Tops up this candidate's standard-normal prefetch cache from its SEPARATE prefetch engine
+     * (never gr_), intended to run during the evaluation gap. Fills only the values consumed since the
+     * last call; grows on demand. Safe to run concurrently with this individual's evaluation because it
+     * touches only transient, disjoint state (prefetchEngine_ + normalCache_).
+     */
+    void prefetchRandom() { normalCache_.prefetch(prefetchEngine_); }
 
     /**
      * @brief Public constraint check used by the OA-owned adaption retry loop. Feasibility is a concrete
@@ -870,6 +886,22 @@ protected:
 
     Gem::Hap::GRandom gr_; ///< Per-individual engine; follows the HAP_RANDOM_SOURCE-selected backend
     std::uniform_int_distribution<std::size_t> uniform_int_; ///< Uniformly distributed integer randoms
+
+    /***************************************************************************/
+    // RNG prefetch (transient, per-individual). The dominant per-value Gauss step in adaption is a
+    // standard normal z ~ N(0,1) transformed (sqrt/log) from raw uint64; this cache pre-produces those
+    // z's during the (long) evaluation gap so the adaption burst only pops an already-transformed value
+    // (the kernel applies sigma*z). The refill runs on a SEPARATE engine (prefetchEngine_, not gr_) so it
+    // can overlap concurrent evaluation without racing the individual's own draws. Both members are
+    // TRANSIENT: they are NOT in localMembers_(), so they are neither serialized, compared, nor copied by
+    // load_()/recombine -- each individual keeps its own cache in place (like gr_) and re-warms after a
+    // checkpoint reload. Standard normals are genome-independent, so a cache filled under one genome stays
+    // valid after recombine hands the object another. Backend-invisible: the cache pulls raw uint64 from a
+    // GRandomBase proxy and prefetchEngine_ is a plain GRandom, so it follows HAP_RANDOM_SOURCE unchanged.
+    /// Prefetched standard normals z ~ N(0,1) (default member initializer: no default ctor on the cache).
+    Gem::Hap::GRNGDistributionCacheT<Gem::Hap::g_normal_distribution<double>> normalCache_{
+        Gem::Hap::g_normal_distribution<double>{}};
+    Gem::Hap::GRandom prefetchEngine_; ///< Separate engine feeding the prefetch (never gr_, for race-freedom)
 
     /***************************************************************************/
     // Pure-virtual hooks implemented by the genome layer.

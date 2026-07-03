@@ -317,6 +317,28 @@ Recommended Versions:
   throughput (~1.8-2.0x) on every source; on the real adaptGaussGroup kernel (GAdaptionPrefetch)
   it was ~4.4x faster in-adaption.
 
+- The RNG prefetch is now WIRED INTO THE EA GENERATION LOOP (the productionization step noted
+  above), default ON. Each optimizable entity carries two transient (non-serialized, non-compared,
+  re-warmed after a checkpoint) members next to its RNG stream: a standard-normal prefetch cache and
+  a SEPARATE prefetch engine. The OA base gained a general seam -- startNormalPrefetch_(snapshot) /
+  joinNormalPrefetch_() -- that fans the per-individual cache top-up across the organizational thread
+  pool (tp_ptr_, Inv 2) over a SNAPSHOT of individual pointers. GParChild::cycleLogic_ snapshots the
+  just-adapted children, starts the prefetch immediately before runFitnessCalculation_ and joins it
+  immediately after (before selectBest_), so the sqrt/log transform for the next generation's Gauss
+  step runs concurrently with the (long) evaluation; a one-time warm-up fills the caches in init().
+  Because population elements now keep their heap address across a submission (the in-place return
+  reconciliation, above) and the refill touches only transient, disjoint per-individual state (its
+  own engine + cache), the overlap is race-free -- certified by a ThreadSanitizer run of the EA cycle
+  with a networked consumer (refill parallel to in-place checkin on the same objects, 0 data races).
+  This covers the EA, meta-EA and SA (all via GParChild); the swarm/CGD/scan draw sites are untouched.
+  A runtime kill-switch (GOptimizationAlgorithmBase::setNormalPrefetchEnabled(false)) opts out without
+  an ABI split (the cache members are always present). Reproducibility caveat unchanged: the cache
+  reorders raw-word consumption, so results are statistically equivalent but not bit-identical to the
+  inline path (Geneva does not promise bit-reproducible randoms). Measured over a real threaded
+  consumer with a modeled evaluation gap (high-dimensional genome), the overlap is a modest, free
+  win in the RNG-bound regime (~1.05-1.27x wall-clock, no regression) and grows with genome
+  dimension; for compute/IO-bound evaluations it is hidden under the gap at no cost.
+
 - Hap's random-number source selector was renamed as the set of sources grows: the enum
   Gem::Hap::RANDFLAVOURS is now Gem::Hap::randomSource, and its values RANDOMPROXY /
   RANDOMLOCAL are now QUEUE / LOCAL (the underlying integers are preserved, so streamed

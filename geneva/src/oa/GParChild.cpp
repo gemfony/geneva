@@ -845,8 +845,29 @@ std::tuple<double, double> GParChild::cycleLogic_() {
     // adapt children
     adaptChildren_();
 
+    // Snapshot the just-adapted individuals' object pointers and launch their RNG prefetch so it OVERLAPS
+    // the (long) evaluation below: the refill runs on tp_ptr_ (idle now -- adaptChildren_ already joined
+    // it) while runFitnessCalculation_ drives the consumer. A SNAPSHOT is walked, never the live
+    // population, so it is immune to any in-place slot reconciliation the consumer performs during
+    // evaluation (population elements keep their address, but the snapshot is the contract that makes the
+    // refill's target set explicit). The refill touches only transient, disjoint per-individual state (a
+    // separate prefetch engine + the individual's own cache), so it never races the concurrent evaluation.
+    std::tuple<std::size_t, std::size_t> prefetch_range = this->getAdaptionRange();
+    std::vector<gen::GOptimizableEntity *> prefetch_snapshot;
+    prefetch_snapshot.reserve(std::get<1>(prefetch_range) - std::get<0>(prefetch_range));
+    for(auto it = this->begin() + std::get<0>(prefetch_range);
+        it != this->begin() + std::get<1>(prefetch_range);
+        ++it) {
+        prefetch_snapshot.push_back(it->get());
+    }
+    startNormalPrefetch_(prefetch_snapshot);
+
     // calculate the children's (and possibly their parents' values)
     runFitnessCalculation_();
+
+    // Join the prefetch before the next draw site: every cache must be consistent before selectBest_ and
+    // the next generation's adaptChildren_ pop from it.
+    joinNormalPrefetch_();
 
     // find out the best individuals of the population
     selectBest_();
@@ -927,6 +948,19 @@ void GParChild::init() {
                     adaption_config_->installInto(slot->scratch());
                 }
             }
+
+            // One-time warm-up of the per-individual RNG prefetch caches: the first generation has no
+            // prior evaluation gap to fill them, so top them up once now (over the whole population) via
+            // the same pool-backed hooks, joined before the loop starts. Correctness does not depend on
+            // this (an empty cache falls back to inline draws) -- it only removes the first-generation
+            // warm-up cost.
+            std::vector<gen::GOptimizableEntity *> warm;
+            warm.reserve(this->size());
+            for(auto const &slot : *this) {
+                warm.push_back(slot.get());
+            }
+            startNormalPrefetch_(warm);
+            joinNormalPrefetch_();
         }
     }
 }
