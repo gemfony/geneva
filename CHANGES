@@ -136,6 +136,17 @@ Recommended Versions:
   lower-level cache facility and the kernels' optional cache hook are retained; a
   cleaner Hap-side redesign is sketched in prompts/2026-07-03-rng-prefetch-redesign.md.
 
+- CLEANED: the shipped example / benchmark / test configuration files no longer carry
+  keys for removed features, which the parser reported as "unknown key ... ignored" at
+  startup. Removed the "default_executor" block from every algorithm config (the broker
+  executor was replaced by the single process consumer) and the "max_unsuccessful_adaptions",
+  "max_retries_until_valid" and "random_crash_parameters" keys from every individual config
+  (adaption retry limits moved to the OA-owned adaption config; the random-crash facility
+  was retired for the fault injector). The now-orphaned GBrokerExecutor.json files were
+  removed. (These configs are otherwise still not fully regenerated -- they can be brought
+  fully up to date, key-for-key, by deleting them and re-running the binaries, which write
+  a fresh config for every registered option.)
+
 - NEW: a pluggable evaluation FAULT INJECTOR replaces the retired per-individual
   "random crash" facility. A single GFaultInjector is registered process-wide
   (directly via GFaultInjectorRegistry, or through Go2::registerFaultInjector,

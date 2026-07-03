@@ -46,19 +46,6 @@
         "default": "10000",
         "value": "10000"
     },
-    "max_unsuccessful_adaptions": {
-        "comment": "The maximum number of unsuccessful adaptions in a row for one call to adapt()",
-        "default": "1000",
-        "value": "1000"
-    },
-    "max_retries_until_valid": {
-        "comment": "The maximum allowed number of retries during the",
-        "comment": "adaption of individuals until a valid solution was found",
-        "comment": "A parameter set is considered to be \"valid\" if",
-        "comment": "it passes all validity checks",
-        "default": "10",
-        "value": "10"
-    },
     "touched_termination": {
       "termination_file": {
         "comment": "The name of a file which, when modified after the start of an",

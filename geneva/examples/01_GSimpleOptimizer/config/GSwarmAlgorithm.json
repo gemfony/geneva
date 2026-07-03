@@ -112,21 +112,6 @@
         "default": "true",
         "value": "true"
     },
-    "default_executor": {
-        "default_exec_mode": {
-            "comment": "The default executor type to be used for this algorithm.",
-            "comment": "0: serial",
-            "comment": "1: multi-threaded",
-            "comment": "2: brokered",
-            "default": "2",
-            "value": "2"
-        },
-        "default_exec_config": {
-            "comment": "The configuration file for the default executor. Note that it needs to fit the executor type.",
-            "default": ".\/config\/GBrokerExecutor.json",
-            "value": ".\/config\/GBrokerExecutor.json"
-        }
-    },
     "swarm_size": {
         "n_neighborhoods": {
             "comment": "The desired number of neighborhoods in the population",

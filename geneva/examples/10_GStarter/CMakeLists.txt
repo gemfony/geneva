@@ -99,7 +99,6 @@ INSTALL(TARGETS ${EXECUTABLENAME} DESTINATION bin)
 
 SET(CONFIGFILES
 	config/Go2.json
-	config/GBrokerExecutor.json
 	config/GStarterIndividual.json
 	config/GEvolutionaryAlgorithm.json
 	config/GSimulatedAnnealing.json

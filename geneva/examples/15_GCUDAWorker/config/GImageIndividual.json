@@ -157,31 +157,9 @@
         "default": "10000",
         "value": "10000"
     },
-    "max_unsuccessful_adaptions": {
-        "comment": "The maximum number of unsuccessful adaptions in a row for one call to adapt()",
-        "default": "1000",
-        "value": "1000"
-    },
-    "max_retries_until_valid": {
-        "comment": "it passes all validity checks",
-        "default": "10",
-        "value": "10"
-    },
     "maxmode": {
         "comment": "Note that minimization is the by far most common option.",
         "default": "0",
         "value": "0"
-    },
-    "random_crash_parameters": {
-        "use_random_crash": {
-            "comment": "Indicates whether random crashes should occur for debugging purposes",
-            "default": "false",
-            "value": "false"
-        },
-        "random_crash_prob": {
-            "comment": "The probability of a random crash to occur",
-            "default": "0.001",
-            "value": "0.001"
-        }
     }
 }
