@@ -342,6 +342,19 @@ public:
     void finalize();
 
     /**
+     * @brief Whether finalize() has run, i.e. the factory is permanently shut down.
+     *
+     * A finalized factory has closed (terminally) its producer/return buffers and joined its
+     * producer threads, so getNewRandomContainer() will never hand out another container again -- the
+     * distinction a consumer needs to tell a transient "buffer momentarily empty" (retry) apart from a
+     * terminal "no more random numbers will ever come" (stop retrying). Consumers use this to fail
+     * fast instead of spinning forever once the factory is down (e.g. during process teardown).
+     *
+     * @return true once finalize() has completed; false while the factory is live
+     */
+    [[nodiscard]] bool finalized() const { return finalized_.load(); }
+
+    /**
      * @brief Sets the number of producer threads for this factory.
      *
      * @param n_producer_threads The desired number of threads producing random number packages

@@ -85,6 +85,22 @@ Recommended Versions:
   them on the adaption config instead). The self-adaptive stall response
   (re-widening the mutation range on stagnation) is unchanged.
 
+- FIXED: destroying a Go2 (or any scoped GenevaInitializer) no longer disables
+  random-number generation for the rest of the process. GenevaInitializer -- which
+  is embedded in every Go2 as a member -- used to finalize the process-global Hap
+  random-number factory in its destructor, joining the factory's producer threads
+  and terminally closing its buffers. Because that factory is a shared singleton
+  outliving any single initializer, a short-lived Go2 would permanently starve every
+  later random-number consumer, which then spun at 100% CPU forever in
+  GRandomT::getNewRandomContainer() -- a hang that could freeze a whole program (and
+  did hang the unit-test binary once a Go2 had been constructed and destroyed).
+  GenevaInitializer's destructor no longer finalizes the factory; the factory is torn
+  down exactly once by its own singleton destructor at process exit. As a safety net,
+  GRandomT::getNewRandomContainer() now throws a clear error instead of busy-spinning
+  if it is ever asked for random numbers after the factory has been finalized (a new
+  GRandomFactory::finalized() query distinguishes a transient empty buffer from a
+  permanent shutdown).
+
 - NEW: a pluggable evaluation FAULT INJECTOR replaces the retired per-individual
   "random crash" facility. A single GFaultInjector is registered process-wide
   (directly via GFaultInjectorRegistry, or through Go2::registerFaultInjector,

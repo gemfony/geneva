@@ -65,9 +65,13 @@ public:
     GenevaInitializer();
 
     /**
-     * @brief The destructor; performs the runtime finalize of the random factory.
+     * @brief The destructor.
      *
-     * Tears down the global random-number factory that the constructor brought online.
+     * Deliberately does NOT finalize the global random-number factory. That factory is a
+     * process-global singleton shared by every Geneva facility and outlives any individual
+     * GenevaInitializer (it is embedded in every Go2 as Go2::gi_); it is torn down once by its own
+     * singleton destructor at process exit. Finalizing it here would permanently starve every later
+     * random-number consumer. See the implementation comment for the full rationale.
      */
     ~GenevaInitializer();
 

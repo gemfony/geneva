@@ -30,9 +30,11 @@
 #include <catch2/catch_test_macros.hpp>
 
 #include <any>
+#include <cmath>
 #include <cstdint>
 #include <filesystem>
 #include <memory>
+#include <random>
 #include <vector>
 #include <span>
 
@@ -63,6 +65,9 @@
 #include "geneva/ind/GGenomeLayout.hpp"
 #include "geneva/ind/GGenomeLayoutSerialization.hpp" // ChannelLayout (de)serialisation (layout interning)
 #include "geneva/Go2.hpp"
+#include "geneva/GenevaInitializer.hpp"
+#include "hap/GRandomT.hpp"
+#include "hap/GRandomFactory.hpp"
 #include "geneva/ind/GFlatGenome.hpp"
 #include "geneva/ind/GFlatIndividualFactory.hpp"
 #include "geneva/ind/GIndividualPluginLoader.hpp"
@@ -2049,6 +2054,35 @@ TEST_CASE("Go2 enforces exactly one individual (optimization problem) per proces
     // A second registration (here a second compiled-in creator; the same guard fires for a plugin load
     // when one is already provided) is refused: one individual type per process.
     CHECK_THROWS(go.registerContentCreator(f2));
+}
+
+/******************************************************************************/
+
+TEST_CASE("destroying a GenevaInitializer keeps the process RNG alive", "[go2][rng][regression]") {
+    // Regression guard for the ctest hang. GenevaInitializer -- embedded in every Go2 as Go2::gi_ --
+    // must NOT finalize the process-global Hap random-number factory on destruction. If it does, the
+    // factory's producer threads are joined and its buffers are terminally closed, and the very next
+    // random-number consumer spins forever in GRandomT::getNewRandomContainer() (a 100%-CPU livelock
+    // that hung the whole GenevaStandardTests binary right after the "Go2 enforces exactly one
+    // individual" case destroyed its Go2). We destroy a GenevaInitializer in a nested scope and then
+    // exercise the RNG: constructing a GRandom already pulls a fresh container from the factory, and a
+    // run of draws forces at least one buffer refill. This must COMPLETE -- not hang, not throw. It
+    // fails on the unfixed code (the factory reports finalized(), so the draw throws) and passes once
+    // ~GenevaInitializer() no longer finalizes the shared singleton (the factory is torn down only by
+    // its own singleton destructor at process exit).
+    { Gem::Geneva::GenevaInitializer gi; } // came online here; must NOT tear the factory down at scope exit
+
+    REQUIRE_FALSE(Gem::Hap::randomFactory()->finalized()); // the shared factory must still be live
+
+    Gem::Hap::GRandom gr; // ctor pulls a fresh container -- would spin (unfixed) or throw (guarded) if dead
+    std::uniform_real_distribution<double> u(0., 1.);
+    double x = 0.;
+    for(int i = 0; i < 4096; ++i) { // enough draws to exhaust a container and force a refill
+        x = u(gr);
+        CHECK(x >= 0.);
+        CHECK(x < 1.);
+    }
+    CHECK(std::isfinite(x));
 }
 
 /******************************************************************************/

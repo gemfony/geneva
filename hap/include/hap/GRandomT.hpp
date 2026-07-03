@@ -280,9 +280,25 @@ private:
         std::uint32_t n_retries = 0;
 #endif /* DEBUG */
 
-        // Try until a valid container has been received. new01Container has
-        // a timeout of DEFAULTFACTORYGETWAIT internally.
+        // Try until a valid container has been received. getNewRandomContainer() has a timeout of
+        // DEFAULTFACTORYGETWAIT internally and signals "nothing available yet" with an empty pointer.
+        // An empty return is normally TRANSIENT (the producers simply have not refilled the buffer
+        // yet), so we retry. Once the factory has been FINALIZED, however, its buffers are closed for
+        // good and no container will ever arrive again -- retrying would then busy-spin at 100% CPU
+        // forever. Distinguish the terminal case and fail fast with a clear exception instead of
+        // hanging. (Defensive: the factory is a process-global singleton finalized only by its own
+        // destructor at process exit, so a live run never reaches this; it converts a would-be
+        // deadlock into a diagnosable error should the factory ever be shut down out from under a
+        // still-drawing consumer.)
         while(not(p_ = grf_->getNewRandomContainer())) {
+            if(grf_->finalized()) {
+                throw geneva_exception(
+                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+                    << "In GRandomT<QUEUE>::getNewRandomContainer(): Error!" << '\n'
+                    << "The random-number factory has been finalized (permanently shut down);" << '\n'
+                    << "no further random-number containers will be produced." << '\n'
+                );
+            }
 #ifdef DEBUG
             n_retries++;
 #endif /* DEBUG */
