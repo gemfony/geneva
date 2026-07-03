@@ -34,7 +34,15 @@ would violate one, stop and find another approach. In particular:
    11), never drop the improvement. · 14. Generalize a generalizable solution — when a problem admits one general
    formulation, solve it there (a shared function, template/policy, virtual hook with a sensible default, or
    data-driven parameter); do not write special-purpose or per-case variants where a general one fits, unless a
-   general solution is genuinely infeasible (record the reason at the site). Positive form of Inv 1.
+   general solution is genuinely infeasible (record the reason at the site). Positive form of Inv 1. · 15. A
+   discovered defect earns a regression test — when a genuine defect surfaces during development (a compilation
+   error, crash, assertion, or logical/numeric failure), fixing it is not enough: add a test that fails on the
+   unfixed code and passes once fixed, living with the code it guards, so the same mistake cannot silently return.
+   · 16. Write to the highest C++ standard the build is configured for — use the features of the highest standard
+   Geneva is currently set to (today C++23); the rule names no fixed version — deduce the active standard from the
+   build system (central `CMAKE_CXX_STANDARD` in `CMakeModules/CommonGenevaBuild.cmake`, driven by `genevaConfig.gcfg`),
+   not from this doc. Host code only (device/CUDA trails via `CMAKE_CUDA_STANDARD`); confirm a given library feature
+   actually compiles on both gcc and clang before relying on it.
 
 See the file for the full, authoritative list.
 

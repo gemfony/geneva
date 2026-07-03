@@ -156,6 +156,53 @@ positive form of Invariant 1 (prefer existing capabilities) and composes with In
 improvement is not blocked by a special-purpose consumer): prefer the general shape, generalize the
 special-purpose code you find, and only descend to the specific when the general level cannot express it.
 
+## 15. A discovered defect earns a regression test
+
+When a **genuine defect surfaces during development** — a compilation error, a crash, an assertion, or a
+logical/numeric failure — fixing it is **not enough**: add a test that pins the problem down so it cannot
+silently return. The test must **fail on the unfixed code and pass once the fix is in** (verify both when
+practical), and it lives with the code it guards (a unit test in the owning library's suite; the existing
+per-class `specificTests*_GUnitTests_` hooks and the `[net]`/serialization round-trip suites are the natural
+homes). This applies to problems *found while working*, not only to tickets — the moment you understand why
+something broke, encode that understanding as a test. A defect you cannot yet reproduce is triaged first
+(Invariant 7); once reproduced, the reproduction becomes the regression test.
+
+*Why:* a fix without a test documents nothing and decays — the same mistake reappears under a refactor, a
+compiler change, or a merge, and Invariant 9 (a failing test is fixed before moving on) has nothing to fire
+on. A regression test converts a one-time debugging effort into a permanent guarantee, and turns "I fixed it"
+into "it is proven fixed and will stay fixed."
+
+*How to apply:* reproduce → add the failing test → fix → confirm the test now passes. Prefer the narrowest
+test that still captures the root cause (a value that round-trips, an overload that resolves, a boundary that
+holds) over re-running a whole scenario. If a genuine defect is genuinely untestable in the current harness,
+record why at the fix site (cf. Invariant 14's recorded-exception discipline).
+
+## 16. Write to the highest C++ standard the build is configured for
+
+New and modified code uses the language and library features of the **highest C++ standard the Geneva build
+is currently configured to use** — do not hand-limit yourself to an older dialect out of habit or muscle
+memory. This rule deliberately **does not name a version**: the active standard is a build-system setting
+(today C++23), chosen in **one central place** — `CMAKE_CXX_STANDARD` in
+`CMakeModules/CommonGenevaBuild.cmake`, driven by the `genevaConfig.gcfg` — and it will rise over time. So
+**deduce the current standard from the build system, not from this document**: read the central
+`CMAKE_CXX_STANDARD` (or the configure banner it prints, "Using C++ standard NN"), and write to that. When a
+newer construct genuinely reads better or removes hand-rolled machinery, prefer it over the pre-standard
+idiom it replaces.
+
+*Why:* the whole tree is compiled at one standard; code that silently targets an older dialect is
+inconsistent, re-implements what the language now gives for free, and quietly blocks the standard from being
+raised. Pinning the rule to a concrete version would rot the moment the build moves on — deducing it from the
+build system keeps the instruction correct across every future bump.
+
+*How to apply / caveats:* (a) the rule governs **host** code; **device (CUDA `.cu`/`.cuh`) code trails the
+host standard** (nvcc has no matching device dialect — a separate central `CMAKE_CUDA_STANDARD`), so target
+that lower standard there. (b) The configured `-std` is necessary but not sufficient for a given *library*
+feature: a header may be missing on a particular toolchain (e.g. `<mdspan>` / `std::start_lifetime_as` absent
+on some libstdc++ versions). Confirm the feature actually compiles on the supported compilers (Invariant 8's
+gcc **and** clang builds) before relying on it, and fall back only with a recorded reason. (c) This composes
+with Invariant 1 — adopt the newer standard where it *replaces* hand-rolled machinery or closes a bug, not as
+churn for its own sake.
+
 ---
 
 *Add new invariants below as the maintainer establishes them. Keep each rule short, mandatory, and
