@@ -39,6 +39,9 @@ SET ( GENEVADIETRICHPLOTTINGINCLUDES
 	plotting/GDecorators.hpp
 	plotting/GPlotSpec.hpp
 	plotting/GBasePlotter.hpp
+	plotting/GDataCollectors.hpp
+	plotting/GHistogramPlots.hpp
+	plotting/GGraphPlots.hpp
 	plotting/GPlots.hpp
 	plotting/GPlotEmitter.hpp
 	plotting/GDataLog.hpp
