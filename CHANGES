@@ -214,6 +214,24 @@ Recommended Versions:
   unchanged; the serial, thread-pool, networked (ASIO / websocket / MPI) and GPU
   consumers all reconcile the span in place.
 
+- NETWORKED RETURN RECONCILIATION IS NOW POINTER-STABLE: a population element keeps its
+  heap address across a networked round-trip. Previously a networked consumer's checkin()
+  swapped the deserialized return INTO the population slot (`slot = std::move(returned)`),
+  freeing and relocating the original object, and the clone-on-partial-return refill
+  likewise replaced a failed slot with a fresh clone. Both now reconcile IN PLACE: the
+  originally-submitted object is kept and only the computed results are absorbed into it
+  (a results-only return keeps the object's genome + OA scratch; a full return -- e.g. MPI,
+  or a client that modified the individual -- first grafts the returned genome onto it),
+  and a failed slot is refilled by copying a viable sibling's content into the existing
+  object (then minting a fresh lineage id) rather than replacing it. Two new
+  Gem::Courtier::GProcessable primitives express this -- absorbResultsFrom() and
+  loadContentFrom() -- with the geneva individual overriding them; item types that need no
+  address stability (the non-optimization demo containers) fall back to clone-and-replace.
+  Behaviour is otherwise unchanged (all three transports still converge), but the stable
+  address lets a per-individual facility (e.g. an RNG prefetch) hold a snapshot of
+  population addresses across a submission. Guarded by a new regression test asserting
+  address stability across a websocket round-trip.
+
 - The GPU consumer is now an opt-in add-on folded INTO the one gemfony-courtier library,
   exactly like the MPI consumer -- there is no separate gemfony-courtier-gpu library any
   more. A new build flag GENEVA_BUILD_WITH_GPU_CONSUMER (genevaConfig.gcfg:

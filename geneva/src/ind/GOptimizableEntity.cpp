@@ -713,6 +713,52 @@ void GOptimizableEntity::load_(const GOptimizableEntity *cp) {
 
 /******************************************************************************/
 /**
+ * @brief Absorbs a returned item's results + lifecycle in place, keeping this element's genome + scratch.
+ *
+ * The pointer-preserving counterpart of a networked return: the server keeps the originally-submitted
+ * population element (its address, its genome, its evolved OA scratch) and copies in only what the worker
+ * computed -- the processing lifecycle (via the base), the evaluation-derived local state (validity level,
+ * …) and the result store. Deliberately NOT copied: the genome value channels (kept for a results-only
+ * return; grafted separately for a full return) and the OA scratch. This mirrors the subset of load_()
+ * that a return legitimately carries, minus the genome and scratch.
+ */
+void GOptimizableEntity::absorbResultsFrom_(const Gem::Courtier::GProcessable &src) {
+    // The non-generic processing lifecycle (status / errors / timing / routing / correlation), keeping our
+    // own stable lineage id (detail::LineageId's copy-assignment keeps the target's value).
+    Gem::Courtier::GProcessable::absorbResultsFrom_(src);
+
+    const auto *p_load = dynamic_cast<const GOptimizableEntity *>(&src);
+    if(p_load == nullptr) {
+        return; // a non-individual return carries nothing more we can absorb
+    }
+
+    // The plain evaluation-derived local members (validity level, …) and the result store -- exactly the
+    // members load_() copies beyond the genome and scratch.
+    Gem::Common::g_load_members(this->localMembers_(), p_load->localMembers_());
+    stored_results_cnt_ = p_load->stored_results_cnt_;
+}
+
+/******************************************************************************/
+/**
+ * @brief Replaces this element's whole content with a deep copy of @p src, in place (no relocation).
+ *
+ * The in-place equivalent of clone(): used by the clone-on-partial-return refill to substitute a viable
+ * sibling into a failed slot without changing the slot's heap address (so a concurrent snapshot of
+ * population addresses stays valid). Delegates to load_() -- a full deep copy of genome + results +
+ * scratch -- and returns true to signal the consumer that no clone-and-replace fallback is needed. The
+ * caller mints a fresh lineage id afterwards (a refill is a new individual).
+ */
+bool GOptimizableEntity::loadContentFrom_(const Gem::Courtier::GProcessable &src) {
+    const auto *p_load = dynamic_cast<const GOptimizableEntity *>(&src);
+    if(p_load == nullptr) {
+        return false; // not an individual -> let the consumer fall back to clone-and-replace
+    }
+    this->load_(p_load); // full polymorphic deep copy in place (most-derived load_ runs)
+    return true;
+}
+
+/******************************************************************************/
+/**
  * @brief Searches for compliance with expectations with respect to another candidate.
  * @param cp The other candidate to compare against
  * @param e The expectation (e.g. equality)

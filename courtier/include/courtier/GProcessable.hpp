@@ -458,6 +458,42 @@ public:
      */
     void graftOaScratchFrom(const GProcessable &original) { this->graftOaScratchFrom_(original); }
 
+    /***************************************************************************/
+    // In-place, pointer-preserving return reconciliation (server-side).
+
+    /**
+     * @brief Absorbs the computed results + processing lifecycle of a returned item @p src INTO this
+     * work item, keeping this item's own heap address and lineage id.
+     *
+     * This is the pointer-preserving counterpart of "the returned object becomes the slot": rather than
+     * overwriting a population slot's owning pointer with the deserialized return (which would free the
+     * original object and change its address), a networked consumer keeps the originally-submitted object
+     * and absorbs only what the worker computed. Address stability lets other parts of the system (e.g. a
+     * per-individual prefetch overlapping evaluation) hold a snapshot of population addresses across a
+     * submission. The lifecycle (status / errors / timing / routing counters / correlation id) is copied
+     * while THIS item keeps its own stable lineage id; a result-bearing derived class additionally copies
+     * its result store, and -- as documented on the geneva override -- deliberately keeps its own input
+     * data (results-only return) and OA scratch.
+     *
+     * @param src The returned, evaluated item whose results + lifecycle are absorbed into this one
+     */
+    void absorbResultsFrom(const GProcessable &src) { this->absorbResultsFrom_(src); }
+
+    /**
+     * @brief Replaces this work item's content in place with a deep copy of @p src, keeping this item's
+     * heap address (a fresh lineage id is the caller's responsibility -- a refill is a new individual).
+     *
+     * Used by the clone-on-partial-return refill to substitute a viable sibling into a failed slot without
+     * relocating it (so a concurrent address snapshot stays valid). The base has no content and returns
+     * false ("not supported"); a result-bearing derived class overrides it to perform the in-place copy
+     * and returns true. A consumer that gets false falls back to clone-and-replace (correct for the
+     * non-optimization demo item types, which need no address stability).
+     *
+     * @param src The source item to deep-copy into this one
+     * @return true if the in-place content copy was performed; false if unsupported (caller should replace)
+     */
+    [[nodiscard]] bool loadContentFrom(const GProcessable &src) { return this->loadContentFrom_(src); }
+
 protected:
     /***************************************************************************/
     /**
@@ -476,6 +512,24 @@ protected:
     virtual void graftOaScratchFrom_([[maybe_unused]] const GProcessable &original) {
         /* no OA scratch in the base */
     }
+
+    /**
+     * @brief Hook behind absorbResultsFrom(): copies the non-generic processing lifecycle (status,
+     * errors, timing, routing counters, correlation id) from @p src into this item while keeping this
+     * item's own lineage id (LineageId's copy-assignment keeps the target's value). A result-bearing
+     * derived class overrides this to additionally copy its result store (and to keep genome / scratch).
+     * @param src The returned item whose lifecycle state is absorbed
+     */
+    virtual void absorbResultsFrom_(const GProcessable &src) { GProcessable::operator=(src); }
+
+    /**
+     * @brief Hook behind loadContentFrom(): performs an in-place deep copy of @p src into this item.
+     * The base carries no content and cannot, so it returns false; a result-bearing derived class
+     * overrides it to copy its full content and returns true.
+     * @param src The source item to copy in place
+     * @return true if the in-place copy was performed; false in the base (unsupported)
+     */
+    virtual bool loadContentFrom_([[maybe_unused]] const GProcessable &src) { return false; }
 
     /**
      * @brief Lets derived classes flag a custom error condition. Sets the ERROR_FLAGGED status and

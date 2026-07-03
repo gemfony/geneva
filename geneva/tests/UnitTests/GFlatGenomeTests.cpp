@@ -1377,6 +1377,46 @@ TEST_CASE("Wire results-only return: genome omitted, grafted from the original",
 }
 
 /******************************************************************************/
+TEST_CASE("In-place return-reconciliation primitives keep genome / relocate nothing", "[flat][identity]") {
+    // Direct guard for the two GProcessable primitives that make the networked reconciliation
+    // pointer-stable (the demo-container policy tests exercise only the clone-and-replace FALLBACK, not
+    // the geneva overrides):
+    //   - absorbResultsFrom(): the server keeps THIS element's genome (+ scratch) and takes only results;
+    //   - loadContentFrom():   a full in-place deep copy (genome + results) without relocation.
+    FlatManyGroups server_item(24);
+    server_item.randomInit(activityMode::ALLPARAMETERS);
+    const std::vector<double> server_vals = valuesOf(server_item);
+
+    // A returned worker result with a DIFFERENT genome (independent RNG draw off the shared stream), so
+    // "genome kept" vs "genome taken" is observable; processed, so it carries a result + status.
+    auto returned = server_item.clone<FlatManyGroups>();
+    returned->randomInit(activityMode::ALLPARAMETERS);
+    returned->process();
+    REQUIRE(returned->is_processed());
+    const std::vector<double> returned_vals = valuesOf(*returned);
+    const double returned_fitness = returned->getStoredResult(0).rawFitness();
+    REQUIRE(server_vals != returned_vals); // the two genomes really differ (guards the checks below)
+
+    // absorbResultsFrom(): results absorbed, genome KEPT.
+    server_item.absorbResultsFrom(*returned);
+    CHECK(server_item.is_processed());
+    CHECK(server_item.getStoredResult(0).rawFitness() == returned_fitness);
+    CHECK(valuesOf(server_item) == server_vals);   // genome untouched (results-only semantics)
+
+    // loadContentFrom(): full in-place deep copy; the object is not relocated (its address is fixed here,
+    // documenting the contract the networked refill relies on) and returns true for a geneva individual.
+    FlatManyGroups failed(24);
+    failed.randomInit(activityMode::ALLPARAMETERS);
+    const GOptimizableEntity *failed_addr = &failed;
+    const bool did_load = failed.loadContentFrom(*returned);
+    CHECK(did_load);                               // geneva supports in-place substitution
+    CHECK(&failed == failed_addr);                 // no relocation
+    CHECK(valuesOf(failed) == returned_vals);      // now a full copy of the source's genome
+    CHECK(failed.is_processed());
+    CHECK(failed.getStoredResult(0).rawFitness() == returned_fitness);
+}
+
+/******************************************************************************/
 TEST_CASE("Wire results-only return: a client may opt into a full return", "[flat][wire]") {
     using mode = Gem::Common::serializationMode;
 
@@ -1638,6 +1678,96 @@ TEST_CASE("Wire send-once over a real ASIO loopback interns one layout", "[flat]
     CHECK(consumer->getInternedLayoutCount() == 1);
 
     consumer->stopServer();
+    CHECK_FALSE(any_threw.load());
+}
+
+/******************************************************************************/
+TEST_CASE("Networked reconciliation keeps population elements at stable addresses",
+          "[flat][wire][net][identity]") {
+    // Regression guard (Inv 15) for the in-place return reconciliation: a networked return must be
+    // absorbed INTO the originally-submitted population element, keeping its heap address, rather than
+    // swapping the deserialized return in (which would free the original and relocate it). Address
+    // stability is what lets a per-individual prefetch hold a snapshot of population addresses across a
+    // submission -- if checkin() ever reverts to `slot = std::move(returned)`, the recorded addresses
+    // change and this fails.
+    namespace c2 = Gem::Courtier;
+    namespace ccons = Gem::Courtier::Consumers;
+    constexpr auto BIN = Gem::Common::serializationMode::BINARY;
+
+    constexpr std::size_t N = 60;
+    std::vector<std::unique_ptr<GOptimizableEntity>> items;
+    items.reserve(N);
+    for(std::size_t i = 0; i < N; ++i) {
+        auto ind = std::make_unique<FlatManyGroups>(16);
+        ind->randomInit(activityMode::ALLPARAMETERS);
+        items.push_back(std::move(ind));
+    }
+
+    // Snapshot the object addresses BEFORE submission -- the fix must leave every one of them unchanged.
+    std::vector<const GOptimizableEntity *> addrs_before;
+    addrs_before.reserve(N);
+    for(const auto &it : items) {
+        addrs_before.push_back(it.get());
+    }
+
+    auto consumer = std::make_shared<c2::GWebsocketConsumerT<GOptimizableEntity>>(/*port=*/0, /*threads=*/2, BIN);
+    consumer->setCloneFunction(
+        [](const std::unique_ptr<GOptimizableEntity> &p) { return p->clone_unique(); }
+    );
+    consumer->startServer();
+    const unsigned short port = consumer->getPort();
+
+    constexpr std::size_t n_clients = 3;
+    std::vector<std::shared_ptr<ccons::GWebsocketClientT<GOptimizableEntity>>> clients;
+    std::vector<std::thread> client_threads;
+    std::atomic<bool> any_threw{false};
+    for(std::size_t c = 0; c < n_clients; ++c) {
+        auto client = std::make_shared<ccons::GWebsocketClientT<GOptimizableEntity>>(
+            "127.0.0.1", port, BIN, /*verbose_control_frames=*/false, /*prefetch_depth=*/4
+        );
+        clients.push_back(client);
+        client_threads.emplace_back([client, &any_threw] {
+            try {
+                client->run();
+            }
+            catch(...) {
+                any_threw.store(true);
+            }
+        });
+    }
+
+    consumer->processBatch(std::span<std::unique_ptr<GOptimizableEntity>>(items.data(), items.size()),
+                           c2::GSubmissionPolicy::full_success_or_fatal());
+
+    for(auto &client : clients) {
+        client->flagCloseRequested();
+    }
+    for(auto &t : client_threads) {
+        if(t.joinable()) {
+            t.join();
+        }
+    }
+
+    std::size_t processed = 0;
+    std::size_t stable_address = 0;
+    std::size_t with_genome = 0;
+    for(std::size_t i = 0; i < items.size(); ++i) {
+        if(items[i] && items[i]->is_processed()) {
+            ++processed;
+        }
+        if(items[i].get() == addrs_before[i]) {
+            ++stable_address; // the original object was reconciled in place, not swapped out
+        }
+        if(items[i] && items[i]->countParameters<double>() == 16) {
+            ++with_genome;
+        }
+    }
+    CHECK(processed == N);       // every item came back evaluated
+    CHECK(stable_address == N);  // and at its ORIGINAL heap address (in-place reconciliation)
+    CHECK(with_genome == N);     // results-only return still leaves each item its full genome
+
+    consumer->stopServer();
+    c2::GConsumerRegistryT<GOptimizableEntity>::instance().clear();
     CHECK_FALSE(any_threw.load());
 }
 

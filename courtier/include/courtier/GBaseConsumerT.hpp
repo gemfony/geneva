@@ -208,7 +208,7 @@ public:
                 continue;
             }
             if(policy.unresolved_action == on_unresolved::clone) {
-                items[i] = this->clone_for_refill_(items, clone_template);
+                this->refill_slot_(items[i], items, clone_template);
             }
             else {
                 this->fatal_(
@@ -283,17 +283,23 @@ public:
 
 private:
     /***************************************************************************/
-    /** @brief Produces a replacement item to refill an unresolved slot under clone-on-partial-return.
-     *  Source = a caller-supplied @p clone_template (e.g. a representative individual) if present,
-     *  else the first successfully evaluated sibling in the batch. The clone itself uses the
-     *  polymorphic clone functor when set (required for polymorphic item types to avoid slicing),
-     *  otherwise copy-construction (leaf types).
-     *  @param items The batch, scanned for a successfully evaluated sibling to clone from when no template is given
-     *  @param clone_template An explicit clone source; if empty, the first processed item of @p items is used
-     *  @return A fresh owning replacement item; an empty item_ptr if no source is available (after fatal exit) */
-    item_ptr clone_for_refill_(std::span<item_ptr> items, const item_ptr &clone_template) const {
-        // Items are uniquely owned, so the source is only borrowed (a pointer to the chosen owner),
-        // never copied; we clone from it to produce the fresh owning item.
+    /** @brief Refills an unresolved slot @p dest with a viable sibling under clone-on-partial-return,
+     *  preferring an in-place substitution that PRESERVES the slot's heap address.
+     *
+     *  Source = a caller-supplied @p clone_template (e.g. a representative individual) if present, else the
+     *  first successfully evaluated sibling in the batch. The substitution copies the source's content INTO
+     *  the failed slot without relocating it (@c loadContentFrom) and then mints a fresh lineage id -- a
+     *  refill is a NEW individual, distinct from the failed original, so a very-late return for that
+     *  original never reunites with the substitute. Item types that need no address stability (the
+     *  non-optimization demo containers) return false from @c loadContentFrom and fall back to
+     *  clone-and-replace, exactly as before. Keeping the address stable lets a concurrent per-individual
+     *  prefetch hold a snapshot of population addresses across the submission.
+     *
+     *  @param dest The unresolved slot to refill (its owning pointer, so a fallback can replace it)
+     *  @param items The batch, scanned for a successfully evaluated sibling when no template is given
+     *  @param clone_template An explicit clone source; if empty, the first processed item of @p items is used */
+    void refill_slot_(item_ptr &dest, std::span<item_ptr> items, const item_ptr &clone_template) const {
+        // Items are uniquely owned, so the source is only borrowed (a pointer to the chosen owner).
         const item_ptr *src = &clone_template;
         if(not *src) {
             for(auto &it : items) {
@@ -308,9 +314,16 @@ private:
                 "clone-on-partial-return: no clone template was supplied and no successfully "
                 "evaluated item is available to clone from."
             );
-            return {};
+            return;
         }
-        return this->clone_item_(*src);
+        // Prefer the pointer-preserving in-place substitution; fall back to clone-and-replace for item
+        // types that do not support it (they need no address stability).
+        if(dest && dest->loadContentFrom(**src)) {
+            dest->setSubmissionUuid(detail::mint_submission_uuid()); // a refill is a new individual
+        }
+        else {
+            dest = this->clone_item_(*src);
+        }
     }
 
     /***************************************************************************/

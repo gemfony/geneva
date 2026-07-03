@@ -643,6 +643,18 @@ private:
     void clearStoredResults_() override { this->clear_stored_results_vec(); }
 
     /***************************************************************************/
+    /** @brief In-place return reconciliation (see GProcessable::absorbResultsFrom): copies the processing
+     *  lifecycle (via the base) plus this container's result store from @p src, keeping this item's own
+     *  lineage id. Non-optimization demo/test work items carry no OA scratch, so nothing else is retained.
+     *  @param src The returned, evaluated item whose results + lifecycle are absorbed into this one */
+    void absorbResultsFrom_(const GProcessable &src) override {
+        GProcessable::absorbResultsFrom_(src); // status / errors / timing / routing, keeping our lineage id
+        if(const auto *p = dynamic_cast<const GProcessingContainerT *>(&src); p != nullptr) {
+            stored_results_cnt_ = p->stored_results_cnt_;
+        }
+    }
+
+    /***************************************************************************/
     /**
 	  * @brief Loads user-specified data. This function can be overloaded by derived classes. It
 	  * is mainly intended to provide a mechanism to "deposit" an item at a remote site

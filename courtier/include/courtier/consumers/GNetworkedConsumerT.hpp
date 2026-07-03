@@ -309,21 +309,24 @@ protected:
         recordReturnTime_(now - b.checked_out_at[slot]);
         b.last_progress = now;
 
-        // Replace the work item in this broker slot (which aliases the live population element) with the
-        // returned result. The OA-owned scratch (the personality object + per-group adaption POD state)
-        // is omitted on the wire, so the returned item carries none; graft it back from the
-        // originally-submitted item -- still occupying this slot until the move below -- so the population
-        // element keeps its evolved OA state across the round-trip. (A no-op for work items with no OA
-        // scratch.)
-        //
-        // A lightweight "results-only" return additionally carries the computed results but not the
-        // (large) input parameters; the same retained original supplies them, grafted before the replace.
-        if(p->inputDataOmitted()) {
-            p->graftInputDataFrom(*b.items[slot]);
+        // Reconcile the return INTO the live slot object in place, keeping its heap address (the slot
+        // aliases the live population element). Rather than swapping the returned object in -- which would
+        // free the original and RELOCATE the population element -- we keep the original and absorb only
+        // what the worker computed. The original already holds the submitted parameters and the evolved
+        // OA-owned scratch (the personality object + per-group adaption POD state, which is omitted on the
+        // wire), so:
+        //  - a results-only return leaves the genome untouched; only the computed results are absorbed;
+        //  - a full return (a client that modified the individual, or a transport that always returns the
+        //    whole item, e.g. MPI) first grafts the returned genome onto the original, then absorbs the
+        //    results.
+        // Either way the OA scratch is kept from the original (never re-copied) and, crucially, the
+        // population element never changes address -- so a concurrent per-individual prefetch that holds a
+        // snapshot of population addresses across the submission stays valid.
+        if(not p->inputDataOmitted()) {
+            b.items[slot]->graftInputDataFrom(*p);
         }
-        p->graftOaScratchFrom(*b.items[slot]);
-        p->setDispatchState(Gem::Courtier::dispatchState::DONE);
-        b.items[slot] = std::move(p);
+        b.items[slot]->absorbResultsFrom(*p);
+        b.items[slot]->setDispatchState(Gem::Courtier::dispatchState::DONE);
         ++b.done;
         if(b.done == b.target) {
             cv_done_.notify_all(); // each waiting dispatch_ re-checks its own batch

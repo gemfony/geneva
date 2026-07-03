@@ -965,6 +965,24 @@ private:
             scratch_ = std::make_unique<GAuxiliaryStore>(*src->scratch_);
         }
     }
+
+    /** @brief In-place return reconciliation (see Gem::Courtier::GProcessable::absorbResultsFrom): absorbs
+     *  the returned item's computed results + evaluation-derived local state + processing lifecycle, while
+     *  KEEPING this live population element's own genome value channels (a results-only return leaves them
+     *  untouched; a full return grafts the genome separately, see GNetworkedConsumerT::checkin) and its
+     *  OA-owned scratch. Keeping the object in place (rather than swapping in the deserialized return) is
+     *  what preserves its heap address across a networked round-trip.
+     *  @param src The returned, evaluated item whose results + lifecycle are absorbed */
+    void absorbResultsFrom_(const Gem::Courtier::GProcessable &src) override;
+
+    /** @brief In-place full deep copy (see Gem::Courtier::GProcessable::loadContentFrom): replaces this
+     *  item's whole content (genome + results + scratch + lifecycle) with a copy of @p src without
+     *  relocating the object, so a concurrent snapshot of population addresses stays valid. Used by the
+     *  clone-on-partial-return refill to substitute a viable sibling into a failed slot.
+     *  @param src The source item to deep-copy in place
+     *  @return true (the optimization individual supports in-place substitution) */
+    bool loadContentFrom_(const Gem::Courtier::GProcessable &src) override;
+
     /** @brief Default no-op constant-data load; a derived type overrides if it deposits constant data at a
      *  remote site. @param cd_ptr A template item whose constant data would be loaded into this one */
     virtual void loadConstantData_([[maybe_unused]] std::shared_ptr<GOptimizableEntity> cd_ptr) { /* nothing */ }
