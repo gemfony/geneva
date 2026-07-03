@@ -36,7 +36,10 @@
 #include "geneva/oa/GAdaption.hpp"
 #include "geneva/oa/GAdaptionConfig.hpp"
 
+#include <algorithm>
 #include <any>
+#include <functional>
+#include <ranges>
 
 #ifdef GEM_TESTING
 #include <catch2/catch_test_macros.hpp>
@@ -301,14 +304,8 @@ double GStarterIndividual::fitnessCalculation() {
  * A simple n-dimensional parabola
  */
 double GStarterIndividual::parabola(const std::vector<double> &parVec) const {
-    double result = 0.;
-
-    std::vector<double>::const_iterator cit;
-    for(cit = parVec.begin(); cit != parVec.end(); ++cit) {
-        result += (*cit) * (*cit);
-    }
-
-    return result;
+    return std::ranges::fold_left(
+        parVec | std::views::transform([](double x) { return x * x; }), 0., std::plus{});
 }
 
 /******************************************************************************/
@@ -316,12 +313,8 @@ double GStarterIndividual::parabola(const std::vector<double> &parVec) const {
  * A "noisy" parabola
  */
 double GStarterIndividual::noisyParabola(const std::vector<double> &parVec) const {
-    double xsquared = 0.;
-
-    std::vector<double>::const_iterator cit;
-    for(cit = parVec.begin(); cit != parVec.end(); ++cit) {
-        xsquared += (*cit) * (*cit);
-    }
+    const double xsquared = std::ranges::fold_left(
+        parVec | std::views::transform([](double x) { return x * x; }), 0., std::plus{});
 
     return (cos(xsquared) + 2.) * xsquared;
 }

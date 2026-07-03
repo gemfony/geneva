@@ -36,7 +36,10 @@
 #include "geneva/oa/GAdaption.hpp"
 #include "geneva/oa/GAdaptionConfig.hpp"
 
+#include <algorithm>
 #include <any>
+#include <functional>
+#include <ranges>
 #include <utility>
 
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GFMinIndividual) // NOLINT
@@ -207,14 +210,8 @@ double GFMinIndividual::fitnessCalculation() {
  * A simple n-dimensional parabola
  */
 double GFMinIndividual::parabola(const std::vector<double> &parVec) {
-    double result = 0.;
-
-    std::vector<double>::const_iterator cit;
-    for(cit = parVec.begin(); cit != parVec.end(); ++cit) {
-        result += Gem::Common::gsquared(*cit);
-    }
-
-    return result;
+    return std::ranges::fold_left(
+        parVec | std::views::transform([](double x) { return Gem::Common::gsquared(x); }), 0., std::plus{});
 }
 
 /******************************************************************************/
@@ -222,12 +219,8 @@ double GFMinIndividual::parabola(const std::vector<double> &parVec) {
  * A "noisy" parabola
  */
 double GFMinIndividual::noisyParabola(const std::vector<double> &parVec) {
-    double xsquared = 0.;
-
-    std::vector<double>::const_iterator cit;
-    for(cit = parVec.begin(); cit != parVec.end(); ++cit) {
-        xsquared += Gem::Common::gsquared(*cit);
-    }
+    const double xsquared = std::ranges::fold_left(
+        parVec | std::views::transform([](double x) { return Gem::Common::gsquared(x); }), 0., std::plus{});
 
     return (cos(xsquared) + 2.) * xsquared;
 }

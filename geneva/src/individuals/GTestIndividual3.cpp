@@ -34,8 +34,11 @@
 #include "common/GLogger.hpp"
 #include "geneva/ind/GFlatGenome.hpp"
 #include "geneva/ind/GGenomeBuilder.hpp"
+#include <algorithm>
 #include <cstddef>
+#include <functional>
 #include <memory>
+#include <ranges>
 #include <vector>
 
 #ifdef GEM_TESTING
@@ -172,18 +175,13 @@ gen::GFlatGenome *GTestIndividual3::clone_() const {
  * @return The value of this object (the parabola's value for the current parameters)
  */
 double GTestIndividual3::fitnessCalculation() {
-    double result = 0.;
-
     // We just calculate the square of all double values
     std::vector<double> par_vec;
     this->streamline(par_vec);
 
     // Calculate the value of the parabola
-    for(double i : par_vec) {
-        result += Gem::Common::gsquared(i);
-    }
-
-    return result;
+    return std::ranges::fold_left(
+        par_vec | std::views::transform([](double x) { return Gem::Common::gsquared(x); }), 0., std::plus{});
 }
 
 /******************************************************************************/

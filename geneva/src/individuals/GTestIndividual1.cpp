@@ -41,8 +41,11 @@
 #include "geneva/ind/GOptimizableEntity.hpp"
 #include "geneva/ind/GGenomeBuilder.hpp"
 #include "geneva/oa/GAdaption.hpp"
+#include <algorithm>
 #include <cstddef>
+#include <functional>
 #include <memory>
+#include <ranges>
 #include <vector>
 
 #ifdef GEM_TESTING
@@ -160,17 +163,12 @@ gen::GFlatGenome *GTestIndividual1::clone_() const {
  * @return The fitness of this object: the sum of the squares of all flat double parameters
  */
 double GTestIndividual1::fitnessCalculation() {
-    double result = 0.;
-
     // Read the flat double values and calculate the value of the parabola.
     std::vector<double> par_vec;
     this->streamline(par_vec);
 
-    for(double i : par_vec) {
-        result += i * i;
-    }
-
-    return result;
+    return std::ranges::fold_left(
+        par_vec | std::views::transform([](double x) { return x * x; }), 0., std::plus{});
 }
 
 // Note: The following code is designed to mainly test parent classes
