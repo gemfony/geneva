@@ -89,25 +89,18 @@ public:
      * Converts the class(-hierarchy) to a serial representation that is
      * then written to a stream.
      *
+     * @tparam Self The deduced most-derived type of *this (an accessible g_class_type derivative)
+     * @param self The (deduced) object being serialized
      * @param oarchive_stream The output stream the object should be written to
      * @param ser_mod The desired serialization mode
      */
-    void toStream(std::ostream &oarchive_stream, Gem::Common::serializationMode ser_mod) const {
-        const g_class_type *local = nullptr;
-
-        // Note: (De-)serialization must happen through a pointer to the same type.
-#ifdef DEBUG
-        local = dynamic_cast<const g_class_type *>(this);
-        if(not local) {
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GCommonInterfaceT<g_class_type>::toStream(): Error!" << '\n'
-                << "Conversion failed" << '\n'
-            );
-        }
-#else
-        local = static_cast<const g_class_type *>(this);
-#endif /* DEBUG */
+    template <typename Self>
+    void toStream(this const Self &self, std::ostream &oarchive_stream, Gem::Common::serializationMode ser_mod) {
+        // With deducing this, `self` already IS the most-derived caller object, so taking its address
+        // yields a g_class_type pointer by an implicit, compile-time-checked upcast -- no runtime
+        // dynamic_cast (DEBUG) / unchecked static_cast (release) fork is needed. (De-)serialization
+        // still travels through a g_class_type pointer, so the archive bytes are identical to before.
+        const g_class_type *local = &self;
 
         switch(ser_mod) {
         case Gem::Common::serializationMode::TEXT: {
@@ -189,12 +182,15 @@ public:
      * class. Note that you will have to take care yourself that serialization and de-serialization
      * happens in the same mode.
      *
+     * @tparam Self The deduced most-derived type of *this (forwarded to toStream)
+     * @param self The (deduced) object being serialized
      * @param ser_mod The desired serialization mode
      * @return A text-representation of this class (or its derivative)
      */
-    std::string toString(Gem::Common::serializationMode ser_mod) const {
+    template <typename Self>
+    std::string toString(this const Self &self, Gem::Common::serializationMode ser_mod) {
         std::ostringstream oarchive_stream; // NOLINT(cppcoreguidelines-init-variables)
-        toStream(oarchive_stream, ser_mod);
+        self.toStream(oarchive_stream, ser_mod);
         return oarchive_stream.str();
     }
 
@@ -229,10 +225,13 @@ public:
     /**
      * Writes a serial representation of this object to a file. Can be used for check-pointing.
      *
+     * @tparam Self The deduced most-derived type of *this (forwarded to toStream)
+     * @param self The (deduced) object being serialized
      * @param p The name of the file the object should be saved to.
      * @param ser_mod The desired serialization mode
      */
-    void toFile(const std::filesystem::path &p, Gem::Common::serializationMode ser_mod) const {
+    template <typename Self>
+    void toFile(this const Self &self, const std::filesystem::path &p, Gem::Common::serializationMode ser_mod) {
         std::ofstream ofstr( // NOLINT(cppcoreguidelines-init-variables)
             p
             , std::ofstream::trunc
@@ -246,7 +245,7 @@ public:
             );
         }
 
-        toStream(ofstr, ser_mod);
+        self.toStream(ofstr, ser_mod);
 
 #ifdef DEBUG
         if(not ofstr.good()) {
@@ -306,10 +305,13 @@ public:
     /**
      * Returns an XML description of the derivative it is called for
      *
+     * @tparam Self The deduced most-derived type of *this (forwarded to toString)
+     * @param self The (deduced) object being described
      * @return An XML description of the GCommonInterfaceT-derivative the function is called for
      */
-    std::string report() const {
-        return toString(Gem::Common::serializationMode::XML);
+    template <typename Self>
+    std::string report(this const Self &self) {
+        return self.toString(Gem::Common::serializationMode::XML);
     }
 
     /* ----------------------------------------------------------------------------------
