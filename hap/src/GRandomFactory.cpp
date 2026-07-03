@@ -433,5 +433,46 @@ void GRandomFactory::producer(std::uint32_t seed) {
 }
 
 /******************************************************************************/
+/**
+ * @brief Process-lifetime guard that brackets the global random-number factory around main().
+ *
+ * A single object with static storage duration, living in the hap library. It is constructed during
+ * this shared library's dynamic initialization -- i.e. BEFORE main() -- and destroyed at library
+ * unload / static teardown -- i.e. AFTER main() returns. Its constructor brings the factory online and
+ * its destructor finalizes it exactly once (joining the producer threads and closing the buffers).
+ *
+ * Making the factory's finalize the responsibility of this ONE library-global -- rather than of every
+ * GenevaInitializer / Go2, as it used to be -- is what keeps a short-lived Go2 from tearing the shared
+ * factory down mid-run (a finalized factory can never hand out another random-number container, so
+ * every later consumer would spin/throw; see GenevaInitializer's destructor and
+ * GRandomT::getNewRandomContainer()). finalize() is idempotent, so the factory's own destructor calling
+ * it again when the singleton storage is released is a harmless no-op.
+ *
+ * Ordering is correct by construction: because the RNG consumers (libgemfony-geneva et al.) depend on
+ * this library, their statics are destroyed BEFORE this guard's destructor runs, so nothing still draws
+ * random numbers when the producers are joined. And because the guard's constructor lazily builds the
+ * factory singleton, that singleton's storage completes construction during this guard's construction
+ * and is therefore destroyed AFTER it -- so randomFactory() is still valid inside the guard's
+ * destructor. (This relies on hap being a shared library, whose object files are all loaded; if hap is
+ * ever linked statically and this TU's guard is dropped by the linker, behaviour falls back to the
+ * factory being finalized by its own singleton destructor -- correct, just less deterministically
+ * timed. No functional regression either way.)
+ */
+namespace {
+struct GRandomFactoryLifecycleGuard {
+    // Acquire and HOLD a strong reference to the factory. This is what makes the destructor safe against
+    // static-destruction ORDER: the factory object cannot be torn down while this guard is alive, so the
+    // finalize() below always runs against a live factory (and we never re-enter the GSingletonT storage
+    // at teardown, where it may already be gone). init() is a formality; constructing factory_ is what
+    // brings the singleton online before main().
+    GRandomFactoryLifecycleGuard() : factory_(randomFactory()) { factory_->init(); }
+    ~GRandomFactoryLifecycleGuard() { factory_->finalize(); }
+
+    std::shared_ptr<GRandomFactory> factory_;
+};
+const GRandomFactoryLifecycleGuard g_random_factory_lifecycle_guard;
+} // namespace
+
+/******************************************************************************/
 
 } /* namespace Gem::Hap */

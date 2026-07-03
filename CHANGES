@@ -118,6 +118,14 @@ Recommended Versions:
   converge cleanly. A regression test exercises all four step_control strategies in
   both the plus and comma sorting modes.
 
+- CHANGED: the global Hap random-number factory's lifetime is now owned by a single
+  process-lifetime guard in the hap library, which brings the factory online before
+  main() (at library load) and finalizes it exactly once after main() returns (at
+  library unload). This makes the factory's startup/shutdown deterministic and gives
+  it a single owner, rather than leaving finalize to whichever client happened to be
+  torn down. The guard holds a strong reference to the factory so its own destructor
+  always runs against a live object (no static-destruction-order hazard).
+
 - CHANGED: the per-individual RNG prefetch (which overlapped the adaption's
   standard-normal draws with fitness evaluation by refilling a per-individual cache on
   the optimization algorithm's own thread pool) has been removed for now. It competed
