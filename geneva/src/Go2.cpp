@@ -101,6 +101,21 @@ Go2::Go2(
 )
   : config_filename_(config_filename) {
     //--------------------------------------------
+    // --update-configs: detected by a lightweight pre-scan of argv, because it must take effect BEFORE
+    // this constructor parses Go2.json (so Go2's own config is refreshed too). It flips GParserBuilder
+    // into update-in-place mode process-wide, so every config subsequently parsed -- Go2's, each
+    // algorithm's, the individual's -- is rewritten in canonical form (stale keys dropped, existing values
+    // preserved, new keys defaulted). optimize() then refreshes the remaining configs and returns without
+    // running an optimization.
+    for(int i = 1; i < argc; ++i) {
+        if(argv[i] != nullptr and std::string(argv[i]) == "--update-configs") {
+            update_configs_mode_ = true;
+            Gem::Common::GParserBuilder::setUpdateInPlace(true);
+            break;
+        }
+    }
+
+    //--------------------------------------------
     // The known optimization algorithms register themselves with the global factory store at
     // library-load time (see the self-registration helpers in each factory's .cpp). Consumers are
     // built on demand by the courtier setup layer. The GenevaInitializer member gi_ performs the
@@ -534,12 +549,63 @@ void Go2::claimContentCreator_(
  * @return A pointer to this object (after the optimization has run)
  */
 Go2 const *Go2::optimize_(std::uint32_t offset) {
+    // --update-configs: refresh every config this binary owns and return without optimizing.
+    if(update_configs_mode_) {
+        this->refreshAllConfigs_();
+        return this;
+    }
     this->ensureGPUConsumerBuilt(); // build the gpu consumer (if selected) now the marshaller is available
     this->ensureAlgorithmPresent();
     std::uint32_t const first_algorithm_offset = this->prepareInitialPopulation(offset);
     this->runAlgorithmChain(first_algorithm_offset);
     this->sortIndividualsByFitness();
     return this;
+}
+
+/******************************************************************************/
+/**
+ * @brief --update-configs pass: refresh every configuration file this binary owns.
+ *
+ * With GParserBuilder in update-in-place mode (set in the constructor), Go2.json was already rewritten by
+ * the constructor's parse. Here we additionally produce one object from each registered algorithm factory
+ * -- which parses (and thus rewrites) that algorithm's config file -- and one individual from the content
+ * creator, refreshing the individual's config. No optimization is run. Per-config failures are warned
+ * about rather than aborting, so one missing/odd config does not stop the rest from being refreshed.
+ */
+void Go2::refreshAllConfigs_() {
+    // Every registered optimization-algorithm factory: producing one algorithm parses its config file.
+    for(auto const &provider : oaFactoryStore()->getContentSnapshot()) {
+        try {
+            (void) provider->provide();
+        }
+        catch(std::exception const &e) {
+            glogger << "In Go2::refreshAllConfigs_(): could not refresh the \"" << provider->getMnemonic()
+                    << "\" algorithm config: " << e.what() << '\n'
+                    << GWARNING;
+        }
+    }
+
+    // The individual (content-creator) config, if an individual is available.
+    if(content_creator_ptr_) {
+        try {
+            (void) (*content_creator_ptr_)();
+        }
+        catch(std::exception const &e) {
+            glogger << "In Go2::refreshAllConfigs_(): could not refresh the individual config: " << e.what()
+                    << '\n'
+                    << GWARNING;
+        }
+    }
+
+    glogger << "Go2: --update-configs complete; configuration files were refreshed in place." << '\n'
+            << GLOGGING;
+
+    // --update-configs is a utility mode, not an optimization: exit cleanly HERE so the caller's
+    // boilerplate (optimize() then getBestGlobalIndividual()) is not reached -- there is no population,
+    // so getBestGlobalIndividual() would have nothing to return. This lets every example's main() run
+    // unchanged. std::exit runs the registered atexit / static teardown (flushing stdio and the logger,
+    // releasing the library's RNG factory guard); nothing produced by this pass needs a Go2 destructor.
+    std::exit(0);
 }
 
 /******************************************************************************/
@@ -1038,6 +1104,7 @@ void Go2::parseCommandLine(
         basic.add_options()
 				("help,h", "Emit help message")
 				("showAll", "Show all available options")
+				("update-configs", "Refresh every configuration file this binary owns (Go2.json, each algorithm's config and the individual's config) in place -- drop keys no registered parameter consumes, keep existing values, add newly-registered keys with defaults -- then exit without optimizing. Runs on the local thread-pool consumer regardless of --consumer.")
 				("optimizationAlgorithms,a", po::value<std::string>(&optimization_algorithms), oa_help.c_str())
 				("cp_file,f", po::value<std::string>(&checkpoint_file)->default_value("empty"),
 				 "A file (including its path) holding a checkpoint for a given optimization algorithm")
@@ -1092,6 +1159,13 @@ void Go2::parseCommandLine(
 
         if(vm.contains("client")) {
             client_mode_ = true;
+        }
+
+        // In --update-configs mode, force the local thread-pool consumer: the pass only parses configs and
+        // never optimizes, so a networked / GPU / MPI consumer must not be built (it might try to connect
+        // or need a device). This overrides any --consumer the user passed.
+        if(update_configs_mode_) {
+            consumer_name_ = "stc";
         }
 
         // Validate, configure and enrol the consumer chosen on the command line

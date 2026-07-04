@@ -420,6 +420,12 @@ private:
      */
     Go2 const *optimize_(std::uint32_t offset) final;
 
+    /** @brief --update-configs pass: with GParserBuilder in update-in-place mode, produce one object from
+     *  each registered algorithm factory and one individual from the content creator, so every algorithm
+     *  config and the individual config is parsed and rewritten in canonical form (Go2.json was already
+     *  refreshed by the constructor's parse). Runs no optimization. */
+    void refreshAllConfigs_();
+
     // --- optimize_ sub-steps (decomposition) ---
     /** @brief Adds the Geneva default algorithm if none have been registered */
     void ensureAlgorithmPresent();
@@ -483,6 +489,8 @@ private:
     // These parameters can enter the object through the constructor
     bool client_mode_ =
         GO2_DEF_CLIENTMODE; ///< Specifies whether this object represents a network client
+    bool update_configs_mode_ =
+        false; ///< --update-configs: refresh every config this binary owns (GParserBuilder update-in-place), then exit without optimizing
     std::string config_filename_ =
         GO2_DEF_DEFAULTCONFIGFILE; ///< Indicates where the configuration file is stored
     std::string consumer_name_ =
