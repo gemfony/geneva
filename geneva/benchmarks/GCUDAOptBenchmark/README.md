@@ -92,41 +92,42 @@ GCUDAOptBenchmark options:
 
 ### Top-level config: `config/GCUDAOptBenchmark.json`
 
+The file is read through `Gem::Common::GParserBuilder`, the same configuration facility the rest of
+Geneva uses, so it is created with defaults if absent and each key is wrapped in a `comment`/`default`/
+`value` object (only the `value` fields are shown below for brevity). The set of algorithms to compare
+is described by three equal-length, parallel string arrays — the `i`-th element of each defines one
+algorithm entry.
+
 ```json
 {
-    "benchmarkFunction":  "PARABOLA",
-    "nRuns":              30,
-    "nDimensions":        10,
-    "individualConfig":   "config/GFunctionIndividual.json",
-    "outputDir":          ".",
-    "batchSize":          0,
-    "flushTimeoutMs":     50,
-    "algorithmConfigs": [
-        { "tag": "ea_default",    "mnemonic": "ea",    "configFile": "config/GEvolutionaryAlgorithm.json" },
-        { "tag": "sa_default",    "mnemonic": "sa",    "configFile": "config/GSimulatedAnnealing.json"   },
-        { "tag": "swarm_default", "mnemonic": "swarm", "configFile": "config/GSwarmAlgorithm.json"       }
-    ]
+    "benchmark_function": "PARABOLA",
+    "n_runs":             "30",
+    "n_dimensions":       "10",
+    "individual_config":  "config/GFunctionIndividual.json",
+    "output_dir":         ".",
+    "batch_size":         "0",
+    "flush_timeout_ms":   "50",
+    "algo_tags":          ["ea_default", "sa_default", "swarm_default"],
+    "algo_mnemonics":     ["ea", "sa", "swarm"],
+    "algo_config_files":  ["config/GEvolutionaryAlgorithm.json", "config/GSimulatedAnnealing.json", "config/GSwarmAlgorithm.json"]
 }
 ```
 
 | Key | Type | Description |
 |-----|------|-------------|
-| `benchmarkFunction` | string | Name of the objective function (see [Supported functions](#supported-functions)) |
-| `nRuns` | integer | Number of independent optimization runs per algorithm tag |
-| `nDimensions` | integer | Parameter-space dimensionality passed to `GFunctionIndividual` |
-| `individualConfig` | string | Path to `GFunctionIndividual` JSON config (relative to CWD) |
-| `outputDir` | string | Directory for output CSV files; created automatically if absent |
-| `batchSize` | integer | GPU batch size. `0` = flush by timeout; `>0` = flush when exactly that many individuals have arrived. Setting this to the population size gives the most predictable GPU utilization. |
-| `flushTimeoutMs` | integer | When `batchSize == 0`: flush the GPU batch this many milliseconds after the first individual arrives in a new generation |
-| `algorithmConfigs` | array | List of algorithm entries (see below) |
+| `benchmark_function` | string | Name of the objective function (see [Supported functions](#supported-functions)) |
+| `n_runs` | integer | Number of independent optimization runs per algorithm tag |
+| `n_dimensions` | integer | Parameter-space dimensionality passed to `GFunctionIndividual` |
+| `individual_config` | string | Path to `GFunctionIndividual` JSON config (relative to CWD) |
+| `output_dir` | string | Directory for output CSV files; created automatically if absent |
+| `batch_size` | integer | GPU batch size. `0` = flush by timeout; `>0` = flush when exactly that many individuals have arrived. Setting this to the population size gives the most predictable GPU utilization. |
+| `flush_timeout_ms` | integer | When `batch_size == 0`: flush the GPU batch this many milliseconds after the first individual arrives in a new generation |
+| `algo_tags` | string array | Free labels used in output file names and the summary table, one per algorithm entry |
+| `algo_mnemonics` | string array | Algorithm types, one per entry: `"ea"`, `"sa"`, `"swarm"`, `"gd"` or `"cgd"` |
+| `algo_config_files` | string array | Paths to the algorithm-specific JSON configs (relative to CWD), one per entry |
 
-#### Algorithm entry
-
-| Key | Type | Description |
-|-----|------|-------------|
-| `tag` | string | Free label used in output file names and the summary table |
-| `mnemonic` | string | Algorithm type: `"ea"`, `"sa"`, `"swarm"`, or `"gd"` |
-| `configFile` | string | Path to the algorithm-specific JSON config (relative to CWD) |
+The three `algo_*` arrays must all have the same length; the benchmark aborts with a diagnostic if
+they do not.
 
 ### Algorithm configs
 
@@ -272,8 +273,9 @@ each try to finalize the broker on destruction.
 1. Verify that Geneva has a factory for it (e.g. `GGradientDescentFactory`).
 2. Add a `case` to `GAlgorithmBenchmarkRunner::makeAlgorithm()` in
    `GAlgorithmBenchmarkRunner.cpp` with a new mnemonic string.
-3. Add a config file entry in `config/` and reference it with the new mnemonic
-   in `config/GCUDAOptBenchmark.json`.
+3. Add a config file in `config/` and append a matching triple to the
+   `algo_tags` / `algo_mnemonics` / `algo_config_files` arrays in
+   `config/GCUDAOptBenchmark.json` (keep the three arrays equal-length).
 
 ## Adding a new benchmark function
 

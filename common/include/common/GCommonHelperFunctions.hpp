@@ -52,9 +52,6 @@
 #include <typeinfo>
 #include <vector>
 
-// Boost headers go here
-#include <boost/property_tree/ptree_fwd.hpp>
-
 // Geneva headers go here
 #include "common/GCommonEnums.hpp"
 #include "common/GErrorStreamer.hpp"
@@ -77,15 +74,6 @@ std::filesystem::file_time_type touch_time(
     std::string const &content = "",
     bool remove_if_not_present = false
 );
-
-/******************************************************************************/
-/**
- * @brief Reads a json-document from a std::filesystem::path. This is a helper-function.
- *
- * @param path The path of the JSON file to read
- * @param pt Output parameter: the property tree that receives the parsed JSON document
- */
-void read_json(std::filesystem::path const &path, boost::property_tree::ptree &pt);
 
 /******************************************************************************/
 /**

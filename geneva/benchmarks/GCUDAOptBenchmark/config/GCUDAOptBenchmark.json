@@ -1,26 +1,102 @@
 {
-    "benchmark_function":  "PARABOLA",
-    "n_runs":              30,
-    "n_dimensions":        10,
-    "individual_config":   "config/GFunctionIndividual.json",
-    "output_dir":          ".",
-    "batch_size":          0,
-    "flush_timeout_ms":     50,
-    "algorithm_configs": [
-        {
-            "tag":        "ea_default",
-            "mnemonic":   "ea",
-            "config_file": "config/GEvolutionaryAlgorithm.json"
-        },
-        {
-            "tag":        "sa_default",
-            "mnemonic":   "sa",
-            "config_file": "config/GSimulatedAnnealing.json"
-        },
-        {
-            "tag":        "swarm_default",
-            "mnemonic":   "swarm",
-            "config_file": "config/GSwarmAlgorithm.json"
-        }
-    ]
+    "header": {
+        "comment": [
+            "This configuration file was automatically created by GParserBuilder",
+            "Sat Jul  4 15:53:24 2026"
+        ]
+    },
+    "benchmark_function": {
+        "comment": [
+            "The GFunctionIndividual demo function to optimize (e.g. PARABOLA)"
+        ],
+        "default": "PARABOLA",
+        "value": "PARABOLA"
+    },
+    "n_runs": {
+        "comment": [
+            "The number of independent runs per algorithm entry"
+        ],
+        "default": "30",
+        "value": "30"
+    },
+    "n_dimensions": {
+        "comment": [
+            "The parameter dimension of the optimization problem"
+        ],
+        "default": "10",
+        "value": "10"
+    },
+    "individual_config": {
+        "comment": [
+            "The path to the GFunctionIndividual configuration file"
+        ],
+        "default": "config/GFunctionIndividual.json",
+        "value": "config/GFunctionIndividual.json"
+    },
+    "output_dir": {
+        "comment": [
+            "The directory into which the output CSV files are written"
+        ],
+        "default": ".",
+        "value": "."
+    },
+    "batch_size": {
+        "comment": [
+            "The GPU consumer batch size (0 = flush by timeout)"
+        ],
+        "default": "0",
+        "value": "0"
+    },
+    "flush_timeout_ms": {
+        "comment": [
+            "The GPU consumer flush timeout in milliseconds (used when batch_size == 0)"
+        ],
+        "default": "50",
+        "value": "50"
+    },
+    "algo_tags": {
+        "comment": [
+            "Free labels for the algorithm entries, one per entry (e.g. ea_pop100)"
+        ],
+        "default": [
+            "ea_default",
+            "sa_default",
+            "swarm_default"
+        ],
+        "value": [
+            "ea_default",
+            "sa_default",
+            "swarm_default"
+        ]
+    },
+    "algo_mnemonics": {
+        "comment": [
+            "Algorithm mnemonics, one per entry: ea, sa, swarm, gd or cgd"
+        ],
+        "default": [
+            "ea",
+            "sa",
+            "swarm"
+        ],
+        "value": [
+            "ea",
+            "sa",
+            "swarm"
+        ]
+    },
+    "algo_config_files": {
+        "comment": [
+            "Algorithm-specific config file paths, one per entry"
+        ],
+        "default": [
+            "config/GEvolutionaryAlgorithm.json",
+            "config/GSimulatedAnnealing.json",
+            "config/GSwarmAlgorithm.json"
+        ],
+        "value": [
+            "config/GEvolutionaryAlgorithm.json",
+            "config/GSimulatedAnnealing.json",
+            "config/GSwarmAlgorithm.json"
+        ]
+    }
 }

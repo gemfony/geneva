@@ -33,6 +33,7 @@
 
 #include "GImageHelperFunctions.hpp"
 
+#include <cstring>
 #include <ranges>
 
 

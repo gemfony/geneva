@@ -78,8 +78,8 @@ boost::json::value parseJsonString(std::string_view text, std::string_view conte
 /**
  * @brief Reads and parses a JSON document from a file, tolerating comments and trailing commas.
  *
- * This is the Boost.JSON counterpart of the former boost::property_tree read_json helper: it accepts
- * a std::filesystem::path (which Boost.JSON's parser does not) and reports the file name on error.
+ * A thin convenience wrapper around the Boost.JSON parser: it accepts a std::filesystem::path (which
+ * Boost.JSON's parser does not) and reports the file name on error.
  *
  * @param path The path of the JSON file to read
  * @return The parsed JSON value

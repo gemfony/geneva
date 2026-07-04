@@ -102,6 +102,15 @@ Recommended Versions:
   rewritten into the new form the next time it is generated or refreshed
   (writeConfigFile / --update-configs). Scalars remain quoted strings for now.
 
+- CHANGED: the GCUDAOptBenchmark benchmark now reads its configuration through the
+  standard GParserBuilder facility instead of a hand-rolled JSON reader, so its
+  config file follows the same strict-JSON layout as every other Geneva config and
+  is created with defaults when absent. The list of algorithms to compare is now
+  described by three equal-length, parallel string arrays (algo_tags,
+  algo_mnemonics, algo_config_files) rather than an array of {tag, mnemonic,
+  config_file} objects. Existing GCUDAOptBenchmark.json files must be regenerated
+  (delete the file and re-run, or adapt them to the new keys).
+
 - MODERNIZED: a tree-wide sweep adopting C++23 library idioms where they make the
   code simpler without changing behaviour, wire format, checkpoint format or numeric
   results -- std::string::contains, std::ranges algorithms with projections,

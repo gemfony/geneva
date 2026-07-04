@@ -56,10 +56,6 @@
 #include "common/GExceptions.hpp"
 #include "common/GLogger.hpp"
 
-// Boost headers needed for implementation only.
-#include <boost/property_tree/json_parser.hpp>
-#include <boost/property_tree/ptree_fwd.hpp>
-
 namespace {
 std::mutex g_hwt_read_mutex;         // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
 std::atomic<bool> g_hwt_read{false}; // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
@@ -188,18 +184,6 @@ unsigned int getNHardwareThreads() {
     } // exclusive access ends
 
     return g_nHardwareThreads.load();
-}
-
-/******************************************************************************/
-/**
- * Reads a json-document from a std::filesystem::path. This is a helper-function,
- * as boost::property_tree::read_json does not accept a std::filesystem argument.
- *
- * @param path The path of the JSON file to read
- * @param pt Output parameter: the property tree that receives the parsed JSON document
- */
-void read_json(std::filesystem::path const &path, boost::property_tree::ptree &pt) {
-    boost::property_tree::read_json(path.string(), pt);
 }
 
 /******************************************************************************/
