@@ -1,7 +1,7 @@
 {
     "header": {
         "comment": "This configuration file was automatically created by GParserBuilder",
-        "comment": "2015-Nov-01 12:46:31"
+        "comment": "Sat Jul  4 02:10:11 2026"
     },
     "ad_prob": {
         "comment": "The probability for random adaptions of values in evolutionary algorithms",
@@ -9,17 +9,17 @@
         "value": "0.050000000000000003"
     },
     "adapt_ad_prob": {
-        "comment": "Determines the rate of adaption of adProb. Set to 0, if you do not need this feature",
+        "comment": "Determines the rate of adaption of ad_prob. Set to 0, if you do not need this feature",
         "default": "0.10000000000000001",
         "value": "0.10000000000000001"
     },
     "min_ad_prob": {
-        "comment": "The lower allowed boundary for adProb-variation",
+        "comment": "The lower allowed boundary for ad_prob-variation",
         "default": "0.050000000000000003",
         "value": "0.050000000000000003"
     },
     "max_ad_prob": {
-        "comment": "The upper allowed boundary for adProb-variation",
+        "comment": "The upper allowed boundary for ad_prob-variation",
         "default": "1",
         "value": "1"
     },
@@ -62,8 +62,7 @@
         "comment": "Specifies which strategy should be used to calculate the evaluation:",
         "comment": "0 (a.k.a. USESIMPLEEVALUATION): Always call the evaluation function, even for invalid solutions",
         "comment": "1 (a.k.a. USEWORSTCASEFORINVALID) : Assign the worst possible value to our fitness and evaluate only valid solutions",
-        "comment": "2 (a.k.a. USESIGMOID): Assign a multiple of validityLevel_ and sigmoid barrier to invalid solutions, apply a sigmoid function to valid evaluations",
-        "comment": "3 (a.k.a. USEWORSTKNOWNVALIDFORINVALID): Assign \"invalidityLevel*worstKnownValid\" to invalid individuals, using normal evaluation otherwise",
+        "comment": "2 (a.k.a. USESIGMOID): Assign a multiple of validity_level_ and sigmoid barrier to invalid solutions, apply a sigmoid function to valid evaluations",
         "default": "0",
         "value": "0"
     },
@@ -81,15 +80,10 @@
         "default": "10000",
         "value": "10000"
     },
-    "maximize": {
+    "maxmode": {
         "comment": "Specifies whether the individual should be maximized (1) or minimized (0)",
         "comment": "Note that minimization is the by far most common option.",
-        "default": "false",
-        "value": "false"
-    },
-    "per_item_cross_over_probability": {
-        "comment": "The likelihood for two data items to be exchanged",
-        "default": "0.5",
-        "value": "0.5"
+        "default": "0",
+        "value": "0"
     }
 }

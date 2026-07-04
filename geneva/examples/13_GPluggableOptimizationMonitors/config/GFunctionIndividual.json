@@ -1,7 +1,7 @@
 {
     "header": {
         "comment": "This configuration file was automatically created by GParserBuilder",
-        "comment": "Sat May 23 18:56:35 2026"
+        "comment": "Sat Jul  4 02:10:31 2026"
     },
     "ad_prob": {
         "comment": "The probability for random adaption of values in evolutionary algorithms",
@@ -127,6 +127,11 @@
         "default": "1",
         "value": "1"
     },
+    "demo_function": {
+        "comment": "Specifies which benchmark function to minimise (maximise for NEGPARABOLA), by integer ID",
+        "default": "0",
+        "value": "0"
+    },
     "eval_policy": {
         "comment": "Specifies which strategy should be used to calculate the evaluation:",
         "comment": "0 (a.k.a. USESIMPLEEVALUATION): Always call the evaluation function, even for invalid solutions",
@@ -152,44 +157,6 @@
     "maxmode": {
         "comment": "Specifies whether the individual should be maximized (1) or minimized (0)",
         "comment": "Note that minimization is the by far most common option.",
-        "default": "0",
-        "value": "0"
-    },
-    "demo_function": {
-        "comment": "Specifies which benchmark function to minimise (maximise for NEGPARABOLA).",
-        "comment": "Select by integer ID:",
-        "comment": "0: Parabola            -- unimodal, separable baseline",
-        "comment": "global min f=0 at origin",
-        "comment": "1: Berlich noisy para  -- radial cosine overlay",
-        "comment": "global min f=0 at origin",
-        "comment": "2: Rosenbrock          -- narrow banana valley, n>=2",
-        "comment": "global min f=0 at (1,...,1)",
-        "comment": "3: Ackley (variant)    -- Geneva pairwise variant, n>=2",
-        "comment": "NOT the canonical form",
-        "comment": "4: Rastrigin           -- highly multimodal, separable",
-        "comment": "global min f=0 at origin",
-        "comment": "5: Schwefel            -- deceptive, global opt near boundary",
-        "comment": "domain [-500,500]",
-        "comment": "6: Salomon             -- concentric-ring landscape",
-        "comment": "global min f=0 at origin",
-        "comment": "7: Negative Parabola   -- maximisation test",
-        "comment": "global max f=0 at origin",
-        "comment": "8: Ackley (canonical)  -- CEC\/BBOB standard",
-        "comment": "plateau + deep basin",
-        "comment": "domain [-32.768,32.768]",
-        "comment": "9: Griewank            -- multimodal with quadratic envelope",
-        "comment": "global min f=0 at origin",
-        "comment": "10: Levy                -- narrow-basin multimodal",
-        "comment": "global min f=0 at (1,...,1)",
-        "comment": "11: Styblinski-Tang     -- asymmetric wells",
-        "comment": "global min ~-39.166*n at (~-2.903,...)",
-        "comment": "12: Ellipsoid           -- ill-conditioned (1e6), unimodal",
-        "comment": "global min f=0 at origin",
-        "comment": "13: Michalewicz (m=10)  -- steep ridges",
-        "comment": "domain [0,pi]",
-        "comment": "set min_var=0 max_var=3.14159!",
-        "comment": "14: Zakharov            -- unimodal, non-separable coupling",
-        "comment": "global min f=0 at origin",
         "default": "0",
         "value": "0"
     }

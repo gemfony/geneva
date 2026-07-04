@@ -1,7 +1,13 @@
 {
     "header": {
         "comment": "This configuration file was automatically created by GParserBuilder",
-        "comment": "Sat May 23 18:56:36 2026"
+        "comment": "Sat Jul  4 02:10:32 2026"
+    },
+    "n_adaption_threads": {
+        "comment": "The number of threads used to simultaneously adapt and recombine individuals",
+        "comment": "0 means \"automatic\"",
+        "default": "2",
+        "value": "2"
     },
     "max_iteration": {
         "comment": "The maximum allowed number of iterations",
@@ -40,6 +46,18 @@
         "comment": "through the actOnStalls() function. A value of 0 disables this check",
         "default": "0",
         "value": "0"
+    },
+    "late_return_ttl": {
+        "comment": "Time-to-live (in dispatch rounds) of a networked consumer's late-return",
+        "comment": "buffer entry. A late return not reaped within this many rounds is evicted.",
+        "default": "2",
+        "value": "2"
+    },
+    "late_return_cap_factor": {
+        "comment": "Capacity of a networked consumer's late-return buffer, as a multiple of",
+        "comment": "the population size. 0 disables late-return buffering entirely.",
+        "default": "2",
+        "value": "2"
     },
     "report_iteration": {
         "comment": "The number of iterations after which a report should be issued",
@@ -113,7 +131,7 @@
         "value": "true"
     },
     "n_starting_points": {
-        "comment": "The number of simultaneous gradient descents",
+        "comment": "The number of simultaneous conjugate gradient descents",
         "default": "1",
         "value": "1"
     },
@@ -125,11 +143,46 @@
         "value": "0.001"
     },
     "step_size": {
-        "comment": "The size of each step into the",
-        "comment": "direction of steepest descent,",
-        "comment": "specified in per mill of the allowed or expected value",
-        "comment": "range of a parameter",
+        "comment": "The size of the INITIAL trial step along the search direction",
+        "comment": "(in per mill of the value range)",
+        "comment": "the line search then refines it",
         "default": "0.10000000000000001",
         "value": "0.10000000000000001"
+    },
+    "gradient_method": {
+        "comment": "The search-direction rule: 0 = Polak-Ribiere+ conjugate gradient (the default),",
+        "comment": "1 = plain steepest descent (the former \"gd\"), 2 = Fletcher-Reeves,",
+        "comment": "3 = Hestenes-Stiefel+, 4 = Dai-Yuan, 5 = L-BFGS (limited-memory quasi-Newton)",
+        "default": "0",
+        "value": "0"
+    },
+    "lbfgs_memory": {
+        "comment": "The L-BFGS history size m (number of (s, y) curvature pairs kept per starting",
+        "comment": "point)",
+        "comment": "only used when gradient_method = 5. Larger m approximates the inverse",
+        "comment": "Hessian better at the cost of m*n storage and O(m*n) work per iteration",
+        "default": "10",
+        "value": "10"
+    },
+    "central_differences": {
+        "comment": "Use the O(h^2) central-difference gradient (two probe evaluations per direction)",
+        "comment": "instead of the default O(h) forward difference (one probe). More accurate,",
+        "comment": "but doubles the per-iteration evaluation cost",
+        "default": "false",
+        "value": "false"
+    },
+    "error_estimation": {
+        "comment": "MINUIT-style parameter-error estimate at convergence:",
+        "comment": "0 = none (default), 1 = diagonal (parabolic) errors,",
+        "comment": "2 = full Hessian -> covariance (small dimension only),",
+        "comment": "3 = MINOS asymmetric (profiled) errors (small dimension only)",
+        "default": "0",
+        "value": "0"
+    },
+    "error_definition": {
+        "comment": "The MINUIT error definition UP: the objective increase",
+        "comment": "defining one standard deviation (1 = chi^2, 0.5 = -logL)",
+        "default": "1",
+        "value": "1"
     }
 }

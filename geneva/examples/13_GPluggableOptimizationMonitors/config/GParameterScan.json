@@ -1,7 +1,13 @@
 {
     "header": {
         "comment": "This configuration file was automatically created by GParserBuilder",
-        "comment": "Sat May 23 18:56:38 2026"
+        "comment": "Sat Jul  4 02:10:31 2026"
+    },
+    "n_adaption_threads": {
+        "comment": "The number of threads used to simultaneously adapt and recombine individuals",
+        "comment": "0 means \"automatic\"",
+        "default": "2",
+        "value": "2"
     },
     "max_iteration": {
         "comment": "The maximum allowed number of iterations",
@@ -40,6 +46,18 @@
         "comment": "through the actOnStalls() function. A value of 0 disables this check",
         "default": "0",
         "value": "0"
+    },
+    "late_return_ttl": {
+        "comment": "Time-to-live (in dispatch rounds) of a networked consumer's late-return",
+        "comment": "buffer entry. A late return not reaped within this many rounds is evicted.",
+        "default": "2",
+        "value": "2"
+    },
+    "late_return_cap_factor": {
+        "comment": "Capacity of a networked consumer's late-return buffer, as a multiple of",
+        "comment": "the population size. 0 disables late-return buffering entirely.",
+        "default": "2",
+        "value": "2"
     },
     "report_iteration": {
         "comment": "The number of iterations after which a report should be issued",
