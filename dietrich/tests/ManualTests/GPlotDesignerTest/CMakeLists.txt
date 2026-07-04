@@ -46,6 +46,15 @@ TARGET_LINK_LIBRARIES (${EXECUTABLENAME}
 
 ADD_TEST(${EXECUTABLENAME} ${EXECUTABLENAME})
 
+# All tests below (this generator run plus every *Validity driver) execute the SAME
+# generator in the SAME working directory (CMAKE_CURRENT_BINARY_DIR) and read/write the
+# same fixed output files (result.C / result.gp / result.py / result.m / result_data.*).
+# Two of them running concurrently under `ctest -j` would clobber those files or read one
+# mid-write -> intermittent, spurious failures. A shared RESOURCE_LOCK makes CTest run
+# them one-at-a-time (while still overlapping them with unrelated tests). Applied to each
+# test right where it is added, so only actually-registered tests get the lock.
+SET_TESTS_PROPERTIES(${EXECUTABLENAME} PROPERTIES RESOURCE_LOCK GPlotDesigner_shared_workdir)
+
 # Optional ROOT-validity test: feed the generated macro to the real ROOT interpreter to confirm it is
 # valid ROOT input (GPlotDesigner is a ROOT-macro code generator). Enabled only when both `root` and
 # `xvfb-run` are present -- ROOT needs a display even in batch mode on this host -- and skipped
@@ -63,6 +72,7 @@ IF(GENEVA_ROOT_EXECUTABLE AND GENEVA_XVFB_RUN)
 			-DWORKDIR=${CMAKE_CURRENT_BINARY_DIR}
 			-P ${CMAKE_CURRENT_SOURCE_DIR}/RunRootValidity.cmake
 	)
+	SET_TESTS_PROPERTIES(GPlotDesignerRootValidity PROPERTIES RESOURCE_LOCK GPlotDesigner_shared_workdir)
 	MESSAGE(STATUS "GPlotDesigner: ROOT validity test ENABLED (root=${GENEVA_ROOT_EXECUTABLE})")
 ELSE()
 	MESSAGE(STATUS "GPlotDesigner: ROOT validity test skipped (root and/or xvfb-run not found)")
@@ -82,6 +92,7 @@ IF(GENEVA_GNUPLOT_EXECUTABLE)
 			-DWORKDIR=${CMAKE_CURRENT_BINARY_DIR}
 			-P ${CMAKE_CURRENT_SOURCE_DIR}/RunGnuplotValidity.cmake
 	)
+	SET_TESTS_PROPERTIES(GPlotDesignerGnuplotValidity PROPERTIES RESOURCE_LOCK GPlotDesigner_shared_workdir)
 	MESSAGE(STATUS "GPlotDesigner: gnuplot validity test ENABLED (gnuplot=${GENEVA_GNUPLOT_EXECUTABLE})")
 ELSE()
 	MESSAGE(STATUS "GPlotDesigner: gnuplot validity test skipped (gnuplot not found)")
@@ -111,6 +122,7 @@ IF(GENEVA_PYTHON3_EXECUTABLE AND GENEVA_MATPLOTLIB_RC EQUAL 0)
 			-DWORKDIR=${CMAKE_CURRENT_BINARY_DIR}
 			-P ${CMAKE_CURRENT_SOURCE_DIR}/RunMatplotlibValidity.cmake
 	)
+	SET_TESTS_PROPERTIES(GPlotDesignerMatplotlibValidity PROPERTIES RESOURCE_LOCK GPlotDesigner_shared_workdir)
 	MESSAGE(STATUS "GPlotDesigner: matplotlib validity test ENABLED (python3=${GENEVA_PYTHON3_EXECUTABLE})")
 ELSE()
 	MESSAGE(STATUS "GPlotDesigner: matplotlib validity test skipped (python3 and/or matplotlib not found)")
@@ -131,6 +143,7 @@ IF(GENEVA_OCTAVE_EXECUTABLE)
 			-DWORKDIR=${CMAKE_CURRENT_BINARY_DIR}
 			-P ${CMAKE_CURRENT_SOURCE_DIR}/RunOctaveValidity.cmake
 	)
+	SET_TESTS_PROPERTIES(GPlotDesignerOctaveValidity PROPERTIES RESOURCE_LOCK GPlotDesigner_shared_workdir)
 	MESSAGE(STATUS "GPlotDesigner: Octave validity test ENABLED (octave=${GENEVA_OCTAVE_EXECUTABLE})")
 ELSE()
 	MESSAGE(STATUS "GPlotDesigner: Octave validity test skipped (octave not found)")
@@ -160,6 +173,7 @@ IF(GENEVA_PYTHON3_EXECUTABLE AND GENEVA_NUMPY_RC EQUAL 0)
 			-DWORKDIR=${CMAKE_CURRENT_BINARY_DIR}
 			-P ${CMAKE_CURRENT_SOURCE_DIR}/RunDataValidity.cmake
 	)
+	SET_TESTS_PROPERTIES(GPlotDesignerDataValidity PROPERTIES RESOURCE_LOCK GPlotDesigner_shared_workdir)
 	MESSAGE(STATUS "GPlotDesigner: data validity test ENABLED (python3=${GENEVA_PYTHON3_EXECUTABLE})")
 ELSE()
 	MESSAGE(STATUS "GPlotDesigner: data validity test skipped (python3 and/or numpy not found)")
@@ -180,6 +194,7 @@ IF(GENEVA_PYTHON3_EXECUTABLE AND GENEVA_NUMPY_RC EQUAL 0 AND GENEVA_MATPLOTLIB_R
 			-DWORKDIR=${CMAKE_CURRENT_BINARY_DIR}
 			-P ${CMAKE_CURRENT_SOURCE_DIR}/RunRenderValidity.cmake
 	)
+	SET_TESTS_PROPERTIES(GPlotDesignerRenderValidity PROPERTIES RESOURCE_LOCK GPlotDesigner_shared_workdir)
 	MESSAGE(STATUS "GPlotDesigner: render validity test ENABLED (python3=${GENEVA_PYTHON3_EXECUTABLE})")
 ELSE()
 	MESSAGE(STATUS "GPlotDesigner: render validity test skipped (python3, numpy and/or matplotlib not found)")
