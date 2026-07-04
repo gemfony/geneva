@@ -1,7 +1,7 @@
 {
     "header": {
         "comment": "This configuration file was automatically created by GParserBuilder",
-        "comment": "Sat May 23 18:56:35 2026"
+        "comment": "Sat Jul  4 02:24:09 2026"
     },
     "n_producer_threads": {
         "comment": "The number of threads simultaneously producing random numbers",
@@ -13,5 +13,12 @@
         "comment": "switching from one optimization algorithm to the next",
         "default": "true",
         "value": "true"
+    },
+    "individual_plugin_path": {
+        "comment": "Filesystem path to a runtime individual (optimization-problem) plugin (.so) to load at startup.",
+        "comment": "Empty (the default) means the individual is compiled into this binary. The --individual",
+        "comment": "command-line option overrides this setting.",
+        "default": "",
+        "value": ""
     }
 }

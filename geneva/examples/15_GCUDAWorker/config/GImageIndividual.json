@@ -1,28 +1,35 @@
 {
     "header": {
-        "comment": "Sat May 23 18:57:10 2026"
+        "comment": "This configuration file was automatically created by GParserBuilder",
+        "comment": "Sat Jul  4 02:24:09 2026"
     },
     "min_size": {
+        "comment": "The minimum size of the triangle in percent of the canvas",
         "comment": "The allowed value range is [0,maxSize[",
         "default": "0",
         "value": "0"
     },
     "max_size": {
+        "comment": "The maximum size of the triangle in percent of the canvas",
         "comment": "The allowed value range is ]minSize,1]",
         "default": "0.29999999999999999",
         "value": "0.29999999999999999"
     },
     "start_size": {
+        "comment": "The start size of the triangle in percent of the canvas",
+        "comment": "The allowed value range is [minSize,maxSize]",
         "comment": "A value < 0 means random in the range [minSize,maxSize]",
         "default": "0",
         "value": "0"
     },
     "min_opaqueness": {
+        "comment": "The minimum allowed opaqueness of triangles",
         "comment": "The allowed value range is [0,maxOpaqueness]",
         "default": "0.29999999999999999",
         "value": "0.29999999999999999"
     },
     "max_opaqueness": {
+        "comment": "The maximum allowed opaqueness of triangles",
         "comment": "The allowed value range is [minOpaqueness,1]",
         "default": "0.59999999999999998",
         "value": "0.59999999999999998"
@@ -58,79 +65,102 @@
         "value": "0.29999999999999999"
     },
     "ad_prob": {
+        "comment": "The probability for random adaptions of values in evolutionary algorithms",
         "comment": "The allowed value range is [0,1]",
         "default": "0.050000000000000003",
         "value": "0.050000000000000003"
     },
     "loc_ad_prob": {
+        "comment": "The probability for random adaptions of location parameters of values in evolutionary algorithms",
         "comment": "The allowed value range is [0,1]",
         "default": "0.10000000000000001",
         "value": "0.10000000000000001"
     },
     "sigma": {
+        "comment": "The sigma for gauss-adaption in ES",
+        "comment": "sigma must be positive",
         "comment": "Recommended value range [0,1]",
         "default": "0.10000000000000001",
-        "value": "1.0"
+        "value": "0.10000000000000001"
     },
     "min_sigma": {
+        "comment": "The minimum value of sigma",
         "comment": "minSigma must be positive and smaller than maxSigma",
         "default": "0.050000000000000003",
         "value": "0.050000000000000003"
     },
     "max_sigma": {
+        "comment": "The maximum value of sigma",
         "comment": "maxSigma must be positive and larger than minSigma",
         "default": "0.20000000000000001",
-        "value": "2.0"
+        "value": "0.20000000000000001"
     },
     "sigma_sigma": {
+        "comment": "Influences the self-adaption of gauss-mutation in ES",
+        "comment": "sigmaSigma must be positive",
         "comment": "The allowed value range is [0,1]",
         "default": "0.80000000000000004",
         "value": "0.80000000000000004"
     },
     "loc_sigma": {
+        "comment": "The sigma for gauss-adaption of location parameters in ES",
+        "comment": "loc_sigma must be positive",
         "comment": "Recommended value range [0,1]",
         "default": "0.20000000000000001",
-        "value": "1.0"
+        "value": "0.20000000000000001"
     },
     "loc_min_sigma": {
+        "comment": "The minimum value of sigma for location parameters",
         "comment": "loc_minSigma must be positive and smaller than loc_maxSigma",
         "default": "0.10000000000000001",
         "value": "0.10000000000000001"
     },
     "loc_max_sigma": {
+        "comment": "The maximum value of sigma for location parameters",
         "comment": "loc_maxSigma must be positive and larger than loc_minSigma",
         "default": "0.40000000000000002",
-        "value": "2.0"
+        "value": "0.40000000000000002"
     },
     "loc_sigma_sigma": {
+        "comment": "Influences the self-adaption of gauss-mutation in ES for location parameters",
+        "comment": "loc_sigmaSigma must be positive",
         "comment": "The allowed value range is [0,1]",
         "default": "0.80000000000000004",
         "value": "0.80000000000000004"
     },
     "bg_red": {
+        "comment": "The initial background color (red channel)",
+        "comment": "Negative values mean random initialization",
         "comment": "Otherwise the allowed value range is [0.,1.]",
         "default": "0.90000000000000002",
         "value": "0.90000000000000002"
     },
     "bg_green": {
+        "comment": "The initial background color (green channel)",
+        "comment": "Negative values mean random initialization",
         "comment": "Otherwise the allowed value range is [0.,1.]",
         "default": "0.90000000000000002",
         "value": "0.90000000000000002"
     },
     "bg_blue": {
+        "comment": "The initial background color (blue channel)",
+        "comment": "Negative values mean random initialization",
         "comment": "Otherwise the allowed value range is [0.,1.]",
         "default": "0.90000000000000002",
         "value": "0.90000000000000002"
     },
     "n_triangles": {
-        "comment": "Number of triangles per candidate image. Allowed range [1,1000]; the GPU kernel caches all corners cooperatively in shared memory once per block (MONALISA_MAXTRI=1000), so the whole range runs on the GPU.",
+        "comment": "The number of triangles that will constitute",
+        "comment": "each candidate image",
+        "comment": "Allowed value range [1,1000]",
         "default": "300",
-        "value": "64"
+        "value": "300"
     },
     "alpha_sort": {
-        "comment": "Disabled so streamline order == render order (CPU/GPU parity)",
+        "comment": "Whether triangles should be sorted according",
+        "comment": "to their alpha channel",
         "default": "true",
-        "value": "false"
+        "value": "true"
     },
     "mutate_alpha_channel": {
         "comment": "Whether the alpha channel shall be mutated",
@@ -143,21 +173,29 @@
         "value": "false"
     },
     "eval_policy": {
+        "comment": "Specifies which strategy should be used to calculate the evaluation:",
+        "comment": "0 (a.k.a. USESIMPLEEVALUATION): Always call the evaluation function, even for invalid solutions",
+        "comment": "1 (a.k.a. USEWORSTCASEFORINVALID) : Assign the worst possible value to our fitness and evaluate only valid solutions",
         "comment": "2 (a.k.a. USESIGMOID): Assign a multiple of validity_level_ and sigmoid barrier to invalid solutions, apply a sigmoid function to valid evaluations",
         "default": "0",
         "value": "0"
     },
     "steepness": {
+        "comment": "When using a sigmoid function to transform the individual's fitness,",
+        "comment": "this parameter influences the steepness of the function at the center of the sigmoid.",
         "comment": "The parameter must have a value > 0.",
         "default": "1000",
         "value": "1000"
     },
     "barrier": {
+        "comment": "When using a sigmoid function to transform the individual's fitness,",
+        "comment": "this parameter sets the upper\/lower boundary of the sigmoid.",
         "comment": "The parameter must have a value > 0.",
         "default": "10000",
         "value": "10000"
     },
     "maxmode": {
+        "comment": "Specifies whether the individual should be maximized (1) or minimized (0)",
         "comment": "Note that minimization is the by far most common option.",
         "default": "0",
         "value": "0"

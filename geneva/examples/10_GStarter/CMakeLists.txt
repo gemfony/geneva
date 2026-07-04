@@ -103,7 +103,7 @@ SET(CONFIGFILES
 	config/GEvolutionaryAlgorithm.json
 	config/GSimulatedAnnealing.json
 	config/GSwarmAlgorithm.json
-	config/GGradientDescent.json
+	config/GConjugateGradientDescent.json
 	config/GParameterScan.json
 )
 
