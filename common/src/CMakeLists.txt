@@ -30,6 +30,7 @@
 SET ( COMMONSOURCES
     GCommonEnums.cpp
     GCommonHelperFunctions.cpp
+    GConfigEmission.cpp
     GExceptions.cpp
 	GExpectationChecksT.cpp
 	GJsonIO.cpp

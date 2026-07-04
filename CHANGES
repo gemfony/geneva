@@ -85,6 +85,15 @@ Recommended Versions:
   them on the adaption config instead). The self-adaptive stall response
   (re-widening the mutation range on stagnation) is unchanged.
 
+- NEW: non-Go2 programs can now honor the --update-configs switch to materialize the
+  configuration files they own -- creating them from defaults when absent and
+  rewriting them in canonical form when present, then exiting without optimizing --
+  the same behaviour Go2 binaries already provide. A shared facility drives this
+  behind the one switch, so every config-owning binary regenerates its configuration
+  uniformly. Example 06 (GDirectEA), which drives its algorithm directly rather than
+  through Go2, is the first converted; the remaining direct-OA examples, benchmarks
+  and manual tests follow.
+
 - CHANGED: the GPU consumer now defaults to the CUDA backend. A freshly generated
   GPU-consumer configuration selects "cuda" (was "cpu"), so the GPU examples and
   benchmarks use the device out of the box. On a build without the CUDA backend the
