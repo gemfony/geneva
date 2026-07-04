@@ -113,6 +113,11 @@ std::string cfgScalarToString(T const &v) {
     else if constexpr(std::is_same_v<T, bool>) {
         return v ? "true" : "false";
     }
+    else if constexpr(std::is_same_v<T, std::int8_t> || std::is_same_v<T, std::uint8_t>) {
+        // Render (u)int8_t numerically (via a wider integer), not as the character it aliases.
+        using wider = std::conditional_t<std::is_signed_v<T>, int, unsigned int>;
+        return Gem::Common::to_string(static_cast<wider>(v));
+    }
     else {
         return Gem::Common::to_string(v);
     }
@@ -131,6 +136,13 @@ T cfgScalarFromString(std::string const &s) {
     }
     else if constexpr(std::is_same_v<T, bool>) {
         return (s == "true" || s == "1");
+    }
+    else if constexpr(std::is_same_v<T, std::int8_t> || std::is_same_v<T, std::uint8_t>) {
+        // (u)int8_t is a character type: a stream extraction of "1" would read the character '1'
+        // (value 49), not the number 1. Parse through a wider integer so small enums/counts stored in
+        // an 8-bit field round-trip by value.
+        using wider = std::conditional_t<std::is_signed_v<T>, int, unsigned int>;
+        return static_cast<T>(Gem::Common::from_string<wider>(s));
     }
     else {
         return Gem::Common::from_string<T>(s);
@@ -155,6 +167,12 @@ boost::json::value cfgScalarToJson(T const &v) {
     }
     else if constexpr(std::is_same_v<T, bool>) {
         return boost::json::value(v);
+    }
+    else if constexpr(std::is_same_v<T, std::int8_t> || std::is_same_v<T, std::uint8_t>) {
+        // Widen (u)int8_t so it is emitted as a numeric value rather than a single character; the
+        // symmetric read path (cfgScalarFromString) parses it back through the same wider integer.
+        using wider = std::conditional_t<std::is_signed_v<T>, int, unsigned int>;
+        return boost::json::value(static_cast<wider>(v));
     }
     else if constexpr(std::is_arithmetic_v<T>) {
         return boost::json::value(v);

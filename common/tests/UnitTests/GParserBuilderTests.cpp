@@ -811,3 +811,51 @@ TEST_CASE("GParserBuilder: arithmetic and bool scalars write as native JSON, old
 
     std::filesystem::remove(cfg);
 }
+
+// ---------------------------------------------------------------------------
+// Regression: a std::uint8_t parameter (e.g. GEvolutionaryAlgorithm's step_control)
+// must round-trip by VALUE. Because (u)int8_t aliases a character type, a naive stream
+// conversion of "1" reads the character '1' (49) rather than the number 1; the scalar
+// helpers widen it so the numeric value survives, in both the native and the string form.
+
+TEST_CASE("GParserBuilder: a uint8_t scalar round-trips by value, not as a character",
+          "[common][parser-builder][regression]") {
+    namespace json = boost::json;
+    auto cfg = scratch("uint8_roundtrip");
+    std::filesystem::remove(cfg);
+
+    // A freshly created config stores the uint8_t value 1 as the NUMBER 1 (not 49).
+    {
+        GParserBuilder gpb;
+        std::uint8_t code = 1;
+        gpb.registerFileParameter<std::uint8_t>("code", code, std::uint8_t(1), VAR_IS_ESSENTIAL, "8-bit code");
+        REQUIRE(gpb.parseConfigFile(cfg));
+    }
+    {
+        const json::value doc = Gem::Common::parseJsonFile(cfg);
+        const json::object &o = doc.get_object();
+        CHECK(o.at("code").at("value").to_number<int>() == 1);      // the number 1, not 49
+        CHECK(o.at("code").at("default").to_number<int>() == 1);
+    }
+    {
+        GParserBuilder reader;
+        std::uint8_t code = 0;
+        reader.registerFileParameter<std::uint8_t>("code", code, std::uint8_t(0), VAR_IS_ESSENTIAL, "8-bit code");
+        REQUIRE(reader.parseConfigFile(cfg));
+        CHECK(int(code) == 1);
+    }
+
+    // The earlier all-strings form ("1") must also read back as 1, not 49.
+    {
+        json::object t;
+        t["code"] = json::object{{"default", "1"}, {"value", "1"}};
+        Gem::Common::writeJsonFile(cfg, json::value(std::move(t)));
+        GParserBuilder reader;
+        std::uint8_t code = 0;
+        reader.registerFileParameter<std::uint8_t>("code", code, std::uint8_t(0), VAR_IS_ESSENTIAL, "8-bit code");
+        REQUIRE(reader.parseConfigFile(cfg));
+        CHECK(int(code) == 1);
+    }
+
+    std::filesystem::remove(cfg);
+}
