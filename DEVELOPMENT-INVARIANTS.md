@@ -219,6 +219,11 @@ The Geneva source tree is never a workspace. This extends Invariant 3 (build out
   are the intended edits. If some step generated a file in-tree, remove it (or relocate the activity to an
   external directory and regenerate) **before** committing; a commit is not complete while `git status` is
   dirty with anything unintended.
+- **New intended files are tracked, not left untracked.** A source/header/CMake/config file created to stay
+  in Geneva is `git add`-ed as part of the change that introduces it, so it is present in the commit.
+  "Pristine" means `git status` shows nothing *because* stray files were removed **and** intended new files
+  were staged — never because an intended file was silently dropped. Stage new build-relevant files the
+  moment they are created, so the build system and every reviewer see them.
 
 *Why:* stray files silently become part of the repository, mask real changes in `git status`, get
 accidentally committed, and make "is the tree clean?" — the precondition for a trustworthy diff, build, and
