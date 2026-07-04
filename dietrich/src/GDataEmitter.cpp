@@ -168,10 +168,8 @@ std::string emitCsv(const std::vector<dataSeries> &series, const canvasInfo &can
         }
 
         // Comma-list of column names for the header comment.
-        std::string col_list;
-        for(std::size_t c = 0; c < s.column_names.size(); ++c) {
-            col_list += (c == 0 ? "" : ",") + s.column_names[c];
-        }
+        std::string col_list = s.column_names | std::views::join_with(',')
+            | std::ranges::to<std::string>();
 
         out << "# series " << si << ": \"" << csvComment(s.name) << "\" kind=" << s.kind
             << " plotkind=" << to_string(s.spec.kind) << " role=" << s.spec.role
@@ -406,8 +404,7 @@ std::string emitNpz(const std::vector<dataSeries> &series, const canvasInfo &can
         + "\", \"c_x_div\": " + std::to_string(canvas.c_x_div)
         + ", \"c_y_div\": " + std::to_string(canvas.c_y_div) + "},\n";
     manifest += "  \"series\": [\n";
-    for(std::size_t si = 0; si < series.size(); ++si) {
-        const dataSeries &s = series[si];
+    for(const auto &[si, s] : series | std::views::enumerate) {
         const std::size_t rows = seriesRows(s);
 
         // The .npy member.
@@ -423,7 +420,7 @@ std::string emitNpz(const std::vector<dataSeries> &series, const canvasInfo &can
         spec_json += ", \"pad\": " + std::to_string(s.pad)
             + ", \"secondary\": " + (s.secondary ? "true" : "false") + "}";
         manifest += "    " + spec_json;
-        manifest += (si + 1 == series.size() ? "\n" : ",\n");
+        manifest += (si + 1 == std::ssize(series) ? "\n" : ",\n");
     }
     manifest += "  ]\n}\n";
 
@@ -444,8 +441,8 @@ std::vector<dataSeries> collectSeries(
     // which place plotter i into pad i); its secondary plotters overlay the same pad. A
     // dataless plotter (function plotter) still consumes its pad index, so the exported
     // pad numbers line up with where ROOT / matplotlib would draw each plot.
-    for(std::size_t pad = 0; pad < plotters.size(); ++pad) {
-        const auto &p = plotters[pad];
+    for(const auto &[idx, p] : plotters | std::views::enumerate) {
+        const auto pad = static_cast<std::size_t>(idx);
         if(auto s = captureSeries(*p)) {
             s->pad = pad;
             s->secondary = false;
@@ -899,15 +896,14 @@ GPlotDesigner GDataLog::toDesigner() const {
     // Build every series' plotter (primary or overlay) from its spec + rows, sorting
     // by the first column where requested.
     std::vector<std::shared_ptr<GBasePlotter>> built(series_.size());
-    for(std::size_t i = 0; i < series_.size(); ++i) {
-        std::shared_ptr<GBasePlotter> p = makePlotter(series_[i].spec);
-        for(const auto &row : series_[i].rows) {
+    for(auto &&[s, p] : std::views::zip(series_, built)) {
+        p = makePlotter(s.spec);
+        for(const auto &row : s.rows) {
             p->appendRow(row);
         }
-        if(series_[i].sort_first_column) {
+        if(s.sort_first_column) {
             p->sortByFirstColumn();
         }
-        built[i] = std::move(p);
     }
 
     // Attach overlays to their primary.

@@ -260,13 +260,9 @@ std::string MatplotlibEmitter::emitDocument(const GPlotDesigner &gpd) const {
 
     // Per pad: create the Axes with the right projection, set labels/title, then plot the pad's
     // primary-and-secondary plotters into it (secondaries overlay on the same Axes).
-    std::size_t n_plots = 0;
-    for(const auto &p : gpd.plotters_cnt_) {
-        if(n_plots >= max_plots) {
-            break;
-        }
-        const std::size_t pad_idx = n_plots + 1; // matplotlib subplot indices start at 1
-        ++n_plots;
+    for(const auto &[idx, p] :
+        gpd.plotters_cnt_ | std::views::enumerate | std::views::take(max_plots)) {
+        const std::size_t pad_idx = static_cast<std::size_t>(idx) + 1; // matplotlib subplot indices start at 1
 
         const mplKind k = classifyMpl(*p);
         const bool three_d = isThreeDimensionalMpl(k);

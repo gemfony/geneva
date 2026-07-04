@@ -265,13 +265,9 @@ std::string OctaveEmitter::emitDocument(const GPlotDesigner &gpd) const {
 
     // Per pad: select the subplot, set labels/title, then plot the pad's primary-and-
     // secondary plotters into it (secondaries overlay via the active `hold on`).
-    std::size_t n_plots = 0;
-    for(const auto &p : gpd.plotters_cnt_) {
-        if(n_plots >= max_plots) {
-            break;
-        }
-        const std::size_t pad_idx = n_plots + 1; // subplot indices start at 1
-        ++n_plots;
+    for(const auto &[idx, p] :
+        gpd.plotters_cnt_ | std::views::enumerate | std::views::take(max_plots)) {
+        const std::size_t pad_idx = static_cast<std::size_t>(idx) + 1; // subplot indices start at 1
 
         const octKind k = classifyOct(*p);
         const bool three_d = isThreeDimensionalOct(k);

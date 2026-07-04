@@ -306,17 +306,14 @@ GGraph2D::footerData_(bool is_secondary, std::size_t p_id, std::size_t own_id, c
     if(draw_arrows_ && this->currentSize() >= 2) {
         const auto &x_col = this->column<0>();
         const auto &y_col = this->column<1>();
-        const std::size_t n = this->currentSize();
-        std::size_t pos_counter = 0;
 
-        double x1 = x_col[0];
-        double y1 = y_col[0];
-        double x2 = 0.;
-        double y2 = 0.;
-
-        for(std::size_t i = 1; i < n; ++i) {
-            x2 = x_col[i];
-            y2 = y_col[i];
+        // Draw one arrow per adjacent pair of points; the pair index names the arrow.
+        for(const auto &[idx, segment] :
+            std::views::zip(x_col, y_col) | std::views::adjacent<2> | std::views::enumerate) {
+            const auto pos_counter = static_cast<std::size_t>(idx);
+            const auto &[p1, p2] = segment;
+            const auto &[x1, y1] = p1;
+            const auto &[x2, y2] = p2;
 
             footer_data << indent << "TArrow * ta_" << graph_name << "_" << pos_counter
                         << " = new TArrow(" << x1 << ", " << y1 << "," << x2 << ", " << y2 << ", "
@@ -325,11 +322,6 @@ GGraph2D::footerData_(bool is_secondary, std::size_t p_id, std::size_t own_id, c
                         << "->SetArrowSize(0.01);" << '\n'
                         << indent << "ta_" << graph_name << "_" << pos_counter << "->Draw();"
                         << '\n';
-
-            x1 = x2;
-            y1 = y2;
-
-            pos_counter++;
         }
         footer_data << '\n';
     }
@@ -1218,10 +1210,8 @@ GGraph4D::footerData_(bool is_secondary, std::size_t p_id, std::size_t own_id, c
     std::string base_name = suffix(is_secondary, p_id, own_id);
 
     // Build the w-ordered index permutation, so we can select the n_best_ best more easily
-    std::vector<std::size_t> order(data_size);
-    for(std::size_t i = 0; i < data_size; ++i) {
-        order[i] = i;
-    }
+    std::vector<std::size_t> order = std::views::iota(0uz, data_size)
+        | std::ranges::to<std::vector<std::size_t>>();
     if(small_w_large_marker_) {
         std::ranges::sort(order, [&w_col](std::size_t a, std::size_t b) -> bool {
             return (w_col[a] < w_col[b]);

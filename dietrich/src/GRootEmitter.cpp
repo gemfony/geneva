@@ -111,38 +111,27 @@ std::string GRootEmitter::emitDocument(const GPlotDesigner &gpd) const {
            << '\n';
 
     // Plot all headers up to the maximum allowed number
-    std::size_t n_plots = 0;
-    std::vector<std::shared_ptr<GBasePlotter>>::const_iterator it;
-    for(it = gpd.plotters_cnt_.begin(); it != gpd.plotters_cnt_.end(); ++it) {
-        if(n_plots++ < max_plots) {
-            result << (*it)->headerData(gpd.indent()) << '\n';
-        }
+    for(const auto &p : gpd.plotters_cnt_ | std::views::take(max_plots)) {
+        result << p->headerData(gpd.indent()) << '\n';
     }
 
     // Plot all body sections up to the maximum allowed number
     result << gpd.indent() << "//===================  Data Section ======================" << '\n'
            << '\n';
 
-    n_plots = 0;
-    for(it = gpd.plotters_cnt_.begin(); it != gpd.plotters_cnt_.end(); ++it) {
-        if(n_plots++ < max_plots) {
-            result << (*it)->bodyData(gpd.indent()) << '\n';
-        }
+    for(const auto &p : gpd.plotters_cnt_ | std::views::take(max_plots)) {
+        result << p->bodyData(gpd.indent()) << '\n';
     }
 
     // Plot all footer data up to the maximum allowed number
     result << gpd.indent() << "//===================  Plot Section ======================" << '\n'
            << '\n';
 
-    n_plots = 0;
-    for(it = gpd.plotters_cnt_.begin(); it != gpd.plotters_cnt_.end(); ++it) {
-        if(n_plots < max_plots) {
-            result << gpd.indent() << "graphPad->cd(" << n_plots + 1 << ");"
-                   << '\n' /* cd starts at 1 */
-                   << (*it)->footerData(gpd.indent()) << '\n';
-
-            n_plots++;
-        }
+    for(const auto &[idx, p] :
+        gpd.plotters_cnt_ | std::views::enumerate | std::views::take(max_plots)) {
+        result << gpd.indent() << "graphPad->cd(" << static_cast<std::size_t>(idx) + 1 << ");"
+               << '\n' /* cd starts at 1 */
+               << p->footerData(gpd.indent()) << '\n';
     }
 
     result << gpd.indent() << "graphPad->cd();" << '\n' << gpd.indent() << "cc->cd();" << '\n';
