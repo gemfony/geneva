@@ -93,7 +93,7 @@ public:
 	  */
     GOptimizableEntityFactory(const GOptimizableEntityFactory &cp)
       : Gem::Common::GFactoryT<GOptimizableEntity>(cp) {
-        Gem::Common::copyCloneableSmartPointer(cp.post_processor_, post_processor_);
+        Gem::Common::copyCloneableSmartPointer(cp.pre_processor_, pre_processor_);
         Gem::Common::copyCloneableSmartPointer(cp.post_processor_, post_processor_);
     }
 

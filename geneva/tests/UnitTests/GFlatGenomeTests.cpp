@@ -1973,6 +1973,67 @@ TEST_CASE("destroying a GenevaInitializer keeps the process RNG alive", "[go2][r
 }
 
 /******************************************************************************/
+// Regression guard for the GOptimizableEntityFactory copy-constructor defect: it deep-cloned the
+// POST-processor twice and never copied the PRE-processor, so any factory copy (GFlatIndividualFactory
+// ::clone(), the GOAFactoryT content-creator copy, the meta-optimizer's factory->clone()) silently
+// dropped a registered pre-processor. This exercises the copy ctor directly and asserts both processors
+// survive as independent deep clones. It fails on the unfixed code (copy.pre() is null) and passes once
+// the ctor copies pre_processor_.
+namespace Gem::Tests {
+
+/** @brief A trivial, cloneable pre/post-processor used only to witness factory-copy behaviour. */
+class ProbeProcessor : public Gem::Common::GSerializableFunctionObjectT<GOptimizableEntity> {
+public:
+    ProbeProcessor() = default;
+
+protected:
+    /** @brief No-op: the test never runs the processor, it only checks it is carried across a copy. */
+    bool process_([[maybe_unused]] GOptimizableEntity &p) override { return true; }
+
+private:
+    Gem::Common::GSerializableFunctionObjectT<GOptimizableEntity> *clone_() const override {
+        return new ProbeProcessor(*this);
+    }
+};
+
+/** @brief Exposes the protected pre-/post-processor slots so a factory copy is observable in a test. */
+class ProbeFactory : public GFlatIndividualFactory<FactorySphere> {
+public:
+    using GFlatIndividualFactory<FactorySphere>::GFlatIndividualFactory;
+
+    std::shared_ptr<Gem::Common::GSerializableFunctionObjectT<GOptimizableEntity>> pre() const {
+        return this->pre_processor_;
+    }
+    std::shared_ptr<Gem::Common::GSerializableFunctionObjectT<GOptimizableEntity>> post() const {
+        return this->post_processor_;
+    }
+};
+
+} // namespace Gem::Tests
+
+TEST_CASE("GOptimizableEntityFactory copy retains BOTH pre- and post-processors", "[flat][factory][regression]") {
+    // No config file is read (we never call get_()), so a placeholder path is fine.
+    Gem::Tests::ProbeFactory orig(
+        std::filesystem::temp_directory_path() / "geneva_factory_proc_probe.json"
+    );
+    orig.registerPreProcessor(std::make_shared<Gem::Tests::ProbeProcessor>());
+    orig.registerPostProcessor(std::make_shared<Gem::Tests::ProbeProcessor>());
+    REQUIRE(orig.pre());
+    REQUIRE(orig.post());
+
+    // The buggy path: GOptimizableEntityFactory's copy ctor (reached via the derived copy ctor).
+    Gem::Tests::ProbeFactory copy(orig);
+
+    CHECK(copy.pre());   // regressed to null on the unfixed code (pre_processor_ was never copied)
+    CHECK(copy.post());
+    // Deep-cloned, not aliased to the source's processors...
+    CHECK(copy.pre().get() != orig.pre().get());
+    CHECK(copy.post().get() != orig.post().get());
+    // ...and the pre slot must not have been aliased to the (double-copied) post processor.
+    CHECK(copy.pre().get() != copy.post().get());
+}
+
+/******************************************************************************/
 // NOTE: the former "GGridArchitecture reads a TREE genome identically" case was removed when the
 // tree hierarchy was deleted. The "[flat][architecture]" case above already proves the
 // architecture is layout-agnostic by reading the genome purely through the §2 streamlineFP() seam.

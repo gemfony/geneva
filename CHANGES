@@ -101,6 +101,14 @@ Recommended Versions:
   Numeric hot loops, RNG draws, and byte-pinned output paths were deliberately left
   untouched. Purely internal; no observable change.
 
+- FIXED: copying an individual factory no longer drops its registered pre-processor.
+  GOptimizableEntityFactory's copy constructor deep-cloned the post-processor twice and
+  never copied the pre-processor, so any factory copy (GFlatIndividualFactory::clone(),
+  the OA content-creator copy, the meta-optimizer's factory clone) silently lost a
+  registered pre-processor. The copy constructor now clones the pre-processor as well; a
+  regression test copies a factory carrying both processors and asserts each survives as
+  an independent deep clone.
+
 - FIXED: destroying a Go2 (or any scoped GenevaInitializer) no longer disables
   random-number generation for the rest of the process. GenevaInitializer -- which
   is embedded in every Go2 as a member -- used to finalize the process-global Hap
