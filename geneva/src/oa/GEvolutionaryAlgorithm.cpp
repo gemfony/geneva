@@ -61,6 +61,7 @@
 #include <future>
 #include <iterator>
 #include <ostream>
+#include <ranges>
 #include <sstream>
 #include <tuple>
 #include <utility>
@@ -729,8 +730,8 @@ void GType::recombine() {
     const double mean_sigma = sum / static_cast<double>(cnt);
 
     // Write the mean into every child's scratch (children are at [np, size())).
-    for(std::size_t i = np; i < this->size(); ++i) {
-        writeGlobalSigma(this->at(i)->scratch(), *cfg, mean_sigma);
+    for(auto const &child : GOptimizationAlgorithmBase::data_cnt_ | std::views::drop(np)) {
+        writeGlobalSigma(child->scratch(), *cfg, mean_sigma);
     }
 }
 
@@ -825,9 +826,7 @@ void GType::selectParetoParents(bool include_parents) {
         reordered.push_back(std::move(this->data_cnt_[start + local]));
     }
     if(not include_parents) {
-        for(std::size_t i = 0; i < this->n_parents_; ++i) {
-            reordered.push_back(std::move(this->data_cnt_[i]));
-        }
+        std::ranges::move(this->data_cnt_ | std::views::take(this->n_parents_), std::back_inserter(reordered));
     }
     this->data_cnt_ = std::move(reordered);
 

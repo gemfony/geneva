@@ -35,6 +35,7 @@
 #include <cstdint>
 #include <limits>
 #include <random>
+#include <ranges>
 #include <tuple>
 #include <vector>
 
@@ -415,10 +416,10 @@ std::shared_ptr<GPersonalityTraits> GGeneralizedSimulatedAnnealing::getPersonali
  * Lets all individuals know about their position in the population.
  */
 void GGeneralizedSimulatedAnnealing::markIndividualPositions() {
-    for(std::size_t pos = 0; pos < this->size(); ++pos) {
-        this->at(pos)
+    for(auto const &[pos, individual] : *this | std::views::enumerate) {
+        individual
             ->getPersonalityTraits<GGeneralizedSimulatedAnnealing_PersonalityTraits>()
-            ->setPopulationPosition(pos);
+            ->setPopulationPosition(static_cast<std::size_t>(pos));
     }
 }
 

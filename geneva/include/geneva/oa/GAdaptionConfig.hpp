@@ -38,6 +38,7 @@
 #include <cstdint>
 #include <istream>
 #include <ostream>
+#include <ranges>
 #include <string>
 #include <type_traits>
 #include <vector>
@@ -941,9 +942,8 @@ private:
                 << ", genome has " << layout.size() << '\n'
             );
         }
-        for(std::size_t gi = 0; gi < cfg.size(); ++gi) {
-            if(cfg[gi].start != layout[gi].start || cfg[gi].len != layout[gi].len ||
-               cfg[gi].label_id != layout[gi].label_id) {
+        for(auto const &[gi, c, l] : std::views::zip(std::views::iota(0uz), cfg, layout)) {
+            if(c.start != l.start || c.len != l.len || c.label_id != l.label_id) {
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                     << "In GAdaptionConfigBase::checkConsistency(): Error!" << '\n'
@@ -1001,10 +1001,10 @@ private:
         }
         scratch.installAuxBlock<GaussState<adaption_fp_t<T>>>(key, groups.size(), AuxScope::PerIndividual);
         std::span<GaussState<adaption_fp_t<T>>> states = scratch.metaRecords<GaussState<adaption_fp_t<T>>>(key);
-        for(std::size_t gi = 0; gi < groups.size(); ++gi) {
-            states[gi].sigma = groups[gi].start_sigma;
-            states[gi].ad_prob = groups[gi].start_ad_prob;
-            states[gi].counter = 0;
+        for(auto const &[state, group] : std::views::zip(states, groups)) {
+            state.sigma = group.start_sigma;
+            state.ad_prob = group.start_ad_prob;
+            state.counter = 0;
         }
     }
 
@@ -1026,12 +1026,12 @@ private:
         }
         scratch.installAuxBlock<BiGaussState<adaption_fp_t<T>>>(key, groups.size(), AuxScope::PerIndividual);
         std::span<BiGaussState<adaption_fp_t<T>>> states = scratch.metaRecords<BiGaussState<adaption_fp_t<T>>>(key);
-        for(std::size_t gi = 0; gi < groups.size(); ++gi) {
-            states[gi].sigma1 = groups[gi].start_sigma1;
-            states[gi].sigma2 = groups[gi].start_sigma2;
-            states[gi].delta = groups[gi].start_delta;
-            states[gi].ad_prob = groups[gi].start_ad_prob;
-            states[gi].counter = 0;
+        for(auto const &[state, group] : std::views::zip(states, groups)) {
+            state.sigma1 = group.start_sigma1;
+            state.sigma2 = group.start_sigma2;
+            state.delta = group.start_delta;
+            state.ad_prob = group.start_ad_prob;
+            state.counter = 0;
         }
     }
 
@@ -1053,8 +1053,8 @@ private:
         }
         scratch.installAuxBlock<FlipState>(key, groups.size(), AuxScope::PerIndividual);
         std::span<FlipState> states = scratch.metaRecords<FlipState>(key);
-        for(std::size_t gi = 0; gi < groups.size(); ++gi) {
-            states[gi].ad_prob = groups[gi].start_ad_prob;
+        for(auto const &[state, group] : std::views::zip(states, groups)) {
+            state.ad_prob = group.start_ad_prob;
         }
     }
 

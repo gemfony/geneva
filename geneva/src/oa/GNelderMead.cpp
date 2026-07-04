@@ -47,6 +47,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <memory>
+#include <ranges>
 #include <string>
 #include <tuple>
 #include <vector>
@@ -975,10 +976,10 @@ void GNelderMead::adjustPopulation_() {
  * Stamps each individual's GNelderMead_PersonalityTraits with its flat population index.
  */
 void GNelderMead::markIndividualPositions() {
-    for(std::size_t pos = 0; pos < this->size(); pos++) {
-        this->at(pos)
+    for(auto const &[pos, individual] : *this | std::views::enumerate) {
+        individual
             ->getPersonalityTraits<GNelderMead_PersonalityTraits>()
-            ->setPopulationPosition(pos);
+            ->setPopulationPosition(static_cast<std::size_t>(pos));
     }
 }
 

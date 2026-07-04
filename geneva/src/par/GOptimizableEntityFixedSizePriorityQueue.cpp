@@ -37,9 +37,10 @@
 #include "geneva/ind/GOptimizableEntity.hpp"
 #include <algorithm>
 #include <cstddef>
+#include <format>
 #include <iterator>
 #include <memory>
-#include <sstream>
+#include <ranges>
 #include <string>
 #include <vector>
 
@@ -167,13 +168,12 @@ bool GOptimizableEntityFixedSizePriorityQueue::allClean(std::size_t &pos) const 
 	 * @return A string listing each item's position and clean/dirty status ("c" for clean, "d" for dirty)
 	 */
 std::string GOptimizableEntityFixedSizePriorityQueue::getCleanStatus() const {
-    std::size_t pos = 0;
-    std::ostringstream oss; // NOLINT(cppcoreguidelines-init-variables)
-    for(const auto &item_ptr : data_deq_) {
-        oss << "(" << pos++ << ", " << (not item_ptr->is_processed() ? "d" : "c") << ") ";
+    std::string result;
+    for(auto const &[pos, item_ptr] : data_deq_ | std::views::enumerate) {
+        result += std::format("({}, {}) ", pos, item_ptr->is_processed() ? "c" : "d");
     }
 
-    return oss.str();
+    return result;
 }
 
 /******************************************************************************/

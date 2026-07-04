@@ -50,6 +50,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <memory>
+#include <ranges>
 #include <stdexcept>
 #include <string>
 #include <tuple>
@@ -981,8 +982,7 @@ void GConjugateGradientDescent::runFitnessCalculation_() {
     using namespace Gem::Courtier;
 
 #ifdef DEBUG
-    std::size_t pos = 0;
-    for(const auto &item_ptr : *this) {
+    for(auto const &[pos, item_ptr] : *this | std::views::enumerate) {
         if(this->afterFirstIteration() && !item_ptr->is_due_for_processing()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
@@ -991,7 +991,6 @@ void GConjugateGradientDescent::runFitnessCalculation_() {
                 << " which is not due for processing" << '\n'
             );
         }
-        pos++;
     }
 #endif /* DEBUG */
 
@@ -1292,10 +1291,10 @@ void GConjugateGradientDescent::adjustPopulation_() {
  * @brief Lets all individuals know about their position in the population.
  */
 void GConjugateGradientDescent::markIndividualPositions() {
-    for(std::size_t pos = 0; pos < this->size(); pos++) {
-        this->at(pos)
+    for(auto const &[pos, individual] : *this | std::views::enumerate) {
+        individual
             ->getPersonalityTraits<GConjugateGradientDescent_PersonalityTraits>()
-            ->setPopulationPosition(pos);
+            ->setPopulationPosition(static_cast<std::size_t>(pos));
     }
 }
 

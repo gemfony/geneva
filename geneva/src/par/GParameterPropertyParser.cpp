@@ -31,8 +31,10 @@
 #include "common/GExceptions.hpp"
 #include "common/GLogger.hpp"
 
+#include <algorithm>
 #include <cstddef>
 #include <cstdint>
+#include <ranges>
 #include <string>
 #include <vector>
 
@@ -106,12 +108,7 @@ bool isUnsigned(const std::string &s) {
     if(s.empty()) {
         return false;
     }
-    for(char c : s) {
-        if(c < '0' || c > '9') {
-            return false;
-        }
-    }
-    return true;
+    return std::ranges::all_of(s, [](char c) { return c >= '0' && c <= '9'; });
 }
 
 /**

@@ -35,6 +35,7 @@
 #include <limits>
 #include <numeric>
 #include <random>
+#include <ranges>
 #include <tuple>
 #include <vector>
 
@@ -367,10 +368,10 @@ std::shared_ptr<GPersonalityTraits> GAntColonyOptimization::getPersonalityTraits
  * Lets all individuals know about their position in the population.
  */
 void GAntColonyOptimization::markIndividualPositions() {
-    for(std::size_t pos = 0; pos < this->size(); ++pos) {
-        this->at(pos)
+    for(auto const &[pos, individual] : *this | std::views::enumerate) {
+        individual
             ->getPersonalityTraits<GAntColonyOptimization_PersonalityTraits>()
-            ->setPopulationPosition(pos);
+            ->setPopulationPosition(static_cast<std::size_t>(pos));
     }
 }
 

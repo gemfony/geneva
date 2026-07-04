@@ -47,6 +47,7 @@
 #include <atomic>
 #include <memory>
 #include <random>
+#include <ranges>
 #include <string>
 #include <span>
 #include <tuple>
@@ -1349,8 +1350,7 @@ std::tuple<double, double> GSwarmAlgorithm::findBests() {
         std::make_tuple(this->at(0)->getWorstCase(), this->at(0)->getWorstCase());
 
 #ifdef DEBUG
-    std::size_t pos = 0;
-    for(const auto &ind_ptr : *this) {
+    for(auto const &[pos, ind_ptr] : *this | std::views::enumerate) {
         if(ind_ptr->is_due_for_processing() || ind_ptr->has_errors()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
@@ -1362,8 +1362,6 @@ std::tuple<double, double> GSwarmAlgorithm::findBests() {
                 << ", has_errors() == " << ind_ptr->has_errors() << '\n'
             );
         }
-
-        pos++;
     }
 #endif /* DEBUG */
 

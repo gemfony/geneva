@@ -48,6 +48,7 @@
 #include <future>
 #include <memory>
 #include <random>
+#include <ranges>
 #include <tuple>
 #include <vector>
 
@@ -791,11 +792,8 @@ void GParChild::markParents() {
  * @brief This helper function marks the individuals behind the parents as children
  */
 void GParChild::markChildren() {
-    typename std::vector<std::unique_ptr<gen::GOptimizableEntity>>::iterator it;
-    for(it = GOptimizationAlgorithmBase::data_cnt_.begin() + n_parents_;
-        it != GOptimizationAlgorithmBase::data_cnt_.end();
-        ++it) {
-        (*it)
+    for(auto const &child : GOptimizationAlgorithmBase::data_cnt_ | std::views::drop(n_parents_)) {
+        child
             ->template getPersonalityTraits<GBaseParChildPersonalityTraits>()
             ->setIsChild();
     }
@@ -807,11 +805,10 @@ void GParChild::markChildren() {
  * population.
  */
 void GParChild::markIndividualPositions() {
-    std::size_t pos = 0;
-    for(const auto &individual : GOptimizationAlgorithmBase::data_cnt_) {
+    for(auto const &[pos, individual] : GOptimizationAlgorithmBase::data_cnt_ | std::views::enumerate) {
         individual
             ->template getPersonalityTraits<GBaseParChildPersonalityTraits>()
-            ->setPopulationPosition(pos++);
+            ->setPopulationPosition(static_cast<std::size_t>(pos));
     }
 }
 
