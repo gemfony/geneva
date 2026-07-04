@@ -55,6 +55,7 @@ include(CMakeFindDependencyMacro)
 # installed interface).
 find_dependency(Boost @GENEVA_MIN_BOOST_VERSION@ COMPONENTS
     filesystem
+    json
     program_options
     regex
     serialization
