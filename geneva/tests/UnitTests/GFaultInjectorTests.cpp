@@ -36,7 +36,10 @@
  * processing exception, exactly like a genuine evaluation failure.
  */
 
+#include <algorithm>
+#include <functional>
 #include <memory>
+#include <ranges>
 #include <vector>
 
 #include <catch2/catch_test_macros.hpp>
@@ -68,11 +71,8 @@ protected:
     double fitnessCalculation() override {
         std::vector<double> v;
         this->streamline<double>(v);
-        double sum = 0.;
-        for(double x : v) {
-            sum += x * x;
-        }
-        return sum;
+        return std::ranges::fold_left(
+            v | std::views::transform([](double x) { return x * x; }), 0., std::plus{});
     }
 
 private:

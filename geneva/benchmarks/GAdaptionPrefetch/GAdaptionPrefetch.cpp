@@ -42,7 +42,7 @@
 #include <algorithm>
 #include <chrono>
 #include <cstdint>
-#include <iomanip>
+#include <format>
 #include <iostream>
 #include <optional>
 #include <span>
@@ -192,17 +192,15 @@ int main(int argc, char **argv) {
     const AdaptRates cpu = run_adaption(nParams, nGenerations, workers, gapMicros, threshold, Mode::CacheCpu);
     const double     base = inl.inAdaption;
 
-    std::cout << std::left << std::setw(40) << "mode" << std::right << std::setw(20)
-              << "values/s" << std::setw(12) << "speedup" << '\n'
+    std::cout << std::format("{:<40}{:>20}{:>12}\n", "mode", "values/s", "speedup")
               << "------------------------------------------------------------------------\n"
-              << std::left << std::setw(40) << "inline (gr-only kernel)" << std::right
-              << std::setw(20) << std::fixed << std::setprecision(0) << inl.inAdaption << std::setw(11)
-              << std::setprecision(3) << 1.0 << "x\n"
-              << std::left << std::setw(40) << "cache, in-adaption only (IF overlapped)" << std::right
-              << std::setw(20) << cpu.inAdaption << std::setw(11)
-              << (base > 0. ? cpu.inAdaption / base : 0.) << "x\n"
-              << std::left << std::setw(40) << "cache, in-series total (prefetch+burst)" << std::right
-              << std::setw(20) << cpu.total << std::setw(11)
-              << (base > 0. ? cpu.total / base : 0.) << "x\n";
+              << std::format(
+                     "{:<40}{:>20.0f}{:>11.3f}x\n", "inline (gr-only kernel)", inl.inAdaption, 1.0)
+              << std::format(
+                     "{:<40}{:>20.0f}{:>11.3f}x\n", "cache, in-adaption only (IF overlapped)",
+                     cpu.inAdaption, base > 0. ? cpu.inAdaption / base : 0.)
+              << std::format(
+                     "{:<40}{:>20.0f}{:>11.3f}x\n", "cache, in-series total (prefetch+burst)",
+                     cpu.total, base > 0. ? cpu.total / base : 0.);
     return 0;
 }

@@ -45,6 +45,7 @@
 #include <cmath>
 #include <cstddef>
 #include <filesystem>
+#include <format>
 #include <fstream>
 #include <istream>
 #include <memory>
@@ -52,7 +53,9 @@
 #include <optional>
 #include <ostream>
 #include <random>
+#include <ranges>
 #include <sstream>
+#include <string_view>
 #include <tuple>
 #include <utility>
 #include <vector>
@@ -1281,15 +1284,11 @@ void GNeuralNetworkIndividual::writeTrainedNetwork(const std::string &header_fil
            << "      const std::size_t n_layers = " << n_d_->size() << ";" << '\n'
            << "      const std::size_t architecture[n_layers] = {" << '\n';
 
-    for(std::size_t i = 0; i < n_d_->size(); i++) {
-        header << "        " << n_d_->at(i);
-        if(i == n_d_->size() - 1) {
-            header << '\n';
-        }
-        else {
-            header << "," << '\n';
-        }
-    }
+    header << (*n_d_
+               | std::views::transform([](std::size_t n) { return std::format("        {}", n); })
+               | std::views::join_with(std::string_view{",\n"})
+               | std::ranges::to<std::string>())
+           << '\n';
 
     std::size_t weight_offset = 0;
 
@@ -1326,16 +1325,11 @@ void GNeuralNetworkIndividual::writeTrainedNetwork(const std::string &header_fil
     // architecture decodes), so dump them straight from the genome-agnostic §2 view.
     std::vector<double> all_weights;
     this->streamlineFP(all_weights);
-    for(std::size_t i = 0; i < all_weights.size(); i++) {
-        header << "        " << all_weights[i];
-
-        if(i == (all_weights.size() - 1)) {
-            header << '\n';
-        }
-        else {
-            header << "," << '\n';
-        }
-    }
+    header << (all_weights
+               | std::views::transform([](double w) { return std::format("        {:g}", w); })
+               | std::views::join_with(std::string_view{",\n"})
+               | std::ranges::to<std::string>())
+           << '\n';
 
     header
         << "      };" << '\n'
@@ -1443,12 +1437,8 @@ gen::GFlatGenome *GNeuralNetworkIndividual::clone_() const {
  */
 std::shared_ptr<const GNeuralNetworkArchitecture>
 GNeuralNetworkIndividual::makeArchitecture(const networkData &n_d) {
-    std::vector<std::size_t> layers;
-    layers.reserve(n_d.size());
-    for(unsigned long i : n_d) {
-        layers.push_back(i);
-    }
-    return std::make_shared<const GNeuralNetworkArchitecture>(std::move(layers));
+    return std::make_shared<const GNeuralNetworkArchitecture>(
+        n_d | std::ranges::to<std::vector<std::size_t>>());
 }
 
 /******************************************************************************/

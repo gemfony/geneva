@@ -40,9 +40,12 @@
  * GProcessableIdentityTests; together with this file they cover the mechanism end to end.
  */
 
+#include <algorithm>
 #include <array>
 #include <cstdint>
+#include <functional>
 #include <memory>
+#include <ranges>
 #include <set>
 #include <vector>
 
@@ -76,11 +79,8 @@ protected:
     double fitnessCalculation() override {
         std::vector<double> v;
         this->streamline<double>(v);
-        double sum = 0.;
-        for(double x : v) {
-            sum += x * x;
-        }
-        return sum;
+        return std::ranges::fold_left(
+            v | std::views::transform([](double x) { return x * x; }), 0., std::plus{});
     }
 
 private:

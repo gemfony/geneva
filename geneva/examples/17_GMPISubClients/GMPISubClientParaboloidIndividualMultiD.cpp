@@ -36,6 +36,10 @@
 #include "geneva/oa/GAdaption.hpp"
 #include "geneva/oa/GAdaptionConfig.hpp"
 
+#include <algorithm>
+#include <functional>
+#include <ranges>
+
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GMPISubClientParaboloidIndividualMultiD) // NOLINT
 namespace Gem::Geneva {
 
@@ -169,9 +173,7 @@ double GMPISubClientParaboloidIndividualMultiD::fitnessCalculation() {
         break;
     case MPIStatusCode::SUCCESS: {
         // Calculate the sum of all individual results as the fitness value
-        for(auto const &d : recvVecOpt.value()) {
-            result += d;
-        }
+        result = std::ranges::fold_left(recvVecOpt.value(), 0., std::plus{});
     } break;
     }
 

@@ -32,6 +32,7 @@
 // Standard headers
 #include <cstddef>
 #include <cstring>
+#include <ranges>
 #include <span>
 #include <vector>
 
@@ -114,9 +115,9 @@ public:
     [[nodiscard]] int parallelWorkPerItem() const override { return 256; }
 
     void scatter(std::span<const item_ptr> items, const std::vector<gimage_fp_t> &fitness) const override {
-        for(std::size_t i = 0; i < items.size(); ++i) {
-            items[i]->process(std::vector<gen::individual_processing_result>(
-                1, gen::individual_processing_result(fitness[i])));
+        for(auto const& [item, fit] : std::views::zip(items, fitness)) {
+            item->process(std::vector<gen::individual_processing_result>(
+                1, gen::individual_processing_result(fit)));
         }
     }
 

@@ -45,6 +45,7 @@
 // Standard headers
 #include <csignal>
 #include <iostream>
+#include <ranges>
 
 // Geneva headers
 #include "geneva/Go2.hpp"
@@ -102,8 +103,8 @@ int main(int argc, char **argv) {
     best->streamline<double>(v);
 
     std::cout << "Best result found (raw fitness = " << raw << "):" << '\n';
-    for(std::size_t i = 0; i < v.size(); ++i) {
-        std::cout << "  x[" << i << "] = " << v[i] << '\n';
+    for(auto const& [i, x] : std::views::enumerate(v)) {
+        std::cout << "  x[" << i << "] = " << x << '\n';
     }
     return 0;
 }

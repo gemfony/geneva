@@ -46,14 +46,17 @@
 #include "geneva/par/GOptimizableEntityFactory.hpp"
 #include "geneva/par/GOptimizableEntityMultiConstraint.hpp"
 #include "hap/GRandomT.hpp"
+#include <algorithm>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <filesystem>
+#include <functional>
 #include <iostream>
 #include <istream>
 #include <memory>
 #include <ostream>
+#include <ranges>
 #include <tuple>
 #include <utility>
 #include <vector>
@@ -133,10 +136,7 @@ double GDoubleSumConstraint::check_(const gen::GOptimizableEntity *p) const {
     std::vector<double> par_vec;
     p->streamlineFP(par_vec);
 
-    double sum = 0.;
-    for(const auto &val : par_vec) {
-        sum += val;
-    }
+    const double sum = std::ranges::fold_left(par_vec, 0., std::plus{});
 
     if(sum < c_) {
         return 0.;
@@ -244,10 +244,7 @@ double GDoubleSumGapConstraint::check_(const gen::GOptimizableEntity *p) const {
     std::vector<double> par_vec;
     p->streamlineFP(par_vec);
 
-    double sum = 0.;
-    for(const auto &val : par_vec) {
-        sum += val;
-    }
+    const double sum = std::ranges::fold_left(par_vec, 0., std::plus{});
 
     // Is the sum in the allowed corridor ?
     if(sum >= (c_ - gap_) && sum <= (c_ + gap_)) {
@@ -352,11 +349,10 @@ double GSphereConstraint::check_(const gen::GOptimizableEntity *p) const {
     std::vector<double> par_vec;
     p->streamlineFP(par_vec);
 
-    double sum = 0.;
-    for(const auto &val : par_vec) {
-        sum += Gem::Common::gsquared(val);
-    }
-    sum = sqrt(sum);
+    const double sum = sqrt(std::ranges::fold_left(
+        par_vec | std::views::transform([](double val) { return Gem::Common::gsquared(val); }),
+        0.,
+        std::plus{}));
 
     if(sum <= diameter_) {
         return 0.;

@@ -36,10 +36,12 @@
 #include <algorithm>
 #include <cctype>
 #include <iostream>
+#include <ranges>
 #include <sstream>
 #include <stdexcept>
 #include <string>
 #include <tuple>
+#include <vector>
 
 
 #include "common/GCommonMathHelperFunctionsT.hpp"
@@ -249,18 +251,18 @@ GAlgorithmBenchmarkResult GAlgorithmBenchmarkRunner::aggregate(
 
     if (runs.empty()) return agg;
 
-    std::vector<double> fitness, iterations, wallTime;
-    fitness.reserve(runs.size());
-    iterations.reserve(runs.size());
-    wallTime.reserve(runs.size());
-    std::size_t successCount = 0;
-
-    for (const auto &r : runs) {
-        fitness.push_back(r.finalFitness);
-        iterations.push_back(static_cast<double>(r.iterationsConsumed));
-        wallTime.push_back(r.wallTimeSeconds);
-        if (r.targetReached) ++successCount;
-    }
+    const auto fitness = runs
+        | std::views::transform([](const GBenchmarkRunResult &r) { return r.finalFitness; })
+        | std::ranges::to<std::vector<double>>();
+    const auto iterations = runs
+        | std::views::transform(
+              [](const GBenchmarkRunResult &r) { return static_cast<double>(r.iterationsConsumed); })
+        | std::ranges::to<std::vector<double>>();
+    const auto wallTime = runs
+        | std::views::transform([](const GBenchmarkRunResult &r) { return r.wallTimeSeconds; })
+        | std::ranges::to<std::vector<double>>();
+    const auto successCount =
+        std::ranges::count_if(runs, [](const GBenchmarkRunResult &r) { return r.targetReached; });
 
     auto [mf, sf] = Gem::Common::GStandardDeviation(fitness);
     auto [mi, si] = Gem::Common::GStandardDeviation(iterations);

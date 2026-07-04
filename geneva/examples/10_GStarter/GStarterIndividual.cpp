@@ -232,8 +232,8 @@ std::string GStarterIndividual::print() {
            << "and raw fitness " << this->raw_fitness(0)
            << " has the following parameter values:" << '\n';
 
-    for(std::size_t i = 0; i < parVec.size(); i++) {
-        result << i << ": " << parVec.at(i) << '\n';
+    for(auto const& [i, x] : std::views::enumerate(parVec)) {
+        result << i << ": " << x << '\n';
     }
 
     return result.str();

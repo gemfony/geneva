@@ -32,8 +32,11 @@
  ********************************************************************************/
 
 // Standard header files go here
+#include <algorithm>
 #include <cstdint>
+#include <functional>
 #include <iostream>
+#include <ranges>
 #include <tuple>
 #include <vector>
 
@@ -93,11 +96,8 @@ protected:
     double fitnessCalculation() override {
         std::vector<double> v;
         this->streamline(v);
-        double result = 0.;
-        for(double x : v) {
-            result += x * x;
-        }
-        return result;
+        return std::ranges::fold_left(
+            v | std::views::transform([](double x) { return x * x; }), 0., std::plus{});
     }
 };
 
@@ -294,8 +294,8 @@ int main() {
         std::vector<double> upper;
         ind.boundaries(lower, upper);
         std::cout << "Double boundaries:";
-        for(std::size_t i = 0; i < lower.size(); ++i) {
-            std::cout << " [" << lower[i] << ", " << upper[i] << "]";
+        for(auto const& [lo, hi] : std::views::zip(lower, upper)) {
+            std::cout << " [" << lo << ", " << hi << "]";
         }
         std::cout << '\n';
 

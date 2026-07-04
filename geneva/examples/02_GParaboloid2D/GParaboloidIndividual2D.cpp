@@ -36,6 +36,10 @@
 #include "geneva/oa/GAdaption.hpp"
 #include "geneva/oa/GAdaptionConfig.hpp"
 
+#include <algorithm>
+#include <functional>
+#include <ranges>
+
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GParaboloidIndividual2D) // NOLINT
 namespace Gem::Geneva {
 
@@ -134,17 +138,13 @@ gen::GFlatGenome *GParaboloidIndividual2D::clone_() const {
  * @return The value of this object
  */
 double GParaboloidIndividual2D::fitnessCalculation() {
-    double result = 0.;         // Will hold the result
     std::vector<double> parVec; // Will hold the parameters
 
     this->streamline(parVec); // Retrieve the parameters
 
     // Do the actual calculation
-    for(auto const &d : parVec) {
-        result += d * d;
-    }
-
-    return result;
+    return std::ranges::fold_left(
+        parVec | std::views::transform([](double d) { return d * d; }), 0., std::plus{});
 }
 
 /********************************************************************************************/

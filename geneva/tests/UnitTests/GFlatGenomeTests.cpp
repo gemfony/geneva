@@ -29,12 +29,15 @@
 
 #include <catch2/catch_test_macros.hpp>
 
+#include <algorithm>
 #include <any>
 #include <cmath>
 #include <cstdint>
 #include <filesystem>
+#include <functional>
 #include <memory>
 #include <random>
+#include <ranges>
 #include <vector>
 #include <span>
 
@@ -113,11 +116,8 @@ protected:
     double fitnessCalculation() override {
         std::vector<double> v;
         this->streamline<double>(v);
-        double sum = 0.;
-        for(double x : v) {
-            sum += x * x;
-        }
-        return sum;
+        return std::ranges::fold_left(
+            v | std::views::transform([](double x) { return x * x; }), 0., std::plus{});
     }
 
 private:
@@ -194,11 +194,8 @@ protected:
     double fitnessCalculation() override {
         std::vector<double> v;
         this->streamline<double>(v);
-        double sum = 0.;
-        for(double x : v) {
-            sum += x * x;
-        }
-        return sum;
+        return std::ranges::fold_left(
+            v | std::views::transform([](double x) { return x * x; }), 0., std::plus{});
     }
 
 private:
@@ -859,9 +856,8 @@ protected:
     double fitnessCalculation() override {
         std::vector<double> v;
         this->streamline<double>(v);
-        double s = 0.;
-        for(double x : v) { s += x * x; }
-        return s;
+        return std::ranges::fold_left(
+            v | std::views::transform([](double x) { return x * x; }), 0., std::plus{});
     }
 
 private:
@@ -1713,11 +1709,9 @@ TEST_CASE("Networked reconciliation keeps population elements at stable addresse
     }
 
     // Snapshot the object addresses BEFORE submission -- the fix must leave every one of them unchanged.
-    std::vector<const GOptimizableEntity *> addrs_before;
-    addrs_before.reserve(N);
-    for(const auto &it : items) {
-        addrs_before.push_back(it.get());
-    }
+    const auto addrs_before = items
+        | std::views::transform([](const auto &it) -> const GOptimizableEntity * { return it.get(); })
+        | std::ranges::to<std::vector<const GOptimizableEntity *>>();
 
     auto consumer = std::make_shared<c2::GWebsocketConsumerT<GOptimizableEntity>>(/*port=*/0, /*threads=*/2, BIN);
     consumer->setCloneFunction(

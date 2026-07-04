@@ -36,6 +36,10 @@
 #include "geneva/oa/GAdaption.hpp"
 #include "geneva/oa/GAdaptionConfig.hpp"
 
+#include <algorithm>
+#include <functional>
+#include <ranges>
+
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GMPIEvaluatedIndividual) // NOLINT
 namespace Gem::Geneva {
 
@@ -143,7 +147,6 @@ GMPIEvaluatedIndividual::buildAdaptionConfig(const gen::GFlatGenome &sample) {
  * @return The value of this object
  */
 double GMPIEvaluatedIndividual::fitnessCalculation() {
-    double result = 0.;         // Will hold the result
     std::vector<double> parVec; // Will hold the parameters
 
     this->streamline(parVec); // Retrieve the parameters
@@ -152,11 +155,8 @@ double GMPIEvaluatedIndividual::fitnessCalculation() {
     MPI_Barrier(communicator);
 
     // Do the actual calculation
-    for(auto const &d : parVec) {
-        result += d * d;
-    }
-
-    return result;
+    return std::ranges::fold_left(
+        parVec | std::views::transform([](double d) { return d * d; }), 0., std::plus{});
 }
 
 /********************************************************************************************/

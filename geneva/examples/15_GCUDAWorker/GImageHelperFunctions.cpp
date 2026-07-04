@@ -33,6 +33,8 @@
 
 #include "GImageHelperFunctions.hpp"
 
+#include <ranges>
+
 
 namespace Gem::Common {
 /******************************************************************************/
@@ -379,10 +381,9 @@ bool loadImageToFloat(
     }
 
     // Transfer the channels to floats in the range 0..1
-    imageData_f_vec.clear();
-    for(const auto c : imageData_vec) {
-        imageData_f_vec.push_back(static_cast<float>(c) / 255.0f);
-    }
+    imageData_f_vec = imageData_vec
+        | std::views::transform([](auto c) { return static_cast<float>(c) / 255.0f; })
+        | std::ranges::to<std::vector<float>>();
 
     return true;
 }
@@ -449,14 +450,13 @@ bool saveFloatImageToFile(
         );
     }
 
-    // Convert the float-vector to RGB
-    std::vector<unsigned char> imageData_vec;
-    for(const auto &channel_value : imageData_f_vec) {
-        // Clamp value to [0, 1] to avoid out-of-range issues
-        imageData_vec.push_back(
-            static_cast<unsigned char>(std::round(std::clamp(channel_value, 0.0f, 1.0f) * 255.0f))
-        );
-    }
+    // Convert the float-vector to RGB (clamp each value to [0, 1] to avoid out-of-range issues)
+    const auto imageData_vec = imageData_f_vec
+        | std::views::transform([](float channel_value) {
+              return static_cast<unsigned char>(
+                  std::round(std::clamp(channel_value, 0.0f, 1.0f) * 255.0f));
+          })
+        | std::ranges::to<std::vector<unsigned char>>();
 
     return saveRGBImageToFile(fileName, imageData_vec, width, height);
 }
