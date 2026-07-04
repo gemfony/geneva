@@ -96,14 +96,30 @@ using geneva_individual_factory_fn = GIndividualFactoryPtr();
  *        GFlatIndividualFactory<MyProblem>)
  * @param ConfigPath  The factory's configuration-file path (a string literal), passed to its constructor
  */
+// geneva_make_individual() returns a std::shared_ptr (a non-C type) with C linkage. That is deliberate and
+// safe here: the extern "C" only buys an un-mangled symbol for the loader's dlsym-style lookup, and a plugin
+// is ALWAYS loaded by a host built with the same C++ toolchain and ABI (server and client are the same
+// binary loading the same .so). Clang still warns (-Wreturn-type-c-linkage); silence just that false
+// positive, at the single macro that emits the entry point, for clang only (gcc does not warn).
+#if defined(__clang__)
+#define GENEVA_PLUGIN_C_LINKAGE_PUSH                                                                     \
+    _Pragma("clang diagnostic push") _Pragma("clang diagnostic ignored \"-Wreturn-type-c-linkage\"")
+#define GENEVA_PLUGIN_C_LINKAGE_POP _Pragma("clang diagnostic pop")
+#else
+#define GENEVA_PLUGIN_C_LINKAGE_PUSH
+#define GENEVA_PLUGIN_C_LINKAGE_POP
+#endif
+
 #define GENEVA_INDIVIDUAL_PLUGIN(FactoryType, ConfigPath)                                                \
     extern "C" BOOST_SYMBOL_EXPORT std::uint32_t geneva_individual_abi_version();                        \
     extern "C" BOOST_SYMBOL_EXPORT std::uint32_t geneva_individual_abi_version() {                       \
         return static_cast<std::uint32_t>(GENEVA_VERSION);                                               \
     }                                                                                                    \
+    GENEVA_PLUGIN_C_LINKAGE_PUSH                                                                          \
     extern "C" BOOST_SYMBOL_EXPORT ::Gem::Geneva::GIndividualFactoryPtr geneva_make_individual();        \
     extern "C" BOOST_SYMBOL_EXPORT ::Gem::Geneva::GIndividualFactoryPtr geneva_make_individual() {       \
         return std::make_shared<FactoryType>(ConfigPath);                                                \
-    }
+    }                                                                                                    \
+    GENEVA_PLUGIN_C_LINKAGE_POP
 
 /******************************************************************************/
