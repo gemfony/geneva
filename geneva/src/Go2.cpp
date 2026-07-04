@@ -53,10 +53,12 @@
 #include <cstddef>
 #include <cstdint>
 #include <cstdlib>
+#include <format>
 #include <iostream>
 #include <memory>
 #include <mutex>
-#include <sstream>
+#include <print>
+#include <ranges>
 #include <string>
 #include <vector>
 
@@ -654,8 +656,7 @@ std::uint32_t Go2::prepareInitialPopulation(std::uint32_t offset) {
 void Go2::runAlgorithmChain(std::uint32_t first_algorithm_offset) {
     total_iterations_ = 0;
     sorted_           = false;
-    bool is_first_algorithm = true;
-    for(const auto &alg_ptr : algorithms_cnt_) {
+    for(auto const &[alg_index, alg_ptr] : algorithms_cnt_ | std::views::enumerate) {
         // No per-algorithm broker injection: every algorithm submits through the one process consumer
         // (registered in GConsumerRegistry by setupChosenConsumer / registerConsumer). A standalone
         // algorithm with none set builds a default local consumer on first use.
@@ -682,9 +683,8 @@ void Go2::runAlgorithmChain(std::uint32_t first_algorithm_offset) {
         }
 
         // Do the actual optimization (see first_algorithm_offset above)
-        if(is_first_algorithm) {
+        if(alg_index == 0) {
             alg_ptr->optimize(first_algorithm_offset);
-            is_first_algorithm = false;
         }
         else {
             alg_ptr->optimize();
@@ -809,9 +809,8 @@ std::vector<std::shared_ptr<gen::GOptimizableEntity>> Go2::getBestGlobalIndividu
         );
     }
 
-    std::size_t pos = 0;
     std::vector<std::shared_ptr<gen::GOptimizableEntity>> best_individuals;
-    for(const auto &ind_ptr : *this) {
+    for(auto const &[pos, ind_ptr] : *this | std::views::enumerate) {
         if(ind_ptr->is_due_for_processing() || ind_ptr->has_errors()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
@@ -823,8 +822,6 @@ std::vector<std::shared_ptr<gen::GOptimizableEntity>> Go2::getBestGlobalIndividu
 
         // This will result in an implicit downcast
         best_individuals.push_back(ind_ptr->clone<gen::GOptimizableEntity>());
-
-        pos++;
     }
 
     return best_individuals;
@@ -992,7 +989,7 @@ std::string listMnemonics(StorePtr store) {
     store->getKeyVector(keys);
     std::string result;
     for(auto const &key : keys) {
-        result += key + ":  " + store->get(key)->getName() + "\n";
+        result += std::format("{}:  {}\n", key, store->get(key)->getName());
     }
     return result;
 }
@@ -1021,16 +1018,16 @@ void Go2::parseCommandLine(
         std::string checkpoint_file = "empty";
 
         // Help texts listing the registered algorithms / consumers
-        std::ostringstream oa_help; // NOLINT(cppcoreguidelines-init-variables)
-        oa_help << "A comma-separated list of optimization algorithms, e.g. \"arg1,arg2\". "
-                << oaFactoryStore()->size() << " algorithms have been registered: " << '\n'
-                << listMnemonics(oaFactoryStore());
+        std::string const oa_help = std::format(
+            "A comma-separated list of optimization algorithms, e.g. \"arg1,arg2\". "
+            "{} algorithms have been registered: \n{}",
+            oaFactoryStore()->size(), listMnemonics(oaFactoryStore()));
 
-        std::ostringstream consumer_help; // NOLINT(cppcoreguidelines-init-variables)
-        consumer_help << "The name of a consumer for brokered execution (an error will be flagged "
-                         "if called with any other execution mode than (2) ). "
-                      << Gem::Geneva::consumerCount() << " consumers are available: " << '\n'
-                      << Gem::Geneva::consumerListing();
+        std::string const consumer_help = std::format(
+            "The name of a consumer for brokered execution (an error will be flagged "
+            "if called with any other execution mode than (2) ). "
+            "{} consumers are available: \n{}",
+            Gem::Geneva::consumerCount(), Gem::Geneva::consumerListing());
 
         auto usage_string = std::string("Usage: ") + argv[0] + " [options]";
 
@@ -1041,13 +1038,13 @@ void Go2::parseCommandLine(
         basic.add_options()
 				("help,h", "Emit help message")
 				("showAll", "Show all available options")
-				("optimizationAlgorithms,a", po::value<std::string>(&optimization_algorithms), oa_help.str().c_str())
+				("optimizationAlgorithms,a", po::value<std::string>(&optimization_algorithms), oa_help.c_str())
 				("cp_file,f", po::value<std::string>(&checkpoint_file)->default_value("empty"),
 				 "A file (including its path) holding a checkpoint for a given optimization algorithm")
 				("client", "Indicates that this program should run as a client or in server mode. Note that this setting will trigger an error unless called in conjunction with a consumer capable of dealing with clients. This option is ignored when working with the mpi consumer, because the mpi consumer will configure itself to be a client or server depending on its rank.")
 				("max_client_duration", po::value<std::string>(&max_client_duration)->default_value(EMPTYDURATION),
 				 R"(The maximum runtime for a client in the form "hh:mm:ss". Note that a client may run longer as this time-frame if its work load still runs. The default value "00:00:00" means: "no time limit")")
-				("consumer,c", po::value<std::string>(&consumer_name_)->default_value("stc"), consumer_help.str().c_str())
+				("consumer,c", po::value<std::string>(&consumer_name_)->default_value("stc"), consumer_help.c_str())
 				("individual,i", po::value<std::string>(&individual_plugin_path_),
 				 "Filesystem path to a runtime individual (optimization-problem) plugin (.so) to load at "
 				 "startup. Overrides the individual_plugin_path config-file setting. Omit it to use an "
@@ -1172,8 +1169,9 @@ void Go2::registerConsumer(
     consumer_ = consumer;
     Gem::Courtier::GConsumerRegistryT<gen::GOptimizableEntity>::instance().setConsumer(
         std::move(consumer));
-    std::cout << "Using a custom registered consumer; it replaces the default \"" << consumer_name_
-              << "\" as the process consumer\n";
+    std::println(
+        "Using a custom registered consumer; it replaces the default \"{}\" as the process consumer",
+        consumer_name_);
 }
 
 /******************************************************************************/
@@ -1218,7 +1216,7 @@ void Go2::ensureGPUConsumerBuilt() {
         );
     }
     Gem::Courtier::GConsumerRegistryT<gen::GOptimizableEntity>::instance().setConsumer(consumer_);
-    std::cout << "Routing consumer \"gpu\" through courtier (problem-registered builder)\n";
+    std::println("Routing consumer \"gpu\" through courtier (problem-registered builder)");
 }
 
 /******************************************************************************/
@@ -1264,7 +1262,7 @@ void Go2::setupChosenConsumer(boost::program_options::variables_map const &vm) {
         );
     }
 
-    std::cout << "Using consumer " << consumer_name_ << '\n';
+    std::println("Using consumer {}", consumer_name_);
 
     // The GPU consumer is built from a problem-registered builder closure (it owns the device marshaller,
     // the scalar type and the kernel/backend config -- pieces Go2 cannot supply). Those are only available
@@ -1295,7 +1293,7 @@ void Go2::setupChosenConsumer(boost::program_options::variables_map const &vm) {
         }
 
         if(consumer_) {
-            std::cout << "Routing consumer \"" << consumer_name_ << "\" through courtier\n";
+            std::println("Routing consumer \"{}\" through courtier", consumer_name_);
         }
     }
 }

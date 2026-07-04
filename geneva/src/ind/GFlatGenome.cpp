@@ -34,7 +34,7 @@
 #include <cstdint>
 #include <memory>
 #include <random>
-#include <sstream>
+#include <ranges>
 #include <string>
 #include <vector>
 
@@ -552,33 +552,24 @@ std::string GFlatGenome::toCSV(
         }
     }
 
-    std::ostringstream result;
-    std::vector<std::string>::const_iterator s_it;
-    if(with_name_and_type) {
-        for(s_it = var_names.begin(); s_it != var_names.end(); ++s_it) {
-            result << *s_it;
-            if(s_it + 1 != var_names.end()) {
-                result << (with_commas ? ",\t" : "\t");
-            }
-        }
-        result << '\n';
-        for(s_it = var_types.begin(); s_it != var_types.end(); ++s_it) {
-            result << *s_it;
-            if(s_it + 1 != var_types.end()) {
-                result << (with_commas ? ",\t" : "\t");
-            }
-        }
-        result << '\n';
-    }
-    for(s_it = var_values.begin(); s_it != var_values.end(); ++s_it) {
-        result << *s_it;
-        if(s_it + 1 != var_values.end()) {
-            result << (with_commas ? ",\t" : "\t");
-        }
-    }
-    result << '\n';
+    // Each row joins its fields with a between-fields separator only (no trailing separator) and is
+    // terminated by a single newline -- byte-identical to the former "write separator unless last" loops.
+    std::string const separator = with_commas ? ",\t" : "\t";
+    auto const joinRow = [&separator](std::vector<std::string> const &fields) {
+        return fields | std::views::join_with(separator) | std::ranges::to<std::string>();
+    };
 
-    return result.str();
+    std::string result;
+    if(with_name_and_type) {
+        result += joinRow(var_names);
+        result += '\n';
+        result += joinRow(var_types);
+        result += '\n';
+    }
+    result += joinRow(var_values);
+    result += '\n';
+
+    return result;
 }
 
 /******************************************************************************/

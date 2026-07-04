@@ -37,7 +37,9 @@
 #include <chrono>
 #include <filesystem>
 #include <any>
+#include <format>
 #include <fstream>
+#include <ranges>
 #include <string>
 #include <type_traits>
 
@@ -606,17 +608,9 @@ public:
         //---------------------------------------------------------------------------
         // Retrieve the parameters
 
-        std::tuple<
-            typename std::vector<gen::parPropSpec<fp_type>>::const_iterator,
-            typename std::vector<gen::parPropSpec<fp_type>>::const_iterator>
-            t_d = ppp.getIterators<fp_type>();
-
-        typename std::vector<gen::parPropSpec<fp_type>>::const_iterator fp_cit = std::get<0>(t_d);
-        typename std::vector<gen::parPropSpec<fp_type>>::const_iterator d_end = std::get<1>(t_d);
-        for(; fp_cit != d_end;
-            ++fp_cit) { // Note: fp_cit is already set to the begin of the double parameter arrays
-            fp_prof_var_vec_.push_back(*fp_cit);
-        }
+        // fp_cit is already set to the begin of the double parameter arrays; append that half-open range.
+        auto [fp_cit, d_end] = ppp.getIterators<fp_type>();
+        fp_prof_var_vec_.append_range(std::ranges::subrange(fp_cit, d_end));
 
         //---------------------------------------------------------------------------
     }
@@ -2387,8 +2381,7 @@ private:
             // makePlotter() rebuild exactly the GHistogram2D the legacy path constructed.
             GPlotSpec spec(plotKind::hist_2d);
             spec.x_label = "Iteration";
-            spec.y_label = std::string("Adaptor-Name: ") + adaptor_name_ +
-                           std::string(", Property: ") + property_;
+            spec.y_label = std::format("Adaptor-Name: {}, Property: {}", adaptor_name_, property_);
             spec.drawing_args = "BOX";
             spec.columns = {"x", "y"};
             spec.n_bins_x = n_iterations_recorded_;

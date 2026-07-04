@@ -34,6 +34,7 @@
 #include <chrono>
 #include <cmath>
 #include <limits>
+#include <ranges>
 #include <sstream>
 
 #include "common/GCommonHelperFunctionsT.hpp"
@@ -523,11 +524,9 @@ bool GOptimizableEntity::randomInit(activityMode const &am) {
  * @return A vector of all stored raw fitness results
  */
 std::vector<double> GOptimizableEntity::raw_fitness_vec_() const {
-    std::vector<double> result_vec;
-    for(std::size_t i = 0; i < this->getNStoredResults(); i++) {
-        result_vec.push_back(this->raw_fitness(i));
-    }
-    return result_vec;
+    return std::views::iota(std::size_t{0}, this->getNStoredResults())
+         | std::views::transform([this](std::size_t const i) { return this->raw_fitness(i); })
+         | std::ranges::to<std::vector<double>>();
 }
 
 /******************************************************************************/
@@ -536,11 +535,9 @@ std::vector<double> GOptimizableEntity::raw_fitness_vec_() const {
  * @return A vector of all stored transformed fitness results
  */
 std::vector<double> GOptimizableEntity::transformed_fitness_vec_() const {
-    std::vector<double> result_vec;
-    for(std::size_t i = 0; i < this->getNStoredResults(); i++) {
-        result_vec.push_back(this->transformed_fitness(i));
-    }
-    return result_vec;
+    return std::views::iota(std::size_t{0}, this->getNStoredResults())
+         | std::views::transform([this](std::size_t const i) { return this->transformed_fitness(i); })
+         | std::ranges::to<std::vector<double>>();
 }
 
 /******************************************************************************/
@@ -627,9 +624,8 @@ double GOptimizableEntity::weighedSquaredSumCombiner(std::vector<double> const &
     }
 
     double result = 0.;
-    auto cit_weights = weights.begin();
-    for(std::size_t id = 0; id < this->getNStoredResults(); id++, ++cit_weights) {
-        result += Gem::Common::gsquared((*cit_weights) * this->transformed_fitness(id));
+    for(auto const &[id, weight] : weights | std::views::enumerate) {
+        result += Gem::Common::gsquared(weight * this->transformed_fitness(static_cast<std::size_t>(id)));
     }
     return sqrt(result);
 }

@@ -43,6 +43,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <filesystem>
+#include <format>
 #include <fstream>
 #include <iomanip>
 #include <ios>
@@ -415,7 +416,7 @@ void GFitnessMonitor::informationFunction_(
             for(std::size_t ind = 0; ind < n_monitor_inds_; ind++) {
                 Gem::Dietrich::GPlotSpec global_spec(Gem::Dietrich::plotKind::graph_2d);
                 global_spec.plot_mode = Gem::Dietrich::graphPlotMode::CURVE;
-                global_spec.name = std::string("Individual ") + Gem::Common::to_string(ind);
+                global_spec.name = std::format("Individual {}", ind);
                 global_spec.x_label = "Iteration";
                 global_spec.y_label = "Best Fitness";
                 global_spec.columns = {"x", "y"};
@@ -424,7 +425,7 @@ void GFitnessMonitor::informationFunction_(
 
                 Gem::Dietrich::GPlotSpec iter_spec(Gem::Dietrich::plotKind::graph_2d);
                 iter_spec.plot_mode = Gem::Dietrich::graphPlotMode::CURVE;
-                iter_spec.name = std::string("Individual ") + Gem::Common::to_string(ind);
+                iter_spec.name = std::format("Individual {}", ind);
                 iter_spec.x_label = "Iteration";
                 iter_spec.y_label = "Best Fitness";
                 iter_spec.columns = {"x", "y"};

@@ -33,6 +33,7 @@
 #include <algorithm>
 #include <cstddef>
 #include <cstdint>
+#include <format>
 #include <string>
 
 // Default values for the consumer command-line options.
@@ -432,7 +433,7 @@ bool consumerNeedsClient(const std::string &mnemonic) {
 std::string consumerListing() {
     std::string result;
     for(const auto &info : kC2Consumers) {
-        result += std::string(info.mnemonic) + ":  " + info.name + "\n";
+        result += std::format("{}:  {}\n", info.mnemonic, info.name);
     }
     return result;
 }

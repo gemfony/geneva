@@ -37,6 +37,7 @@
 #include <limits>
 #include <memory>
 #include <random>
+#include <ranges>
 #include <string>
 #include <tuple>
 #include <type_traits>
@@ -601,10 +602,7 @@ public:
 
         std::vector<float> float_vec;
         this->streamline<float>(float_vec, am);
-        par_vec.reserve(par_vec.size() + float_vec.size());
-        for(float f : float_vec) {
-            par_vec.push_back(static_cast<double>(f));
-        }
+        par_vec.append_range(float_vec); // each float implicitly widened to double
     }
 
     /** @brief Scatters a double vector produced by streamlineFP() back onto the FP parameters.
@@ -634,10 +632,8 @@ public:
             this->assignValueVector<double>(double_vec, am);
         }
         if(n_float > 0) {
-            std::vector<float> float_vec(n_float);
-            for(std::size_t i = 0; i < n_float; ++i) {
-                float_vec[i] = static_cast<float>(par_vec[n_double + i]);
-            }
+            std::vector<float> float_vec;
+            float_vec.append_range(par_vec | std::views::drop(n_double)); // each double implicitly narrowed to float
             this->assignValueVector<float>(float_vec, am);
         }
     }
@@ -659,16 +655,10 @@ public:
 
         l_bnd_vec.clear();
         u_bnd_vec.clear();
-        l_bnd_vec.reserve(l_double.size() + l_float.size());
-        u_bnd_vec.reserve(u_double.size() + u_float.size());
-        l_bnd_vec.insert(l_bnd_vec.end(), l_double.begin(), l_double.end());
-        u_bnd_vec.insert(u_bnd_vec.end(), u_double.begin(), u_double.end());
-        for(float v : l_float) {
-            l_bnd_vec.push_back(static_cast<double>(v));
-        }
-        for(float v : u_float) {
-            u_bnd_vec.push_back(static_cast<double>(v));
-        }
+        l_bnd_vec.append_range(l_double);
+        l_bnd_vec.append_range(l_float); // each float implicitly widened to double
+        u_bnd_vec.append_range(u_double);
+        u_bnd_vec.append_range(u_float); // each float implicitly widened to double
     }
 
     /***************************************************************************/
@@ -687,10 +677,7 @@ public:
 
         std::vector<float> float_vec;
         this->streamlineInternal_(float_vec, am);
-        par_vec.reserve(par_vec.size() + float_vec.size());
-        for(float f : float_vec) {
-            par_vec.push_back(static_cast<double>(f));
-        }
+        par_vec.append_range(float_vec); // each float implicitly widened to double
     }
 
     /** @brief Scatters a vector of raw INTERNAL values back onto the FP parameters (folds bounded values,
@@ -720,10 +707,8 @@ public:
             this->assignValueVectorInternal_(double_vec, am);
         }
         if(n_float > 0) {
-            std::vector<float> float_vec(n_float);
-            for(std::size_t i = 0; i < n_float; ++i) {
-                float_vec[i] = static_cast<float>(par_vec[n_double + i]);
-            }
+            std::vector<float> float_vec;
+            float_vec.append_range(par_vec | std::views::drop(n_double)); // each double implicitly narrowed to float
             this->assignValueVectorInternal_(float_vec, am);
         }
         // As with the external assign, modifying the parameters marks the item for reprocessing.
