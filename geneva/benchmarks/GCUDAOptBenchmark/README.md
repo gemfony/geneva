@@ -37,7 +37,7 @@ would arise if each run used its own `Go2` instance.
 | Geneva library (built) | ≥ 1.11 |
 | CMake | ≥ 3.27 |
 | GCC | ≥ 13 (C++20) |
-| Boost | ≥ 1.90 (program_options, property_tree) |
+| Boost | ≥ 1.90 (program_options, json) |
 
 The benchmark itself builds with an ordinary C++ toolchain — it does **not** require the CUDA
 language at build time. The GPU backend lives in the optional GPU consumer folded into
@@ -138,8 +138,7 @@ Each algorithm entry points to its own JSON config file. The provided defaults a
 | `config/GEvolutionaryAlgorithm.json` | Evolutionary Algorithm | `population/size`, `population/nParents`, `maxIteration`, `maxStallIteration` |
 | `config/GSimulatedAnnealing.json` | Simulated Annealing | `nNeighbourhoods`, `maxIteration`, `maxStallIteration` |
 | `config/GSwarmAlgorithm.json` | Swarm Algorithm | `nNeighbourhoods`, `maxIteration`, `maxStallIteration` |
-| `config/GGradientDescent.json` | Gradient Descent | `nStartingPoints`, `maxIteration` |
-| `config/GBrokerExecutor.json` | Broker executor | `waitFactor`, `initialWaitFactor` |
+| `config/GConjugateGradientDescent.json` | Conjugate Gradient Descent | `nStartingPoints`, `maxIteration` |
 | `config/GFunctionIndividual.json` | Individual | Parameter bounds and adaptor settings |
 
 Termination is controlled per algorithm via `maxIteration` (hard upper bound) and
@@ -270,7 +269,7 @@ each try to finalize the broker on destruction.
 
 ## Adding a new algorithm
 
-1. Verify that Geneva has a factory for it (e.g. `GGradientDescentFactory`).
+1. Verify that Geneva has a factory for it (e.g. `GConjugateGradientDescentFactory`).
 2. Add a `case` to `GAlgorithmBenchmarkRunner::makeAlgorithm()` in
    `GAlgorithmBenchmarkRunner.cpp` with a new mnemonic string.
 3. Add a config file in `config/` and append a matching triple to the
