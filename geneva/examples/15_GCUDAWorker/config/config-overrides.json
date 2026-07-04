@@ -1,0 +1,11 @@
+{
+    "Go2.json": {
+        "consumer": "gpu"
+    },
+    "GGPUConsumer.json": {
+        "kernel_path": "./kernels/monalisa_eval_double.cu"
+    },
+    "GGPUConsumerFloat.json": {
+        "kernel_path": "./kernels/monalisa_eval_float.cu"
+    }
+}
