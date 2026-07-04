@@ -212,5 +212,63 @@ void writeJsonFile(std::filesystem::path const &path, boost::json::value const &
 }
 
 /******************************************************************************/
+/**
+ * @brief Overlays override values onto a generated configuration document, in place.
+ *
+ * @param base The generated configuration value to overlay onto (modified in place)
+ * @param overrides An object mapping parameter/group names to replacement values
+ */
+void applyConfigOverrides(boost::json::value &base, boost::json::value const &overrides) {
+    if(not overrides.is_object()) {
+        throw geneva_exception(
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+            << "In Gem::Common::applyConfigOverrides(): Error!" << '\n'
+            << "The override document must be a JSON object, but is of kind "
+            << static_cast<int>(overrides.kind()) << '\n'
+        );
+    }
+    if(not base.is_object()) {
+        throw geneva_exception(
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+            << "In Gem::Common::applyConfigOverrides(): Error!" << '\n'
+            << "The configuration to overlay onto must be a JSON object, but is of kind "
+            << static_cast<int>(base.kind()) << '\n'
+        );
+    }
+
+    boost::json::object &base_obj = base.get_object();
+    for(auto const &member : overrides.get_object()) {
+        std::string_view const key = member.key();
+        boost::json::value const &override_value = member.value();
+
+        auto const it = base_obj.find(key);
+        if(it == base_obj.end()) {
+            throw geneva_exception(
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+                << "In Gem::Common::applyConfigOverrides(): Error!" << '\n'
+                << "The override names the parameter \"" << key << "\", which the configuration"
+                << " does not contain (a stale or mistyped override)." << '\n'
+            );
+        }
+
+        boost::json::value &target = it->value();
+        if(target.is_object() && target.get_object().contains("value")) {
+            // A parameter node: replace only its value, leaving the code-owned default/comment.
+            target.get_object()["value"] = override_value;
+        } else if(target.is_object() && override_value.is_object()) {
+            // A group node: recurse into it with the nested override object.
+            applyConfigOverrides(target, override_value);
+        } else {
+            throw geneva_exception(
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+                << "In Gem::Common::applyConfigOverrides(): Error!" << '\n'
+                << "The override for \"" << key << "\" does not match the structure of the"
+                << " configuration (neither a parameter node nor a group with a nested override)." << '\n'
+            );
+        }
+    }
+}
+
+/******************************************************************************/
 
 } /* namespace Gem::Common */

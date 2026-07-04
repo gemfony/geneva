@@ -165,3 +165,120 @@ TEST_CASE("parseJsonFile: throws a geneva_exception for a missing file",
           "[common][json-io][error]") {
     CHECK_THROWS_AS(parseJsonFile(scratch("does_not_exist.json")), geneva_exception);
 }
+
+// ---------------------------------------------------------------------------
+// applyConfigOverrides: the "configs derived from code + per-example overrides" merge.
+// A config is a JSON object of parameter nodes ({comment, default, value}) and groups
+// (objects of nested nodes). An override carries the bare replacement value keyed by name.
+
+namespace {
+// A representative generated configuration: a scalar parameter, an array-valued parameter,
+// a parameter left at its default, and a nested group (mirroring touched_termination).
+json::value sampleConfig() {
+    return json::parse(R"({
+        "consumer": {
+            "comment": ["The consumer to use"],
+            "default": "stc",
+            "value": "stc"
+        },
+        "algo_config_files": {
+            "comment": ["One per entry"],
+            "default": ["a.json", "b.json"],
+            "value": ["a.json", "b.json"]
+        },
+        "max_iteration": {
+            "comment": ["The maximum allowed number of iterations"],
+            "default": 1000,
+            "value": 1000
+        },
+        "touched_termination": {
+            "termination_file": {
+                "comment": ["A file to touch"],
+                "default": "empty",
+                "value": "empty"
+            },
+            "touched_termination_active": {
+                "comment": ["Activates the touched termination"],
+                "default": false,
+                "value": false
+            }
+        }
+    })");
+}
+} // namespace
+
+TEST_CASE("applyConfigOverrides: an override replaces only the value, keeping default and comment",
+          "[common][json-io][override]") {
+    json::value cfg = sampleConfig();
+    applyConfigOverrides(cfg, json::parse(R"({ "consumer": "gpu" })"));
+
+    auto const &node = cfg.get_object().at("consumer").get_object();
+    CHECK(node.at("value").as_string() == "gpu");      // the override wins
+    CHECK(node.at("default").as_string() == "stc");    // the code-owned default is untouched
+    CHECK(node.at("comment") == json::array{"The consumer to use"});
+}
+
+TEST_CASE("applyConfigOverrides: a value's native type is preserved through the override",
+          "[common][json-io][override]") {
+    json::value cfg = sampleConfig();
+    applyConfigOverrides(cfg, json::parse(R"({ "max_iteration": 10 })"));
+
+    auto const &value = cfg.get_object().at("max_iteration").get_object().at("value");
+    REQUIRE(value.is_int64());                          // stays a number, not a string
+    CHECK(value.as_int64() == 10);
+}
+
+TEST_CASE("applyConfigOverrides: an array value is replaced wholesale",
+          "[common][json-io][override]") {
+    json::value cfg = sampleConfig();
+    applyConfigOverrides(cfg, json::parse(R"({ "algo_config_files": ["x.json"] })"));
+
+    auto const &value = cfg.get_object().at("algo_config_files").get_object().at("value");
+    REQUIRE(value.is_array());
+    CHECK(value.as_array().size() == 1);
+    CHECK(value.as_array().at(0).as_string() == "x.json");
+}
+
+TEST_CASE("applyConfigOverrides: recurses into a group node",
+          "[common][json-io][override]") {
+    json::value cfg = sampleConfig();
+    applyConfigOverrides(cfg, json::parse(R"({
+        "touched_termination": { "touched_termination_active": true }
+    })"));
+
+    auto const &group = cfg.get_object().at("touched_termination").get_object();
+    CHECK(group.at("touched_termination_active").get_object().at("value").as_bool() == true);
+    // The sibling parameter in the group is left untouched.
+    CHECK(group.at("termination_file").get_object().at("value").as_string() == "empty");
+}
+
+TEST_CASE("applyConfigOverrides: parameters not named in the override are left untouched",
+          "[common][json-io][override]") {
+    json::value cfg = sampleConfig();
+    json::value const before = cfg;
+    applyConfigOverrides(cfg, json::parse(R"({ "consumer": "gpu" })"));
+
+    CHECK(cfg.get_object().at("max_iteration") == before.get_object().at("max_iteration"));
+    CHECK(cfg.get_object().at("algo_config_files") == before.get_object().at("algo_config_files"));
+}
+
+TEST_CASE("applyConfigOverrides: an unknown parameter name throws (stale/mistyped override)",
+          "[common][json-io][override][error]") {
+    json::value cfg = sampleConfig();
+    CHECK_THROWS_AS(applyConfigOverrides(cfg, json::parse(R"({ "no_such_param": 1 })")),
+                    geneva_exception);
+}
+
+TEST_CASE("applyConfigOverrides: a shape mismatch against a group throws",
+          "[common][json-io][override][error]") {
+    json::value cfg = sampleConfig();
+    // touched_termination is a group; a scalar override cannot target it.
+    CHECK_THROWS_AS(applyConfigOverrides(cfg, json::parse(R"({ "touched_termination": 3 })")),
+                    geneva_exception);
+}
+
+TEST_CASE("applyConfigOverrides: a non-object override document throws",
+          "[common][json-io][override][error]") {
+    json::value cfg = sampleConfig();
+    CHECK_THROWS_AS(applyConfigOverrides(cfg, json::value(42)), geneva_exception);
+}

@@ -121,5 +121,33 @@ std::string prettyPrintJson(boost::json::value const &jv);
 void writeJsonFile(std::filesystem::path const &path, boost::json::value const &jv);
 
 /******************************************************************************/
+/**
+ * @brief Overlays override values onto a generated configuration document, in place.
+ *
+ * This is the merge step of the "configs derived from code + a handful of per-example overrides"
+ * model: a binary emits its parameter defaults as a canonical configuration (every parameter a
+ * node carrying @c "comment", @c "default" and @c "value"), and this helper then layers the small
+ * set of intentional non-default values on top, keyed by parameter name.
+ *
+ * A configuration is a JSON object whose members are either **parameter nodes** (objects carrying a
+ * @c "value" member) or **groups** (objects whose members are themselves parameter nodes or nested
+ * groups, e.g. @c touched_termination). An override document mirrors that shape but carries, for
+ * each parameter it changes, only the bare replacement value (a group is a nested object recursing
+ * into it). For every key in @p overrides:
+ *
+ *  - if the matching node in @p base is a parameter node, its @c "value" is replaced by the override
+ *    value (an array value is replaced wholesale); the code-owned @c "default" and @c "comment" are
+ *    left untouched, so an override stays valid across future default/comment changes;
+ *  - if it is a group and the override value is an object, the overlay recurses into it;
+ *  - otherwise the override names a key the configuration does not contain, or its shape does not
+ *    match the target node, and a Gem::Common::geneva_exception is thrown — a stale or mistyped
+ *    override fails loudly rather than being silently ignored.
+ *
+ * @param base The generated configuration value to overlay onto (modified in place)
+ * @param overrides An object mapping parameter/group names to replacement values
+ */
+void applyConfigOverrides(boost::json::value &base, boost::json::value const &overrides);
+
+/******************************************************************************/
 
 } /* namespace Gem::Common */
