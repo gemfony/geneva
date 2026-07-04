@@ -173,9 +173,9 @@ int main(int argc, char **argv) {
                             "server ip/host the beast client connects to");
     gpb.registerCLParameter("beast_port", beast_port, static_cast<unsigned short>(10000),
                             "the beast server's TCP port");
-    gpb.registerCLParameter("nWorkItems", n, static_cast<std::size_t>(200),
+    gpb.registerCLParameter("nWorkItems", n, 200uz,
                             "number of work items the server submits");
-    gpb.registerCLParameter("faultEvery", fault_every, static_cast<std::size_t>(0),
+    gpb.registerCLParameter("faultEvery", fault_every, 0uz,
                             "every K-th item throws (0 = none); switches to clone-on-partial-return");
 
     if(gpb.parseCommandLine(argc, argv) == Gem::Common::GCL_HELP_REQUESTED) {

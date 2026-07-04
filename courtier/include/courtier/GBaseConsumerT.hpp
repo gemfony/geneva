@@ -37,6 +37,7 @@
 #include <cstdlib>
 #include <functional>
 #include <memory>
+#include <ranges>
 #include <span>
 #include <string>
 #include <type_traits>
@@ -121,12 +122,12 @@ public:
         bool any_success = false;
 
         // Mark every (non-null) slot due for processing. Null slots are treated as resolved.
-        for(std::size_t i = 0; i < n; ++i) {
-            if(items[i]) {
-                items[i]->set_processing_status(processingStatus::DO_PROCESS);
+        for(auto&& [item, item_state] : std::views::zip(items, state)) {
+            if(item) {
+                item->set_processing_status(processingStatus::DO_PROCESS);
             }
             else {
-                state[i] = slot::resolved;
+                item_state = slot::resolved;
             }
         }
 
@@ -155,40 +156,41 @@ public:
             // slot carries its (possibly replaced) result on return, and non-DO_PROCESS slots are skipped.
             this->dispatch_(items);
 
-            for(std::size_t i = 0; i < n; ++i) {
-                if(state[i] != slot::pending) {
+            for(auto&& [item, item_state, item_resubmits, item_failed_retries] :
+                    std::views::zip(items, state, resubmits, failed_retries)) {
+                if(item_state != slot::pending) {
                     continue;
                 }
-                const auto st = items[i]->getProcessingStatus();
+                const auto st = item->getProcessingStatus();
                 if(st == processingStatus::PROCESSED) {
-                    state[i] = slot::resolved;
+                    item_state = slot::resolved;
                     any_success = true;
                 }
                 else if(st == processingStatus::EXCEPTION_CAUGHT ||
                         st == processingStatus::ERROR_FLAGGED) {
                     // FAILED: retry only to ride out *transient* crashes; a deterministic crash
                     // will keep failing, so the budget terminates in "unresolved".
-                    if(failed_retries[i] < policy.max_failed_retries) {
-                        ++failed_retries[i];
-                        items[i]->set_processing_status(processingStatus::DO_PROCESS);
+                    if(item_failed_retries < policy.max_failed_retries) {
+                        ++item_failed_retries;
+                        item->set_processing_status(processingStatus::DO_PROCESS);
                     }
                     else {
-                        state[i] = slot::unresolved; // status already non-DO_PROCESS
+                        item_state = slot::unresolved; // status already non-DO_PROCESS
                     }
                 }
                 else {
                     // MISSING (still DO_PROCESS -- a networked timeout). Resubmit within budget;
                     // a MISSING item that persists despite resubmissions is treated as a hidden
                     // FAILED (poison individual) and becomes unresolved rather than looping forever.
-                    if(resubmits[i] < policy.max_resubmissions) {
-                        ++resubmits[i]; // stays DO_PROCESS -> re-dispatched next round
+                    if(item_resubmits < policy.max_resubmissions) {
+                        ++item_resubmits; // stays DO_PROCESS -> re-dispatched next round
                     }
                     else {
-                        state[i] = slot::unresolved;
+                        item_state = slot::unresolved;
                         // Clear the DO_PROCESS flag (DO_PROCESS -> UNPROCESSED is the only valid
                         // transition here) so the next round's in-place dispatch no longer selects this
                         // permanently-unresolved slot. The slot is reconciled below by clone/fatal.
-                        items[i]->set_processing_status(processingStatus::UNPROCESSED);
+                        item->set_processing_status(processingStatus::UNPROCESSED);
                     }
                 }
             }
@@ -203,12 +205,12 @@ public:
         }
 
         // Reconcile the unresolved slots per the policy.
-        for(std::size_t i = 0; i < n; ++i) {
-            if(state[i] != slot::unresolved) {
+        for(auto&& [item, item_state] : std::views::zip(items, state)) {
+            if(item_state != slot::unresolved) {
                 continue;
             }
             if(policy.unresolved_action == on_unresolved::clone) {
-                this->refill_slot_(items[i], items, clone_template);
+                this->refill_slot_(item, items, clone_template);
             }
             else {
                 this->fatal_(

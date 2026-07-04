@@ -43,6 +43,7 @@
 #include <cstddef>
 #include <iostream>
 #include <random>
+#include <ranges>
 #include <thread>
 #include <vector>
 
@@ -108,8 +109,8 @@ void GRandomNumberContainer::process_([[maybe_unused]] const std::vector<bool> &
  * @brief Prints this object's random-number container (index and value per line) to std::cout.
  */
 void GRandomNumberContainer::print() const {
-    for(std::size_t i = 0; i < random_numbers_.size(); i++) {
-        std::cout << i << ": " << random_numbers_[i] << '\n';
+    for(auto const& [i, value] : random_numbers_ | std::views::enumerate) {
+        std::cout << i << ": " << value << '\n';
     }
 }
 

@@ -43,6 +43,7 @@
 #include <memory>
 #include <mutex>
 #include <optional>
+#include <ranges>
 #include <span>
 #include <utility>
 #include <vector>
@@ -402,11 +403,11 @@ protected:
             // by checkout()/checkin()/leaseSweep(), so the span may carry non-participating slots without
             // affecting routing or the write-back position.
             std::size_t n_sel = 0;
-            for(std::size_t k = 0; k < n; ++k) {
-                if(items[k] &&
-                   items[k]->getProcessingStatus() == Gem::Courtier::processingStatus::DO_PROCESS) {
-                    items[k]->setCorrelationId(encodeId(key, k));
-                    items[k]->setDispatchState(Gem::Courtier::dispatchState::PENDING);
+            for(auto&& [k, item] : items | std::views::enumerate) {
+                if(item &&
+                   item->getProcessingStatus() == Gem::Courtier::processingStatus::DO_PROCESS) {
+                    item->setCorrelationId(encodeId(key, static_cast<std::size_t>(k)));
+                    item->setDispatchState(Gem::Courtier::dispatchState::PENDING);
                     ++n_sel;
                 }
             }
