@@ -977,6 +977,18 @@ void Go2::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) {
       << "Empty (the default) means the individual is compiled into this binary. The --individual"
       << '\n'
       << "command-line option overrides this setting.";
+
+    gpb.registerFileParameter<std::string>(
+        "consumer",
+        GO2_DEF_CONSUMER,
+        [this](std::string const &c) { consumer_name_ = c; }
+    ) << "The consumer (parallelization backend) used when none is given on the command line."
+      << '\n'
+      << "One of: sc, stc, asio, beast, mpi, gpu (availability depends on build options and the"
+      << '\n'
+      << "problem; e.g. gpu requires a registered GPU consumer builder). The --consumer command-line"
+      << '\n'
+      << "option overrides this setting.";
 }
 
 /******************************************************************************/
@@ -1111,7 +1123,7 @@ void Go2::parseCommandLine(
 				("client", "Indicates that this program should run as a client or in server mode. Note that this setting will trigger an error unless called in conjunction with a consumer capable of dealing with clients. This option is ignored when working with the mpi consumer, because the mpi consumer will configure itself to be a client or server depending on its rank.")
 				("max_client_duration", po::value<std::string>(&max_client_duration)->default_value(EMPTYDURATION),
 				 R"(The maximum runtime for a client in the form "hh:mm:ss". Note that a client may run longer as this time-frame if its work load still runs. The default value "00:00:00" means: "no time limit")")
-				("consumer,c", po::value<std::string>(&consumer_name_)->default_value("stc"), consumer_help.c_str())
+				("consumer,c", po::value<std::string>(&consumer_name_), consumer_help.c_str())
 				("individual,i", po::value<std::string>(&individual_plugin_path_),
 				 "Filesystem path to a runtime individual (optimization-problem) plugin (.so) to load at "
 				 "startup. Overrides the individual_plugin_path config-file setting. Omit it to use an "
@@ -1303,13 +1315,16 @@ void Go2::ensureGPUConsumerBuilt() {
  * @param vm The parsed program_options variables map (used to assemble the consumer spec)
  */
 void Go2::setupChosenConsumer(boost::program_options::variables_map const &vm) {
-    // No consumer specified, although brokered execution was requested
-    if(vm.count("consumer") != 1) {
+    // The consumer may be chosen on the command line (--consumer) or in the configuration file (the
+    // "consumer" key, defaulting to stc); the command-line value takes precedence. Only passing
+    // --consumer more than once is ambiguous. consumer_name_ has already been resolved (config parse
+    // followed by the optional command-line override) and is validated for known-ness just below.
+    if(vm.count("consumer") > 1) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In Go2::setupChosenConsumer(): Error!" << '\n'
-            << "You need to specify exactly one consumer for brokered execution," << '\n'
-            << "on the command line. Found " << vm.count("consumer") << "." << '\n'
+            << "You may specify at most one consumer on the command line. Found "
+            << vm.count("consumer") << "." << '\n'
         );
     }
 

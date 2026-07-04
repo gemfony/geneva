@@ -106,6 +106,13 @@ Recommended Versions:
   rewritten into the new form the next time it is generated or refreshed
   (writeConfigFile / --update-configs).
 
+- NEW: the consumer (parallelization backend) can now be selected in Go2.json via a
+  "consumer" key, not only on the command line. The command-line --consumer option
+  overrides the configured value, which in turn overrides the "stc" default, so
+  existing behaviour is unchanged for any configuration that does not set it. Example
+  15 (the GPU example) now sets consumer=gpu in its Go2.json, so it evaluates on the
+  device out of the box instead of requiring "--consumer gpu".
+
 - CHANGED: the GCUDAOptBenchmark benchmark now reads its configuration through the
   standard GParserBuilder facility instead of a hand-rolled JSON reader, so its
   config file follows the same strict-JSON layout as every other Geneva config and
