@@ -127,7 +127,12 @@ int main(int argc, char **argv) {
 
     // The network genome carries only structure; the per-weight Gauss adaptor lives on an OA-owned config
     // the factory authors. Register it for the adapting algorithms (EA / SA) so Go2 hands it over.
-    {
+    //
+    // Skipped in --update-configs mode: building the sample constructs a neural-network individual, which
+    // loads the training data set from disk -- irrelevant to a configuration refresh and unavailable when
+    // the configs are materialized (e.g. at build time). Go2 still refreshes the individual's config via
+    // the content creator registered above.
+    if(not go.updateConfigsMode()) {
         auto sample = gnn_ptr->get_as<gind::GNeuralNetworkIndividual>();
         auto cfg = gnn_ptr->getAdaptionConfig(*sample);
         go.registerAdaptionConfig("PERSONALITY_EA", cfg);

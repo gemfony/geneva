@@ -277,6 +277,15 @@ int main(int argc, char **argv) {
     // Add default optimization algorithms to the parallel Go2 object
     go_parallel.registerDefaultAlgorithm("ea");
 
+    // --update-configs: the delay-individual configs were materialized by the readConfig calls above; now
+    // let Go2 refresh the configs it owns and exit. The benchmark itself must be skipped -- its worker
+    // threads run real optimizations, and the config-refresh exit path (std::exit) would tear the process
+    // down while they are mid-flight, racing their shared-state teardown (an intermittent segfault).
+    if(go_parallel.updateConfigsMode()) {
+        go_parallel.optimize(); // refreshes Go2's owned configs, then exits; no benchmark threads are running
+        return 0;               // not reached (optimize() std::exit()s in --update-configs mode)
+    }
+
     // Threadpool for two threads
     Gem::Common::Concurrency::GThreadPool tp(2);
 

@@ -100,6 +100,16 @@ Recommended Versions:
   optimizer skips its MPI setup during a config refresh. Go2-based binaries already
   honored the switch through Go2 itself.
 
+- FIXED: two programs crashed under --update-configs. GNeuralNetwork aborted because
+  building its sample individual (to author the adaption config) loads a training data
+  set from disk, which is irrelevant to a configuration refresh and absent when the
+  configs are materialized; that step is now skipped in --update-configs mode (Go2 still
+  refreshes the configs it owns). GParallelisationOverhead intermittently segfaulted
+  because its benchmark launches real optimizations on a private thread pool, which the
+  config-refresh exit path could tear down mid-flight; it now refreshes its configs and
+  exits without running the benchmark. Both were latent (the switch had never been
+  exercised on them).
+
 - CHANGED: the GPU consumer now defaults to the CUDA backend. A freshly generated
   GPU-consumer configuration selects "cuda" (was "cpu"), so the GPU examples and
   benchmarks use the device out of the box. On a build without the CUDA backend the
