@@ -45,7 +45,9 @@ namespace Gem::Courtier::GPU {
  * kernel without recompiling.
  */
 struct GGPUConsumerConfig {
-    std::string backend = "cpu";              ///< "cpu" | "cuda"
+    std::string backend = "cuda";             ///< "cpu" | "cuda" -- defaults to the GPU ("cuda"); the
+                                              ///< consumer falls back to "cpu" with a warning if the CUDA
+                                              ///< backend was not compiled into this build
     std::string kernel_path;                  ///< path to the kernel source / prebuilt module
     std::string kernel_entry = "evaluate";    ///< kernel entry-point name
     int device_id = 0;                        ///< which device
