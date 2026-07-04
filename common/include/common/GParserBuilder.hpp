@@ -91,10 +91,12 @@ class GParserBuilder;
 /**
  * Internal helpers shared by the file-parameter proxies for reading and writing the JSON
  * configuration format. A parameter node is a JSON object `{ "comment": [ ... ], "default": ...,
- * "value": ... }`; scalars are stored as strings (strings verbatim, booleans as "true"/"false",
- * everything else via Gem::Common::to_string), and vectors / arrays store their elements as JSON
- * arrays under the "default"/"value" keys. Comments are write-only decoration (regenerated from each
- * proxy's registered comment on every write) and are never read back.
+ * "value": ... }`; scalars are stored natively (arithmetic types as JSON numbers, booleans as JSON
+ * bools, strings as JSON strings, and enums / durations / other custom types as strings via
+ * Gem::Common::to_string), and vectors / arrays store their elements as JSON arrays under the
+ * "default"/"value" keys. The read path accepts either the native or the earlier all-strings form, so
+ * a config written before the switch to native scalars still loads. Comments are write-only decoration
+ * (regenerated from each proxy's registered comment on every write) and are never read back.
  */
 namespace detail {
 
@@ -132,6 +134,33 @@ T cfgScalarFromString(std::string const &s) {
     }
     else {
         return Gem::Common::from_string<T>(s);
+    }
+}
+
+/******************************************************************************/
+/** @brief Converts a scalar configuration value to its on-disk JSON form.
+ *
+ *  Plain arithmetic types and booleans are stored as native JSON numbers / bools; strings are stored
+ *  as JSON strings; everything else (enums, durations, other custom types) is stored as a JSON string
+ *  produced by cfgScalarToString, preserving that type's to_string/from_string round-trip. The read
+ *  path (cfgValueToString + cfgScalarFromString) accepts either form, so a config written in the
+ *  earlier all-strings layout still loads.
+ *  @tparam T The scalar parameter type
+ *  @param v The value to convert
+ *  @return The JSON value stored under a parameter's "value"/"default" key */
+template <typename T>
+boost::json::value cfgScalarToJson(T const &v) {
+    if constexpr(std::is_same_v<T, std::string>) {
+        return boost::json::value(v);
+    }
+    else if constexpr(std::is_same_v<T, bool>) {
+        return boost::json::value(v);
+    }
+    else if constexpr(std::is_arithmetic_v<T>) {
+        return boost::json::value(v);
+    }
+    else {
+        return boost::json::value(cfgScalarToString(v));
     }
 }
 
@@ -794,8 +823,8 @@ private:
             detail::cfgWriteComments(entry, GParsableI::splitComment(this->comment(0)));
         }
 
-        entry["default"] = detail::cfgScalarToString(GSingleParmT<parameter_type>::def_val_);
-        entry["value"] = detail::cfgScalarToString(GSingleParmT<parameter_type>::par_);
+        entry["default"] = detail::cfgScalarToJson(GSingleParmT<parameter_type>::def_val_);
+        entry["value"] = detail::cfgScalarToJson(GSingleParmT<parameter_type>::par_);
         root[GParsableI::optionName(0)] = std::move(entry);
     }
 
@@ -936,8 +965,8 @@ private:
             detail::cfgWriteComments(entry, GParsableI::splitComment(this->comment(0)));
         }
 
-        entry["default"] = detail::cfgScalarToString(GSingleParmT<parameter_type>::def_val_);
-        entry["value"] = detail::cfgScalarToString(GSingleParmT<parameter_type>::par_);
+        entry["default"] = detail::cfgScalarToJson(GSingleParmT<parameter_type>::def_val_);
+        entry["value"] = detail::cfgScalarToJson(GSingleParmT<parameter_type>::par_);
         root[GParsableI::optionName(0)] = std::move(entry);
     }
 
@@ -1233,16 +1262,16 @@ private:
             detail::cfgWriteComments(entry0, GParsableI::splitComment(this->comment(0)));
         }
         entry0["default"] =
-            detail::cfgScalarToString(GCombinedParT<par_type0, par_type1>::def_val0_);
-        entry0["value"] = detail::cfgScalarToString(GCombinedParT<par_type0, par_type1>::par0_);
+            detail::cfgScalarToJson(GCombinedParT<par_type0, par_type1>::def_val0_);
+        entry0["value"] = detail::cfgScalarToJson(GCombinedParT<par_type0, par_type1>::par0_);
 
         boost::json::object entry1;
         if(this->hasComments()) {
             detail::cfgWriteComments(entry1, GParsableI::splitComment(this->comment(1)));
         }
         entry1["default"] =
-            detail::cfgScalarToString(GCombinedParT<par_type0, par_type1>::def_val1_);
-        entry1["value"] = detail::cfgScalarToString(GCombinedParT<par_type0, par_type1>::par1_);
+            detail::cfgScalarToJson(GCombinedParT<par_type0, par_type1>::def_val1_);
+        entry1["value"] = detail::cfgScalarToJson(GCombinedParT<par_type0, par_type1>::par1_);
 
         boost::json::object group;
         group[GParsableI::optionName(0)] = std::move(entry0);
@@ -1520,13 +1549,13 @@ private:
         boost::json::array default_arr;
         default_arr.reserve(GVectorParT<parameter_type>::def_val_cnt_.size());
         for(auto const &def_val : GVectorParT<parameter_type>::def_val_cnt_) {
-            default_arr.emplace_back(detail::cfgScalarToString(def_val));
+            default_arr.emplace_back(detail::cfgScalarToJson(def_val));
         }
 
         boost::json::array value_arr;
         value_arr.reserve(GVectorParT<parameter_type>::par_cnt_.size());
         for(auto const &value : GVectorParT<parameter_type>::par_cnt_) {
-            value_arr.emplace_back(detail::cfgScalarToString(value));
+            value_arr.emplace_back(detail::cfgScalarToJson(value));
         }
 
         entry["default"] = std::move(default_arr);
@@ -1704,13 +1733,13 @@ private:
         boost::json::array default_arr;
         default_arr.reserve(GVectorParT<parameter_type>::def_val_cnt_.size());
         for(auto const &def_val : GVectorParT<parameter_type>::def_val_cnt_) {
-            default_arr.emplace_back(detail::cfgScalarToString(def_val));
+            default_arr.emplace_back(detail::cfgScalarToJson(def_val));
         }
 
         boost::json::array value_arr;
         value_arr.reserve(GVectorParT<parameter_type>::par_cnt_.size());
         for(auto const &value : GVectorParT<parameter_type>::par_cnt_) {
-            value_arr.emplace_back(detail::cfgScalarToString(value));
+            value_arr.emplace_back(detail::cfgScalarToJson(value));
         }
 
         entry["default"] = std::move(default_arr);
@@ -1963,13 +1992,13 @@ private:
         boost::json::array default_arr;
         default_arr.reserve(GArrayParT<parameter_type, N>::def_val_arr_.size());
         for(auto const &def_val : GArrayParT<parameter_type, N>::def_val_arr_) {
-            default_arr.emplace_back(detail::cfgScalarToString(def_val));
+            default_arr.emplace_back(detail::cfgScalarToJson(def_val));
         }
 
         boost::json::array value_arr;
         value_arr.reserve(GArrayParT<parameter_type, N>::par_arr_.size());
         for(auto const &value : GArrayParT<parameter_type, N>::par_arr_) {
-            value_arr.emplace_back(detail::cfgScalarToString(value));
+            value_arr.emplace_back(detail::cfgScalarToJson(value));
         }
 
         entry["default"] = std::move(default_arr);
@@ -2138,13 +2167,13 @@ private:
         boost::json::array default_arr;
         default_arr.reserve(GArrayParT<parameter_type, N>::def_val_arr_.size());
         for(auto const &def_val : GArrayParT<parameter_type, N>::def_val_arr_) {
-            default_arr.emplace_back(detail::cfgScalarToString(def_val));
+            default_arr.emplace_back(detail::cfgScalarToJson(def_val));
         }
 
         boost::json::array value_arr;
         value_arr.reserve(GArrayParT<parameter_type, N>::par_arr_.size());
         for(auto const &value : GArrayParT<parameter_type, N>::par_arr_) {
-            value_arr.emplace_back(detail::cfgScalarToString(value));
+            value_arr.emplace_back(detail::cfgScalarToJson(value));
         }
 
         entry["default"] = std::move(default_arr);

@@ -671,16 +671,14 @@ TEST_CASE("GParserBuilder::updateConfigFile drops stale keys, preserves values, 
     CHECK(scale  == 3.14);
     CHECK(fresh  == 7);    // absent from v1 -> registered default
 
-    // On-disk shape after the rewrite. Scalars are stored as strings in the JSON config format.
+    // On-disk shape after the rewrite. Arithmetic scalars are stored as native JSON numbers (the input
+    // above was hand-written in the earlier all-strings form, which the reader still accepts).
     const json::value after = Gem::Common::parseJsonFile(cfg);
     REQUIRE(after.is_object());
     const json::object &ao = after.get_object();
-    CHECK(ao.at("answer").at("value").as_string() == "13");   // value preserved on disk
-    // Doubles are stored at full round-trip precision (e.g. "3.1400000000000001"), so compare numerically.
-    CHECK(Gem::Common::from_string<double>(
-              std::string(ao.at("scale").at("value").as_string().c_str())
-          ) == 3.14);
-    CHECK(ao.at("fresh").at("value").as_string()  == "7");    // new key present, defaulted
+    CHECK(ao.at("answer").at("value").to_number<int>() == 13);   // value preserved on disk
+    CHECK(ao.at("scale").at("value").to_number<double>() == 3.14);
+    CHECK(ao.at("fresh").at("value").to_number<int>()  == 7);    // new key present, defaulted
     CHECK_FALSE(ao.contains("stale_key")); // stale key dropped
     CHECK(ao.contains("header"));          // canonical header written
 
@@ -748,6 +746,68 @@ TEST_CASE("GParserBuilder: a multi-element vector round-trips as a JSON array (n
     reader.registerFileParameter<int>("vec", vec_in, std::vector<int>{1, 1, 1, 1}, VAR_IS_ESSENTIAL, "a vector");
     REQUIRE(reader.parseConfigFile(cfg));
     CHECK(vec_in == std::vector<int>{7, 8, 9, 10});
+
+    std::filesystem::remove(cfg);
+}
+
+// ---------------------------------------------------------------------------
+// Native scalar typing: arithmetic types and booleans are written as native JSON
+// numbers / bools (not quoted strings), while a config hand-written in the earlier
+// all-strings form still loads (back-compat of the read path).
+
+TEST_CASE("GParserBuilder: arithmetic and bool scalars write as native JSON, old string form still reads",
+          "[common][parser-builder][regression]") {
+    namespace json = boost::json;
+    auto cfg = scratch("native_scalars");
+    std::filesystem::remove(cfg);
+
+    // parseConfigFile on a non-existent file creates it from the registered defaults.
+    {
+        GParserBuilder gpb;
+        int         i = 20;
+        double      d = 3.5;
+        bool        b = true;
+        std::string s = "hello";
+        gpb.registerFileParameter<int>        ("i", i, 20,                  VAR_IS_ESSENTIAL, "an int");
+        gpb.registerFileParameter<double>     ("d", d, 3.5,                 VAR_IS_ESSENTIAL, "a double");
+        gpb.registerFileParameter<bool>       ("b", b, true,                VAR_IS_ESSENTIAL, "a bool");
+        gpb.registerFileParameter<std::string>("s", s, std::string("hi"),   VAR_IS_ESSENTIAL, "a string");
+        REQUIRE(gpb.parseConfigFile(cfg));
+    }
+
+    const json::value doc = Gem::Common::parseJsonFile(cfg);
+    REQUIRE(doc.is_object());
+    const json::object &o = doc.get_object();
+    CHECK(o.at("i").at("value").is_int64());            // native number, not "20"
+    CHECK(o.at("i").at("value").to_number<int>() == 20);
+    CHECK(o.at("d").at("value").is_double());           // native number
+    CHECK(o.at("b").at("value").is_bool());             // native bool, not "true"
+    CHECK(o.at("b").at("value").as_bool());
+    CHECK(o.at("s").at("value").is_string());           // strings stay strings
+
+    // A config hand-written in the earlier all-strings form must still load.
+    {
+        json::object t;
+        t["i"] = json::object{{"default", "20"},    {"value", "33"}};
+        t["d"] = json::object{{"default", "3.5"},   {"value", "9.5"}};
+        t["b"] = json::object{{"default", "true"},  {"value", "false"}};
+        t["s"] = json::object{{"default", "hi"},    {"value", "world"}};
+        Gem::Common::writeJsonFile(cfg, json::value(std::move(t)));
+    }
+    GParserBuilder reader;
+    int         i2 = 0;
+    double      d2 = 0.0;
+    bool        b2 = true;
+    std::string s2;
+    reader.registerFileParameter<int>        ("i", i2, 20,                VAR_IS_ESSENTIAL, "an int");
+    reader.registerFileParameter<double>     ("d", d2, 3.5,               VAR_IS_ESSENTIAL, "a double");
+    reader.registerFileParameter<bool>       ("b", b2, true,              VAR_IS_ESSENTIAL, "a bool");
+    reader.registerFileParameter<std::string>("s", s2, std::string("hi"), VAR_IS_ESSENTIAL, "a string");
+    REQUIRE(reader.parseConfigFile(cfg));
+    CHECK(i2 == 33);
+    CHECK(d2 == 9.5);
+    CHECK_FALSE(b2);
+    CHECK(s2 == "world");
 
     std::filesystem::remove(cfg);
 }

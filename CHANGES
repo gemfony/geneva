@@ -98,9 +98,13 @@ Recommended Versions:
   per element) and a vector/array parameter's default/value is now a JSON array
   ("value": [ ... ]) instead of repeated "item" entries. Generated files are
   therefore valid JSON that external tooling (jq, editors, validators) can read.
-  Existing scalar configurations continue to load unchanged; a configuration is
+  Arithmetic and boolean scalars are stored as native JSON numbers and bools
+  ("value": 20, true); strings stay JSON strings and enums / durations / other
+  custom types are stored as strings (preserving their to_string/from_string
+  round-trip). Existing configurations continue to load unchanged -- the reader
+  accepts both the native and the earlier all-strings form -- and a configuration is
   rewritten into the new form the next time it is generated or refreshed
-  (writeConfigFile / --update-configs). Scalars remain quoted strings for now.
+  (writeConfigFile / --update-configs).
 
 - CHANGED: the GCUDAOptBenchmark benchmark now reads its configuration through the
   standard GParserBuilder facility instead of a hand-rolled JSON reader, so its
