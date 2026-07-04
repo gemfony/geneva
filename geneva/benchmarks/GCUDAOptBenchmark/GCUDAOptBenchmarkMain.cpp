@@ -50,6 +50,7 @@
 
 #include <boost/program_options.hpp>
 
+#include "common/GConfigEmission.hpp"
 #include "common/GParserBuilder.hpp"
 #include "courtier/GConsumerRegistry.hpp"
 #include "courtier/gpu/GGPUConsumer.hpp"
@@ -143,6 +144,21 @@ static BenchmarkConfig loadConfig(const std::string &configFile) {
 
 int main(int argc, char **argv) {
     std::string configFile = "config/GCUDAOptBenchmark.json";
+
+    // --update-configs: materialize every config this benchmark owns -- its own config, each configured
+    // algorithm's config, the individual config and the GPU consumer config -- from code defaults, then
+    // exit without benchmarking. The GPU consumer constructor only loads its config (the backend/kernel
+    // are acquired lazily on the first dispatch), so no device is required. Handled before the
+    // program-options parser, which would otherwise reject the unregistered switch.
+    if (Gem::Common::configEmissionRequested(argc, argv)) {
+        Gem::Common::beginConfigEmission();
+        Gem::Geneva::GenevaInitializer gi;
+        BenchmarkConfig cfg = loadConfig(configFile);
+        GAlgorithmBenchmarkRunner(cfg).emitConfigs();
+        auto marshaller = std::make_shared<GBenchmarkGPUMarshaller>();
+        Gem::Courtier::GPU::GGPUConsumerT<gen::GOptimizableEntity>("./config/GGPUConsumer.json", marshaller);
+        Gem::Common::finishConfigEmission();
+    }
 
     po::options_description desc("GCUDAOptBenchmark options");
     desc.add_options()

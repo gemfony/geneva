@@ -312,6 +312,20 @@ public:
     std::string getConsumerName();
 
     /**
+     * @brief Reports whether this Go2 was started in --update-configs mode.
+     *
+     * In that mode Go2 only refreshes the configuration files it owns and then exits without optimizing;
+     * it also forces the local thread-pool consumer so no networked / GPU / MPI consumer is built. A
+     * subclass that would otherwise insist on a particular consumer (e.g. GMPISubClientOptimizer requiring
+     * the MPI consumer) uses this to relax that requirement during a pure config-refresh run.
+     *
+     * @return true if the binary was invoked with --update-configs, false otherwise
+     */
+    bool updateConfigsMode() const {
+        return update_configs_mode_;
+    }
+
+    /**
      * @brief Registers an OA-owned adaption configuration for an algorithm type. When an
      * algorithm of the given personality type (e.g. "PERSONALITY_EA") runs in the chain, Go2 hands it this
      * config, which it adopts (after validating it matches the population's genome) instead of deriving a

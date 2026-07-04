@@ -90,10 +90,15 @@ Recommended Versions:
   rewriting them in canonical form when present, then exiting without optimizing --
   the same behaviour Go2 binaries already provide. A shared facility drives this
   behind the one switch, so every config-owning binary regenerates its configuration
-  uniformly. Converted so far: the direct-OA examples (06 GDirectEA / GDirectSA /
-  GDirectSwarm), the parameter-object demo (03), the configuration-creation demo
-  (GConfigFileCreation), the GBrokerOverhead benchmark and the
-  GCommandContainerSerialization manual test; the GPU and MPI binaries follow.
+  uniformly. This now covers every non-Go2 binary that owns a configuration: the
+  direct-OA examples (06 GDirectEA / GDirectSA / GDirectSwarm), the parameter-object
+  demo (03), the configuration-creation demo (GConfigFileCreation), the GBrokerOverhead
+  and GCUDAOptBenchmark benchmarks, the GCommandContainerSerialization manual test, and
+  the MPI examples (16 GMPIConsumer and 17 GMPISubClients). The GPU and MPI paths refresh
+  their configurations without a device or an MPI environment: the GPU consumer only
+  loads its config on construction (the backend is acquired lazily), and the MPI
+  optimizer skips its MPI setup during a config refresh. Go2-based binaries already
+  honored the switch through Go2 itself.
 
 - CHANGED: the GPU consumer now defaults to the CUDA backend. A freshly generated
   GPU-consumer configuration selects "cuda" (was "cpu"), so the GPU examples and

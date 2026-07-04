@@ -68,7 +68,10 @@ GMPISubClientOptimizer::GMPISubClientOptimizer(
     MPI_Comm baseCommunicator
 )
   : Go2{argc, argv, configFilePath, userDescriptions} {
-    if(Go2::getConsumerName() != "mpi") { // only allow using MPI
+    // A pure --update-configs run only refreshes configuration files and exits without optimizing, and
+    // Go2 forces the local thread-pool consumer for it -- so the MPI-consumer requirement below does not
+    // apply, and none of the MPI setup further down must run (there is no MPI environment).
+    if(not updateConfigsMode() && Go2::getConsumerName() != "mpi") { // only allow using MPI
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "GMPISubClientOptimizer constructor Error!" << '\n'
@@ -86,6 +89,13 @@ GMPISubClientOptimizer::GMPISubClientOptimizer(
     // When parsing here, the addConfigurationOptions_ of this class is used and options of this class are added.
     // TODO: Pass a callback to Go2-constructor which adds additional config-file options, in order to not parse twice and remove this call here
     parseConfigFile(configFilePath);
+
+    // --update-configs: this class's own configuration has now been refreshed (create-if-absent /
+    // rewrite via the parse above). Skip all MPI initialization -- Go2::optimize() will refresh the
+    // remaining owned configs and exit without running.
+    if(updateConfigsMode()) {
+        return;
+    }
 
     // If the base communicator is already a sub communicator, this means MPI must already have been initialized by the user
     if(baseCommunicator == MPI_COMM_WORLD) {

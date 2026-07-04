@@ -146,6 +146,21 @@ std::vector<GAlgorithmBenchmarkResult> GAlgorithmBenchmarkRunner::run() {
 
 /******************************************************************************/
 /**
+ * @brief Materializes every configuration this benchmark owns without running it.
+ */
+void GAlgorithmBenchmarkRunner::emitConfigs() {
+    // The shared individual configuration (create-if-absent / rewritten in update-in-place mode).
+    (void) gind::GFunctionIndividual::readConfig(cfg_.individualConfigFile);
+
+    // Each configured algorithm's configuration, materialized by constructing its factory -- the same
+    // call runOne() makes, minus the optimization run.
+    for (const auto &entry : cfg_.algorithms) {
+        (void) makeAlgorithm(entry);
+    }
+}
+
+/******************************************************************************/
+/**
  * @brief Runs a single optimization and records the result.
  */
 GBenchmarkRunResult GAlgorithmBenchmarkRunner::runOne(

@@ -185,6 +185,16 @@ public:
      */
     std::vector<GAlgorithmBenchmarkResult> run();
 
+    /**
+     * @brief Materializes every configuration this benchmark owns without running it.
+     *
+     * Touches the individual configuration and each configured algorithm's configuration exactly as
+     * run() would (via GFunctionIndividual::readConfig and makeAlgorithm), so that with GParserBuilder
+     * in update-in-place mode they are created-if-absent and rewritten in canonical form. Used by the
+     * --update-configs path; no consumer / device is required.
+     */
+    void emitConfigs();
+
 private:
     GBenchmarkRunResult runOne(
         const AlgorithmEntry &entry,
