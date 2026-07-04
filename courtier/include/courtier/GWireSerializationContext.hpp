@@ -82,7 +82,7 @@ using GWirePeerId = std::uint64_t;
 /** @brief Hashes a GWireLayoutId (which is already a strong hash) into a size_t for the registry maps. */
 struct GWireLayoutIdHash {
     /** @brief @param id The id to hash. @return A size_t hash of the id. */
-    std::size_t operator()(const GWireLayoutId &id) const noexcept {
+    static std::size_t operator()(const GWireLayoutId &id) noexcept {
         return static_cast<std::size_t>(id[0] ^ (id[1] + 0x9E3779B97F4A7C15ULL + (id[0] << 6) + (id[0] >> 2)));
     }
 };
