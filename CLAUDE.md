@@ -42,7 +42,11 @@ would violate one, stop and find another approach. In particular:
    Geneva is currently set to (today C++23); the rule names no fixed version — deduce the active standard from the
    build system (central `CMAKE_CXX_STANDARD` in `CMakeModules/CommonGenevaBuild.cmake`, driven by `genevaConfig.gcfg`),
    not from this doc. Host code only (device/CUDA trails via `CMAKE_CUDA_STANDARD`); confirm a given library feature
-   actually compiles on both gcc and clang before relying on it.
+   actually compiles on both gcc and clang before relying on it. · 17. The source tree stays pristine — extends
+   Inv 3 from building to every activity: never build in-source AND never run tools/binaries from inside the
+   checkout that write output (run them from an external working dir so no `config/*.json`, logs, checkpoints, or
+   plots land in the tree); after every commit `git status` is clean — no stray/untracked/generated files, the
+   only changes a commit contains are the intended edits.
 
 See the file for the full, authoritative list.
 

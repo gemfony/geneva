@@ -203,6 +203,27 @@ gcc **and** clang builds) before relying on it, and fall back only with a record
 with Invariant 1 — adopt the newer standard where it *replaces* hand-rolled machinery or closes a bug, not as
 churn for its own sake.
 
+## 17. The source tree stays pristine — no in-source builds, no stray artifacts
+
+The Geneva source tree is never a workspace. This extends Invariant 3 (build out-of-source only) from
+*building* to *every* activity that could leave a footprint in the tree:
+
+- **Never configure or build in-source.** All configuration and compilation happens in an external build
+  directory (e.g. `$HOME/build`); `prepareBuild.sh` rejects an in-source build (cf. Invariant 3).
+- **Never run tools or binaries from the repository root** (or any source subdirectory) when they write
+  output. A Geneva example or client writes its files relative to its working directory — run it from an
+  external scratch/working directory, never from inside the checkout, so it cannot deposit `config/*.json`,
+  logs, checkpoints, result files, or plots into the tree.
+- **After every commit the working tree is pristine:** `git status` shows *nothing* — no untracked stray
+  files, no generated artifacts, no editor scratch, no leftover output. The only changes a commit contains
+  are the intended edits. If some step generated a file in-tree, remove it (or relocate the activity to an
+  external directory and regenerate) **before** committing; a commit is not complete while `git status` is
+  dirty with anything unintended.
+
+*Why:* stray files silently become part of the repository, mask real changes in `git status`, get
+accidentally committed, and make "is the tree clean?" — the precondition for a trustworthy diff, build, and
+commit — unanswerable. A pristine tree keeps every diff meaningful and every build reproducible.
+
 ---
 
 *Add new invariants below as the maintainer establishes them. Keep each rule short, mandatory, and
