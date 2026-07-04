@@ -32,6 +32,7 @@ SET ( COMMONSOURCES
     GCommonHelperFunctions.cpp
     GExceptions.cpp
 	GExpectationChecksT.cpp
+	GJsonIO.cpp
 	GLogger.cpp
 	GParserBuilder.cpp
 	concurrency/GThreadGroup.cpp
@@ -71,6 +72,7 @@ TARGET_LINK_LIBRARIES(
     ${COMMON_LIBNAME}
     PUBLIC
     Boost::filesystem
+    Boost::json
     Boost::program_options
     Boost::regex
     Boost::serialization

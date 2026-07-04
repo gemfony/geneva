@@ -51,15 +51,15 @@
 #include "common/GCommonHelperFunctionsT.hpp"
 #include "common/GErrorStreamer.hpp"
 #include "common/GExceptions.hpp"
+#include "common/GJsonIO.hpp"
 #include "common/GLogger.hpp"
 
 // Boost headers used directly in this translation unit
+#include <boost/json.hpp>
 #include <boost/program_options/errors.hpp>
 #include <boost/program_options/options_description.hpp>
 #include <boost/program_options/parsers.hpp>
 #include <boost/program_options/variables_map.hpp>
-#include <boost/property_tree/json_parser.hpp>
-#include <boost/property_tree/ptree_fwd.hpp>
 
 namespace Gem::Common {
 
@@ -431,21 +431,32 @@ GParserBuilder::GParserBuilder() {
 
 /******************************************************************************/
 /**
- * Applies an already-parsed configuration ptree to the registered options,
+ * Applies an already-parsed configuration document to the registered options,
  * without touching the file. Runs the optional unknown-key diagnostic. This is
  * the "apply" half of parseConfigFile, separated so that callers (e.g. GFactoryT)
- * can read + parse a config file once and re-apply the cached ptree to many
+ * can read + parse a config file once and re-apply the cached document to many
  * freshly created objects.
  */
-void GParserBuilder::loadFromPtree(
-    boost::property_tree::ptree const &ptr,
+void GParserBuilder::loadFromDocument(
+    boost::json::value const &root,
     std::filesystem::path const &config_path,
     bool run_unknown_key_check
 ) {
+    // A configuration document is always a JSON object at the root. Anything else is malformed.
+    if(not root.is_object()) {
+        throw geneva_exception(
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+            << "In GParserBuilder::loadFromDocument(): Error!" << '\n'
+            << "Configuration file " << config_path.string() << '\n'
+            << "does not contain a JSON object at its root." << '\n'
+        );
+    }
+    boost::json::object const &obj = root.get_object();
+
     // Diagnostic: detect configuration-file keys that no registered parameter
     // consumes (config/code drift -- a renamed or stale key). Runs only on a
     // genuine file parse (run_unknown_key_check == true): GFactoryT re-applies a
-    // cached ptree to every produced object, and the check must not re-run per
+    // cached document to every produced object, and the check must not re-run per
     // object.
     if(run_unknown_key_check && check_unknown_keys_) {
         std::set<std::string> known_keys;
@@ -455,32 +466,32 @@ void GParserBuilder::loadFromPtree(
             // label -- not the sub-option names -- is the valid top-level key.
             known_keys.insert(proxy_ptr->topLevelConfigKey());
         }
-        for(auto const &key_value : ptr) {
-            if(key_value.first == "header" || known_keys.contains(key_value.first)) {
+        for(auto const &key_value : obj) {
+            const std::string key(key_value.key());
+            if(key == "header" || known_keys.contains(key)) {
                 continue;
             }
             if(unknown_key_is_error_) {
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                    << "In GParserBuilder::loadFromPtree(): Error!" << '\n'
+                    << "In GParserBuilder::loadFromDocument(): Error!" << '\n'
                     << "Configuration file " << config_path.string() << '\n'
-                    << "contains the unknown key \"" << key_value.first
+                    << "contains the unknown key \"" << key
                     << "\" that no registered parameter consumes." << '\n'
                     << "This usually indicates config/code drift (a renamed or stale key)." << '\n'
                 );
             }
-                            glogger << "In GParserBuilder::loadFromPtree(): Warning!" << '\n'
-                        << "Configuration file " << config_path.string() << '\n'
-                        << "contains the unknown key \"" << key_value.first
-                        << "\" that no registered parameter consumes; it will be ignored." << '\n'
-                        << GLOGGING;
-           
+            glogger << "In GParserBuilder::loadFromDocument(): Warning!" << '\n'
+                    << "Configuration file " << config_path.string() << '\n'
+                    << "contains the unknown key \"" << key
+                    << "\" that no registered parameter consumes; it will be ignored." << '\n'
+                    << GLOGGING;
         }
     }
 
     // Load the data into our objects and execute the relevant call-back functions
     for(auto const &proxy_ptr : file_parameter_proxies_) {
-        proxy_ptr->load_from(ptr);
+        proxy_ptr->load_from(obj);
         proxy_ptr->executeCallBackFunction();
     }
 }
@@ -493,14 +504,14 @@ void GParserBuilder::loadFromPtree(
  * new keys defaulted). The whole operation is serialized by the config-file mutex.
  *
  * @param config_file The path to the configuration file that should be parsed (and, when do_rewrite, rewritten)
- * @param captured An optional pointer to a property tree that, if non-null, receives the parsed options
+ * @param captured An optional pointer to a JSON document that, if non-null, receives the parsed options
  * @param do_rewrite Whether to rewrite the file in canonical form after applying it
  * @param rewrite_header The header for a rewrite; empty uses the standard auto-created header
  * @return true on success (parsed or created without error), false if an exception was caught
  */
 bool GParserBuilder::doParseConfigFile_(
     std::filesystem::path const &config_file,
-    boost::property_tree::ptree *captured,
+    boost::json::value *captured,
     bool do_rewrite,
     std::string const &rewrite_header
 ) {
@@ -510,10 +521,7 @@ bool GParserBuilder::doParseConfigFile_(
     // the same lock, so it is serialized against every other config access.
     std::scoped_lock lk(GParserBuilder::configfile_parser_mutex_);
 
-    namespace pt = boost::property_tree;
-
-    pt::ptree
-        ptr; // NOLINT(cppcoreguidelines-init-variables) — property tree, holds configuration options
+    boost::json::value root; // holds the parsed configuration document
 
     std::filesystem::path config_path;
 
@@ -594,21 +602,21 @@ bool GParserBuilder::doParseConfigFile_(
             }
         }
 
-        // Unfortunately boost;::property_tree does unfortunately not accept path-arguments
-        Gem::Common::read_json(config_path, ptr);
+        // Parse the configuration document (Boost.JSON's parser does not accept a path directly).
+        root = Gem::Common::parseJsonFile(config_path);
 
-        // Optionally hand the parsed ptree back to the caller (e.g. GFactoryT) so
+        // Optionally hand the parsed document back to the caller (e.g. GFactoryT) so
         // it can cache it and avoid re-reading + re-parsing the file on every
         // produce() call.
         if(captured != nullptr) {
-            *captured = ptr;
+            *captured = root;
         }
 
         // Apply the parsed values to the registered options. Factored out so a
-        // cached ptree can be re-applied without touching the file again. In update mode the
+        // cached document can be re-applied without touching the file again. In update mode the
         // unknown-key diagnostic is suppressed -- stale keys are dropped by design and reported
         // (below) at info level instead of warned about.
-        this->loadFromPtree(ptr, config_path, /* run_unknown_key_check = */ not do_rewrite);
+        this->loadFromDocument(root, config_path, /* run_unknown_key_check = */ not do_rewrite);
 
         // Update-in-place: having applied the on-disk values to the registered options (absent keys
         // fell back to their defaults), rewrite the file in canonical form. Only an existing file is
@@ -620,9 +628,12 @@ bool GParserBuilder::doParseConfigFile_(
                 known_keys.insert(proxy_ptr->topLevelConfigKey());
             }
             std::vector<std::string> dropped;
-            for(auto const &key_value : ptr) {
-                if(key_value.first != "header" and not known_keys.contains(key_value.first)) {
-                    dropped.push_back(key_value.first);
+            if(root.is_object()) {
+                for(auto const &key_value : root.get_object()) {
+                    const std::string key(key_value.key());
+                    if(key != "header" and not known_keys.contains(key)) {
+                        dropped.push_back(key);
+                    }
                 }
             }
             if(not dropped.empty()) {
@@ -638,7 +649,7 @@ bool GParserBuilder::doParseConfigFile_(
                 rewrite_header.empty()
                     ? std::string("This configuration file was automatically created by GParserBuilder;")
                     : rewrite_header;
-            this->atomicReplaceConfigFile_(config_path, this->buildConfigPtree_(header, true /* write_all */));
+            this->atomicReplaceConfigFile_(config_path, this->buildConfigDocument_(header, true /* write_all */));
         }
 
         return true; // Success! (a caller reads this as "parsed/created without error", not "existed")
@@ -672,10 +683,10 @@ bool GParserBuilder::doParseConfigFile_(
  * rewritten in canonical form.
  *
  * @param config_file The path of the configuration file to read and parse
- * @param captured An optional pointer to a property tree that, if non-null, receives the parsed options
+ * @param captured An optional pointer to a JSON document that, if non-null, receives the parsed options
  * @return true on success, false if an exception was caught
  */
-bool GParserBuilder::parseConfigFile(std::filesystem::path const &config_file, boost::property_tree::ptree *captured) {
+bool GParserBuilder::parseConfigFile(std::filesystem::path const &config_file, boost::json::value *captured) {
     return this->doParseConfigFile_(config_file, captured, /* do_rewrite = */ update_in_place_);
 }
 
@@ -729,9 +740,6 @@ void GParserBuilder::writeConfigFile(
     std::string const &header,
     bool write_all
 ) const {
-    namespace pt = boost::property_tree;
-    namespace bf = std::filesystem;
-
     // Do some error checking
     {
         // Is config_file a directory ?
@@ -807,8 +815,9 @@ void GParserBuilder::writeConfigFile(
         );
     }
 
-    // Assemble the canonical property tree (shared with the update-in-place rewrite) and write it out.
-    pt::write_json(ofs, this->buildConfigPtree_(header, write_all));
+    // Assemble the canonical document (shared with the update-in-place rewrite) and write it out.
+    Gem::Common::prettyPrintJson(ofs, this->buildConfigDocument_(header, write_all));
+    ofs << '\n';
 
     // Close the file handle
     ofs.close();
@@ -823,26 +832,29 @@ void GParserBuilder::writeConfigFile(
  *
  * @param header A header comment to place at the top of the file (split on ';')
  * @param write_all Whether to also emit non-essential options
- * @return The assembled property tree
+ * @return The assembled JSON document (a JSON object at the root)
  */
-boost::property_tree::ptree GParserBuilder::buildConfigPtree_(std::string const &header, bool write_all) const {
+boost::json::value GParserBuilder::buildConfigDocument_(std::string const &header, bool write_all) const {
     if(file_parameter_proxies_.empty()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GParserBuilder::buildConfigPtree_(): No variables found!" << '\n'
+            << "In GParserBuilder::buildConfigDocument_(): No variables found!" << '\n'
         );
     }
 
-    boost::property_tree::ptree ptr; // NOLINT(cppcoreguidelines-init-variables)
+    boost::json::object root;
 
-    // Output a header
+    // Output a header comment array (one line per element). Insertion order is preserved, so the
+    // header is emitted first, ahead of every parameter.
+    boost::json::array header_lines;
     if(not header.empty()) {
         // Break the header into individual tokens
         for(auto const &h : Gem::Common::splitString(header, ";")) {
-            ptr.add("header.comment", std::string(h).c_str());
+            header_lines.emplace_back(h);
         }
     }
-    ptr.add("header.comment", Gem::Common::currentTimeAsString());
+    header_lines.emplace_back(Gem::Common::currentTimeAsString());
+    root["header"] = boost::json::object{{"comment", std::move(header_lines)}};
 
     // Output variables and values
     for(auto const &v_ptr : file_parameter_proxies_) {
@@ -852,29 +864,27 @@ boost::property_tree::ptree GParserBuilder::buildConfigPtree_(std::string const 
             continue;
         }
 
-        // Output the actual data of this parameter object to the property tree
-        v_ptr->save_to(ptr);
+        // Output the actual data of this parameter object to the document
+        v_ptr->save_to(root);
     }
 
-    return ptr;
+    return boost::json::value(std::move(root));
 }
 
 /******************************************************************************/
 /**
- * Atomically replaces @p config_file with the JSON serialization of @p tree: writes a temporary sibling
+ * Atomically replaces @p config_file with the serialization of @p document: writes a temporary sibling
  * file and then renames it over the target. This is the one caller that legitimately overwrites an
  * existing configuration file (writeConfigFile() deliberately refuses to), so an interrupted update can
  * never truncate a live config, and the .json extension is enforced here too.
  *
  * @param config_file The target configuration file (.json) to replace
- * @param tree The property tree to serialize
+ * @param document The JSON document to serialize
  */
 void GParserBuilder::atomicReplaceConfigFile_(
     std::filesystem::path const &config_file,
-    boost::property_tree::ptree const &tree
+    boost::json::value const &document
 ) const {
-    namespace pt = boost::property_tree;
-
     // Enforce the .json extension (matches writeConfigFile()/parseConfigFile()).
     if(not config_file.has_extension() || config_file.extension() != ".json") {
         throw geneva_exception(
@@ -896,7 +906,8 @@ void GParserBuilder::atomicReplaceConfigFile_(
                 << tmp_path.string() << '\n'
             );
         }
-        pt::write_json(ofs, tree);
+        Gem::Common::prettyPrintJson(ofs, document);
+        ofs << '\n';
     } // ofs flushed and closed here, before the rename
 
     std::error_code ec;

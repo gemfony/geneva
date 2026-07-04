@@ -35,10 +35,10 @@
 #include <string>
 #include <vector>
 
-#include <boost/property_tree/json_parser.hpp>
-#include <boost/property_tree/ptree.hpp>
+#include <boost/json.hpp>
 
 #include "common/GExceptions.hpp"
+#include "common/GJsonIO.hpp"
 #include "common/GParserBuilder.hpp"
 
 using namespace Gem::Common;
@@ -641,21 +641,18 @@ TEST_CASE("GParserBuilder::resetFileParameterDefaults (array form): missing opti
 
 TEST_CASE("GParserBuilder::updateConfigFile drops stale keys, preserves values, defaults new keys",
           "[common][parser-builder]") {
-    namespace pt = boost::property_tree;
+    namespace json = boost::json;
     auto cfg = scratch("update_inplace");
     std::filesystem::remove(cfg);
 
     // Write a v1 config by hand: a CUSTOMIZED "answer" value (13, not the default 42), a normal
     // "scale", and a "stale_key" that the v2 schema below no longer registers.
     {
-        pt::ptree t;
-        t.put("answer.default", "42");
-        t.put("answer.value",   "13"); // customized on disk
-        t.put("scale.default",  "3.14");
-        t.put("scale.value",    "3.14");
-        t.put("stale_key.default", "999");
-        t.put("stale_key.value",   "999");
-        pt::write_json(cfg.string(), t);
+        json::object t;
+        t["answer"]    = json::object{{"default", "42"}, {"value", "13"}}; // customized on disk
+        t["scale"]     = json::object{{"default", "3.14"}, {"value", "3.14"}};
+        t["stale_key"] = json::object{{"default", "999"}, {"value", "999"}};
+        Gem::Common::writeJsonFile(cfg, json::value(std::move(t)));
     }
 
     // v2 schema: {answer, scale, fresh} -- "stale_key" gone, "fresh" new.
@@ -674,14 +671,18 @@ TEST_CASE("GParserBuilder::updateConfigFile drops stale keys, preserves values, 
     CHECK(scale  == 3.14);
     CHECK(fresh  == 7);    // absent from v1 -> registered default
 
-    // On-disk shape after the rewrite.
-    pt::ptree after;
-    pt::read_json(cfg.string(), after);
-    CHECK(after.get<int>("answer.value")   == 13);   // value preserved on disk
-    CHECK(after.get<double>("scale.value") == 3.14);
-    CHECK(after.get<int>("fresh.value")    == 7);    // new key present, defaulted
-    CHECK_FALSE(after.get_child_optional("stale_key").has_value()); // stale key dropped
-    CHECK(after.get_child_optional("header").has_value());          // canonical header written
+    // On-disk shape after the rewrite. Scalars are stored as strings in the JSON config format.
+    const json::value after = Gem::Common::parseJsonFile(cfg);
+    REQUIRE(after.is_object());
+    const json::object &ao = after.get_object();
+    CHECK(ao.at("answer").at("value").as_string() == "13");   // value preserved on disk
+    // Doubles are stored at full round-trip precision (e.g. "3.1400000000000001"), so compare numerically.
+    CHECK(Gem::Common::from_string<double>(
+              std::string(ao.at("scale").at("value").as_string().c_str())
+          ) == 3.14);
+    CHECK(ao.at("fresh").at("value").as_string()  == "7");    // new key present, defaulted
+    CHECK_FALSE(ao.contains("stale_key")); // stale key dropped
+    CHECK(ao.contains("header"));          // canonical header written
 
     std::filesystem::remove(cfg);
 }
@@ -694,16 +695,15 @@ TEST_CASE("GParserBuilder::updateConfigFile drops stale keys, preserves values, 
 
 TEST_CASE("GParserBuilder: a config missing a registered vector parameter keeps its defaults",
           "[common][parser-builder]") {
-    namespace pt = boost::property_tree;
+    namespace json = boost::json;
     auto cfg = scratch("vec_newkey");
     std::filesystem::remove(cfg);
 
     // A config with a scalar but WITHOUT the vector key "vints".
     {
-        pt::ptree t;
-        t.put("other.default", "5");
-        t.put("other.value",   "5");
-        pt::write_json(cfg.string(), t);
+        json::object t;
+        t["other"] = json::object{{"default", "5"}, {"value", "5"}};
+        Gem::Common::writeJsonFile(cfg, json::value(std::move(t)));
     }
 
     GParserBuilder gpb;
@@ -712,10 +712,42 @@ TEST_CASE("GParserBuilder: a config missing a registered vector parameter keeps 
     gpb.registerFileParameter<int>("other", other, 5, VAR_IS_ESSENTIAL, "scalar");
     gpb.registerFileParameter<int>("vints", vints, std::vector<int>{10, 20, 30}, VAR_IS_ESSENTIAL, "a vector");
 
-    // Before the fix this threw boost::property_tree::ptree_bad_path and aborted the parse.
+    // Before the fix a missing vector key aborted the parse; now it keeps the registered defaults.
     REQUIRE(gpb.parseConfigFile(cfg));
     CHECK(other == 5);
     CHECK(vints == std::vector<int>{10, 20, 30}); // the registered defaults survive
+
+    std::filesystem::remove(cfg);
+}
+
+// ---------------------------------------------------------------------------
+// Regression (Inv 15): a multi-element vector parameter must round-trip through a
+// written-then-parsed config with ALL its elements intact. The old ptree format
+// stored vectors as duplicate "item" keys, which a strict JSON parser collapses to
+// one (silent data loss); the JSON-array representation keeps every element.
+
+TEST_CASE("GParserBuilder: a multi-element vector round-trips as a JSON array (no dup-key collapse)",
+          "[common][parser-builder][regression]") {
+    namespace json = boost::json;
+    auto cfg = scratch("vec_roundtrip");
+    std::filesystem::remove(cfg);
+
+    // Hand-write a config whose vector "value" is a 4-element JSON array of non-default values.
+    {
+        json::object t;
+        t["vec"] = json::object{
+            {"default", json::array{"1", "1", "1", "1"}},
+            {"value", json::array{"7", "8", "9", "10"}}
+        };
+        Gem::Common::writeJsonFile(cfg, json::value(std::move(t)));
+    }
+
+    // Reading it back restores every element (the old dup-key format would have collapsed to one).
+    GParserBuilder reader;
+    std::vector<int> vec_in;
+    reader.registerFileParameter<int>("vec", vec_in, std::vector<int>{1, 1, 1, 1}, VAR_IS_ESSENTIAL, "a vector");
+    REQUIRE(reader.parseConfigFile(cfg));
+    CHECK(vec_in == std::vector<int>{7, 8, 9, 10});
 
     std::filesystem::remove(cfg);
 }

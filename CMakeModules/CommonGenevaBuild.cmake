@@ -163,6 +163,7 @@ IF(NOT COMMON_GENEVA_BUILD_INCLUDED)
 			GENEVA_BOOST_LIBS
 			atomic
 			filesystem
+			json
 			regex
 			serialization
 			program_options

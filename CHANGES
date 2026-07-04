@@ -91,6 +91,17 @@ Recommended Versions:
   consumer transparently falls back to the CPU reference path with a warning, so this
   is safe on CPU-only builds.
 
+- CHANGED: configuration files are now strict, standard JSON. The configuration
+  reader/writer moved from Boost.PropertyTree to Boost.JSON, and the on-disk format
+  no longer relies on PropertyTree's non-standard duplicate keys: a parameter's
+  multi-line comment is now a JSON array of strings ("comment": [ ... ], one line
+  per element) and a vector/array parameter's default/value is now a JSON array
+  ("value": [ ... ]) instead of repeated "item" entries. Generated files are
+  therefore valid JSON that external tooling (jq, editors, validators) can read.
+  Existing scalar configurations continue to load unchanged; a configuration is
+  rewritten into the new form the next time it is generated or refreshed
+  (writeConfigFile / --update-configs). Scalars remain quoted strings for now.
+
 - MODERNIZED: a tree-wide sweep adopting C++23 library idioms where they make the
   code simpler without changing behaviour, wire format, checkpoint format or numeric
   results -- std::string::contains, std::ranges algorithms with projections,
