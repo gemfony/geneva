@@ -33,6 +33,10 @@
 #include <fstream>
 #include <functional>
 #include <string>
+#include <vector>
+
+#include <boost/property_tree/json_parser.hpp>
+#include <boost/property_tree/ptree.hpp>
 
 #include "common/GExceptions.hpp"
 #include "common/GParserBuilder.hpp"
@@ -629,4 +633,89 @@ TEST_CASE("GParserBuilder::resetFileParameterDefaults (array form): missing opti
         (gpb.resetFileParameterDefaults<int, 2>("nope", std::array<int, 2>{1, 2})),
         geneva_exception
     );
+}
+
+// ---------------------------------------------------------------------------
+// updateConfigFile: the update-in-place contract (drop stale keys, preserve
+// existing values, add newly-registered keys with defaults).
+
+TEST_CASE("GParserBuilder::updateConfigFile drops stale keys, preserves values, defaults new keys",
+          "[common][parser-builder]") {
+    namespace pt = boost::property_tree;
+    auto cfg = scratch("update_inplace");
+    std::filesystem::remove(cfg);
+
+    // Write a v1 config by hand: a CUSTOMIZED "answer" value (13, not the default 42), a normal
+    // "scale", and a "stale_key" that the v2 schema below no longer registers.
+    {
+        pt::ptree t;
+        t.put("answer.default", "42");
+        t.put("answer.value",   "13"); // customized on disk
+        t.put("scale.default",  "3.14");
+        t.put("scale.value",    "3.14");
+        t.put("stale_key.default", "999");
+        t.put("stale_key.value",   "999");
+        pt::write_json(cfg.string(), t);
+    }
+
+    // v2 schema: {answer, scale, fresh} -- "stale_key" gone, "fresh" new.
+    GParserBuilder gpb;
+    int    answer = 0;
+    double scale  = 0.0;
+    int    fresh  = 0;
+    gpb.registerFileParameter<int>   ("answer", answer, 42,   VAR_IS_ESSENTIAL, "the int");
+    gpb.registerFileParameter<double>("scale",  scale,  3.14, VAR_IS_ESSENTIAL, "the double");
+    gpb.registerFileParameter<int>   ("fresh",  fresh,  7,    VAR_IS_ESSENTIAL, "new in v2");
+
+    REQUIRE(gpb.updateConfigFile(cfg));
+
+    // Applied (in-memory) values: existing preserved, new defaulted.
+    CHECK(answer == 13);   // preserved from disk (not reset to the 42 default)
+    CHECK(scale  == 3.14);
+    CHECK(fresh  == 7);    // absent from v1 -> registered default
+
+    // On-disk shape after the rewrite.
+    pt::ptree after;
+    pt::read_json(cfg.string(), after);
+    CHECK(after.get<int>("answer.value")   == 13);   // value preserved on disk
+    CHECK(after.get<double>("scale.value") == 3.14);
+    CHECK(after.get<int>("fresh.value")    == 7);    // new key present, defaulted
+    CHECK_FALSE(after.get_child_optional("stale_key").has_value()); // stale key dropped
+    CHECK(after.get_child_optional("header").has_value());          // canonical header written
+
+    std::filesystem::remove(cfg);
+}
+
+// ---------------------------------------------------------------------------
+// Regression (vector load_from): a config that lacks a registered vector
+// parameter must keep that parameter's defaults instead of throwing. Guards the
+// get_child_optional() fix that makes update-in-place work when a NEW vector
+// parameter is added to the schema.
+
+TEST_CASE("GParserBuilder: a config missing a registered vector parameter keeps its defaults",
+          "[common][parser-builder]") {
+    namespace pt = boost::property_tree;
+    auto cfg = scratch("vec_newkey");
+    std::filesystem::remove(cfg);
+
+    // A config with a scalar but WITHOUT the vector key "vints".
+    {
+        pt::ptree t;
+        t.put("other.default", "5");
+        t.put("other.value",   "5");
+        pt::write_json(cfg.string(), t);
+    }
+
+    GParserBuilder gpb;
+    int              other = 0;
+    std::vector<int> vints;
+    gpb.registerFileParameter<int>("other", other, 5, VAR_IS_ESSENTIAL, "scalar");
+    gpb.registerFileParameter<int>("vints", vints, std::vector<int>{10, 20, 30}, VAR_IS_ESSENTIAL, "a vector");
+
+    // Before the fix this threw boost::property_tree::ptree_bad_path and aborted the parse.
+    REQUIRE(gpb.parseConfigFile(cfg));
+    CHECK(other == 5);
+    CHECK(vints == std::vector<int>{10, 20, 30}); // the registered defaults survive
+
+    std::filesystem::remove(cfg);
 }

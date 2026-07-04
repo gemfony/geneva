@@ -1391,11 +1391,19 @@ private:
     void load_from(boost::property_tree::ptree const &pt) override {
         using namespace boost::property_tree;
 
-        // Make sure the recipient vector is empty
-        GVectorParT<parameter_type>::par_cnt_.clear();
-
         std::string ppath = GParsableI::optionName(0) + ".value";
-        for(auto const &v : pt.get_child(ppath.c_str())) {
+        auto const child = pt.get_child_optional(ppath.c_str());
+        if(not child) {
+            // The key is absent from the file -- e.g. a newly-registered vector parameter, or an
+            // update-in-place pass over a config written before this parameter existed. Keep the
+            // defaults par_cnt_ was seeded with in the constructor (a bare get_child would throw
+            // ptree_bad_path here, aborting the whole parse).
+            return;
+        }
+
+        // The key is present: replace the seeded defaults with the on-disk values.
+        GVectorParT<parameter_type>::par_cnt_.clear();
+        for(auto const &v : *child) {
             GVectorParT<parameter_type>::par_cnt_.push_back(
                 Gem::Common::from_string<parameter_type>(v.second.data())
             );
@@ -1563,11 +1571,19 @@ private:
     void load_from(boost::property_tree::ptree const &pt) override {
         using namespace boost::property_tree;
 
-        // Make sure the recipient vector is empty
-        GVectorParT<parameter_type>::par_cnt_.clear();
-
         std::string ppath = GParsableI::optionName(0) + ".value";
-        for(auto const &v : pt.get_child(ppath.c_str())) {
+        auto const child = pt.get_child_optional(ppath.c_str());
+        if(not child) {
+            // The key is absent from the file -- e.g. a newly-registered vector parameter, or an
+            // update-in-place pass over a config written before this parameter existed. Keep the
+            // defaults par_cnt_ was seeded with in the constructor (a bare get_child would throw
+            // ptree_bad_path here, aborting the whole parse).
+            return;
+        }
+
+        // The key is present: replace the seeded defaults with the on-disk values.
+        GVectorParT<parameter_type>::par_cnt_.clear();
+        for(auto const &v : *child) {
             GVectorParT<parameter_type>::par_cnt_.push_back(
                 Gem::Common::from_string<parameter_type>(v.second.data())
             );
@@ -2278,6 +2294,23 @@ public:
      *  @param write_all Whether to also write secondary (non-essential) options */
     void
     writeConfigFile(std::filesystem::path const &config_file, std::string const &header = "", bool write_all = true) const;
+    /** @brief Update-in-place: parse @p config_file (if it exists) into the registered options, then rewrite
+     *  it in canonical form -- stale keys (that no registered parameter consumes) dropped, existing values
+     *  preserved, newly-registered parameters emitted with their defaults, comments/order refreshed. A
+     *  missing file is created from defaults (same as parseConfigFile). The rewrite is atomic (a temp sibling
+     *  is written and then renamed over the target), and never runs during a build into the source tree
+     *  because it targets exactly the file it was given.
+     *  @param config_file The path of the configuration file to update in place
+     *  @param header An optional header comment; empty uses the standard auto-created header
+     *  @return true if the file already existed (and was updated), false if it had to be created from defaults */
+    bool updateConfigFile(std::filesystem::path const &config_file, std::string const &header = "");
+    /** @brief Globally enables/disables update-in-place: when enabled, every successful parseConfigFile() that
+     *  read an existing file also rewrites it in canonical form (mirrors setCheckUnknownKeys). Call once at startup.
+     *  @param enabled Whether parseConfigFile should rewrite the files it reads */
+    static void setUpdateInPlace(bool enabled);
+    /** @brief Retrieves whether update-in-place is globally enabled
+     *  @return true if parseConfigFile rewrites the files it reads, false otherwise */
+    static bool updateInPlace();
     /** @brief Globally enables/disables the unknown-configuration-key diagnostic (default: enabled; warns on config keys no registered parameter consumes).
      *  @param check Whether the unknown-key diagnostic should be enabled */
     static void setCheckUnknownKeys(bool enabled);
@@ -3033,12 +3066,45 @@ private:
 
     std::filesystem::path config_base_dir_;
 
+    /** @brief Shared implementation of parseConfigFile()/updateConfigFile(): reads @p config_file (creating
+     *  it from defaults if absent), applies it to the registered options and, when @p do_rewrite is set and
+     *  the file already existed, rewrites it in canonical form.
+     *  @param config_file The configuration file to read (and, when do_rewrite, rewrite)
+     *  @param captured Optional output pointer receiving the parsed property tree, or nullptr
+     *  @param do_rewrite Whether to rewrite the file in canonical form after reading it
+     *  @param rewrite_header The header for a rewrite; empty uses the standard auto-created header
+     *  @return true if the file already existed, false if it had to be created from defaults */
+    bool doParseConfigFile_(
+        std::filesystem::path const &config_file,
+        boost::property_tree::ptree *captured,
+        bool do_rewrite,
+        std::string const &rewrite_header = ""
+    );
+    /** @brief Builds the canonical configuration property tree (header + one entry per registered file
+     *  option: value = the current parsed/default value, default = the registered default). Shared by
+     *  writeConfigFile() and the update-in-place rewrite.
+     *  @param header The header comment (split on ';' into individual comment lines)
+     *  @param write_all Whether to also emit non-essential options
+     *  @return The assembled property tree */
+    boost::property_tree::ptree buildConfigPtree_(std::string const &header, bool write_all) const;
+    /** @brief Atomically replaces @p config_file with the JSON serialization of @p tree (writes a temp
+     *  sibling, then renames it over the target), bypassing the deliberate no-overwrite guard of
+     *  writeConfigFile() -- the update path is the one caller that legitimately overwrites an existing file.
+     *  @param config_file The target configuration file (.json) to replace
+     *  @param tree The property tree to serialize */
+    void atomicReplaceConfigFile_(
+        std::filesystem::path const &config_file,
+        boost::property_tree::ptree const &tree
+    ) const;
+
     static std::mutex
         configfile_parser_mutex_; ///< Synchronization of access to configuration files (may only happen serially)
     static bool
         unknown_key_is_error_; ///< If true, an unknown configuration-file key throws instead of warning (default: false)
     static bool
         check_unknown_keys_; ///< If true, a genuine config-file parse warns about keys no registered parameter consumes (default: true; group-aware, runs once per parse)
+    static bool
+        update_in_place_; ///< If true, a successful parseConfigFile() that read an existing file also rewrites it in canonical form (default: false)
 };
 
 /******************************************************************************/
