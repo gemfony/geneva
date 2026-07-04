@@ -41,10 +41,10 @@
 #include <vector>
 
 // Boost header files go here
-#include <boost/property_tree/ptree.hpp>
-#include <boost/property_tree/xml_parser.hpp>
+#include <boost/json.hpp>
 
 // Geneva header files go here
+#include "common/GJsonIO.hpp"
 #include "geneva/Go2.hpp"
 #include "geneva/individuals/GFunctionIndividual.hpp"
 #include "geneva/ind/GFlatGenome.hpp"
@@ -141,9 +141,9 @@ void printGenome(const std::string &title, const gen::GenomeData &g) {
  */
 int main() {
     //===========================================================================
-    // 1) A complete individual's genome, dumped to a boost::property_tree.
+    // 1) A complete individual's genome, dumped to a JSON document.
     //    The factory produces an individual with a full flat genome from its JSON
-    //    config; toPropertyTree() serialises that genome's parameters.
+    //    config; toJSON() serialises that genome's parameters.
 
     {
         std::shared_ptr<gind::GFunctionIndividualFactory> gfi_ptr(
@@ -156,17 +156,11 @@ int main() {
         gfi_test->set_processing_status(Gem::Courtier::processingStatus::DO_PROCESS);
         gfi_test->process();
 
-        boost::property_tree::ptree ptr;
-        gfi_test->toPropertyTree(ptr);
+        boost::json::object doc;
+        doc["parameterset"] = gfi_test->toJSON();
+        Gem::Common::writeJsonFile("result.json", doc);
 
-#if BOOST_VERSION > 105500
-        boost::property_tree::xml_writer_settings<std::string> settings('\t', 1);
-#else
-        boost::property_tree::xml_writer_settings<char> settings('\t', 1);
-#endif /* BOOST_VERSION */
-        boost::property_tree::write_xml("result.xml", ptr, std::locale(), settings);
-
-        // Now run this program and see the file "result.xml" for the output
+        // Now run this program and see the file "result.json" for the output
     }
 
     //===========================================================================

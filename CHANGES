@@ -111,6 +111,25 @@ Recommended Versions:
   config_file} objects. Existing GCUDAOptBenchmark.json files must be regenerated
   (delete the file and re-run, or adapt them to the new keys).
 
+- CHANGED: the individual-to-tree dump moved from Boost.PropertyTree/XML to JSON.
+  GOptimizableEntity::toPropertyTree() is replaced by toJSON(), which returns a
+  boost::json::object; a genome's parameters and results are now JSON arrays. Example
+  03 (GParameterObjectUsagePatterns) consequently writes "result.json" instead of
+  "result.xml".
+
+- INCOMPATIBLE: the external-evaluator IPC protocol changed from XML to JSON. The
+  files GExternalEvaluatorIndividual exchanges with the external program (the
+  parameter, result, setup and archive documents) are now JSON rather than XML, and
+  the temporary files carry a .json extension. The shipped reference evaluator
+  (example 12, evaluator/evaluator.py) has been rewritten to read and write this JSON
+  protocol. This is a breaking change for any third-party external evaluator: such
+  programs must be updated to the JSON schema (see evaluator.py for the reference
+  implementation). Backwards compatibility with the XML protocol is not retained.
+
+- REMOVED: Boost.PropertyTree is no longer used anywhere in Geneva; all structured
+  I/O (configuration files, individual dumps, the external-evaluator protocol) now
+  goes through Boost.JSON.
+
 - MODERNIZED: a tree-wide sweep adopting C++23 library idioms where they make the
   code simpler without changing behaviour, wire format, checkpoint format or numeric
   results -- std::string::contains, std::ranges algorithms with projections,

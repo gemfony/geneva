@@ -33,6 +33,7 @@
 #include "common/GCommonInterfaceT.hpp"
 #include "common/GExceptions.hpp"
 #include "common/GExpectationChecksT.hpp"
+#include "common/GJsonIO.hpp"
 #include "common/GLogger.hpp"
 #include "common/GParserBuilder.hpp"
 #include "geneva/GMultiConstraintT.hpp"
@@ -262,25 +263,21 @@ gen::GFlatGenome *GExternalEvaluatorIndividual::clone_() const {
  * @return The primary (first) result value returned by the external program
  */
 double GExternalEvaluatorIndividual::fitnessCalculation() {
-    // Transform this object into a boost property tree
-    boost::property_tree::ptree ptr_out; // NOLINT(cppcoreguidelines-init-variables)
+    namespace json = boost::json;
 
-    std::string batch = "batch";
-
-    // Output the header data
-    ptr_out.put(batch + ".dataType", std::string("run_parameters"));
-    ptr_out.put(batch + ".run_id", this->getRunId());
-    ptr_out.put(batch + ".n_individuals", static_cast<std::size_t>(1));
-
-    std::string basename = batch + ".individuals.individual0";
-    this->toPropertyTree(ptr_out, basename);
+    // Transform this object into a JSON batch document
+    json::object batch_out;
+    batch_out["dataType"] = "run_parameters";
+    batch_out["run_id"] = this->getRunId();
+    batch_out["n_individuals"] = static_cast<std::size_t>(1);
+    batch_out["individuals"] = json::array{this->toJSON()};
 
     // Create a suitable extension and exchange file names for this object
     std::string extension = std::string("-") +
                             Gem::Common::to_string(this->getAssignedIteration()) + "-" +
                             Gem::Common::to_string(this);
-    std::string parameterfile_name = parameter_file_base_name_ + extension + ".xml";
-    std::string result_file_name = std::string("result") + extension + ".xml";
+    std::string parameterfile_name = parameter_file_base_name_ + extension + ".json";
+    std::string result_file_name = std::string("result") + extension + ".json";
     std::string command_output_file_name = std::string("commandOutput") + extension + ".txt";
 
     // RAII guard: remove the three IPC temp files on scope exit, whether normal or via exception.
@@ -303,8 +300,7 @@ double GExternalEvaluatorIndividual::fitnessCalculation() {
     };
 
     // Save the parameters to a file for the external evaluation
-    boost::property_tree::xml_writer_settings<std::string> settings('\t', 1);
-    boost::property_tree::write_xml(parameterfile_name, ptr_out, std::locale(), settings);
+    Gem::Common::writeJsonFile(parameterfile_name, batch_out);
 
     // Collect all command-line arguments
     std::vector<std::string> arguments;
@@ -361,19 +357,72 @@ double GExternalEvaluatorIndividual::fitnessCalculation() {
             );
         }
 
-        // Parse the results
-        boost::property_tree::ptree
-            ptr_in; // A property tree object; // NOLINT(cppcoreguidelines-init-variables)
+        // Parse the results (GJsonIO throws a geneva_exception with the file name on a malformed file)
+        json::value result_doc = Gem::Common::parseJsonFile(result_file_name);
+
         try {
-            pt::read_xml(result_file_name, ptr_in);
+            json::object const &root = result_doc.as_object();
+
+            // Check that only a single result individual was returned
+            auto n_external_individuals = root.at("n_individuals").to_number<std::size_t>();
+            if(1 != n_external_individuals) {
+                throw geneva_exception(
+                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+                    << "In GExternalEvaluatorIndividual::fitnessCalculation(): Error!" << '\n'
+                    << "Number of result individuals != 1: " << n_external_individuals << '\n'
+                );
+            }
+
+            json::object const &result_individual = root.at("individuals").as_array().at(0).as_object();
+
+            // Check that the number of results provided by the result file matches the number of expected results
+            auto external_n_results = result_individual.at("n_results").to_number<std::size_t>();
+            if(external_n_results != n_results_) {
+                throw geneva_exception(
+                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+                    << "In GExternalEvaluatorIndividual::fitnessCalculation(): Error!" << '\n'
+                    << "Result file provides n_results = " << external_n_results << '\n'
+                    << "while we expected " << n_results_ << '\n'
+                );
+            }
+
+            // Check whether the results represent useful values
+            bool is_valid = result_individual.at("isValid").as_bool();
+            if(not is_valid) {                    // Assign worst-case values to all result
+                std::ostringstream error_message; // NOLINT(cppcoreguidelines-init-variables)
+
+                error_message << "In GExternalEvaluatorIndividual::fitnessCalculation():" << '\n'
+                              << "individuals[0].isValid is \"false\"" << '\n';
+
+#ifdef DEBUG
+                glogger << error_message.str() << GWARNING;
+#endif
+
+                main_result = this->getWorstCase();
+                for(std::size_t res = 1; res < n_results_; res++) {
+                    this->setResult(res, this->getWorstCase());
+                }
+
+                // Make sure the individual can be recognized as invalid by Geneva
+                this->force_set_error(error_message.str());
+            }
+            else { // Extract and store all result values
+                json::array const &results_node = result_individual.at("results").as_array();
+
+                double current_result = 0.;
+                for(std::size_t res = 0; res < n_results_; res++) {
+                    current_result = results_node.at(res).as_object().at("rawResult").to_number<double>();
+
+                    if(res == 0) {
+                        main_result = current_result;
+                    }
+
+                    this->setResult(res, current_result);
+                }
+            }
         }
-        catch(const boost::property_tree::xml_parser::xml_parser_error &e) {
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GExternalEvaluatorIndividual::fitnessCalculation(): Error  " << '\n'
-                << "Caught boost::property_tree::xml_parser::xml_parser_error" << '\n'
-                << "for file " << e.filename() << " (line " << e.line() << ")" << '\n'
-            );
+        catch(const geneva_exception &) {
+            throw; // re-throw our own diagnostics untouched
         }
         catch(const std::exception &e) {
             throw geneva_exception(
@@ -382,72 +431,6 @@ double GExternalEvaluatorIndividual::fitnessCalculation() {
                 << result_file_name << '\n'
                 << "with message " << e.what() << '\n'
             );
-        }
-
-        // Check that only a single result was returned
-        auto n_external_individuals = ptr_in.get<std::size_t>(
-            batch + ".n_individuals"
-        ); // NOLINT(cppcoreguidelines-init-variables)
-        if(1 != n_external_individuals) {
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GExternalEvaluatorIndividual::fitnessCalculation(): Error!" << '\n'
-                << "Number of result individuals != 1: " << n_external_individuals << '\n'
-            );
-        }
-
-        // Check that the number of results provided by the result file matches the number of expected results
-        auto external_n_results = ptr_in.get<std::size_t>(
-            "batch.individuals.individual0.n_results"
-        ); // NOLINT(cppcoreguidelines-init-variables)
-        if(external_n_results != n_results_) {
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GExternalEvaluatorIndividual::fitnessCalculation(): Error!" << '\n'
-                << "Result file provides n_results = " << external_n_results << '\n'
-                << "while we expected " << n_results_ << '\n'
-            );
-        }
-
-        // Check whether the results represent useful values
-        bool is_valid = ptr_in.get<bool>(
-            "batch.individuals.individual0.isValid"
-        );                                    // NOLINT(cppcoreguidelines-init-variables)
-        if(not is_valid) {                    // Assign worst-case values to all result
-            std::ostringstream error_message; // NOLINT(cppcoreguidelines-init-variables)
-
-            error_message << "In GExternalEvaluatorIndividual::fitnessCalculation():" << '\n'
-                          << "batch.individuals.individual0.isValid is \"false\"" << '\n';
-
-#ifdef DEBUG
-            glogger << error_message.str() << GWARNING;
-#endif
-
-            main_result = this->getWorstCase();
-            for(std::size_t res = 1; res < n_results_; res++) {
-                this->setResult(res, this->getWorstCase());
-            }
-
-            // Make sure the individual can be recognized as invalid by Geneva
-            this->force_set_error(error_message.str());
-        }
-        else { // Extract and store all result values
-            // Get the results node
-            pt::ptree results_node = ptr_in.get_child("batch.individuals.individual0.results");
-
-            double current_result = 0.;
-            std::string result_string;
-            for(std::size_t res = 0; res < n_results_; res++) {
-                result_string = std::string("rawResult") + Gem::Common::to_string(res);
-
-                current_result = results_node.get<double>(result_string);
-
-                if(res == 0) {
-                    main_result = current_result;
-                }
-
-                this->setResult(res, current_result);
-            }
         }
     }
 
@@ -575,7 +558,7 @@ void GExternalEvaluatorIndividual::describeConfig(Gem::Common::GParserBuilder &g
  * @return The flat genome structure (GenomeData) describing the discovered variables
  */
 gen::GenomeData GExternalEvaluatorIndividual::buildGenome(Config &c) {
-    namespace pt = boost::property_tree;
+    namespace json = boost::json;
 
     if(c.program_name.empty()) {
         throw geneva_exception(
@@ -592,7 +575,7 @@ gen::GenomeData GExternalEvaluatorIndividual::buildGenome(Config &c) {
         );
     }
 
-    pt::ptree ptr;
+    json::value setup_doc;
 
     { // Give the external program the opportunity to perform initial work
         std::vector<std::string> arguments;
@@ -621,7 +604,7 @@ gen::GenomeData GExternalEvaluatorIndividual::buildGenome(Config &c) {
             arguments.push_back(c.custom_options);
         }
         std::string setup_file_name =
-            std::string("./setup-") + Gem::Common::generate_uuid_v4() + std::string(".xml");
+            std::string("./setup-") + Gem::Common::generate_uuid_v4() + std::string(".json");
         arguments.push_back("--setup");
         arguments.push_back("--output=\"" + setup_file_name + "\"");
         arguments.push_back("--initvalues=\"" + c.init_values + "\"");
@@ -638,15 +621,15 @@ gen::GenomeData GExternalEvaluatorIndividual::buildGenome(Config &c) {
                 << "Error code: " << error_code << '\n'
             );
         }
-        pt::read_xml(setup_file_name, ptr);
+        setup_doc = Gem::Common::parseJsonFile(setup_file_name);
         std::filesystem::remove(std::filesystem::path(setup_file_name));
     }
 
-    if(ptr.empty()) {
+    if(not setup_doc.is_object()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GExternalEvaluatorIndividual::buildGenome(): Error!" << '\n'
-            << "Property tree is empty." << '\n'
+            << "Setup document is empty or not a JSON object." << '\n'
         );
     }
 
@@ -656,7 +639,9 @@ gen::GenomeData GExternalEvaluatorIndividual::buildGenome(Config &c) {
     gen::GGenomeBuilder gb;
 
     try {
-        auto n_individuals = ptr.get<std::size_t>("batch.n_individuals");
+        json::object const &root = setup_doc.as_object();
+
+        auto n_individuals = root.at("n_individuals").to_number<std::size_t>();
         if(1 != n_individuals) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
@@ -665,63 +650,48 @@ gen::GenomeData GExternalEvaluatorIndividual::buildGenome(Config &c) {
             );
         }
 
-        c.run_id = ptr.get<std::string>("batch.run_id");
-        auto n_var = ptr.get<std::size_t>("batch.individuals.individual0.nVars");
-        c.n_results_expected = ptr.get<std::size_t>("batch.individuals.individual0.n_results");
+        c.run_id = json::value_to<std::string>(root.at("run_id"));
+        json::object const &setup_individual = root.at("individuals").as_array().at(0).as_object();
+        auto n_var = setup_individual.at("nVars").to_number<std::size_t>();
+        c.n_results_expected = setup_individual.at("n_results").to_number<std::size_t>();
 
-        boost::optional<pt::ptree &> var_set_node_opt =
-            ptr.get_child_optional("batch.individuals.individual0.vars");
-        if(var_set_node_opt) {
-            std::size_t var_counter = 0;
-            std::string var_string = "var0";
-            for(const auto &[var_name, var_subtree] : *var_set_node_opt) {
-                if(var_string == var_name) {
-                    if("GConstrainedDoubleObject" == var_subtree.get<std::string>("type")) {
-                        auto min_var = var_subtree.get<double>("lowerBoundary");
-                        auto max_var = var_subtree.get<double>("upperBoundary");
-                        auto init_value = var_subtree.get<double>("values.value0");
-                        if(min_var == max_var) {
-                            // Take this as a sign that the parameter should not be modified.
-                            gb.addDouble(
-                                  init_value, init_value, std::max(1.0001 * init_value, init_value + 0.0001)
-                              )
-                                .adaptionMode(Gem::Geneva::adaptionMode::NEVER);
-                        }
-                        else {
-                            gb.addDouble(init_value, min_var, max_var);
-                        }
-                    }
-                    else {
-                        throw geneva_exception(
-                            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                            << "In GExternalEvaluatorIndividual::buildGenome(): Error!" << '\n'
-                            << var_subtree.get<std::string>("type") << " provided as type name." << '\n'
-                            << "Currently only GConstrainedDoubleObject is supported." << '\n'
-                        );
-                    }
-
-                    if(++var_counter >= n_var) {
-                        break;
-                    }
-                    var_string = std::string("var") + Gem::Common::to_string(var_counter);
-                }
-            }
-        }
-        else {
+        json::array const &var_set_node = setup_individual.at("vars").as_array();
+        if(var_set_node.empty()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GExternalEvaluatorIndividual::buildGenome(): Error!" << '\n'
                 << "No variables were specified" << '\n'
             );
         }
-    }
-    catch(const pt::ptree_bad_path &e) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GExternalEvaluatorIndividual::buildGenome(): Error!" << '\n'
-            << "Caught ptree_bad_path exception with message " << '\n'
-            << e.what() << '\n'
-        );
+
+        for(std::size_t var_counter = 0; var_counter < n_var && var_counter < var_set_node.size();
+            ++var_counter) {
+            json::object const &var_subtree = var_set_node.at(var_counter).as_object();
+            std::string var_type = json::value_to<std::string>(var_subtree.at("type"));
+            if("GConstrainedDoubleObject" == var_type) {
+                auto min_var = var_subtree.at("lowerBoundary").to_number<double>();
+                auto max_var = var_subtree.at("upperBoundary").to_number<double>();
+                auto init_value = var_subtree.at("values").as_array().at(0).to_number<double>();
+                if(min_var == max_var) {
+                    // Take this as a sign that the parameter should not be modified.
+                    gb.addDouble(
+                          init_value, init_value, std::max(1.0001 * init_value, init_value + 0.0001)
+                      )
+                        .adaptionMode(Gem::Geneva::adaptionMode::NEVER);
+                }
+                else {
+                    gb.addDouble(init_value, min_var, max_var);
+                }
+            }
+            else {
+                throw geneva_exception(
+                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+                    << "In GExternalEvaluatorIndividual::buildGenome(): Error!" << '\n'
+                    << var_type << " provided as type name." << '\n'
+                    << "Currently only GConstrainedDoubleObject is supported." << '\n'
+                );
+            }
+        }
     }
     catch(const geneva_exception &gec) {
         throw gec; // Re-throw
@@ -844,30 +814,27 @@ void GExternalEvaluatorIndividual::finalize(const Config &c) {
 void GExternalEvaluatorIndividual::archive(
     const std::vector<std::shared_ptr<GExternalEvaluatorIndividual>> &arch
 ) {
-    namespace pt = boost::property_tree;
+    namespace json = boost::json;
 
     if(arch.empty()) {
         return;
     }
 
-    pt::ptree ptr_out;
-    std::string batch = "batch";
-    ptr_out.put(batch + ".dataType", std::string("archive_data"));
-    ptr_out.put(batch + ".run_id", arch.front()->getRunId());
-    ptr_out.put(batch + ".n_individuals", arch.size());
+    json::object batch_out;
+    batch_out["dataType"] = "archive_data";
+    batch_out["run_id"] = arch.front()->getRunId();
+    batch_out["n_individuals"] = arch.size();
 
-    std::size_t pos = 0;
-    std::string basename;
+    json::array individuals;
     for(const auto &individual : arch) {
-        basename = batch + ".individuals.individual" + Gem::Common::to_string(pos++);
-        individual->toPropertyTree(ptr_out, basename);
+        individuals.push_back(individual->toJSON());
     }
+    batch_out["individuals"] = std::move(individuals);
 
     std::string parameterfile_name =
-        arch.front()->getExchangeBaseName() + "-" + Gem::Common::generate_uuid_v4() + ".xml";
+        arch.front()->getExchangeBaseName() + "-" + Gem::Common::generate_uuid_v4() + ".json";
 
-    pt::xml_writer_settings<std::string> settings('\t', 1);
-    pt::write_xml(parameterfile_name, ptr_out, std::locale(), settings);
+    Gem::Common::writeJsonFile(parameterfile_name, batch_out);
 
     std::vector<std::string> arguments;
     const std::string custom_options = arch.front()->getCustomOptions();

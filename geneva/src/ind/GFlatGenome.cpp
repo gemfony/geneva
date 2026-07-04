@@ -408,19 +408,27 @@ bool GFlatGenome::getVarVal_b_(std::size_t idx) {
 
 /******************************************************************************/
 /**
- * @brief Transformation of the individual's parameters into a boost::property_tree object.
- * @param ptr The property tree to populate (output)
- * @param base_name The dotted key prefix under which all entries for this individual are stored
+ * @brief Transformation of the individual's parameters into a JSON object.
+ *
+ * Returns the individual body only (no wrapping key); callers place it wherever they need it. The
+ * parameters live in a "vars" JSON array (index = position) and the results in a "results" JSON array,
+ * replacing the former positional var0/result0 keys. Numeric and boolean values are native JSON numbers
+ * and bools; the transformation policy is a string.
+ *
+ * @return A boost::json::object holding this individual's parameters, metadata and results
  */
-void GFlatGenome::toPropertyTree(pt::ptree &ptr, std::string const &base_name) const {
+boost::json::object GFlatGenome::toJSON() const {
+    namespace json = boost::json;
+
     bool dirty_flag = (Gem::Courtier::processingStatus::DO_PROCESS == this->getProcessingStatus());
     bool has_errors = this->has_errors();
 
-    ptr.put(base_name + ".iteration", this->getAssignedIteration());
-    ptr.put(base_name + ".is_dirty", dirty_flag);
-    ptr.put(base_name + ".has_errors", has_errors);
-    ptr.put(base_name + ".isValid", has_errors || dirty_flag ? false : this->isValid());
-    ptr.put(base_name + ".type", std::string("GFlatGenome"));
+    json::object body;
+    body["iteration"] = this->getAssignedIteration();
+    body["is_dirty"] = dirty_flag;
+    body["has_errors"] = has_errors;
+    body["isValid"] = has_errors || dirty_flag ? false : this->isValid();
+    body["type"] = "GFlatGenome";
 
     std::vector<double> d_data;
     std::vector<float> f_data;
@@ -432,43 +440,50 @@ void GFlatGenome::toPropertyTree(pt::ptree &ptr, std::string const &base_name) c
     this->streamline<bool>(b_data);
 
     const std::size_t n_vars = d_data.size() + f_data.size() + i_data.size() + b_data.size();
-    ptr.put(base_name + ".nVars", n_vars);
+    body["nVars"] = n_vars;
 
-    std::size_t pos = 0;
+    json::array vars;
     auto emit = [&](auto const &vec, const char *type_name) {
         for(auto const &val : vec) {
-            const std::string base = base_name + ".vars.var" + Gem::Common::to_string(pos);
-            ptr.put(base + ".value", val);
-            ptr.put(base + ".type", std::string(type_name));
-            ++pos;
+            json::object var;
+            var["value"] = val;
+            var["type"] = type_name;
+            vars.push_back(std::move(var));
         }
     };
     emit(d_data, "double");
     emit(f_data, "float");
     emit(i_data, "int32");
     emit(b_data, "bool");
+    body["vars"] = std::move(vars);
 
     switch(this->getEvaluationPolicy()) {
     case evaluationPolicy::USESIMPLEEVALUATION:
-        ptr.put(base_name + ".transformationPolicy", "USESIMPLEEVALUATION");
+        body["transformationPolicy"] = "USESIMPLEEVALUATION";
         break;
     case evaluationPolicy::USESIGMOID:
-        ptr.put(base_name + ".transformationPolicy", "USESIGMOID");
+        body["transformationPolicy"] = "USESIGMOID";
         break;
     case evaluationPolicy::USEWORSTCASEFORINVALID:
-        ptr.put(base_name + ".transformationPolicy", "USEWORSTCASEFORINVALID");
+        body["transformationPolicy"] = "USEWORSTCASEFORINVALID";
         break;
     }
 
-    ptr.put(base_name + ".n_results", this->getNStoredResults());
+    body["n_results"] = this->getNStoredResults();
+    json::array results;
     for(std::size_t i = 0; i < this->getNStoredResults(); i++) {
         const double raw_fitness =
             (dirty_flag || has_errors) ? this->getWorstCase() : this->raw_fitness(i);
         const double transformed_fitness =
             (dirty_flag || has_errors) ? this->getWorstCase() : this->transformed_fitness(i);
-        ptr.put(base_name + ".results.result" + Gem::Common::to_string(i), transformed_fitness);
-        ptr.put(base_name + ".results.rawResult" + Gem::Common::to_string(i), raw_fitness);
+        json::object result;
+        result["result"] = transformed_fitness;
+        result["rawResult"] = raw_fitness;
+        results.push_back(std::move(result));
     }
+    body["results"] = std::move(results);
+
+    return body;
 }
 
 /******************************************************************************/

@@ -46,8 +46,7 @@
 // Boost header files go here
 #include <boost/serialization/split_member.hpp>
 #include <boost/serialization/vector.hpp>
-#include <boost/property_tree/ptree.hpp>
-#include <boost/property_tree/ptree_serialization.hpp>
+#include <boost/json.hpp>
 
 // Geneva headers go here
 #include "common/GExceptions.hpp"
@@ -60,9 +59,6 @@
 #include "geneva/ind/GGenomeLayout.hpp"
 #include "geneva/ind/GGenomeLayoutSerialization.hpp"
 #include "geneva/ind/GGenomeBuilder.hpp"
-
-// aliases for ease of use
-namespace pt = boost::property_tree;
 
 namespace Gem::Geneva::Genome {
 
@@ -325,9 +321,9 @@ public:
     /***************************************************************************/
     // Algorithm-facing genome operations (the flat-genome overrides of the GOptimizableEntity virtuals).
 
-    /** @brief Transformation of the individual's parameters into a boost::property_tree object.
-     *  @param ptr The property tree to populate. @param base_name The base path / key prefix */
-    void toPropertyTree(pt::ptree &ptr, std::string const &base_name = "parameterset") const override;
+    /** @brief Transformation of the individual's parameters into a JSON object.
+     *  @return A boost::json::object holding this individual's parameters, metadata and results */
+    boost::json::object toJSON() const override;
 
     /** @brief Transformation of the individual's parameters into a list of comma-separated values.
      *  @param with_name_and_type Whether to prefix each value with its name and type

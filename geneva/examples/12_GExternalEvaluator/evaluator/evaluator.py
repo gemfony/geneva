@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 
 ################################################################################
 #
@@ -29,13 +29,17 @@
 #
 ################################################################################
 
+# The data exchanged with Geneva's GExternalEvaluatorIndividual is JSON. The three document
+# shapes are:
+#   setup_data     (this script -> Geneva): the problem structure (bounds, initial values)
+#   run_parameters (Geneva -> this script): the parameters to evaluate
+#   run_results    (this script -> Geneva): the computed result(s)
+# See the batch schema below; each uses a top-level object with an "individuals" array.
+
 import argparse
+import json
 import os
 import sys
-import xml.etree.ElementTree as ET
-
-from datetime import datetime
-from textwrap import dedent
 
 
 def init():
@@ -54,67 +58,47 @@ def finalize():
 
 def setup(setup_file, initial_values):
     """
-    Provide the problem setup data inside a file of the given name.
+    Provide the problem setup data inside a JSON file of the given name.
     """
 
-    # We write the XML "by-hand", as ElementTree does not support "pretty-printing"
-    header = """\
-    <!--
-        Problem setup file created by """ + command_name() + """
-        on """ + current_time() + """
-    -->
-    <batch>
-      <dataType>setup_data</dataType>
-      <run_id>0</run_id>
-      <n_individuals>1</n_individuals>
-      <individuals>
-        <individual0>
-          <type>GParameterSet</type>
-          <nVars>4</nVars>
-          <vars>\n"""
+    if initial_values == "min":
+        value, init_random = -10.0, False
+    elif initial_values == "max":
+        value, init_random = 10.0, False
+    else:
+        value, init_random = 0.0, True
 
-    content = header
+    variables = []
     for i in range(4):
-        content += "            <var" + str(i) + ">\n"
-        content += "              <name>coord_" + str(i) + "</name>\n"
-        content += "              <type>GConstrainedDoubleObject</type>\n"
-        content += "              <baseType>double</baseType>\n"
-        content += "              <isLeaf>true</isLeaf>\n"
-        content += "              <nVals>1</nVals>\n"
-        if initial_values == "min":
-            content += "              <values>\n"
-            content += "                <value0>-10.0</value0>\n"
-            content += "              </values>\n"
-            content += "              <lowerBoundary>-10.0</lowerBoundary>\n"
-            content += "              <upperBoundary>10.0</upperBoundary>\n"
-            content += "              <initRandom>false</initRandom>\n"
-        elif initial_values == "max":
-            content += "              <values>\n"
-            content += "                <value0>10.0</value0>\n"
-            content += "              </values>\n"
-            content += "              <lowerBoundary>-10.0</lowerBoundary>\n"
-            content += "              <upperBoundary>10.0</upperBoundary>\n"
-            content += "              <initRandom>false</initRandom>\n"
-        else:
-            content += "              <values>\n"
-            content += "                <value0>0.0</value0>\n"
-            content += "              </values>\n"
-            content += "              <lowerBoundary>-10.0</lowerBoundary>\n"
-            content += "              <upperBoundary>10.0</upperBoundary>\n"
-            content += "              <initRandom>true</initRandom>\n"
-        content += "          </var" + str(i) + ">\n"
+        variables.append({
+            "name": "coord_" + str(i),
+            "type": "GConstrainedDoubleObject",
+            "baseType": "double",
+            "isLeaf": True,
+            "nVals": 1,
+            "values": [value],
+            "lowerBoundary": -10.0,
+            "upperBoundary": 10.0,
+            "initRandom": init_random,
+        })
 
-    content += """\
-          </vars>
-          <nBounds>0</nBounds>
-          <n_results>1</n_results>
-        </individual0>
-      </individuals>
-    </batch>
-    """
+    document = {
+        "dataType": "setup_data",
+        "run_id": "0",
+        "n_individuals": 1,
+        "individuals": [
+            {
+                "type": "GFlatGenome",
+                "nVars": 4,
+                "n_results": 1,
+                "nBounds": 0,
+                "vars": variables,
+            }
+        ],
+    }
 
     with open(setup_file, 'w') as infile:
-        infile.write(dedent(content))
+        json.dump(document, infile, indent=4)
 
 def evaluate(in_file, out_file):
     """
@@ -145,35 +129,27 @@ def process_input(in_file):
 
 def write_output(out_file, iteration, it_id, result):
     """
-    Write the output file containing the calculated results.
+    Write the JSON output file containing the calculated results.
     """
-    # We write the XML "by-hand", as ElementTree does not support "pretty-printing"
-    header = """\
-    <!--
-        Results file created by """ + command_name() + """
-        on """ + current_time() + """
-        for iteration """ + str(iteration) + """
-    -->
-    <batch>
-      <dataType>run_results</dataType>
-      <run_id>0</run_id>
-      <n_individuals>1</n_individuals>
-      <individuals>
-        <individual0>
-          <iteration>""" + str(iteration) + """</iteration>
-          <id>""" + str(it_id) + """</id>
-          <isValid>true</isValid>
-          <isDirty>false</isDirty>
-          <n_results>1</n_results>
-          <results>
-            <rawResult0>""" + str(result) + """</rawResult0>
-          </results>
-        </individual0>
-      </individuals>
-    </batch>
-    """
+    document = {
+        "dataType": "run_results",
+        "run_id": "0",
+        "n_individuals": 1,
+        "individuals": [
+            {
+                "iteration": iteration,
+                "id": str(it_id),
+                "isValid": True,
+                "isDirty": False,
+                "n_results": 1,
+                "results": [
+                    {"rawResult": result}
+                ],
+            }
+        ],
+    }
     with open(out_file, 'w') as ofile:
-        ofile.write(dedent(header))
+        json.dump(document, ofile, indent=4)
 
 def archive_output(iteration, it_id, result):
     """
@@ -185,48 +161,45 @@ def archive_output(iteration, it_id, result):
 
 def read_input(in_file):
     """
-    Read the input file and extract the parameters for the run.
+    Read the JSON input file and extract the parameters for the run.
     """
 
-    xmltree = None
     try:
         with open(in_file) as ifile:
-            xmltree = ET.parse(ifile)
-    except ET.ParseError as e:
-        sys.exit("\nERROR: parsing error on input file '"
-                 + in_file.name + "':\n\t" + str(e))
+            document = json.load(ifile)
+    except (OSError, ValueError) as e:
+        sys.exit("\nERROR: parsing error on input file '" + str(in_file) + "':\n\t" + str(e))
 
-    root = xmltree.getroot()
     #
-    # More error handling needed here, in case the XML file
-    # doesn't have the expected structure
+    # More error handling would be needed here in case the JSON file
+    # doesn't have the expected structure.
     #
-    ind = root.find("./individuals/individual0")
+    ind = document["individuals"][0]
+
     try:
-        iteration = int(ind.find("./iteration").text)
-    except:
+        iteration = int(ind["iteration"])
+    except (KeyError, ValueError, TypeError):
         iteration = -1
 
     try:
-        it_id = ind.find("./id").text
-    except:
+        it_id = ind["id"]
+    except KeyError:
         it_id = "UNKNOWN_ID"
 
-    nr_params = int(ind.find("./nVars").text)
-
+    nr_params = int(ind["nVars"])
     if nr_params != 4:
         sys.exit("\nERROR: unexpected parameter: nVars=" + str(nr_params) + " (expected 4)!")
 
-    # The flat genome (GFlatGenome::toPropertyTree) writes one scalar <value> per <varN>.
-    params = ind.findall("./vars/*")
+    # The flat genome (GFlatGenome::toJSON) writes one scalar "value" per entry of the "vars" array.
+    params = ind["vars"]
     if len(params) != nr_params:
         sys.exit("\nERROR: inconsistent data in input file: nVars=" + str(nr_params)
                  + ", but found " + str(len(params)) + " parameters!")
 
-    x = float(ind.find("./vars/var0/value").text)
-    y = float(ind.find("./vars/var1/value").text)
-    z = float(ind.find("./vars/var2/value").text)
-    w = float(ind.find("./vars/var3/value").text)
+    x = float(params[0]["value"])
+    y = float(params[1]["value"])
+    z = float(params[2]["value"])
+    w = float(params[3]["value"])
 
     return (iteration, it_id, x, y, z, w)
 
@@ -256,11 +229,11 @@ def main(argv):
                        action="store_true")
 
     parser.add_argument("--input", help="Read the input data from the given file"
-                        " (default: 'input.xml')",
-                        metavar='IN_FILE', default="input.xml")
+                        " (default: 'input.json')",
+                        metavar='IN_FILE', default="input.json")
     parser.add_argument("--output", help="Write the results to the given file"
-                        " (default: 'output.xml')",
-                        metavar='OUT_FILE', default="output.xml")
+                        " (default: 'output.json')",
+                        metavar='OUT_FILE', default="output.json")
 
     args = parser.parse_args()
 
@@ -290,10 +263,6 @@ def main(argv):
 def command_name():
     """Return a cleaned up name of this program."""
     return os.path.basename(sys.argv[0])
-
-def current_time():
-    """Return the current date/time as a string."""
-    return str(datetime.now())
 
 if __name__ == "__main__":
     main(sys.argv[1:])

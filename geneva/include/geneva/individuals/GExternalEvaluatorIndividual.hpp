@@ -42,8 +42,7 @@
 #include <vector>
 
 // Boost header files go here
-#include <boost/property_tree/ptree.hpp>
-#include <boost/property_tree/xml_parser.hpp>
+#include <boost/json.hpp>
 
 // Geneva header files go here
 #include "common/GCommonEnums.hpp"
@@ -107,13 +106,14 @@ const bool GEEI_DEF_REMOVETEMPORARIES = "true";
  * arguments with obvious meanings
  *
  * --init
- * --setup --init_values=[min/max/random] --output="setupFile.xml"
- * --evaluate --input="paramsFile.xml"   --output="result_file.xml"
- * --archive  --input="archiveFile.xml"
+ * --setup --init_values=[min/max/random] --output="setupFile.json"
+ * --evaluate --input="paramsFile.json"   --output="result_file.json"
+ * --archive  --input="archiveFile.json"
  * --finalize
  *
- * The xml parameter files are created using boost::property_tree and its write_xml
- * utility. Hence the external program needs to understand the XML format.
+ * The parameter / result / setup files exchanged with the external program are JSON documents
+ * (see the shipped evaluator.py reference implementation for the schema). Hence the external
+ * program needs to read and write this JSON format.
  */
 class GExternalEvaluatorIndividual
   : public gen::GFlatGenome { // NOLINT(cppcoreguidelines-special-member-functions)

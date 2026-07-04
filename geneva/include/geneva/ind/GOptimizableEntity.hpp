@@ -48,8 +48,7 @@
 #include <boost/serialization/nvp.hpp>
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/vector.hpp>
-#include <boost/property_tree/ptree.hpp>
-#include <boost/property_tree/ptree_serialization.hpp>
+#include <boost/json.hpp>
 
 // Geneva headers go here
 #include "common/GCommonHelperFunctionsT.hpp"
@@ -68,9 +67,6 @@
 #include "geneva/ind/GIndividualProcessingResult.hpp"
 #include "geneva/ind/GProblemPolicy.hpp"
 #include "hap/GRandomT.hpp"
-
-// aliases for ease of use
-namespace pt = boost::property_tree;
 
 namespace Gem::Geneva::Genome {
 
@@ -99,7 +95,7 @@ namespace Gem::Geneva::Genome {
  *
  * The algorithms reach the parameters THROUGH THIS BASE: the genome value API (streamline<T> /
  * assignValueVector<T> / countParameters<T> / boundaries<T> + the FP / internal views + getVarVal<T> +
- * toPropertyTree / toCSV / crossOverWith / cannibalize) is declared here, dispatching to pure-virtual
+ * toJSON / toCSV / crossOverWith / cannibalize) is declared here, dispatching to pure-virtual
  * hooks that the value-bearing genome layer (GFlatGenome) implements. "Read my parameters as a vector" is
  * a universal optimization operation; only the storage is genome-specific. This keeps the assembly
  * representation-agnostic: a future non-flat genome would derive GOptimizableEntity directly.
@@ -747,9 +743,10 @@ public:
     // Algorithm-facing genome operations (declared here so the algorithms reach them through the base;
     // the flat genome implements them over its value channels).
 
-    /** @brief Transformation of the entity's parameters into a boost::property_tree object.
-     *  @param ptr The property tree to populate. @param base_name The base path / key prefix */
-    virtual void toPropertyTree(pt::ptree &ptr, std::string const &base_name = "parameterset") const = 0;
+    /** @brief Transformation of the entity's parameters into a JSON object.
+     *  @return A boost::json::object holding this entity's parameters, metadata and results (the body only;
+     *          callers place it under whatever key they need) */
+    virtual boost::json::object toJSON() const = 0;
 
     /** @brief Transformation of the entity's parameters into a list of comma-separated values.
      *  @param with_name_and_type Whether to prefix each value with its name and type
