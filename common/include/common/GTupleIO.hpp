@@ -45,10 +45,13 @@
 
 // Standard headers go here
 #include <iostream>
+#include <ranges>
 #include <sstream>
 #include <string>
+#include <string_view>
 #include <tuple>
 #include <type_traits>
+#include <vector>
 
 // Gemfony headers go here
 
@@ -59,122 +62,10 @@ namespace Gem::Common {
 
 /******************************************************************************/
 /**
- * @brief A compile-time index tag used to drive (and terminate) the tuple-printing recursion.
+ * @brief Renders any stream-insertable type to a string via operator<<.
  *
- * Its only purpose is to serve as a stop criterion: the recursion stops at tuple_output_seq<1>
- * (the terminator that emits the last element) for tuples of two or more elements, and at
- * tuple_output_seq<0> (which appends nothing) for a single-element tuple.
- *
- * @tparam The remaining number of tuple elements still to be appended
- */
-template <std::size_t>
-struct tuple_output_seq { /* nothing */
-};
-
-/******************************************************************************/
-/**
- * @brief General recursive step of tuple-to-string conversion (@p p >= 2).
- *
- * Appends ", <get<N-p>(t)>" to the accumulator @c s and recurses one position deeper.
- * The previous version passed @c oss.str() as the next @c s instead of @c s + oss.str(),
- * so the accumulator was overwritten at every level — the final string then carried only
- * the deepest contribution and dropped/duplicated earlier ones.
- *
- * @tparam tuple_type The std::tuple type being rendered
- * @tparam p The number of elements still to be appended (also the index tag value)
- * @param t The tuple whose elements are being rendered
- * @param s The accumulated string built up by previous recursion levels
- * @param sq Index tag selecting this overload; encodes the remaining element count (unused at run time)
- * @return The accumulated string with all remaining elements appended
- */
-template <class tuple_type, size_t p>
-std::string g_to_string(
-    const tuple_type &t,
-    const std::string &s,
-    [[maybe_unused]] tuple_output_seq<p> sq
-) {
-    std::ostringstream oss; // NOLINT(cppcoreguidelines-init-variables)
-    oss << s << ", " << std::get<std::tuple_size_v<tuple_type> - p>(t);
-    return g_to_string(t, oss.str(), tuple_output_seq<p - 1>());
-}
-
-/******************************************************************************/
-/**
- * @brief Recursion terminator at @c tuple_output_seq<1>: emits the last tuple element and stops.
- *
- * Appends the LAST tuple element prefixed by the @c ", " separator. Must follow the same
- * @c tuple_size − p indexing as the general overload above (here, p = 1, so the index is
- * @c tuple_size − 1). When the wrapper above seeds the accumulator with the first element,
- * this overload appends one more element on its own; multi-step recursion eventually lands here too.
- *
- * @tparam tuple_type The std::tuple type being rendered
- * @param t The tuple whose elements are being rendered
- * @param s The accumulated string built up by previous recursion levels
- * @param sq Index tag selecting the single-remaining-element overload (unused at run time)
- * @return The accumulated string with the final element appended
- */
-template <class tuple_type>
-std::string g_to_string(
-    const tuple_type &t,
-    const std::string &s,
-    [[maybe_unused]] tuple_output_seq<1> sq
-) {
-    std::ostringstream oss; // NOLINT(cppcoreguidelines-init-variables)
-    oss << s << ", " << std::get<std::tuple_size_v<tuple_type> - 1>(t);
-    return oss.str();
-}
-
-/******************************************************************************/
-/**
- * @brief Single-element terminator at @c tuple_output_seq<0>.
- *
- * The wrapper seeds the accumulator with the first element already, so for a 1-tuple there
- * is nothing more to append; just return the accumulator. (The empty-tuple case is handled
- * directly in the wrapper.)
- *
- * @tparam tuple_type The std::tuple type being rendered
- * @param t The tuple being rendered (unused: nothing left to append)
- * @param s The accumulated string to be returned unchanged
- * @param sq Index tag selecting the zero-remaining-element overload (unused at run time)
- * @return The accumulated string @p s unchanged
- */
-template <class tuple_type>
-std::string g_to_string(
-    [[maybe_unused]] const tuple_type & t
-    ,
-    const std::string &s,
-    [[maybe_unused]] tuple_output_seq<0> sq
-) {
-    return s;
-}
-
-/******************************************************************************/
-/**
- * @brief Renders a std::tuple to a parenthesised, comma-separated string.
- *
- * Seeds the accumulator with the first element (so the recursive helpers above never need
- * to special-case the "no leading separator" prefix), then recurses over the remaining
- * elements. Empty tuples render as "()".
- *
- * @tparam args The element types of the tuple
- * @param t The tuple to be converted to a string
- * @return The tuple rendered as "(e0, e1, ...)", or "()" for an empty tuple
- */
-template <class... args>
-std::string g_to_string(const std::tuple<args...> &t) {
-    constexpr std::size_t sz = sizeof...(args);
-    if constexpr (sz == 0) {
-        return std::string("()");
-    } else {
-        std::ostringstream oss; // NOLINT(cppcoreguidelines-init-variables)
-        oss << std::get<0>(t);
-        return std::string("(") + g_to_string(t, oss.str(), tuple_output_seq<sz - 1>()) +
-               std::string(")");
-    }
-}
-/******************************************************************************/
-/**
- * @brief Renders any other stream-insertable type to a string via operator<<.
+ * Declared ahead of the tuple overload so that the tuple renderer's per-element
+ * recursion resolves to it by ordinary unqualified lookup.
  *
  * @tparam T The type to be rendered (must support operator<< into an std::ostream)
  * @param t The value to be converted to a string
@@ -185,6 +76,34 @@ std::string g_to_string(const T &t) {
     std::ostringstream oss; // NOLINT(cppcoreguidelines-init-variables)
     oss << t;
     return oss.str();
+}
+
+/******************************************************************************/
+/**
+ * @brief Renders a std::tuple to a parenthesised, comma-separated string.
+ *
+ * Each element is rendered via g_to_string (so a nested tuple renders parenthesised and any
+ * other type goes through operator<<), and the rendered elements are joined with ", " between
+ * them via std::views::join_with — no "separator unless last element" special case. Empty
+ * tuples render as "()".
+ *
+ * @tparam args The element types of the tuple
+ * @param t The tuple to be converted to a string
+ * @return The tuple rendered as "(e0, e1, ...)", or "()" for an empty tuple
+ */
+template <class... args>
+std::string g_to_string(const std::tuple<args...> &t) {
+    std::vector<std::string> parts;
+    parts.reserve(sizeof...(args));
+    std::apply(
+        [&parts](const auto &...elems) {
+            (parts.push_back(g_to_string(elems)), ...);
+        },
+        t
+    );
+    return "(" +
+           (parts | std::views::join_with(std::string_view(", ")) | std::ranges::to<std::string>()) +
+           ")";
 }
 
 /******************************************************************************/

@@ -35,6 +35,7 @@
 // Standard headers go here
 #include <algorithm>
 #include <deque>
+#include <ranges>
 #include <unordered_set>
 
 // Boost headers go here
@@ -433,13 +434,7 @@ public:
              * @return A std::vector holding the stored items in priority order (best first)
              */
     std::vector<std::shared_ptr<T>> toVector() const {
-        std::vector<std::shared_ptr<T>> result;
-
-        for(auto const &item_ptr : data_deq_) {
-            result.push_back(item_ptr);
-        }
-
-        return result;
+        return std::ranges::to<std::vector<std::shared_ptr<T>>>(data_deq_);
     }
 
     /***************************************************************************/

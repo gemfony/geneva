@@ -1246,11 +1246,7 @@ public:
         for(std::size_t i = 0; i < count; ++i) {
             clones.push_back(clone_into_stored(item_ptr));
         }
-        data_cnt_.insert(
-            pos,
-            std::make_move_iterator(clones.begin()),
-            std::make_move_iterator(clones.end())
-        );
+        data_cnt_.insert_range(pos, clones | std::views::as_rvalue);
     }
 
     /**
@@ -1311,11 +1307,7 @@ public:
         for(std::size_t i = 0; i < count - 1; ++i) {
             to_insert.push_back(clone_into_stored(to_insert.front()));
         }
-        data_cnt_.insert(
-            pos,
-            std::make_move_iterator(to_insert.begin()),
-            std::make_move_iterator(to_insert.end())
-        );
+        data_cnt_.insert_range(pos, to_insert | std::views::as_rvalue);
     }
 
     // ------------------------------------------------------------------

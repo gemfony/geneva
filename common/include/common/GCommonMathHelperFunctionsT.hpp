@@ -40,6 +40,7 @@
 #include <fstream>
 #include <iostream>
 #include <limits>
+#include <ranges>
 #include <sstream>
 #include <string>
 #include <tuple>
@@ -399,7 +400,7 @@ int_type checkValueRange(
  */
 template <typename x_type_undet>
 auto getMinMax(const std::vector<x_type_undet> &ext_dat) {
-    if(ext_dat.size() < static_cast<std::size_t>(2)) {
+    if(ext_dat.size() < 2uz) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GBasePlotter::getMinMax(1D): Error!" << '\n'
@@ -426,7 +427,7 @@ auto getMinMax(const std::vector<x_type_undet> &ext_dat) {
 template <typename x_type_undet, typename y_type_undet>
 auto getMinMax(const std::vector<std::tuple<x_type_undet, y_type_undet>> &ext_dat) {
     // Do some error checking
-    if(ext_dat.size() < static_cast<std::size_t>(2)) {
+    if(ext_dat.size() < 2uz) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GBasePlotter::getMinMax(2D): Error!" << '\n'
@@ -478,7 +479,7 @@ auto getMinMax(const std::vector<std::tuple<x_type_undet, y_type_undet>> &ext_da
 template <typename x_type_undet, typename y_type_undet, typename z_type_undet>
 auto getMinMax(const std::vector<std::tuple<x_type_undet, y_type_undet, z_type_undet>> &ext_dat) {
     // Do some error checking
-    if(ext_dat.size() < static_cast<std::size_t>(2)) {
+    if(ext_dat.size() < 2uz) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GBasePlotter::getMinMax(3D): Error!" << '\n'
@@ -548,7 +549,7 @@ auto getMinMax(
     const std::vector<std::tuple<x_type_undet, y_type_undet, z_type_undet, w_type_undet>> &ext_dat
 ) {
     // Do some error checking
-    if(ext_dat.size() < static_cast<std::size_t>(2)) {
+    if(ext_dat.size() < 2uz) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GBasePlotter::getMinMax(4D): Error!" << '\n'
@@ -675,7 +676,7 @@ auto GStandardDeviation(const std::vector<T> &par_vec) {
 template <std::size_t B, std::size_t E>
 constexpr std::size_t PowSmallPosInt() {
     if constexpr(E == 0) {
-        return static_cast<std::size_t>(1);
+        return 1uz;
     }
     else if constexpr(E == 1) {
         return B;
@@ -980,8 +981,8 @@ std::vector<std::tuple<fp_type, fp_type, fp_type, fp_type>> getRatioErrors(
 
     std::vector<std::tuple<fp_type, fp_type, fp_type, fp_type>> spn;
     spn.reserve(sn.size());
-    for(std::size_t i = 0; i < sn.size(); ++i) {
-        spn.push_back(getRatioError(sn[i], pn[i]));
+    for(auto const &[s, p] : std::views::zip(sn, pn)) {
+        spn.push_back(getRatioError(s, p));
     }
 
     return spn;
