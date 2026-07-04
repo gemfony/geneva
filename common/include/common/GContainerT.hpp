@@ -1081,9 +1081,8 @@ public:
                 << "Tried to count with an empty smart pointer." << '\n'
             );
         }
-        return Gem::Common::narrow<size_type>(std::count_if(
-            data_cnt_.begin(),
-            data_cnt_.end(),
+        return Gem::Common::narrow<size_type>(std::ranges::count_if(
+            data_cnt_,
             [&item](const StoredType &cont_item) -> bool {
                 auto cast = std::dynamic_pointer_cast<ItemType>(cont_item);
                 return cast && (*item == *cast);
@@ -1111,9 +1110,8 @@ public:
                 << "Tried to find an empty smart pointer." << '\n'
             );
         }
-        return std::find_if(
-            data_cnt_.begin(),
-            data_cnt_.end(),
+        return std::ranges::find_if(
+            data_cnt_,
             [&item](const StoredType &cont_item) -> bool {
                 auto cast = std::dynamic_pointer_cast<ItemType>(cont_item);
                 return cast && (*item == *cast);

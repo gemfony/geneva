@@ -33,6 +33,7 @@
 #include "common/GGlobalDefines.hpp"
 
 // Standard header files go here
+#include <algorithm>
 #include <cmath>
 #include <cstdint>
 #include <istream>
@@ -994,10 +995,7 @@ private:
     static void seedGauss(GAuxiliaryStore &scratch, const std::vector<GroupSpec<T>> &groups, Gem::Geneva::Genome::AuxKey key) {
         using Gem::Geneva::Genome::GaussState;
         using Gem::Geneva::Genome::AuxScope;
-        bool any = false;
-        for(const GroupSpec<T> &g : groups) {
-            if(g.has_gauss) { any = true; break; }
-        }
+        bool any = std::ranges::any_of(groups, [](const GroupSpec<T> &g) { return g.has_gauss; });
         if(not any) {
             return;
         }
@@ -1022,10 +1020,7 @@ private:
     static void seedBiGauss(GAuxiliaryStore &scratch, const std::vector<GroupSpec<T>> &groups, Gem::Geneva::Genome::AuxKey key) {
         using Gem::Geneva::Genome::BiGaussState;
         using Gem::Geneva::Genome::AuxScope;
-        bool any = false;
-        for(const GroupSpec<T> &g : groups) {
-            if(g.has_bigauss) { any = true; break; }
-        }
+        bool any = std::ranges::any_of(groups, [](const GroupSpec<T> &g) { return g.has_bigauss; });
         if(not any) {
             return;
         }
@@ -1052,10 +1047,7 @@ private:
     static void seedFlip(GAuxiliaryStore &scratch, const std::vector<GroupSpec<T>> &groups, Gem::Geneva::Genome::AuxKey key) {
         using Gem::Geneva::Genome::FlipState;
         using Gem::Geneva::Genome::AuxScope;
-        bool any = false;
-        for(const GroupSpec<T> &g : groups) {
-            if(g.has_flip) { any = true; break; }
-        }
+        bool any = std::ranges::any_of(groups, [](const GroupSpec<T> &g) { return g.has_flip; });
         if(not any) {
             return;
         }

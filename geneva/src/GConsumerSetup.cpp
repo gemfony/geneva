@@ -30,6 +30,7 @@
 #include "geneva/GConsumerSetup.hpp"
 
 // Standard headers
+#include <algorithm>
 #include <cstddef>
 #include <cstdint>
 #include <string>
@@ -306,12 +307,8 @@ constexpr C2ConsumerInfo kC2Consumers[] = {
  * @return Pointer to the matching table entry, or nullptr if the mnemonic is unknown
  */
 const C2ConsumerInfo *findC2Consumer(const std::string &mnemonic) {
-    for(const auto &info : kC2Consumers) {
-        if(mnemonic == info.mnemonic) {
-            return &info;
-        }
-    }
-    return nullptr;
+    auto it = std::ranges::find_if(kC2Consumers, [&](const auto &info) { return mnemonic == info.mnemonic; });
+    return it != std::ranges::end(kC2Consumers) ? &*it : nullptr;
 }
 
 } /* anonymous namespace */

@@ -446,9 +446,8 @@ void GAntColonyOptimization::sortArchive() {
     // Build an index permutation and sort it (cheaper than moving the vectors).
     std::vector<std::size_t> order(n);
     std::iota(order.begin(), order.end(), static_cast<std::size_t>(0));
-    std::sort(order.begin(), order.end(), [this](std::size_t a, std::size_t b) {
-        return archive_fitness_[a] < archive_fitness_[b]; // min-only: smaller is better
-    });
+    // min-only: smaller fitness is better
+    std::ranges::sort(order, std::ranges::less{}, [this](std::size_t i) { return archive_fitness_[i]; });
 
     std::vector<std::vector<double>> sorted_parms;
     std::vector<double> sorted_fitness;

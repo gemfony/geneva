@@ -1386,12 +1386,11 @@ std::tuple<double, double> GSwarmAlgorithm::findBests() {
         std::size_t last_counter = getLastNIPos(n);
 
         // Only partially sort the arrays
-        std::sort(
+        std::ranges::sort(
             this->begin() + first_counter,
             this->begin() + last_counter,
-            [](const auto &x_ptr, const auto &y_ptr) -> bool {
-                return minOnly_transformed_fitness((*x_ptr)) < minOnly_transformed_fitness((*y_ptr));
-            }
+            std::ranges::less{},
+            [](const auto &x_ptr) { return minOnly_transformed_fitness((*x_ptr)); }
         );
 
         // Check whether the best individual of the neighborhood is better than

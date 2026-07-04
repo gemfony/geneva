@@ -633,23 +633,12 @@ void GParChild::fixAfterJobSubmission() {
     auto old_work_items = this->getOldWorkItems();
 
     // Make it known to remaining old individuals that they are now part of a new iteration
-    std::for_each(
-        old_work_items.begin(),
-        old_work_items.end(),
-        [iteration](const auto &p) { p->setAssignedIteration(iteration); }
-    );
+    std::ranges::for_each(old_work_items, [iteration](const auto &p) { p->setAssignedIteration(iteration); });
 
     // Make sure that parents are at the beginning of the array.
-    std::sort(
-        this->begin(),
-        this->end(),
-        [](const auto &x, const auto &y) -> bool {
-            return (
-                x->template getPersonalityTraits<GBaseParChildPersonalityTraits>()->isParent() >
-                y->template getPersonalityTraits<GBaseParChildPersonalityTraits>()->isParent()
-            );
-        }
-    );
+    std::ranges::sort(*this, std::ranges::greater{}, [](const auto &p) {
+        return p->template getPersonalityTraits<GBaseParChildPersonalityTraits>()->isParent();
+    });
 
     // Attach all surviving old work items to the end of the current population and clear the array of old
     // items. A late return arrives with a stale/empty personality, so install the correct concrete one

@@ -33,6 +33,7 @@
 #include "common/GGlobalDefines.hpp"
 
 // Standard headers go here
+#include <algorithm>
 #include <array>
 #include <cstdlib>
 #include <filesystem>
@@ -2316,9 +2317,8 @@ public:
     template <typename fileParsableDerivative>
     std::shared_ptr<fileParsableDerivative>
     file_at(std::string const &option_name) { // NOLINT(misc-unused-parameters)
-        auto it = std::find_if(
-            file_parameter_proxies_.begin(),
-            file_parameter_proxies_.end(),
+        auto it = std::ranges::find_if(
+            file_parameter_proxies_,
             [&](std::shared_ptr<GFileParsableI> const &candidate_ptr) {
                 return (candidate_ptr->GParsableI::optionName(0) == option_name);
             }
@@ -2343,9 +2343,8 @@ public:
     template <typename clParsableDerivative>
     std::shared_ptr<clParsableDerivative>
     cl_at(std::string const &option_name) { // NOLINT(misc-unused-parameters)
-        auto it = std::find_if(
-            cl_parameter_proxies_.begin(),
-            cl_parameter_proxies_.end(),
+        auto it = std::ranges::find_if(
+            cl_parameter_proxies_,
             [&](std::shared_ptr<GCLParsableI> const &candidate_ptr) {
                 return (candidate_ptr->GParsableI::optionName(0) == option_name);
             }
@@ -2381,9 +2380,8 @@ public:
         std::string const &comment = std::string()
     ) {
 #ifdef DEBUG
-        auto it = std::find_if(
-            file_parameter_proxies_.begin(),
-            file_parameter_proxies_.end(),
+        auto it = std::ranges::find_if(
+            file_parameter_proxies_,
             [&](std::shared_ptr<GFileParsableI> const &candidate_ptr) {
                 return (candidate_ptr->GParsableI::optionName(0) == option_name);
             }
@@ -2442,9 +2440,8 @@ public:
         std::string const &comment = std::string()
     ) {
 #ifdef DEBUG
-        auto it = std::find_if(
-            file_parameter_proxies_.begin(),
-            file_parameter_proxies_.end(),
+        auto it = std::ranges::find_if(
+            file_parameter_proxies_,
             [&](std::shared_ptr<GFileParsableI> const &candidate_ptr) {
                 return (candidate_ptr->GParsableI::optionName(0) == option_name);
             }
@@ -2547,9 +2544,8 @@ public:
     ) {
 #ifdef DEBUG
         // Check whether the option already exists
-        auto it = std::find_if(
-            file_parameter_proxies_.begin(),
-            file_parameter_proxies_.end(),
+        auto it = std::ranges::find_if(
+            file_parameter_proxies_,
             [&](std::shared_ptr<GFileParsableI> const &candidate_ptr) {
                 return (candidate_ptr->GParsableI::optionName(0) == option_name1);
             }
@@ -2656,9 +2652,8 @@ public:
     ) {
 #ifdef DEBUG
         // Check whether the option already exists
-        auto it = std::find_if(
-            file_parameter_proxies_.begin(),
-            file_parameter_proxies_.end(),
+        auto it = std::ranges::find_if(
+            file_parameter_proxies_,
             [&](std::shared_ptr<GFileParsableI> const &candidate_ptr) {
                 return (candidate_ptr->GParsableI::optionName(0) == option_name);
             }
@@ -2718,9 +2713,8 @@ public:
     ) {
 #ifdef DEBUG
         // Check whether the option already exists
-        auto it = std::find_if(
-            file_parameter_proxies_.begin(),
-            file_parameter_proxies_.end(),
+        auto it = std::ranges::find_if(
+            file_parameter_proxies_,
             [&](std::shared_ptr<GFileParsableI> const &candidate_ptr) {
                 return (candidate_ptr->GParsableI::optionName(0) == option_name);
             }
@@ -2820,9 +2814,8 @@ public:
     ) {
 #ifdef DEBUG
         // Check whether the option already exists
-        auto it = std::find_if(
-            file_parameter_proxies_.begin(),
-            file_parameter_proxies_.end(),
+        auto it = std::ranges::find_if(
+            file_parameter_proxies_,
             [&](std::shared_ptr<GFileParsableI> const &candidate_ptr) {
                 return (candidate_ptr->GParsableI::optionName(0) == option_name);
             }
@@ -2885,9 +2878,8 @@ public:
     ) {
 #ifdef DEBUG
         // Check whether the option already exists
-        auto it = std::find_if(
-            file_parameter_proxies_.begin(),
-            file_parameter_proxies_.end(),
+        auto it = std::ranges::find_if(
+            file_parameter_proxies_,
             [&](std::shared_ptr<GFileParsableI> const &candidate_ptr) {
                 return (candidate_ptr->GParsableI::optionName(0) == option_name);
             }
@@ -2988,9 +2980,8 @@ public:
     ) {
 #ifdef DEBUG
         // Check whether the option already exists
-        auto it = std::find_if(
-            cl_parameter_proxies_.begin(),
-            cl_parameter_proxies_.end(),
+        auto it = std::ranges::find_if(
+            cl_parameter_proxies_,
             [&](std::shared_ptr<GCLParsableI> const &candidate_ptr) {
                 return (candidate_ptr->GParsableI::optionName(0) == option_name);
             }

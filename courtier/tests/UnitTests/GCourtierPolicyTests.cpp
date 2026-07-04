@@ -85,7 +85,7 @@ std::vector<item_ptr> make_batch(
     v.reserve(n);
     for(std::size_t i = 0; i < n; ++i) {
         const bool faulty =
-            std::find(faulty_indices.begin(), faulty_indices.end(), i) != faulty_indices.end();
+            std::ranges::contains(faulty_indices, i);
         v.push_back(std::make_unique<GFaultyContainer>(i, faulty ? fm : fault_mode::NONE));
     }
     return v;

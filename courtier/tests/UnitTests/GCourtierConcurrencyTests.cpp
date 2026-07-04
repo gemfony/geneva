@@ -76,7 +76,7 @@ std::vector<item_ptr> make_tagged_batch(std::size_t batch, std::size_t n,
     std::vector<item_ptr> v;
     v.reserve(n);
     for(std::size_t i = 0; i < n; ++i) {
-        const bool f = std::find(faulty.begin(), faulty.end(), i) != faulty.end();
+        const bool f = std::ranges::contains(faulty, i);
         v.push_back(std::make_unique<GFaultyContainer>(
             tag(batch, i), f ? fault_mode::THROW_PROCESSING : fault_mode::NONE));
     }
