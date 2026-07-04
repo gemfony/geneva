@@ -38,6 +38,8 @@
 #include <cstddef>
 #include <iomanip>
 #include <ios>
+#include <span>
+#include <spanstream>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -74,7 +76,7 @@ std::string assembleQueryString(const std::string &query, const std::size_t &sz)
  * @return The size of the data section
  */
 std::size_t extractDataSize(const char *ds, const std::size_t &sz) {
-    std::istringstream is(std::string(ds, sz));
+    std::ispanstream is(std::span<const char>(ds, sz));
     std::size_t inbound_data_size = 0;
     if(!(is >> std::hex >> inbound_data_size)) {
         throw geneva_exception(

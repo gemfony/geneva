@@ -38,6 +38,8 @@
 #include <iostream>
 #include <memory>
 #include <mutex>
+#include <span>
+#include <spanstream>
 #include <sstream>
 #include <string>
 #include <thread>
@@ -384,13 +386,13 @@ void container_from_string(
         switch(serMode) {
             using enum Gem::Common::serializationMode;
         case TEXT: {
-            std::istringstream iss(descr);
+            std::ispanstream iss{std::span<const char>(descr)};
             boost::archive::text_iarchive ia(iss);
             ia >> boost::serialization::make_nvp("command_container", container);
         } break; // archive and stream closed at end of scope
 
         case XML: {
-            std::istringstream iss(descr);
+            std::ispanstream iss{std::span<const char>(descr)};
             boost::archive::xml_iarchive ia(iss);
             ia >> boost::serialization::make_nvp("command_container", container);
         } break;
