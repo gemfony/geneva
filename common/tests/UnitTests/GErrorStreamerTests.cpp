@@ -56,9 +56,9 @@ TEST_CASE("g_error_streamer: templated operator<< accumulates streamable values"
     s << "alpha=" << 1 << " beta=" << 2.5 << " gamma=" << std::string{"x"};
 
     const std::string out = s.content();
-    CHECK(out.find("alpha=1")   != std::string::npos);
-    CHECK(out.find("beta=2.5")  != std::string::npos);
-    CHECK(out.find("gamma=x")   != std::string::npos);
+    CHECK(out.contains("alpha=1"));
+    CHECK(out.contains("beta=2.5"));
+    CHECK(out.contains("gamma=x"));
 }
 
 TEST_CASE("g_error_streamer: stream manipulators are honoured",
@@ -69,8 +69,8 @@ TEST_CASE("g_error_streamer: stream manipulators are honoured",
     s << "line1" << '\n' << "line2" << '\n';
 
     const std::string out = s.content();
-    CHECK(out.find("line1\n") != std::string::npos);
-    CHECK(out.find("line2\n") != std::string::npos);
+    CHECK(out.contains("line1\n"));
+    CHECK(out.contains("line2\n"));
 }
 
 TEST_CASE("g_error_streamer: ios / ios_base manipulators compile and apply",
@@ -82,8 +82,8 @@ TEST_CASE("g_error_streamer: ios / ios_base manipulators compile and apply",
     s << std::hex << 255 << " " << std::boolalpha << true;
 
     const std::string out = s.content();
-    CHECK(out.find("ff")   != std::string::npos);
-    CHECK(out.find("true") != std::string::npos);
+    CHECK(out.contains("ff"));
+    CHECK(out.contains("true"));
 }
 
 TEST_CASE("g_error_streamer: explicit ctor stores where-and-when prefix but content() omits it",
@@ -119,8 +119,8 @@ TEST_CASE("Gem::Common::timeAndPlace(): returns a string containing the call-sit
     // string from std::source_location. Sanity-check the framing without pinning
     // the exact line number (which would shift with every edit above).
     const std::string tp = Gem::Common::timeAndPlace();
-    CHECK(tp.find("Recorded on ")               != std::string::npos);
-    CHECK(tp.find("in File ")                   != std::string::npos);
-    CHECK(tp.find("at line ")                   != std::string::npos);
-    CHECK(tp.find("GErrorStreamerTests.cpp")    != std::string::npos);
+    CHECK(tp.contains("Recorded on "));
+    CHECK(tp.contains("in File "));
+    CHECK(tp.contains("at line "));
+    CHECK(tp.contains("GErrorStreamerTests.cpp"));
 }

@@ -70,10 +70,10 @@ TEST_CASE("GPlotDesigner escapes user strings in emitted ROOT literals", "[plott
     const std::string s = emit(g);
 
     // The quote is backslash-escaped (a\"b), never a bare a"b that closes the literal early.
-    CHECK(s.find("a\\\"b") != std::string::npos);
+    CHECK(s.contains("a\\\"b"));
     // The newline is emitted as the two characters backslash-n, not a raw line break.
-    CHECK(s.find("line1\\nline2") != std::string::npos);
-    CHECK(s.find("line1\nline2") == std::string::npos);
+    CHECK(s.contains("line1\\nline2"));
+    CHECK(!s.contains("line1\nline2"));
 }
 
 /******************************************************************************/
@@ -86,9 +86,9 @@ TEST_CASE("GPlotDesigner emits full-precision coordinates", "[plotting]") {
     const std::string s = emit(g);
 
     // 6-significant-digit default would render 0.333333; full precision keeps many more digits.
-    CHECK(s.find("3333333333") != std::string::npos);
+    CHECK(s.contains("3333333333"));
     // Locale-independent: the decimal separator is a dot, never a comma.
-    CHECK(s.find("0,33333") == std::string::npos);
+    CHECK(!s.contains("0,33333"));
 }
 
 /******************************************************************************/
@@ -126,11 +126,11 @@ TEST_CASE("function plotters emit a quoted, honoured draw option", "[plotting]")
 
     GFunctionPlotter2D f2("x*y", rx, ry);
     f2.setDrawingArguments("surf1");
-    CHECK(f2.footerData("").find("->Draw(\"surf1\")") != std::string::npos);
+    CHECK(f2.footerData("").contains("->Draw(\"surf1\")"));
 
     GFunctionPlotter1D f1("sin(x)", rx);
     f1.setDrawingArguments("L");
-    CHECK(f1.footerData("").find("->Draw(\"L\")") != std::string::npos);
+    CHECK(f1.footerData("").contains("->Draw(\"L\")"));
 }
 
 /******************************************************************************/
@@ -157,17 +157,17 @@ TEST_CASE("gnuplot backend emits a multiplot script for a GGraph2D", "[plotting]
 
     // The multiplot grid is present; the data is a named datablock (NOT an inline '-' inside multiplot,
     // which gnuplot cannot read) referenced by a 2-d plot command.
-    CHECK(s.find("set multiplot") != std::string::npos);
-    CHECK(s.find("$D0 << EOD") != std::string::npos);
-    CHECK(s.find("plot $D0 ") != std::string::npos);
-    CHECK(s.find("plot '-'") == std::string::npos);
-    CHECK(s.find("unset multiplot") != std::string::npos);
+    CHECK(s.contains("set multiplot"));
+    CHECK(s.contains("$D0 << EOD"));
+    CHECK(s.contains("plot $D0 "));
+    CHECK(!s.contains("plot '-'"));
+    CHECK(s.contains("unset multiplot"));
     // The data rows are present (in the datablock).
-    CHECK(s.find("1 2") != std::string::npos);
-    CHECK(s.find("3 4") != std::string::npos);
+    CHECK(s.contains("1 2"));
+    CHECK(s.contains("3 4"));
     // Labels are gnuplot-escaped (a\"b), never a bare a"b that closes the literal early.
-    CHECK(s.find("a\\\"b") != std::string::npos);
-    CHECK(s.find("the x axis") != std::string::npos);
+    CHECK(s.contains("a\\\"b"));
+    CHECK(s.contains("the x axis"));
 }
 
 /******************************************************************************/
@@ -181,9 +181,9 @@ TEST_CASE("gnuplot backend uses splot for a GGraph3D", "[plotting]") {
     gpd.registerPlotter(g);
 
     const std::string s = gpd.plot();
-    CHECK(s.find("$D0 << EOD") != std::string::npos);
-    CHECK(s.find("splot $D0 ") != std::string::npos);
-    CHECK(s.find("1 2 3") != std::string::npos);
+    CHECK(s.contains("$D0 << EOD"));
+    CHECK(s.contains("splot $D0 "));
+    CHECK(s.contains("1 2 3"));
 }
 
 /******************************************************************************/
@@ -225,15 +225,15 @@ TEST_CASE("matplotlib backend emits a headless plot script for a GGraph2D", "[pl
 
     // The script selects the headless Agg backend BEFORE importing pyplot, builds a figure with a
     // subplot, and plots into the axes -- but never calls savefig (terminal-agnostic).
-    CHECK(s.find("matplotlib.use(\"Agg\")") != std::string::npos);
-    CHECK(s.find("add_subplot(") != std::string::npos);
-    CHECK(s.find(".plot(") != std::string::npos);
-    CHECK(s.find("savefig") == std::string::npos);
+    CHECK(s.contains("matplotlib.use(\"Agg\")"));
+    CHECK(s.contains("add_subplot("));
+    CHECK(s.contains(".plot("));
+    CHECK(!s.contains("savefig"));
     // The data values are present in the emitted list literals.
-    CHECK(s.find("1") != std::string::npos);
+    CHECK(s.contains("1"));
     // Labels are python-escaped (a\"b), never a bare a"b that closes the literal early.
-    CHECK(s.find("a\\\"b") != std::string::npos);
-    CHECK(s.find("the x axis") != std::string::npos);
+    CHECK(s.contains("a\\\"b"));
+    CHECK(s.contains("the x axis"));
 }
 
 /******************************************************************************/
@@ -247,8 +247,8 @@ TEST_CASE("matplotlib backend uses a 3d projection for a GGraph3D", "[plotting]"
     gpd.registerPlotter(g);
 
     const std::string s = gpd.plot();
-    CHECK(s.find("projection=\"3d\"") != std::string::npos);
-    CHECK(s.find("set_zlabel(") != std::string::npos);
+    CHECK(s.contains("projection=\"3d\""));
+    CHECK(s.contains("set_zlabel("));
 }
 
 /******************************************************************************/
@@ -264,9 +264,9 @@ TEST_CASE("matplotlib backend emits hist calls for histograms", "[plotting]") {
 
         const std::string s = gpd.plot();
         // A 1-d histogram is a flat (non-3d) Axes with an ax.hist(...) call honouring the bin count.
-        CHECK(s.find(".hist(") != std::string::npos);
-        CHECK(s.find("bins=7") != std::string::npos);
-        CHECK(s.find("projection=\"3d\"") == std::string::npos);
+        CHECK(s.contains(".hist("));
+        CHECK(s.contains("bins=7"));
+        CHECK(!s.contains("projection=\"3d\""));
     }
     {
         auto h = std::make_shared<GHistogram2D>(5, 3, 0.0, 1.0, 0.0, 1.0);
@@ -277,9 +277,9 @@ TEST_CASE("matplotlib backend emits hist calls for histograms", "[plotting]") {
 
         const std::string s = gpd.plot();
         // A 2-d histogram uses ax.hist2d(...) with the per-axis bin counts and a colourbar.
-        CHECK(s.find(".hist2d(") != std::string::npos);
-        CHECK(s.find("bins=[5, 3]") != std::string::npos);
-        CHECK(s.find("colorbar(") != std::string::npos);
+        CHECK(s.contains(".hist2d("));
+        CHECK(s.contains("bins=[5, 3]"));
+        CHECK(s.contains("colorbar("));
     }
 }
 
@@ -311,16 +311,16 @@ TEST_CASE("octave backend emits a .m script for a GGraph2D", "[plotting]") {
     const std::string s = gpd.plot();
 
     // A figure with a subplot and a plot() call, but never a print/saveas (terminal-agnostic).
-    CHECK(s.find("figure();") != std::string::npos);
-    CHECK(s.find("subplot(") != std::string::npos);
-    CHECK(s.find("plot(") != std::string::npos);
-    CHECK(s.find("print(") == std::string::npos);
-    CHECK(s.find("saveas(") == std::string::npos);
+    CHECK(s.contains("figure();"));
+    CHECK(s.contains("subplot("));
+    CHECK(s.contains("plot("));
+    CHECK(!s.contains("print("));
+    CHECK(!s.contains("saveas("));
     // The x values land in an inline row-vector literal.
-    CHECK(s.find("[1, 3]") != std::string::npos);
+    CHECK(s.contains("[1, 3]"));
     // Labels are octave-escaped (a''b), never a bare a'b that would close the literal early.
-    CHECK(s.find("a''b") != std::string::npos);
-    CHECK(s.find("the x axis") != std::string::npos);
+    CHECK(s.contains("a''b"));
+    CHECK(s.contains("the x axis"));
     // The emitter advertises the .m extension.
     CHECK(OctaveEmitter{}.fileExtension() == std::string(".m"));
 }
@@ -336,8 +336,8 @@ TEST_CASE("octave backend uses plot3 for a GGraph3D", "[plotting]") {
     gpd.registerPlotter(g);
 
     const std::string s = gpd.plot();
-    CHECK(s.find("plot3(") != std::string::npos);
-    CHECK(s.find("zlabel(") != std::string::npos);
+    CHECK(s.contains("plot3("));
+    CHECK(s.contains("zlabel("));
 }
 
 /******************************************************************************/
@@ -354,8 +354,8 @@ TEST_CASE("octave backend emits histogram calls for histograms", "[plotting]") {
 
         const std::string s = gpd.plot();
         // A 1-d histogram uses hist(samples, nbins) honouring the bin count.
-        CHECK(s.find("hist(") != std::string::npos);
-        CHECK(s.find(", 7);") != std::string::npos);
+        CHECK(s.contains("hist("));
+        CHECK(s.contains(", 7);"));
     }
     {
         auto h = std::make_shared<GHistogram2D>(5, 3, 0.0, 1.0, 0.0, 1.0);
@@ -367,10 +367,10 @@ TEST_CASE("octave backend emits histogram calls for histograms", "[plotting]") {
         const std::string s = gpd.plot();
         // A 2-d histogram is binned with histc + accumarray (base only, no hist3) and drawn
         // with imagesc + a colourbar; the per-axis bin counts come from the spec.
-        CHECK(s.find("accumarray(") != std::string::npos);
-        CHECK(s.find("imagesc(") != std::string::npos);
-        CHECK(s.find("colorbar;") != std::string::npos);
-        CHECK(s.find("_nbx = 5; _nby = 3;") != std::string::npos);
+        CHECK(s.contains("accumarray("));
+        CHECK(s.contains("imagesc("));
+        CHECK(s.contains("colorbar;"));
+        CHECK(s.contains("_nbx = 5; _nby = 3;"));
     }
 }
 
@@ -401,19 +401,19 @@ TEST_CASE("data backend (CSV) emits the raw series data for a GGraph2D", "[plott
     const std::string s = gpd.plot();
 
     // A leading canvas comment records the title and the pad grid for an external renderer.
-    CHECK(s.find("# canvas: \"data csv\" c_x_div=1 c_y_div=1") != std::string::npos);
+    CHECK(s.contains("# canvas: \"data csv\" c_x_div=1 c_y_div=1"));
     // The section header comment names the series, its class name, canonical plot kind,
     // (spec) role, columns and its pad / overlay placement.
     CHECK(s.find("# series 0: \"my series\" kind=GGraph2D plotkind=graph_2d role=xy "
                  "columns=x,y pad=0 secondary=0") != std::string::npos);
     // The column-name header row.
-    CHECK(s.find("x,y") != std::string::npos);
+    CHECK(s.contains("x,y"));
     // The data rows, full precision, dot decimal separator.
-    CHECK(s.find("1,2") != std::string::npos);
-    CHECK(s.find("3,4") != std::string::npos);
+    CHECK(s.contains("1,2"));
+    CHECK(s.contains("3,4"));
     // No rendering / script content leaks into the data export.
-    CHECK(s.find("import") == std::string::npos);
-    CHECK(s.find("TCanvas") == std::string::npos);
+    CHECK(!s.contains("import"));
+    CHECK(!s.contains("TCanvas"));
 }
 
 /******************************************************************************/
@@ -434,12 +434,12 @@ TEST_CASE("GGraph2D reports a graph_2d GPlotSpec", "[plotting]") {
 
     const std::string j = spec.toJson();
     // The kind string is present.
-    CHECK(j.find("graph_2d") != std::string::npos);
+    CHECK(j.contains("graph_2d"));
     // The embedded quote is JSON-escaped (a\"b), never a bare a"b closing the string early.
-    CHECK(j.find("a\\\"b") != std::string::npos);
+    CHECK(j.contains("a\\\"b"));
     // The column names appear in the JSON.
-    CHECK(j.find("\"x\"") != std::string::npos);
-    CHECK(j.find("\"y\"") != std::string::npos);
+    CHECK(j.contains("\"x\""));
+    CHECK(j.contains("\"y\""));
 }
 
 /******************************************************************************/
@@ -454,8 +454,8 @@ TEST_CASE("GHistogram1D reports a hist_1d GPlotSpec with n_bins_x", "[plotting]"
     CHECK(*spec.n_bins_x == 7);
 
     const std::string j = spec.toJson();
-    CHECK(j.find("hist_1d") != std::string::npos);
-    CHECK(j.find("\"n_bins_x\": 7") != std::string::npos);
+    CHECK(j.contains("hist_1d"));
+    CHECK(j.contains("\"n_bins_x\": 7"));
 }
 
 /******************************************************************************/
@@ -476,10 +476,10 @@ TEST_CASE("data backend (NPZ) emits a non-empty ZIP/.npz archive", "[plotting]")
     // The .npz is an uncompressed ZIP: it begins with the local file header signature.
     CHECK(s.compare(0, 4, std::string("PK\x03\x04", 4)) == 0);
     // It is a real archive: an end-of-central-directory record ("PK\x05\x06") is present.
-    CHECK(s.find(std::string("PK\x05\x06", 4)) != std::string::npos);
+    CHECK(s.contains(std::string("PK\x05\x06", 4)));
     // The .npy member magic and the manifest member name are embedded.
-    CHECK(s.find(std::string("\x93NUMPY", 6)) != std::string::npos);
-    CHECK(s.find("manifest.json") != std::string::npos);
+    CHECK(s.contains(std::string("\x93NUMPY", 6)));
+    CHECK(s.contains("manifest.json"));
 }
 
 /******************************************************************************/

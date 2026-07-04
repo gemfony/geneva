@@ -129,8 +129,8 @@ TEST_CASE("tribool::operator<<: out-of-range value is diagnosed (not silent)",
     auto bad = static_cast<tribool>(99);
     std::ostringstream oss;
     oss << bad;
-    CHECK(oss.str().find("tribool::?") != std::string::npos);
-    CHECK(oss.str().find("99")         != std::string::npos);
+    CHECK(oss.str().contains("tribool::?"));
+    CHECK(oss.str().contains("99"));
 }
 
 TEST_CASE("indeterminate() helper", "[common][enums]") {

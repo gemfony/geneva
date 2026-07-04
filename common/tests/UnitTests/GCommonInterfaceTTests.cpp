@@ -257,7 +257,7 @@ TEST_CASE("GCommonInterfaceT::report: returns non-empty XML",
     TestObj a(5);
     auto r = a.report();
     CHECK_FALSE(r.empty());
-    CHECK(r.find("v_") != std::string::npos);
+    CHECK(r.contains("v_"));
 }
 
 // ---------------------------------------------------------------------------

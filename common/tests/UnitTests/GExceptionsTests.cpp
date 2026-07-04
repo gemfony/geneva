@@ -89,10 +89,10 @@ TEST_CASE("raiseException macro: throws geneva_exception with the streamed messa
     // The macro wraps the streamed payload in a fixed envelope. Verify the
     // payload appears, and the envelope identifiers ("ERROR", "file …", and
     // "line …") are present so future refactors keep the framing intact.
-    CHECK(what.find("detailed-error-payload") != std::string::npos);
-    CHECK(what.find("ERROR")                  != std::string::npos);
-    CHECK(what.find("in file ")               != std::string::npos);
-    CHECK(what.find("near line ")             != std::string::npos);
+    CHECK(what.contains("detailed-error-payload"));
+    CHECK(what.contains("ERROR"));
+    CHECK(what.contains("in file "));
+    CHECK(what.contains("near line "));
 }
 
 TEST_CASE("raiseException macro: payload may chain streamable values",
@@ -106,7 +106,7 @@ TEST_CASE("raiseException macro: payload may chain streamable values",
         what   = g.what();
     }
     REQUIRE(caught);
-    CHECK(what.find("a=42")    != std::string::npos);
-    CHECK(what.find("b=3.14")  != std::string::npos);
-    CHECK(what.find("c=foo")   != std::string::npos);
+    CHECK(what.contains("a=42"));
+    CHECK(what.contains("b=3.14"));
+    CHECK(what.contains("c=foo"));
 }

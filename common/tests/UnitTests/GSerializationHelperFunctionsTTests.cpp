@@ -157,7 +157,7 @@ TEST_CASE("GSerializationHelperFunctionsT: shared_ptr round-trip via XML mode",
 
     const std::string s = sharedPtrToString(in, serializationMode::XML);
     REQUIRE_FALSE(s.empty());
-    CHECK(s.find("classHierarchyFromT_ptr") != std::string::npos);
+    CHECK(s.contains("classHierarchyFromT_ptr"));
 
     auto out = sharedPtrFromString<TestPayload>(s, serializationMode::XML);
     REQUIRE(out);

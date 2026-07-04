@@ -125,16 +125,16 @@ TEST_CASE("GLogStreamer: templated operator<< accumulates streamable values",
           "[common][logger]") {
     GLogStreamer s;
     s << "x=" << 42 << " y=" << 3.5;
-    CHECK(s.content().find("x=42")  != std::string::npos);
-    CHECK(s.content().find("y=3.5") != std::string::npos);
+    CHECK(s.content().contains("x=42"));
+    CHECK(s.content().contains("y=3.5"));
 }
 
 TEST_CASE("GLogStreamer: std::endl manipulator goes through the dedicated overload",
           "[common][logger]") {
     GLogStreamer s;
     s << "line1" << std::endl << "line2";
-    CHECK(s.content().find("line1\n") != std::string::npos);
-    CHECK(s.content().find("line2")   != std::string::npos);
+    CHECK(s.content().contains("line1\n"));
+    CHECK(s.content().contains("line2"));
 }
 
 TEST_CASE("GLogStreamer::reset() drops the accumulated content",
@@ -169,8 +169,8 @@ TEST_CASE("GFileLogger::log: appends the message to the configured file",
     REQUIRE(std::filesystem::exists(path));
     std::ifstream ifs(path);
     std::string content{std::istreambuf_iterator<char>(ifs), {}};
-    CHECK(content.find("first-line")  != std::string::npos);
-    CHECK(content.find("second-line") != std::string::npos);
+    CHECK(content.contains("first-line"));
+    CHECK(content.contains("second-line"));
 
     std::filesystem::remove(path);
 }
@@ -187,7 +187,7 @@ TEST_CASE("GFileLogger::logWithSource: appends the source suffix to the file nam
 
     std::ifstream ifs(src_path);
     std::string content{std::istreambuf_iterator<char>(ifs), {}};
-    CHECK(content.find("payload-a") != std::string::npos);
+    CHECK(content.contains("payload-a"));
 
     std::filesystem::remove(src_path);
 }
@@ -266,7 +266,7 @@ TEST_CASE("GLogger<S>::throwException: throws geneva_exception with the supplied
         g.throwException("forwarded-error");
         FAIL("expected throw");
     } catch(geneva_exception const &e) {
-        CHECK(std::string(e.what()).find("forwarded-error") != std::string::npos);
+        CHECK(std::string(e.what()).contains("forwarded-error"));
     }
 }
 
@@ -315,7 +315,7 @@ TEST_CASE("GLogStreamer << GEXCEPTION throws a geneva_exception",
     } catch(geneva_exception const &e) {
         caught = true;
         // Message must include the streamed payload.
-        CHECK(std::string(e.what()).find("test-payload") != std::string::npos);
+        CHECK(std::string(e.what()).contains("test-payload"));
     }
     CHECK(caught);
 
@@ -352,7 +352,7 @@ TEST_CASE("GLogStreamer << GFILE with a path writes to that file",
 
     std::ifstream ifs(path);
     std::string content{std::istreambuf_iterator<char>(ifs), {}};
-    CHECK(content.find("one-time-payload") != std::string::npos);
+    CHECK(content.contains("one-time-payload"));
 
     std::filesystem::remove(path);
 }
@@ -416,8 +416,8 @@ TEST_CASE("GFileLogger::logWithSource: header line appears on first write only",
     CHECK(content.find("Logging data from source", first_pos + 1) == std::string::npos);
 
     // Both payloads must be present.
-    CHECK(content.find("msg1") != std::string::npos);
-    CHECK(content.find("msg2") != std::string::npos);
+    CHECK(content.contains("msg1"));
+    CHECK(content.contains("msg2"));
 
     std::filesystem::remove(src_path);
 }

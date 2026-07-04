@@ -195,6 +195,6 @@ TEST_CASE("GSerializeTupleT: each archive writes a non-empty payload",
     CHECK_FALSE(bin_ss.str().empty());
 
     // Spot-check XML for the expected element names.
-    CHECK(xml_ss.str().find("tpl_0") != std::string::npos);
-    CHECK(xml_ss.str().find("tpl_1") != std::string::npos);
+    CHECK(xml_ss.str().contains("tpl_0"));
+    CHECK(xml_ss.str().contains("tpl_1"));
 }
