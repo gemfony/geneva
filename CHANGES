@@ -90,9 +90,10 @@ Recommended Versions:
   rewriting them in canonical form when present, then exiting without optimizing --
   the same behaviour Go2 binaries already provide. A shared facility drives this
   behind the one switch, so every config-owning binary regenerates its configuration
-  uniformly. Example 06 (GDirectEA), which drives its algorithm directly rather than
-  through Go2, is the first converted; the remaining direct-OA examples, benchmarks
-  and manual tests follow.
+  uniformly. Converted so far: the direct-OA examples (06 GDirectEA / GDirectSA /
+  GDirectSwarm), the parameter-object demo (03), the configuration-creation demo
+  (GConfigFileCreation), the GBrokerOverhead benchmark and the
+  GCommandContainerSerialization manual test; the GPU and MPI binaries follow.
 
 - CHANGED: the GPU consumer now defaults to the CUDA backend. A freshly generated
   GPU-consumer configuration selects "cuda" (was "cpu"), so the GPU examples and

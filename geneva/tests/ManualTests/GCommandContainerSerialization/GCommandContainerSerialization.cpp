@@ -52,6 +52,7 @@
 // Boost header files go here
 
 // Geneva header files go here
+#include "common/GConfigEmission.hpp"
 #include "courtier/GCommandContainerT.hpp"
 #include "geneva/individuals/GFunctionIndividual.hpp"
 #include "hap/GRandomT.hpp"
@@ -65,6 +66,14 @@ const Gem::Common::serializationMode DEFEXAMPLESERMOD = Gem::Common::serializati
 const Gem::Common::serializationMode PRINTOUTSERMOD = Gem::Common::serializationMode::XML;
 
 int main(int argc, char **argv) {
+    // --update-configs: materialize the one config this test owns (the GFunctionIndividual factory's)
+    // from code defaults, then exit without running the serialization test.
+    if(Gem::Common::configEmissionRequested(argc, argv)) {
+        Gem::Common::beginConfigEmission();
+        gind::GFunctionIndividualFactory("./config/GFunctionIndividual.json").get();
+        Gem::Common::finishConfigEmission();
+    }
+
     //-----------------------------------------------------------------------------
     // Declare some local parameters
     std::uint32_t nTests = DEFEXAMPLENTESTS;
