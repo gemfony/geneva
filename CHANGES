@@ -85,6 +85,22 @@ Recommended Versions:
   them on the adaption config instead). The self-adaptive stall response
   (re-widening the mutation range on stagnation) is unchanged.
 
+- CHANGED: the GPU consumer now defaults to the CUDA backend. A freshly generated
+  GPU-consumer configuration selects "cuda" (was "cpu"), so the GPU examples and
+  benchmarks use the device out of the box. On a build without the CUDA backend the
+  consumer transparently falls back to the CPU reference path with a warning, so this
+  is safe on CPU-only builds.
+
+- MODERNIZED: a tree-wide sweep adopting C++23 library idioms where they make the
+  code simpler without changing behaviour, wire format, checkpoint format or numeric
+  results -- std::string::contains, std::ranges algorithms with projections,
+  views::zip/enumerate/join_with/adjacent, std::ranges::fold_left for clean
+  single-container reductions, std::format/std::print for message and table assembly,
+  std::forward_like for const/non-const accessor pairs, std::ispanstream on the
+  read-only wire-parse path, and a few std::unreachable / static operator() sites.
+  Numeric hot loops, RNG draws, and byte-pinned output paths were deliberately left
+  untouched. Purely internal; no observable change.
+
 - FIXED: destroying a Go2 (or any scoped GenevaInitializer) no longer disables
   random-number generation for the rest of the process. GenevaInitializer -- which
   is embedded in every Go2 as a member -- used to finalize the process-global Hap
