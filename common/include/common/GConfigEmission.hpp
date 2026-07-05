@@ -78,6 +78,18 @@ inline constexpr std::string_view CONFIG_EMISSION_FLAG = "--update-configs";
 
 /******************************************************************************/
 /**
+ * @brief The environment variable that switches configuration emission into "reference" mode.
+ *
+ * When this variable is set in the environment, beginConfigEmission() additionally suppresses the header's
+ * creation timestamp, so the emitted configs are byte-stable across regenerations. The config-reference
+ * build target sets it to generate the single, version-controlled reference config tree (a changing
+ * timestamp would otherwise show as a spurious diff every time it is regenerated). It is a build-internal
+ * mechanism -- users never set it.
+ */
+inline constexpr std::string_view CONFIG_REFERENCE_ENV = "GENEVA_CONFIG_REFERENCE";
+
+/******************************************************************************/
+/**
  * @brief Reports whether the configuration-emission switch appears in the command line.
  *
  * This is a side-effect-free scan of @p argv for CONFIG_EMISSION_FLAG, meant to be called before the

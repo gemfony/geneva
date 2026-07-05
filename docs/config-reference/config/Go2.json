@@ -1,0 +1,42 @@
+{
+    "header": {
+        "comment": [
+            "This configuration file was automatically created by GParserBuilder"
+        ]
+    },
+    "n_producer_threads": {
+        "comment": [
+            "The number of threads simultaneously producing random numbers"
+        ],
+        "default": 0,
+        "value": 0
+    },
+    "copy_best_individuals_only": {
+        "comment": [
+            "Indicates whether only the best individuals should be copied when",
+            "switching from one optimization algorithm to the next"
+        ],
+        "default": true,
+        "value": true
+    },
+    "individual_plugin_path": {
+        "comment": [
+            "Filesystem path to a runtime individual (optimization-problem) plugin (.so) to load at startup.",
+            "Empty (the default) means the individual is compiled into this binary. The --individual",
+            "command-line option overrides this setting."
+        ],
+        "default": "",
+        "value": ""
+    },
+    "consumer": {
+        "comment": [
+            "The consumer (parallelization backend) used when none is given on the command line.",
+            "One of: sc, stc, asio, beast, mpi, gpu (availability depends on build options and the",
+            "problem",
+            "e.g. gpu requires a registered GPU consumer builder). The --consumer command-line",
+            "option overrides this setting."
+        ],
+        "default": "stc",
+        "value": "stc"
+    }
+}

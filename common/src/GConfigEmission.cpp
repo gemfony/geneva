@@ -59,9 +59,17 @@ bool configEmissionRequested(int argc, char **argv) {
 /******************************************************************************/
 /**
  * @brief Enters configuration-emission mode by enabling GParserBuilder update-in-place globally.
+ *
+ * When the environment variable named by CONFIG_REFERENCE_ENV is set, the emitted configs are additionally
+ * made byte-stable (the header's creation timestamp is suppressed). This is how the config-reference build
+ * target generates the single, version-controlled reference tree without a churning timestamp; ordinary
+ * --update-configs runs (which materialize into the build/install tree, not source) keep the timestamp.
  */
 void beginConfigEmission() {
     GParserBuilder::setUpdateInPlace(true);
+    if(std::getenv(CONFIG_REFERENCE_ENV.data()) != nullptr) {
+        GParserBuilder::setEmitTimestamp(false);
+    }
 }
 
 /******************************************************************************/

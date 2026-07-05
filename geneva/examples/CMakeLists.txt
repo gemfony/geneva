@@ -146,4 +146,45 @@ IF(GENEVA_UPDATE_CONFIGS)
 	ENDFOREACH()
 ENDIF()
 
+# ---------------------------------------------------------------------------------------------------
+# config-reference: (re)generate the single, version-controlled configuration REFERENCE tree in
+# docs/config-reference/ from the code's registered parameters + comments. This is the one place a
+# source-browser sees every standard configuration and what each parameter means, without building.
+#
+# The reference is generated (never hand-edited) by running a representative Go2 example with
+# --update-configs, which materializes Go2.json, every registered optimization-algorithm config and the
+# standard individual config. The GENEVA_CONFIG_REFERENCE environment variable suppresses the header's
+# creation timestamp, so the output is byte-stable and regenerating it produces no spurious diff.
+#
+# Regenerating writes into the source tree -- the ONE deliberate exception to "a build never writes into
+# the checkout" (Development Invariant 17), because a *documentation* artifact is meant to be versioned.
+# It is therefore an explicit, opt-in target, NOT part of the normal build:
+#   make config-reference         (re)generates docs/config-reference/ in place
+#   make config-reference-check   regenerates to a temp dir and fails if it differs from the checked-in
+#                                 tree (CI / pre-commit guard); never writes into the source tree
+IF(TARGET GSimpleOptimizer)
+	# The generated configs live in docs/config-reference/config/; the explanatory README.md sits beside it.
+	# A cmake -P helper does the filesystem sequencing (create scratch dir, run the generator in it, then
+	# copy-or-compare), which keeps the working-directory handling and the directory comparison portable.
+	SET(_config_reference_dir ${CMAKE_SOURCE_DIR}/docs/config-reference/config)
+	SET(_config_reference_gen ${CMAKE_CURRENT_BINARY_DIR}/config-reference-gen)
+	SET(_config_reference_drv ${CMAKE_CURRENT_SOURCE_DIR}/config_reference.cmake)
+
+	ADD_CUSTOM_TARGET(config-reference
+			COMMAND ${CMAKE_COMMAND}
+					-DBIN=$<TARGET_FILE:GSimpleOptimizer> -DGEN=${_config_reference_gen}
+					-DDEST=${_config_reference_dir} -DMODE=generate -P ${_config_reference_drv}
+			COMMENT "Regenerating the configuration reference tree in docs/config-reference/config/"
+			VERBATIM)
+	ADD_DEPENDENCIES(config-reference GSimpleOptimizer)
+
+	ADD_CUSTOM_TARGET(config-reference-check
+			COMMAND ${CMAKE_COMMAND}
+					-DBIN=$<TARGET_FILE:GSimpleOptimizer> -DGEN=${_config_reference_gen}
+					-DDEST=${_config_reference_dir} -DMODE=check -P ${_config_reference_drv}
+			COMMENT "Checking that docs/config-reference/config/ is up to date with the code"
+			VERBATIM)
+	ADD_DEPENDENCIES(config-reference-check GSimpleOptimizer)
+ENDIF()
+
 GENEVA_AGGREGATE_TARGET( "examples-geneva" )

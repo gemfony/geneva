@@ -2449,6 +2449,15 @@ public:
     /** @brief Retrieves whether update-in-place is globally enabled
      *  @return true if parseConfigFile rewrites the files it reads, false otherwise */
     static bool updateInPlace();
+    /** @brief Globally enables/disables the creation-timestamp line in a generated config's header (default:
+     *  enabled). Disable it to produce byte-stable, reproducible output -- e.g. for a config set that is
+     *  checked into version control (the config-reference tree), where a changing timestamp would show as a
+     *  spurious diff on every regeneration. Call once at startup.
+     *  @param enabled Whether the header should carry the creation timestamp */
+    static void setEmitTimestamp(bool enabled);
+    /** @brief Retrieves whether the header creation-timestamp line is emitted
+     *  @return true if a generated config's header carries the creation timestamp, false otherwise */
+    static bool emitTimestamp();
     /** @brief Globally enables/disables the unknown-configuration-key diagnostic (default: enabled; warns on config keys no registered parameter consumes).
      *  @param check Whether the unknown-key diagnostic should be enabled */
     static void setCheckUnknownKeys(bool enabled);
@@ -3243,6 +3252,8 @@ private:
         check_unknown_keys_; ///< If true, a genuine config-file parse warns about keys no registered parameter consumes (default: true; group-aware, runs once per parse)
     static bool
         update_in_place_; ///< If true, a successful parseConfigFile() that read an existing file also rewrites it in canonical form (default: false)
+    static bool
+        emit_timestamp_; ///< If true, a generated config's header carries a creation timestamp (default: true; disable for byte-stable, version-controlled output)
 };
 
 /******************************************************************************/

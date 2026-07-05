@@ -1,0 +1,220 @@
+{
+    "header": {
+        "comment": [
+            "This configuration file was automatically created by GParserBuilder"
+        ]
+    },
+    "ad_prob": {
+        "comment": [
+            "The probability for random adaption of values in evolutionary algorithms"
+        ],
+        "default": 1E0,
+        "value": 1E0
+    },
+    "adapt_ad_prob": {
+        "comment": [
+            "Determines the rate of adaption of ad_prob. Set to 0, if you do not need this feature"
+        ],
+        "default": 1E-1,
+        "value": 1E-1
+    },
+    "min_ad_prob": {
+        "comment": [
+            "The lower allowed boundary for ad_prob-variation"
+        ],
+        "default": 5E-2,
+        "value": 5E-2
+    },
+    "max_ad_prob": {
+        "comment": [
+            "The upper allowed boundary for ad_prob-variation"
+        ],
+        "default": 1E0,
+        "value": 1E0
+    },
+    "adaption_threshold": {
+        "comment": [
+            "The number of successful calls to an adaptor after which adaption",
+            "of mutation parameters takes place (e.g sigma-variation in gauss mutation)"
+        ],
+        "default": 1,
+        "value": 1
+    },
+    "use_bi_gaussian": {
+        "comment": [
+            "Whether to use a double gaussion for the adaption of parmeters in ES"
+        ],
+        "default": false,
+        "value": false
+    },
+    "sigma1": {
+        "comment": [
+            "The sigma for gauss-adaption in ES",
+            "(or the sigma of the left peak of a double gaussian)"
+        ],
+        "default": 2.5E-2,
+        "value": 2.5E-2
+    },
+    "sigma_sigma1": {
+        "comment": [
+            "Influences the self-adaption of gauss-mutation in ES"
+        ],
+        "default": 2E-1,
+        "value": 2E-1
+    },
+    "min_sigma1": {
+        "comment": [
+            "The minimum value of sigma1"
+        ],
+        "default": 1E-3,
+        "value": 1E-3
+    },
+    "max_sigma1": {
+        "comment": [
+            "The maximum value of sigma1"
+        ],
+        "default": 1E0,
+        "value": 1E0
+    },
+    "sigma2": {
+        "comment": [
+            "The sigma of the right peak of a double gaussian (if any)"
+        ],
+        "default": 2.5E-2,
+        "value": 2.5E-2
+    },
+    "sigma_sigma2": {
+        "comment": [
+            "Influences the self-adaption of gauss-mutation in ES"
+        ],
+        "default": 2E-1,
+        "value": 2E-1
+    },
+    "min_sigma2": {
+        "comment": [
+            "The minimum value of sigma2"
+        ],
+        "default": 1E-3,
+        "value": 1E-3
+    },
+    "max_sigma2": {
+        "comment": [
+            "The maximum value of sigma2"
+        ],
+        "default": 1E0,
+        "value": 1E0
+    },
+    "delta": {
+        "comment": [
+            "The start distance between both peaks used for bi-gaussian mutations in ES"
+        ],
+        "default": 5E-2,
+        "value": 5E-2
+    },
+    "sigma_delta": {
+        "comment": [
+            "The width of the gaussian used for mutations of the delta parameter"
+        ],
+        "default": 2E-1,
+        "value": 2E-1
+    },
+    "min_delta": {
+        "comment": [
+            "The minimum allowed value of delta"
+        ],
+        "default": 1E-3,
+        "value": 1E-3
+    },
+    "max_delta": {
+        "comment": [
+            "The maximum allowed value of delta"
+        ],
+        "default": 1E0,
+        "value": 1E0
+    },
+    "par_dim": {
+        "comment": [
+            "The number of dimensions used for the demo function"
+        ],
+        "default": 2,
+        "value": 2
+    },
+    "min_var": {
+        "comment": [
+            "The lower boundary of the initialization range for parameters"
+        ],
+        "default": -1E1,
+        "value": -1E1
+    },
+    "max_var": {
+        "comment": [
+            "The upper boundary of the initialization range for parameters"
+        ],
+        "default": 1E1,
+        "value": 1E1
+    },
+    "parameter_type": {
+        "comment": [
+            "Indicates what type of parameter object should be used",
+            "(0) GDoubleCollection",
+            "(1) GConstrainedDoubleCollection",
+            "(2) GDoubleObjectCollection",
+            "(3) GConstrainedDoubleObjectCollection",
+            "(4) GConstrainedDoubleObjects on the root level"
+        ],
+        "default": "4",
+        "value": "4"
+    },
+    "init_mode": {
+        "comment": [
+            "Indicates how the parameters are initialized",
+            "(0) randomly",
+            "(1) with a value on the perimeter of the allowed or recommended value range"
+        ],
+        "default": "1",
+        "value": "1"
+    },
+    "demo_function": {
+        "comment": [
+            "Specifies which benchmark function to minimise (maximise for NEGPARABOLA), by integer ID"
+        ],
+        "default": "0",
+        "value": "0"
+    },
+    "eval_policy": {
+        "comment": [
+            "Specifies which strategy should be used to calculate the evaluation:",
+            "0 (a.k.a. USESIMPLEEVALUATION): Always call the evaluation function, even for invalid solutions",
+            "1 (a.k.a. USEWORSTCASEFORINVALID) : Assign the worst possible value to our fitness and evaluate only valid solutions",
+            "2 (a.k.a. USESIGMOID): Assign a multiple of validity_level_ and sigmoid barrier to invalid solutions, apply a sigmoid function to valid evaluations"
+        ],
+        "default": "0",
+        "value": "0"
+    },
+    "steepness": {
+        "comment": [
+            "When using a sigmoid function to transform the individual's fitness,",
+            "this parameter influences the steepness of the function at the center of the sigmoid.",
+            "The parameter must have a value > 0."
+        ],
+        "default": 1E3,
+        "value": 1E3
+    },
+    "barrier": {
+        "comment": [
+            "When using a sigmoid function to transform the individual's fitness,",
+            "this parameter sets the upper/lower boundary of the sigmoid.",
+            "The parameter must have a value > 0."
+        ],
+        "default": 1E4,
+        "value": 1E4
+    },
+    "maxmode": {
+        "comment": [
+            "Specifies whether the individual should be maximized (1) or minimized (0)",
+            "Note that minimization is the by far most common option."
+        ],
+        "default": "0",
+        "value": "0"
+    }
+}

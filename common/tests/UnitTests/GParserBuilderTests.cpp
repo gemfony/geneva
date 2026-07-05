@@ -859,3 +859,45 @@ TEST_CASE("GParserBuilder: a uint8_t scalar round-trips by value, not as a chara
 
     std::filesystem::remove(cfg);
 }
+
+// ---------------------------------------------------------------------------
+// setEmitTimestamp: the header's creation-timestamp line can be suppressed for byte-stable,
+// version-controlled output (the config-reference tree). Regression guard for that flag.
+
+TEST_CASE("GParserBuilder::setEmitTimestamp toggles the header creation timestamp",
+          "[common][parser-builder]") {
+    auto with_ts    = scratch("ts_on");
+    auto without_ts = scratch("ts_off");
+    std::filesystem::remove(with_ts);
+    std::filesystem::remove(without_ts);
+
+    auto header_lines = [](std::filesystem::path const &p) {
+        return Gem::Common::parseJsonFile(p)
+            .as_object().at("header").as_object().at("comment").as_array().size();
+    };
+
+    // The flag is a process-global; it defaults to on.
+    REQUIRE(GParserBuilder::emitTimestamp());
+    {
+        GParserBuilder gpb;
+        int v = 0;
+        gpb.registerFileParameter<int>("v", v, 1, VAR_IS_ESSENTIAL, "a value");
+        gpb.writeConfigFile(with_ts, "created", true);
+    }
+
+    GParserBuilder::setEmitTimestamp(false);
+    CHECK_FALSE(GParserBuilder::emitTimestamp());
+    {
+        GParserBuilder gpb;
+        int v = 0;
+        gpb.registerFileParameter<int>("v", v, 1, VAR_IS_ESSENTIAL, "a value");
+        gpb.writeConfigFile(without_ts, "created", true);
+    }
+    GParserBuilder::setEmitTimestamp(true); // restore the global default before any assertion can throw
+
+    // With the timestamp on the header has exactly one extra comment line (the creation time).
+    CHECK(header_lines(with_ts) == header_lines(without_ts) + 1);
+
+    std::filesystem::remove(with_ts);
+    std::filesystem::remove(without_ts);
+}

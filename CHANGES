@@ -85,6 +85,17 @@ Recommended Versions:
   them on the adaption config instead). The self-adaptive stall response
   (re-widening the mutation range on stagnation) is unchanged.
 
+- NEW: a generated configuration reference lives in docs/config-reference/. It is a
+  single, version-controlled, fully-commented copy of the standard configuration set
+  (Go2.json, every optimization-algorithm config and the standard individual config),
+  so the source tree shows which configuration files exist and what every parameter
+  means without building or running anything. It is generated from the code's registered
+  parameters and comments (never hand-edited) and carries no creation timestamp, so it is
+  byte-stable: 'make config-reference' regenerates it and 'make config-reference-check'
+  fails if it has drifted from the code (a CI / pre-commit guard) without writing into
+  the source tree. GParserBuilder gained setEmitTimestamp() to produce that timestamp-free
+  output; ordinary --update-configs runs keep the timestamp.
+
 - NEW: non-Go2 programs can now honor the --update-configs switch to materialize the
   configuration files they own -- creating them from defaults when absent and
   rewriting them in canonical form when present, then exiting without optimizing --

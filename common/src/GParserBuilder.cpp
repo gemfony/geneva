@@ -71,6 +71,7 @@ std::mutex Gem::Common::GParserBuilder::configfile_parser_mutex_;
 bool Gem::Common::GParserBuilder::unknown_key_is_error_ = false;
 bool Gem::Common::GParserBuilder::check_unknown_keys_ = true;
 bool Gem::Common::GParserBuilder::update_in_place_ = false;
+bool Gem::Common::GParserBuilder::emit_timestamp_ = true;
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -729,6 +730,29 @@ bool GParserBuilder::updateInPlace() {
 
 /******************************************************************************/
 /**
+ * Globally enables (true, the default) or disables (false) the creation-timestamp line in a generated
+ * config's header. Disabling it produces byte-stable, reproducible output for a config set that is checked
+ * into version control (the config-reference tree), where a changing timestamp would otherwise show as a
+ * spurious diff on every regeneration. Intended to be called once at program startup.
+ *
+ * @param enabled Whether the header should carry the creation timestamp
+ */
+void GParserBuilder::setEmitTimestamp(bool enabled) {
+    emit_timestamp_ = enabled;
+}
+
+/******************************************************************************/
+/**
+ * Retrieves whether the header creation-timestamp line is emitted.
+ *
+ * @return true if a generated config's header carries the creation timestamp, false otherwise
+ */
+bool GParserBuilder::emitTimestamp() {
+    return emit_timestamp_;
+}
+
+/******************************************************************************/
+/**
  * Writes out a configuration file.
  *
  * @param config_file The name of the configuration file to be written
@@ -853,7 +877,11 @@ boost::json::value GParserBuilder::buildConfigDocument_(std::string const &heade
             header_lines.emplace_back(h);
         }
     }
-    header_lines.emplace_back(Gem::Common::currentTimeAsString());
+    // The creation timestamp is omitted when byte-stable output is requested (e.g. a version-controlled
+    // config-reference tree, where a changing timestamp would be a spurious diff on every regeneration).
+    if(emit_timestamp_) {
+        header_lines.emplace_back(Gem::Common::currentTimeAsString());
+    }
     root["header"] = boost::json::object{{"comment", std::move(header_lines)}};
 
     // Output variables and values
