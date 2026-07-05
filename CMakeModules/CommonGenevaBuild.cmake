@@ -357,7 +357,16 @@ IF(NOT COMMON_GENEVA_BUILD_INCLUDED)
 	FUNCTION(_GENEVA_COLLECT_TARGETS_RECURSIVE _out_var _dir)
 		GET_PROPERTY(_subdirs DIRECTORY "${_dir}" PROPERTY SUBDIRECTORIES)
 		GET_PROPERTY(_targets DIRECTORY "${_dir}" PROPERTY BUILDSYSTEM_TARGETS)
-		SET(_acc ${_targets})
+		SET(_acc "")
+		# Skip targets that opt out of the aggregate (GENEVA_EXCLUDE_FROM_AGGREGATE): opt-in maintenance
+		# targets (e.g. config-reference, which regenerates a version-controlled tree) must not run as part
+		# of a normal build.
+		FOREACH(_t ${_targets})
+			GET_TARGET_PROPERTY(_excl ${_t} GENEVA_EXCLUDE_FROM_AGGREGATE)
+			IF(NOT _excl)
+				LIST(APPEND _acc ${_t})
+			ENDIF()
+		ENDFOREACH()
 		FOREACH(_sub ${_subdirs})
 			_GENEVA_COLLECT_TARGETS_RECURSIVE(_child "${_sub}")
 			LIST(APPEND _acc ${_child})

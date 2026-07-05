@@ -167,12 +167,11 @@ IF(TARGET GSimpleOptimizer)
 	# A cmake -P helper does the filesystem sequencing (create scratch dir, run the generator in it, then
 	# copy-or-compare), which keeps the working-directory handling and the directory comparison portable.
 	SET(_config_reference_dir ${CMAKE_SOURCE_DIR}/docs/config-reference/config)
-	SET(_config_reference_gen ${CMAKE_CURRENT_BINARY_DIR}/config-reference-gen)
 	SET(_config_reference_drv ${CMAKE_CURRENT_SOURCE_DIR}/config_reference.cmake)
 
 	ADD_CUSTOM_TARGET(config-reference
 			COMMAND ${CMAKE_COMMAND}
-					-DBIN=$<TARGET_FILE:GSimpleOptimizer> -DGEN=${_config_reference_gen}
+					-DBIN=$<TARGET_FILE:GSimpleOptimizer> -DGEN=${CMAKE_CURRENT_BINARY_DIR}/config-reference-gen
 					-DDEST=${_config_reference_dir} -DMODE=generate -P ${_config_reference_drv}
 			COMMENT "Regenerating the configuration reference tree in docs/config-reference/config/"
 			VERBATIM)
@@ -180,11 +179,16 @@ IF(TARGET GSimpleOptimizer)
 
 	ADD_CUSTOM_TARGET(config-reference-check
 			COMMAND ${CMAKE_COMMAND}
-					-DBIN=$<TARGET_FILE:GSimpleOptimizer> -DGEN=${_config_reference_gen}
+					-DBIN=$<TARGET_FILE:GSimpleOptimizer> -DGEN=${CMAKE_CURRENT_BINARY_DIR}/config-reference-check-gen
 					-DDEST=${_config_reference_dir} -DMODE=check -P ${_config_reference_drv}
 			COMMENT "Checking that docs/config-reference/config/ is up to date with the code"
 			VERBATIM)
 	ADD_DEPENDENCIES(config-reference-check GSimpleOptimizer)
+
+	# These are opt-in maintenance targets (config-reference regenerates a version-controlled tree); keep
+	# them out of the aggregate build target so a normal build never runs them.
+	SET_TARGET_PROPERTIES(config-reference config-reference-check
+			PROPERTIES GENEVA_EXCLUDE_FROM_AGGREGATE TRUE)
 ENDIF()
 
 GENEVA_AGGREGATE_TARGET( "examples-geneva" )
