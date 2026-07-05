@@ -29,6 +29,7 @@
 
 #include "geneva/Go2.hpp"
 #include "common/GCommonHelperFunctions.hpp"
+#include "common/GConfigEmission.hpp"
 #include "common/GExceptions.hpp"
 #include "common/GFactoryT.hpp"
 #include "common/GLogger.hpp"
@@ -101,18 +102,16 @@ Go2::Go2(
 )
   : config_filename_(config_filename) {
     //--------------------------------------------
-    // --update-configs: detected by a lightweight pre-scan of argv, because it must take effect BEFORE
-    // this constructor parses Go2.json (so Go2's own config is refreshed too). It flips GParserBuilder
+    // --update-configs: detected here, before this constructor parses Go2.json (so Go2's own config is
+    // refreshed too), through the shared config-emission facility -- the same switch, argv detection and
+    // update-in-place engine every config-owning binary uses (Go2-based or not). It flips GParserBuilder
     // into update-in-place mode process-wide, so every config subsequently parsed -- Go2's, each
     // algorithm's, the individual's -- is rewritten in canonical form (stale keys dropped, existing values
     // preserved, new keys defaulted). optimize() then refreshes the remaining configs and returns without
     // running an optimization.
-    for(int i = 1; i < argc; ++i) {
-        if(argv[i] != nullptr and std::string(argv[i]) == "--update-configs") {
-            update_configs_mode_ = true;
-            Gem::Common::GParserBuilder::setUpdateInPlace(true);
-            break;
-        }
+    update_configs_mode_ = Gem::Common::configEmissionRequested(argc, argv);
+    if(update_configs_mode_) {
+        Gem::Common::beginConfigEmission();
     }
 
     //--------------------------------------------
@@ -597,15 +596,13 @@ void Go2::refreshAllConfigs_() {
         }
     }
 
-    glogger << "Go2: --update-configs complete; configuration files were refreshed in place." << '\n'
-            << GLOGGING;
-
-    // --update-configs is a utility mode, not an optimization: exit cleanly HERE so the caller's
-    // boilerplate (optimize() then getBestGlobalIndividual()) is not reached -- there is no population,
-    // so getBestGlobalIndividual() would have nothing to return. This lets every example's main() run
-    // unchanged. std::exit runs the registered atexit / static teardown (flushing stdio and the logger,
-    // releasing the library's RNG factory guard); nothing produced by this pass needs a Go2 destructor.
-    std::exit(0);
+    // --update-configs is a utility mode, not an optimization: finish HERE, via the shared config-emission
+    // facility (log + exit), so the caller's boilerplate (optimize() then getBestGlobalIndividual()) is not
+    // reached -- there is no population, so getBestGlobalIndividual() would have nothing to return. This lets
+    // every example's main() run unchanged. The std::exit inside finishConfigEmission runs the registered
+    // atexit / static teardown (flushing stdio and the logger, releasing the library's RNG factory guard);
+    // nothing produced by this pass needs a Go2 destructor.
+    Gem::Common::finishConfigEmission();
 }
 
 /******************************************************************************/
