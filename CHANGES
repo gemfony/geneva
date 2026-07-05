@@ -85,6 +85,20 @@ Recommended Versions:
   them on the adaption config instead). The self-adaptive stall response
   (re-widening the mutation range on stagnation) is unchanged.
 
+- CHANGED: example, benchmark and manual-test configuration files are now MATERIALIZED
+  FROM CODE at build time instead of being shipped as hundreds of hand-maintained files
+  in the source tree. When a config-owning binary is built, it is run with
+  --update-configs to (re)create its configuration directory from the code's registered
+  defaults, and that directory's intentional non-defaults -- a small per-directory
+  config-overrides.json, now the only value-carrying configuration artifacts kept in
+  source -- are overlaid via the GConfigOverlay helper. Consequently the config/
+  directory a user finds in a build or install tree is always current with the code it
+  was built from (the shipped copies that used to drift, and dead orphans like
+  GGradientDescent.json, are gone), and the source tree no longer carries the bulk
+  configs. A few binaries whose individual is defined by an external resource (a neural
+  network's data set, a runtime plugin) or that are not built in-tree still ship their
+  configuration. See docs/config-reference/ for the full commented set.
+
 - NEW: a generated configuration reference lives in docs/config-reference/. It is a
   single, version-controlled, fully-commented copy of the standard configuration set
   (Go2.json, every optimization-algorithm config and the standard individual config),
