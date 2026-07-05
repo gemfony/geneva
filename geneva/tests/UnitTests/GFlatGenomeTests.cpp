@@ -1923,6 +1923,49 @@ TEST_CASE("Individual plugin loader rejects a missing library cleanly", "[flat][
     CHECK_THROWS(Gem::Geneva::loadIndividualPlugin(missing));
 }
 
+// Toolchain-compatibility gate (GenevaCompat). The loader validates a module's fingerprint before touching
+// any of its C++ contributions; here we exercise that gate directly (a .so is not needed) via the exposed
+// comparator. Regression guard for the silent-crash hole where a same-GENEVA_VERSION module built with an
+// incompatible compiler/stdlib/Boost/build-mode used to pass and then corrupt the process.
+TEST_CASE("Module compat gate accepts this host's own fingerprint", "[flat][plugin][compat]") {
+    const GenevaCompat self = Gem::Geneva::thisHostCompat();
+    CHECK(Gem::Geneva::moduleCompatMismatch(self).empty());
+}
+
+TEST_CASE("Module compat gate rejects a mismatched toolchain, naming the axis", "[flat][plugin][compat]") {
+    using Gem::Geneva::moduleCompatMismatch;
+    const GenevaCompat host = Gem::Geneva::thisHostCompat();
+
+    SECTION("compiler version") {
+        GenevaCompat m = host;
+        m.compiler_major += 1;
+        const std::string d = moduleCompatMismatch(m);
+        CHECK_FALSE(d.empty());
+        CHECK(d.find("compiler major") != std::string::npos);
+    }
+    SECTION("standard-library version") {
+        GenevaCompat m = host;
+        m.stdlib_version += 1;
+        const std::string d = moduleCompatMismatch(m);
+        CHECK_FALSE(d.empty());
+        CHECK(d.find("standard-library version") != std::string::npos);
+    }
+    SECTION("build-mode ABI flags") {
+        GenevaCompat m = host;
+        m.abi_flags ^= GENEVA_ABI_FLAG_ASAN; // pretend the module was built with AddressSanitizer
+        const std::string d = moduleCompatMismatch(m);
+        CHECK_FALSE(d.empty());
+        CHECK(d.find("ABI flags") != std::string::npos);
+    }
+    SECTION("Geneva version") {
+        GenevaCompat m = host;
+        m.geneva_version += 1;
+        const std::string d = moduleCompatMismatch(m);
+        CHECK_FALSE(d.empty());
+        CHECK(d.find("Geneva version") != std::string::npos);
+    }
+}
+
 TEST_CASE("Go2 enforces exactly one individual (optimization problem) per process", "[flat][plugin][go2]") {
     namespace fs = std::filesystem;
     const fs::path base = fs::temp_directory_path() / "geneva_claimonce_tests";

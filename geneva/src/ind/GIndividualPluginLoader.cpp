@@ -32,15 +32,19 @@
 // Standard headers go here
 #include <cstdint>
 #include <mutex>
+#include <sstream>
+#include <string>
 #include <vector>
 
 // Boost headers go here
 #include <boost/dll/shared_library.hpp>
 
 // Geneva headers go here
+#include "common/GBuildFingerprint.hpp"
 #include "common/GErrorStreamer.hpp"
 #include "common/GExceptions.hpp"
 #include "common/GLogger.hpp"
+#include "common/GModuleManifest.hpp"
 
 namespace Gem::Geneva {
 
@@ -48,77 +52,271 @@ namespace {
 
 /******************************************************************************/
 /**
- * A process-lifetime store of loaded plugin handles. A loaded .so backs live individuals AND their
+ * A process-lifetime store of loaded module handles. A loaded .so backs live objects AND their
  * Boost.Serialization type registrations, so it must never be unloaded while the program runs; the store
  * is therefore intentionally never cleared. Guarded by a mutex so concurrent loads are safe (loads are
  * rare -- once at startup -- so a plain mutex is ample).
  */
-std::mutex g_plugin_mutex;
+std::mutex g_module_mutex;
 
-std::vector<boost::dll::shared_library> &keptPlugins_() {
+std::vector<boost::dll::shared_library> &keptModules_() {
     static std::vector<boost::dll::shared_library> libs;
     return libs;
+}
+
+/******************************************************************************/
+/**
+ * This host's own toolchain fingerprint, built from the compiling toolchain's predefined macros. Internal
+ * linkage (a function-local static), so it is this translation unit's toolchain, never merged with a
+ * module's copy under RTLD_GLOBAL.
+ */
+const GenevaCompat &hostCompat() {
+    static const GenevaCompat c = GENEVA_BUILD_FINGERPRINT;
+    return c;
+}
+
+const char *compilerFamilyName(std::uint32_t family) {
+    switch(family) {
+        case GENEVA_COMPILER_FAMILY_GNU: return "GNU";
+        case GENEVA_COMPILER_FAMILY_CLANG: return "Clang";
+        default: return "unknown-compiler";
+    }
+}
+
+const char *stdlibFamilyName(std::uint32_t family) {
+    switch(family) {
+        case GENEVA_STDLIB_FAMILY_LIBSTDCXX: return "libstdc++";
+        case GENEVA_STDLIB_FAMILY_LIBCXX: return "libc++";
+        default: return "unknown-stdlib";
+    }
+}
+
+/** @brief A one-line human description of a fingerprint, for the mismatch diagnostic. */
+std::string describeCompat(const GenevaCompat &c) {
+    std::ostringstream os;
+    os << compilerFamilyName(c.compiler_family) << ' ' << c.compiler_major << '.' << c.compiler_minor
+       << " / " << stdlibFamilyName(c.stdlib_family) << ' ' << c.stdlib_version << " / C++" << c.cxx_standard
+       << " / cxx11abi=" << c.glibcxx_cxx11_abi << " / Boost " << (c.boost_version / 100000) << '.'
+       << (c.boost_version / 100 % 1000) << '.' << (c.boost_version % 100) << " / Geneva "
+       << c.geneva_version << " / abi_flags=0x" << std::hex << c.abi_flags;
+    return os.str();
+}
+
+/**
+ * @brief Returns an empty string if @p mod is ABI-compatible with @p host, otherwise a diagnostic naming
+ * the first offending axis. Everything is matched exactly (Boost to major.minor); this is Track A's
+ * exact-match policy, validated by PostgreSQL/nginx/kernel/Apache prior art.
+ */
+std::string compatMismatch(const GenevaCompat &host, const GenevaCompat &mod) {
+    std::ostringstream os;
+    auto axis = [&os](const char *name, unsigned long long modv, unsigned long long hostv) {
+        os << "toolchain mismatch on " << name << ": plugin=" << modv << ", this Geneva=" << hostv;
+    };
+    if(mod.compiler_family != host.compiler_family) {
+        os << "compiler family: plugin=" << compilerFamilyName(mod.compiler_family)
+           << ", this Geneva=" << compilerFamilyName(host.compiler_family);
+    } else if(mod.compiler_major != host.compiler_major) {
+        axis("compiler major version", mod.compiler_major, host.compiler_major);
+    } else if(mod.compiler_minor != host.compiler_minor) {
+        axis("compiler minor version", mod.compiler_minor, host.compiler_minor);
+    } else if(mod.stdlib_family != host.stdlib_family) {
+        os << "standard-library family: plugin=" << stdlibFamilyName(mod.stdlib_family)
+           << ", this Geneva=" << stdlibFamilyName(host.stdlib_family);
+    } else if(mod.stdlib_version != host.stdlib_version) {
+        axis("standard-library version", mod.stdlib_version, host.stdlib_version);
+    } else if(mod.cxx_standard != host.cxx_standard) {
+        axis("C++ standard", mod.cxx_standard, host.cxx_standard);
+    } else if(mod.glibcxx_cxx11_abi != host.glibcxx_cxx11_abi) {
+        axis("_GLIBCXX_USE_CXX11_ABI", mod.glibcxx_cxx11_abi, host.glibcxx_cxx11_abi);
+    } else if((mod.boost_version / 100) != (host.boost_version / 100)) { // major.minor, ignore patch
+        axis("Boost version", mod.boost_version, host.boost_version);
+    } else if(mod.abi_flags != host.abi_flags) {
+        axis("build-mode ABI flags (debug/sanitizer)", mod.abi_flags, host.abi_flags);
+    } else if(mod.geneva_version != host.geneva_version) {
+        axis("Geneva version", mod.geneva_version, host.geneva_version);
+    } else {
+        return {}; // compatible
+    }
+    return os.str();
+}
+
+/**
+ * @brief dlopens @p path (RTLD_GLOBAL | RTLD_NOW) and keeps the handle resident for the process lifetime.
+ * Caller must hold g_module_mutex. Returns a reference to the stored handle.
+ */
+boost::dll::shared_library &openAndKeep(const std::string &path_str) {
+    namespace dll = boost::dll;
+    dll::shared_library lib;
+    try {
+        // boost::dll uses its own filesystem path type; convert from the native string.
+        lib.load(dll::fs::path(path_str), dll::load_mode::rtld_global | dll::load_mode::rtld_now);
+    }
+    catch(const std::exception &e) {
+        throw geneva_exception(
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+            << "In Gem::Geneva::openAndKeep(): Error!" << '\n'
+            << "Could not load the module '" << path_str << "':" << '\n'
+            << e.what() << '\n'
+        );
+    }
+    keptModules_().push_back(std::move(lib));
+    return keptModules_().back();
+}
+
+/**
+ * @brief Validates a module's GenevaCompat against this host; throws with an axis-naming diagnostic on any
+ * mismatch. Checks the struct-version/size envelope first (readable under any toolchain skew).
+ */
+void validateCompatOrThrow(const GenevaCompat &mod, const std::string &path_str) {
+    if(mod.struct_version != GENEVA_COMPAT_STRUCT_VERSION ||
+       mod.struct_size < sizeof(std::uint32_t) * 4) {
+        throw geneva_exception(
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+            << "In Gem::Geneva::validateCompatOrThrow(): Error!" << '\n'
+            << "The module '" << path_str << "' carries an incompatible GenevaCompat layout" << '\n'
+            << "(struct_version=" << mod.struct_version << ", expected " << GENEVA_COMPAT_STRUCT_VERSION
+            << "). Rebuild it against this Geneva." << '\n'
+        );
+    }
+    const std::string mismatch = compatMismatch(hostCompat(), mod);
+    if(not mismatch.empty()) {
+        throw geneva_exception(
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+            << "In Gem::Geneva::validateCompatOrThrow(): Error!" << '\n'
+            << "The module '" << path_str << "' is not ABI-compatible with this Geneva." << '\n'
+            << mismatch << '\n'
+            << "  plugin:      " << describeCompat(mod) << '\n'
+            << "  this Geneva: " << describeCompat(hostCompat()) << '\n'
+            << "Rebuild the module with the same toolchain as this Geneva." << '\n'
+        );
+    }
 }
 
 } // namespace
 
 /******************************************************************************/
 
-GIndividualFactoryPtr loadIndividualPlugin(const std::filesystem::path &plugin_path) {
-    namespace dll = boost::dll;
-    const std::string path_str = plugin_path.string();
+const GenevaCompat &thisHostCompat() {
+    return hostCompat();
+}
 
-    std::scoped_lock lock(g_plugin_mutex);
+std::string moduleCompatMismatch(const GenevaCompat &moduleCompat) {
+    return compatMismatch(hostCompat(), moduleCompat);
+}
 
-    // Load the shared object. RTLD_GLOBAL keeps ONE symbol namespace (single Boost serialization registry
-    // + single Geneva singletons); RTLD_NOW resolves eagerly so a broken plugin fails here, not later.
-    dll::shared_library lib;
-    try {
-        // boost::dll uses its own filesystem path type (boost::dll::fs::path, which may be
-        // boost::filesystem::path), so convert from std::filesystem::path via the native string.
-        lib.load(dll::fs::path(path_str), dll::load_mode::rtld_global | dll::load_mode::rtld_now);
+/******************************************************************************/
+
+const GenevaModuleManifest *loadModule(const std::filesystem::path &module_path) {
+    const std::string path_str = module_path.string();
+    std::scoped_lock lock(g_module_mutex);
+
+    boost::dll::shared_library &lib = openAndKeep(path_str);
+
+    if(not lib.has(Gem::Common::GENEVA_MODULE_MANIFEST_SYMBOL)) {
+        throw geneva_exception(
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+            << "In Gem::Geneva::loadModule(): Error!" << '\n'
+            << "'" << path_str << "' is not a Geneva module: it exports no '"
+            << Gem::Common::GENEVA_MODULE_MANIFEST_SYMBOL << "' manifest." << '\n'
+        );
     }
-    catch(const std::exception &e) {
+    const GenevaModuleManifest *manifest =
+        lib.get<Gem::Common::geneva_module_manifest_fn>(Gem::Common::GENEVA_MODULE_MANIFEST_SYMBOL)();
+    if(manifest == nullptr) {
+        throw geneva_exception(
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+            << "In Gem::Geneva::loadModule(): Error!" << '\n'
+            << "The module '" << path_str << "' returned a null manifest." << '\n'
+        );
+    }
+    validateCompatOrThrow(manifest->compat, path_str); // BEFORE any C++ contribution is touched
+    return manifest;
+}
+
+/******************************************************************************/
+
+GIndividualFactoryPtr loadIndividualPlugin(const std::filesystem::path &plugin_path) {
+    const std::string path_str = plugin_path.string();
+    std::scoped_lock lock(g_module_mutex);
+
+    // Load once; branch on whichever contract the plugin carries.
+    boost::dll::shared_library &lib = openAndKeep(path_str);
+
+    // Preferred: the unified manifest. Validate GenevaCompat first, then read the INDIVIDUAL contribution.
+    if(lib.has(Gem::Common::GENEVA_MODULE_MANIFEST_SYMBOL)) {
+        const GenevaModuleManifest *manifest =
+            lib.get<Gem::Common::geneva_module_manifest_fn>(Gem::Common::GENEVA_MODULE_MANIFEST_SYMBOL)();
+        if(manifest == nullptr) {
+            throw geneva_exception(
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+                << "In Gem::Geneva::loadIndividualPlugin(): Error!" << '\n'
+                << "The plugin '" << path_str << "' returned a null manifest." << '\n'
+            );
+        }
+        validateCompatOrThrow(manifest->compat, path_str); // BEFORE any individual is constructed
+
+        for(std::uint32_t i = 0; i < manifest->contributions_count; ++i) {
+            const GenevaContribution &contrib = manifest->contributions[i];
+            if(contrib.kind != GENEVA_CONTRIBUTION_INDIVIDUAL || contrib.make_factory == nullptr) {
+                continue;
+            }
+            // For an INDIVIDUAL contribution make_factory hands back a heap-allocated GIndividualFactoryPtr;
+            // move it out and delete the holder (the void* keeps the boundary plain C).
+            void *raw = contrib.make_factory();
+            if(raw == nullptr) {
+                throw geneva_exception(
+                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+                    << "In Gem::Geneva::loadIndividualPlugin(): Error!" << '\n'
+                    << "The plugin '" << path_str << "' produced a null individual factory." << '\n'
+                );
+            }
+            auto *holder = static_cast<GIndividualFactoryPtr *>(raw);
+            GIndividualFactoryPtr factory = std::move(*holder);
+            delete holder;
+            if(not factory) {
+                throw geneva_exception(
+                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+                    << "In Gem::Geneva::loadIndividualPlugin(): Error!" << '\n'
+                    << "The plugin '" << path_str << "' returned an empty individual factory." << '\n'
+                );
+            }
+            return factory;
+        }
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In Gem::Geneva::loadIndividualPlugin(): Error!" << '\n'
-            << "Could not load the individual plugin '" << path_str << "':" << '\n'
-            << e.what() << '\n'
+            << "The module '" << path_str << "' exports a manifest but contributes no individual." << '\n'
         );
     }
 
-    // ABI gate. Boost.DLL performs no compatibility check itself; its only free failure mode is a missing
-    // symbol. So we require the ABI marker and compare it explicitly, BEFORE constructing any individual.
+    // Fallback: the legacy two-symbol convention (GENEVA_VERSION-only gate). Accepted for one release.
     if(not lib.has(GENEVA_INDIVIDUAL_ABI_SYMBOL)) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In Gem::Geneva::loadIndividualPlugin(): Error!" << '\n'
-            << "'" << path_str << "' is not a Geneva individual plugin: it exports no '"
+            << "'" << path_str << "' is not a Geneva individual plugin: it exports neither the '"
+            << Gem::Common::GENEVA_MODULE_MANIFEST_SYMBOL << "' manifest nor the legacy '"
             << GENEVA_INDIVIDUAL_ABI_SYMBOL << "' marker" << '\n'
-            << "(it may predate the plugin ABI scheme, or was built without GENEVA_INDIVIDUAL_PLUGIN())."
-            << '\n'
+            << "(it may predate the plugin scheme, or was built without GENEVA_INDIVIDUAL_PLUGIN())." << '\n'
         );
     }
-    const auto plugin_abi =
-        lib.get<geneva_individual_abi_version_fn>(GENEVA_INDIVIDUAL_ABI_SYMBOL)();
+    const auto plugin_abi = lib.get<geneva_individual_abi_version_fn>(GENEVA_INDIVIDUAL_ABI_SYMBOL)();
     if(plugin_abi != static_cast<std::uint32_t>(GENEVA_VERSION)) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In Gem::Geneva::loadIndividualPlugin(): Error!" << '\n'
-            << "The individual plugin '" << path_str << "' was built against Geneva version "
-            << plugin_abi << ',' << '\n'
+            << "The individual plugin '" << path_str << "' was built against Geneva version " << plugin_abi
+            << ',' << '\n'
             << "but this Geneva is version " << static_cast<std::uint32_t>(GENEVA_VERSION) << '.' << '\n'
             << "The two are not guaranteed compatible; rebuild the plugin against this Geneva." << '\n'
         );
     }
-
-    // Fetch the factory entry point and construct the content creator.
     if(not lib.has(GENEVA_INDIVIDUAL_FACTORY_SYMBOL)) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In Gem::Geneva::loadIndividualPlugin(): Error!" << '\n'
-            << "The individual plugin '" << path_str << "' exports no '"
-            << GENEVA_INDIVIDUAL_FACTORY_SYMBOL << "' factory entry point." << '\n'
+            << "The individual plugin '" << path_str << "' exports no '" << GENEVA_INDIVIDUAL_FACTORY_SYMBOL
+            << "' factory entry point." << '\n'
         );
     }
     GIndividualFactoryPtr factory =
@@ -130,9 +328,6 @@ GIndividualFactoryPtr loadIndividualPlugin(const std::filesystem::path &plugin_p
             << "The individual plugin '" << path_str << "' returned an empty factory." << '\n'
         );
     }
-
-    // Keep the library resident for the process lifetime (its code + type registrations back live objects).
-    keptPlugins_().push_back(std::move(lib));
     return factory;
 }
 

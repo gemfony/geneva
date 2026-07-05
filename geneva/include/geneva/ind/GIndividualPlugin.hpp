@@ -41,6 +41,7 @@
 
 // Geneva headers go here
 #include "common/GFactoryT.hpp"
+#include "common/GModuleManifest.hpp" // the unified module manifest (GenevaCompat + contributions)
 #include "geneva/ind/GOptimizableEntity.hpp"
 
 namespace Gem::Geneva {
@@ -111,6 +112,8 @@ using geneva_individual_factory_fn = GIndividualFactoryPtr();
 #endif
 
 #define GENEVA_INDIVIDUAL_PLUGIN(FactoryType, ConfigPath)                                                \
+    /* -- Legacy two-symbol convention. Still emitted so a host with only the old loader keeps working  \
+     * for one release; the loader prefers the manifest below when present. -- */                        \
     extern "C" BOOST_SYMBOL_EXPORT std::uint32_t geneva_individual_abi_version();                        \
     extern "C" BOOST_SYMBOL_EXPORT std::uint32_t geneva_individual_abi_version() {                       \
         return static_cast<std::uint32_t>(GENEVA_VERSION);                                               \
@@ -120,6 +123,26 @@ using geneva_individual_factory_fn = GIndividualFactoryPtr();
     extern "C" BOOST_SYMBOL_EXPORT ::Gem::Geneva::GIndividualFactoryPtr geneva_make_individual() {       \
         return std::make_shared<FactoryType>(ConfigPath);                                                \
     }                                                                                                    \
-    GENEVA_PLUGIN_C_LINKAGE_POP
+    GENEVA_PLUGIN_C_LINKAGE_POP                                                                           \
+    /* -- Unified module manifest. The loader validates GenevaCompat (toolchain fingerprint) FIRST, then \
+     * reads the single INDIVIDUAL contribution. make_factory hands back a heap-allocated                \
+     * GIndividualFactoryPtr the loader moves-from and deletes (a void* so the boundary stays plain C).  \
+     * The statics live for the process; the .so is kept resident by the loader. -- */                   \
+    namespace {                                                                                          \
+    void *geneva_detail_individual_factory_thunk() {                                                     \
+        return new ::Gem::Geneva::GIndividualFactoryPtr(std::make_shared<FactoryType>(ConfigPath));      \
+    }                                                                                                    \
+    const ::GenevaContribution geneva_detail_module_contributions[] = {                                  \
+        {.kind = GENEVA_CONTRIBUTION_INDIVIDUAL,                                                          \
+         .name_or_mnemonic = #FactoryType,                                                               \
+         .make_factory = &geneva_detail_individual_factory_thunk}};                                      \
+    const ::GenevaModuleManifest geneva_detail_module_manifest = {                                       \
+        .compat = GENEVA_BUILD_FINGERPRINT,                                                              \
+        .module_name = #FactoryType,                                                                     \
+        .module_version = GENEVA_VERSION_STRING,                                                          \
+        .contributions = geneva_detail_module_contributions,                                             \
+        .contributions_count = 1u};                                                                      \
+    } /* anonymous namespace */                                                                          \
+    GENEVA_EMIT_MODULE_MANIFEST(geneva_detail_module_manifest)
 
 /******************************************************************************/

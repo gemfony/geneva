@@ -463,6 +463,12 @@ IF(NOT GENEVA_SANITIZER STREQUAL "none")
     STRING(APPEND CMAKE_EXE_LINKER_FLAGS    " -fsanitize=${GENEVA_SANITIZER}")
     STRING(APPEND CMAKE_SHARED_LINKER_FLAGS " -fsanitize=${GENEVA_SANITIZER}")
     STRING(APPEND CMAKE_MODULE_LINKER_FLAGS " -fsanitize=${GENEVA_SANITIZER}")
+    # UBSan has no predefined compiler macro, so the GenevaCompat build fingerprint
+    # (common/GBuildFingerprint.hpp) cannot detect it on its own; feed it the bit here so a UBSan module
+    # and an uninstrumented host are told apart. Conservative -- plain UBSan stays link-compatible.
+    IF(GENEVA_SANITIZER STREQUAL "undefined")
+        ADD_COMPILE_DEFINITIONS(GENEVA_ABI_UBSAN_ACTIVE=1)
+    ENDIF()
     MESSAGE(STATUS "Sanitizer ENABLED: -fsanitize=${GENEVA_SANITIZER} (CUDA + MPI excluded)")
 ELSE()
     MESSAGE(STATUS "Sanitizer: none (default)")

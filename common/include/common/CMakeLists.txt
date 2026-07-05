@@ -37,6 +37,7 @@
 #
 
 SET ( GENEVACOMMONINCLUDES
+	GBuildFingerprint.hpp
 	GCommonEnums.hpp
 	GCommonHelperFunctions.hpp
 	GCommonHelperFunctionsT.hpp
@@ -54,6 +55,7 @@ SET ( GENEVACOMMONINCLUDES
 	GGlobalOptionsT.hpp
 	GLogger.hpp
 	GMemberReflectionT.hpp
+	GModuleManifest.hpp
 	GParserBuilder.hpp
 	GProviderT.hpp
 	GSerializableFunctionObjectT.hpp

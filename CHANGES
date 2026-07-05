@@ -85,6 +85,17 @@ Recommended Versions:
   them on the adaption config instead). The self-adaptive stall response
   (re-widening the mutation range on stagnation) is unchanged.
 
+- NEW: runtime-loadable modules now carry a toolchain-compatibility fingerprint. A loadable
+  individual plugin previously only recorded the Geneva version, so a plugin built with a
+  different compiler, standard library, _GLIBCXX_USE_CXX11_ABI setting, Boost version or
+  build mode passed the check and could then crash or silently corrupt the process. Modules
+  now export one manifest (geneva_module_manifest()) carrying a plain-C GenevaCompat struct
+  the loader validates before touching any of the module's C++; a mismatch is rejected with
+  a diagnostic naming the offending axis. The previous two-symbol individual-plugin
+  convention keeps loading for one release. Installed executables and modules also gain an
+  RPATH ($ORIGIN-relative plus the install lib dir) so they locate the Geneva shared
+  libraries without LD_LIBRARY_PATH.
+
 - CHANGED: example, benchmark and manual-test configuration files are now MATERIALIZED
   FROM CODE at build time instead of being shipped as hundreds of hand-maintained files
   in the source tree. When a config-owning binary is built, it is run with

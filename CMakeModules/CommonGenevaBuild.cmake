@@ -286,6 +286,21 @@ IF(NOT COMMON_GENEVA_BUILD_INCLUDED)
 	ENDIF ()
 
 	################################################################################
+	# Install RPATH so an INSTALLED host executable (and every runtime-loadable module) finds the Geneva
+	# shared libraries -- and the module directory -- without LD_LIBRARY_PATH. Nothing set an RPATH before,
+	# so an installed binary relied on the loader's default search path; once individuals / algorithms /
+	# consumers ship as modules alongside the libs this must be self-locating. The Geneva libraries always
+	# install into <prefix>/lib (INSTALL_PREFIX_LIBS); executables land at various depths under the prefix
+	# (<prefix>/..., <prefix>/examples/<name>/, ...), so the RPATH lists $ORIGIN-relative entries covering
+	# those depths (relocatable) plus the absolute lib dir as a backstop. USE_LINK_PATH also records the
+	# link-time dependency dirs (e.g. Boost). A user-supplied CMAKE_INSTALL_RPATH is respected.
+	IF (NOT CMAKE_INSTALL_RPATH)
+		SET (CMAKE_INSTALL_RPATH
+			"$ORIGIN/../lib;$ORIGIN/../../lib;$ORIGIN/../../../lib;${INSTALL_PREFIX_LIBS}")
+	ENDIF ()
+	SET (CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+
+	################################################################################
 	# Print a summary of the build settings before continuing with the main script
 
 	MESSAGE ("========================================")
