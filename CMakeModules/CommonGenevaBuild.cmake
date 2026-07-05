@@ -454,6 +454,37 @@ IF(NOT COMMON_GENEVA_BUILD_INCLUDED)
 	ENDFUNCTION()
 
 	###############################################################################
+	# GENEVA_ADD_INDIVIDUAL_MODULE(<target> <source> [<source> ...])
+	#
+	# Builds a runtime-loadable individual (optimization-problem) plugin as a shared MODULE, following the
+	# reference pattern of example 19. The .so carries the problem code + its serialization GUID + the
+	# GENEVA_INDIVIDUAL_PLUGIN() entry points, and links NONE of the Geneva libraries -- it needs only their
+	# HEADERS at compile time and resolves their symbols from the host process at load (the loader uses
+	# RTLD_GLOBAL). Linking no Geneva libs also sidesteps the non-PIC static Catch2 that a testing-enabled
+	# Geneva pulls in as a usage requirement, which cannot go into a shared object.
+	#
+	# The module keeps the "lib" prefix (CMake MODULE libraries drop it by default) so the artifact is named
+	# lib<target>.so, matching the individual-plugin convention. The caller's own source directory is on the
+	# include path so the glue translation unit finds its problem header.
+	FUNCTION(GENEVA_ADD_INDIVIDUAL_MODULE _target)
+		IF(${ARGC} LESS 2)
+			MESSAGE(FATAL_ERROR
+				"GENEVA_ADD_INDIVIDUAL_MODULE(${_target}): at least one source file is required")
+		ENDIF()
+		ADD_LIBRARY(${_target} MODULE ${ARGN})
+		# MODULE libraries drop the "lib" prefix by default; keep it so the .so is named lib<target>.so.
+		SET_TARGET_PROPERTIES(${_target} PROPERTIES PREFIX "lib")
+		TARGET_INCLUDE_DIRECTORIES(${_target} PRIVATE
+			${CMAKE_CURRENT_SOURCE_DIR}
+			${PROJECT_SOURCE_DIR}/common/include
+			${PROJECT_SOURCE_DIR}/hap/include
+			${PROJECT_SOURCE_DIR}/courtier/include
+			${PROJECT_SOURCE_DIR}/dietrich/include
+			${PROJECT_SOURCE_DIR}/geneva/include
+			${Boost_INCLUDE_DIRS})
+	ENDFUNCTION()
+
+	###############################################################################
 	# End of the include-guard
 
 ENDIF(NOT COMMON_GENEVA_BUILD_INCLUDED)

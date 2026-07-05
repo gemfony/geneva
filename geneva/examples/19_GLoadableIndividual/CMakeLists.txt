@@ -39,20 +39,10 @@ IF(GENEVA_BUILD_WITH_MPI_CONSUMER)
 ENDIF()
 
 # (1) The loadable individual plugin -> libGLoadableParaboloid.so. It carries the problem code + its
-# serialization GUID + the plugin entry points. A plugin resolves Geneva's symbols from the HOST PROCESS at
-# load time (the loader uses RTLD_GLOBAL), so it links none of the Geneva libraries -- it only needs their
-# HEADERS at compile time. This also sidesteps the non-PIC static Catch2 that a testing-enabled Geneva
-# pulls in as a usage requirement, which cannot be linked into a shared object.
-ADD_LIBRARY(GLoadableParaboloid MODULE GLoadableParaboloidPlugin.cpp)
-TARGET_INCLUDE_DIRECTORIES(GLoadableParaboloid PRIVATE
-	${PROJECT_SOURCE_DIR}/common/include
-	${PROJECT_SOURCE_DIR}/hap/include
-	${PROJECT_SOURCE_DIR}/courtier/include
-	${PROJECT_SOURCE_DIR}/dietrich/include
-	${PROJECT_SOURCE_DIR}/geneva/include
-	${Boost_INCLUDE_DIRS})
-# MODULE libraries drop the "lib" prefix by default; keep it so the .so is named libGLoadableParaboloid.so.
-SET_TARGET_PROPERTIES(GLoadableParaboloid PROPERTIES PREFIX "lib")
+# serialization GUID + the plugin entry points. GENEVA_ADD_INDIVIDUAL_MODULE builds it as a shared MODULE
+# that links none of the Geneva libraries (it resolves their symbols from the HOST PROCESS at load time via
+# RTLD_GLOBAL, needing only their headers) -- the reusable recipe every modularised individual now shares.
+GENEVA_ADD_INDIVIDUAL_MODULE(GLoadableParaboloid GLoadableParaboloidPlugin.cpp)
 
 # (2) The generic optimizer -> loads a problem at runtime. ENABLE_EXPORTS so a plugin loaded RTLD_GLOBAL
 # resolves against one symbol namespace (single Boost.Serialization registry + single Geneva singletons).
