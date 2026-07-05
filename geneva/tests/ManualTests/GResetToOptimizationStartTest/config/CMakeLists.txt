@@ -30,7 +30,6 @@
 SET ( CONFIGFILES
 	GEvolutionaryAlgorithm.json
 	GFunctionIndividual.json
-	GGradientDescent.json
 	Go2.json
 	GParameterScan.json
 	GSimulatedAnnealing.json
