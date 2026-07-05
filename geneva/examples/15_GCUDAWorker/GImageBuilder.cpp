@@ -106,6 +106,23 @@ int main(int argc, char **argv) {
     // Go2 parses its own framework options from the command line / its own config file.
     Go2 go(argc, argv, "./config/Go2.json");
 
+    // ---- --update-configs: materialize the configs this example owns, then exit ---------------
+    // Go2 forces the local thread-pool consumer for a config refresh, so the registered GPU consumer
+    // builder below never runs and its config would be missed; materialize it directly here. The GPU
+    // consumer constructor only loads its config file (the backend/kernel are acquired lazily on the first
+    // dispatch), so no device is required. This runs BEFORE loadTarget() below, which needs the target
+    // image -- irrelevant to a config refresh and absent when configs are materialized. GImageGeneral.json
+    // was already refreshed by the parse above; Go2 refreshes Go2.json and the algorithm configs when
+    // optimize() runs.
+    if(go.updateConfigsMode()) {
+        auto marshaller = std::make_shared<MonaLisa::GMonaLisaGPUMarshaller>();
+        gpu::GGPUConsumerT<gen::GOptimizableEntity, gimage_fp_t>(consumerConfig, marshaller);
+        // The image-individual config carries only code defaults (adaptor / triangle settings, all in
+        // normalized coordinates), so materializing it needs neither the target image nor a device.
+        GImageIndividualFactory("config/GImageIndividual.json").get_as<GImageIndividual>();
+        go.optimize(); // refreshes Go2's owned configs, then exits; nothing target-dependent has run
+    }
+
     // ---- load the target image (defines the canvas resolution and the fitness reference) -----
     Gem::Geneva::MonaLisa::loadTarget(targetFile);
     const auto &tgt = Gem::Geneva::MonaLisa::target();

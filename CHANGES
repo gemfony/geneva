@@ -98,7 +98,12 @@ Recommended Versions:
   their configurations without a device or an MPI environment: the GPU consumer only
   loads its config on construction (the backend is acquired lazily), and the MPI
   optimizer skips its MPI setup during a config refresh. Go2-based binaries already
-  honored the switch through Go2 itself.
+  honored the switch through Go2 itself; a couple whose owned configurations fall
+  outside Go2's default set now materialize them explicitly in that mode too -- the
+  post-optimizer configuration in GPostProcessing and the GPU consumer and image
+  individual configurations in GCUDAWorker (example 15), the latter without a device
+  or the target image (the image individual's genome is in normalized coordinates, so
+  it is built and its config materialized without loading the target).
 
 - FIXED: two programs crashed under --update-configs. GNeuralNetwork aborted because
   building its sample individual (to author the adaption config) loads a training data

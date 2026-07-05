@@ -44,6 +44,7 @@
 
 // The individual that should be optimized
 #include "geneva/individuals/GFunctionIndividual.hpp"
+#include "geneva/oa/GEvolutionaryAlgorithmFactory.hpp"
 
 using namespace Gem::Geneva;
 namespace po = boost::program_options;
@@ -83,6 +84,17 @@ int main(int argc, char **argv) {
     if(go.clientMode()) {
         return go.clientRun();
     } // Execution will end here in client mode
+
+    //---------------------------------------------------------------------------
+    // --update-configs: the post-optimizer's configuration (GPostEvolutionaryAlgorithm.json) is a standard
+    // evolutionary-algorithm config read by GEvolutionaryAlgorithmPostOptimizer. It is not part of Go2's
+    // owned config set and is built only when --usePostProcessor is given, so a config refresh would miss
+    // it. Materialize it here from its factory defaults; Go2 refreshes the rest and exits when optimize()
+    // runs below.
+    if(go.updateConfigsMode()) {
+        OptimizationAlgorithms::GEvolutionaryAlgorithmFactory("./config/GPostEvolutionaryAlgorithm.json")
+            .get<OptimizationAlgorithms::GOptimizationAlgorithmBase>();
+    }
 
     //---------------------------------------------------------------------------
     // Create a factory for GFunctionIndividual objects and perform
