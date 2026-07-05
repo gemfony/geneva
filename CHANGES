@@ -116,14 +116,15 @@ Recommended Versions:
   or the target image (the image individual's genome is in normalized coordinates, so
   it is built and its config materialized without loading the target).
 
-- FIXED: two programs crashed under --update-configs. GNeuralNetwork aborted because
-  building its sample individual (to author the adaption config) loads a training data
-  set from disk, which is irrelevant to a configuration refresh and absent when the
+- FIXED: several programs crashed under --update-configs. GNeuralNetwork and
+  GExternalEvaluator aborted because building their sample individual (to author the
+  adaption config) needs an external resource -- a training data set / the external
+  evaluator program -- that is irrelevant to a configuration refresh and absent when the
   configs are materialized; that step is now skipped in --update-configs mode (Go2 still
   refreshes the configs it owns). GParallelisationOverhead intermittently segfaulted
   because its benchmark launches real optimizations on a private thread pool, which the
   config-refresh exit path could tear down mid-flight; it now refreshes its configs and
-  exits without running the benchmark. Both were latent (the switch had never been
+  exits without running the benchmark. All were latent (the switch had never been
   exercised on them).
 
 - CHANGED: the GPU consumer now defaults to the CUDA backend. A freshly generated

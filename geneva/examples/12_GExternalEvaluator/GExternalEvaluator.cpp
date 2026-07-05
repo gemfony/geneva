@@ -67,7 +67,12 @@ int main(int argc, char **argv) {
     // The genome carries only structure; the configured Gauss / bi-Gauss adaptor for the active variables
     // lives on an OA-owned config the factory authors (fixed variables stay un-adapted). Register it for
     // the adapting algorithms (EA / SA) so Go2 hands it over before they run.
-    {
+    //
+    // Skipped in --update-configs mode: building the sample constructs an individual whose genome is
+    // defined by the external evaluator program (queried at construction), which is irrelevant to a
+    // configuration refresh and absent when the configs are materialized. Go2 still refreshes the
+    // individual's config via the content creator registered above.
+    if(not go.updateConfigsMode()) {
         auto sample = geei_ptr->get_as<gind::GExternalEvaluatorIndividual>();
         auto cfg = geei_ptr->getAdaptionConfig(*sample);
         go.registerAdaptionConfig("PERSONALITY_EA", cfg);
