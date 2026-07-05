@@ -96,6 +96,13 @@ Recommended Versions:
   RPATH ($ORIGIN-relative plus the install lib dir) so they locate the Geneva shared
   libraries without LD_LIBRARY_PATH.
 
+- FIXED: the CUDA random-number backend could print spurious "GCudaRNG: cuRAND call failed"
+  lines to stderr at process exit. When the CUDA runtime unloads at shutdown while the
+  random-number producer threads are still refilling on the GPU, cuRAND reports a generic
+  launch failure; the cuRAND error path did not recognise shutdown (only the plain-CUDA path
+  did) and logged it. It now probes the runtime and stays quiet when the failure is genuine
+  teardown, while still reporting real failures. A GPU-only regression test guards it.
+
 - CHANGED: example, benchmark and manual-test configuration files are now MATERIALIZED
   FROM CODE at build time instead of being shipped as hundreds of hand-maintained files
   in the source tree. When a config-owning binary is built, it is run with

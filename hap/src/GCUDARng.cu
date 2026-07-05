@@ -78,6 +78,16 @@ inline bool checkCuda(cudaError_t st, char const *what) {
 inline bool checkCurand(curandStatus_t st, char const *what) {
     if (st == CURAND_STATUS_SUCCESS) return true;
     if (g_cudaShuttingDown.load(std::memory_order_relaxed)) return false;
+    // cuRAND has no dedicated "runtime unloading" status: at process teardown the CUDA runtime unloads
+    // (atexit) while producer threads may still call generate(), and cuRAND reports that as a generic
+    // CURAND_STATUS_LAUNCH_FAILURE -- which arrives BEFORE any cudaXxx call has set g_cudaShuttingDown. So
+    // probe the runtime with a cheap no-op (cudaFree(nullptr)): if IT reports unloading, this cuRAND
+    // failure is benign shutdown noise -- flag it (so peer threads go quiet) and suppress. Only a failure
+    // seen while the runtime is genuinely alive is a real error worth reporting.
+    if (cudaFree(nullptr) == cudaErrorCudartUnloading) {
+        g_cudaShuttingDown.store(true, std::memory_order_relaxed);
+        return false;
+    }
     std::fprintf(stderr, "GCudaRNG: cuRAND call failed (%s), status %d\n", what, static_cast<int>(st));
     return false;
 }

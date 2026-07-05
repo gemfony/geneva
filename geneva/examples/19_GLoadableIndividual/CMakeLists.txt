@@ -78,5 +78,25 @@ IF(GENEVA_RUN_EXAMPLES_AS_TESTS)
 	)
 ENDIF()
 
+# Regression guard (Inv 15) for the GCudaRNG teardown race fixed in hap/src/GCUDARng.cu. At process exit the
+# CUDA runtime unloads while the GRandomFactory's producer threads may still be refilling on the GPU; cuRAND
+# reports that as CURAND_STATUS_LAUNCH_FAILURE, which used to leak "cuRAND call failed" to stderr because the
+# cuRAND error path could not recognise shutdown on its own. This module optimizer keeps those producer
+# threads saturated until it exits -- the reproducer that reliably provokes the race -- so we run it many
+# times and fail if the noise reappears in ANY run. Registered only when the CUDA RNG backend is built (the
+# defect cannot occur otherwise) and always exercised, independent of GENEVA_RUN_EXAMPLES_AS_TESTS.
+IF(GENEVA_USE_CUDA_RNG_ENABLED)
+	ADD_TEST(
+		NAME GCudaRngShutdownNoise
+		COMMAND ${CMAKE_COMMAND}
+			-DBIN=$<TARGET_FILE:GGenericOptimizer>
+			-DPLUGIN=$<TARGET_FILE:GLoadableParaboloid>
+			-DWORKDIR=${CMAKE_CURRENT_BINARY_DIR}
+			-DRUNS=20
+			-P ${CMAKE_CURRENT_SOURCE_DIR}/CheckNoCudaShutdownNoise.cmake
+	)
+	SET_TESTS_PROPERTIES(GCudaRngShutdownNoise PROPERTIES LABELS "geneva")
+ENDIF()
+
 INSTALL(TARGETS GGenericOptimizer GLoadableParaboloid
 	DESTINATION ${INSTALL_PREFIX_DATA}/examples/GLoadableIndividual)
