@@ -216,13 +216,13 @@ IF(NOT COMMON_GENEVA_BUILD_INCLUDED)
 	# exactly like the MPI consumer: when enabled, courtier dynamically links the CUDA/OpenCL backends; when
 	# disabled, no GPU code is compiled. There is no separate GPU library.
 	SET ( GENEVA_LIBNAME            "gemfony-geneva" )
-	SET ( GENEVA_INDIVIDUAL_LIBNAME "gemfony-geneva-individuals" )
+	# The geneva-individuals library was dissolved into the geneva library: the sample
+	# individuals now live in Gem::Geneva::Individuals under geneva/{include,src}/individuals/,
+	# compiled into gemfony-geneva. There is no separate individuals library (and no
+	# GENEVA_INDIVIDUAL_LIBNAME variable — it was removed as an unused leftover of the fold-in).
 
 	# The order of the entries is important, as it translates to the linking
 	# order in TARGET_LINK_LIBRARIES() later...
-	# The geneva-individuals library was dissolved into the geneva library
-	# (the sample individuals now live in Gem::Geneva::Individuals under
-	# geneva/individuals/); there is no separate individuals library.
 	# Dietrich (plotting) is a leaf peer on top of common, used by geneva; it links
 	# after hap so geneva -> dietrich -> common resolves left-to-right.
 	SET (
