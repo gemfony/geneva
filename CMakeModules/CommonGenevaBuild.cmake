@@ -393,10 +393,15 @@ IF(NOT COMMON_GENEVA_BUILD_INCLUDED)
 	# source tree, if present) are then overlaid onto them via the GConfigOverlay helper. The materialized
 	# directory is installed to <install-config-dest> (pass an empty string to skip installation).
 	#
+	# Any extra arguments after <install-dest> are passed to the binary before --update-configs (e.g. a
+	# plugin loader's "--individual <plugin.so>"); if such an argument references another target via a
+	# $<TARGET_FILE:...> genex, make <target> depend on it so it is built first.
+	#
 	# This replaces the former per-directory FILE(COPY config) + INSTALL(FILES ...). It MUST be called from
 	# the same CMakeLists.txt that defines <target>, because a POST_BUILD command may only be attached to a
 	# target in the current directory -- i.e. in place of the former ADD_SUBDIRECTORY(config).
 	FUNCTION(GENEVA_MATERIALIZE_CONFIGS _target _install_dest)
+		SET(_extra_args ${ARGN})
 		SET(_cfg_dir ${CMAKE_CURRENT_BINARY_DIR}/config)
 		SET(_overrides ${CMAKE_CURRENT_SOURCE_DIR}/config/config-overrides.json)
 
@@ -414,7 +419,7 @@ IF(NOT COMMON_GENEVA_BUILD_INCLUDED)
 		ADD_CUSTOM_COMMAND(TARGET ${_target} POST_BUILD
 				COMMAND ${CMAKE_COMMAND} -E rm -rf ${_cfg_dir}
 				COMMAND ${CMAKE_COMMAND} -E make_directory ${_cfg_dir}
-				COMMAND ${_target} --update-configs
+				COMMAND ${_target} ${_extra_args} --update-configs
 				WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 				COMMENT "Materializing ${_target} configuration from code defaults"
 				VERBATIM)

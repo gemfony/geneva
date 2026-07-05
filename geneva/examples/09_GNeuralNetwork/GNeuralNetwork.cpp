@@ -33,6 +33,7 @@
 
 // Standard header files go here
 #include <cmath>
+#include <filesystem>
 #include <iostream>
 #include <sstream>
 #include <vector>
@@ -104,6 +105,18 @@ int main(int argc, char **argv) {
         gind::GNeuralNetworkIndividual::createNetworkData(tdt, trainingDataFile, architecture, nDataSets);
         return 0;
     }
+
+    // --update-configs: the network-individual configuration is data-independent (adaptor / transfer
+    // settings), but the factory can only produce the individual -- and thus write its config -- once a
+    // data set exists to size the network genome. Generate a tiny throwaway data set in a temporary
+    // location (outside the materialized/installed config directory) so the config can be emitted.
+    if(go.updateConfigsMode()) {
+        auto const tmp_data = std::filesystem::temp_directory_path() / "geneva_nn_config_data.dat";
+        gind::GNeuralNetworkIndividual::createNetworkData(
+            gind::trainingDataType::HYPERSPHERE, tmp_data.string(), architecture, 20);
+        trainingDataFile = tmp_data.string();
+    }
+
     // Store the trainingDataFile in the global options, so they can be accessed by the individuals
         neuralNetworkOptions()->set("trainingDataFile", trainingDataFile);
    

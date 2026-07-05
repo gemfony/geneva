@@ -60,7 +60,13 @@ ADD_EXECUTABLE(GGenericOptimizer GGenericOptimizer.cpp)
 SET_TARGET_PROPERTIES(GGenericOptimizer PROPERTIES ENABLE_EXPORTS TRUE)
 TARGET_LINK_LIBRARIES(GGenericOptimizer ${LIBRARIES_TO_LINK})
 
-ADD_SUBDIRECTORY(config)
+# Materialize the configuration from code defaults at build time. This plugin loader only knows its full
+# configuration once an individual is loaded, so materialize with the just-built plugin (and depend on it so
+# it exists first).
+ADD_DEPENDENCIES(GGenericOptimizer GLoadableParaboloid)
+GENEVA_MATERIALIZE_CONFIGS(GGenericOptimizer
+	${INSTALL_PREFIX_DATA}/examples/GLoadableIndividual/config
+	--individual $<TARGET_FILE:GLoadableParaboloid>)
 
 # End-to-end test: the generic optimizer loads the just-built individual plugin and optimizes it. This is
 # also the empirical check that the plugin and process share ONE set of singletons / one Boost registry.

@@ -95,9 +95,14 @@ Recommended Versions:
   directory a user finds in a build or install tree is always current with the code it
   was built from (the shipped copies that used to drift, and dead orphans like
   GGradientDescent.json, are gone), and the source tree no longer carries the bulk
-  configs. A few binaries whose individual is defined by an external resource (a neural
-  network's data set, a runtime plugin) or that are not built in-tree still ship their
-  configuration. See docs/config-reference/ for the full commented set.
+  configs. This holds even for the awkward cases: the neural-network example synthesizes
+  a throwaway data set so its (data-independent) individual config can be emitted, the
+  meta-optimizer materializes its sub-problem configs, and the plugin loader materializes
+  with its just-built individual plugin. The only binaries that still ship a configuration
+  are the standalone GStarter (built against an installed Geneva, not in-tree) and the
+  GResetToOptimizationStart manual test (which optimizes directly rather than through Go2,
+  so it has no config-refresh entry point). See docs/config-reference/ for the full
+  commented set.
 
 - NEW: a generated configuration reference lives in docs/config-reference/. It is a
   single, version-controlled, fully-commented copy of the standard configuration set
