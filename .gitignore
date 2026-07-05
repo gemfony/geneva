@@ -37,4 +37,6 @@ CMakeUserPresets.json
 # Local planning / prompt notes under prompts/ are scratch, not tracked.
 /prompts/*
 /prompts/obsolete/*
+# Local assistant-guidance file, kept on disk but out of version control.
+/CLAUDE.md
 __pycache__/
