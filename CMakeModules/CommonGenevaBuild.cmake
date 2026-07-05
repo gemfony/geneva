@@ -375,6 +375,56 @@ IF(NOT COMMON_GENEVA_BUILD_INCLUDED)
 	ENDFUNCTION()
 
 	###############################################################################
+	# GENEVA_MATERIALIZE_CONFIGS(<target> <install-config-dest>)
+	#
+	# Wires a config-owning binary so its configuration directory is MATERIALIZED FROM CODE at build time
+	# rather than copied from a hand-maintained set of shipped files. After <target> is built it is run once
+	# with --update-configs, which (re)creates its configuration files from the code's registered defaults
+	# into <build-dir>/config; that directory's intentional overrides (config/config-overrides.json in the
+	# source tree, if present) are then overlaid onto them via the GConfigOverlay helper. The materialized
+	# directory is installed to <install-config-dest> (pass an empty string to skip installation).
+	#
+	# This replaces the former per-directory FILE(COPY config) + INSTALL(FILES ...). It MUST be called from
+	# the same CMakeLists.txt that defines <target>, because a POST_BUILD command may only be attached to a
+	# target in the current directory -- i.e. in place of the former ADD_SUBDIRECTORY(config).
+	FUNCTION(GENEVA_MATERIALIZE_CONFIGS _target _install_dest)
+		SET(_cfg_dir ${CMAKE_CURRENT_BINARY_DIR}/config)
+		SET(_overrides ${CMAKE_CURRENT_SOURCE_DIR}/config/config-overrides.json)
+
+		# Ensure the directory exists at configure time so the INSTALL(DIRECTORY) rule below is valid; the
+		# POST_BUILD step (re)populates it from code.
+		FILE(MAKE_DIRECTORY ${_cfg_dir})
+
+		# The overlay helper must exist before this target's POST_BUILD step runs it.
+		IF(TARGET GConfigOverlay)
+			ADD_DEPENDENCIES(${_target} GConfigOverlay)
+		ENDIF()
+
+		# POST_BUILD: (re)materialize the config directory from the code defaults. Running the freshly built
+		# binary with --update-configs creates any missing config from defaults and rewrites it canonically.
+		ADD_CUSTOM_COMMAND(TARGET ${_target} POST_BUILD
+				COMMAND ${CMAKE_COMMAND} -E rm -rf ${_cfg_dir}
+				COMMAND ${CMAKE_COMMAND} -E make_directory ${_cfg_dir}
+				COMMAND ${_target} --update-configs
+				WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+				COMMENT "Materializing ${_target} configuration from code defaults"
+				VERBATIM)
+
+		# Overlay this directory's intentional overrides, if it ships a fragment.
+		IF(EXISTS ${_overrides})
+			ADD_CUSTOM_COMMAND(TARGET ${_target} POST_BUILD
+					COMMAND $<TARGET_FILE:GConfigOverlay> ${_cfg_dir} ${_overrides}
+					COMMENT "Overlaying ${_target} configuration overrides"
+					VERBATIM)
+		ENDIF()
+
+		# Install the materialized directory's contents into <install-config-dest>.
+		IF(NOT "${_install_dest}" STREQUAL "")
+			INSTALL(DIRECTORY ${_cfg_dir}/ DESTINATION ${_install_dest})
+		ENDIF()
+	ENDFUNCTION()
+
+	###############################################################################
 	# End of the include-guard
 
 ENDIF(NOT COMMON_GENEVA_BUILD_INCLUDED)

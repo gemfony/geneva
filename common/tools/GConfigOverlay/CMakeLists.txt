@@ -27,37 +27,15 @@
 #
 ################################################################################
 
-SET ( EXECUTABLENAME GSimpleOptimizer )
+# GConfigOverlay: a small build-time tool that overlays a per-directory config-overrides.json onto
+# materialized configuration files (the build-time invocation of Gem::Common::applyConfigOverrides).
+# It is core build infrastructure, so it is built unconditionally with the Common library.
 
-SET ( ${EXECUTABLENAME}_SRCS
-	GSimpleOptimizer.cpp
-)
+SET ( EXECUTABLENAME GConfigOverlay )
 
-ADD_EXECUTABLE(${EXECUTABLENAME}
-	${${EXECUTABLENAME}_SRCS}
-)
+ADD_EXECUTABLE ( ${EXECUTABLENAME} GConfigOverlay.cpp )
 
-SET(LIBRARIES_TO_LINK
-		${GENEVA_LIBRARIES}
-		${Boost_LIBRARIES})
+TARGET_LINK_LIBRARIES ( ${EXECUTABLENAME} ${COMMON_LIBNAME} ${Boost_LIBRARIES} )
 
-# Add MPI Libraries in case building with MPI-consumer
-IF(GENEVA_BUILD_WITH_MPI_CONSUMER)
-	SET(LIBRARIES_TO_LINK
-			${LIBRARIES_TO_LINK}
-			${MPI_LIBRARIES})
-ENDIF()
-
-TARGET_LINK_LIBRARIES (${EXECUTABLENAME}
-		${LIBRARIES_TO_LINK}
-		)
-
-# Materialize this example's configuration from the code defaults at build time (and overlay any
-# config/config-overrides.json), instead of copying a hand-maintained set of shipped config files.
-GENEVA_MATERIALIZE_CONFIGS ( ${EXECUTABLENAME} ${INSTALL_PREFIX_DATA}/examples/${EXECUTABLENAME}/config )
-
-IF (GENEVA_RUN_EXAMPLES_AS_TESTS)
-	ADD_TEST(${EXECUTABLENAME} ${EXECUTABLENAME})
-ENDIF ()
-
-INSTALL ( TARGETS ${EXECUTABLENAME} DESTINATION ${INSTALL_PREFIX_DATA}/examples/${EXECUTABLENAME} )
+# A build-time helper only (configs are materialized+overlaid at build time; install copies the already
+# materialized directory), so it is deliberately not part of the install set.

@@ -91,10 +91,13 @@ TARGET_LINK_LIBRARIES ( ${EXECUTABLENAME} PRIVATE
 ADD_CUSTOM_COMMAND ( TARGET ${EXECUTABLENAME} POST_BUILD
 	COMMAND ${CMAKE_COMMAND} -E copy_directory
 		${CMAKE_CURRENT_SOURCE_DIR}/kernels ${CMAKE_CURRENT_BINARY_DIR}/kernels )
-FILE ( COPY ${CMAKE_CURRENT_SOURCE_DIR}/config   DESTINATION ${CMAKE_CURRENT_BINARY_DIR} )
 FILE ( COPY ${CMAKE_CURRENT_SOURCE_DIR}/pictures DESTINATION ${CMAKE_CURRENT_BINARY_DIR} )
+
+# Materialize the configuration from code defaults at build time and overlay this example's overrides
+# (config/config-overrides.json: consumer=gpu and the GPU-consumer kernel paths), then install it.
+GENEVA_MATERIALIZE_CONFIGS ( ${EXECUTABLENAME} ${INSTALL_PREFIX_DATA}/examples/15_GCUDAWorker/config )
 
 INSTALL ( TARGETS ${EXECUTABLENAME}
 	DESTINATION ${INSTALL_PREFIX_DATA}/examples/15_GCUDAWorker )
-INSTALL ( DIRECTORY config kernels pictures
+INSTALL ( DIRECTORY kernels pictures
 	DESTINATION ${INSTALL_PREFIX_DATA}/examples/15_GCUDAWorker )
