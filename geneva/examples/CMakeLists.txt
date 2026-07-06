@@ -59,6 +59,10 @@ IF(GENEVA_GPU_CONSUMER_ENABLED)
 ENDIF()
 
 ADD_SUBDIRECTORY( 01_GSimpleOptimizer )
+# The generic optimizer (example 19) is the shared runtime driver the collapsed, load-from-disk examples
+# (02/04/07, ...) run their problem modules on; it is configured first so those examples can depend on it
+# (e.g. to materialize their configs from its code defaults at build time).
+ADD_SUBDIRECTORY( 19_GLoadableIndividual )
 ADD_SUBDIRECTORY( 02_GParaboloid2D )
 ADD_SUBDIRECTORY( 03_GParameterObjectUsagePatterns )
 ADD_SUBDIRECTORY( 04_GMultiCriterionParabola )
@@ -91,7 +95,6 @@ IF(GENEVA_BUILD_WITH_MPI_CONSUMER)
 ENDIF()
 
 ADD_SUBDIRECTORY( 18_GAlgorithmChaining )
-ADD_SUBDIRECTORY( 19_GLoadableIndividual )
 
 # ---------------------------------------------------------------------------------------------------
 # Optional: refresh every shipped example config in place via the Go2 --update-configs switch.

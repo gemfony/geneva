@@ -103,6 +103,14 @@ int main(int argc, char **argv) {
     best->streamline<double>(v);
 
     std::cout << "Best result found (raw fitness = " << raw << "):" << '\n';
+    // A multi-criterion problem stores one raw result per evaluation criterion; the single "raw fitness"
+    // above is only the main one. Surface every criterion so the multi-objective result is visible (for a
+    // Pareto-sorted run the reported individual is one member of the non-dominated front).
+    if(const std::size_t n_criteria = best->getNStoredResults(); n_criteria > 1) {
+        for(std::size_t c = 0; c < n_criteria; ++c) {
+            std::cout << "  raw fitness[" << c << "] = " << best->raw_fitness(c) << '\n';
+        }
+    }
     for(auto const& [i, x] : std::views::enumerate(v)) {
         std::cout << "  x[" << i << "] = " << x << '\n';
     }

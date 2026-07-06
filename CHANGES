@@ -98,6 +98,15 @@ Recommended Versions:
   evaluator; the multi-criterion parabola (example 4) is the first to source its per-run constants
   (the per-criterion minima) from the load-once store rather than from a per-instance member.
 
+- CHANGED: the multi-criterion parabola (example 4) is now optimized with a Pareto sorting scheme, so
+  it exercises genuine multi-objective optimization across its several conflicting criteria; previously
+  it ran single-objective and drove only the first criterion. As a loadable-module example it has no
+  bespoke executable, so it ships a small config-overrides.json that is overlaid onto the EA
+  configuration the generic optimizer materializes at build time. The generic optimizer (example 19)
+  now also reports every criterion of the best individual for a multi-criterion problem, not just the
+  main one (for a Pareto run the reported individual is one member of the non-dominated front). The
+  generic optimizer is now configured before the loadable examples that run on it.
+
 - NEW: runtime-loadable modules now carry a toolchain-compatibility fingerprint. A loadable
   individual plugin previously only recorded the Geneva version, so a plugin built with a
   different compiler, standard library, _GLIBCXX_USE_CXX11_ABI setting, Boost version or
