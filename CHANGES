@@ -103,11 +103,22 @@ Recommended Versions:
   library a compile-in binary links; load/both build a lib<name>.so that links no Geneva
   library (its symbols resolve from the host at load). Serialization export stays the
   author's own BOOST_CLASS_EXPORT_KEY/_IMPLEMENT, and the module's fixed manifest entry
-  point lives in a separate glue translation unit compiled into the module only. As the
-  first step of relocating the reusable individuals out of the Geneva library,
-  GLineFitIndividual is now packaged this way rather than compiled into libgemfony-geneva;
-  its in-tree unit test links its object library and the library exports none of it. See the
-  new "Packaging a problem" section in docs/writing-optimization-problems.md.
+  point lives in a separate glue translation unit compiled into the module only. See the new
+  "Packaging a problem" section in docs/writing-optimization-problems.md.
+
+- CHANGED: the Geneva library no longer contains any concrete optimization individual. A
+  production build's libgemfony-geneva exports zero GOptimizableEntity subclasses; the
+  reusable sample individuals are packaged with GENEVA_DECLARE_INDIVIDUAL and consumed as
+  object libraries (compiled into the example / test / benchmark that uses them) or loaded as
+  runtime modules. GFunctionIndividual, GNeuralNetworkIndividual, GExternalEvaluatorIndividual
+  and GLineFitIndividual ship as both an object library and a loadable module; GDelayIndividual
+  and GMetaOptimizerIndividualT (a benchmark-only delay individual and the meta-optimization
+  umbrella, neither meaningful to load) ship as object libraries only. The unit-test fixtures
+  GTestIndividual2 and GTestIndividual3 are likewise object libraries; GTestIndividual1, which
+  the evolutionary algorithm's own GEM_TESTING self-test instantiates, remains compiled into
+  the library but only in a testing-enabled build. No user code changes: an individual's
+  serialization export is unchanged, and a program that compiles an individual in simply links
+  the corresponding object library.
 
 - FIXED: the CUDA random-number backend could print spurious "GCudaRNG: cuRAND call failed"
   lines to stderr at process exit. When the CUDA runtime unloads at shutdown while the

@@ -60,9 +60,17 @@ SET(LIBRARIES_TO_LINK
 		${GENEVA_LIBRARIES}
 		${Boost_LIBRARIES}
 		Catch2::Catch2WithMain
-		# GLineFitIndividual is no longer compiled into the geneva library; this test constructs and serializes
-		# it directly, so it links the individual's object library (which carries its BOOST_CLASS_EXPORT_IMPLEMENT).
-		GLineFitIndividual-obj)
+		# These individuals are no longer compiled into the geneva library; the tests construct and serialize
+		# them directly, so they link the individuals' object libraries (which carry their BOOST_CLASS_EXPORT_IMPLEMENT).
+		GLineFitIndividual-obj
+		GNeuralNetworkIndividual-obj
+		GExternalEvaluatorIndividual-obj
+		GDelayIndividual-obj
+		GFunctionIndividual-obj
+		GMetaOptimizerIndividualT-obj
+		# GTestIndividual2/3 are packaged as object libraries (GTestIndividual1 stays in the GEM_TESTING library).
+		GTestIndividual2-obj
+		GTestIndividual3-obj)
 
 # Add MPI Libraries in case building with MPI-consumer
 IF(GENEVA_BUILD_WITH_MPI_CONSUMER)

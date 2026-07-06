@@ -39,7 +39,11 @@ ADD_EXECUTABLE(${EXECUTABLENAME}
 
 SET(LIBRARIES_TO_LINK
 		${GENEVA_LIBRARIES}
-		${Boost_LIBRARIES})
+		${Boost_LIBRARIES}
+		# The meta-optimizer and its umbrella individual are no longer in the geneva library; compiled in via
+		# their object libraries (the meta individual's instantiation needs GFunctionIndividual's symbols too).
+		GMetaOptimizerIndividualT-obj
+		GFunctionIndividual-obj)
 
 # Add MPI Libraries in case building with MPI-consumer
 IF(GENEVA_BUILD_WITH_MPI_CONSUMER)

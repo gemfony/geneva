@@ -50,6 +50,8 @@ TARGET_INCLUDE_DIRECTORIES ( ${EXECUTABLENAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DI
 SET ( LIBRARIES_TO_LINK
 	${GENEVA_LIBRARIES}
 	${Boost_LIBRARIES}
+	# GFunctionIndividual is no longer in the geneva library; compiled in via its object library.
+	GFunctionIndividual-obj
 )
 IF ( GENEVA_BUILD_WITH_MPI_CONSUMER )
 	SET ( LIBRARIES_TO_LINK ${LIBRARIES_TO_LINK} ${MPI_LIBRARIES} )

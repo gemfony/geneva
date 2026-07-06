@@ -38,6 +38,9 @@ ADD_EXECUTABLE(${EXECUTABLENAME}
 )
 
 SET(LIBRARIES_TO_LINK
+		# GTestIndividual2 is no longer in the geneva library; compiled in via its object library (before the
+		# Geneva/Boost libraries so its serialization objects resolve libboost_serialization).
+		GTestIndividual2-obj
 		${GENEVA_LIBRARIES}
 		${Boost_LIBRARIES})
 

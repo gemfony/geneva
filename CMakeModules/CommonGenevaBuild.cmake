@@ -563,6 +563,13 @@ IF(NOT COMMON_GENEVA_BUILD_INCLUDED)
 			ADD_LIBRARY(${_name}-obj OBJECT ${GDI_SOURCES})
 			SET_TARGET_PROPERTIES(${_name}-obj PROPERTIES POSITION_INDEPENDENT_CODE ON)
 			TARGET_INCLUDE_DIRECTORIES(${_name}-obj PUBLIC ${_gdi_incdirs})
+			# NOTE on link order: a compile-in consumer must list <name>-obj BEFORE the Geneva and Boost
+			# libraries. The object library's own objects instantiate Boost.Serialization for the individual's
+			# exported types; the linker's default --as-needed drops (shared) libboost_serialization if nothing
+			# preceding it needs it, so the object library's objects -- if placed last -- fail to resolve. CMake
+			# deduplicates a shared library to its first position, so a usage-requirement dependency here cannot
+			# reorder it; the consumer must order the object library first. The module .so is unaffected: it
+			# reuses $<TARGET_OBJECTS:...> (object files only) at the front of its own link.
 		ENDIF()
 
 		# (B) load/both: the shared MODULE lib<name>.so. It reuses the object library's objects where they

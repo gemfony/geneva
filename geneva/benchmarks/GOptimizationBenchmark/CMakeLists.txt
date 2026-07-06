@@ -45,6 +45,9 @@ ADD_EXECUTABLE(${EXECUTABLENAME}
 )
 
 SET(LIBRARIES_TO_LINK
+		# GFunctionIndividual is no longer in the geneva library; compiled in via its object library (before the
+		# Geneva/Boost libraries so its serialization objects resolve libboost_serialization).
+		GFunctionIndividual-obj
 		${GENEVA_LIBRARIES}
 		${Boost_LIBRARIES})
 

@@ -70,26 +70,81 @@ SET ( OPTIMIZATIONSOURCES
 	GPersonalityTraits.cpp
     GPluggableOptimizationMonitors.cpp
     GPostProcessorT.cpp
-	individuals/GTestIndividual1.cpp
-	individuals/GTestIndividual2.cpp
-	individuals/GTestIndividual3.cpp
-	individuals/GDelayIndividual.cpp
-	individuals/GExternalEvaluatorIndividual.cpp
-	individuals/GFunctionIndividual.cpp
-	individuals/GMetaOptimizerIndividualT.cpp
-	individuals/GNeuralNetworkIndividual.cpp
 )
 
-# GLineFitIndividual is packaged, NOT compiled into the geneva library (DA1: libgemfony-geneva ships zero
-# concrete GOptimizableEntity subclasses). MODE both -> an OBJECT library GLineFitIndividual-obj (linked by
-# its in-library unit-test consumer, GenevaStandardTests) and a runtime-loadable module libGLineFitIndividual.so
-# (the generic optimizer loads it via --individual). One BOOST_CLASS_EXPORT_IMPLEMENT (in the individual's own
-# .cpp) serves both; the module-only glue TU carries the extern "C" manifest entry point.
+# GTestIndividual1 is a LIBRARY-INTERNAL test fixture: GEvolutionaryAlgorithm's GEM_TESTING self-test
+# (fillWithObjects) instantiates it. It is therefore compiled into the library, but ONLY under
+# GENEVA_BUILD_TESTS (-DGEM_TESTING) -- a production build omits it, so libgemfony-geneva still ships zero
+# concrete individuals. Its GEM_TESTING-only test consumers (GenevaStandardTests) link the library and get it
+# from there. GTestIndividual2 and GTestIndividual3 are NOT used by the library; they are packaged as object
+# libraries below.
+IF(GENEVA_BUILD_TESTS)
+	SET(OPTIMIZATIONSOURCES ${OPTIMIZATIONSOURCES} individuals/GTestIndividual1.cpp)
+ENDIF()
+
+# The reusable sample individuals are packaged, NOT compiled into the geneva library (DA1: libgemfony-geneva
+# ships zero concrete GOptimizableEntity subclasses). Each MODE-both declaration builds an OBJECT library
+# <name>-obj (linked by the individual's compile-in consumers -- examples / tests / benchmarks) and a
+# runtime-loadable module lib<name>.so (loaded by the generic optimizer via --individual). One
+# BOOST_CLASS_EXPORT_IMPLEMENT (in the individual's own .cpp) serves both; each module-only glue TU carries the
+# extern "C" manifest entry point.
 GENEVA_DECLARE_INDIVIDUAL(GLineFitIndividual
 	MODE    both
 	SOURCES individuals/GLineFitIndividual.cpp
 	PLUGIN  individuals/GLineFitIndividualPlugin.cpp
 	CONFIG  ./config/GLineFitIndividual.json)
+
+GENEVA_DECLARE_INDIVIDUAL(GNeuralNetworkIndividual
+	MODE    both
+	SOURCES individuals/GNeuralNetworkIndividual.cpp
+	PLUGIN  individuals/GNeuralNetworkIndividualPlugin.cpp
+	CONFIG  ./config/GNeuralNetworkIndividual.json)
+
+GENEVA_DECLARE_INDIVIDUAL(GExternalEvaluatorIndividual
+	MODE    both
+	SOURCES individuals/GExternalEvaluatorIndividual.cpp
+	PLUGIN  individuals/GExternalEvaluatorIndividualPlugin.cpp
+	CONFIG  ./config/GExternalEvaluatorIndividual.json)
+
+# GDelayIndividual is a pure benchmarking / testing individual (it performs no real optimisation -- its
+# fitness just sleeps, its genome is transport ballast) and deliberately owns its own config parsing and
+# construction (readConfig / create) instead of going through GFlatIndividualFactory. There is nothing to
+# load into the generic optimizer, so it is MODE compile: an object library its benchmark / test consumers
+# link, but no runtime-loadable module. (Maintainer-confirmed 2026-07-06: compile-in is fine here.)
+GENEVA_DECLARE_INDIVIDUAL(GDelayIndividual
+	MODE    compile
+	SOURCES individuals/GDelayIndividual.cpp)
+
+GENEVA_DECLARE_INDIVIDUAL(GFunctionIndividual
+	MODE    both
+	SOURCES individuals/GFunctionIndividual.cpp
+	PLUGIN  individuals/GFunctionIndividualPlugin.cpp
+	CONFIG  ./config/GFunctionIndividual.json)
+
+# GMetaOptimizerIndividualT is the meta-optimization umbrella individual (example 11). It is a class template
+# whose default and only exported instantiation is GMetaOptimizerIndividualT<GFunctionIndividual>, so it needs
+# GFunctionIndividual at compile and link time and must never be loaded (loading a meta-umbrella individual is
+# meaningless). Hence MODE compile: an object library its consumers link, no module. A consumer that links this
+# object library must ALSO link GFunctionIndividual-obj (its instantiation's symbols); the two meta consumers
+# (example 11 and the unit tests) do so explicitly.
+GENEVA_DECLARE_INDIVIDUAL(GMetaOptimizerIndividualT
+	MODE    compile
+	SOURCES individuals/GMetaOptimizerIndividualT.cpp)
+
+# GTestIndividual2 / GTestIndividual3 are serialization / auxiliary-store test fixtures used ONLY by external
+# test and benchmark targets (never by the library). They are packaged MODE compile -- an object library each
+# consumer links -- and built only when something can consume them: GTestIndividual2 by the unit tests and the
+# GSerializationOverhead / GRandomWalk benchmarks-and-manual-tests; GTestIndividual3 by the unit tests only.
+IF(GENEVA_BUILD_TESTS OR GENEVA_BUILD_BENCHMARKS)
+	GENEVA_DECLARE_INDIVIDUAL(GTestIndividual2
+		MODE    compile
+		SOURCES individuals/GTestIndividual2.cpp)
+ENDIF()
+IF(GENEVA_BUILD_TESTS)
+	GENEVA_DECLARE_INDIVIDUAL(GTestIndividual3
+		MODE    compile
+		SOURCES individuals/GTestIndividual3.cpp)
+ENDIF()
 
 # Add MPI specific files
 IF(GENEVA_BUILD_WITH_MPI_CONSUMER)
