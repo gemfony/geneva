@@ -79,7 +79,10 @@ GOptimizableEntity::GOptimizableEntity(GOptimizableEntity const &cp)
   , validity_level_(cp.validity_level_)
   // The OA-owned scratch is deep-copied (a clone mid-optimization keeps the live personality + adaption
   // state, e.g. an EA child inheriting its parent's sigma).
-  , scratch_(cp.scratch_ ? std::make_unique<GAuxiliaryStore>(*cp.scratch_) : nullptr) {
+  , scratch_(cp.scratch_ ? std::make_unique<GAuxiliaryStore>(*cp.scratch_) : nullptr)
+  // The free-evaluator thunk is a per-type code pointer: carry it onto the clone so an offspring produced
+  // mid-optimization evaluates through the same seam as its factory-made parent.
+  , free_evaluator_(cp.free_evaluator_) {
     Gem::Common::copyCloneableSmartPointer(cp.pre_processor_ptr_, pre_processor_ptr_);
     Gem::Common::copyCloneableSmartPointer(cp.post_processor_ptr_, post_processor_ptr_);
 }
@@ -293,6 +296,25 @@ void GOptimizableEntity::runEvaluation_(const std::vector<individual_processing_
                     }
                     this->setResult(pos, res.rawFitness());
                     ++pos;
+                }
+            }
+            else if(free_evaluator_ != nullptr) {
+                // A module-provided free evaluator supersedes the virtual (E.0 of the evaluator
+                // unification). It RETURNS the raw results (main at index 0, secondary criteria after)
+                // rather than writing them into the individual, mirroring the res_vec path above so the
+                // evaluation-policy transform below sees a fully-populated result store.
+                const std::vector<double> raw = free_evaluator_(*this);
+                if(raw.size() != this->getNStoredResults()) {
+                    throw geneva_exception(
+                        g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+                        << "In GOptimizableEntity::runEvaluation_(): Error!" << '\n'
+                        << "The free evaluator returned " << raw.size() << " result(s), but " << '\n'
+                        << this->getNStoredResults() << " were expected." << '\n'
+                    );
+                }
+                main_raw_result = raw.front();
+                for(std::size_t pos = 1; pos < raw.size(); ++pos) {
+                    this->setResult(pos, raw[pos]);
                 }
             }
             else {
@@ -704,6 +726,13 @@ void GOptimizableEntity::load_(const GOptimizableEntity *cp) {
     }
     else {
         scratch_.reset();
+    }
+
+    // The free-evaluator thunk (a per-type code pointer) rides along when the source carries one. A source
+    // without it (e.g. a default-constructed target being loaded onto) never clears an already-installed
+    // evaluator: load_ is always same-type, so the pointer is either equal or absent-on-the-source.
+    if(p_load->free_evaluator_ != nullptr) {
+        free_evaluator_ = p_load->free_evaluator_;
     }
 }
 

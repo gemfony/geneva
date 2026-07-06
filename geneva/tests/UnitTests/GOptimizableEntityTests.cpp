@@ -51,7 +51,9 @@
 
 #include "geneva/ind/GOptimizableEntity.hpp"
 #include "geneva/ind/GFlatGenomeT.hpp"
+#include "geneva/ind/GFlatIndividualFactory.hpp" // HasFreeEvaluator concept + freeEvaluatorThunk
 #include "geneva/ind/GGenomeBuilder.hpp"
+#include "geneva/ind/GProblemStoreT.hpp"
 
 using namespace Gem::Geneva;        // activityMode, serializationMode helpers
 using namespace Gem::Geneva::Genome;
@@ -110,6 +112,99 @@ private:
 BOOST_CLASS_EXPORT(Gem::Tests::NewSphere) // NOLINT
 
 using Gem::Tests::NewSphere;
+
+namespace Gem::Tests {
+
+/******************************************************************************/
+/**
+ * A single-criterion flat individual carrying the E.0 free evaluator: a static, instance-independent
+ * evaluate(const GFlatGenome&) returning a scalar raw fitness, with fitnessCalculation() delegating to it
+ * (single-sourced). Used to prove the free-evaluator dispatch path produces byte-identical results to the
+ * virtual path.
+ */
+class SeamSphere : public GFlatGenomeT<SeamSphere> {
+public:
+    SeamSphere() {
+        GGenomeBuilder b;
+        b.addDoubleGroup(3, -10., 10.).init(1.0); // structure only
+        this->setGenome(b.build());
+    }
+    SeamSphere(const SeamSphere &) = default;
+
+    /** @brief The free evaluator: the sum of squares of the genome's external parameters. */
+    static double evaluate(const GFlatGenome &g) {
+        std::vector<double> v;
+        g.streamline<double>(v);
+        return std::ranges::fold_left(
+            v | std::views::transform([](double x) { return x * x; }), 0., std::plus{});
+    }
+
+protected:
+    double fitnessCalculation() override { return evaluate(*this); }
+
+private:
+    friend class boost::serialization::access;
+    template <typename Archive>
+    void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
+        ar &boost::serialization::make_nvp(
+            "GFlatGenomeT", boost::serialization::base_object<GFlatGenomeT<SeamSphere>>(*this));
+    }
+};
+
+/******************************************************************************/
+/**
+ * A three-criterion flat individual carrying the E.0 free evaluator in its multi-criterion shape: a static
+ * evaluate() returning the full raw result vector (main first). fitnessCalculation() delegates to it and
+ * writes the secondary results via setResult(), so the virtual and free-evaluator paths are single-sourced.
+ * Used to prove the dispatch's secondary-result handling matches the res_vec / virtual paths.
+ */
+class SeamMulti : public GFlatGenomeT<SeamMulti> {
+public:
+    SeamMulti() {
+        GGenomeBuilder b;
+        b.addDoubleGroup(3, -10., 10.).init(1.0); // structure only
+        this->setGenome(b.build());
+        this->setNStoredResults(3); // three evaluation criteria
+    }
+    SeamMulti(const SeamMulti &) = default;
+
+    /** @brief The free evaluator: one distinguishable criterion per parameter (main result first). */
+    static std::vector<double> evaluate(const GFlatGenome &g) {
+        std::vector<double> v;
+        g.streamline<double>(v);
+        return std::vector<double>{v.at(0) * v.at(0), 2. * v.at(1) * v.at(1), 3. * v.at(2) * v.at(2)};
+    }
+
+protected:
+    double fitnessCalculation() override {
+        const std::vector<double> v = evaluate(*this);
+        for(std::size_t i = 1; i < v.size(); ++i) {
+            this->setResult(i, v[i]);
+        }
+        return v.front();
+    }
+
+private:
+    friend class boost::serialization::access;
+    template <typename Archive>
+    void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
+        ar &boost::serialization::make_nvp(
+            "GFlatGenomeT", boost::serialization::base_object<GFlatGenomeT<SeamMulti>>(*this));
+    }
+};
+
+} // namespace Gem::Tests
+
+BOOST_CLASS_EXPORT(Gem::Tests::SeamSphere) // NOLINT
+BOOST_CLASS_EXPORT(Gem::Tests::SeamMulti)  // NOLINT
+
+using Gem::Tests::SeamMulti;
+using Gem::Tests::SeamSphere;
+
+// The concept must recognise the seam individuals and reject one without a static evaluate().
+static_assert(Gem::Geneva::Genome::HasFreeEvaluator<SeamSphere>);
+static_assert(Gem::Geneva::Genome::HasFreeEvaluator<SeamMulti>);
+static_assert(not Gem::Geneva::Genome::HasFreeEvaluator<NewSphere>);
 
 /******************************************************************************/
 TEST_CASE("GOptimizableEntity: a fresh flat individual evaluates and reaches PROCESSED", "[candidate]") {
@@ -263,4 +358,105 @@ TEST_CASE("GFlatGenome: countParameters is cached and re-keyed on layout change"
         CHECK(loaded->countParameters<std::int32_t>() == 2u);
         CHECK(loaded->countParameters<bool>() == 4u);
     }
+}
+
+/******************************************************************************/
+/**
+ * E.0 evaluator seam: an installed free evaluator must produce a byte-identical result to the virtual
+ * fitnessCalculation() path at the single evaluation call site, for a single-criterion individual.
+ */
+TEST_CASE("GOptimizableEntity: the free evaluator matches the virtual path (single criterion)", "[candidate][evaluator]") {
+    const std::vector<double> params{2.0, -3.0, 4.0}; // sum of squares == 29
+
+    // Virtual path: a fresh individual carries no thunk, so process() calls fitnessCalculation().
+    SeamSphere viaVirtual;
+    viaVirtual.assignValueVector<double>(params);
+    REQUIRE_FALSE(viaVirtual.hasFreeEvaluator());
+    const double virtualFitness = viaVirtual.process().rawFitness();
+
+    // Seam path: install the type-erased thunk the factory would install, then process().
+    SeamSphere viaSeam;
+    viaSeam.assignValueVector<double>(params);
+    viaSeam.setFreeEvaluator(&Gem::Geneva::Genome::freeEvaluatorThunk<SeamSphere>);
+    REQUIRE(viaSeam.hasFreeEvaluator());
+    const double seamFitness = viaSeam.process().rawFitness();
+
+    CHECK(seamFitness == virtualFitness); // byte-identical (single-sourced evaluate())
+    CHECK(seamFitness == Approx(29.0));
+
+    // Clearing the thunk falls back to the virtual path.
+    viaSeam.setFreeEvaluator(nullptr);
+    CHECK_FALSE(viaSeam.hasFreeEvaluator());
+    viaSeam.assignValueVector<double>(params); // mark due for reprocessing
+    CHECK(viaSeam.process().rawFitness() == Approx(29.0));
+}
+
+/******************************************************************************/
+/**
+ * E.0 evaluator seam: the vector-returning multi-criterion shape must populate every criterion identically
+ * to the virtual path (which sets the secondary results via setResult()).
+ */
+TEST_CASE("GOptimizableEntity: the free evaluator sets all criteria (multi-criterion)", "[candidate][evaluator]") {
+    const std::vector<double> params{2.0, 3.0, 4.0}; // criteria: {4, 2*9=18, 3*16=48}
+
+    SeamMulti viaVirtual;
+    viaVirtual.assignValueVector<double>(params);
+    REQUIRE(viaVirtual.getNStoredResults() == 3u);
+    viaVirtual.process();
+
+    SeamMulti viaSeam;
+    viaSeam.assignValueVector<double>(params);
+    viaSeam.setFreeEvaluator(&Gem::Geneva::Genome::freeEvaluatorThunk<SeamMulti>);
+    viaSeam.process();
+
+    // Every criterion matches between the two paths, and the secondary results are set.
+    for(std::size_t i = 0; i < 3; ++i) {
+        CHECK(viaSeam.raw_fitness(i) == viaVirtual.raw_fitness(i));
+    }
+    CHECK(viaSeam.raw_fitness(0) == Approx(4.0));
+    CHECK(viaSeam.raw_fitness(1) == Approx(18.0));
+    CHECK(viaSeam.raw_fitness(2) == Approx(48.0));
+}
+
+/******************************************************************************/
+/**
+ * E.0 evaluator seam: a free evaluator survives cloning (the offspring carries the same thunk), so an
+ * individual produced by an OA's clone-of-parent evaluates through the seam like its parent.
+ */
+TEST_CASE("GOptimizableEntity: the free evaluator survives cloning", "[candidate][evaluator]") {
+    SeamSphere parent;
+    parent.assignValueVector<double>(std::vector<double>{1.0, 2.0, 2.0}); // 1+4+4 == 9
+    parent.setFreeEvaluator(&Gem::Geneva::Genome::freeEvaluatorThunk<SeamSphere>);
+
+    auto child = parent.clone<SeamSphere>();
+    REQUIRE(child);
+    CHECK(child->hasFreeEvaluator());
+    CHECK(child->process().rawFitness() == Approx(9.0));
+}
+
+/******************************************************************************/
+/**
+ * The (c) load-once problem store: fills exactly once, reads immutably, and refuses a read-before-load.
+ */
+TEST_CASE("GProblemStoreT: loads once and reads immutably", "[candidate][store]") {
+    Gem::Geneva::Genome::GProblemStoreT<std::vector<double>> store;
+
+    CHECK_FALSE(store.loaded());
+    CHECK_THROWS(store.get()); // read before load is a programming error
+
+    int fillCount = 0;
+    const auto fill = [&fillCount]() {
+        ++fillCount;
+        return std::vector<double>{1.5, 2.5, 3.5};
+    };
+
+    store.ensureLoaded(fill);
+    REQUIRE(store.loaded());
+    REQUIRE(fillCount == 1);
+    CHECK(store.get() == std::vector<double>{1.5, 2.5, 3.5});
+
+    // A second ensureLoaded() is a no-op: the payload is immutable after the first fill.
+    store.ensureLoaded([]() { return std::vector<double>{9.9}; });
+    CHECK(fillCount == 1);
+    CHECK(store.get() == std::vector<double>{1.5, 2.5, 3.5});
 }

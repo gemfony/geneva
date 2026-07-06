@@ -186,9 +186,19 @@ gen::GFlatGenome *GParaboloidIndividual2D::clone_() const {
  * @return The value of this object
  */
 double GParaboloidIndividual2D::fitnessCalculation() {
+    // Single-source the objective: both the free-evaluator seam (installed by the factory) and this
+    // virtual delegate to evaluate(), so the two evaluation paths compute one value from one place.
+    return evaluate(*this);
+}
+
+/********************************************************************************************/
+/**
+ * The free, instance-independent evaluator: the sum of squares of the genome's external parameters.
+ */
+double GParaboloidIndividual2D::evaluate(const gen::GFlatGenome &g) {
     std::vector<double> parVec; // Will hold the parameters
 
-    this->streamline(parVec); // Retrieve the parameters
+    g.streamline(parVec); // Retrieve the (external) parameters
 
     // Do the actual calculation
     return std::ranges::fold_left(

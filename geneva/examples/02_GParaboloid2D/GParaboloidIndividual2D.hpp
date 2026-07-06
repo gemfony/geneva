@@ -106,6 +106,12 @@ public:
     static void describeConfig(Gem::Common::GParserBuilder &gpb, Config &c);
     /** @brief Builds the flat genome structure: two constrained doubles in [par_min, par_max]. */
     static gen::GenomeData buildGenome(const Config &c);
+    /** @brief The free, instance-independent evaluator (E.0 evaluator seam): the sum of squares of the
+     *  genome's (external) parameters. The factory installs it on produced individuals in place of the
+     *  virtual fitnessCalculation(), which delegates here so both paths compute one value from one source.
+     *  @param g The individual's genome, read via its external streamline() values
+     *  @return The raw fitness (sum of squares) of the paraboloid */
+    static double evaluate(const gen::GFlatGenome &g);
     /** @brief Factory hook: the OA-owned adaption config for a produced genome (delegates to the one-argument
      *  form; the Config carries no adaptor settings). */
     static std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase>

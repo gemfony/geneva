@@ -36,6 +36,8 @@
 #include <filesystem>
 #include <memory>
 #include <mutex>
+#include <type_traits>
+#include <vector>
 
 // Boost header files go here
 #include <boost/serialization/base_object.hpp>
@@ -78,6 +80,39 @@ concept HasBuildAdaptionConfigHook =
 template <typename Derived>
 concept HasApplyConfigHook =
     requires(Derived &d, const typename Derived::Config &c) { Derived::applyConfig(d, c); };
+
+/** @brief Satisfied if Derived supplies a static, instance-independent free evaluator
+ *  evaluate(const GFlatGenome&) returning a raw fitness (double) or a raw fitness vector
+ *  (std::vector<double>, multi-criterion). This is the E.0 evaluator seam: a type that provides it opts
+ *  its individuals into the free-evaluator dispatch path in place of the virtual fitnessCalculation(). */
+template <typename Derived>
+concept HasFreeEvaluator = requires(const GFlatGenome &g) { Derived::evaluate(g); };
+
+/******************************************************************************/
+/**
+ * @brief The type-erased thunk installed on an individual whose type provides a static free evaluator.
+ *
+ * It normalises the two permitted return shapes to a single @c std::vector<double> (the form the single
+ * evaluation call site consumes): a scalar @c double becomes a one-element vector (single criterion); a
+ * @c std::vector<double> passes through (multi-criterion, main result first). The @c GOptimizableEntity& it
+ * receives is always a @c GFlatGenome (the factory only installs this thunk on a produced GFlatGenome), so
+ * the down-cast is a static_cast.
+ *
+ * @tparam Derived The concrete flat individual type supplying the static evaluate(const GFlatGenome&) hook
+ * @param oe The individual to evaluate (a GFlatGenome; passed as its base so the thunk type is genome-agnostic)
+ * @return The raw result vector (size 1 for a single-criterion problem, N for N criteria)
+ */
+template <class Derived>
+std::vector<double> freeEvaluatorThunk(const GOptimizableEntity &oe) {
+    const auto &g = static_cast<const GFlatGenome &>(oe);
+    using R = std::remove_cvref_t<decltype(Derived::evaluate(g))>;
+    if constexpr (std::is_same_v<R, std::vector<double>>) {
+        return Derived::evaluate(g);
+    }
+    else {
+        return std::vector<double>(1, static_cast<double>(Derived::evaluate(g)));
+    }
+}
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -273,6 +308,14 @@ protected:
         // symmetric companion to buildAdaptionConfig(): an individual without the hook is simply left unconfigured.
         if constexpr (HasApplyConfigHook<Derived>) {
             Derived::applyConfig(*static_cast<Derived *>(fg), config_);
+        }
+
+        // E.0 evaluator seam: if the individual type provides a static free evaluator
+        // evaluate(const GFlatGenome&), install the type-erased thunk so this produced individual (and its
+        // clones) evaluate through the free-evaluator dispatch path instead of the virtual
+        // fitnessCalculation(). A type without the hook is simply left on the virtual path.
+        if constexpr (HasFreeEvaluator<Derived>) {
+            fg->setFreeEvaluator(&freeEvaluatorThunk<Derived>);
         }
     }
 

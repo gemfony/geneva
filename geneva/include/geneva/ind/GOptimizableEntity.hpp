@@ -326,6 +326,25 @@ public:
     void setFitness_(std::vector<double> const &f_cnt);
 
     /***************************************************************************/
+    // Free module-provided evaluator seam (the Strangler-Fig replacement for the fitnessCalculation()
+    // virtual). A concrete individual type MAY supply a static, instance-independent free evaluator
+    // (see the HasFreeEvaluator concept in GFlatIndividualFactory.hpp); the factory concept-detects it and
+    // installs the type-erased thunk below on each produced individual. When present it supersedes the
+    // virtual fitnessCalculation() at the single evaluation call site in runEvaluation_(); when absent the
+    // virtual is used unchanged. The thunk is a CODE pointer, hence transient: it is (re-)established by the
+    // factory, carried across clone/load, and NOT serialized -- a deserialized networked individual arrives
+    // without it and falls back to the (byte-identical) fitnessCalculation() for the additive migration.
+
+    /** @brief The type-erased free-evaluator thunk: maps an individual to its raw result vector (size 1 for
+     *  a single-criterion problem; the main result at index 0, secondary criteria after it). */
+    using GFreeEvaluatorFn = std::vector<double> (*)(const GOptimizableEntity &);
+    /** @brief Installs (or, with nullptr, clears) the free-evaluator thunk. Called by the factory when the
+     *  produced individual's type provides a static evaluate(const GFlatGenome&). @param fn The thunk */
+    void setFreeEvaluator(GFreeEvaluatorFn fn) { free_evaluator_ = fn; }
+    /** @brief @return true if a free evaluator has been installed on this individual */
+    [[nodiscard]] bool hasFreeEvaluator() const { return free_evaluator_ != nullptr; }
+
+    /***************************************************************************/
     // Policy-derived accessors (forwarded to the shared GProblemPolicy).
 
     /** @brief Installs the shared problem policy (the 1:N feasibility/ranking rules).
@@ -1025,6 +1044,10 @@ private:
      *  (so the accessors never null-check); deep-copied on clone/load; serialized only on a checkpoint
      *  (omitted on the wire, see serialize()); excluded from the compared identity (not in localMembers_). */
     std::unique_ptr<GAuxiliaryStore> scratch_ = std::make_unique<GAuxiliaryStore>();
+
+    /** @brief The module-provided free evaluator, or nullptr to use the virtual fitnessCalculation().
+     *  Transient (a code pointer): installed by the factory, copied on clone/load, never serialized. */
+    GFreeEvaluatorFn free_evaluator_ = nullptr;
 };
 
 /******************************************************************************/
