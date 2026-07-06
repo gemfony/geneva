@@ -27,36 +27,21 @@
 #
 ################################################################################
 
-SET ( EXECUTABLENAME GMultiCriterionParabola )
-
-SET ( ${EXECUTABLENAME}_SRCS
-	GMultiCriterionParabola.cpp
-	GMultiCriterionParabolaIndividual.cpp
-)
-
-ADD_EXECUTABLE(${EXECUTABLENAME}
-	${${EXECUTABLENAME}_SRCS}
-)
-
-SET(LIBRARIES_TO_LINK
-		${GENEVA_LIBRARIES}
-		${Boost_LIBRARIES})
-
-# Add MPI Libraries in case building with MPI-consumer
-IF(GENEVA_BUILD_WITH_MPI_CONSUMER)
-	SET(LIBRARIES_TO_LINK
-			${LIBRARIES_TO_LINK}
-			${MPI_LIBRARIES})
-ENDIF()
-
-TARGET_LINK_LIBRARIES (${EXECUTABLENAME}
-		${LIBRARIES_TO_LINK}
-		)
-
-GENEVA_MATERIALIZE_CONFIGS ( ${EXECUTABLENAME} ${INSTALL_PREFIX_DATA}/examples/${EXECUTABLENAME}/config )
+# Load-from-disk model: the multi-criterion problem is a runtime-loadable module optimized by the generic
+# optimizer (example 19's GGenericOptimizer) via --individual, not by a bespoke main. Configuration is
+# auto-created from code defaults on first run.
+GENEVA_DECLARE_INDIVIDUAL(GMultiCriterionParabolaIndividual
+	MODE    load
+	SOURCES GMultiCriterionParabolaIndividual.cpp
+	PLUGIN  GMultiCriterionParabolaIndividualPlugin.cpp
+	CONFIG  ./config/GMultiCriterionParabolaIndividual.json)
 
 IF (GENEVA_RUN_EXAMPLES_AS_TESTS)
-	ADD_TEST(${EXECUTABLENAME} ${EXECUTABLENAME})
+	ADD_TEST(
+		NAME GMultiCriterionParabola
+		COMMAND $<TARGET_FILE:GGenericOptimizer> --individual $<TARGET_FILE:GMultiCriterionParabolaIndividual>
+		WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+	)
 ENDIF ()
 
-INSTALL ( TARGETS ${EXECUTABLENAME} DESTINATION ${INSTALL_PREFIX_DATA}/examples/${EXECUTABLENAME} )
+INSTALL ( TARGETS GMultiCriterionParabolaIndividual DESTINATION ${INSTALL_PREFIX_DATA}/examples/GMultiCriterionParabola )

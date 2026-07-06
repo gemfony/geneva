@@ -27,37 +27,28 @@
 #
 ################################################################################
 
-SET ( EXECUTABLENAME GFunctionMinimizer )
+# This example demonstrates the load-from-disk model: the optimization problem (GFMinIndividual) is a
+# runtime-loadable module, and it is optimized by the generic optimizer (example 19's GGenericOptimizer)
+# via --individual, rather than by a bespoke main. There is no example-specific executable -- "load a
+# problem, run an algorithm, print the best" is exactly what the generic optimizer already does. All
+# configuration (Go2, the algorithm, the individual) is auto-created from code defaults on first run.
 
-SET ( ${EXECUTABLENAME}_SRCS
-	GFunctionMinimizer.cpp
-	GFMinIndividual.cpp
-)
+# The loadable problem module -> libGFMinIndividual.so (problem code + serialization GUID + manifest glue),
+# linking none of the Geneva libraries (their symbols resolve from the generic optimizer at load).
+GENEVA_DECLARE_INDIVIDUAL(GFMinIndividual
+	MODE    load
+	SOURCES GFMinIndividual.cpp
+	PLUGIN  GFMinIndividualPlugin.cpp
+	CONFIG  ./config/GFMinIndividual.json)
 
-ADD_EXECUTABLE(${EXECUTABLENAME}
-	${${EXECUTABLENAME}_SRCS}
-)
-
-SET(LIBRARIES_TO_LINK
-		${GENEVA_LIBRARIES}
-		${Boost_LIBRARIES})
-
-# Add MPI Libraries in case building with MPI-consumer
-IF(GENEVA_BUILD_WITH_MPI_CONSUMER)
-	SET(LIBRARIES_TO_LINK
-			${LIBRARIES_TO_LINK}
-			${MPI_LIBRARIES})
-ENDIF()
-
-TARGET_LINK_LIBRARIES (${EXECUTABLENAME}
-		${LIBRARIES_TO_LINK}
-		)
-
-
-GENEVA_MATERIALIZE_CONFIGS ( ${EXECUTABLENAME} ${INSTALL_PREFIX_DATA}/examples/${EXECUTABLENAME}/config )
-
+# End-to-end test: the generic optimizer loads this problem module and optimizes it (configs auto-create in
+# the build directory). GGenericOptimizer is provided by example 19.
 IF (GENEVA_RUN_EXAMPLES_AS_TESTS)
-	ADD_TEST(${EXECUTABLENAME} ${EXECUTABLENAME})
+	ADD_TEST(
+		NAME GFunctionMinimizer
+		COMMAND $<TARGET_FILE:GGenericOptimizer> --individual $<TARGET_FILE:GFMinIndividual>
+		WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+	)
 ENDIF ()
 
-INSTALL ( TARGETS ${EXECUTABLENAME} DESTINATION ${INSTALL_PREFIX_DATA}/examples/${EXECUTABLENAME} )
+INSTALL ( TARGETS GFMinIndividual DESTINATION ${INSTALL_PREFIX_DATA}/examples/GFunctionMinimizer )
