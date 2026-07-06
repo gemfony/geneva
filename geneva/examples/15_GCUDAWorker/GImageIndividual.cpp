@@ -438,6 +438,16 @@ gen::GFlatGenome *GImageIndividual::clone_() const {
 	 * @return The value of this object
 	 */
 double GImageIndividual::fitnessCalculation() {
+    // Single-source the objective: both the free-evaluator seam (installed by the factory) and this
+    // virtual delegate to evaluate(), so the CPU reference is computed from one place.
+    return evaluate(*this);
+}
+
+/******************************************************************************/
+/**
+ * The free, instance-independent evaluator.
+ */
+double GImageIndividual::evaluate(const gen::GFlatGenome &g) {
     // The host fitness is computed on the CPU via the SAME render+score the GPU kernel uses
     // (Gem::Geneva::MonaLisa::score, shared in GMonaLisaProblem.hpp). This makes the individual
     // evaluable purely on the CPU -- to cross-check the GPU result and compare speed -- while the
@@ -446,7 +456,7 @@ double GImageIndividual::fitnessCalculation() {
     // The genome scalar type is selected at compile time (gimage_fp_t); streamline<gimage_fp_t>
     // is required -- streamline<float> collects nothing from a double genome and vice-versa.
     std::vector<gimage_fp_t> parVec;
-    this->streamline(parVec);
+    g.streamline(parVec);
     return Gem::Geneva::MonaLisa::scoreAgainstTarget(parVec.data(), static_cast<int>(parVec.size()));
 }
 

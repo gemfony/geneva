@@ -233,6 +233,15 @@ public:
      *  Authored from the Config -- no adaptor data resides on the individual. */
     static std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase>
     buildAdaptionConfig(const gen::GFlatGenome &sample, const Config &c);
+    /** @brief The free, instance-independent evaluator (the E.0 evaluator seam): the CPU render+score of
+     *  the genome's triangles against the process-wide target image (Gem::Geneva::MonaLisa::scoreAgainstTarget).
+     *  This is the SAME render+score the GPU kernel uses, so it doubles as the device cross-check reference.
+     *  The factory installs it in place of the virtual fitnessCalculation(), which delegates here. It reads
+     *  only the genome and the shared target store (loaded once via MonaLisa::loadTarget) -- no per-instance
+     *  member is needed (the image dimensions come from the target, the triangle count from the genome size).
+     *  @param g The individual's genome, read via its external streamline() values
+     *  @return The raw fitness (deviation from the target image) */
+    static double evaluate(const gen::GFlatGenome &g);
 
     /** @brief Retrieves the number of triangles */
     std::size_t getNTriangles() const;

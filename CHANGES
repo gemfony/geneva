@@ -96,7 +96,9 @@ Recommended Versions:
   This is the first step towards unifying the local, device and remote evaluation paths onto one
   function-shaped contract. The example paraboloid (example 2) is the first individual to use the
   evaluator; the multi-criterion parabola (example 4) is the first to source its per-run constants
-  (the per-criterion minima) from the load-once store rather than from a per-instance member.
+  (the per-criterion minima) from the load-once store rather than from a per-instance member. The
+  Mona-Lisa image problem (example 15) exposes its CPU render-and-score as the free evaluator, which
+  is the same reference the GPU cross-check uses, both reading the one shared, load-once target image.
 
 - CHANGED: the multi-criterion parabola (example 4) is now optimized with a Pareto sorting scheme, so
   it exercises genuine multi-objective optimization across its several conflicting criteria; previously
