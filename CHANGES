@@ -96,6 +96,19 @@ Recommended Versions:
   RPATH ($ORIGIN-relative plus the install lib dir) so they locate the Geneva shared
   libraries without LD_LIBRARY_PATH.
 
+- NEW: a CMake declaration, GENEVA_DECLARE_INDIVIDUAL(<name> MODE <load|compile|both>
+  SOURCES ... [PLUGIN <glue.cpp>] [CONFIG ...]), packages an optimization individual as a
+  runtime-loadable module, a compile-in object library, or both from a single source. It
+  purely packages (it never modifies or generates any C++): compile/both build an object
+  library a compile-in binary links; load/both build a lib<name>.so that links no Geneva
+  library (its symbols resolve from the host at load). Serialization export stays the
+  author's own BOOST_CLASS_EXPORT_KEY/_IMPLEMENT, and the module's fixed manifest entry
+  point lives in a separate glue translation unit compiled into the module only. As the
+  first step of relocating the reusable individuals out of the Geneva library,
+  GLineFitIndividual is now packaged this way rather than compiled into libgemfony-geneva;
+  its in-tree unit test links its object library and the library exports none of it. See the
+  new "Packaging a problem" section in docs/writing-optimization-problems.md.
+
 - FIXED: the CUDA random-number backend could print spurious "GCudaRNG: cuRAND call failed"
   lines to stderr at process exit. When the CUDA runtime unloads at shutdown while the
   random-number producer threads are still refilling on the GPU, cuRAND reports a generic

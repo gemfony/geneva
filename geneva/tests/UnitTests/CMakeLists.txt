@@ -59,7 +59,10 @@ ADD_EXECUTABLE(${EXECUTABLENAME}
 SET(LIBRARIES_TO_LINK
 		${GENEVA_LIBRARIES}
 		${Boost_LIBRARIES}
-		Catch2::Catch2WithMain)
+		Catch2::Catch2WithMain
+		# GLineFitIndividual is no longer compiled into the geneva library; this test constructs and serializes
+		# it directly, so it links the individual's object library (which carries its BOOST_CLASS_EXPORT_IMPLEMENT).
+		GLineFitIndividual-obj)
 
 # Add MPI Libraries in case building with MPI-consumer
 IF(GENEVA_BUILD_WITH_MPI_CONSUMER)

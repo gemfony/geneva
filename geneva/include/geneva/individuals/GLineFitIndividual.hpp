@@ -48,6 +48,7 @@
 // Geneva header files go here
 #include "common/GCommonEnums.hpp"
 #include "common/GExceptions.hpp"
+#include "common/GParserBuilder.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/ind/GFlatGenome.hpp"
 #include "geneva/ind/GGenomeBuilder.hpp"
@@ -79,7 +80,15 @@ class GLineFitIndividual // NOLINT(cppcoreguidelines-special-member-functions)
 
 public:
     /**
-     * @brief The default constructor.
+     * @brief The default constructor. Produces a genome-less shell; it is only meaningful after a genome is
+     * installed -- either by GFlatIndividualFactory (the loadable / config-driven path, which then reads the
+     * data points from the config-named file via applyConfig) or by (de-)serialization. Public because the
+     * generic factory default-constructs the individual before installing its genome.
+     */
+    GLineFitIndividual();
+    /**
+     * @brief The standard constructor (the compile-in / test path). Builds the two-parameter genome and
+     * stores the (x,y) data points directly, in memory.
      * @param data_points The (x,y) data points the fitted line is evaluated against
      */
     GLineFitIndividual(const std::vector<std::tuple<double, double>> & data_points);
@@ -103,6 +112,49 @@ public:
      * @return A shared pointer to the populated adaption config
      */
     std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase> getAdaptionConfig() const;
+
+    //---------------------------------------------------------------------------
+    // GFlatIndividualFactory<GLineFitIndividual> hooks. These make GLineFitIndividual a Tier-2
+    // (config-driven) flat individual, hence packageable as a runtime-loadable module: the generic factory
+    // default-constructs the individual, installs the genome from buildGenome(), and hands the parsed Config
+    // to applyConfig(), which opens the config-named data file at runtime and loads the (x,y) points. A
+    // streaming individual would instead keep a file handle here and read lazily in fitnessCalculation(); the
+    // line fit's point sets are small, so it loads them into memory.
+
+    /** @brief The configurable values parsed from the config file: the path of the (x,y) data-point file. */
+    struct Config {
+        /** @brief Path of a whitespace-separated "x y" data-point file (one point per line, '#' comments). */
+        std::string data_file{};
+    };
+
+    /**
+     * @brief Registers the config-file options, binding them to the passed Config.
+     * @param gpb The GParserBuilder the configurable values are registered on
+     * @param c The Config instance whose members are bound to the parser (written on parse)
+     */
+    static void describeConfig(Gem::Common::GParserBuilder & gpb, Config & c);
+    /**
+     * @brief Builds the flat genome's structure: two unbounded doubles (the line's offset a and slope b),
+     * each its own Gauss group. Independent of the data points.
+     * @param c The configuration (unused for the genome structure; the data path drives applyConfig instead)
+     * @return The structure-only genome data
+     */
+    static gen::GenomeData buildGenome(const Config & c);
+    /**
+     * @brief The OA-owned adaption config: the offset a and slope b each get the line-fit Gauss settings.
+     * @param sample A sample flat genome whose group structure the config mirrors
+     * @param c The configuration (unused; the Gauss settings are the individual's fixed defaults)
+     * @return A shared pointer to the populated adaption config
+     */
+    static std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase>
+    buildAdaptionConfig(const gen::GFlatGenome & sample, const Config & c);
+    /**
+     * @brief Per-object post-config hook: opens the config-named data file at runtime and loads the (x,y)
+     * points into the produced individual. An empty path leaves the point set empty.
+     * @param ind The freshly produced individual to load the data points into
+     * @param c The configuration providing the data-file path
+     */
+    static void applyConfig(GLineFitIndividual & ind, const Config & c);
 
 protected:
     /** @brief Single declaration of this class'es local data members */
@@ -160,9 +212,6 @@ private:
      * @return A deep clone of this object, camouflaged as a GFlatGenome
      */
     gen::GFlatGenome *clone_() const final;
-
-    /** @brief The default constructor -- private, as it is only needed for (de-)serialization purposes */
-    GLineFitIndividual();
 
     std::vector<std::tuple<double, double>>
         data_points_; ///< Holds the data points used for the fit procedure

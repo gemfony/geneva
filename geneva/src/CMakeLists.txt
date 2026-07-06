@@ -76,10 +76,20 @@ SET ( OPTIMIZATIONSOURCES
 	individuals/GDelayIndividual.cpp
 	individuals/GExternalEvaluatorIndividual.cpp
 	individuals/GFunctionIndividual.cpp
-	individuals/GLineFitIndividual.cpp
 	individuals/GMetaOptimizerIndividualT.cpp
 	individuals/GNeuralNetworkIndividual.cpp
 )
+
+# GLineFitIndividual is packaged, NOT compiled into the geneva library (DA1: libgemfony-geneva ships zero
+# concrete GOptimizableEntity subclasses). MODE both -> an OBJECT library GLineFitIndividual-obj (linked by
+# its in-library unit-test consumer, GenevaStandardTests) and a runtime-loadable module libGLineFitIndividual.so
+# (the generic optimizer loads it via --individual). One BOOST_CLASS_EXPORT_IMPLEMENT (in the individual's own
+# .cpp) serves both; the module-only glue TU carries the extern "C" manifest entry point.
+GENEVA_DECLARE_INDIVIDUAL(GLineFitIndividual
+	MODE    both
+	SOURCES individuals/GLineFitIndividual.cpp
+	PLUGIN  individuals/GLineFitIndividualPlugin.cpp
+	CONFIG  ./config/GLineFitIndividual.json)
 
 # Add MPI specific files
 IF(GENEVA_BUILD_WITH_MPI_CONSUMER)

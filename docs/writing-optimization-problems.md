@@ -132,3 +132,91 @@ swarm, gradient descent or a parameter scan without changing the individual, bec
 strategy is the algorithm's concern, authored on its own config. This is what makes a Geneva
 individual transport-cheap (a flat genome with a shared, immutable layout) and lets one problem
 definition run serially, multi-threaded, over MPI or via websockets unchanged.
+
+## 6. Packaging a problem: compiled in, or loaded at runtime
+
+A problem can reach an optimizer two ways, and one individual can be packaged **both** ways at once
+from a single source:
+
+- **Compiled in** — your program `#include`s the individual and constructs it (`new MyProblem(...)` /
+  `Go2::registerContentCreator`). This is the classic path and always available.
+- **Loaded at runtime** — the individual is a shared object (`libMyProblem.so`) that the generic
+  optimizer `dlopen`s on request (`--individual path/to/libMyProblem.so`), reads its config, and runs.
+  This is the model Geneva ships and defaults to; the shipped library itself contains **no** concrete
+  problem individuals.
+
+### What a loadable individual needs
+
+To be built by the generic factory (and thus loadable), the individual is a **Tier-2, config-driven**
+flat individual — it supplies the static hooks `GFlatIndividualFactory<Derived>` calls (see section 3
+of `GFlatIndividualFactory.hpp` and the `GFunctionIndividual` / `GLineFitIndividual` examples):
+
+- a public default constructor,
+- a nested `struct Config` holding the configurable values,
+- `static void describeConfig(GParserBuilder&, Config&)` — registers the config-file options,
+- `static GenomeData buildGenome(const Config&)` — builds the structure-only genome,
+- optionally `static void applyConfig(Derived&, const Config&)` and
+  `static std::shared_ptr<...GAdaptionConfigBase> buildAdaptionConfig(const GFlatGenome&, const Config&)`.
+
+**External data is no obstacle.** A loaded `.so` runs in the host process with full, unsandboxed
+runtime access: name the resource (data file, URL, database, helper program) in `Config`, and open it
+in `buildGenome`/`applyConfig`. Data need not be resident — a large-data individual keeps a file
+handle or memory-map as a member and streams in `fitnessCalculation()`; `GLineFitIndividual` reads its
+`(x,y)` points from a config-named file, `GExternalEvaluatorIndividual` launches an external evaluator.
+
+### The module "glue" translation unit
+
+Serialization export stays **your** job and lives once with the individual (the same registration a
+compiled-in individual needs): `BOOST_CLASS_EXPORT_KEY(MyProblem)` in the `.hpp` and
+`BOOST_CLASS_EXPORT_IMPLEMENT(MyProblem)` in the `.cpp` (one pair per serialized type).
+
+The module adds one small **glue** TU carrying the fixed entry point the loader resolves via `dlsym`.
+It does *not* repeat the export:
+
+```cpp
+#include <boost/config.hpp>                     // BOOST_SYMBOL_EXPORT
+#include "common/GModuleManifest.hpp"           // GenevaModuleManifest
+#include "geneva/ind/GFlatIndividualFactory.hpp"
+#include "geneva/ind/GIndividualPlugin.hpp"     // Gem::Geneva::individualManifest<>
+#include "MyProblem.hpp"
+
+extern "C" BOOST_SYMBOL_EXPORT const GenevaModuleManifest *geneva_module_manifest();
+extern "C" BOOST_SYMBOL_EXPORT const GenevaModuleManifest *geneva_module_manifest() {
+    return Gem::Geneva::individualManifest<
+        Gem::Geneva::Genome::GFlatIndividualFactory<MyProblem>,
+        "./config/MyProblem.json", "MyProblem">();
+}
+```
+
+The `extern "C"` wrapper is the only irreducible boilerplate — its symbol name is fixed for the loader,
+so no template can synthesize it. Everything else is the typed `individualManifest<>` helper, which
+stamps the module's toolchain-compatibility fingerprint (validated before any C++ contribution runs)
+and one INDIVIDUAL contribution. The config path is auto-created with the individual's defaults if
+absent.
+
+### Declaring the package in CMake
+
+`GENEVA_DECLARE_INDIVIDUAL` packages the individual — it compiles the sources you list into the right
+target types and **never modifies or generates any C++**:
+
+```cmake
+GENEVA_DECLARE_INDIVIDUAL(MyProblem
+    MODE    both                       # load | compile | both
+    SOURCES MyProblem.cpp              # the individual (class + BOOST_CLASS_EXPORT); into both targets
+    PLUGIN  MyProblemPlugin.cpp        # the glue TU above; into the module .so ONLY
+    CONFIG  ./config/MyProblem.json)   # recorded for config materialization
+```
+
+- `MODE compile` / `both` builds an **object library** `MyProblem-obj` that a compile-in consumer
+  links (so the `BOOST_CLASS_EXPORT_IMPLEMENT` initializers are never stripped).
+- `MODE load` / `both` builds the module `libMyProblem.so` (object files + the `PLUGIN` glue), linking
+  **no** Geneva libraries — their symbols resolve from the host at load time.
+- `PLUGIN` goes into the module only: the manifest symbol name is fixed, so a compile-in binary that
+  links two individuals must not contain two copies of it.
+
+**The one hard rule:** a single *process* must never both compile-in and load the same individual —
+Boost.Serialization throws on the duplicate GUID registration. (The same `.cpp` compiled into several
+*separate* binaries is fine; each is its own process.)
+
+See `examples/19_GLoadableIndividual/` for the end-to-end reference: a loadable problem `.so`, a
+generic optimizer that loads it, and the CTest that doubles as the single-process-singleton proof.

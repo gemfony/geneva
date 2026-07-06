@@ -32,6 +32,7 @@
 #include "common/GCommonInterfaceT.hpp"
 #include "common/GCommonMathHelperFunctionsT.hpp"
 #include "common/GExpectationChecksT.hpp"
+#include "common/GParserBuilder.hpp"
 #include "geneva/ind/GFlatGenome.hpp"
 #include "geneva/ind/GGenomeBuilder.hpp"
 #include "geneva/oa/GAdaption.hpp"
@@ -39,7 +40,9 @@
 #include <cmath>
 #include <cstddef>
 #include <filesystem>
+#include <fstream>
 #include <memory>
+#include <string>
 #include <tuple>
 #include <vector>
 
@@ -48,31 +51,26 @@ namespace Gem::Geneva::Individuals {
 
 /******************************************************************************/
 /**
- * @brief The default constructor -- private, as it is only needed for (de-)serialization purposes.
+ * @brief The default constructor. Produces a genome-less shell -- the generic factory (loadable / config
+ * path) installs the genome via buildGenome() afterwards, and (de-)serialization restores it. Public so the
+ * factory can default-construct the individual before installing its genome.
  */
 GLineFitIndividual::GLineFitIndividual() { /* nothing */
 }
 
 /******************************************************************************/
 /**
- * @brief The standard constructor; builds the two-parameter (offset/slope) genome structure and
- * stores the data points to be fitted.
+ * @brief The standard constructor (the compile-in / test path); builds the two-parameter (offset/slope)
+ * genome structure and stores the data points to be fitted, in memory.
  *
  * @param data_points The set of (x, y) data points a line should be fitted through; stored for the
  *        fitness calculation
  */
 GLineFitIndividual::GLineFitIndividual(const std::vector<std::tuple<double, double>> &data_points)
   : data_points_(data_points) {
-    using namespace Gem::Geneva;
-
-    // Two unbounded double parameters (the line's offset a and slope b), each its own Gauss group,
-    // with a default unbounded init range of [0, 1]. The Gauss adaptor settings live on the OA-owned
-    // config (see getAdaptionConfig()), not the genome layout.
-    gen::GGenomeBuilder b;
-    for(std::size_t i = 0; i < 2; i++) {
-        b.addDouble(0.);
-    }
-    this->setGenome(b.build());
+    // The genome structure is data-independent, so it is single-sourced in buildGenome() (Inv 14) and
+    // shared with the config-driven factory path.
+    this->setGenome(buildGenome(Config{}));
 }
 
 /******************************************************************************/
@@ -84,12 +82,106 @@ GLineFitIndividual::GLineFitIndividual(const std::vector<std::tuple<double, doub
  *         adaptor settings (sigma 0.025, sigma_sigma 0.1, min_sigma 0.0001, max_sigma 0.4, ad_prob 1.0)
  */
 std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase> GLineFitIndividual::getAdaptionConfig() const {
-    auto cfg = OptimizationAlgorithms::makeAdaptionConfig<OptimizationAlgorithms::GAdaptionConfigBase>(*this);
+    // Single-sourced with the factory hook (Inv 14): both build the identical line-fit Gauss config.
+    return buildAdaptionConfig(*this, Config{});
+}
+
+/******************************************************************************/
+/**
+ * @brief Registers the config-file options: the path of the (x,y) data-point file.
+ *
+ * @param gpb The GParserBuilder the configurable values are registered on
+ * @param c The Config instance whose members are bound to the parser (written on parse)
+ */
+void GLineFitIndividual::describeConfig(Gem::Common::GParserBuilder &gpb, Config &c) {
+    gpb.registerFileParameter<std::string>(
+        "data_file", c.data_file, std::string{}, Gem::Common::VAR_IS_ESSENTIAL,
+        "The path of a whitespace-separated \"x y\" data-point file (one point per line, '#' comments);"
+    );
+}
+
+/******************************************************************************/
+/**
+ * @brief Builds the flat genome structure: two unbounded double parameters (the line's offset a and slope
+ * b), each its own Gauss group, with a default unbounded init range of [0, 1]. The Gauss adaptor settings
+ * live on the OA-owned config (see buildAdaptionConfig()), not the genome layout. Data-independent.
+ *
+ * @param c The configuration (unused for the genome structure)
+ * @return The structure-only genome data
+ */
+gen::GenomeData GLineFitIndividual::buildGenome([[maybe_unused]] const Config &c) {
+    gen::GGenomeBuilder b;
+    for(std::size_t i = 0; i < 2; i++) {
+        b.addDouble(0.);
+    }
+    return b.build();
+}
+
+/******************************************************************************/
+/**
+ * @brief Builds the OA-owned adaption configuration: the line's offset a and slope b are each their own
+ * Gauss group, configured with the fixed line-fit settings.
+ *
+ * @param sample A sample flat genome whose group structure the config mirrors
+ * @param c The configuration (unused; the Gauss settings are the individual's fixed defaults)
+ * @return A shared pointer to a freshly built adaption config whose double groups each carry the Gauss
+ *         adaptor settings (sigma 0.025, sigma_sigma 0.1, min_sigma 0.0001, max_sigma 0.4, ad_prob 1.0)
+ */
+std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase>
+GLineFitIndividual::buildAdaptionConfig(const gen::GFlatGenome &sample, [[maybe_unused]] const Config &c) {
+    auto cfg = OptimizationAlgorithms::makeAdaptionConfig<OptimizationAlgorithms::GAdaptionConfigBase>(sample);
     for(std::size_t i = 0; i < cfg->doubleGroups().size(); i++) {
         // sigma, sigma_sigma, min_sigma, max_sigma, ad_prob
         cfg->groupDouble(i).gauss(0.025, 0.1, 0.0001, 0.4, 1.);
     }
     return cfg;
+}
+
+/******************************************************************************/
+/**
+ * @brief Per-object post-config hook: opens the config-named data file at runtime and loads its (x,y)
+ * points into the produced individual. This is where a loaded module reads its data from disk -- the
+ * location comes from the config, the file is opened here. A streaming individual would instead retain a
+ * file handle and read lazily in fitnessCalculation(); the line fit's point sets are small, so they are
+ * loaded into memory. An empty path leaves the point set empty (e.g. a materialize-config dry run).
+ *
+ * @param ind The freshly produced individual to load the data points into
+ * @param c The configuration providing the data-file path
+ */
+void GLineFitIndividual::applyConfig(GLineFitIndividual &ind, const Config &c) {
+    ind.data_points_.clear();
+    if(c.data_file.empty()) {
+        return;
+    }
+
+    std::ifstream in(c.data_file);
+    if(not in) {
+        throw geneva_exception(
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+            << "In GLineFitIndividual::applyConfig(): Error!" << '\n'
+            << "Could not open the data-point file \"" << c.data_file << "\"" << '\n'
+        );
+    }
+
+    std::string line;
+    while(std::getline(in, line)) {
+        // Skip blank lines and '#' comments.
+        const std::size_t first = line.find_first_not_of(" \t\r\n");
+        if(first == std::string::npos or line[first] == '#') {
+            continue;
+        }
+        std::istringstream iss(line);
+        double x = 0.;
+        double y = 0.;
+        if(not(iss >> x >> y)) {
+            throw geneva_exception(
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+                << "In GLineFitIndividual::applyConfig(): Error!" << '\n'
+                << "Malformed data-point line (expected \"x y\"): \"" << line << "\"" << '\n'
+            );
+        }
+        ind.data_points_.emplace_back(x, y);
+    }
 }
 
 /******************************************************************************/
