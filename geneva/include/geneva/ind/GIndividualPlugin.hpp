@@ -33,6 +33,7 @@
 #include "common/GGlobalDefines.hpp" // GENEVA_VERSION (the ABI token)
 
 // Standard headers go here
+#include <cstddef>
 #include <cstdint>
 #include <memory>
 
@@ -48,9 +49,9 @@ namespace Gem::Geneva {
 
 /******************************************************************************/
 /**
- * @brief The (unmangled) names of the two C entry points a runtime-loadable individual plugin exports.
- * The loader (GIndividualPluginLoader) resolves exactly these; the GENEVA_INDIVIDUAL_PLUGIN() macro emits
- * them. Kept in one place so the plugin side and the loader side can never drift apart.
+ * @brief The (unmangled) names of the two entry points of the LEGACY individual-plugin convention.
+ * The loader (GIndividualPluginLoader) still accepts a module built the old way, but new modules use the
+ * unified manifest (geneva_module_manifest, built via individualManifest() below).
  */
 inline constexpr const char *GENEVA_INDIVIDUAL_ABI_SYMBOL = "geneva_individual_abi_version";
 inline constexpr const char *GENEVA_INDIVIDUAL_FACTORY_SYMBOL = "geneva_make_individual";
@@ -59,90 +60,72 @@ inline constexpr const char *GENEVA_INDIVIDUAL_FACTORY_SYMBOL = "geneva_make_ind
  *  accepts, so a loaded problem is indistinguishable from a compiled-in one downstream. */
 using GIndividualFactoryPtr = std::shared_ptr<Gem::Common::GFactoryT<Genome::GOptimizableEntity>>;
 
-/** @brief The signatures of the two plugin entry points (used by the loader's typed symbol lookup). */
+/** @brief The signatures of the two legacy plugin entry points (used by the loader's typed symbol lookup
+ *  on the legacy fallback path). */
 using geneva_individual_abi_version_fn = std::uint32_t();
 using geneva_individual_factory_fn = GIndividualFactoryPtr();
 
 /******************************************************************************/
-
-} /* namespace Gem::Geneva */
+/**
+ * @brief A structural, compile-time fixed string usable as a non-type template parameter (C++20/23).
+ *
+ * Lets individualManifest() take the config path and module name as template arguments (string literals),
+ * so a loadable individual's manifest is an ordinary typed C++ construct rather than a preprocessor macro.
+ */
+template <std::size_t N>
+struct GFixedString {
+    char value[N]{};
+    // NOLINTNEXTLINE(google-explicit-constructor) -- implicit from a string literal is the whole point.
+    constexpr GFixedString(const char (&str)[N]) {
+        for(std::size_t i = 0; i < N; ++i) { value[i] = str[i]; }
+    }
+    [[nodiscard]] constexpr const char *c_str() const noexcept { return value; }
+};
 
 /******************************************************************************/
 /**
- * @brief Turns a translation unit into a runtime-loadable Geneva individual (optimization-problem) plugin.
+ * @brief Builds the module manifest for a runtime-loadable individual, entirely in C++ (no macro).
  *
- * A user who wants their optimization problem loadable at runtime (so Geneva need not be recompiled to run
- * a new problem) writes exactly ONE line in the plugin's source, passing their content-creator FACTORY
- * type (a Gem::Common::GFactoryT<GOptimizableEntity>, e.g. a GFlatIndividualFactory<MyProblem>):
- *
+ * A loadable individual's source hand-writes ONE small entry point that delegates here:
  * @code
- *   GENEVA_INDIVIDUAL_PLUGIN(GFlatIndividualFactory<MyProblem>)
+ *   extern "C" BOOST_SYMBOL_EXPORT const GenevaModuleManifest *geneva_module_manifest() {
+ *       return Gem::Geneva::individualManifest<
+ *           Gem::Geneva::Genome::GFlatIndividualFactory<MyProblem>,
+ *           "./config/MyProblem.json", "MyProblem">();
+ *   }
  * @endcode
+ * The @c extern @c "C" wrapper is irreducible: the loader resolves the fixed, unmangled symbol
+ * @c geneva_module_manifest via a dlsym-style lookup, which no template can synthesize. Everything else is
+ * this typed template.
  *
- * The macro emits, from compile-time constants, the two @c extern @c "C" entry points the loader expects:
- *  - @c geneva_individual_abi_version() returning @c GENEVA_VERSION (the value baked in at PLUGIN build
- *    time). The loader compares it to its own @c GENEVA_VERSION and refuses a mismatch with a precise
- *    message, so a plugin built against an older/incompatible Geneva is rejected at load rather than
- *    mis-loaded (Boost.DLL does not check this itself; a missing symbol is its only free failure mode,
- *    which is the backstop for a .so predating this scheme).
- *  - @c geneva_make_individual() returning a fresh factory, constructed with @p ConfigPath. For the
- *    standard @c GFlatIndividualFactory the path names the problem's config file; a missing file is
- *    auto-created with the individual's in-source defaults, so a self-contained problem still works.
+ * The returned manifest carries this module's @c GenevaCompat fingerprint (which the loader validates BEFORE
+ * touching any C++ contribution) and a single INDIVIDUAL contribution whose factory thunk hands back a
+ * heap-allocated content-creator factory as a @c void* (so the boundary stays plain C); the loader
+ * moves-from and deletes it. The statics live for the process; the .so is kept resident by the loader. This
+ * function does NOT emit the individual's @c BOOST_CLASS_EXPORT -- the individual's own translation unit
+ * carries it (the same registration a compiled-in individual needs), so there is no double registration.
  *
- * The macro does NOT emit the individual's @c BOOST_CLASS_EXPORT: the individual type already carries it
- * (the same registration a compiled-in individual needs for wire/checkpoint transport), so emitting it
- * here would duplicate the symbol.
- *
- * @param FactoryType The content-creator factory type (a GFactoryT<GOptimizableEntity>, e.g.
- *        GFlatIndividualFactory<MyProblem>)
- * @param ConfigPath  The factory's configuration-file path (a string literal), passed to its constructor
+ * @tparam FactoryType The content-creator factory (a GFactoryT<GOptimizableEntity>, e.g.
+ *         GFlatIndividualFactory<MyProblem>)
+ * @tparam Config The factory's configuration-file path (a string literal), passed to its constructor
+ * @tparam Name   The module/contribution name, for diagnostics (a string literal)
+ * @return A pointer to this module's process-lifetime manifest
  */
-// geneva_make_individual() returns a std::shared_ptr (a non-C type) with C linkage. That is deliberate and
-// safe here: the extern "C" only buys an un-mangled symbol for the loader's dlsym-style lookup, and a plugin
-// is ALWAYS loaded by a host built with the same C++ toolchain and ABI (server and client are the same
-// binary loading the same .so). Clang still warns (-Wreturn-type-c-linkage); silence just that false
-// positive, at the single macro that emits the entry point, for clang only (gcc does not warn).
-#if defined(__clang__)
-#define GENEVA_PLUGIN_C_LINKAGE_PUSH                                                                     \
-    _Pragma("clang diagnostic push") _Pragma("clang diagnostic ignored \"-Wreturn-type-c-linkage\"")
-#define GENEVA_PLUGIN_C_LINKAGE_POP _Pragma("clang diagnostic pop")
-#else
-#define GENEVA_PLUGIN_C_LINKAGE_PUSH
-#define GENEVA_PLUGIN_C_LINKAGE_POP
-#endif
+template <typename FactoryType, GFixedString Config, GFixedString Name>
+const GenevaModuleManifest *individualManifest() {
+    // Captureless thunk -> void*(*)(void): construct the factory (with its config path) on the heap; the
+    // loader moves-from and deletes it. Config is a template-parameter object, usable without capture.
+    static constexpr auto factory_thunk = +[]() -> void * {
+        return new GIndividualFactoryPtr(std::make_shared<FactoryType>(Config.c_str()));
+    };
+    static const GenevaContribution contribution{GENEVA_CONTRIBUTION_INDIVIDUAL, Name.c_str(), factory_thunk};
+    static const GenevaModuleManifest manifest{
+        GENEVA_BUILD_FINGERPRINT, Name.c_str(), GENEVA_VERSION_STRING, &contribution, 1u};
+    return &manifest;
+}
 
-#define GENEVA_INDIVIDUAL_PLUGIN(FactoryType, ConfigPath)                                                \
-    /* -- Legacy two-symbol convention. Still emitted so a host with only the old loader keeps working  \
-     * for one release; the loader prefers the manifest below when present. -- */                        \
-    extern "C" BOOST_SYMBOL_EXPORT std::uint32_t geneva_individual_abi_version();                        \
-    extern "C" BOOST_SYMBOL_EXPORT std::uint32_t geneva_individual_abi_version() {                       \
-        return static_cast<std::uint32_t>(GENEVA_VERSION);                                               \
-    }                                                                                                    \
-    GENEVA_PLUGIN_C_LINKAGE_PUSH                                                                          \
-    extern "C" BOOST_SYMBOL_EXPORT ::Gem::Geneva::GIndividualFactoryPtr geneva_make_individual();        \
-    extern "C" BOOST_SYMBOL_EXPORT ::Gem::Geneva::GIndividualFactoryPtr geneva_make_individual() {       \
-        return std::make_shared<FactoryType>(ConfigPath);                                                \
-    }                                                                                                    \
-    GENEVA_PLUGIN_C_LINKAGE_POP                                                                           \
-    /* -- Unified module manifest. The loader validates GenevaCompat (toolchain fingerprint) FIRST, then \
-     * reads the single INDIVIDUAL contribution. make_factory hands back a heap-allocated                \
-     * GIndividualFactoryPtr the loader moves-from and deletes (a void* so the boundary stays plain C).  \
-     * The statics live for the process; the .so is kept resident by the loader. -- */                   \
-    namespace {                                                                                          \
-    void *geneva_detail_individual_factory_thunk() {                                                     \
-        return new ::Gem::Geneva::GIndividualFactoryPtr(std::make_shared<FactoryType>(ConfigPath));      \
-    }                                                                                                    \
-    const ::GenevaContribution geneva_detail_module_contributions[] = {                                  \
-        {.kind = GENEVA_CONTRIBUTION_INDIVIDUAL,                                                          \
-         .name_or_mnemonic = #FactoryType,                                                               \
-         .make_factory = &geneva_detail_individual_factory_thunk}};                                      \
-    const ::GenevaModuleManifest geneva_detail_module_manifest = {                                       \
-        .compat = GENEVA_BUILD_FINGERPRINT,                                                              \
-        .module_name = #FactoryType,                                                                     \
-        .module_version = GENEVA_VERSION_STRING,                                                          \
-        .contributions = geneva_detail_module_contributions,                                             \
-        .contributions_count = 1u};                                                                      \
-    } /* anonymous namespace */                                                                          \
-    GENEVA_EMIT_MODULE_MANIFEST(geneva_detail_module_manifest)
+/******************************************************************************/
+
+} /* namespace Gem::Geneva */
 
 /******************************************************************************/

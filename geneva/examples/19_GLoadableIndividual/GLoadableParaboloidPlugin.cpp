@@ -32,7 +32,7 @@
  * @brief Turns GLoadableParaboloid into a runtime-loadable Geneva individual plugin.
  *
  * This whole translation unit is the "glue" a problem author writes to make an existing individual
- * loadable at runtime. It is exactly TWO lines of registration:
+ * loadable at runtime. It is exactly TWO pieces of registration:
  *
  *  1. BOOST_CLASS_EXPORT(GLoadableParaboloid): registers the individual's serialization GUID so it can
  *     cross the networked wire and a checkpoint (the SAME registration a compiled-in individual needs; it
@@ -40,24 +40,31 @@
  *     this plugin loaded -- which, since server and client are the same binary loading the same .so, is
  *     automatic.
  *
- *  2. GENEVA_INDIVIDUAL_PLUGIN(...): emits the two C entry points the loader resolves -- an ABI-version
- *     marker (baked in at build time, so an incompatible/older plugin is rejected at load) and a factory
- *     that produces the individuals. The factory type is the standard GFlatIndividualFactory<Derived>.
+ *  2. The fixed entry point geneva_module_manifest(): a small extern "C" wrapper (the loader resolves this
+ *     unmangled symbol via dlsym) delegating to the typed helper individualManifest<Factory, Config, Name>(),
+ *     which builds the module manifest -- the toolchain-compatibility fingerprint the loader validates first,
+ *     plus one INDIVIDUAL contribution whose factory is the standard GFlatIndividualFactory<Derived>. That is
+ *     the entire author-facing surface: no Geneva macro, ordinary C++.
  */
 
+#include <boost/config.hpp>              // BOOST_SYMBOL_EXPORT
 #include <boost/serialization/export.hpp>
 
+#include "common/GModuleManifest.hpp" // GenevaModuleManifest
 #include "geneva/ind/GFlatIndividualFactory.hpp"
-#include "geneva/ind/GIndividualPlugin.hpp"
+#include "geneva/ind/GIndividualPlugin.hpp" // Gem::Geneva::individualManifest<>
 
 #include "GLoadableParaboloid.hpp"
 
 // (1) Serialization GUID for wire / checkpoint transport of this individual.
 BOOST_CLASS_EXPORT(GLoadableParaboloid) // NOLINT
 
-// (2) Make this .so a loadable Geneva individual: its factory is the standard flat-individual factory
-// parameterised on the problem type; the second argument is the problem's config file (auto-created with
-// the individual's defaults if absent). That is the entire author-facing surface of the plugin mechanism.
-GENEVA_INDIVIDUAL_PLUGIN(
-    Gem::Geneva::Genome::GFlatIndividualFactory<GLoadableParaboloid>,
-    "./config/GLoadableParaboloid.json")
+// (2) The module entry point. The extern "C" wrapper is the only irreducible boilerplate (fixed symbol name
+// for the loader's dlsym); everything else is the typed individualManifest<> helper. The template arguments
+// are the content-creator factory (the standard flat-individual factory on the problem type), the problem's
+// config-file path (auto-created with the individual's defaults if absent), and a display name.
+extern "C" BOOST_SYMBOL_EXPORT const GenevaModuleManifest *geneva_module_manifest();
+extern "C" BOOST_SYMBOL_EXPORT const GenevaModuleManifest *geneva_module_manifest() {
+    return Gem::Geneva::individualManifest<Gem::Geneva::Genome::GFlatIndividualFactory<GLoadableParaboloid>,
+                                           "./config/GLoadableParaboloid.json", "GLoadableParaboloid">();
+}

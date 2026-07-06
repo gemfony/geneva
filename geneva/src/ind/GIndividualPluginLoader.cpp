@@ -297,7 +297,8 @@ GIndividualFactoryPtr loadIndividualPlugin(const std::filesystem::path &plugin_p
             << "'" << path_str << "' is not a Geneva individual plugin: it exports neither the '"
             << Gem::Common::GENEVA_MODULE_MANIFEST_SYMBOL << "' manifest nor the legacy '"
             << GENEVA_INDIVIDUAL_ABI_SYMBOL << "' marker" << '\n'
-            << "(it may predate the plugin scheme, or was built without GENEVA_INDIVIDUAL_PLUGIN())." << '\n'
+            << "(it may predate the plugin scheme, or was built without a geneva_module_manifest() entry"
+            << " point -- see Gem::Geneva::individualManifest())." << '\n'
         );
     }
     const auto plugin_abi = lib.get<geneva_individual_abi_version_fn>(GENEVA_INDIVIDUAL_ABI_SYMBOL)();

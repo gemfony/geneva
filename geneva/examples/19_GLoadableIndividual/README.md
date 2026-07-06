@@ -40,15 +40,22 @@ the binary in the cloud):
    #include "MyProblem.hpp"
 
    BOOST_CLASS_EXPORT(MyProblem)                                     // wire / checkpoint GUID
-   GENEVA_INDIVIDUAL_PLUGIN(
-       Gem::Geneva::Genome::GFlatIndividualFactory<MyProblem>,
-       "./config/MyProblem.json")                                   // the factory's config file
+
+   extern "C" BOOST_SYMBOL_EXPORT const GenevaModuleManifest *geneva_module_manifest() {
+       return Gem::Geneva::individualManifest<
+           Gem::Geneva::Genome::GFlatIndividualFactory<MyProblem>,
+           "./config/MyProblem.json", "MyProblem">();               // factory / config file / name
+   }
    ```
 
-   `GENEVA_INDIVIDUAL_PLUGIN` emits the two C entry points the loader resolves: an **ABI-version marker**
-   (baked in from `GENEVA_VERSION` at build time) and a **factory** (built with the given config file,
-   auto-created with the individual's defaults if absent). `BOOST_CLASS_EXPORT` registers the
-   serialization GUID so the individual can cross the wire and a checkpoint.
+   The `extern "C"` `geneva_module_manifest()` is the only irreducible boilerplate (the loader resolves this
+   fixed, unmangled symbol via `dlsym`); everything else is the typed helper
+   `Gem::Geneva::individualManifest<Factory, Config, Name>()` — no Geneva macro. It builds the module
+   manifest: the **toolchain-compatibility fingerprint** (`GenevaCompat`, which the loader validates first)
+   plus one **individual contribution** whose factory is built with the given config file (auto-created with
+   the individual's defaults if absent). `BOOST_CLASS_EXPORT` registers the serialization GUID so the
+   individual can cross the wire and a checkpoint — you write it yourself, exactly as for a compiled-in
+   individual.
 
 3. **Build it as a shared object** linking Geneva (see `CMakeLists.txt`).
 

@@ -110,18 +110,16 @@ using geneva_module_manifest_fn = const GenevaModuleManifest *();
 } // namespace Gem::Common
 
 /******************************************************************************/
-/**
- * @brief Emits the @c extern @c "C" @c geneva_module_manifest() entry point returning &@p manifest_obj.
+/*
+ * A loadable module publishes its manifest by hand-writing the fixed entry point (no Geneva macro):
  *
- * @p manifest_obj must be a process-lifetime (static-storage) @c GenevaModuleManifest whose @c compat was
- * initialized from @c GENEVA_BUILD_FINGERPRINT. Author macros (e.g. GENEVA_INDIVIDUAL_PLUGIN) build the
- * manifest object and then use this to publish it. Clang warns that an @c extern @c "C" function returns a
- * C++-unfriendly type only for class returns; a pointer return is fine, so no pragma is needed here.
+ *   extern "C" BOOST_SYMBOL_EXPORT const GenevaModuleManifest *geneva_module_manifest() {
+ *       return Gem::Geneva::individualManifest<Factory, "config path", "Name">();  // for an individual
+ *   }
+ *
+ * The extern "C" wrapper is irreducible (the loader resolves the fixed, unmangled symbol via dlsym); the
+ * manifest itself is built by a typed helper (individualManifest() for individuals). A pointer return keeps
+ * the extern "C" free of the class-return warning.
  */
-#define GENEVA_EMIT_MODULE_MANIFEST(manifest_obj)                                                        \
-    extern "C" BOOST_SYMBOL_EXPORT const ::GenevaModuleManifest *geneva_module_manifest();               \
-    extern "C" BOOST_SYMBOL_EXPORT const ::GenevaModuleManifest *geneva_module_manifest() {              \
-        return &(manifest_obj);                                                                          \
-    }
 
 /******************************************************************************/

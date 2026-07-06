@@ -82,7 +82,8 @@ std::string moduleCompatMismatch(const GenevaCompat &moduleCompat);
  * @brief Loads a runtime individual (optimization-problem) plugin from @p plugin_path and returns its
  * content-creator factory, so a problem can be supplied without recompiling Geneva.
  *
- * The plugin is a shared object built with the GENEVA_INDIVIDUAL_PLUGIN() macro. This function:
+ * The plugin is a shared object whose geneva_module_manifest() entry point is built with the
+ * Gem::Geneva::individualManifest() helper (a legacy two-symbol plugin is also still accepted). This function:
  *  - loads it with @c RTLD_GLOBAL (one symbol namespace: a single Boost.Serialization registry and single
  *    Geneva singletons across the process) and @c RTLD_NOW (eager resolution);
  *  - if the plugin exports the unified manifest, **validates its full toolchain fingerprint**
