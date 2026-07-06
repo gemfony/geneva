@@ -94,7 +94,9 @@ Recommended Versions:
   genome handed to it and, for problem constants, the individual module's load-once store (the new
   GProblemStoreT, filled once from the factory's init_() hook and thereafter read without locking).
   This is the first step towards unifying the local, device and remote evaluation paths onto one
-  function-shaped contract; the example paraboloid (example 2) is the first individual to use it.
+  function-shaped contract. The example paraboloid (example 2) is the first individual to use the
+  evaluator; the multi-criterion parabola (example 4) is the first to source its per-run constants
+  (the per-criterion minima) from the load-once store rather than from a per-instance member.
 
 - NEW: runtime-loadable modules now carry a toolchain-compatibility fingerprint. A loadable
   individual plugin previously only recorded the Geneva version, so a plugin built with a

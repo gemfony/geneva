@@ -91,9 +91,6 @@ public:
     /** @brief The destructor */
     ~GMultiCriterionParabolaIndividual() override = default;
 
-    /** @brief Assigns a number of minima to this object */
-    void setMinima(const std::vector<double> &);
-
     //---------------------------------------------------------------------------
     // GFlatIndividualFactory<GMultiCriterionParabolaIndividual> hooks. The individual supplies the static
     // hooks the generic factory needs: describeConfig (the configurable
@@ -112,26 +109,27 @@ public:
     static void describeConfig(Gem::Common::GParserBuilder &gpb, Config &c);
     /** @brief Builds the flat genome's structure: one constrained double per minimum, in [par_min, par_max] */
     static gen::GenomeData buildGenome(const Config &c);
-    /** @brief Per-object post-config hook: sets the number of evaluation criteria and the minima */
+    /** @brief Per-object post-config hook: sets the number of evaluation criteria and loads the minima once
+     *  into the module's load-once store (from which the free evaluator reads them) */
     static void applyConfig(GMultiCriterionParabolaIndividual &ind, const Config &c);
+    /** @brief The free, instance-independent evaluator: one parabola per criterion, each around its own
+     *  minimum (read from the module's load-once store). Returns the full raw result vector (main first);
+     *  fitnessCalculation() delegates here so the virtual and free-evaluator paths share one source.
+     *  @param g The individual's genome, read via its external streamline() values
+     *  @return The per-criterion raw results (size == the number of minima) */
+    static std::vector<double> evaluate(const gen::GFlatGenome &g);
     /** @brief The OA-owned Gauss adaption config: every parameter group gets the configured adaptor.
      *  Authored from the genome layout -- no adaptor data resides on the individual. */
     static std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase>
     buildAdaptionConfig(const gen::GFlatGenome &sample, const Config &c);
 
 protected:
-    /** @brief Loads the data of another GMultiCriterionParabolaIndividual */
-    void load_(const gen::GOptimizableEntity *) final;
-
     /** @brief The actual fitness calculation takes place here. */
     double fitnessCalculation() final;
 
 private:
     /** @brief Creates a deep clone of this object */
     gen::GFlatGenome *clone_() const final;
-
-    /** @brief Holds the minima needed for multi-criterion optimization */
-    std::vector<double> minima_{};
 };
 
 /******************************************************************************/

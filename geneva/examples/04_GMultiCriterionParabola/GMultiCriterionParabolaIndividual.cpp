@@ -33,10 +33,24 @@
 
 #include "GMultiCriterionParabolaIndividual.hpp"
 
+#include "geneva/ind/GProblemStoreT.hpp"
 #include "geneva/oa/GAdaption.hpp"
 #include "geneva/oa/GAdaptionConfig.hpp"
 
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GMultiCriterionParabolaIndividual) // NOLINT
+
+namespace {
+/**
+ * @brief The module's load-once store of per-criterion minima -- this problem's hardware-independent
+ * constant data. Filled once from the config (in applyConfig) and read by the free evaluator. A
+ * function-local static keeps its initialization order well-defined across translation units.
+ */
+Gem::Geneva::Genome::GProblemStoreT<std::vector<double>> &minimaStore() {
+    static Gem::Geneva::Genome::GProblemStoreT<std::vector<double>> store;
+    return store;
+}
+} // namespace
+
 namespace Gem::Geneva {
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -73,56 +87,6 @@ std::ostream &operator<<(
 
 /******************************************************************************/
 /**
-     * Assigns a number of minima to this object
-     */
-void GMultiCriterionParabolaIndividual::setMinima(const std::vector<double> &minima) {
-#ifdef DEBUG
-    if(minima.size() != this->getNStoredResults()) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GMultiCriterionParabolaIndividual::setMinima(...): Error!" << '\n'
-            << "Invalid size of minima vector. Expected " << this->getNStoredResults() << '\n'
-            << "but got " << minima.size() << '\n'
-        );
-    }
-#endif /* DEBUG */
-
-    minima_ = minima;
-}
-
-/******************************************************************************/
-/**
-     * Loads the data of another GMultiCriterionParabolaIndividual, camouflaged as a GOptimizableEntity.
-     *
-     * @param cp A copy of another GMultiCriterionParabolaIndividual, camouflaged as a GOptimizableEntity
-     */
-void GMultiCriterionParabolaIndividual::load_(const gen::GOptimizableEntity *cp) {
-    // Check that we are dealing with a GMultiCriterionParabolaIndividual reference independent of this object and convert the pointer
-    const GMultiCriterionParabolaIndividual *p_load =
-        Gem::Common::g_convert_and_compare<gen::GOptimizableEntity, GMultiCriterionParabolaIndividual>(cp, this);
-
-    // Load our parent's data ...
-    gen::GFlatGenome::load_(cp);
-
-#ifdef DEBUG
-    if((p_load->minima_).size() != minima_.size() ||
-       (p_load->minima_).size() != this->getNStoredResults()) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GMultiCriterionParabolaIndividual::setMinima(...): Error!" << '\n'
-            << "Invalid size of minima vector. Expected " << minima_.size() << "/"
-            << this->getNStoredResults() << '\n'
-            << "but got " << (p_load->minima_).size() << '\n'
-        );
-    }
-#endif /* DEBUG */
-
-    // Load local data
-    minima_ = p_load->minima_;
-}
-
-/******************************************************************************/
-/**
      * Creates a deep clone of this object
      *
      * @return A deep clone of this object, camouflaged as a GFlatGenome
@@ -133,25 +97,39 @@ gen::GFlatGenome *GMultiCriterionParabolaIndividual::clone_() const {
 
 /******************************************************************************/
 /**
-     * The actual fitness calculation takes place here.
+     * The actual fitness calculation takes place here. It delegates to the free evaluator so the virtual
+     * and free-evaluator paths compute one value from one source; the secondary criteria are written into
+     * the result store (the free-evaluator dispatch does the same when it runs).
      *
-     * @return The value of this object
+     * @return The value of this object (the main criterion)
      */
 double GMultiCriterionParabolaIndividual::fitnessCalculation() {
-    double main_result = 0.;    // Will hold the main result
-    std::vector<double> parVec; // Will hold the individual parameters
-
-    this->streamline(parVec); // Retrieve the parameters
-
-    // Do the actual calculations. Note that the first calculation
-    // counts as the main result and that we can register other,
-    // secondary evaluation criteria.
-    main_result = Gem::Common::gsquared(parVec[0] - minima_[0]);
-    for(std::size_t i = 1; i < parVec.size(); i++) {
-        setResult(i, Gem::Common::gsquared(parVec[i] - minima_[i]));
+    const std::vector<double> results = evaluate(*this);
+    for(std::size_t i = 1; i < results.size(); i++) {
+        setResult(i, results[i]);
     }
+    return results.front();
+}
 
-    return main_result;
+/******************************************************************************/
+/**
+     * The free, instance-independent evaluator: one parabola per criterion around its own minimum, with
+     * the minima read from the module's load-once store. The first entry is the main result.
+     *
+     * @param g The individual's genome, read via its external streamline() values
+     * @return The per-criterion raw results (size == the number of minima)
+     */
+std::vector<double> GMultiCriterionParabolaIndividual::evaluate(const gen::GFlatGenome &g) {
+    const std::vector<double> &minima = minimaStore().get();
+
+    std::vector<double> parVec; // Will hold the individual parameters
+    g.streamline(parVec);       // Retrieve the (external) parameters
+
+    std::vector<double> results(parVec.size());
+    for(std::size_t i = 0; i < parVec.size(); i++) {
+        results[i] = Gem::Common::gsquared(parVec[i] - minima[i]);
+    }
+    return results;
 }
 
 /******************************************************************************/
@@ -213,7 +191,9 @@ void GMultiCriterionParabolaIndividual::applyConfig(
 ) {
     const std::vector<double> minima = Gem::Common::stringToDoubleVec(c.minima);
     ind.setNStoredResults(minima.size());
-    ind.setMinima(minima);
+    // Load the minima once into the module's store; the free evaluator reads them from there. The
+    // number of criteria is genome structure (per-instance), so it stays on the individual.
+    minimaStore().ensureLoaded([&minima]() { return minima; });
 }
 
 /******************************************************************************/
