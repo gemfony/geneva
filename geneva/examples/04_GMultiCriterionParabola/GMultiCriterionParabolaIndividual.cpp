@@ -97,33 +97,16 @@ gen::GFlatGenome *GMultiCriterionParabolaIndividual::clone_() const {
 
 /******************************************************************************/
 /**
-     * The actual fitness calculation takes place here. It delegates to the free evaluator so the virtual
-     * and free-evaluator paths compute one value from one source; the secondary criteria are written into
-     * the result store (the free-evaluator dispatch does the same when it runs).
+     * The evaluation hook: one parabola per criterion around its own minimum, with the minima read from the
+     * module's load-once store. The first entry is the main result.
      *
-     * @return The value of this object (the main criterion)
-     */
-double GMultiCriterionParabolaIndividual::fitnessCalculation() {
-    const std::vector<double> results = evaluate(*this);
-    for(std::size_t i = 1; i < results.size(); i++) {
-        setResult(i, results[i]);
-    }
-    return results.front();
-}
-
-/******************************************************************************/
-/**
-     * The free, instance-independent evaluator: one parabola per criterion around its own minimum, with
-     * the minima read from the module's load-once store. The first entry is the main result.
-     *
-     * @param g The individual's genome, read via its external streamline() values
      * @return The per-criterion raw results (size == the number of minima)
      */
-std::vector<double> GMultiCriterionParabolaIndividual::evaluate(const GMultiCriterionParabolaIndividual &ind) {
+std::vector<double> GMultiCriterionParabolaIndividual::evaluate() {
     const std::vector<double> &minima = minimaStore().get();
 
     std::vector<double> parVec; // Will hold the individual parameters
-    ind.streamline(parVec);     // Retrieve the (external) parameters
+    this->streamline(parVec);   // Retrieve the (external) parameters
 
     std::vector<double> results(parVec.size());
     for(std::size_t i = 0; i < parVec.size(); i++) {
@@ -182,8 +165,8 @@ gen::GenomeData GMultiCriterionParabolaIndividual::buildGenome(const Config &c) 
 /******************************************************************************/
 /**
  * Per-object post-config hook: the number of evaluation criteria equals the number of parabolas
- * (= the number of minima), and the per-criterion minima are stored on the individual for
- * fitnessCalculation().
+ * (= the number of minima), and the per-criterion minima are stored in the module's load-once store for
+ * evaluate().
  */
 void GMultiCriterionParabolaIndividual::applyConfig(
     GMultiCriterionParabolaIndividual &ind,

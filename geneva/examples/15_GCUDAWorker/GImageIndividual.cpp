@@ -428,30 +428,20 @@ gen::GFlatGenome *GImageIndividual::clone_() const {
 
 /******************************************************************************/
 /**
-	 * The actual fitness calculation takes place here.
-	 *
-	 * @return The value of this object
-	 */
-double GImageIndividual::fitnessCalculation() {
-    // Single-source the objective: both the free-evaluator seam (installed by the factory) and this
-    // virtual delegate to evaluate(), so the CPU reference is computed from one place.
-    return evaluate(*this).front();
-}
-
-/******************************************************************************/
-/**
- * The free evaluator (a single criterion -> a one-element result vector).
+ * The evaluation hook (a single criterion -> a one-element result vector).
+ *
+ * The host fitness is computed on the CPU via the SAME render+score the GPU kernel uses
+ * (Gem::Geneva::MonaLisa::score, shared in GMonaLisaProblem.hpp). This makes the individual evaluable purely
+ * on the CPU -- to cross-check the GPU result and compare speed -- while the GGPUConsumer path uses the device
+ * kernel. Requires the target image to have been loaded (Gem::Geneva::MonaLisa::loadTarget) beforehand. The
+ * genome scalar type is selected at compile time (gimage_fp_t); streamline<gimage_fp_t> is required --
+ * streamline<float> collects nothing from a double genome and vice-versa.
+ *
+ * @return The raw fitness (deviation from the target image) as a one-element vector
  */
-std::vector<double> GImageIndividual::evaluate(const GImageIndividual &ind) {
-    // The host fitness is computed on the CPU via the SAME render+score the GPU kernel uses
-    // (Gem::Geneva::MonaLisa::score, shared in GMonaLisaProblem.hpp). This makes the individual
-    // evaluable purely on the CPU -- to cross-check the GPU result and compare speed -- while the
-    // GGPUConsumer path uses the device kernel. Requires the target image to have been loaded
-    // (Gem::Geneva::MonaLisa::loadTarget) beforehand.
-    // The genome scalar type is selected at compile time (gimage_fp_t); streamline<gimage_fp_t>
-    // is required -- streamline<float> collects nothing from a double genome and vice-versa.
+std::vector<double> GImageIndividual::evaluate() {
     std::vector<gimage_fp_t> parVec;
-    ind.streamline(parVec);
+    this->streamline(parVec);
     return {Gem::Geneva::MonaLisa::scoreAgainstTarget(parVec.data(), static_cast<int>(parVec.size()))};
 }
 

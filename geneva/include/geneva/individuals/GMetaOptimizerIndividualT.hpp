@@ -665,7 +665,7 @@ protected:
         // ... and then our local data, derived from the single localMembers() declaration
         Gem::Common::g_load_members(this->localMembers_(), p_load->localMembers_());
 
-        // We simply keep our local individual factory, as all settings are made inside of fitnessCalculation
+        // We simply keep our local individual factory, as all settings are made inside of evaluate()
     }
 
     /***************************************************************************/
@@ -711,11 +711,13 @@ protected:
 
     /***************************************************************************/
     /**
-     * The actual value calculation takes place here
+     * The evaluation hook: runs the nested optimization(s) and returns the meta-fitness. For the
+     * multi-criterion target (MC_MINSOLVER_BESTFITNESS) it returns {best-fitness, average-solver-calls};
+     * otherwise a single-element vector.
      *
-     * @return The value of this object, as calculated with the evaluation function
+     * @return The raw result vector (size == getNStoredResults())
      */
-    double fitnessCalculation() override {
+    std::vector<double> evaluate() override {
         // Retrieve the parameters from the flat genome by name (see readTuned()).
         namespace n = oa::ea_tunable;
         const auto v = readTuned();
@@ -726,7 +728,7 @@ protected:
         if(not ind_factory_) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GMetaOptimizerIndividualT<T>::fitnessCalculation(): Error!" << '\n'
+                << "In GMetaOptimizerIndividualT<T>::evaluate(): Error!" << '\n'
                 << "No factory class for individuals has been registered" << '\n'
             );
         }
@@ -868,7 +870,6 @@ protected:
         }
         else if(metaOptimizationTarget::MC_MINSOLVER_BESTFITNESS == mo_target_) {
             evaluation = std::get<0>(best_mean);
-            this->setResult(1, std::get<0>(sd)); // The secondary result
         }
 
         // Emit some information
@@ -879,13 +880,17 @@ protected:
                   << "and a best evaluation of " << std::get<0>(best_mean) << " +/- "
                   << std::get<1>(best_mean) << '\n'
                   << "out of " << n_runs_per_optimization_ << " consecutive runs" << '\n'
-                  << "fitnessCalculation() will return the value " << evaluation << '\n'
+                  << "evaluate() will return the value " << evaluation << '\n'
                   << this->print(false)
                   << '\n' // print without fitness -- not defined at this stage
                   << '\n';
 
-        // Let the audience know
-        return evaluation;
+        // Return the raw result vector: the secondary (average solver calls) is present only for the
+        // multi-criterion target, matching getNStoredResults() (2 vs 1).
+        if(metaOptimizationTarget::MC_MINSOLVER_BESTFITNESS == mo_target_) {
+            return {evaluation, std::get<0>(sd)};
+        }
+        return {evaluation};
     }
 
     /***************************************************************************/

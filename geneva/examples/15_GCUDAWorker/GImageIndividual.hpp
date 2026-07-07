@@ -230,15 +230,6 @@ public:
      *  Authored from the Config -- no adaptor data resides on the individual. */
     static std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase>
     buildAdaptionConfig(const gen::GFlatGenome &sample, const Config &c);
-    /** @brief The free evaluator (the evaluator seam): the CPU render+score of the genome's triangles
-     *  against the process-wide target image (Gem::Geneva::MonaLisa::scoreAgainstTarget). This is the SAME
-     *  render+score the GPU kernel uses, so it doubles as the device cross-check reference. The factory
-     *  installs it in place of the virtual fitnessCalculation(), which delegates here. It reads only the
-     *  genome and the shared target store (loaded once via MonaLisa::loadTarget) -- the image dimensions
-     *  come from the target, the triangle count from the genome size.
-     *  @param ind The individual, read via its (inherited) external streamline() values
-     *  @return The raw fitness (deviation from the target image) as a one-element vector */
-    static std::vector<double> evaluate(const GImageIndividual &ind);
 
     /** @brief Retrieves the number of triangles */
     std::size_t getNTriangles() const;
@@ -290,8 +281,11 @@ protected:
     /** @brief Loads the data of another GImageIndividual */
     void load_(const gen::GOptimizableEntity *) override;
 
-    /** @brief The actual fitness calculation takes place here. */
-    double fitnessCalculation() override;
+    /** @brief The evaluation hook: the CPU render+score of the genome's triangles against the process-wide
+     *  target image (Gem::Geneva::MonaLisa::scoreAgainstTarget) -- the SAME render+score the GPU kernel uses,
+     *  so it doubles as the device cross-check reference. Reads only the genome and the shared target store.
+     *  @return The raw fitness (deviation from the target image) as a one-element vector */
+    std::vector<double> evaluate() override;
 
 private:
     /******************************************************************************/

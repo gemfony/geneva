@@ -181,24 +181,14 @@ gen::GFlatGenome *GParaboloidIndividual2D::clone_() const {
 
 /********************************************************************************************/
 /**
- * The actual fitness calculation takes place here.
+ * The evaluation hook: the sum of squares of the genome's external parameters (single criterion).
  *
- * @return The value of this object
+ * @return The raw fitness as a one-element vector
  */
-double GParaboloidIndividual2D::fitnessCalculation() {
-    // Single-source the objective: both the free-evaluator seam (installed by the factory) and this
-    // virtual delegate to evaluate(), so the two evaluation paths compute one value from one place.
-    return evaluate(*this).front();
-}
-
-/********************************************************************************************/
-/**
- * The free evaluator: the sum of squares of the genome's external parameters.
- */
-std::vector<double> GParaboloidIndividual2D::evaluate(const GParaboloidIndividual2D &ind) {
+std::vector<double> GParaboloidIndividual2D::evaluate() {
     std::vector<double> parVec; // Will hold the parameters
 
-    ind.streamline(parVec); // Retrieve the (external) parameters
+    this->streamline(parVec); // Retrieve the (external) parameters
 
     // Do the actual calculation (a single criterion -> a one-element result vector)
     return {std::ranges::fold_left(

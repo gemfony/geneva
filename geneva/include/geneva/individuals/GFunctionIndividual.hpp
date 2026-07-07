@@ -578,19 +578,6 @@ public:
      */
     static void applyConfig(GFunctionIndividual &ind, const Config &c);
     /**
-     * @brief The free evaluator (evaluator seam): evaluates the individual's selected benchmark function.
-     *
-     * It reads the demo function the factory placed on the individual (via @c getDemoFunction()) and the
-     * genome's external parameters (via the inherited @c streamline()) -- only through public accessors,
-     * never the individual's members -- and returns the raw fitness. The factory installs it in place of
-     * the virtual @c fitnessCalculation(), which delegates here. Being a static function taking a @c const
-     * individual, it mutates nothing -- the caller (runEvaluation_) writes the returned fitness into the
-     * individual.
-     * @param ind The individual, read for its demo function and (external) parameter values
-     * @return The raw fitness as a one-element vector (a single-criterion problem)
-     */
-    static std::vector<double> evaluate(const GFunctionIndividual &ind);
-    /**
      * @brief Reads a GFunctionIndividual config file into a Config (for callers that build directly,
      *  e.g. the dimension-sweeping benchmarks).
      * @param configFile Path to the JSON configuration file
@@ -651,10 +638,10 @@ protected:
     ) const final;
 
     /**
-     * @brief The actual value calculation takes place here.
-     * @return The fitness value of this individual for the selected demo function
+     * @brief The evaluation hook: evaluates the selected benchmark function on the individual's parameters.
+     * @return The raw fitness as a one-element vector (a single-criterion problem)
      */
-    double fitnessCalculation() final;
+    std::vector<double> evaluate() final;
 
     //---------------------------------------------------------------------------
 

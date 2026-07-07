@@ -1314,7 +1314,7 @@ public:
     }
 
 protected:
-    double fitnessCalculation() override {
+    std::vector<double> evaluate() override {
         std::vector<double> v;
         this->streamline<double>(v);
         double f1 = 0.;
@@ -1323,8 +1323,7 @@ protected:
             f1 += x * x;
             f2 += (x - 2.) * (x - 2.);
         }
-        this->setResult(1, f2);
-        return f1; // criterion 0
+        return {f1, f2}; // criterion 0, criterion 1
     }
 };
 

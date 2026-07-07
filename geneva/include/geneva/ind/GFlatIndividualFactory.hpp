@@ -81,39 +81,6 @@ template <typename Derived>
 concept HasApplyConfigHook =
     requires(Derived &d, const typename Derived::Config &c) { Derived::applyConfig(d, c); };
 
-/** @brief Satisfied if Derived supplies a static free evaluator @c evaluate(const Derived&) returning a
- *  raw-fitness vector (@c std::vector<double>). The evaluator is instance-static (no hidden @c this state)
- *  yet receives the whole individual as a const reference, so it can read both the genome (via the
- *  individual's streamline() accessors) and any per-run context the factory placed on the individual (a
- *  demo-function selector, an external-program path, ...). It returns the raw fitness -- the caller
- *  (runEvaluation_) writes it into the individual -- so the evaluator mutates nothing. The return is
- *  ALWAYS a vector: single-criterion optimization is just a vector of size 1, keeping the machinery
- *  agnostic to the criteria count. A type that provides this hook opts its individuals into the
- *  free-evaluator dispatch path in place of the virtual fitnessCalculation(). */
-template <typename Derived>
-concept HasFreeEvaluator = requires(const Derived &ind) {
-    { Derived::evaluate(ind) } -> std::same_as<std::vector<double>>;
-};
-
-/******************************************************************************/
-/**
- * @brief The type-erased thunk installed on an individual whose type provides a static free evaluator.
- *
- * The base holds the evaluator as a @c GOptimizableEntity&-taking function pointer so the pointer type is
- * problem-agnostic; this thunk down-casts to the concrete @c Derived (always valid -- the factory installs
- * the thunk only on a produced @c Derived) and calls its static @c evaluate(const Derived&). The result is
- * the raw-fitness vector the single evaluation call site consumes (main result at index 0, secondary
- * criteria after; size 1 for a single-criterion problem).
- *
- * @tparam Derived The concrete flat individual type supplying the static evaluate(const Derived&) hook
- * @param oe The individual to evaluate (a Derived; passed as its base so the thunk type is problem-agnostic)
- * @return The raw result vector
- */
-template <class Derived>
-std::vector<double> freeEvaluatorThunk(const GOptimizableEntity &oe) {
-    return Derived::evaluate(static_cast<const Derived &>(oe));
-}
-
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
@@ -310,13 +277,6 @@ protected:
             Derived::applyConfig(*static_cast<Derived *>(fg), config_);
         }
 
-        // E.0 evaluator seam: if the individual type provides a static free evaluator
-        // evaluate(const GFlatGenome&), install the type-erased thunk so this produced individual (and its
-        // clones) evaluate through the free-evaluator dispatch path instead of the virtual
-        // fitnessCalculation(). A type without the hook is simply left on the virtual path.
-        if constexpr (HasFreeEvaluator<Derived>) {
-            fg->setFreeEvaluator(&freeEvaluatorThunk<Derived>);
-        }
     }
 
 private:

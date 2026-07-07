@@ -106,12 +106,6 @@ public:
     static void describeConfig(Gem::Common::GParserBuilder &gpb, Config &c);
     /** @brief Builds the flat genome structure: two constrained doubles in [par_min, par_max]. */
     static gen::GenomeData buildGenome(const Config &c);
-    /** @brief The free evaluator (evaluator seam): the sum of squares of the genome's (external)
-     *  parameters. The factory installs it on produced individuals in place of the virtual
-     *  fitnessCalculation(), which delegates here so both paths compute one value from one source.
-     *  @param ind The individual, read via its (inherited) external streamline() values
-     *  @return The raw fitness as a one-element vector (single-criterion problem) */
-    static std::vector<double> evaluate(const GParaboloidIndividual2D &ind);
     /** @brief Factory hook: the OA-owned adaption config for a produced genome (delegates to the one-argument
      *  form; the Config carries no adaptor settings). */
     static std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase>
@@ -121,8 +115,9 @@ protected:
     /** @brief Loads the data of another GParaboloidIndividual2D */
     virtual void load_(const gen::GOptimizableEntity *) final;
 
-    /** @brief The actual fitness calculation takes place here. */
-    virtual double fitnessCalculation() final;
+    /** @brief The evaluation hook: the sum of squares of the genome's (external) parameters, returned as a
+     *  one-element vector (single-criterion). @return The raw fitness vector */
+    std::vector<double> evaluate() final;
 
 private:
     /** @brief Creates a deep clone of this object */

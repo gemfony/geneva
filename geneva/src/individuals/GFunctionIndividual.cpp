@@ -658,40 +658,22 @@ void GFunctionIndividual::specificTestsFailuresExpected_GUnitTests_() {
 
 /******************************************************************************/
 /**
-	 * @brief Evaluates the individual's parameters against the selected benchmark function.
-	 *
-	 * Delegates to Gem::Geneva::Benchmarks::eval() in GBenchmarkFunctions.hpp, which provides
-	 * the same implementations annotated for both CPU and CUDA device execution.
-	 * The function set covers all 15 solverFunction IDs 0–14.
-	 *
-	 * @return Fitness value (lower is better for minimisation functions)
-	 */
-double GFunctionIndividual::fitnessCalculation() {
-    // Single-source the objective: both the free-evaluator seam (installed by the factory) and this
-    // virtual delegate to evaluate(), so the benchmark value is computed from one place.
-    return evaluate(*this).front();
-}
-
-/******************************************************************************/
-/**
- * @brief The free evaluator: evaluates the selected benchmark function on the individual's parameters.
+ * @brief The evaluation hook: evaluates the selected benchmark function on the individual's parameters.
  *
- * Reads the demo function the factory set on the individual (@c demo_function_) and the external parameter
- * values (via @c streamline()), and returns the raw fitness. Delegates the maths to
- * Gem::Geneva::Benchmarks::eval() (shared CPU/CUDA implementations, all 15 solverFunction IDs 0-14).
+ * Reads the demo function the factory set on the individual (via getDemoFunction()) and the external
+ * parameter values (via streamline()) -- only through public accessors -- and returns the raw fitness.
+ * Delegates the maths to Gem::Geneva::Benchmarks::eval() (shared CPU/CUDA implementations, all 15
+ * solverFunction IDs 0-14). The (function, dimension) validity is a configuration invariant checked once in
+ * applyConfig(), so this hot path carries no validation.
  *
- * @param ind The individual to evaluate (const: the evaluator mutates nothing)
  * @return The raw fitness as a one-element vector (a single-criterion problem)
  */
-std::vector<double> GFunctionIndividual::evaluate(const GFunctionIndividual &ind) {
-    // Read everything through the individual's public accessors (never its members), so the evaluator is
-    // decoupled from the individual's internal representation. The (function, dimension) validity is a
-    // configuration invariant checked once in applyConfig(), so this hot path carries no validation.
+std::vector<double> GFunctionIndividual::evaluate() {
     std::vector<double> par_vec;
-    ind.streamline(par_vec);
+    this->streamline(par_vec);
 
     return {gbm::eval(
-        static_cast<int>(ind.getDemoFunction()),
+        static_cast<int>(this->getDemoFunction()),
         par_vec.data(),
         static_cast<int>(par_vec.size())
     )};

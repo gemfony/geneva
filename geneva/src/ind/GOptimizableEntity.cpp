@@ -79,10 +79,7 @@ GOptimizableEntity::GOptimizableEntity(GOptimizableEntity const &cp)
   , validity_level_(cp.validity_level_)
   // The OA-owned scratch is deep-copied (a clone mid-optimization keeps the live personality + adaption
   // state, e.g. an EA child inheriting its parent's sigma).
-  , scratch_(cp.scratch_ ? std::make_unique<GAuxiliaryStore>(*cp.scratch_) : nullptr)
-  // The free-evaluator thunk is a per-type code pointer: carry it onto the clone so an offspring produced
-  // mid-optimization evaluates through the same seam as its factory-made parent.
-  , free_evaluator_(cp.free_evaluator_) {
+  , scratch_(cp.scratch_ ? std::make_unique<GAuxiliaryStore>(*cp.scratch_) : nullptr) {
     Gem::Common::copyCloneableSmartPointer(cp.pre_processor_ptr_, pre_processor_ptr_);
     Gem::Common::copyCloneableSmartPointer(cp.post_processor_ptr_, post_processor_ptr_);
 }
@@ -265,8 +262,39 @@ GOptimizableEntity::process(const std::vector<individual_processing_result> &res
 
 /******************************************************************************/
 /**
- * @brief The evaluation body run inside process(): feasibility check + fitnessCalculation()/res_vec
- * adoption + the evaluation-policy transform.
+ * @brief The transitional bridge default of the evaluate() hook: wraps a not-yet-converted individual's
+ * legacy fitnessCalculation() (a single @c double) into a size-1 result vector. Valid ONLY for a
+ * single-criterion individual; a multi-criterion individual MUST override evaluate() to return its full
+ * vector (else the size check in runEvaluation_() fails). A converted individual overrides this and never
+ * reaches the bridge.
+ *
+ * @return A one-element vector holding the legacy fitnessCalculation() result
+ */
+std::vector<double> GOptimizableEntity::evaluate() {
+    return {this->fitnessCalculation()};
+}
+
+/******************************************************************************/
+/**
+ * @brief The legacy fitness hook's default, reached only for an individual that overrides NEITHER evaluate()
+ * NOR fitnessCalculation() -- a programming error, so it throws. A converted individual overrides evaluate();
+ * a not-yet-converted individual overrides this.
+ *
+ * @return never returns (always throws)
+ */
+double GOptimizableEntity::fitnessCalculation() {
+    throw geneva_exception(
+        g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+        << "In GOptimizableEntity::fitnessCalculation(): Error!" << '\n'
+        << "This individual overrides neither evaluate() nor fitnessCalculation()." << '\n'
+        << "A concrete individual must override std::vector<double> evaluate()." << '\n'
+    );
+}
+
+/******************************************************************************/
+/**
+ * @brief The evaluation body run inside process(): feasibility check + evaluate()/res_vec adoption + the
+ * evaluation-policy transform.
  * @param res_vec Optional pre-computed raw results
  */
 void GOptimizableEntity::runEvaluation_(const std::vector<individual_processing_result> &res_vec) {
@@ -298,17 +326,18 @@ void GOptimizableEntity::runEvaluation_(const std::vector<individual_processing_
                     ++pos;
                 }
             }
-            else if(free_evaluator_ != nullptr) {
-                // A module-provided free evaluator supersedes the virtual (E.0 of the evaluator
-                // unification). It RETURNS the raw results (main at index 0, secondary criteria after)
-                // rather than writing them into the individual, mirroring the res_vec path above so the
-                // evaluation-policy transform below sees a fully-populated result store.
-                const std::vector<double> raw = free_evaluator_(*this);
+            else {
+                // Local evaluation: the virtual evaluate() RETURNS the raw result vector (main at index 0,
+                // secondary criteria after) rather than writing into the individual, mirroring the res_vec
+                // path above so the evaluation-policy transform below sees a fully-populated result store.
+                // (External GPU/network results took the res_vec branch; both converge into the one
+                // feasibility + policy + PROCESSED pass below.)
+                const std::vector<double> raw = this->evaluate();
                 if(raw.size() != this->getNStoredResults()) {
                     throw geneva_exception(
                         g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                         << "In GOptimizableEntity::runEvaluation_(): Error!" << '\n'
-                        << "The free evaluator returned " << raw.size() << " result(s), but " << '\n'
+                        << "evaluate() returned " << raw.size() << " result(s), but " << '\n'
                         << this->getNStoredResults() << " were expected." << '\n'
                     );
                 }
@@ -316,10 +345,6 @@ void GOptimizableEntity::runEvaluation_(const std::vector<individual_processing_
                 for(std::size_t pos = 1; pos < raw.size(); ++pos) {
                     this->setResult(pos, raw[pos]);
                 }
-            }
-            else {
-                // With multiple fitness criteria, fitnessCalculation() also sets the additional raw values.
-                main_raw_result = this->fitnessCalculation();
             }
         }
         catch(...) {
@@ -726,13 +751,6 @@ void GOptimizableEntity::load_(const GOptimizableEntity *cp) {
     }
     else {
         scratch_.reset();
-    }
-
-    // The free-evaluator thunk (a per-type code pointer) rides along when the source carries one. A source
-    // without it (e.g. a default-constructed target being loaded onto) never clears an already-installed
-    // evaluator: load_ is always same-type, so the pointer is either equal or absent-on-the-source.
-    if(p_load->free_evaluator_ != nullptr) {
-        free_evaluator_ = p_load->free_evaluator_;
     }
 }
 
