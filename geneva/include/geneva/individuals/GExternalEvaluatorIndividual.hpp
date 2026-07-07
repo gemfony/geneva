@@ -357,10 +357,10 @@ protected:
     ) const final;
 
     /**
-     * @brief The actual fitness calculation takes place here
-     * @return The fitness value obtained from the external evaluation program
+     * @brief The evaluation hook: runs the external evaluation program and returns its per-criterion results.
+     * @return The full per-criterion raw result vector obtained from the external evaluation program
      */
-    double fitnessCalculation() final;
+    std::vector<double> evaluate() final;
 
 private:
     /***************************************************************************/

@@ -1483,7 +1483,7 @@ const GNeuralNetworkArchitecture &GNeuralNetworkIndividual::architecture() const
  *
  * @return The fitness of this object
  */
-double GNeuralNetworkIndividual::fitnessCalculation() {
+std::vector<double> GNeuralNetworkIndividual::evaluate() {
     double result = 0;
 
     // Read all weights out of the flat genome once (genome-agnostic §2 access), then decode their
@@ -1547,7 +1547,7 @@ double GNeuralNetworkIndividual::fitnessCalculation() {
     }
 
     // Let the audience know
-    return result;
+    return {result};
 }
 
 /******************************************************************************/

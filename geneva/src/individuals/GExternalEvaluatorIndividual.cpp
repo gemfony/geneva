@@ -262,7 +262,7 @@ gen::GFlatGenome *GExternalEvaluatorIndividual::clone_() const {
  *
  * @return The primary (first) result value returned by the external program
  */
-double GExternalEvaluatorIndividual::fitnessCalculation() {
+std::vector<double> GExternalEvaluatorIndividual::evaluate() {
     namespace json = boost::json;
 
     // Transform this object into a JSON batch document
@@ -311,8 +311,9 @@ double GExternalEvaluatorIndividual::fitnessCalculation() {
     arguments.push_back(std::string("--input=\"") + parameterfile_name + "\"");
     arguments.push_back(std::string("--output=\"") + result_file_name + "\"");
 
-    // Perform the external evaluation
-    double main_result = 0.;
+    // Perform the external evaluation. The full per-criterion result vector is returned (the caller writes
+    // each criterion); an error / invalid path fills it with the worst case and flags the individual.
+    std::vector<double> results(n_results_, 0.);
     std::string command;
     int error_code = Gem::Common::runExternalCommand(
         std::filesystem::path(program_name_),
@@ -324,7 +325,7 @@ double GExternalEvaluatorIndividual::fitnessCalculation() {
     if(error_code) {                      // Something went wrong
         std::ostringstream error_message; // NOLINT(cppcoreguidelines-init-variables)
 
-        error_message << "In GExternalEvaluatorIndividual::fitnessCalculation():" << '\n'
+        error_message << "In GExternalEvaluatorIndividual::evaluate():" << '\n'
                       << "Execution of external command failed." << '\n'
                       << "Command: " << command << '\n'
                       << "Error code: " << error_code << '\n'
@@ -339,9 +340,8 @@ double GExternalEvaluatorIndividual::fitnessCalculation() {
         // All we can do here is to return the worst case. As long as crashes
         // do not happen too often, this will have but little influence on
         // the optimization.
-        main_result = this->getWorstCase();
-        for(std::size_t res = 1; res < n_results_; res++) {
-            this->setResult(res, this->getWorstCase());
+        for(double &r : results) {
+            r = this->getWorstCase();
         }
 
         // Make sure the individual can be recognized as invalid by Geneva
@@ -352,7 +352,7 @@ double GExternalEvaluatorIndividual::fitnessCalculation() {
         if(not std::filesystem::exists(result_file_name)) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GExternalEvaluatorIndividual::fitnessCalculation(): Error!" << '\n'
+                << "In GExternalEvaluatorIndividual::evaluate(): Error!" << '\n'
                 << "Result file " << result_file_name << " does not seem to exist." << '\n'
             );
         }
@@ -368,7 +368,7 @@ double GExternalEvaluatorIndividual::fitnessCalculation() {
             if(1 != n_external_individuals) {
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                    << "In GExternalEvaluatorIndividual::fitnessCalculation(): Error!" << '\n'
+                    << "In GExternalEvaluatorIndividual::evaluate(): Error!" << '\n'
                     << "Number of result individuals != 1: " << n_external_individuals << '\n'
                 );
             }
@@ -380,7 +380,7 @@ double GExternalEvaluatorIndividual::fitnessCalculation() {
             if(external_n_results != n_results_) {
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                    << "In GExternalEvaluatorIndividual::fitnessCalculation(): Error!" << '\n'
+                    << "In GExternalEvaluatorIndividual::evaluate(): Error!" << '\n'
                     << "Result file provides n_results = " << external_n_results << '\n'
                     << "while we expected " << n_results_ << '\n'
                 );
@@ -391,16 +391,15 @@ double GExternalEvaluatorIndividual::fitnessCalculation() {
             if(not is_valid) {                    // Assign worst-case values to all result
                 std::ostringstream error_message; // NOLINT(cppcoreguidelines-init-variables)
 
-                error_message << "In GExternalEvaluatorIndividual::fitnessCalculation():" << '\n'
+                error_message << "In GExternalEvaluatorIndividual::evaluate():" << '\n'
                               << "individuals[0].isValid is \"false\"" << '\n';
 
 #ifdef DEBUG
                 glogger << error_message.str() << GWARNING;
 #endif
 
-                main_result = this->getWorstCase();
-                for(std::size_t res = 1; res < n_results_; res++) {
-                    this->setResult(res, this->getWorstCase());
+                for(double &r : results) {
+                    r = this->getWorstCase();
                 }
 
                 // Make sure the individual can be recognized as invalid by Geneva
@@ -409,15 +408,8 @@ double GExternalEvaluatorIndividual::fitnessCalculation() {
             else { // Extract and store all result values
                 json::array const &results_node = result_individual.at("results").as_array();
 
-                double current_result = 0.;
                 for(std::size_t res = 0; res < n_results_; res++) {
-                    current_result = results_node.at(res).as_object().at("rawResult").to_number<double>();
-
-                    if(res == 0) {
-                        main_result = current_result;
-                    }
-
-                    this->setResult(res, current_result);
+                    results[res] = results_node.at(res).as_object().at("rawResult").to_number<double>();
                 }
             }
         }
@@ -427,15 +419,15 @@ double GExternalEvaluatorIndividual::fitnessCalculation() {
         catch(const std::exception &e) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GExternalEvaluatorIndividual::fitnessCalculation(): Error reading "
+                << "In GExternalEvaluatorIndividual::evaluate(): Error reading "
                 << result_file_name << '\n'
                 << "with message " << e.what() << '\n'
             );
         }
     }
 
-    // Return the master result (first result returned)
-    return main_result;
+    // Return the full per-criterion result vector (the caller writes each criterion)
+    return results;
 }
 
 /******************************************************************************/

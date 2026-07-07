@@ -1312,10 +1312,10 @@ protected:
     ) const final;
 
     /**
-     * @brief The actual fitness calculation.
-     * @return The training error of the network encoded by this individual's weights
+     * @brief The evaluation hook: the training error of the network encoded by this individual's weights.
+     * @return The training error as a one-element vector (single criterion)
      */
-    double fitnessCalculation() final;
+    std::vector<double> evaluate() final;
 
 public:
     /**
