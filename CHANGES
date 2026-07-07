@@ -1144,6 +1144,14 @@ Recommended Versions:
 
 ************************* Noteworthy Changes ***********************************
 
+- Introduced Gem::Common::GProviderStoreT, a shared template for a process-global,
+  mnemonic-keyed registry of providers (a GSingletonT over the sanctioned keyed store),
+  naming the idiom the optimization-algorithm store already used inline. GOAStore is now
+  an instantiation of it, so the same registry pattern is reusable for the consumer and
+  marshaller registries rather than being re-spelled per store. Together with
+  GLoadOnceCellT this fixes exactly two store shapes -- a keyed provider map and a
+  load-once immutable cell -- that every registry and global constant should use.
+
 - Introduced Gem::Common::Concurrency::GLoadOnceCellT, a shared fill/compute-once-then-
   immutable cell (a single writer, then many lock-free readers) living in
   common/concurrency/. Three sites that each hand-rolled the same std::once_flag /
