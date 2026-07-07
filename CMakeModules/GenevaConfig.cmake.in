@@ -83,6 +83,10 @@ get_target_property(GENEVA_INDIVIDUAL_INCLUDE_DIRS Geneva::geneva INTERFACE_INCL
 # The C++ standard Geneva was built with (a loadable module links no Geneva libs, so it must pin the
 # standard on itself; the consumer project need not set CMAKE_CXX_STANDARD at all).
 set(GENEVA_INDIVIDUAL_CXX_STANDARD @CMAKE_CXX_STANDARD@)
+# The ABI-affecting compile options Geneva was built with (e.g. -DNDEBUG, which controls _GLIBCXX_ASSERTIONS).
+# A loadable module inherits none of Geneva's flags, so applying these makes its module-compat fingerprint
+# (abi_flags) match this Geneva regardless of the consumer's own build type / toolchain defaults.
+set(GENEVA_INDIVIDUAL_ABI_OPTIONS @GENEVA_INDIVIDUAL_ABI_OPTIONS@)
 include("${CMAKE_CURRENT_LIST_DIR}/GenevaIndividualModule.cmake")
 
 # Convenience list of all imported targets, mirroring the legacy

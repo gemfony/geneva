@@ -78,20 +78,36 @@ ENDIF ()
 # include directories, Boost, the C++23 requirement and (when the install was
 # built with it) the MPI consumer dependencies.
 
-SET(EXECUTABLENAME GStarter)
+# Package the GStarter individual BOTH ways from one source (the DA1b "build both" model), using the helper
+# the installed Geneva CMake package exports -- find_package(Geneva) above brought GENEVA_DECLARE_INDIVIDUAL
+# into scope, so this standalone/out-of-tree example authors its loadable module with the exact same one-line
+# declaration the in-tree examples use. It produces a compiled-in object library (GStarterIndividual-obj) and
+# a runtime-loadable module (libGStarterIndividual.so). The individual's serialization export lives in
+# GStarterIndividual.cpp (SOURCES, in both targets); the module's fixed entry point is
+# GStarterIndividualPlugin.cpp (PLUGIN, module only).
+GENEVA_DECLARE_INDIVIDUAL(GStarterIndividual
+	MODE    both
+	SOURCES GStarterIndividual.cpp
+	PLUGIN  GStarterIndividualPlugin.cpp
+	CONFIG  ./config/GStarterIndividual.json)
 
-ADD_EXECUTABLE(${EXECUTABLENAME}
-	GStarter.cpp
-	GStarterIndividual.cpp
-)
+# (1) The COMPILED-IN variant: the classic bespoke GStarter driver with the individual linked in. The object
+# library is listed BEFORE Geneva::geneva so the linker keeps its Boost.Serialization instantiations (see the
+# link-order note in GENEVA_DECLARE_INDIVIDUAL).
+ADD_EXECUTABLE(GStarter GStarter.cpp)
+TARGET_LINK_LIBRARIES(GStarter PRIVATE GStarterIndividual-obj Geneva::geneva)
+TARGET_COMPILE_FEATURES(GStarter PRIVATE cxx_std_23)
+INSTALL(TARGETS GStarter DESTINATION bin)
 
-TARGET_LINK_LIBRARIES(${EXECUTABLENAME} PRIVATE Geneva::geneva)
-
-# The imported targets already propagate cxx_std_23; stated here explicitly so
-# the requirement is visible at the consumer level as well.
-TARGET_COMPILE_FEATURES(${EXECUTABLENAME} PRIVATE cxx_std_23)
-
-INSTALL(TARGETS ${EXECUTABLENAME} DESTINATION bin)
+# (2) The LOADABLE variant's runner: a generic optimizer with NO problem compiled in, which loads the
+# just-built module at runtime via --individual (the example-19 pattern). ENABLE_EXPORTS so a plugin loaded
+# RTLD_GLOBAL resolves against one symbol namespace (single Boost.Serialization registry + Geneva singletons).
+ADD_EXECUTABLE(GStarterGenericOptimizer GStarterGenericOptimizer.cpp)
+SET_TARGET_PROPERTIES(GStarterGenericOptimizer PROPERTIES ENABLE_EXPORTS TRUE)
+TARGET_LINK_LIBRARIES(GStarterGenericOptimizer PRIVATE Geneva::geneva)
+TARGET_COMPILE_FEATURES(GStarterGenericOptimizer PRIVATE cxx_std_23)
+ADD_DEPENDENCIES(GStarterGenericOptimizer GStarterIndividual)
+INSTALL(TARGETS GStarterGenericOptimizer GStarterIndividual DESTINATION bin)
 
 ################################################################################
 # Copy the configuration files next to the build so the example can be run

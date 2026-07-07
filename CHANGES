@@ -117,8 +117,15 @@ Recommended Versions:
   exported by the installed CMake package, so a downstream/out-of-tree project that consumes Geneva via
   find_package(Geneva CONFIG) can package its own optimization individuals as a compiled-in object library
   and/or a runtime-loadable module (the example-19 pattern) with the same one-line declaration the in-tree
-  build uses. The helpers derive their include directories from the imported Geneva targets and pin Geneva's
-  C++ standard on the individual, since a loadable module links none of the Geneva libraries.
+  build uses. Because a loadable module links NONE of the Geneva libraries (so it does not drag in the non-PIC
+  static Catch2), it inherits none of their build settings; the exported helper therefore pins, on the module,
+  the include directories, the C++ standard AND the ABI-affecting compile flags Geneva was built with (its
+  build-type flags, e.g. -O3 -DNDEBUG) that the module-compatibility fingerprint checks -- notably the
+  optimisation/_FORTIFY level that toggles _GLIBCXX_ASSERTIONS -- so a module built out-of-tree matches the
+  installed Geneva's ABI and passes the load-time compatibility check. Example 10 (GStarter) is now a
+  standalone project that BUILDS BOTH: the classic compiled-in GStarter driver and a runtime-loadable
+  libGStarterIndividual.so run by a bundled generic optimizer, using the exported helper against an installed
+  Geneva.
 
 - CHANGED: the multi-criterion parabola (example 4) is now optimized with a Pareto sorting scheme, so
   it exercises genuine multi-objective optimization across its several conflicting criteria; previously

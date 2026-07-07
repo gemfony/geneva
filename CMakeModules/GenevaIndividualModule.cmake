@@ -90,6 +90,7 @@ IF(NOT GENEVA_INDIVIDUAL_MODULE_INCLUDED)
 		# MODULE libraries drop the "lib" prefix by default; keep it so the .so is named lib<target>.so.
 		SET_TARGET_PROPERTIES(${_target} PROPERTIES PREFIX "lib")
 		TARGET_COMPILE_FEATURES(${_target} PRIVATE cxx_std_${GENEVA_INDIVIDUAL_CXX_STANDARD})
+		TARGET_COMPILE_OPTIONS(${_target} PRIVATE ${GENEVA_INDIVIDUAL_ABI_OPTIONS})
 		# Boost_INCLUDE_DIRS is read here (call time), not when this module was included, so it is set even
 		# if Boost is found after this module (in-tree) / by the config package's find_dependency (out-of-tree).
 		TARGET_INCLUDE_DIRECTORIES(${_target} PRIVATE
@@ -175,6 +176,7 @@ IF(NOT GENEVA_INDIVIDUAL_MODULE_INCLUDED)
 			ADD_LIBRARY(${_name}-obj OBJECT ${GDI_SOURCES})
 			SET_TARGET_PROPERTIES(${_name}-obj PROPERTIES POSITION_INDEPENDENT_CODE ON)
 			TARGET_COMPILE_FEATURES(${_name}-obj PUBLIC cxx_std_${GENEVA_INDIVIDUAL_CXX_STANDARD})
+			TARGET_COMPILE_OPTIONS(${_name}-obj PRIVATE ${GENEVA_INDIVIDUAL_ABI_OPTIONS})
 			TARGET_INCLUDE_DIRECTORIES(${_name}-obj PUBLIC ${_gdi_incdirs})
 			# NOTE on link order: a compile-in consumer must list <name>-obj BEFORE the Geneva and Boost
 			# libraries. The object library's own objects instantiate Boost.Serialization for the individual's
@@ -197,6 +199,7 @@ IF(NOT GENEVA_INDIVIDUAL_MODULE_INCLUDED)
 			# MODULE libraries drop the "lib" prefix by default; keep it so the .so is named lib<name>.so.
 			SET_TARGET_PROPERTIES(${_name} PROPERTIES PREFIX "lib")
 			TARGET_COMPILE_FEATURES(${_name} PRIVATE cxx_std_${GENEVA_INDIVIDUAL_CXX_STANDARD})
+			TARGET_COMPILE_OPTIONS(${_name} PRIVATE ${GENEVA_INDIVIDUAL_ABI_OPTIONS})
 			TARGET_INCLUDE_DIRECTORIES(${_name} PRIVATE ${_gdi_incdirs})
 			IF(GDI_CONFIG)
 				SET_TARGET_PROPERTIES(${_name} PROPERTIES GENEVA_INDIVIDUAL_CONFIG "${GDI_CONFIG}")

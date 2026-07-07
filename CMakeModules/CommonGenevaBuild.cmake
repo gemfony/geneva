@@ -466,6 +466,23 @@ IF(NOT COMMON_GENEVA_BUILD_INCLUDED)
 		${PROJECT_SOURCE_DIR}/dietrich/include
 		${PROJECT_SOURCE_DIR}/geneva/include)
 	SET(GENEVA_INDIVIDUAL_CXX_STANDARD ${CMAKE_CXX_STANDARD})
+
+	# ABI-affecting compile options a loadable individual module MUST match: it links none of the Geneva
+	# libraries, so it inherits none of their build flags and would otherwise pick up the consumer's toolchain
+	# defaults. The axis that bites is _GLIBCXX_ASSERTIONS (part of the module-compat fingerprint's abi_flags):
+	# on this stdlib it is toggled by the OPTIMISATION / _FORTIFY_SOURCE level (on at -O0, off at -O2+), NOT by
+	# NDEBUG. So propagate Geneva's effective build-type compile flags (e.g. "-O3 -DNDEBUG" for Release) to the
+	# module, which makes its _GLIBCXX_ASSERTIONS state -- and hence abi_flags -- match this Geneva regardless
+	# of the consumer's own build type. (A sanitizer / _GLIBCXX_DEBUG build would be carried the same way, since
+	# those flags are in the build-type flags too.)
+	SET(_gi_bt "${CMAKE_BUILD_TYPE}")
+	IF(NOT _gi_bt AND DEFINED GENEVA_BUILD_TYPE)
+		SET(_gi_bt "${GENEVA_BUILD_TYPE}")
+	ENDIF()
+	STRING(TOUPPER "${_gi_bt}" _gi_bt_u)
+	SEPARATE_ARGUMENTS(GENEVA_INDIVIDUAL_ABI_OPTIONS UNIX_COMMAND
+		"${CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS_${_gi_bt_u}}")
+
 	INCLUDE(GenevaIndividualModule)
 
 	###############################################################################
