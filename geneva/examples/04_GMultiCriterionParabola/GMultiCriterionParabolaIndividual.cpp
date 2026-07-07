@@ -119,11 +119,11 @@ double GMultiCriterionParabolaIndividual::fitnessCalculation() {
      * @param g The individual's genome, read via its external streamline() values
      * @return The per-criterion raw results (size == the number of minima)
      */
-std::vector<double> GMultiCriterionParabolaIndividual::evaluate(const gen::GFlatGenome &g) {
+std::vector<double> GMultiCriterionParabolaIndividual::evaluate(const GMultiCriterionParabolaIndividual &ind) {
     const std::vector<double> &minima = minimaStore().get();
 
     std::vector<double> parVec; // Will hold the individual parameters
-    g.streamline(parVec);       // Retrieve the (external) parameters
+    ind.streamline(parVec);     // Retrieve the (external) parameters
 
     std::vector<double> results(parVec.size());
     for(std::size_t i = 0; i < parVec.size(); i++) {

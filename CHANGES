@@ -86,13 +86,16 @@ Recommended Versions:
   (re-widening the mutation range on stagnation) is unchanged.
 
 - NEW: an optimization individual may now supply its fitness as a free, module-provided
-  evaluator -- a static evaluate(const GFlatGenome&) returning the raw fitness (a double, or a
-  small vector for a multi-criterion problem) -- instead of overriding the virtual
-  fitnessCalculation(). When an individual's type provides one, its factory installs it and the
-  single evaluation path uses it; an individual without one keeps using fitnessCalculation()
-  unchanged, so the change is fully additive. The evaluator is instance-independent: it reads the
-  genome handed to it and, for problem constants, the individual module's load-once store (the new
-  GProblemStoreT, filled once from the factory's init_() hook and thereafter read without locking).
+  evaluator -- a static evaluate(const YourIndividual&) returning the raw fitness values as a
+  std::vector<double> (size 1 for a single-criterion problem, one entry per criterion otherwise) --
+  instead of overriding the virtual fitnessCalculation(). When an individual's type provides one, its
+  factory installs it and the single evaluation path uses it; an individual without one keeps using
+  fitnessCalculation() unchanged, so the change is fully additive. The evaluator receives the whole
+  individual by const reference and reads it only through its public accessors -- the genome (via
+  streamline()) and any per-run context the factory placed on it -- so it mutates nothing; the caller
+  writes the returned fitness. Bulky, hardware-independent problem constants (a training set, a target
+  image) instead live in the individual module's load-once store (the new GProblemStoreT, filled once
+  from the factory's init_() hook and thereafter read without locking).
   This is the first step towards unifying the local, device and remote evaluation paths onto one
   function-shaped contract. The example paraboloid (example 2) is the first individual to use the
   evaluator; the multi-criterion parabola (example 4) is the first to source its per-run constants
@@ -108,6 +111,14 @@ Recommended Versions:
   now also reports every criterion of the best individual for a multi-criterion problem, not just the
   main one (for a Pareto run the reported individual is one member of the non-dominated front). The
   generic optimizer is now configured before the loadable examples that run on it.
+
+- CHANGED / CONFIG: GFunctionIndividual's parameter_type config option was tidied of parameter-object-era
+  legacy. Its values are renamed and deduplicated to describe the two real axes of the flat genome --
+  bounded-vs-unbounded and one-shared-vs-one-group-per-parameter -- as (0) unbounded/shared, (1)
+  bounded/shared, (2) unbounded/per-parameter, (3) bounded/per-parameter; the old value 4 (which was
+  identical to 3) is gone and the default is now 3. The never-read init_mode option is removed. Shipped
+  configs are regenerated; a config carrying the old parameter_type value 4 should be changed to 3, and
+  a stale init_mode key can be dropped.
 
 - NEW: runtime-loadable modules now carry a toolchain-compatibility fingerprint. A loadable
   individual plugin previously only recorded the Geneva version, so a plugin built with a

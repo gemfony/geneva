@@ -117,10 +117,9 @@ namespace Gem::Tests {
 
 /******************************************************************************/
 /**
- * A single-criterion flat individual carrying the E.0 free evaluator: a static, instance-independent
- * evaluate(const GFlatGenome&) returning a scalar raw fitness, with fitnessCalculation() delegating to it
- * (single-sourced). Used to prove the free-evaluator dispatch path produces byte-identical results to the
- * virtual path.
+ * A single-criterion flat individual carrying the free evaluator: a static evaluate(const SeamSphere&)
+ * returning a one-element raw-fitness vector, with fitnessCalculation() delegating to it (single-sourced).
+ * Used to prove the free-evaluator dispatch path produces byte-identical results to the virtual path.
  */
 class SeamSphere : public GFlatGenomeT<SeamSphere> {
 public:
@@ -131,16 +130,16 @@ public:
     }
     SeamSphere(const SeamSphere &) = default;
 
-    /** @brief The free evaluator: the sum of squares of the genome's external parameters. */
-    static double evaluate(const GFlatGenome &g) {
+    /** @brief The free evaluator: the sum of squares of the genome's external parameters (size-1 vector). */
+    static std::vector<double> evaluate(const SeamSphere &ind) {
         std::vector<double> v;
-        g.streamline<double>(v);
-        return std::ranges::fold_left(
-            v | std::views::transform([](double x) { return x * x; }), 0., std::plus{});
+        ind.streamline<double>(v);
+        return {std::ranges::fold_left(
+            v | std::views::transform([](double x) { return x * x; }), 0., std::plus{})};
     }
 
 protected:
-    double fitnessCalculation() override { return evaluate(*this); }
+    double fitnessCalculation() override { return evaluate(*this).front(); }
 
 private:
     friend class boost::serialization::access;
@@ -169,9 +168,9 @@ public:
     SeamMulti(const SeamMulti &) = default;
 
     /** @brief The free evaluator: one distinguishable criterion per parameter (main result first). */
-    static std::vector<double> evaluate(const GFlatGenome &g) {
+    static std::vector<double> evaluate(const SeamMulti &ind) {
         std::vector<double> v;
-        g.streamline<double>(v);
+        ind.streamline<double>(v);
         return std::vector<double>{v.at(0) * v.at(0), 2. * v.at(1) * v.at(1), 3. * v.at(2) * v.at(2)};
     }
 

@@ -112,12 +112,12 @@ public:
     /** @brief Per-object post-config hook: sets the number of evaluation criteria and loads the minima once
      *  into the module's load-once store (from which the free evaluator reads them) */
     static void applyConfig(GMultiCriterionParabolaIndividual &ind, const Config &c);
-    /** @brief The free, instance-independent evaluator: one parabola per criterion, each around its own
-     *  minimum (read from the module's load-once store). Returns the full raw result vector (main first);
-     *  fitnessCalculation() delegates here so the virtual and free-evaluator paths share one source.
-     *  @param g The individual's genome, read via its external streamline() values
+    /** @brief The free evaluator: one parabola per criterion, each around its own minimum (read from the
+     *  module's load-once store). Returns the full raw result vector (main first); fitnessCalculation()
+     *  delegates here so the virtual and free-evaluator paths share one source.
+     *  @param ind The individual, read via its (inherited) external streamline() values
      *  @return The per-criterion raw results (size == the number of minima) */
-    static std::vector<double> evaluate(const gen::GFlatGenome &g);
+    static std::vector<double> evaluate(const GMultiCriterionParabolaIndividual &ind);
     /** @brief The OA-owned Gauss adaption config: every parameter group gets the configured adaptor.
      *  Authored from the genome layout -- no adaptor data resides on the individual. */
     static std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase>

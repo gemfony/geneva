@@ -1,6 +1,5 @@
 {
     "header": {
-        "comment": "This configuration file was automatically created by GParserBuilder",
         "comment": "Sat May 23 18:56:35 2026"
     },
     "ad_prob": {
@@ -24,7 +23,6 @@
         "value": "1"
     },
     "adaption_threshold": {
-        "comment": "The number of successful calls to an adaptor after which adaption",
         "comment": "of mutation parameters takes place (e.g sigma-variation in gauss mutation)",
         "default": "1",
         "value": "1"
@@ -35,7 +33,6 @@
         "value": "false"
     },
     "sigma1": {
-        "comment": "The sigma for gauss-adaption in ES",
         "comment": "(or the sigma of the left peak of a double gaussian)",
         "default": "0.025000000000000001",
         "value": "0.025000000000000001"
@@ -111,84 +108,31 @@
         "value": "10"
     },
     "parameter_type": {
-        "comment": "Indicates what type of parameter object should be used",
-        "comment": "(0) GDoubleCollection",
-        "comment": "(1) GConstrainedDoubleCollection",
-        "comment": "(2) GDoubleObjectCollection",
-        "comment": "(3) GConstrainedDoubleObjectCollection",
-        "comment": "(4) GConstrainedDoubleObjects on the root level",
-        "default": "4",
-        "value": "4"
-    },
-    "init_mode": {
-        "comment": "Indicates how the parameters are initialized",
-        "comment": "(0) randomly",
-        "comment": "(1) with a value on the perimeter of the allowed or recommended value range",
-        "default": "1",
-        "value": "1"
+        "comment": "Selects the flat-genome structure, along two axes -- bounded-vs-unbounded and shared-vs-per-parameter adaptor group;(0) unbounded, one shared group;(1) bounded, one shared group;(2) unbounded, one group per parameter;(3) bounded, one group per parameter;",
+        "default": 3,
+        "value": 3
     },
     "eval_policy": {
-        "comment": "Specifies which strategy should be used to calculate the evaluation:",
-        "comment": "0 (a.k.a. USESIMPLEEVALUATION): Always call the evaluation function, even for invalid solutions",
-        "comment": "1 (a.k.a. USEWORSTCASEFORINVALID) : Assign the worst possible value to our fitness and evaluate only valid solutions",
         "comment": "2 (a.k.a. USESIGMOID): Assign a multiple of validity_level_ and sigmoid barrier to invalid solutions, apply a sigmoid function to valid evaluations",
         "default": "0",
         "value": "0"
     },
     "steepness": {
-        "comment": "When using a sigmoid function to transform the individual's fitness,",
-        "comment": "this parameter influences the steepness of the function at the center of the sigmoid.",
         "comment": "The parameter must have a value > 0.",
         "default": "1000",
         "value": "1000"
     },
     "barrier": {
-        "comment": "When using a sigmoid function to transform the individual's fitness,",
-        "comment": "this parameter sets the upper\/lower boundary of the sigmoid.",
         "comment": "The parameter must have a value > 0.",
         "default": "10000",
         "value": "10000"
     },
     "maxmode": {
-        "comment": "Specifies whether the individual should be maximized (1) or minimized (0)",
         "comment": "Note that minimization is the by far most common option.",
         "default": "0",
         "value": "0"
     },
     "demo_function": {
-        "comment": "Specifies which benchmark function to minimise (maximise for NEGPARABOLA).",
-        "comment": "Select by integer ID:",
-        "comment": "0: Parabola            -- unimodal, separable baseline",
-        "comment": "global min f=0 at origin",
-        "comment": "1: Berlich noisy para  -- radial cosine overlay",
-        "comment": "global min f=0 at origin",
-        "comment": "2: Rosenbrock          -- narrow banana valley, n>=2",
-        "comment": "global min f=0 at (1,...,1)",
-        "comment": "3: Ackley (variant)    -- Geneva pairwise variant, n>=2",
-        "comment": "NOT the canonical form",
-        "comment": "4: Rastrigin           -- highly multimodal, separable",
-        "comment": "global min f=0 at origin",
-        "comment": "5: Schwefel            -- deceptive, global opt near boundary",
-        "comment": "domain [-500,500]",
-        "comment": "6: Salomon             -- concentric-ring landscape",
-        "comment": "global min f=0 at origin",
-        "comment": "7: Negative Parabola   -- maximisation test",
-        "comment": "global max f=0 at origin",
-        "comment": "8: Ackley (canonical)  -- CEC\/BBOB standard",
-        "comment": "plateau + deep basin",
-        "comment": "domain [-32.768,32.768]",
-        "comment": "9: Griewank            -- multimodal with quadratic envelope",
-        "comment": "global min f=0 at origin",
-        "comment": "10: Levy                -- narrow-basin multimodal",
-        "comment": "global min f=0 at (1,...,1)",
-        "comment": "11: Styblinski-Tang     -- asymmetric wells",
-        "comment": "global min ~-39.166*n at (~-2.903,...)",
-        "comment": "12: Ellipsoid           -- ill-conditioned (1e6), unimodal",
-        "comment": "global min f=0 at origin",
-        "comment": "13: Michalewicz (m=10)  -- steep ridges",
-        "comment": "domain [0,pi]",
-        "comment": "set min_var=0 max_var=3.14159!",
-        "comment": "14: Zakharov            -- unimodal, non-separable coupling",
         "comment": "global min f=0 at origin",
         "default": "0",
         "value": "0"

@@ -65,7 +65,6 @@ int main(int argc, char **argv) {
     std::string logSigma = "empty";
     std::string monitorTimings = "empty";
     bool addOneOnly = false;
-    bool initPerimeter = false;
     bool printInitial = false;
     bool showIterationBoundaries = false;
 
@@ -110,11 +109,7 @@ int main(int argc, char **argv) {
 	)(
 		"addOneIndividualOnly"
 		, po::value<bool>(&addOneOnly)->implicit_value(true)->default_value(false)
-		, "When set, results in a single individual being added to the collection. This may be useful for debugging in conjunction with the INITPERIMETER option"
-	)(
-		"initPerimeter"
-		, po::value<bool>(&initPerimeter)->implicit_value(true)->default_value(false)
-		, "When set, results in the initialization of the GFunctionIndividual on the perimeter of the allowed value range. Otherwise the individual will be initialized rendomly"
+		, "When set, results in a single individual being added to the collection. This may be useful for debugging"
 	)(
 		"printInitial"
 		, po::value<bool>(&printInitial)->implicit_value(true)->default_value(false)
@@ -139,14 +134,6 @@ int main(int argc, char **argv) {
     std::shared_ptr<gind::GFunctionIndividualFactory> gfi_ptr(
         new gind::GFunctionIndividualFactory("./config/GFunctionIndividual.json")
     );
-
-    // The initialization mode is a config-file option ("init_mode") of GFunctionIndividual; it is no
-    // longer set programmatically through the factory (the generic GFlatIndividualFactory re-applies its
-    // config file on every produced object, so a setter would not stick). Note that init_mode is vestigial
-    // in the flat-genome model -- the genome carries structure only and the optimization algorithm performs
-    // the random initialization within [min_var, max_var]. The --initPerimeter switch is retained for
-    // command-line compatibility but no longer alters behaviour.
-    (void)initPerimeter;
 
     //---------------------------------------------------------------------------
     // Register pluggable optimization monitors, if requested by the user
@@ -239,8 +226,7 @@ int main(int argc, char **argv) {
     //---------------------------------------------------------------------------
 
     // Either add a single individual or take all individuals from the content provider.
-    // Adding a single individual is useful for debugging purposes, e.g. in order to check,
-    // whether the added individual is retained in INITPERIMETER mode.
+    // Adding a single individual is useful for debugging purposes.
     if(addOneOnly) {
         go.push_back(gfi_ptr->get());
     }

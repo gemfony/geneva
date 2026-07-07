@@ -463,40 +463,6 @@ std::istream &operator>>(std::istream &i, Gem::Geneva::Individuals::parameterTyp
     return i;
 }
 
-/******************************************************************************/
-/**
- * Puts a Gem::Geneva::Individuals::initMode item into a stream
- *
- * @param o The ostream the item should be added to
- * @param ur the item to be added to the stream
- * @return The std::ostream object used to add the item to
- */
-std::ostream &operator<<(std::ostream &o, const Gem::Geneva::Individuals::initMode &ur) {
-    auto tmp = std::to_underlying(ur);
-    o << tmp;
-    return o;
-}
-
-/******************************************************************************/
-/**
- * Reads a Gem::Geneva::Individuals::initMode item from a stream
- *
- * @param i The stream the item should be read from
- * @param ur The item read from the stream
- * @return The std::istream object used to read the item from
- */
-std::istream &operator>>(std::istream &i, Gem::Geneva::Individuals::initMode &ur) {
-    Gem::Common::ENUMBASETYPE tmp = 0;
-    i >> tmp;
-
-#ifdef DEBUG
-    ur = Gem::Common::narrow<Gem::Geneva::Individuals::initMode>(tmp);
-#else
-    ur = static_cast<Gem::Geneva::Individuals::initMode>(tmp);
-#endif /* DEBUG */
-
-    return i;
-}
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -516,10 +482,6 @@ GFunctionIndividual::GFunctionIndividual(const solverFunction &d_f)
  *
  * @param result_vec A vector of result values to assign as this individual's fitness
  */
-void GFunctionIndividual::setFitness(std::vector<double> const &result_vec) {
-    this->setFitness_(result_vec);
-}
-
 /******************************************************************************/
 /**
  * @brief Searches for compliance with expectations with respect to another object of the same type.
@@ -705,26 +667,34 @@ void GFunctionIndividual::specificTestsFailuresExpected_GUnitTests_() {
 	 * @return Fitness value (lower is better for minimisation functions)
 	 */
 double GFunctionIndividual::fitnessCalculation() {
+    // Single-source the objective: both the free-evaluator seam (installed by the factory) and this
+    // virtual delegate to evaluate(), so the benchmark value is computed from one place.
+    return evaluate(*this).front();
+}
+
+/******************************************************************************/
+/**
+ * @brief The free evaluator: evaluates the selected benchmark function on the individual's parameters.
+ *
+ * Reads the demo function the factory set on the individual (@c demo_function_) and the external parameter
+ * values (via @c streamline()), and returns the raw fitness. Delegates the maths to
+ * Gem::Geneva::Benchmarks::eval() (shared CPU/CUDA implementations, all 15 solverFunction IDs 0-14).
+ *
+ * @param ind The individual to evaluate (const: the evaluator mutates nothing)
+ * @return The raw fitness as a one-element vector (a single-criterion problem)
+ */
+std::vector<double> GFunctionIndividual::evaluate(const GFunctionIndividual &ind) {
+    // Read everything through the individual's public accessors (never its members), so the evaluator is
+    // decoupled from the individual's internal representation. The (function, dimension) validity is a
+    // configuration invariant checked once in applyConfig(), so this hot path carries no validation.
     std::vector<double> par_vec;
-    this->streamline(par_vec);
+    ind.streamline(par_vec);
 
-#ifdef DEBUG
-    const int id = static_cast<int>(demo_function_);
-    if(par_vec.size() < 2 &&
-       (demo_function_ == solverFunction::ROSENBROCK || demo_function_ == solverFunction::ACKLEY)) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GFunctionIndividual::fitnessCalculation(): function " << id
-            << " requires at least 2 dimensions, got " << par_vec.size() << '\n'
-        );
-    }
-#endif /* DEBUG */
-
-    return gbm::eval(
-        static_cast<int>(demo_function_),
+    return {gbm::eval(
+        static_cast<int>(ind.getDemoFunction()),
         par_vec.data(),
         static_cast<int>(par_vec.size())
-    );
+    )};
 }
 
 /******************************************************************************/
@@ -875,18 +845,11 @@ void GFunctionIndividual::describeConfig(Gem::Common::GParserBuilder &gpb, Confi
 
     comment = "";
     comment +=
-        "Indicates what type of parameter object should be used;(0) GDoubleCollection;(1) "
-        "GConstrainedDoubleCollection;(2) GDoubleObjectCollection; (3) "
-        "GConstrainedDoubleObjectCollection; (4) GConstrainedDoubleObjects on the root level;";
+        "Selects the flat-genome structure, along two axes -- bounded-vs-unbounded and shared-vs-per-"
+        "parameter adaptor group;(0) unbounded, one shared group;(1) bounded, one shared group;(2) "
+        "unbounded, one group per parameter;(3) bounded, one group per parameter;";
     gpb.registerFileParameter<parameterType>(
         "parameter_type", c.p_t, GFI_DEF_PARAMETERTYPE, Gem::Common::VAR_IS_ESSENTIAL, comment
-    );
-
-    comment = "";
-    comment += "Indicates how the parameters are initialized;(0) randomly;(1) with a value on the "
-               "perimeter of the allowed or recommended value range";
-    gpb.registerFileParameter<initMode>(
-        "init_mode", c.i_m, GFI_DEF_INITMODE, Gem::Common::VAR_IS_ESSENTIAL, comment
     );
 
     comment = "";
@@ -916,22 +879,21 @@ gen::GenomeData GFunctionIndividual::buildGenome(const Config &c) {
 
     gen::GGenomeBuilder b;
     switch(c.p_t) {
-    case parameterType::USEGDOUBLECOLLECTION: { // unbounded, one shared group
+    case parameterType::UNBOUNDED_SHARED: { // unbounded, one shared group
         b.addDoublePlainGroup(n_data, min_v, max_v);
     } break;
 
-    case parameterType::USEGCONSTRAINEDOUBLECOLLECTION: { // constrained, one shared group
+    case parameterType::BOUNDED_SHARED: { // bounded, one shared group
         b.addDoubleGroup(n_data, min_v, max_v);
     } break;
 
-    case parameterType::USEGDOUBLEOBJECTCOLLECTION: { // unbounded, a group per parameter
+    case parameterType::UNBOUNDED_PER_PARAMETER: { // unbounded, a group per parameter
         for(std::size_t i = 0; i < n_data; i++) {
             b.addDouble(min_v).perimeter(min_v, max_v);
         }
     } break;
 
-    case parameterType::USEGCONSTRAINEDDOUBLEOBJECTCOLLECTION:
-    case parameterType::USEGCONSTRAINEDDOUBLEOBJECT: { // constrained, a group per parameter
+    case parameterType::BOUNDED_PER_PARAMETER: { // bounded, a group per parameter
         for(std::size_t i = 0; i < n_data; i++) {
             b.addDouble(min_v, min_v, max_v);
         }
@@ -997,6 +959,21 @@ GFunctionIndividual::buildAdaptionConfig(const gen::GFlatGenome &sample, const C
  */
 void GFunctionIndividual::applyConfig(GFunctionIndividual &ind, const Config &c) {
     ind.setDemoFunction(c.demo_function);
+
+    // Validate the (function, dimension) combination once, at configuration time -- a few benchmark
+    // functions are only defined for at least two dimensions (with fewer, e.g. Rosenbrock's sum has no
+    // terms and would silently return 0). This is a configuration invariant, not a per-evaluation
+    // concern, so it is enforced here for every build (release included), off the hot evaluate() path.
+    // The genome has already been installed on ind (postProcess_ / buildConfigured set it before this).
+    if(ind.getParameterSize() < 2 &&
+       (c.demo_function == solverFunction::ROSENBROCK || c.demo_function == solverFunction::ACKLEY)) {
+        throw geneva_exception(
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+            << "In GFunctionIndividual::applyConfig(): function " << static_cast<int>(c.demo_function)
+            << " requires at least 2 dimensions, but the genome has only " << ind.getParameterSize()
+            << '\n'
+        );
+    }
 }
 
 /******************************************************************************/

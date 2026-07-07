@@ -318,13 +318,6 @@ public:
      */
     bool isGoodEnough(std::vector<double> const &boundaries);
 
-    /**
-     * @brief Sets the fitness from a vector of externally-computed raw values (e.g. the GPU consumer),
-     * applying the feasibility check and evaluation-policy transform, then marking the candidate PROCESSED.
-     * @param f_cnt A vector of raw fitness values (size must match the criteria count)
-     */
-    void setFitness_(std::vector<double> const &f_cnt);
-
     /***************************************************************************/
     // Free module-provided evaluator seam (the Strangler-Fig replacement for the fitnessCalculation()
     // virtual). A concrete individual type MAY supply a static, instance-independent free evaluator
@@ -802,6 +795,15 @@ public:
 protected:
     /***************************************************************************/
     // Result-store mutators (for the genome / process orchestration).
+
+    /**
+     * @brief Sets the fitness from a vector of externally-computed raw values, applying the feasibility
+     * check and evaluation-policy transform, then marking the candidate PROCESSED. An internal helper (an
+     * alternative to process(res_vec) used on the genome copy/move path); not a public API -- external
+     * results are injected through process(res_vec).
+     * @param f_cnt A vector of raw fitness values (size must match the criteria count)
+     */
+    void setFitness_(std::vector<double> const &f_cnt);
 
     /** @brief Modifiable retrieval of a stored result. @param id The position. @return A modifiable reference */
     individual_processing_result &modifyStoredResult(std::size_t id = 0) {

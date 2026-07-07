@@ -282,11 +282,6 @@ GImageIndividual::buildAdaptionConfig(const gen::GFlatGenome &sample, const Conf
     return cfg;
 }
 
-/** @brief Allows an external entity to set our fitness */
-void GImageIndividual::setFitness(std::vector<double> const &result_vec) {
-    this->setFitness_(result_vec);
-}
-
 /***************************************************************************/
 /**
 	 * Searches for compliance with expectations with respect to another object
@@ -440,14 +435,14 @@ gen::GFlatGenome *GImageIndividual::clone_() const {
 double GImageIndividual::fitnessCalculation() {
     // Single-source the objective: both the free-evaluator seam (installed by the factory) and this
     // virtual delegate to evaluate(), so the CPU reference is computed from one place.
-    return evaluate(*this);
+    return evaluate(*this).front();
 }
 
 /******************************************************************************/
 /**
- * The free, instance-independent evaluator.
+ * The free evaluator (a single criterion -> a one-element result vector).
  */
-double GImageIndividual::evaluate(const gen::GFlatGenome &g) {
+std::vector<double> GImageIndividual::evaluate(const GImageIndividual &ind) {
     // The host fitness is computed on the CPU via the SAME render+score the GPU kernel uses
     // (Gem::Geneva::MonaLisa::score, shared in GMonaLisaProblem.hpp). This makes the individual
     // evaluable purely on the CPU -- to cross-check the GPU result and compare speed -- while the
@@ -456,8 +451,8 @@ double GImageIndividual::evaluate(const gen::GFlatGenome &g) {
     // The genome scalar type is selected at compile time (gimage_fp_t); streamline<gimage_fp_t>
     // is required -- streamline<float> collects nothing from a double genome and vice-versa.
     std::vector<gimage_fp_t> parVec;
-    g.streamline(parVec);
-    return Gem::Geneva::MonaLisa::scoreAgainstTarget(parVec.data(), static_cast<int>(parVec.size()));
+    ind.streamline(parVec);
+    return {Gem::Geneva::MonaLisa::scoreAgainstTarget(parVec.data(), static_cast<int>(parVec.size()))};
 }
 
 /******************************************************************************/
