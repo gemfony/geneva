@@ -179,7 +179,7 @@ gen::GFlatGenome *GFMinIndividual::clone_() const {
  * @param The id of the target function (ignored here)
  * @return The value of this object, as calculated with the evaluation function
  */
-double GFMinIndividual::fitnessCalculation() {
+std::vector<double> GFMinIndividual::evaluate() {
     // Retrieve the parameters
     std::vector<double> parVec;
     this->streamline(parVec);
@@ -189,20 +189,18 @@ double GFMinIndividual::fitnessCalculation() {
     //-----------------------------------------------------------
     // A simple, multi-dimensional parabola
     case targetFunction::GFM_PARABOLA:
-        return parabola(parVec);
-        break;
+        return {parabola(parVec)};
 
     //-----------------------------------------------------------
     // A "noisy" parabola, i.e. a parabola with a very large
     // number of overlaid local optima
     case targetFunction::GFM_NOISYPARABOLA:
-        return noisyParabola(parVec);
-        break;
+        return {noisyParabola(parVec)};
         //-----------------------------------------------------------
     };
 
     // Make the compiler happy
-    return 0.;
+    return {0.};
 }
 
 /******************************************************************************/

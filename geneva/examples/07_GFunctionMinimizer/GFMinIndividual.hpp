@@ -157,8 +157,8 @@ protected:
     /** @brief Loads the data of another GFMinIndividual */
     virtual void load_(const gen::GOptimizableEntity *) final;
 
-    /** @brief The actual value calculation takes place here */
-    virtual double fitnessCalculation() final;
+    /** @brief The evaluation hook: the selected target function on the genome (single criterion). */
+    std::vector<double> evaluate() final;
 
     /***************************************************************************/
 

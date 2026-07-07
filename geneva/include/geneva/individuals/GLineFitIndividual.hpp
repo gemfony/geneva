@@ -191,10 +191,10 @@ protected:
     ) const final;
 
     /**
-     * @brief The actual fitness calculation takes place here.
-     * @return The root-square deviation of the data points from the represented line
+     * @brief The evaluation hook: the root-square deviation of the data points from the represented line.
+     * @return The fitness as a one-element vector (single criterion)
      */
-    double fitnessCalculation() final;
+    std::vector<double> evaluate() final;
 
     /**
      * @brief Applies modifications to this object.

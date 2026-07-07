@@ -283,7 +283,7 @@ gen::GFlatGenome *GLineFitIndividual::clone_() const {
  *
  * @return The fitness of this object: sqrt of the summed squared deviations of line and data points
  */
-double GLineFitIndividual::fitnessCalculation() {
+std::vector<double> GLineFitIndividual::evaluate() {
     double result = 0.;
 
     // Compute the root of the summed squared deviations between the line (a + b*x) and the data points
@@ -300,7 +300,7 @@ double GLineFitIndividual::fitnessCalculation() {
         result += Gem::Common::gsquared(deviation);
     }
 
-    return sqrt(result);
+    return {sqrt(result)};
 }
 
 /******************************************************************************/
