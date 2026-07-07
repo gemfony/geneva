@@ -284,7 +284,7 @@ protected:
 };
 
 /******************************************************************************/
-// Probe individuals for the parameter-scan tests. Their fitnessCalculation() records, thread-safely,
+// Probe individuals for the parameter-scan tests. Their evaluate() records, thread-safely,
 // the parameter values it is handed (evaluation runs on the local thread-pool consumer), so a test can
 // inspect -- after optimize() has joined all work -- exactly which values the scan actually evaluated.
 

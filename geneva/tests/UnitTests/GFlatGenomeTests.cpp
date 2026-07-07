@@ -94,7 +94,7 @@ namespace Gem::Tests {
 /**
  * A minimal flat individual: a sphere over n constrained doubles sharing one Gauss adaptor. It
  * demonstrates the intended authoring effort -- a constructor that builds the genome, a
- * fitnessCalculation(), and the serialize hook; clone/load/compare come from the CRTP base +
+ * evaluate(), and the serialize hook; clone/load/compare come from the CRTP base +
  * GFlatGenome.
  */
 class FlatSphere : public GFlatGenomeT<FlatSphere> {
@@ -639,10 +639,10 @@ TEST_CASE("GFlatGenome: serialization round-trip", "[flat]") {
 // See prompts/2026-06-28-characterization-net.md.
 
 // External-result acceptance (D14): a precomputed evaluation injected via process(res_vec) is taken
-// VERBATIM and marks the item PROCESSED, WITHOUT invoking the local fitnessCalculation(). This is the
+// VERBATIM and marks the item PROCESSED, WITHOUT invoking the local evaluate(). This is the
 // GPU / external-marshaller path; pinned so the contract survives the swap (and a prospective
 // acceptEvaluationResults rename of the injection entry point).
-TEST_CASE("GFlatGenome: external evaluation result is accepted verbatim (no local fitnessCalculation)",
+TEST_CASE("GFlatGenome: external evaluation result is accepted verbatim (no local evaluate())",
           "[flat][external]") {
     FlatSphere ind(5);
     // Place the genome where the true sphere fitness is a known NON-zero value (five 1.0s -> 5.0), so

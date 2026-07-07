@@ -57,7 +57,7 @@ namespace Gem::Geneva::MonaLisa {
  * problemConstants()  packs, as scalars, [W, H, target(W*H*3)] -- the loaded target image; uploaded
  *                     once per launch. NT and the background come from the per-item parameters.
  * hostEvaluate()      the CPU reference -- calls the SAME score() the individual's
- *                     fitnessCalculation and the device kernel use.
+ *                     evaluate() and the device kernel use.
  * scatter()           injects the device-computed fitness via process() (leaves each item PROCESSED).
  *
  * One kernel launch per batch: minimal kernels, full bulk.

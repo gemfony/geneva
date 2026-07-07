@@ -64,7 +64,7 @@
  *  - @c buildAdaptionConfig() supplying the OA-owned mutation config (the "config-strip" model: the
  *    adaptors live on the algorithm, not the genome), which the factory exposes through its base so a
  *    generic launcher can wire it up WITHOUT knowing this concrete type;
- *  - @c fitnessCalculation() computing the objective;
+ *  - @c evaluate() computing the objective;
  *  - @c serialize() + a BOOST_CLASS_EXPORT in the .cpp, so the individual can cross the wire / a checkpoint.
  */
 class GLoadableParaboloid : public Gem::Geneva::Genome::GFlatGenomeT<GLoadableParaboloid> {

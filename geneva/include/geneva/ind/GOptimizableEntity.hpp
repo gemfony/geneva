@@ -81,8 +81,8 @@ namespace Gem::Geneva::Genome {
  * stored:
  *   - the courtier processing LIFECYCLE (status / routing / timing), inherited from GProcessable;
  *   - IDENTITY and the clone/compare/serialize category machinery, via GCommonInterfaceT;
- *   - EVALUATABILITY, via GRateableI (the raw / transformed fitness accessors + the fitnessCalculation()
- *     hook the user implements).
+ *   - EVALUATABILITY, via GRateableI (the raw / transformed fitness accessors) plus the pure-virtual
+ *     evaluate() hook the concrete individual implements to compute its raw result vector.
  *
  * On top of those it owns the RESULT STORE (one individual_processing_result per fitness criterion), the
  * process() orchestration that drives an evaluation (timing, the configured pre-/post-processors, the
@@ -213,7 +213,7 @@ public:
      * fitnesses are set to the worst case and a processing exception is rethrown. Only an item with the
      * DO_PROCESS status is accepted.
      * @param res_vec Optional pre-computed raw results (e.g. from a remote/GPU evaluator); if empty,
-     *        fitnessCalculation() is invoked. Its size must match the criteria count.
+     *        evaluate() is invoked. Its size must match the criteria count.
      * @return The first stored result after processing
      */
     individual_processing_result process(
@@ -811,7 +811,7 @@ protected:
     const GProblemPolicy &policy() const { return *policy_; }
 
     /***************************************************************************/
-    // Secondary-result combiners (the user's fitnessCalculation() may return one of these).
+    // Secondary-result combiners (the user's evaluate() may return one of these).
 
     /** @brief @return The sum of all stored transformed fitness values */
     double sumCombiner() const;
@@ -872,17 +872,10 @@ protected:
      *  at index 0). It reads the individual through @c this (genome via streamline(), any per-run context via
      *  the individual's own accessors) and RETURNS the results; the caller (@c runEvaluation_) writes them and
      *  applies feasibility + policy + PROCESSED, so the hook itself sets no fitness. The single evaluation
-     *  call site dispatches here for a locally-evaluated individual. The default is a transitional bridge that
-     *  wraps the legacy fitnessCalculation() -- valid only for a single-criterion individual; a converted
-     *  individual overrides this, and a multi-criterion individual MUST.
+     *  call site dispatches here for a locally-evaluated individual. Implemented by every concrete
+     *  individual (the value-bearing genome layer's problem definition).
      *  @return The raw result vector */
-    virtual std::vector<double> evaluate();
-
-    /** @brief The legacy fitness hook (GRateableI), being retired in favour of evaluate(). No longer
-     *  pure-virtual: the default throws, so a converted individual overrides evaluate() and omits this, while
-     *  a not-yet-converted individual still overrides this and the evaluate() bridge default calls it.
-     *  @return The computed raw fitness of the main quality criterion */
-    double fitnessCalculation() override;
+    virtual std::vector<double> evaluate() = 0;
 
 private:
     /***************************************************************************/
@@ -991,7 +984,7 @@ private:
     /***************************************************************************/
     // Evaluation internals.
 
-    /** @brief The evaluation body run inside process(): feasibility check + fitnessCalculation()/res_vec
+    /** @brief The evaluation body run inside process(): feasibility check + evaluate()/res_vec
      *  adoption + the evaluation-policy transform. @param res_vec Optional pre-computed raw results */
     void runEvaluation_(const std::vector<individual_processing_result> &res_vec);
 

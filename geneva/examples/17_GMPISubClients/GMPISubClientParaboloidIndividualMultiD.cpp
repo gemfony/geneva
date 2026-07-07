@@ -167,8 +167,8 @@ std::vector<double> GMPISubClientParaboloidIndividualMultiD::evaluate() {
         break;
     case MPIStatusCode::STOPPED:
         std::cerr
-            << "Client executed fitnessCalculation while being stopped. This is an internal error. "
-               "Client should only be stopped after the fitnessCalculation has been finished."
+            << "Client executed evaluate() while being stopped. This is an internal error. "
+               "Client should only be stopped after evaluate() has been finished."
             << '\n';
         break;
     case MPIStatusCode::SUCCESS: {

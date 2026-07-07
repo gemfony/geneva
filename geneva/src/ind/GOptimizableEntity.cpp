@@ -158,7 +158,7 @@ individual_processing_result GOptimizableEntity::getStoredResult(const std::size
 /******************************************************************************/
 /**
  * @brief Performs the evaluation of this candidate (see the header for the full sequence).
- * @param res_vec Optional pre-computed raw results; if empty, fitnessCalculation() is invoked
+ * @param res_vec Optional pre-computed raw results; if empty, evaluate() is invoked
  * @return The first stored result after processing
  */
 individual_processing_result
@@ -258,37 +258,6 @@ GOptimizableEntity::process(const std::vector<individual_processing_result> &res
     }
 
     return this->stored_results_cnt_.at(0);
-}
-
-/******************************************************************************/
-/**
- * @brief The transitional bridge default of the evaluate() hook: wraps a not-yet-converted individual's
- * legacy fitnessCalculation() (a single @c double) into a size-1 result vector. Valid ONLY for a
- * single-criterion individual; a multi-criterion individual MUST override evaluate() to return its full
- * vector (else the size check in runEvaluation_() fails). A converted individual overrides this and never
- * reaches the bridge.
- *
- * @return A one-element vector holding the legacy fitnessCalculation() result
- */
-std::vector<double> GOptimizableEntity::evaluate() {
-    return {this->fitnessCalculation()};
-}
-
-/******************************************************************************/
-/**
- * @brief The legacy fitness hook's default, reached only for an individual that overrides NEITHER evaluate()
- * NOR fitnessCalculation() -- a programming error, so it throws. A converted individual overrides evaluate();
- * a not-yet-converted individual overrides this.
- *
- * @return never returns (always throws)
- */
-double GOptimizableEntity::fitnessCalculation() {
-    throw geneva_exception(
-        g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-        << "In GOptimizableEntity::fitnessCalculation(): Error!" << '\n'
-        << "This individual overrides neither evaluate() nor fitnessCalculation()." << '\n'
-        << "A concrete individual must override std::vector<double> evaluate()." << '\n'
-    );
 }
 
 /******************************************************************************/

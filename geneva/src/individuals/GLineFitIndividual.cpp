@@ -142,7 +142,7 @@ GLineFitIndividual::buildAdaptionConfig(const gen::GFlatGenome &sample, [[maybe_
  * @brief Per-object post-config hook: opens the config-named data file at runtime and loads its (x,y)
  * points into the produced individual. This is where a loaded module reads its data from disk -- the
  * location comes from the config, the file is opened here. A streaming individual would instead retain a
- * file handle and read lazily in fitnessCalculation(); the line fit's point sets are small, so they are
+ * file handle and read lazily in evaluate(); the line fit's point sets are small, so they are
  * loaded into memory. An empty path leaves the point set empty (e.g. a materialize-config dry run).
  *
  * @param ind The freshly produced individual to load the data points into

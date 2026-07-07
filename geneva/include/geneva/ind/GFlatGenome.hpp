@@ -74,7 +74,7 @@ namespace Gem::Geneva::Genome {
  * immutable GGenomeLayout that describes their bounds, grouping and adaption configuration. The
  * per-individual, per-group adaption state (Gauss sigma, ...) lives in the OA-owned slot scratch, not in
  * the genome. Because all genome state is generic, a concrete individual adds no extra members and only
- * supplies a constructor (building its genome with GGenomeBuilder + setGenome()) and fitnessCalculation();
+ * supplies a constructor (building its genome with GGenomeBuilder + setGenome()) and evaluate();
  * the clone/load/compare/serialize machinery is provided here and reused unchanged via GFlatGenomeT.
  *
  * Value access is genome-agnostic: GFlatGenome implements the per-type value-channel virtuals declared on

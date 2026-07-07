@@ -58,7 +58,7 @@ namespace Gem::Geneva {
  * injector is registered (the default) the consultation is a single null-pointer check, so production
  * runs pay essentially nothing.
  *
- * A returned THROW surfaces as an EXCEPTION_CAUGHT processing status (as if fitnessCalculation() threw);
+ * A returned THROW surfaces as an EXCEPTION_CAUGHT processing status (as if evaluate() threw);
  * a returned FLAG_ERROR surfaces as an ERROR_FLAGGED status (as if the individual flagged a user error).
  * Both are handled by process() exactly like a genuine evaluation failure. The transport-level
  * "worker never returns" fault is a separate, consumer-side concern and is NOT modelled here.

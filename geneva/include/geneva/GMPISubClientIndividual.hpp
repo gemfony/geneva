@@ -63,7 +63,7 @@ enum ClientMode {
 /******************************************************************/
 /**
      * This individual offers to set and retrieve an MPI communicator.
-     * The communicator can be used to communicate with MPI sub-clients to solve the fitnessCalculation in a
+     * The communicator can be used to communicate with MPI sub-clients to solve the evaluation in a
      * distributed manner. To use this individual a concrete derived class has to be created and it must be used in
      * conjunction with the GMPISubClientOptimizer.
      */

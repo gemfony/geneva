@@ -76,11 +76,11 @@ public:
     void rebuild(std::size_t nd, std::size_t ni, std::size_t nb) { buildGenome(nd, ni, nb); }
 
 protected:
-    double fitnessCalculation() override {
+    std::vector<double> evaluate() override {
         std::vector<double> v;
         this->streamline<double>(v);
-        return std::ranges::fold_left(
-            v | std::views::transform([](double x) { return x * x; }), 0., std::plus{});
+        return {std::ranges::fold_left(
+            v | std::views::transform([](double x) { return x * x; }), 0., std::plus{})};
     }
 
 private:
@@ -117,7 +117,7 @@ namespace Gem::Tests {
 /******************************************************************************/
 /**
  * A single-criterion flat individual carrying the free evaluator: a static evaluate(const SeamSphere&)
- * returning a one-element raw-fitness vector, with fitnessCalculation() delegating to it (single-sourced).
+ * returning a one-element raw-fitness vector, with evaluate() delegating to it (single-sourced).
  * Used to prove the free-evaluator dispatch path produces byte-identical results to the virtual path.
  */
 class SeamSphere : public GFlatGenomeT<SeamSphere> {
@@ -150,7 +150,7 @@ private:
 /******************************************************************************/
 /**
  * A three-criterion flat individual carrying the E.0 free evaluator in its multi-criterion shape: a static
- * evaluate() returning the full raw result vector (main first). fitnessCalculation() delegates to it and
+ * evaluate() returning the full raw result vector (main first). evaluate() delegates to it and
  * writes the secondary results via setResult(), so the virtual and free-evaluator paths are single-sourced.
  * Used to prove the dispatch's secondary-result handling matches the res_vec / virtual paths.
  */
@@ -232,7 +232,7 @@ TEST_CASE("GOptimizableEntity: an external evaluation result is accepted verbati
     NewSphere ind(3, 0, 0);
     REQUIRE(ind.is_due_for_processing());
 
-    // Inject a pre-computed raw result instead of letting fitnessCalculation() run.
+    // Inject a pre-computed raw result instead of letting evaluate() run.
     const double injected = 42.5;
     ind.process(std::vector<individual_processing_result>{individual_processing_result(injected)});
 
@@ -346,20 +346,17 @@ TEST_CASE("GFlatGenome: countParameters is cached and re-keyed on layout change"
 
 /******************************************************************************/
 /**
- * Path B: a converted individual (member evaluate(), no fitnessCalculation() override) evaluates at the
- * single call site via the vtable -- no per-instance thunk, no factory install. A not-yet-converted
- * individual (still overriding fitnessCalculation()) reaches the same site through the base evaluate()
- * bridge, so the two hooks coexist during the migration.
+ * Path B: a concrete individual evaluates at the single call site through its virtual evaluate() -- the sole
+ * evaluation hook now that evaluate() is gone. Dispatch is by the vtable: no per-instance thunk,
+ * no factory install.
  */
-TEST_CASE("GOptimizableEntity: member evaluate() evaluates, and the bridge covers the legacy hook (single criterion)", "[candidate][evaluator]") {
-    // Converted: SeamSphere overrides evaluate().
-    SeamSphere converted;
-    converted.assignValueVector<double>(std::vector<double>{2.0, -3.0, 4.0}); // sum of squares == 29
-    CHECK(converted.process().rawFitness() == Approx(29.0));
+TEST_CASE("GOptimizableEntity: a single-criterion individual evaluates via evaluate()", "[candidate][evaluator]") {
+    SeamSphere a;
+    a.assignValueVector<double>(std::vector<double>{2.0, -3.0, 4.0}); // sum of squares == 29
+    CHECK(a.process().rawFitness() == Approx(29.0));
 
-    // Legacy: NewSphere still overrides fitnessCalculation(); the base evaluate() bridge wraps it.
-    NewSphere legacy(3, 0, 0); // three doubles initialised to 1.0 -> sum of squares == 3
-    CHECK(legacy.process().rawFitness() == Approx(3.0));
+    NewSphere b(3, 0, 0); // three doubles initialised to 1.0 -> sum of squares == 3
+    CHECK(b.process().rawFitness() == Approx(3.0));
 }
 
 /******************************************************************************/

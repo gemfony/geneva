@@ -47,7 +47,7 @@
  * deviation of the alpha-blended triangle superimposition from a TARGET image, summed per pixel and
  * channel through a rational saturation function -- exactly the metric example 15's GPU kernel uses.
  *
- * These pure host functions are shared by the individual's fitnessCalculation (CPU) and the
+ * These pure host functions are shared by the individual's evaluate() (CPU) and the
  * marshaller's hostEvaluate (CPU reference); the runtime CUDA kernel (kernels/monalisa_eval_*.cu)
  * replicates the SAME formulas, so a CPU run and a GPU run give the same fitness and the GPU can be
  * cross-checked against the CPU.

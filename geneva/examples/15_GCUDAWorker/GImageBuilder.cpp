@@ -40,7 +40,7 @@
  * The evaluation runs on the GPU via the unified courtier GPU consumer
  * (Gem::Courtier::GPU::GGPUConsumerT): a whole generation is flattened and scored in ONE bulk kernel
  * launch (runtime-compiled with NVRTC; pixel-parallel so even a small population fills the GPU). The
- * SAME render+score math is also available on the CPU (GImageIndividual::fitnessCalculation and the
+ * SAME render+score math is also available on the CPU (GImageIndividual::evaluate() and the
  * marshaller's host reference), so a CPU run cross-checks the GPU. Switch backend / kernel in
  * config/GGPUConsumer.json -- no recompilation needed; set backend=cpu to run without a GPU.
  *
@@ -134,7 +134,7 @@ int main(int argc, char **argv) {
     // The GPU consumer is now a first-class, mnemonic-selectable consumer: run with "--consumer gpu" to
     // evaluate on the device (backend cpu/cuda chosen in GGPUConsumer.json), or with any other
     // consumer (e.g. the default "--consumer stc") to evaluate on the CPU via the individual's
-    // fitnessCalculation(). We only contribute the problem-specific piece -- a closure that builds the
+    // evaluate(). We only contribute the problem-specific piece -- a closure that builds the
     // device marshaller + consumer; Go2 owns selection and lifecycle. The closure is invoked lazily at
     // optimize() (after the target is loaded), only when gpu is selected. GGPUConsumerT evaluates a whole
     // generation in one bulk launch via the marshaller.

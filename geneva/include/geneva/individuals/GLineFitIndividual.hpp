@@ -118,7 +118,7 @@ public:
     // (config-driven) flat individual, hence packageable as a runtime-loadable module: the generic factory
     // default-constructs the individual, installs the genome from buildGenome(), and hands the parsed Config
     // to applyConfig(), which opens the config-named data file at runtime and loads the (x,y) points. A
-    // streaming individual would instead keep a file handle here and read lazily in fitnessCalculation(); the
+    // streaming individual would instead keep a file handle here and read lazily in evaluate(); the
     // line fit's point sets are small, so it loads them into memory.
 
     /** @brief The configurable values parsed from the config file: the path of the (x,y) data-point file. */

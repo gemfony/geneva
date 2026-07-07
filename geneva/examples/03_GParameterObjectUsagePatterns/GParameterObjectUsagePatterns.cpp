@@ -61,7 +61,7 @@ namespace oa = Gem::Geneva::OptimizationAlgorithms;
  * A minimal flat individual, used here only to demonstrate genome inspection /
  * adaption. It carries no extra members, so the CRTP base GFlatGenomeT
  * supplies clone_(); only a constructor (which authors the genome) and a trivial
- * fitnessCalculation() remain.
+ * evaluate() remain.
  */
 class GDemoIndividual : public gen::GFlatGenomeT<GDemoIndividual> {
     friend class boost::serialization::access;

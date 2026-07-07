@@ -97,14 +97,13 @@ Recommended Versions:
   evaluates correctly with no per-instance state to re-establish. This unifies the local, device and
   remote evaluation paths onto one shape: local evaluation returns the raw vector from evaluate(), while
   a device (GPU) or remote worker returns the same raw vector as data through process(res_vec); both
-  converge on the one evaluation pass. During the migration the base evaluate() provides a transitional
-  bridge that wraps a not-yet-converted individual's fitnessCalculation() (single-criterion only), so
-  both hooks coexist while individuals are ported; a multi-criterion individual must override evaluate().
-  Bulky, hardware-independent problem constants (a training set, a target image) live in the individual
-  module's load-once store (GProblemStoreT, filled once from the factory's init_() hook and thereafter
-  read without locking). Example 2 (paraboloid), example 4 (multi-criterion parabola, sourcing its
-  per-criterion minima from the load-once store) and example 15 (the Mona-Lisa image problem, whose
-  evaluate() is the CPU render-and-score the GPU cross-check also uses) are converted.
+  converge on the one evaluation pass. evaluate() is a pure-virtual hook on GOptimizableEntity; the old
+  fitnessCalculation() has been removed from the base (GOptimizableEntity / GRateableI) and from every
+  individual. Bulky, hardware-independent problem constants (a training set, a target image) live in the
+  individual module's load-once store (GProblemStoreT, filled once from the factory's init_() hook and
+  thereafter read without locking). This is a SOURCE-breaking change for any out-of-tree problem definition:
+  replace `double fitnessCalculation()` with `std::vector<double> evaluate()` returning the raw result
+  vector (a size-1 vector for a single-criterion problem).
 
 - CHANGED: the multi-criterion parabola (example 4) is now optimized with a Pareto sorting scheme, so
   it exercises genuine multi-objective optimization across its several conflicting criteria; previously

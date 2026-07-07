@@ -184,7 +184,7 @@ private:
     /***************************************************************************/
     // Data
 
-    double raw_fitness_ = 0.; ///< The fitness as it comes out of the fitnessCalculation() function
+    double raw_fitness_ = 0.; ///< The fitness as it comes out of the evaluate() hook
     double transformed_fitness_ =
         0.; ///< The fitness as calculated from raw_fitness_ through
     bool transformed_fitness_set_ =

@@ -44,7 +44,7 @@
  * Each function is annotated with G_CALLABLE, which expands to
  * `__host__ __device__` when compiled by nvcc (__CUDACC__ defined), and to
  * nothing for plain C++ compilation.  This means the same source code is used
- * by GFunctionIndividual::fitnessCalculation() on the CPU and by the batch
+ * by GFunctionIndividual::evaluate() on the CPU and by the batch
  * CUDA kernel in GBenchmarkBatchEvaluator.cu on the GPU — no duplication.
  *
  * ## Dependencies
@@ -440,7 +440,7 @@ G_CALLABLE inline double zakharov(const double *x, int n) {
  * @brief Evaluates the benchmark function identified by @p func_id on parameter vector @p x.
  *
  * This is the single entry point used by both the CPU path in
- * GFunctionIndividual::fitnessCalculation() and the CUDA batch kernel.
+ * GFunctionIndividual::evaluate() and the CUDA batch kernel.
  * func_id values match the solverFunction enum integers 0–14.
  *
  * @param func_id  Integer function identifier (0=PARABOLA … 14=ZAKHAROV)

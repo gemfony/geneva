@@ -111,7 +111,7 @@ concept HasApplyConfigHook =
  *   class MyIndividual : public GFlatGenomeT<MyIndividual> {
  *   public:
  *       MyIndividual() = default;   // genome is installed by the factory
- *       double fitnessCalculation() override { ... }
+ *       std::vector<double> evaluate() override { ... }
  *
  *       struct Config { std::size_t par_dim = 5; double min = -10., max = 10., sigma = 0.5; };
  *       static void describeConfig(Gem::Common::GParserBuilder& gpb, Config& c) {

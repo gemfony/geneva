@@ -49,8 +49,8 @@ namespace Gem::Geneva::Genome {
  * generically, a typical individual adds no extra data members, so its deep-clone is purely mechanical --
  * this base generates it (clone_ = new Derived(*this)). load_ / compare_ are inherited from
  * GFlatGenome unchanged (they copy / compare the value arrays, which is all such an individual has).
- * The result: a minimal flat individual is a constructor that builds its genome plus a
- * fitnessCalculation(), with one BOOST_CLASS_EXPORT(Derived) for serialisation.
+ * The result: a minimal flat individual is a constructor that builds its genome plus an
+ * evaluate(), with one BOOST_CLASS_EXPORT(Derived) for serialisation.
  *
  * An individual that genuinely carries extra (non-genome) members simply does not use this base and
  * overrides clone_ / load_ / compare_ / serialize itself.
@@ -64,7 +64,7 @@ namespace Gem::Geneva::Genome {
  *           b.addDouble(0., -10., 10.); // structure only; the adaptor lives on the OA-owned config
  *           this->setGenome(b.build());
  *       }
- *       double fitnessCalculation() override { ... }
+ *       std::vector<double> evaluate() override { ... }
  *   private:
  *       friend class boost::serialization::access;
  *       template <typename Archive> void serialize(Archive& ar, [[maybe_unused]] const unsigned int version) {
@@ -76,7 +76,7 @@ namespace Gem::Geneva::Genome {
  *   BOOST_CLASS_EXPORT(MyIndividual)
  * @endcode
  *
- * @tparam Derived The concrete flat individual type (CRTP), supplying its constructor and fitnessCalculation()
+ * @tparam Derived The concrete flat individual type (CRTP), supplying its constructor and evaluate()
  */
 template <class Derived>
 class GFlatGenomeT : public GFlatGenome {

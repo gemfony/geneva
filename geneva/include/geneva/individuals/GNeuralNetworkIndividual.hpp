@@ -449,7 +449,7 @@ constexpr transferFunction GNN_DEF_TRANSFER = transferFunction::SIGMOID;
  *  - input layer (layer 0): 2 * nodes[0] weights (per input node: one multiplier + one bias);
  *  - layer L > 0: nodes[L] * (nodes[L-1] + 1) weights (per node: one weight per previous node + bias).
  * The architecture computes only the structure (offsets / sizes); the forward pass + transfer function
- * live in GNeuralNetworkIndividual::fitnessCalculation(), which reads the weights through this view.
+ * live in GNeuralNetworkIndividual::evaluate(), which reads the weights through this view.
  */
 class GNeuralNetworkArchitecture : public gen::GGenomeArchitecture {
 public:
