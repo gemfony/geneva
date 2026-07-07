@@ -252,6 +252,28 @@ Consequently:
 chasing a determinism the engine does not offer. Stating plainly that randomness is non-deterministic keeps
 tests honest (statistical, not brittle) and frees refactors from a phantom constraint.
 
+## 19. Every library header is installed — ship the whole public header tree, not a curated subset
+
+A Geneva library's **entire** header tree is part of its installed interface: every `.hpp` under a library's
+`include/<namespace>/` is installed, **regardless of whether anything in this repository currently uses it**.
+
+- **Install whole header directories, not hand-maintained file lists.** Header installation uses
+  `INSTALL(DIRECTORY … FILES_MATCHING PATTERN "*.hpp")` per library, so a newly added header is shipped
+  automatically. Do NOT gate a header's installation on "is it used by an example / another header yet" — an
+  explicit per-header install list silently drifts out of sync and omits headers.
+- **The installed header set must be self-contained.** Because installed public headers include one another,
+  omitting any header breaks out-of-tree compilation of the headers that include it (e.g. `Go2.hpp` /
+  `GRandomT.hpp` pulling in a transitively-required header). A wholesale directory install makes the closure
+  complete by construction; a curated list does not.
+- **"Internal-looking" is not a reason to withhold a header.** If a header genuinely must never be part of the
+  public interface, it does not belong in a library's public `include/` tree in the first place — move it into
+  the library's `src/` (private) rather than excluding it from the install.
+
+*Why:* an installed Geneva must build for a downstream / out-of-tree consumer. A curated install list is a
+standing latent bug: it compiles in-tree (all headers present in the source tree) yet fails after install the
+moment a shipped header includes an un-shipped one, and the failure is invisible until someone builds against
+the install. Shipping the complete tree removes the drift and keeps every install self-contained.
+
 ---
 
 *Add new invariants below as the maintainer establishes them. Keep each rule short, mandatory, and

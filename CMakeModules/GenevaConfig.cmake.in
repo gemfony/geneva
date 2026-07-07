@@ -73,6 +73,18 @@ endif()
 # Pull in the exported Geneva::* imported targets.
 include("${CMAKE_CURRENT_LIST_DIR}/GenevaTargets.cmake")
 
+# Individual-packaging helpers (GENEVA_ADD_INDIVIDUAL_MODULE / GENEVA_DECLARE_INDIVIDUAL) for a downstream
+# project that packages its own optimization individuals as a compiled-in object library and/or a
+# runtime-loadable module (like example 19 / example 10). The helpers need the Geneva header include
+# directory; take it from the imported Geneva::geneva target's interface (the concrete installed include
+# prefix). Boost's include dirs are added by the helpers at call time (find_dependency(Boost) above set
+# Boost_INCLUDE_DIRS). This is the same GenevaIndividualModule.cmake the in-tree build uses.
+get_target_property(GENEVA_INDIVIDUAL_INCLUDE_DIRS Geneva::geneva INTERFACE_INCLUDE_DIRECTORIES)
+# The C++ standard Geneva was built with (a loadable module links no Geneva libs, so it must pin the
+# standard on itself; the consumer project need not set CMAKE_CXX_STANDARD at all).
+set(GENEVA_INDIVIDUAL_CXX_STANDARD @CMAKE_CXX_STANDARD@)
+include("${CMAKE_CURRENT_LIST_DIR}/GenevaIndividualModule.cmake")
+
 # Convenience list of all imported targets, mirroring the legacy
 # GENEVA_LIBRARIES variable (now holding imported targets instead of paths).
 set(GENEVA_LIBRARIES

@@ -91,8 +91,10 @@ SET ( GENEVACOMMONCONCURRENCYINCLUDES
 ADD_CUSTOM_TARGET(CLION_ALL_COMMON_HEADERS SOURCES ${GENEVACOMMONINCLUDES} ${GENEVACOMMONCONCURRENCYINCLUDES})
 
 
-INSTALL ( FILES ${GENEVACOMMONINCLUDES} DESTINATION ${INSTALL_PREFIX_INCLUDES}/common )
-INSTALL ( FILES ${GENEVACOMMONCONCURRENCYINCLUDES} DESTINATION ${INSTALL_PREFIX_INCLUDES}/common/concurrency )
+# Directory install: ship the whole header tree (Inv 19), so the installed interface is self-contained and
+# cannot drift. (The SET lists above are retained only for the CLion header target / IDE indexing.)
+INSTALL ( DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/ DESTINATION ${INSTALL_PREFIX_INCLUDES}/common
+	FILES_MATCHING PATTERN "*.hpp" )
 
 # The plotting subsystem was extracted into its own first-class library, "dietrich"
 # (dietrich/include/dietrich/...). common no longer ships any plotting headers.

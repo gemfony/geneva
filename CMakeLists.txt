@@ -652,6 +652,9 @@ INSTALL(
 	FILES
 	${CMAKE_CURRENT_BINARY_DIR}/GenevaConfig.cmake
 	${CMAKE_CURRENT_BINARY_DIR}/GenevaConfigVersion.cmake
+	# The individual-packaging helpers, so an out-of-tree consumer's find_package(Geneva) exposes
+	# GENEVA_ADD_INDIVIDUAL_MODULE / GENEVA_DECLARE_INDIVIDUAL (GenevaConfig.cmake includes this file).
+	${PROJECT_SOURCE_DIR}/CMakeModules/GenevaIndividualModule.cmake
 	DESTINATION ${GENEVA_INSTALL_CMAKEDIR}
 )
 

@@ -105,6 +105,21 @@ Recommended Versions:
   replace `double fitnessCalculation()` with `std::vector<double> evaluate()` returning the raw result
   vector (a size-1 vector for a single-criterion problem).
 
+- FIXED / CHANGED: the installed header set is now COMPLETE and self-contained. Header installation switched
+  from hand-maintained per-file lists to a wholesale directory install per library, so every header under a
+  library's include/<namespace>/ ships. Previously several headers transitively required by installed public
+  headers (e.g. courtier/GConsumerRegistry.hpp and geneva/GFaultInjector.hpp, both pulled in by geneva/Go2.hpp;
+  hap/GStagedSource.hpp / GQuarantineSource.hpp pulled in by hap/GRandomT.hpp) were NOT installed, so an
+  out-of-tree project including Go2.hpp or GRandomT.hpp failed to compile against an installed Geneva. This is
+  now a development invariant (all library headers are installed regardless of current usage).
+
+- NEW: the individual-packaging CMake helpers (GENEVA_DECLARE_INDIVIDUAL / GENEVA_ADD_INDIVIDUAL_MODULE) are
+  exported by the installed CMake package, so a downstream/out-of-tree project that consumes Geneva via
+  find_package(Geneva CONFIG) can package its own optimization individuals as a compiled-in object library
+  and/or a runtime-loadable module (the example-19 pattern) with the same one-line declaration the in-tree
+  build uses. The helpers derive their include directories from the imported Geneva targets and pin Geneva's
+  C++ standard on the individual, since a loadable module links none of the Geneva libraries.
+
 - CHANGED: the multi-criterion parabola (example 4) is now optimized with a Pareto sorting scheme, so
   it exercises genuine multi-objective optimization across its several conflicting criteria; previously
   it ran single-objective and drove only the first criterion. As a loadable-module example it has no

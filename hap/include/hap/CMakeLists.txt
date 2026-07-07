@@ -65,4 +65,7 @@ ENDIF ()
 # CLion-visibility helper (mirrors the Hap subtree).
 ADD_CUSTOM_TARGET(CLION_ALL_HAP_HEADERS SOURCES ${HAPINCLUDES})
 
-INSTALL ( FILES ${HAPINCLUDES} DESTINATION ${INSTALL_PREFIX_INCLUDES}/hap )
+# Directory install: ship the whole header tree (Inv 19), so the installed interface is self-contained and
+# cannot drift. (The SET list above is retained only for the CLion header target / IDE indexing.)
+INSTALL ( DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/ DESTINATION ${INSTALL_PREFIX_INCLUDES}/hap
+	FILES_MATCHING PATTERN "*.hpp" )

@@ -454,141 +454,19 @@ IF(NOT COMMON_GENEVA_BUILD_INCLUDED)
 	ENDFUNCTION()
 
 	###############################################################################
-	# GENEVA_ADD_INDIVIDUAL_MODULE(<target> <source> [<source> ...])
-	#
-	# Builds a runtime-loadable individual (optimization-problem) plugin as a shared MODULE, following the
-	# reference pattern of example 19. The .so carries the problem code + its serialization GUID + the
-	# GENEVA_INDIVIDUAL_PLUGIN() entry points, and links NONE of the Geneva libraries -- it needs only their
-	# HEADERS at compile time and resolves their symbols from the host process at load (the loader uses
-	# RTLD_GLOBAL). Linking no Geneva libs also sidesteps the non-PIC static Catch2 that a testing-enabled
-	# Geneva pulls in as a usage requirement, which cannot go into a shared object.
-	#
-	# The module keeps the "lib" prefix (CMake MODULE libraries drop it by default) so the artifact is named
-	# lib<target>.so, matching the individual-plugin convention. The caller's own source directory is on the
-	# include path so the glue translation unit finds its problem header.
-	FUNCTION(GENEVA_ADD_INDIVIDUAL_MODULE _target)
-		IF(${ARGC} LESS 2)
-			MESSAGE(FATAL_ERROR
-				"GENEVA_ADD_INDIVIDUAL_MODULE(${_target}): at least one source file is required")
-		ENDIF()
-		ADD_LIBRARY(${_target} MODULE ${ARGN})
-		# MODULE libraries drop the "lib" prefix by default; keep it so the .so is named lib<target>.so.
-		SET_TARGET_PROPERTIES(${_target} PROPERTIES PREFIX "lib")
-		TARGET_INCLUDE_DIRECTORIES(${_target} PRIVATE
-			${CMAKE_CURRENT_SOURCE_DIR}
-			${PROJECT_SOURCE_DIR}/common/include
-			${PROJECT_SOURCE_DIR}/hap/include
-			${PROJECT_SOURCE_DIR}/courtier/include
-			${PROJECT_SOURCE_DIR}/dietrich/include
-			${PROJECT_SOURCE_DIR}/geneva/include
-			${Boost_INCLUDE_DIRS})
-	ENDFUNCTION()
-
-	###############################################################################
-	# GENEVA_DECLARE_INDIVIDUAL(<name>
-	#     MODE    <load|compile|both>
-	#     SOURCES <individual.cpp> [<more.cpp> ...]
-	#     [PLUGIN <glue.cpp>]
-	#     [CONFIG <path>])
-	#
-	# The packaging declaration for a Geneva optimization individual. It encodes the maintainer's DA1b model:
-	# the SAME individual source can be packaged two ways at once, and the author states the intent at the
-	# definition site. It ONLY packages -- it never modifies or generates any C++ (serialization export stays
-	# the author's hand-written BOOST_CLASS_EXPORT_KEY/_IMPLEMENT, one per type, in the individual's own hpp/cpp).
-	#
-	#   MODE compile  -> an OBJECT library <name>-obj built from SOURCES. A binary that COMPILES the individual
-	#                    in links this target, so the individual's BOOST_CLASS_EXPORT_IMPLEMENT static
-	#                    initializers (serialization GUID registration) are pulled in and never stripped.
-	#   MODE load     -> a shared MODULE lib<name>.so built from SOURCES + the PLUGIN glue TU. It links NONE of
-	#                    the Geneva libraries (their symbols resolve from the host process at load via
-	#                    RTLD_GLOBAL; only their headers are needed) and is loaded at runtime via --individual.
-	#   MODE both     -> both of the above; the module reuses the object library's compiled objects
-	#                    ($<TARGET_OBJECTS:...>) rather than recompiling SOURCES.
-	#
-	# The PLUGIN glue TU (the fixed extern "C" geneva_module_manifest() entry point) is compiled into the
-	# module .so ONLY, never the object library: the manifest symbol name is fixed, so a compile-in binary that
-	# links two individuals must not contain two definitions of it. Hence SOURCES = the individual (class +
-	# export, in both targets) and PLUGIN = the glue (module only). The ONE hard rule the author must honour
-	# (not enforceable in CMake): a single PROCESS must never both compile-in and load the same individual, or
-	# Boost.Serialization throws on the duplicate GUID registration.
-	#
-	# CONFIG, when given, is recorded on the module target (property GENEVA_INDIVIDUAL_CONFIG) for downstream
-	# config materialization; it is the same path the author passes to individualManifest<> in the glue TU.
-	FUNCTION(GENEVA_DECLARE_INDIVIDUAL _name)
-		CMAKE_PARSE_ARGUMENTS(GDI "" "MODE;PLUGIN;CONFIG" "SOURCES" ${ARGN})
-
-		IF(NOT GDI_MODE)
-			MESSAGE(FATAL_ERROR "GENEVA_DECLARE_INDIVIDUAL(${_name}): MODE <load|compile|both> is required")
-		ENDIF()
-		IF(NOT GDI_MODE MATCHES "^(load|compile|both)$")
-			MESSAGE(FATAL_ERROR
-				"GENEVA_DECLARE_INDIVIDUAL(${_name}): MODE must be load, compile or both (got '${GDI_MODE}')")
-		ENDIF()
-		IF(NOT GDI_SOURCES)
-			MESSAGE(FATAL_ERROR "GENEVA_DECLARE_INDIVIDUAL(${_name}): SOURCES <individual.cpp> is required")
-		ENDIF()
-
-		SET(_want_compile FALSE)
-		SET(_want_load FALSE)
-		IF(GDI_MODE STREQUAL "compile" OR GDI_MODE STREQUAL "both")
-			SET(_want_compile TRUE)
-		ENDIF()
-		IF(GDI_MODE STREQUAL "load" OR GDI_MODE STREQUAL "both")
-			SET(_want_load TRUE)
-		ENDIF()
-
-		# The PLUGIN glue TU is the module's manifest entry point: required for a loadable module, and
-		# meaningless (and unsafe -- fixed symbol name) outside one.
-		IF(_want_load AND NOT GDI_PLUGIN)
-			MESSAGE(FATAL_ERROR
-				"GENEVA_DECLARE_INDIVIDUAL(${_name}): MODE ${GDI_MODE} needs PLUGIN <glue.cpp> (the module entry point)")
-		ENDIF()
-		IF(GDI_PLUGIN AND NOT _want_load)
-			MESSAGE(FATAL_ERROR
-				"GENEVA_DECLARE_INDIVIDUAL(${_name}): PLUGIN is only valid for MODE load or both")
-		ENDIF()
-
-		SET(_gdi_incdirs
-			${CMAKE_CURRENT_SOURCE_DIR}
-			${PROJECT_SOURCE_DIR}/common/include
-			${PROJECT_SOURCE_DIR}/hap/include
-			${PROJECT_SOURCE_DIR}/courtier/include
-			${PROJECT_SOURCE_DIR}/dietrich/include
-			${PROJECT_SOURCE_DIR}/geneva/include
-			${Boost_INCLUDE_DIRS})
-
-		# (A) compile/both: the OBJECT library of the individual's own sources (class + BOOST_CLASS_EXPORT).
-		# PIC so its objects are equally usable in the shared module (both) and in any consumer.
-		IF(_want_compile)
-			ADD_LIBRARY(${_name}-obj OBJECT ${GDI_SOURCES})
-			SET_TARGET_PROPERTIES(${_name}-obj PROPERTIES POSITION_INDEPENDENT_CODE ON)
-			TARGET_INCLUDE_DIRECTORIES(${_name}-obj PUBLIC ${_gdi_incdirs})
-			# NOTE on link order: a compile-in consumer must list <name>-obj BEFORE the Geneva and Boost
-			# libraries. The object library's own objects instantiate Boost.Serialization for the individual's
-			# exported types; the linker's default --as-needed drops (shared) libboost_serialization if nothing
-			# preceding it needs it, so the object library's objects -- if placed last -- fail to resolve. CMake
-			# deduplicates a shared library to its first position, so a usage-requirement dependency here cannot
-			# reorder it; the consumer must order the object library first. The module .so is unaffected: it
-			# reuses $<TARGET_OBJECTS:...> (object files only) at the front of its own link.
-		ENDIF()
-
-		# (B) load/both: the shared MODULE lib<name>.so. It reuses the object library's objects where they
-		# exist (both) or compiles SOURCES itself (load-only), plus the PLUGIN glue (module ONLY). It links no
-		# Geneva libraries -- exactly the GENEVA_ADD_INDIVIDUAL_MODULE recipe.
-		IF(_want_load)
-			IF(_want_compile)
-				ADD_LIBRARY(${_name} MODULE $<TARGET_OBJECTS:${_name}-obj> ${GDI_PLUGIN})
-			ELSE()
-				ADD_LIBRARY(${_name} MODULE ${GDI_SOURCES} ${GDI_PLUGIN})
-			ENDIF()
-			# MODULE libraries drop the "lib" prefix by default; keep it so the .so is named lib<name>.so.
-			SET_TARGET_PROPERTIES(${_name} PROPERTIES PREFIX "lib")
-			TARGET_INCLUDE_DIRECTORIES(${_name} PRIVATE ${_gdi_incdirs})
-			IF(GDI_CONFIG)
-				SET_TARGET_PROPERTIES(${_name} PROPERTIES GENEVA_INDIVIDUAL_CONFIG "${GDI_CONFIG}")
-			ENDIF()
-		ENDIF()
-	ENDFUNCTION()
+	# Runtime-loadable / compiled-in individual packaging helpers
+	# (GENEVA_ADD_INDIVIDUAL_MODULE / GENEVA_DECLARE_INDIVIDUAL). The function bodies live in the shared,
+	# installable GenevaIndividualModule.cmake so the SAME helpers are available to an out-of-tree project
+	# that consumes an installed Geneva via find_package(Geneva). Here (the in-tree build) we point them at
+	# the in-tree source include layout; the installed GenevaConfig.cmake points them at the install prefix.
+	SET(GENEVA_INDIVIDUAL_INCLUDE_DIRS
+		${PROJECT_SOURCE_DIR}/common/include
+		${PROJECT_SOURCE_DIR}/hap/include
+		${PROJECT_SOURCE_DIR}/courtier/include
+		${PROJECT_SOURCE_DIR}/dietrich/include
+		${PROJECT_SOURCE_DIR}/geneva/include)
+	SET(GENEVA_INDIVIDUAL_CXX_STANDARD ${CMAKE_CXX_STANDARD})
+	INCLUDE(GenevaIndividualModule)
 
 	###############################################################################
 	# End of the include-guard
