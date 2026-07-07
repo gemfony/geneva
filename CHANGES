@@ -1144,6 +1144,15 @@ Recommended Versions:
 
 ************************* Noteworthy Changes ***********************************
 
+- Introduced Gem::Common::Concurrency::GLoadOnceCellT, a shared fill/compute-once-then-
+  immutable cell (a single writer, then many lock-free readers) living in
+  common/concurrency/. Three sites that each hand-rolled the same std::once_flag /
+  std::atomic / mutex idiom now sit on it: the load-once problem store (GProblemStoreT is
+  now a thin alias for the cell), the genome layout's lazily-cached content id
+  (GGenomeLayout::layoutId), and the flat-individual factory's build-once shared genome
+  (GFlatIndividualFactory). Behaviour is unchanged; the concurrency mechanism now lives in
+  exactly one place instead of three.
+
 - The plotting library gained a plotter-object-free data-logging API, GDataLog, and
   all production code was moved onto it. A monitor (or any recorder) now declares the
   plots it wants as GPlotSpec values (declareSeries / overlaySeries) and pushes data

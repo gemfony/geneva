@@ -36,7 +36,6 @@
 #include <concepts>
 #include <filesystem>
 #include <memory>
-#include <mutex>
 #include <vector>
 
 // Boost header files go here
@@ -47,6 +46,7 @@
 #include "common/GExceptions.hpp"
 #include "common/GLogger.hpp"
 #include "common/GParserBuilder.hpp"
+#include "common/concurrency/GLoadOnceCellT.hpp"
 #include "geneva/ind/GFlatGenome.hpp"
 #include "geneva/ind/GGenomeBuilder.hpp"
 #include "geneva/ind/GOptimizableEntity.hpp"
@@ -170,8 +170,8 @@ public:
 
     /***************************************************************************/
     /**
-     * The copy constructor. The built-genome cache and its guard are deliberately *not* copied: a
-     * copied factory rebuilds its own shared genome lazily (the mutex is also non-copyable).
+     * The copy constructor. The built-genome cache is deliberately *not* copied: a copied factory rebuilds
+     * its own shared genome lazily (the load-once cell is also non-copyable).
      *
      * @param cp The factory to copy from (base state and parsed Config are copied)
      */
@@ -189,7 +189,7 @@ public:
      */
     ~GFlatIndividualFactory() override {
         if constexpr (HasFinalizeHook<Derived>) {
-            if(genome_built_) {
+            if(genome_cell_.loaded()) {
                 try {
                     Derived::finalize(config_);
                 }
@@ -252,13 +252,10 @@ protected:
      * @param p The freshly produced individual to install the shared genome on (must be a GFlatGenome)
      */
     void postProcess_(std::shared_ptr<GOptimizableEntity> &p) override {
-        {
-            std::scoped_lock lk(genome_mutex_);
-            if(not genome_built_) {
-                shared_genome_ = Derived::buildGenome(config_);
-                genome_built_ = true;
-            }
-        }
+        // Build the shared genome exactly once (the cell serialises the first build; later produces read it
+        // lock-free) and reuse it for every produced individual.
+        const GenomeData &genome =
+            genome_cell_.getOrCompute([this]() { return Derived::buildGenome(config_); });
 
         auto *fg = dynamic_cast<GFlatGenome *>(p.get());
         if(fg == nullptr) {
@@ -268,7 +265,7 @@ protected:
                 << "The produced object is not a GFlatGenome derivative" << '\n'
             );
         }
-        fg->setGenome(shared_genome_);
+        fg->setGenome(genome);
 
         // Optional per-object configuration hook: lets a Derived individual apply its own non-genome
         // settings parsed into config_ (e.g. a transfer function) beyond building the genome. It is the
@@ -316,12 +313,10 @@ private:
     /** @brief Holds the configurable values, populated from the config file on each get_() */
     typename Derived::Config config_{};
 
-    /** @brief The genome (value arrays + shared layout) built once and reused by every individual */
-    GenomeData shared_genome_{};
-    /** @brief Whether shared_genome_ has been built (transient cache guard) */
-    bool genome_built_ = false;
-    /** @brief Serialises the build-once of shared_genome_ */
-    mutable std::mutex genome_mutex_;
+    /** @brief The genome (value arrays + shared layout) built once and reused by every individual. The
+     *  load-once cell serialises the single build and lets every later produce read it lock-free; a copied
+     *  factory leaves it cold and rebuilds its own genome lazily. */
+    mutable Gem::Common::Concurrency::GLoadOnceCellT<GenomeData> genome_cell_;
 };
 
 /******************************************************************************/

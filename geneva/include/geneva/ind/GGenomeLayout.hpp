@@ -38,13 +38,13 @@
 #include <cstdint>
 #include <functional>
 #include <limits>
-#include <mutex>
 #include <string>
 #include <type_traits>
 #include <vector>
 
 // Geneva headers go here
 #include "common/GCommonMathHelperFunctionsT.hpp"
+#include "common/concurrency/GLoadOnceCellT.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/ind/GAdaptionKernels.hpp"
 
@@ -386,9 +386,10 @@ public:
     std::vector<std::string> labels;///< the interned, distinct group-label strings (label_id indexes this)
 
     /***************************************************************************/
-    // Special members. The layout caches its content id lazily (a std::once_flag, which is neither
-    // copyable nor movable), so the value-member copy/move are spelled out and simply leave the copy's
-    // cache cold -- a structural copy recomputes the (identical) id on first use.
+    // Special members. The layout caches its content id lazily in a GLoadOnceCellT (which owns a
+    // std::once_flag and is thus neither copyable nor movable), so the value-member copy/move are spelled
+    // out and simply leave the copy's cache cold -- a structural copy recomputes the (identical) id on
+    // first use.
 
     /** @brief The default constructor (empty layout). */
     GGenomeLayout() = default;
@@ -431,8 +432,7 @@ public:
      * @return A const reference to the cached content id.
      */
     const LayoutId &layoutId() const {
-        std::call_once(id_once_, [this] { id_cache_ = computeLayoutId(); });
-        return id_cache_;
+        return id_cell_.getOrCompute([this] { return computeLayoutId(); });
     }
 
     /**
@@ -657,9 +657,10 @@ private:
 
     /***************************************************************************/
     // The lazily-computed, cached content id. mutable because layoutId() is logically const on the
-    // immutable layout; std::once_flag makes the first concurrent computation thread-safe.
-    mutable std::once_flag id_once_;       ///< guards the one-time computation of id_cache_
-    mutable LayoutId id_cache_;            ///< the cached content id (valid once id_once_ has fired)
+    // immutable layout; the load-once cell makes the first concurrent computation thread-safe and every
+    // later read lock-free. A copied/moved layout leaves this cold (the copy/move members do not touch it),
+    // so it recomputes its id from the copied structure on first use.
+    mutable Gem::Common::Concurrency::GLoadOnceCellT<LayoutId> id_cell_;
 };
 
 /******************************************************************************/
