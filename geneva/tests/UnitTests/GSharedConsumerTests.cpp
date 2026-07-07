@@ -278,3 +278,30 @@ TEST_CASE("buildConsumerSetup registers the process consumer", "[consumer][shari
 
     reg.clear();
 }
+
+// ---------------------------------------------------------------------------
+// The consumer catalog is data in the shared provider store, not a hard-coded table + switch.
+
+TEST_CASE("Consumer provider store exposes the built-in consumer catalog", "[consumer][sharing][registry]") {
+    // The built-in local + socket consumers are always registered; an unknown mnemonic is not.
+    CHECK(Gem::Geneva::isKnownConsumer("sc"));
+    CHECK(Gem::Geneva::isKnownConsumer("stc"));
+    CHECK(Gem::Geneva::isKnownConsumer("asio"));
+    CHECK(Gem::Geneva::isKnownConsumer("beast"));
+    CHECK_FALSE(Gem::Geneva::isKnownConsumer("does_not_exist"));
+
+    // Local consumers need no networked client; the socket consumers do. An unknown mnemonic never does.
+    CHECK_FALSE(Gem::Geneva::consumerNeedsClient("sc"));
+    CHECK_FALSE(Gem::Geneva::consumerNeedsClient("stc"));
+    CHECK(Gem::Geneva::consumerNeedsClient("asio"));
+    CHECK(Gem::Geneva::consumerNeedsClient("beast"));
+    CHECK_FALSE(Gem::Geneva::consumerNeedsClient("does_not_exist"));
+
+    // The listing names each registered consumer, and the count covers at least the four always-built ones.
+    const std::string listing = Gem::Geneva::consumerListing();
+    CHECK(listing.contains("sc:"));
+    CHECK(listing.contains("stc:"));
+    CHECK(listing.contains("asio:"));
+    CHECK(listing.contains("beast:"));
+    CHECK(Gem::Geneva::consumerCount() >= 4);
+}

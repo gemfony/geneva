@@ -1144,6 +1144,16 @@ Recommended Versions:
 
 ************************* Noteworthy Changes ***********************************
 
+- The consumer catalog is now data in the shared Gem::Common::GProviderStoreT rather than a
+  hard-coded table plus an if/else dispatch. Each courtier consumer (serial, std-thread, Asio,
+  websocket, and, when built, MPI) is a GConsumerProviderT registered under its mnemonic at
+  static init; buildConsumerSetup / specFromCommandLine / buildConsumerClient / addConsumerOptions
+  / isKnownConsumer / consumerNeedsClient / consumerListing / consumerCount all resolve a mnemonic
+  against that store instead of switching on it. Behaviour is unchanged for every mnemonic -- the
+  MPI master/worker rank split and the socket-server single-listening-port reuse are preserved --
+  and the consumer set is now registerable, so a runtime-loaded consumer would drop into the same
+  store.
+
 - Introduced Gem::Common::GProviderStoreT, a shared template for a process-global,
   mnemonic-keyed registry of providers (a GSingletonT over the sanctioned keyed store),
   naming the idiom the optimization-algorithm store already used inline. GOAStore is now
