@@ -70,14 +70,14 @@ public:
     FlatSphereGSA(const FlatSphereGSA &) = default;
 
 protected:
-    double fitnessCalculation() override {
+    std::vector<double> evaluate() override {
         std::vector<double> v;
         this->template streamline<double>(v);
         double s = 0.;
         for(double x : v) {
             s += x * x;
         }
-        return s;
+        return {s};
     }
 };
 
@@ -99,14 +99,14 @@ public:
     FlatRastriginGSA(const FlatRastriginGSA &) = default;
 
 protected:
-    double fitnessCalculation() override {
+    std::vector<double> evaluate() override {
         std::vector<double> v;
         this->template streamline<double>(v);
         double s = 10. * static_cast<double>(v.size());
         for(double x : v) {
             s += x * x - 10. * std::cos(2. * std::numbers::pi * x);
         }
-        return s;
+        return {s};
     }
 };
 

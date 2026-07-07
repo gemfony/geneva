@@ -81,14 +81,14 @@ public:
     }
 
 protected:
-    double fitnessCalculation() override {
+    std::vector<double> evaluate() override {
         std::vector<double> v;
         this->template streamline<double>(v);
         double s = 0.;
         for(double x : v) {
             s += x * x;
         }
-        return s;
+        return {s};
     }
 };
 

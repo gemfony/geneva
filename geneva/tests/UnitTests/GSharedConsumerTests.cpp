@@ -78,14 +78,14 @@ public:
     }
 
 protected:
-    double fitnessCalculation() override {
+    std::vector<double> evaluate() override {
         std::vector<double> v;
         this->streamline<double>(v);
         double s = 0.;
         for(double x : v) {
             s += x * x;
         }
-        return s;
+        return {s};
     }
 };
 
@@ -110,7 +110,7 @@ public:
     }
 
 protected:
-    double fitnessCalculation() override {
+    std::vector<double> evaluate() override {
         auto inner = std::make_shared<oa::GEvolutionaryAlgorithm>();
         inner->setPopulationSizes(4, 2);
         inner->setMaxIteration(2);
@@ -129,7 +129,7 @@ protected:
         for(double x : v) {
             s += x * x;
         }
-        return s;
+        return {s};
     }
 };
 

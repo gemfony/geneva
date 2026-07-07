@@ -113,11 +113,11 @@ public:
     }
 
 protected:
-    double fitnessCalculation() override {
+    std::vector<double> evaluate() override {
         std::vector<double> v;
         this->streamline<double>(v);
-        return std::ranges::fold_left(
-            v | std::views::transform([](double x) { return x * x; }), 0., std::plus{});
+        return {std::ranges::fold_left(
+            v | std::views::transform([](double x) { return x * x; }), 0., std::plus{})};
     }
 
 private:
@@ -191,11 +191,11 @@ public:
     }
 
 protected:
-    double fitnessCalculation() override {
+    std::vector<double> evaluate() override {
         std::vector<double> v;
         this->streamline<double>(v);
-        return std::ranges::fold_left(
-            v | std::views::transform([](double x) { return x * x; }), 0., std::plus{});
+        return {std::ranges::fold_left(
+            v | std::views::transform([](double x) { return x * x; }), 0., std::plus{})};
     }
 
 private:
@@ -786,7 +786,7 @@ public:
     }
 
 protected:
-    double fitnessCalculation() override { return 0.; }
+    std::vector<double> evaluate() override { return {0.}; }
 
 private:
     friend class boost::serialization::access;
@@ -828,7 +828,7 @@ public:
     }
 
 protected:
-    double fitnessCalculation() override { return 0.; }
+    std::vector<double> evaluate() override { return {0.}; }
 
 private:
     friend class boost::serialization::access;
@@ -853,11 +853,11 @@ public:
     FlatManyGroups(const FlatManyGroups &) = default;
 
 protected:
-    double fitnessCalculation() override {
+    std::vector<double> evaluate() override {
         std::vector<double> v;
         this->streamline<double>(v);
-        return std::ranges::fold_left(
-            v | std::views::transform([](double x) { return x * x; }), 0., std::plus{});
+        return {std::ranges::fold_left(
+            v | std::views::transform([](double x) { return x * x; }), 0., std::plus{})};
     }
 
 private:

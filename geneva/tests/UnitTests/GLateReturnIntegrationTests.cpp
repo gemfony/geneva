@@ -76,11 +76,11 @@ public:
     LRSphere(const LRSphere &) = default;
 
 protected:
-    double fitnessCalculation() override {
+    std::vector<double> evaluate() override {
         std::vector<double> v;
         this->streamline<double>(v);
-        return std::ranges::fold_left(
-            v | std::views::transform([](double x) { return x * x; }), 0., std::plus{});
+        return {std::ranges::fold_left(
+            v | std::views::transform([](double x) { return x * x; }), 0., std::plus{})};
     }
 
 private:
@@ -106,7 +106,7 @@ public:
     LRThrower(const LRThrower &) = default;
 
 protected:
-    double fitnessCalculation() override {
+    std::vector<double> evaluate() override {
         throw std::runtime_error("LRThrower always fails");
     }
 

@@ -104,14 +104,14 @@ public:
     }
 
 protected:
-    double fitnessCalculation() override {
+    std::vector<double> evaluate() override {
         std::vector<double> v;
         this->streamline<double>(v);
         double s = 0.;
         for(double x : v) {
             s += x * x;
         }
-        return s;
+        return {s};
     }
 };
 
@@ -135,14 +135,14 @@ public:
     FlatSphereWideOA(const FlatSphereWideOA &) = default;
 
 protected:
-    double fitnessCalculation() override {
+    std::vector<double> evaluate() override {
         std::vector<double> v;
         this->streamline<double>(v);
         double s = 0.;
         for(double x : v) {
             s += x * x;
         }
-        return s;
+        return {s};
     }
 };
 
@@ -172,14 +172,14 @@ public:
     }
 
 protected:
-    double fitnessCalculation() override {
+    std::vector<double> evaluate() override {
         std::vector<double> v;
         this->streamline<double>(v);
         double s = 0.;
         for(double x : v) {
             s += x * x;
         }
-        return s;
+        return {s};
     }
 };
 
@@ -207,14 +207,14 @@ public:
     }
 
 protected:
-    double fitnessCalculation() override {
+    std::vector<double> evaluate() override {
         std::vector<std::int32_t> v;
         this->streamline<std::int32_t>(v);
         double s = 0.;
         for(std::int32_t x : v) {
             s += static_cast<double>(x) * static_cast<double>(x);
         }
-        return s;
+        return {s};
     }
 };
 
@@ -242,7 +242,7 @@ public:
     }
 
 protected:
-    double fitnessCalculation() override {
+    std::vector<double> evaluate() override {
         std::vector<bool> v;
         this->streamline<bool>(v);
         double false_count = 0.;
@@ -251,7 +251,7 @@ protected:
                 false_count += 1.;
             }
         }
-        return false_count; // minimised -> all true
+        return {false_count}; // minimised -> all true
     }
 };
 
@@ -272,14 +272,14 @@ public:
     FlatFrozenOA(const FlatFrozenOA &) = default;
 
 protected:
-    double fitnessCalculation() override {
+    std::vector<double> evaluate() override {
         std::vector<double> v;
         this->streamline<double>(v);
         double s = 0.;
         for(double x : v) {
             s += x * x;
         }
-        return s;
+        return {s};
     }
 };
 
@@ -303,14 +303,14 @@ public:
     FlatScanIntProbe(const FlatScanIntProbe &) = default;
 
 protected:
-    double fitnessCalculation() override {
+    std::vector<double> evaluate() override {
         std::vector<std::int32_t> v;
         this->streamline<std::int32_t>(v);
         {
             std::lock_guard<std::mutex> lock(g_scan_probe_mutex);
             g_scan_int_samples.push_back(v[0]);
         }
-        return static_cast<double>(v[0]) * static_cast<double>(v[0]);
+        return {static_cast<double>(v[0]) * static_cast<double>(v[0])};
     }
 };
 
@@ -325,7 +325,7 @@ public:
     FlatScanPairProbe(const FlatScanPairProbe &) = default;
 
 protected:
-    double fitnessCalculation() override {
+    std::vector<double> evaluate() override {
         std::vector<double> v;
         this->streamline<double>(v);
         {
@@ -336,7 +336,7 @@ protected:
         for(double x : v) {
             s += x * x;
         }
-        return s;
+        return {s};
     }
 };
 
@@ -352,10 +352,10 @@ public:
     FlatSphere1D(const FlatSphere1D &) = default;
 
 protected:
-    double fitnessCalculation() override {
+    std::vector<double> evaluate() override {
         std::vector<double> v;
         this->streamline<double>(v);
-        return v[0] * v[0];
+        return {v[0] * v[0]};
     }
 };
 
@@ -372,14 +372,14 @@ public:
     FlatInvertedBoundsOA(const FlatInvertedBoundsOA &) = default;
 
 protected:
-    double fitnessCalculation() override {
+    std::vector<double> evaluate() override {
         std::vector<double> v;
         this->streamline<double>(v);
         double s = 0.;
         for(double x : v) {
             s += x * x;
         }
-        return s;
+        return {s};
     }
 };
 
@@ -397,7 +397,7 @@ public:
     FlatMixedOA(const FlatMixedOA &) = default;
 
 protected:
-    double fitnessCalculation() override {
+    std::vector<double> evaluate() override {
         std::vector<double> v;
         this->streamline<double>(v);
         std::vector<std::int32_t> iv;
@@ -409,7 +409,7 @@ protected:
         for(std::int32_t x : iv) {
             s += static_cast<double>(x) * static_cast<double>(x);
         }
-        return s;
+        return {s};
     }
 };
 
@@ -1269,14 +1269,14 @@ public:
     }
 
 protected:
-    double fitnessCalculation() override {
+    std::vector<double> evaluate() override {
         std::vector<double> v;
         this->template streamline<double>(v);
         double s = 0.;
         for(double x : v) {
             s += x * x;
         }
-        return s;
+        return {s};
     }
 };
 

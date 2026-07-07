@@ -143,10 +143,10 @@ public:
     }
 
 protected:
-    double fitnessCalculation() override {
+    std::vector<double> evaluate() override {
         std::vector<double> v;
         this->template streamline<double>(v);
-        return objective(FN, v);
+        return {objective(FN, v)};
     }
 };
 
