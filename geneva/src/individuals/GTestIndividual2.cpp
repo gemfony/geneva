@@ -255,14 +255,14 @@ gen::GFlatGenome *GTestIndividual2::clone_() const {
  *
  * @return The value of this object (the parabola's value for the current parameters)
  */
-double GTestIndividual2::fitnessCalculation() {
+std::vector<double> GTestIndividual2::evaluate() {
     // We just calculate the square of all double values
     std::vector<double> par_vec;
     this->streamline(par_vec);
 
     // Calculate the value of the parabola
-    return std::ranges::fold_left(
-        par_vec | std::views::transform([](double x) { return Gem::Common::gsquared(x); }), 0., std::plus{});
+    return {std::ranges::fold_left(
+        par_vec | std::views::transform([](double x) { return Gem::Common::gsquared(x); }), 0., std::plus{})};
 }
 
 /******************************************************************************/

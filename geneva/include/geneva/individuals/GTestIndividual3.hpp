@@ -122,10 +122,10 @@ protected:
     ) const final;
 
     /**
-     * @brief The actual fitness calculation takes place here.
-     * @return The fitness value computed for this individual's genome
+     * @brief The evaluation hook: computes this individual's fitness.
+     * @return The fitness as a one-element vector (single criterion)
      */
-    double fitnessCalculation() final;
+    std::vector<double> evaluate() final;
 
     /**
      * @brief Applies modifications to this object.

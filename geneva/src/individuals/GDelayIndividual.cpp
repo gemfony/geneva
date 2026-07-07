@@ -151,7 +151,7 @@ gen::GFlatGenome *GDelayIndividual::clone_() const {
  *
  * @return A random value in [0, 1); the result is not used for any actual optimization
  */
-double GDelayIndividual::fitnessCalculation() {
+std::vector<double> GDelayIndividual::evaluate() {
     std::uniform_real_distribution<double> uniform_real_distribution;
 
     if(sleep_randomly_) {
@@ -185,10 +185,10 @@ double GDelayIndividual::fitnessCalculation() {
     }
 
     // Return a random value - we do not perform any real optimization
-    return uniform_real_distribution(
+    return {uniform_real_distribution(
         gr_,
         std::uniform_real_distribution<double>::param_type(0., 1.)
-    );
+    )};
 }
 
 /******************************************************************************/

@@ -162,13 +162,13 @@ gen::GFlatGenome *GTestIndividual1::clone_() const {
  *
  * @return The fitness of this object: the sum of the squares of all flat double parameters
  */
-double GTestIndividual1::fitnessCalculation() {
+std::vector<double> GTestIndividual1::evaluate() {
     // Read the flat double values and calculate the value of the parabola.
     std::vector<double> par_vec;
     this->streamline(par_vec);
 
-    return std::ranges::fold_left(
-        par_vec | std::views::transform([](double x) { return x * x; }), 0., std::plus{});
+    return {std::ranges::fold_left(
+        par_vec | std::views::transform([](double x) { return x * x; }), 0., std::plus{})};
 }
 
 // Note: The following code is designed to mainly test parent classes

@@ -252,10 +252,11 @@ protected:
     ) const final;
 
     /**
-     * @brief The actual fitness calculation takes place here
-     * @return A random fitness value, returned after the configured sleep time
+     * @brief The evaluation hook: sleeps as configured (this individual measures framework overhead, not a
+     *  real objective) and returns a random value in [0,1) that is not used for optimization.
+     * @return A one-element vector holding the random value
      */
-    double fitnessCalculation() final;
+    std::vector<double> evaluate() final;
 
 private:
     /**
