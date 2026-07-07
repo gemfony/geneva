@@ -229,6 +229,29 @@ The Geneva source tree is never a workspace. This extends Invariant 3 (build out
 accidentally committed, and make "is the tree clean?" — the precondition for a trustworthy diff, build, and
 commit — unanswerable. A pristine tree keeps every diff meaningful and every build reproducible.
 
+## 18. Random numbers are never deterministic — never rely on reproducing them
+
+Geneva's random numbers come from Hap (`GRandomFactory` / `GRandomT`), which produces them from **concurrent
+producer threads** feeding a shared queue, seeded from entropy. The order in which numbers are consumed across
+threads is therefore **not reproducible**, and there is no supported "fixed seed → identical sequence" mode.
+Consequently:
+
+- **Never write code or a test that depends on a specific random sequence, a specific seed, or a specific
+  draw order.** No "golden" RNG trace, no byte-for-byte reproduction of a stochastic result. A test that
+  needs to check a stochastic outcome uses a **behavioural / statistical** gate — a tolerance band, or
+  best-of-N so a rare unlucky draw cannot flake the suite (cf. Invariant 9: a real failure is fixed, but a
+  stochastic bar is expressed as best-of-N, not as a tightened threshold on one run).
+- **Never spend effort "preserving RNG determinism"** across a refactor — there is none to preserve. When a
+  change moves or re-shapes code that draws random numbers, the correctness question is whether the *logic*
+  is faithfully transformed, not whether some sequence is reproduced. In particular, fitness evaluation
+  (`evaluate()`) is a deterministic function of the individual's *parameters* and normally draws no RNG at
+  all; where a body genuinely is stochastic (e.g. a nested sub-optimization), it has no reproducible value and
+  is validated by faithful-transformation + the suite's tolerant checks.
+
+*Why:* treating Geneva's RNG as reproducible is a category error that produces flaky tests and wasted effort
+chasing a determinism the engine does not offer. Stating plainly that randomness is non-deterministic keeps
+tests honest (statistical, not brittle) and frees refactors from a phantom constraint.
+
 ---
 
 *Add new invariants below as the maintainer establishes them. Keep each rule short, mandatory, and
