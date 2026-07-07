@@ -146,7 +146,7 @@ GMPIEvaluatedIndividual::buildAdaptionConfig(const gen::GFlatGenome &sample) {
  *
  * @return The value of this object
  */
-double GMPIEvaluatedIndividual::fitnessCalculation() {
+std::vector<double> GMPIEvaluatedIndividual::evaluate() {
     std::vector<double> parVec; // Will hold the parameters
 
     this->streamline(parVec); // Retrieve the parameters
@@ -155,8 +155,8 @@ double GMPIEvaluatedIndividual::fitnessCalculation() {
     MPI_Barrier(communicator);
 
     // Do the actual calculation
-    return std::ranges::fold_left(
-        parVec | std::views::transform([](double d) { return d * d; }), 0., std::plus{});
+    return {std::ranges::fold_left(
+        parVec | std::views::transform([](double d) { return d * d; }), 0., std::plus{})};
 }
 
 /********************************************************************************************/

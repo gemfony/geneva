@@ -98,8 +98,8 @@ protected:
     /** @brief Loads the data of another GMPIEvaluatedIndividual */
     void load_(const gen::GOptimizableEntity *) final;
 
-    /** @brief The actual fitness calculation takes place here. */
-    double fitnessCalculation() final;
+    /** @brief The evaluation hook: sum of squares of the genome (single criterion). */
+    std::vector<double> evaluate() final;
 
 private:
     /** @brief Creates a deep clone of this object */

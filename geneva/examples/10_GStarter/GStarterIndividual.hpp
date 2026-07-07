@@ -253,8 +253,8 @@ protected:
         const double & // the limit for allowed deviations of floating point types
     ) const final;
 
-    /** @brief The actual value calculation takes place here */
-    virtual double fitnessCalculation() final;
+    /** @brief The evaluation hook: the selected target function on the genome (single criterion). */
+    std::vector<double> evaluate() final;
 
     /** @brief Applies modifications to this object. */
     virtual bool modify_GUnitTests_();

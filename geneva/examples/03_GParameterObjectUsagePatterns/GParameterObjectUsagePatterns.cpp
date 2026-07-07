@@ -94,11 +94,11 @@ public:
     }
 
 protected:
-    double fitnessCalculation() override {
+    std::vector<double> evaluate() override {
         std::vector<double> v;
         this->streamline(v);
-        return std::ranges::fold_left(
-            v | std::views::transform([](double x) { return x * x; }), 0., std::plus{});
+        return {std::ranges::fold_left(
+            v | std::views::transform([](double x) { return x * x; }), 0., std::plus{})};
     }
 };
 

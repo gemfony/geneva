@@ -273,7 +273,7 @@ gen::GFlatGenome *GStarterIndividual::clone_() const {
  *
  * @return The value of this object, as calculated with the evaluation function
  */
-double GStarterIndividual::fitnessCalculation() {
+std::vector<double> GStarterIndividual::evaluate() {
     // Retrieve the parameters
     std::vector<double> parVec;
     this->streamline(parVec);
@@ -283,20 +283,18 @@ double GStarterIndividual::fitnessCalculation() {
     //-----------------------------------------------------------
     // A simple, multi-dimensional parabola
     case targetFunction::PARABOLA:
-        return parabola(parVec);
-        break;
+        return {parabola(parVec)};
 
     //-----------------------------------------------------------
     // A "noisy" parabola, i.e. a parabola with a very large
     // number of overlaid local optima
     case targetFunction::NOISYPARABOLA:
-        return noisyParabola(parVec);
-        break;
+        return {noisyParabola(parVec)};
         //-----------------------------------------------------------
     };
 
     // Make the compiler happy
-    return 0.;
+    return {0.};
 }
 
 /******************************************************************************/

@@ -137,7 +137,7 @@ GMPISubClientParaboloidIndividualMultiD::buildAdaptionConfig(const gen::GFlatGen
  *
  * @return The value of this object
  */
-double GMPISubClientParaboloidIndividualMultiD::fitnessCalculation() {
+std::vector<double> GMPISubClientParaboloidIndividualMultiD::evaluate() {
     const uint32_t size{mpiSize(getCommunicator())}; // number of processes in the communicator
     double result{0.0};                              // Will hold the result
     std::vector<double> parVec;                      // Will hold the parameters
@@ -177,7 +177,7 @@ double GMPISubClientParaboloidIndividualMultiD::fitnessCalculation() {
     } break;
     }
 
-    return result;
+    return {result};
 }
 
 int GMPISubClientParaboloidIndividualMultiD::subClientJob(MPI_Comm _communicator) {
