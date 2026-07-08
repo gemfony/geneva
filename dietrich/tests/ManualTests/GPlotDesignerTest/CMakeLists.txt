@@ -72,7 +72,12 @@ IF(GENEVA_ROOT_EXECUTABLE AND GENEVA_XVFB_RUN)
 			-DWORKDIR=${CMAKE_CURRENT_BINARY_DIR}
 			-P ${CMAKE_CURRENT_SOURCE_DIR}/RunRootValidity.cmake
 	)
-	SET_TESTS_PROPERTIES(GPlotDesignerRootValidity PROPERTIES RESOURCE_LOCK GPlotDesigner_shared_workdir)
+	# Spinning up CERN ROOT (process start + macro compilation) makes this the single slowest test in the
+	# whole suite (~2 min, dwarfing everything else). Label it "slow" so routine runs can drop it via
+	# `ctest -LE slow` (fast turnaround for non-plotting work); the full release/CI gate still runs it.
+	SET_TESTS_PROPERTIES(GPlotDesignerRootValidity PROPERTIES
+		RESOURCE_LOCK GPlotDesigner_shared_workdir
+		LABELS "slow")
 	MESSAGE(STATUS "GPlotDesigner: ROOT validity test ENABLED (root=${GENEVA_ROOT_EXECUTABLE})")
 ELSE()
 	MESSAGE(STATUS "GPlotDesigner: ROOT validity test skipped (root and/or xvfb-run not found)")
