@@ -1,0 +1,8 @@
+{
+    "Go2.json": {
+        "consumer": "gpu"
+    },
+    "GGPUConsumer.json": {
+        "kernel_path": "./kernels/function_eval.cu"
+    }
+}

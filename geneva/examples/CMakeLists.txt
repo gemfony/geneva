@@ -87,6 +87,9 @@ ADD_SUBDIRECTORY( 14_GDependentConstraints )
 # CMakeLists skips the example if libpng is absent).
 IF(GENEVA_GPU_CONSUMER_ENABLED)
 	ADD_SUBDIRECTORY(15_GCUDAWorker)
+	# Example 20: a stock GFunctionIndividual evaluated on the GPU purely via "--consumer gpu" -- the
+	# store-based GPU path for an ordinary library individual. Needs no libpng (unlike example 15).
+	ADD_SUBDIRECTORY(20_GFunctionGPU)
 ENDIF()
 
 IF(GENEVA_BUILD_WITH_MPI_CONSUMER)
@@ -113,7 +116,7 @@ ADD_SUBDIRECTORY( 18_GAlgorithmChaining )
 #   06_GDirect{EA,SA,Swarm}          -- drive an optimization algorithm directly, without Go2;
 #   10_GStarter                      -- not built in-tree (standalone "consumes an installed Geneva");
 #   12_GExternalEvaluator            -- building its individual EXECUTES an external evaluator program;
-#   15_GCUDAWorker                   -- needs a CUDA device;
+#   15_GCUDAWorker / 20_GFunctionGPU -- need a CUDA device;
 #   16_GMPIConsumer / 17_GMPISubClients -- need mpirun;
 #   19_GLoadableIndividual           -- a plugin loader (needs --individual <plugin.so>).
 # Those are refreshed by hand (or via their own run) when needed.

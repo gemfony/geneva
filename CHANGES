@@ -105,6 +105,15 @@ Recommended Versions:
   replace `double fitnessCalculation()` with `std::vector<double> evaluate()` returning the raw result
   vector (a size-1 vector for a single-criterion problem).
 
+- NEW: example 20 (GFunctionGPU) evaluates a stock GFunctionIndividual (the standard benchmark-function
+  individual, e.g. the parabola) on the GPU purely by selecting "--consumer gpu". It demonstrates the
+  store-based GPU path for an ORDINARY library individual, not just the image-specific example 15: the
+  problem contributes only a marshaller (deriving GBaseGPUMarshallerT<double> and adding just the
+  function-id problem constant) and Go2 builds the generic GPU consumer around it. The runtime-compiled
+  kernel runs the same benchmark-function math as GFunctionIndividual::evaluate(), so a GPU run and a CPU
+  run agree; a config-driven parity-check mode cross-checks them (double precision -> agreement to machine
+  epsilon).
+
 - CHANGED: the GPU consumer is now built through the ordinary consumer setup, like every other mnemonic.
   A GPU problem contributes only its device marshaller into a marshaller store (Gem::Geneva::
   registerGPUMarshaller<Marshaller>("cuda", <gpu-config>)) before constructing Go2; the "gpu" consumer
