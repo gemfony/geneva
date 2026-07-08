@@ -128,6 +128,16 @@ public:
     /** @brief Whether this consumer binds a listening socket, so a second build reuses the existing one
      *  rather than binding again. @return true for the socket-server consumers (asio/beast). */
     [[nodiscard]] virtual bool bindsListeningPort() const { return false; }
+    /** @brief Whether this consumer assigns each process its client/server role from the RUNTIME
+     *  environment (e.g. an MPI process rank) rather than from the --client switch. Such a consumer is
+     *  built on every process, and the role is not known until that build runs: the build hands a worker
+     *  process a run_worker loop (and a null consumer) and a submitter process the consumer. A caller must
+     *  therefore build the setup before it can know whether this process is a client, must not reject
+     *  --client up front (the role is not yet decided), and reads the resulting role from
+     *  ConsumerSetup.run_worker. The default (false) is the ordinary case: the role comes from --client
+     *  and is known before the consumer is built.
+     *  @return true if the client/server role is determined at runtime by the consumer, false otherwise. */
+    [[nodiscard]] virtual bool determinesRoleAtRuntime() const { return false; }
 
     /** @brief Unused for consumers (they are built via setup(), not handed out prototype-style).
      *  @return nullptr. */
@@ -230,6 +240,19 @@ bool isKnownConsumer(const std::string &mnemonic);
  * @return true if the mnemonic denotes a consumer with a client role (asio/beast/mpi), false otherwise.
  */
 bool consumerNeedsClient(const std::string &mnemonic);
+
+/**
+ * @brief Whether the given consumer determines each process's client/server role at runtime (e.g. from an
+ * MPI rank) rather than from --client.
+ *
+ * Generic drivers use this instead of naming a specific consumer: a consumer that answers true must be
+ * built on every process to discover its role (so a client's role is only known once the setup runs), and
+ * --client must not be rejected up front for it. See GConsumerProviderT::determinesRoleAtRuntime().
+ *
+ * @param mnemonic The consumer mnemonic to test.
+ * @return true if the consumer self-assigns the role at runtime, false otherwise (incl. unknown mnemonics).
+ */
+bool consumerDeterminesRoleAtRuntime(const std::string &mnemonic);
 
 /******************************************************************************/
 /**

@@ -37,7 +37,10 @@
 #include <map>
 #include <memory>
 #include <mutex>
+#include <optional>
+#include <set>
 #include <string>
+#include <vector>
 
 // Boost header files go here
 #include <boost/program_options.hpp>
@@ -174,6 +177,35 @@ public:
      *  @param consumer The ready-to-use consumer to register as the process consumer (ownership is taken via move). */
     void registerConsumer(
         std::shared_ptr<Gem::Courtier::GBaseConsumerT<gen::GOptimizableEntity>> consumer);
+
+    /** @brief Selects the consumer (parallelization backend) by mnemonic (e.g. "stc", "asio", "beast",
+     *  "mpi", "gpu") -- the programmatic equivalent of the --consumer command-line option / the "consumer"
+     *  config key. It takes effect when the run is configured (at the first of optimize() / clientRun() /
+     *  clientMode()); a --consumer value on the command line overrides this. For a fully custom consumer
+     *  object (that Go2 cannot build from a mnemonic) use registerConsumer() instead.
+     *  @param mnemonic The consumer mnemonic to use */
+    void setConsumerName(std::string const &mnemonic);
+
+    /** @brief Appends a runtime Geneva module (.so) path to load at startup -- the programmatic equivalent
+     *  of a --module command-line option / a module_paths config entry. A module may contribute optimization
+     *  algorithms (usable by their mnemonic) and/or the optimization individual. The module is loaded when
+     *  the run is configured (a mnemonic it contributes is then available to setAlgorithmChain()).
+     *  @param path Filesystem path to the module to load */
+    void addModulePath(std::string const &path);
+    /** @brief Replaces the list of runtime module (.so) paths to load at startup (see addModulePath()).
+     *  @param paths The module paths to load */
+    void setModulePaths(std::vector<std::string> paths);
+    /** @brief @return The runtime module (.so) paths configured for loading (config + --module + programmatic). */
+    std::vector<std::string> getModulePaths() const;
+
+    /** @brief Sets the chain of optimization algorithms by mnemonic (e.g. {"ea", "sa"}) -- the programmatic
+     *  equivalent of --optimizationAlgorithms. Resolution is deferred until the run is configured, so a
+     *  mnemonic contributed by a runtime module (addModulePath()) is available by then. A
+     *  --optimizationAlgorithms list on the command line overrides this.
+     *  @param mnemonics The ordered algorithm mnemonics forming the chain */
+    void setAlgorithmChain(std::vector<std::string> const &mnemonics);
+    /** @brief @return The programmatic algorithm-chain mnemonics set via setAlgorithmChain() (empty if none). */
+    std::vector<std::string> getAlgorithmChain() const;
 
     /**
      * @brief Retrieves the currently registered number of algorithms.
@@ -469,18 +501,31 @@ private:
      */
     void setupChosenConsumer(boost::program_options::variables_map const &vm);
     /**
-     * @brief Turns the comma-separated --optimizationAlgorithms list into algorithm objects.
-     * @param vm The parsed command line variables map (source of further per-algorithm options)
-     * @param optimization_algorithms The comma-separated list of algorithm mnemonics to instantiate
+     * @brief Resolves a list of algorithm mnemonics against oaFactoryStore() and appends the produced
+     * algorithms to the chain. An unknown mnemonic throws.
+     * @param mnemonics The ordered algorithm mnemonics to instantiate and append
      */
-    void parseRequestedAlgorithms(
-        boost::program_options::variables_map const &vm,
-        std::string const &optimization_algorithms
-    );
-    /** @brief Loads every module in module_paths_ (plus the individual plugin path): registers each
-     *  module's optimization algorithms into oaFactoryStore() and claims a contributed individual. Run
-     *  early -- before the algorithm mnemonics are resolved -- so a loaded OA is usable by its mnemonic. */
+    void resolveAlgorithmChain_(std::vector<std::string> const &mnemonics);
+    /** @brief Loads every not-yet-loaded module in module_paths_ (plus the individual plugin path): registers
+     *  each module's optimization algorithms into oaFactoryStore() and claims a contributed individual.
+     *  Idempotent across calls via loaded_module_paths_ (a re-load would collide on already-registered OA
+     *  mnemonics), so it is safe to call once during parsing (for command-line/config modules) and again from
+     *  ensureConfigured_() (for programmatically-added modules). */
     void loadRequestedModules_();
+    /** @brief Extracts --module / --individual paths from the raw command line via a permissive pre-parse
+     *  (ignoring every other, not-yet-declared option), merging them into module_paths_ /
+     *  individual_plugin_path_. Run before the help text and per-algorithm option surface are built, so a
+     *  module's optimization algorithms are registered in oaFactoryStore() first and thus appear in --help
+     *  and contribute their own command-line options.
+     *  @param argc The number of command line arguments
+     *  @param argv The array of command line argument strings */
+    void extractEarlyModulePaths_(int argc, char **argv);
+    /** @brief Idempotently finalizes configuration: loads any not-yet-loaded runtime modules, resolves the
+     *  chosen consumer and resolves the algorithm chain -- honouring programmatic setters called after
+     *  construction, with a command-line value overriding a programmatic one (D4). The constructor only
+     *  PARSES the command line / config into members; nothing is built until this runs, at the first of
+     *  optimize_() / clientRun() / clientMode(). */
+    void ensureConfigured_();
 
     /***************************************************************************/
     // Initialization code for the Geneva library
@@ -506,12 +551,13 @@ private:
     // marshaller (registered into marshallerProviderStore()) like every other consumer.
     /** @brief The single server-backed/local courtier consumer, shared across all algorithms. Held here
      *  so it (and any listening server) outlives the run and is torn down by RAII at Go2 destruction.
-     *  Null when no courtier routing was built (an MPI worker rank). */
+     *  Null when this process is not a submitter (a role-at-runtime consumer placed it in the worker role). */
     std::shared_ptr<Gem::Courtier::GBaseConsumerT<gen::GOptimizableEntity>> consumer_;
-    /** @brief Set on a courtier MPI WORKER rank: runs the courtier worker loop (clientRun_ invokes
-     *  it instead of the legacy client). Type-erased so Go2.hpp needs no MPI headers; the captured
-     *  consumer shared_ptr keeps the worker node alive. Empty on master / non-MPI / legacy paths. */
-    std::move_only_function<void()> mpi_run_worker_;
+    /** @brief Set when a role-at-runtime consumer (see GConsumerProviderT::determinesRoleAtRuntime, e.g.
+     *  the MPI worker rank) placed this process in the worker role: the worker loop clientRun_ runs instead
+     *  of building a networked client. Type-erased so Go2.hpp needs no transport headers; the captured
+     *  consumer shared_ptr keeps the worker node alive. Empty on a submitter / role-from-flag path. */
+    std::move_only_function<void()> run_worker_;
     /** @brief The transport-agnostic spec for the chosen consumer, assembled from the command line in
      *  setupChosenConsumer(). Held so clientRun_() can build the matching networked client through the
      *  courtier setup layer (buildConsumerClient) without re-touching the command line or the
@@ -564,6 +610,31 @@ private:
     std::vector<std::string> module_paths_;
     // A user-defined means for information retrieval
     std::vector<std::shared_ptr<oa::GBasePluggableOM>> pluggable_monitors_cnt_;
+
+    //---------------------------------------------------------------------------
+    // Two-phase configuration (D3/D4): the constructor only parses the command line / config into the
+    // members above; ensureConfigured_() then builds the consumer, loads programmatically-added modules and
+    // resolves the algorithm chain once -- so a setter called after construction is honoured, and a value
+    // given on the command line overrides a programmatic one.
+    /** @brief Guard: ensureConfigured_() runs its work exactly once. */
+    bool configured_ = false;
+    /** @brief The parsed command line, retained so the consumer can be built later (ensureConfigured_) from
+     *  the same options rather than re-touching argv. */
+    boost::program_options::variables_map cl_vm_;
+    /** @brief The consumer mnemonic explicitly given via --consumer, if any; it wins over a programmatic
+     *  setConsumerName() when the run is configured. */
+    std::optional<std::string> cli_consumer_name_;
+    /** @brief The --optimizationAlgorithms list (comma-separated), captured if the option was given. */
+    std::string cli_optimization_algorithms_;
+    /** @brief Whether --optimizationAlgorithms was given on the command line; it then wins over
+     *  setAlgorithmChain(). */
+    bool cli_algorithms_explicit_ = false;
+    /** @brief The algorithm-chain mnemonics set programmatically via setAlgorithmChain(), resolved in
+     *  ensureConfigured_() unless a command-line list overrides them. */
+    std::vector<std::string> programmatic_algorithm_mnemonics_;
+    /** @brief Module paths already loaded, so ensureConfigured_() does not re-load a module already loaded
+     *  during parsing (a re-load would collide on its registered OA mnemonics). */
+    std::set<std::string> loaded_module_paths_;
 };
 
 /******************************************************************************/

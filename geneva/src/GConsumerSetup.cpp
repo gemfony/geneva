@@ -273,6 +273,8 @@ public:
     bool needsClient() const override { return true; }
     // MPI is deliberately NOT a bindsListeningPort() consumer: it is built on every rank and
     // self-determines master/worker, so it is constructed normally rather than reused from the registry.
+    // The master/worker role is fixed by the process rank, discovered only when setup() runs on each rank.
+    bool determinesRoleAtRuntime() const override { return true; }
 
     ConsumerSetup setup(const ConsumerSpec &spec) override {
         // MPI fixes the master/worker split by rank; the consumer is built on every rank and branches.
@@ -609,6 +611,19 @@ bool isKnownConsumer(const std::string &mnemonic) {
 bool consumerNeedsClient(const std::string &mnemonic) {
     auto provider = lookupConsumerProvider(mnemonic);
     return provider != nullptr && provider->needsClient();
+}
+
+/******************************************************************************/
+/**
+ * @brief Reports whether a consumer determines each process's client/server role at runtime (e.g. from an
+ * MPI rank) rather than from --client.
+ *
+ * @param mnemonic The consumer mnemonic to test
+ * @return true if the consumer self-assigns the role at runtime, false otherwise (incl. unknown mnemonics)
+ */
+bool consumerDeterminesRoleAtRuntime(const std::string &mnemonic) {
+    auto provider = lookupConsumerProvider(mnemonic);
+    return provider != nullptr && provider->determinesRoleAtRuntime();
 }
 
 /******************************************************************************/

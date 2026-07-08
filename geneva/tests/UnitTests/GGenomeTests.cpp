@@ -1987,6 +1987,114 @@ TEST_CASE("Go2 enforces exactly one individual (optimization problem) per proces
 }
 
 /******************************************************************************/
+// Two-phase Go2 configuration (D3/D4): the constructor only PARSES the command line / config; a lazy
+// ensureConfigured_() -- fired by the first of optimize() / clientRun() / clientMode() -- then builds the
+// consumer and resolves the algorithm chain. A setter called AFTER construction is therefore honoured, and a
+// value given on the command line overrides a programmatic one. Regression guard for that precedence and for
+// the new setter/getter symmetry (a defect here would silently ignore a main()-side configuration or let it
+// win over an explicit command-line flag).
+TEST_CASE("Go2 two-phase configuration: programmatic setters and CLI precedence", "[flat][go2][config]") {
+    namespace fs = std::filesystem;
+    namespace c2 = Gem::Courtier;
+    const fs::path base = fs::temp_directory_path() / "geneva_twophase_tests";
+    fs::create_directories(base);
+
+    SECTION("setters and getters are symmetric (before configuration is finalized)") {
+        int argc = 1;
+        char arg0[] = "unit-test";
+        char *argv[] = {arg0, nullptr};
+        Go2 go(argc, argv, base / "Go2.json");
+
+        go.setConsumerName("beast");
+        go.setModulePaths({"first.so", "second.so"});
+        go.addModulePath("third.so");
+        go.setAlgorithmChain({"ea", "sa"});
+
+        CHECK(go.getConsumerName() == "beast");
+        CHECK(go.getModulePaths() == std::vector<std::string>{"first.so", "second.so", "third.so"});
+        CHECK(go.getAlgorithmChain() == std::vector<std::string>{"ea", "sa"});
+    }
+
+    // Configuration is finalized (consumer resolved, algorithm chain resolved, precedence applied) lazily at
+    // the start of optimize()/clientRun(). optimize() runs ensureConfigured_() FIRST, then throws here
+    // because no individual was registered -- so wrapping it in CHECK_THROWS is a cheap way to force
+    // finalization and then inspect the effective (post-precedence) configuration, without running a full
+    // optimization.
+    SECTION("a --consumer on the command line overrides a programmatic setConsumerName") {
+        int argc = 3;
+        char arg0[] = "unit-test";
+        char arg1[] = "--consumer";
+        char arg2[] = "stc";
+        char *argv[] = {arg0, arg1, arg2, nullptr};
+        Go2 go(argc, argv, base / "Go2.json");
+
+        CHECK(go.getConsumerName() == "stc");   // bound from the command line at construction
+        go.setConsumerName("beast");             // a later, programmatic attempt to change it
+        CHECK(go.getConsumerName() == "beast");  // the member now holds the programmatic value...
+
+        CHECK_THROWS(go.optimize());             // ...but finalizing configuration restores the CLI value
+        CHECK(go.getConsumerName() == "stc");
+
+        c2::GConsumerRegistryT<GOptimizableEntity>::instance().clear();
+    }
+
+    SECTION("a --optimizationAlgorithms list overrides a programmatic setAlgorithmChain") {
+        int argc = 3;
+        char arg0[] = "unit-test";
+        char arg1[] = "--optimizationAlgorithms";
+        char arg2[] = "ea";
+        char *argv[] = {arg0, arg1, arg2, nullptr};
+        Go2 go(argc, argv, base / "Go2.json");
+
+        go.setConsumerName("stc");
+        go.setAlgorithmChain({"sa", "gd"});      // a two-element programmatic chain, to be overridden
+
+        CHECK_THROWS(go.optimize());             // finalizes: the CLI's single "ea" wins over the two above
+        CHECK(go.getNAlgorithms() == 1);
+
+        c2::GConsumerRegistryT<GOptimizableEntity>::instance().clear();
+    }
+
+    SECTION("with no command-line algorithms, the programmatic chain is resolved") {
+        int argc = 1;
+        char arg0[] = "unit-test";
+        char *argv[] = {arg0, nullptr};
+        Go2 go(argc, argv, base / "Go2.json");
+
+        go.setConsumerName("stc");
+        go.setAlgorithmChain({"ea", "sa"});
+
+        CHECK_THROWS(go.optimize());
+        CHECK(go.getNAlgorithms() == 2);         // both programmatically-set algorithms were resolved
+
+        c2::GConsumerRegistryT<GOptimizableEntity>::instance().clear();
+    }
+
+    SECTION("clientMode() finalizes only for a consumer whose role is unknown until runtime") {
+        // stc takes its role from --client (known at construction), so clientMode() is a plain getter for it
+        // and does NOT finalize configuration -- the programmatic chain is still unresolved afterwards. It is
+        // resolved only once the run actually starts. (A role-at-runtime consumer such as mpi would instead
+        // finalize here, so its rank-derived client/server role is settled before the caller dispatches; that
+        // path needs a live MPI environment and is covered by the MPI examples.)
+        int argc = 1;
+        char arg0[] = "unit-test";
+        char *argv[] = {arg0, nullptr};
+        Go2 go(argc, argv, base / "Go2.json");
+
+        go.setConsumerName("stc");
+        go.setAlgorithmChain({"ea", "sa"});
+
+        (void) go.clientMode();
+        CHECK(go.getNAlgorithms() == 0);         // stc: clientMode() did not finalize -> chain still unresolved
+
+        CHECK_THROWS(go.optimize());             // ...the run start finalizes it
+        CHECK(go.getNAlgorithms() == 2);
+
+        c2::GConsumerRegistryT<GOptimizableEntity>::instance().clear();
+    }
+}
+
+/******************************************************************************/
 
 TEST_CASE("destroying a GenevaInitializer keeps the process RNG alive", "[go2][rng][regression]") {
     // Regression guard for the ctest hang. GenevaInitializer -- embedded in every Go2 as Go2::gi_ --

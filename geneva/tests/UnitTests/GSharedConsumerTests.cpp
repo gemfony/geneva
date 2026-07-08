@@ -306,4 +306,16 @@ TEST_CASE("Consumer provider store exposes the built-in consumer catalog", "[con
     CHECK(listing.contains("beast:"));
     CHECK_FALSE(listing.contains("sc:"));
     CHECK(Gem::Geneva::consumerCount() >= 3);
+
+    // The always-built consumers take their client/server role from --client (known before the consumer is
+    // built), so they do NOT determine it at runtime. This is the generic capability generic drivers query
+    // instead of naming a specific consumer. An unknown mnemonic is never role-at-runtime.
+    CHECK_FALSE(Gem::Geneva::consumerDeterminesRoleAtRuntime("stc"));
+    CHECK_FALSE(Gem::Geneva::consumerDeterminesRoleAtRuntime("asio"));
+    CHECK_FALSE(Gem::Geneva::consumerDeterminesRoleAtRuntime("beast"));
+    CHECK_FALSE(Gem::Geneva::consumerDeterminesRoleAtRuntime("does_not_exist"));
+    // The MPI consumer, when built into this binary, self-assigns the role from its process rank.
+    if(Gem::Geneva::isKnownConsumer("mpi")) {
+        CHECK(Gem::Geneva::consumerDeterminesRoleAtRuntime("mpi"));
+    }
 }

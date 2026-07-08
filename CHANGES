@@ -116,6 +116,22 @@ Recommended Versions:
   individual and/or optimization algorithms, each dispatched by kind. Example 21 (GLoadableOA) demonstrates
   a loadable "Random Search" algorithm optimizing a compiled-in individual, selected purely via `--module`.
 
+- NEW: Go2 can now be configured entirely from `main()` -- for every setting it takes from the command line
+  there is a matching setter (and getter): `setConsumerName()` (the consumer mnemonic), `addModulePath()` /
+  `setModulePaths()` / `getModulePaths()` (runtime modules), and `setAlgorithmChain()` / `getAlgorithmChain()`
+  (the algorithm chain by mnemonic), beside the existing `registerConsumer()` (a full custom consumer object)
+  and `registerContentCreator()` (a compiled-in individual). A value given on the command line overrides the
+  programmatic one. Internally Go2 is now two-phase: the constructor only PARSES the command line / config,
+  and a single lazy step builds the consumer, loads any programmatically-added modules and resolves the
+  algorithm chain at the start of the run -- so setters called after construction take effect. As a
+  side-benefit, an optimization algorithm contributed by a `--module` now also appears in `--help` and
+  contributes its own per-algorithm command-line options (it was previously loaded too late for that).
+  Generic driver code no longer special-cases a consumer by name for the client/server split: a consumer
+  that assigns each process its role at runtime (e.g. the MPI consumer, from the process rank) is described
+  by a `GConsumerProviderT::determinesRoleAtRuntime()` capability (queried via the free function
+  `consumerDeterminesRoleAtRuntime()`), so Go2 builds such a consumer on every process, does not reject
+  `--client` for it, and reads the resulting role from the setup rather than testing for `"mpi"`.
+
 - RENAMED (source-breaking): the vestigial "Flat" qualifier has been dropped from the genome layer. It
   dated from the migration off the old tree-of-parameter-objects model; with only the flat genome left it
   distinguished nothing and implied a non-flat option that no longer exists. `GFlatGenome` → `GGenome`,
