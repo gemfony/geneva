@@ -832,6 +832,7 @@ public:
 	  * @param serialization_mode The serialization format used on the wire
 	  * @param sign_on Functor called with true on construction and false on destruction to track the active-session count
 	  * @param wire_registry The consumer-shared layout send-once registry, or nullptr to disable the feature
+	  * @param session_timeout The per-exchange connection deadline; a non-positive value disables it
 	  */
     GAsioConsumerSessionT(
         boost::asio::io_context &io_context,
@@ -841,11 +842,13 @@ public:
         std::move_only_function<bool()> check_server_stopped,
         Gem::Common::serializationMode serialization_mode,
         std::move_only_function<void(bool)> sign_on,
-        Gem::Courtier::GWireLayoutRegistry *wire_registry = nullptr
+        Gem::Courtier::GWireLayoutRegistry *wire_registry = nullptr,
+        std::chrono::milliseconds session_timeout = std::chrono::milliseconds{300'000}
     )
       : socket_(std::move(socket))
       , strand_(io_context.get_executor())
       , deadline_timer_(io_context)
+      , session_timeout_(session_timeout)
       , get_payload_item_(std::move(get_payload_item))
       , put_payload_item_(std::move(put_payload_item))
       , check_server_stopped_(std::move(check_server_stopped))
@@ -912,6 +915,9 @@ private:
     /** @brief Arms the per-session deadline timer. On expiry the socket is closed, which aborts the
 	 *  outstanding read/write so the session (and its file descriptor) is released. */
     void arm_deadline() {
+        if(session_timeout_ <= std::chrono::milliseconds::zero()) {
+            return; // per-exchange deadline disabled by configuration
+        }
         deadline_timer_.expires_after(session_timeout_);
         auto self = this->shared_from_this();
         deadline_timer_.async_wait(
@@ -1133,9 +1139,11 @@ private:
     /// (it closes the connection BEFORE evaluating a work item, so this never overlaps computation),
     /// a connection still open after this long is a stalled/half-open/dead client and is closed --
     /// otherwise its socket+fd would be pinned forever by the never-completing read, eventually
-    /// exhausting the server's file descriptors.
+    /// exhausting the server's file descriptors. This is the per-EXCHANGE deadline, NOT the evaluation
+    /// timeout; it is configurable (GNetworkedTimeoutConfig::session_timeout_ms, threaded in via the
+    /// consumer), and a non-positive value disables it (arm_deadline() then never arms the timer).
     boost::asio::steady_timer deadline_timer_;
-    const std::chrono::seconds session_timeout_{300};
+    std::chrono::milliseconds session_timeout_{300'000};
 
     std::move_only_function<std::unique_ptr<processable_type>()> get_payload_item_;
     std::move_only_function<void(std::unique_ptr<processable_type>)> put_payload_item_;

@@ -130,6 +130,19 @@ Recommended Versions:
   problem-specific compiled in loads it with `--module` and runs it entirely on the device via
   `--consumer gpu` (or on the CPU via `--consumer stc`, using the individual's own evaluate()).
 
+- NEW: the networked consumers' timeout / death-detection is now user-configurable through a config file
+  (config/GNetworkedConsumer.json), no command-line option required. A `timeoutTreatment` selects HOW an
+  unreturned work item is judged lost: `adaptive` (the default) sizes the give-up window and reclaim lease as
+  multiples of the running mean return time, so it self-calibrates to an evaluation that may run from
+  microseconds to days; `fixed` uses user-set constants; `wait_indefinitely` never declares an item MISSING on
+  time (for a reliable cluster running a need-all policy, where a false-positive timeout would cost a full
+  re-evaluation). The adaptive knobs (lease/stall factors and clamps, bootstrap, sweep tick) are exposed in the
+  same file, and the ASIO per-exchange connection deadline (previously a hard-coded 300 s) is now configurable
+  there too (0 disables it). The set of treatments is an `enum class`, open to further strategies over time.
+  The file is created with the scale-free adaptive defaults if absent, so behaviour is unchanged unless a user
+  edits it. This is a server-side transport concern, orthogonal to the algorithm-driven submission policy
+  (which decides what to do about a missing item -- fail vs clone).
+
 - NEW: Go2 can now be configured entirely from `main()` -- for every setting it takes from the command line
   there is a matching setter (and getter): `setConsumerName()` (the consumer mnemonic), `addModulePath()` /
   `setModulePaths()` / `getModulePaths()` (runtime modules), and `setAlgorithmChain()` / `getAlgorithmChain()`

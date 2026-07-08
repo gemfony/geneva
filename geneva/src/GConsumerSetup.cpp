@@ -51,6 +51,8 @@
 
 // The concrete courtier consumers -- known ONLY here.
 #include "courtier/consumers/GAsioConsumerT.hpp"
+#include "courtier/consumers/GNetworkedConsumerT.hpp" // apply the config-file timeout treatment
+#include "courtier/consumers/GNetworkedTimeoutConfig.hpp" // GNetworkedTimeoutConfig
 #include "courtier/consumers/GMPIConsumerT.hpp" // self-guarded by GENEVA_BUILD_WITH_MPI_CONSUMER
 #include "courtier/consumers/GStdThreadConsumerT.hpp"
 #include "courtier/consumers/GWebsocketConsumerT.hpp"
@@ -522,6 +524,18 @@ ConsumerSetup buildConsumerSetup(const ConsumerSpec &spec) {
     }
 
     ConsumerSetup setup = provider->setup(spec);
+
+    // Networked consumers (ASIO / websocket / MPI, all GNetworkedConsumerT) read their SERVER-side timeout /
+    // death-detection treatment from a config file (created with scale-free adaptive defaults if absent), so
+    // a user can select "fixed" / "wait_indefinitely" or tune the adaptive lease purely via the config --
+    // no command line. Applied once here for whichever networked consumer was built; local / GPU consumers
+    // (not GNetworkedConsumerT) are unaffected.
+    if(auto *networked =
+           dynamic_cast<c2::GNetworkedConsumerT<gen::GOptimizableEntity> *>(setup.consumer.get())) {
+        c2::GNetworkedTimeoutConfig timeout_cfg;
+        timeout_cfg.load("./config/GNetworkedConsumer.json");
+        networked->applyTimeoutConfig(timeout_cfg);
+    }
 
     // Register the freshly-built consumer as the process's single consumer so every algorithm submits
     // through it. An MPI worker rank has no consumer (run_worker only), so nothing is registered there.

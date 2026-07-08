@@ -54,6 +54,7 @@
 #include "common/concurrency/GThreadSafeSetT.hpp" // the per-session in-flight borrow set (CheckoutLease)
 #include "courtier/GCourtierEnums.hpp" // CORRELATION_ID_TYPE, dispatchState
 #include "courtier/GBaseConsumerT.hpp"
+#include "courtier/consumers/GNetworkedTimeoutConfig.hpp" // timeoutTreatment + the config struct
 
 namespace Gem::Courtier {
 
@@ -86,16 +87,21 @@ namespace Gem::Courtier {
  * through it but never takes ownership. The only write is checkin() swapping a slot's pointer for the
  * deserialized result -- the population stays the sole owner of its individuals.
  *
- * Timeout / death-detection (unchanged in spirit, now per batch): each dispatch_ waits until its batch
- * is DONE or progress stalls past an ADAPTIVE give-up window (a multiple of the running mean return
- * time, shared across batches). The give-up window only applies ONCE at least one result has ever been
- * received: before that, dispatch_ waits INDEFINITELY, because under a batch-scheduling system the first
- * worker may not enter the pool for minutes or hours. While waiting, where the transport has no
- * client-liveness signal
- * (usesTimeLease(), default true: ASIO/MPI), stuck in-flight items of that batch are reclaimed once
- * they exceed an adaptive LEASE. A transport that detects client death directly (the websocket
- * consumer, via its persistent session + CheckoutLease) reclaims immediately on disconnect and
- * disables the time lease.
+ * Timeout / death-detection (per batch, user-selectable via applyTimeoutConfig()): each dispatch_ waits
+ * until its batch is DONE or progress stalls past a give-up window; items left DO_PROCESS == MISSING are
+ * resubmitted/cloned/failed by the inherited reconciliation loop. The give-up window (and the reclaim lease
+ * below) follow the configured timeoutTreatment:
+ *  - adaptive (the default): a multiple of the running mean return time, clamped -- scale-free, so it
+ *    self-calibrates to an evaluation that may run from microseconds to days;
+ *  - fixed: a user-set fixed window / lease (for a user who knows their time bound);
+ *  - wait_indefinitely: never declare an item MISSING on time (for a reliable cluster + a need-all policy).
+ * The give-up window only applies ONCE at least one result has ever been received: before that, dispatch_
+ * waits INDEFINITELY, because under a batch-scheduling system the first worker may not enter the pool for
+ * minutes or hours. While waiting, where the transport has no client-liveness signal (usesTimeLease(),
+ * default true: ASIO/MPI), stuck in-flight items of that batch are reclaimed once they exceed the reclaim
+ * LEASE. A transport that detects client death directly (the websocket consumer, via its persistent session
+ * + CheckoutLease) reclaims immediately on disconnect and disables the time lease, so it honours the
+ * give-up treatment but is not bound by the time lease.
  *
  * @tparam processable_type The work-item type the consumer schedules to remote clients and reconciles
  */
@@ -125,6 +131,35 @@ public:
     /** @brief Sets the poll interval at which dispatch_ re-evaluates the lease/stall while waiting.
      *  @param w The re-evaluation poll interval */
     void setSweepTick(std::chrono::milliseconds w) { sweep_tick_ = w; }
+    /** @brief Selects the timeout treatment (adaptive / fixed / wait_indefinitely) directly.
+     *  @param t The treatment governing when an unreturned item is declared MISSING */
+    void setTimeoutTreatment(timeoutTreatment t) { treatment_ = t; }
+
+    /***************************************************************************/
+    /**
+     * @brief Applies a networked-consumer timeout configuration (typically read from a config file).
+     *
+     * Sets the treatment and every adaptive/fixed knob from @p cfg. A derived consumer with an additional,
+     * transport-specific timeout (e.g. the ASIO per-exchange session deadline) overrides this to consume the
+     * relevant extra field and then calls the base. This is the SERVER-side "when is an item lost" transport
+     * concern; it is orthogonal to the algorithm's GSubmissionPolicy (what to do about a lost item).
+     *
+     * @param cfg The parsed timeout configuration to apply
+     */
+    virtual void applyTimeoutConfig(const GNetworkedTimeoutConfig &cfg) {
+        treatment_ = cfg.treatmentEnum();
+        ema_alpha_ = cfg.ema_alpha;
+        lease_factor_ = cfg.lease_factor;
+        stall_factor_ = cfg.stall_factor;
+        lease_bootstrap_ = std::chrono::milliseconds(cfg.lease_bootstrap_ms);
+        min_lease_ = std::chrono::milliseconds(cfg.min_lease_ms);
+        max_lease_ = std::chrono::milliseconds(cfg.max_lease_ms);
+        min_stall_ = std::chrono::milliseconds(cfg.min_stall_ms);
+        max_stall_ = std::chrono::milliseconds(cfg.max_stall_ms);
+        sweep_tick_ = std::chrono::milliseconds(cfg.sweep_tick_ms);
+        fixed_stall_window_ = std::chrono::milliseconds(cfg.fixed_stall_window_ms);
+        fixed_lease_ = std::chrono::milliseconds(cfg.fixed_lease_ms);
+    }
 
     /***************************************************************************/
     /**
@@ -671,16 +706,29 @@ private:
         ++n_return_samples_;
     }
 
+protected:
     /***************************************************************************/
     /** @brief The current reclaim lease: a multiple of the running mean return time (clamped), or a
-     *  bootstrap value until the first return has been observed.
+     *  bootstrap value until the first return has been observed. Protected so a derived transport (and the
+     *  timeout tests) can inspect the treatment-driven value.
      *  @return The current reclaim lease duration */
     std::chrono::milliseconds currentLease() const {
-        if(n_return_samples_ == 0) {
-            return lease_bootstrap_;
+        switch(treatment_) {
+            case timeoutTreatment::wait_indefinitely:
+                // Never reclaim on time: no time lease can ever elapse (liveness-driven reclaim, e.g. a
+                // websocket disconnect, still applies independently).
+                return kNeverWindow_;
+            case timeoutTreatment::fixed:
+                return fixed_lease_;
+            case timeoutTreatment::adaptive:
+            default:
+                if(n_return_samples_ == 0) {
+                    return lease_bootstrap_;
+                }
+                const auto v =
+                    std::chrono::milliseconds(static_cast<long long>(lease_factor_ * mean_return_ms_));
+                return std::clamp(v, min_lease_, max_lease_);
         }
-        const auto v = std::chrono::milliseconds(static_cast<long long>(lease_factor_ * mean_return_ms_));
-        return std::clamp(v, min_lease_, max_lease_);
     }
 
     /***************************************************************************/
@@ -690,10 +738,22 @@ private:
      *  the first return ever arrives), so there is no pre-sample fallback here.
      *  @return The current give-up (stall) window duration */
     std::chrono::milliseconds currentStallWindow() const {
-        const auto v = std::chrono::milliseconds(static_cast<long long>(stall_factor_ * mean_return_ms_));
-        return std::clamp(v, min_stall_, max_stall_);
+        switch(treatment_) {
+            case timeoutTreatment::wait_indefinitely:
+                // Never give up on time: the stall window can never elapse, so no item is declared MISSING
+                // for lateness (a genuinely dead client is still detected by liveness where available).
+                return kNeverWindow_;
+            case timeoutTreatment::fixed:
+                return fixed_stall_window_;
+            case timeoutTreatment::adaptive:
+            default:
+                const auto v =
+                    std::chrono::milliseconds(static_cast<long long>(stall_factor_ * mean_return_ms_));
+                return std::clamp(v, min_stall_, max_stall_);
+        }
     }
 
+private:
     mutable std::mutex mtx_;
     std::condition_variable cv_done_; ///< Signalled when a batch's last slot reaches DONE
     std::condition_variable cv_work_; ///< Signalled when a slot becomes available
@@ -719,6 +779,18 @@ private:
     std::size_t n_return_samples_ = 0;  ///< Returns observed so far (across all batches)
 
     std::atomic<bool> stop_{false};
+
+    // --- timeout treatment (see timeoutTreatment): adaptive (scale-free, the default) declares MISSING /
+    //     reclaims relative to the running mean; fixed uses the two fixed windows below; wait_indefinitely
+    //     never declares MISSING on time. Selected from the config file via applyTimeoutConfig(). ---
+    timeoutTreatment treatment_ = timeoutTreatment::adaptive;
+    std::chrono::milliseconds fixed_stall_window_{300'000}; ///< give-up window when treatment_ == fixed
+    std::chrono::milliseconds fixed_lease_{300'000};        ///< reclaim lease when treatment_ == fixed
+    // The "never" window/lease for wait_indefinitely. A finite but astronomically large value (100 years)
+    // rather than milliseconds::max(): it is compared against a steady_clock (nanosecond) duration, and
+    // max() would overflow int64 when the comparison promotes it to nanoseconds, whereas 100 years in ns
+    // (~3.15e18) stays well within range and can never elapse in a real run.
+    static constexpr std::chrono::milliseconds kNeverWindow_{100LL * 365 * 24 * 3600 * 1000};
 
     // --- adaptive-timeout configuration (sane defaults; tunable via the setters) ---
     double ema_alpha_ = 0.25;   ///< EMA weight for new return-time samples
