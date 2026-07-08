@@ -46,6 +46,7 @@
 #include "common/GCommonHelperFunctions.hpp"
 #include "common/GErrorStreamer.hpp"
 #include "common/GExceptions.hpp"
+#include "common/GParserBuilder.hpp" // GParserBuilder::updateInPlace() -- materialize the networked config too
 #include "courtier/GBaseClientT.hpp"
 #include "courtier/GConsumerRegistry.hpp"
 
@@ -535,6 +536,14 @@ ConsumerSetup buildConsumerSetup(const ConsumerSpec &spec) {
         c2::GNetworkedTimeoutConfig timeout_cfg;
         timeout_cfg.load("./config/GNetworkedConsumer.json");
         networked->applyTimeoutConfig(timeout_cfg);
+    }
+    else if(Gem::Common::GParserBuilder::updateInPlace()) {
+        // --update-configs (build-time materialization) forces the local thread-pool consumer, so no
+        // networked consumer is built above and its config would be missed. Materialize it here too --
+        // loading it under update-in-place writes/refreshes the file with scale-free adaptive defaults --
+        // so GNetworkedConsumer.json joins every binary's emitted config set, like its other configs.
+        c2::GNetworkedTimeoutConfig timeout_cfg;
+        timeout_cfg.load("./config/GNetworkedConsumer.json");
     }
 
     // Register the freshly-built consumer as the process's single consumer so every algorithm submits

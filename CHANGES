@@ -140,8 +140,9 @@ Recommended Versions:
   same file, and the ASIO per-exchange connection deadline (previously a hard-coded 300 s) is now configurable
   there too (0 disables it). The set of treatments is an `enum class`, open to further strategies over time.
   The file is created with the scale-free adaptive defaults if absent, so behaviour is unchanged unless a user
-  edits it. This is a server-side transport concern, orthogonal to the algorithm-driven submission policy
-  (which decides what to do about a missing item -- fail vs clone).
+  edits it, and it is now materialized into every binary's config set at build time (via `--update-configs`)
+  like its other configuration files. This is a server-side transport concern, orthogonal to the
+  algorithm-driven submission policy (which decides what to do about a missing item -- fail vs clone).
 
 - NEW: Go2 can now be configured entirely from `main()` -- for every setting it takes from the command line
   there is a matching setter (and getter): `setConsumerName()` (the consumer mnemonic), `addModulePath()` /
