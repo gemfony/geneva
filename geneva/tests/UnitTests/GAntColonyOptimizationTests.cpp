@@ -56,14 +56,14 @@ namespace {
  * adaption config. fitness = sum of squares (optimum: the origin).
  */
 template <std::size_t N_DIM>
-class FlatSphereACOR : public gen::GGenomeT<FlatSphereACOR<N_DIM>> {
+class SphereACOR : public gen::GGenomeT<SphereACOR<N_DIM>> {
 public:
-    FlatSphereACOR() {
+    SphereACOR() {
         gen::GGenomeBuilder b;
         b.addDoubleGroup(N_DIM, -5., 5.).init(3.0); // structure only; ACOR needs no adaptor
         this->setGenome(b.build());
     }
-    FlatSphereACOR(const FlatSphereACOR &) = default;
+    SphereACOR(const SphereACOR &) = default;
 
 protected:
     std::vector<double> evaluate() override {
@@ -79,7 +79,7 @@ protected:
 
 /** @brief Sphere value of the best individual, also asserting the constraints held. */
 template <std::size_t N_DIM>
-double bestSphere(const std::shared_ptr<FlatSphereACOR<N_DIM>> &best) {
+double bestSphere(const std::shared_ptr<SphereACOR<N_DIM>> &best) {
     std::vector<double> v;
     best->template streamline<double>(v);
     double s = 0.;
@@ -102,10 +102,10 @@ TEST_CASE("Ant Colony Optimization optimizes a 5-dim flat sphere", "[acor]") {
     pop->setMaxIteration(2000);
     pop->setMaxStallIteration(0); // 0 == disabled: run the full budget so the archive fully converges
     pop->setReportIteration(100000);
-    pop->push_back(FlatSphereACOR<5>().clone_unique());
+    pop->push_back(SphereACOR<5>().clone_unique());
     pop->optimize();
 
-    auto best = pop->getBestGlobalIndividual<FlatSphereACOR<5>>();
+    auto best = pop->getBestGlobalIndividual<SphereACOR<5>>();
     REQUIRE(best);
     CHECK(bestSphere<5>(best) < 1.e-2); // far below the f = 5 * 9 = 45 start
 }
@@ -119,10 +119,10 @@ TEST_CASE("Ant Colony Optimization optimizes a 10-dim flat sphere", "[acor]") {
     pop->setMaxIteration(3000);
     pop->setMaxStallIteration(0); // 0 == disabled: run the full budget so the archive fully converges
     pop->setReportIteration(100000);
-    pop->push_back(FlatSphereACOR<10>().clone_unique());
+    pop->push_back(SphereACOR<10>().clone_unique());
     pop->optimize();
 
-    auto best = pop->getBestGlobalIndividual<FlatSphereACOR<10>>();
+    auto best = pop->getBestGlobalIndividual<SphereACOR<10>>();
     REQUIRE(best);
     CHECK(bestSphere<10>(best) < 1.0); // well below the f = 10 * 9 = 90 start
 }

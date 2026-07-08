@@ -97,11 +97,11 @@ namespace Gem::Tests {
  * evaluate(), and the serialize hook; clone/load/compare come from the CRTP base +
  * GGenome.
  */
-class FlatSphere : public GGenomeT<FlatSphere> {
+class Sphere : public GGenomeT<Sphere> {
 public:
-    FlatSphere() { buildGenome(5); }
-    explicit FlatSphere(std::size_t n) { buildGenome(n); }
-    FlatSphere(const FlatSphere &) = default;
+    Sphere() { buildGenome(5); }
+    explicit Sphere(std::size_t n) { buildGenome(n); }
+    Sphere(const Sphere &) = default;
 
     /** @brief The OA-owned Gauss adaption config for this genome's double group(s). */
     std::shared_ptr<oa::GAdaptionConfigBase> getAdaptionConfig() const {
@@ -132,7 +132,7 @@ private:
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         ar &boost::serialization::make_nvp(
             "GGenomeT",
-            boost::serialization::base_object<GGenomeT<FlatSphere>>(*this)
+            boost::serialization::base_object<GGenomeT<Sphere>>(*this)
         );
     }
 };
@@ -211,11 +211,11 @@ private:
 
 } // namespace Gem::Tests
 
-BOOST_CLASS_EXPORT(Gem::Tests::FlatSphere)    // NOLINT
+BOOST_CLASS_EXPORT(Gem::Tests::Sphere)    // NOLINT
 BOOST_CLASS_EXPORT(Gem::Tests::FactorySphere) // NOLINT
 
 using Gem::Tests::FactorySphere;
-using Gem::Tests::FlatSphere;
+using Gem::Tests::Sphere;
 
 /******************************************************************************/
 TEST_CASE("GGenomeBuilder produces the expected shared layout", "[flat]") {
@@ -239,7 +239,7 @@ TEST_CASE("GGenomeBuilder produces the expected shared layout", "[flat]") {
 
     // The adaptor itself is authored on the OA-owned config (built from the genome's structure). It
     // mirrors the builder's old gaussAdaptor(...) one-to-one.
-    FlatSphere ind;
+    Sphere ind;
     ind.setGenome(g);
     auto cfg = oa::makeAdaptionConfig<oa::GAdaptionConfigBase>(ind);
     cfg->groupDouble(0).gauss(0.5, 0.8, 1e-3, 2., 1.);
@@ -347,17 +347,17 @@ TEST_CASE("GGenomeLayout::layoutId survives the WIRE-BLOB round-trip", "[flat][l
 
     SECTION("double array (n single-value groups)") {
         GGenomeBuilder b; b.addDoubleArray(1000, -10., 10.);
-        FlatSphere ind; ind.setGenome(b.build()); roundtrip(ind.getLayout());
+        Sphere ind; ind.setGenome(b.build()); roundtrip(ind.getLayout());
     }
     SECTION("double groups of 10 (the image case)") {
         GGenomeBuilder b; for(int t = 0; t < 100; ++t) { b.addDoubleGroup(10, -1., 1.); }
-        FlatSphere ind; ind.setGenome(b.build()); roundtrip(ind.getLayout());
+        Sphere ind; ind.setGenome(b.build()); roundtrip(ind.getLayout());
     }
     SECTION("the existing mixed layout") {
         GGenomeBuilder b;
         b.addDoubleGroup(4, -10., 10.); b.addDoubleArray(3, -2., 2.);
         b.addInt32Group(2, -5, 5); b.addBoolGroup(2);
-        FlatSphere ind; ind.setGenome(b.build()); roundtrip(ind.getLayout());
+        Sphere ind; ind.setGenome(b.build()); roundtrip(ind.getLayout());
     }
 }
 
@@ -370,11 +370,11 @@ TEST_CASE("GGenomeLayout::layoutId survives a serialization round-trip", "[flat]
     b.addDoubleArray(3, -2., 2.);
     b.addInt32Group(2, -5, 5);
     b.addBoolGroup(2);
-    FlatSphere ind;
+    Sphere ind;
     ind.setGenome(b.build());
     const LayoutId before = ind.getLayout()->layoutId();
 
-    FlatSphere restored;
+    Sphere restored;
     restored.fromString(ind.toString(Gem::Common::serializationMode::BINARY),
                         Gem::Common::serializationMode::BINARY);
     CHECK(restored.getLayout()->layoutId() == before);
@@ -385,8 +385,8 @@ TEST_CASE("GGenomeLayout::layoutId survives a serialization round-trip", "[flat]
 TEST_CASE("GGenome::streamlineInto matches streamline (bulk-flatten fast path)", "[flat]") {
     // streamlineInto() is the GPU marshallers' bulk-flatten fast path: it must produce EXACTLY the same
     // external (range-folded) values as streamline<T>(), just written straight into a caller buffer with
-    // no temporary vector. FlatSphere's group is Constrained, so the per-element fold is exercised.
-    FlatSphere ind(7);
+    // no temporary vector. Sphere's group is Constrained, so the per-element fold is exercised.
+    Sphere ind(7);
     ind.randomInit(activityMode::ACTIVEONLY); // vary the stored values so the fold actually does work
 
     std::vector<double> via_streamline;
@@ -450,11 +450,11 @@ TEST_CASE("GGenomeBuilder: interned group labels", "[flat]") {
     CHECK(L->groupsForLabel("absent").empty());
 
     // Serialize round-trip (through a GGenome) preserves the labels + their resolution.
-    FlatSphere ind;
+    Sphere ind;
     ind.setGenome(g);
     const std::string xml = ind.toString(Gem::Common::serializationMode::XML);
 
-    FlatSphere restored;
+    Sphere restored;
     restored.fromString(xml, Gem::Common::serializationMode::XML);
 
     std::shared_ptr<const GGenomeLayout> RL = restored.getLayout();
@@ -481,12 +481,12 @@ TEST_CASE("GGenome: layout interning round-trips losslessly (compact + escape ro
     b.addDoubleArray(3, -2., 2.);   // 3 single-value double groups
     b.addInt32Group(2, -5, 5);      // one int group
     b.addBoolGroup(2);              // one bool group
-    FlatSphere ind;
+    Sphere ind;
     ind.setGenome(b.build());
     auto L = ind.getLayout();
     REQUIRE(L);
 
-    FlatSphere restored;
+    Sphere restored;
     restored.fromString(ind.toString(Gem::Common::serializationMode::BINARY),
                         Gem::Common::serializationMode::BINARY);
     auto RL = restored.getLayout();
@@ -536,7 +536,7 @@ TEST_CASE("GGenome: layout interning round-trips losslessly (compact + escape ro
 
 /******************************************************************************/
 TEST_CASE("GGenome: value round-trip (streamline / assignValueVector)", "[flat]") {
-    FlatSphere ind(4);
+    Sphere ind(4);
 
     std::vector<double> v;
     ind.streamline<double>(v);
@@ -577,9 +577,9 @@ TEST_CASE("Constrained fold helpers map into range", "[flat]") {
 
 /******************************************************************************/
 TEST_CASE("GGenome: clone is independent", "[flat]") {
-    FlatSphere ind(6);
+    Sphere ind(6);
 
-    auto twin = ind.clone<FlatSphere>();
+    auto twin = ind.clone<Sphere>();
 
     // Equal right after cloning.
     CHECK_NOTHROW(twin->compare(
@@ -613,12 +613,12 @@ TEST_CASE("GGenome: clone is independent", "[flat]") {
 
 /******************************************************************************/
 TEST_CASE("GGenome: serialization round-trip", "[flat]") {
-    FlatSphere ind(5);
+    Sphere ind(5);
     ind.assignValueVector<double>(std::vector<double>{1., -2., 3., -4., 5.});
 
     const std::string xml = ind.toString(Gem::Common::serializationMode::XML);
 
-    FlatSphere restored;
+    Sphere restored;
     restored.fromString(xml, Gem::Common::serializationMode::XML);
 
     CHECK_NOTHROW(restored.compare(
@@ -644,7 +644,7 @@ TEST_CASE("GGenome: serialization round-trip", "[flat]") {
 // acceptEvaluationResults rename of the injection entry point).
 TEST_CASE("GGenome: external evaluation result is accepted verbatim (no local evaluate())",
           "[flat][external]") {
-    FlatSphere ind(5);
+    Sphere ind(5);
     // Place the genome where the true sphere fitness is a known NON-zero value (five 1.0s -> 5.0), so
     // an injected result that differs proves the external value was taken, not locally computed.
     ind.assignValueVector<double>(std::vector<double>{1., 1., 1., 1., 1.});
@@ -675,10 +675,10 @@ TEST_CASE("GGenome: a derived individual round-trips in TEXT, XML and BINARY",
     const std::vector<double> vals{1., -2., 3., -4., 5.};
 
     for(auto m : {mode::TEXT, mode::XML, mode::BINARY}) {
-        FlatSphere ind(5);
+        Sphere ind(5);
         ind.assignValueVector<double>(vals);
 
-        FlatSphere restored;
+        Sphere restored;
         REQUIRE_NOTHROW(restored.fromString(ind.toString(m), m));
 
         CHECK_NOTHROW(restored.compare(
@@ -692,7 +692,7 @@ TEST_CASE("GGenome: a derived individual round-trips in TEXT, XML and BINARY",
 
 /******************************************************************************/
 TEST_CASE("GGenome: adapt() mutates within bounds", "[flat]") {
-    FlatSphere ind(8);
+    Sphere ind(8);
 
     oa::StandaloneAdapter adapter(ind, ind.getAdaptionConfig());
     std::size_t total = 0;
@@ -712,7 +712,7 @@ TEST_CASE("GGenome: adapt() mutates within bounds", "[flat]") {
 
 /******************************************************************************/
 TEST_CASE("GGenome: randomInit stays within bounds and changes values", "[flat]") {
-    FlatSphere ind(10);
+    Sphere ind(10);
 
     std::vector<double> before;
     ind.streamline<double>(before);
@@ -730,7 +730,7 @@ TEST_CASE("GGenome: randomInit stays within bounds and changes values", "[flat]"
 
 /******************************************************************************/
 TEST_CASE("GGenome: OA stall-reset restores sigma to its seed", "[flat][oa]") {
-    FlatSphere ind(3);
+    Sphere ind(3);
 
     // The OA-owned config drives both the sigma readout and the stall-reset. It is the
     // config the individual authors; the per-group adaption STATE is OA-owned scratch (held in the
@@ -765,16 +765,16 @@ TEST_CASE("GGenome: OA stall-reset restores sigma to its seed", "[flat][oa]") {
  */
 namespace Gem::Tests {
 
-class FlatMixed : public GGenomeT<FlatMixed> {
+class Mixed : public GGenomeT<Mixed> {
 public:
-    FlatMixed() {
+    Mixed() {
         GGenomeBuilder b;
         b.addDoubleGroup(3, -5., 5.).init(2.0); // structure only; the adaptors live on the OA config
         b.addInt32Group(4, -10, 10).init(3);
         b.addBoolGroup(5).init(false);
         this->setGenome(b.build());
     }
-    FlatMixed(const FlatMixed &) = default;
+    Mixed(const Mixed &) = default;
 
     /** @brief The OA-owned config: a bi-Gauss adaptor on the FP group, flip adaptors on the int + bool groups. */
     std::shared_ptr<oa::GAdaptionConfigBase> getAdaptionConfig() const {
@@ -794,7 +794,7 @@ private:
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         ar &boost::serialization::make_nvp(
             "GGenomeT",
-            boost::serialization::base_object<GGenomeT<FlatMixed>>(*this)
+            boost::serialization::base_object<GGenomeT<Mixed>>(*this)
         );
     }
 };
@@ -805,9 +805,9 @@ private:
  * groups: three (groups 0–2) driven by the integer Gauss kernel and one (group 3) by the flip kernel, so the
  * test confirms both int adaptor kinds coexist on the same channel.
  */
-class FlatIntGauss : public GGenomeT<FlatIntGauss> {
+class IntGauss : public GGenomeT<IntGauss> {
 public:
-    FlatIntGauss() {
+    IntGauss() {
         GGenomeBuilder b;
         // Gauss-adapted constrained ints in [-50, 50], own state each (groups 0..2).
         b.addInt32Array(3, -50, 50).init(0);
@@ -815,7 +815,7 @@ public:
         b.addInt32Group(2, -10, 10).init(5);
         this->setGenome(b.build());
     }
-    FlatIntGauss(const FlatIntGauss &) = default;
+    IntGauss(const IntGauss &) = default;
 
     /** @brief The OA-owned config: an integer Gauss adaptor on groups 0..2, a flip adaptor on group 3. */
     std::shared_ptr<oa::GAdaptionConfigBase> getAdaptionConfig() const {
@@ -836,7 +836,7 @@ private:
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         ar &boost::serialization::make_nvp(
             "GGenomeT",
-            boost::serialization::base_object<GGenomeT<FlatIntGauss>>(*this)
+            boost::serialization::base_object<GGenomeT<IntGauss>>(*this)
         );
     }
 };
@@ -846,11 +846,11 @@ private:
  * so it makes the transport layout send-once visible: the full layout is sizeable, but every item after
  * the first to a peer carries only a 16-byte layout id.
  */
-class FlatManyGroups : public GGenomeT<FlatManyGroups> {
+class ManyGroups : public GGenomeT<ManyGroups> {
 public:
-    FlatManyGroups() { build(64); }
-    explicit FlatManyGroups(std::size_t n) { build(n); }
-    FlatManyGroups(const FlatManyGroups &) = default;
+    ManyGroups() { build(64); }
+    explicit ManyGroups(std::size_t n) { build(n); }
+    ManyGroups(const ManyGroups &) = default;
 
 protected:
     std::vector<double> evaluate() override {
@@ -872,23 +872,23 @@ private:
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         ar &boost::serialization::make_nvp(
             "GGenomeT",
-            boost::serialization::base_object<GGenomeT<FlatManyGroups>>(*this)
+            boost::serialization::base_object<GGenomeT<ManyGroups>>(*this)
         );
     }
 };
 
 } // namespace Gem::Tests
 
-BOOST_CLASS_EXPORT(Gem::Tests::FlatMixed)       // NOLINT
-BOOST_CLASS_EXPORT(Gem::Tests::FlatIntGauss)    // NOLINT
-BOOST_CLASS_EXPORT(Gem::Tests::FlatManyGroups)  // NOLINT
+BOOST_CLASS_EXPORT(Gem::Tests::Mixed)       // NOLINT
+BOOST_CLASS_EXPORT(Gem::Tests::IntGauss)    // NOLINT
+BOOST_CLASS_EXPORT(Gem::Tests::ManyGroups)  // NOLINT
 
-using Gem::Tests::FlatManyGroups;
-using Gem::Tests::FlatMixed;
+using Gem::Tests::ManyGroups;
+using Gem::Tests::Mixed;
 
 /******************************************************************************/
 TEST_CASE("GGenome: flip adaptor mutates int32 and bool channels", "[flat][flip]") {
-    FlatMixed ind;
+    Mixed ind;
 
     std::vector<std::int32_t> i_before;
     std::vector<bool> b_before;
@@ -924,7 +924,7 @@ TEST_CASE("GGenome: flip adaptor mutates int32 and bool channels", "[flat][flip]
 
 /******************************************************************************/
 TEST_CASE("GGenome: bi-gaussian adaptor mutates the FP channel within bounds", "[flat][bigauss]") {
-    FlatMixed ind;
+    Mixed ind;
 
     std::vector<double> before;
     ind.streamline<double>(before);
@@ -946,14 +946,14 @@ TEST_CASE("GGenome: bi-gaussian adaptor mutates the FP channel within bounds", "
 
 /******************************************************************************/
 TEST_CASE("GGenome: mixed flip/bigauss genome serialises round-trip", "[flat][flip][bigauss]") {
-    FlatMixed ind;
+    Mixed ind;
     oa::StandaloneAdapter adapter(ind, ind.getAdaptionConfig());
     for(int i = 0; i < 5; ++i) {
         adapter.adapt(ind);
     }
 
     const std::string xml = ind.toString(Gem::Common::serializationMode::XML);
-    FlatMixed restored;
+    Mixed restored;
     restored.fromString(xml, Gem::Common::serializationMode::XML);
 
     CHECK_NOTHROW(restored.compare(
@@ -963,11 +963,11 @@ TEST_CASE("GGenome: mixed flip/bigauss genome serialises round-trip", "[flat][fl
     ));
 }
 
-using Gem::Tests::FlatIntGauss;
+using Gem::Tests::IntGauss;
 
 /******************************************************************************/
 TEST_CASE("GGenome: integer Gauss adaptor mutates int32 within bounds", "[flat][intgauss]") {
-    FlatIntGauss ind;
+    IntGauss ind;
 
     std::vector<std::int32_t> before;
     ind.streamline<std::int32_t>(before);
@@ -997,14 +997,14 @@ TEST_CASE("GGenome: integer Gauss adaptor mutates int32 within bounds", "[flat][
 
 /******************************************************************************/
 TEST_CASE("GGenome: integer Gauss genome serialises round-trip", "[flat][intgauss]") {
-    FlatIntGauss ind;
+    IntGauss ind;
     oa::StandaloneAdapter adapter(ind, ind.getAdaptionConfig());
     for(int i = 0; i < 5; ++i) {
         adapter.adapt(ind);
     }
 
     const std::string xml = ind.toString(Gem::Common::serializationMode::XML);
-    FlatIntGauss restored;
+    IntGauss restored;
     restored.fromString(xml, Gem::Common::serializationMode::XML);
 
     CHECK_NOTHROW(restored.compare(
@@ -1016,7 +1016,7 @@ TEST_CASE("GGenome: integer Gauss genome serialises round-trip", "[flat][intgaus
 
 /******************************************************************************/
 TEST_CASE("GGridArchitecture reads any genome through the §2 seam (flat)", "[flat][architecture]") {
-    FlatSphere ind(12); // 12 FP values -> a 3x4 grid
+    Sphere ind(12); // 12 FP values -> a 3x4 grid
     GGridArchitecture grid(3, 4);
 
     CHECK(grid.name() == "GGridArchitecture");
@@ -1149,11 +1149,11 @@ using Gem::Courtier::GWireLayoutRegistry;
 using Gem::Courtier::GWireSerializationContext;
 using Gem::Courtier::GWireSerializationScope;
 
-GWireLayoutId widOf(const FlatManyGroups &ind) {
+GWireLayoutId widOf(const ManyGroups &ind) {
     const auto lid = ind.getLayout()->layoutId();
     return GWireLayoutId{lid.hi, lid.lo};
 }
-std::vector<double> valuesOf(FlatManyGroups &ind) {
+std::vector<double> valuesOf(ManyGroups &ind) {
     std::vector<double> v;
     ind.streamline<double>(v);
     return v;
@@ -1164,8 +1164,8 @@ std::vector<double> valuesOf(FlatManyGroups &ind) {
 TEST_CASE("Wire send-once: first item carries the layout, later items only the id", "[flat][wire]") {
     using mode = Gem::Common::serializationMode;
 
-    FlatManyGroups a(64);
-    FlatManyGroups c(64);
+    ManyGroups a(64);
+    ManyGroups c(64);
     a.randomInit(activityMode::ALLPARAMETERS);
     c.randomInit(activityMode::ALLPARAMETERS);
     // Two independently-built genomes of the same shape share one content id.
@@ -1199,8 +1199,8 @@ TEST_CASE("Wire send-once: first item carries the layout, later items only the i
     worker_ctx.peer = 0;
     worker_ctx.registry = &worker_reg;
 
-    FlatManyGroups ra;
-    FlatManyGroups rc;
+    ManyGroups ra;
+    ManyGroups rc;
     {
         GWireSerializationScope scope(&worker_ctx);
         ra.fromString(s_first, mode::BINARY);
@@ -1219,7 +1219,7 @@ TEST_CASE("Wire send-once: first item carries the layout, later items only the i
 TEST_CASE("Wire send-once: a cache miss is resolved by the fetch fallback", "[flat][wire]") {
     using mode = Gem::Common::serializationMode;
 
-    FlatManyGroups a(48);
+    ManyGroups a(48);
     a.randomInit(activityMode::ALLPARAMETERS);
     const std::vector<double> a_vals = valuesOf(a);
 
@@ -1251,7 +1251,7 @@ TEST_CASE("Wire send-once: a cache miss is resolved by the fetch fallback", "[fl
         return blob;
     };
 
-    FlatManyGroups r;
+    ManyGroups r;
     {
         GWireSerializationScope scope(&worker_ctx);
         r.fromString(s_idonly, mode::BINARY); // miss -> fetch -> reconstruct
@@ -1267,7 +1267,7 @@ TEST_CASE("Wire send-once: a cache miss is resolved by the fetch fallback", "[fl
 TEST_CASE("Wire send-once: an unresolvable id-only reference throws", "[flat][wire]") {
     using mode = Gem::Common::serializationMode;
 
-    FlatManyGroups a(16);
+    ManyGroups a(16);
     GWireLayoutRegistry server_reg;
     GWireSerializationContext server_ctx;
     server_ctx.enabled = true;
@@ -1286,7 +1286,7 @@ TEST_CASE("Wire send-once: an unresolvable id-only reference throws", "[flat][wi
     GWireSerializationContext worker_ctx;
     worker_ctx.enabled = true;
     worker_ctx.registry = &worker_reg;
-    FlatManyGroups r;
+    ManyGroups r;
     {
         GWireSerializationScope scope(&worker_ctx);
         CHECK_THROWS(r.fromString(s_idonly, mode::BINARY));
@@ -1297,14 +1297,14 @@ TEST_CASE("Wire send-once: an unresolvable id-only reference throws", "[flat][wi
 TEST_CASE("Wire send-once: default-off encoding is self-contained and interoperable", "[flat][wire]") {
     using mode = Gem::Common::serializationMode;
 
-    FlatManyGroups a(32);
+    ManyGroups a(32);
     a.randomInit(activityMode::ALLPARAMETERS);
     const std::vector<double> a_vals = valuesOf(a);
 
     // No active scope -> the self-contained full-layout form (the checkpoint / file path).
     const std::string s_full = a.toString(mode::BINARY);
 
-    FlatManyGroups r;
+    ManyGroups r;
     r.fromString(s_full, mode::BINARY); // loads with no scope
     REQUIRE(r.getLayout());
     CHECK(r.getLayout()->sameStructure(*a.getLayout()));
@@ -1316,7 +1316,7 @@ TEST_CASE("Wire send-once: default-off encoding is self-contained and interopera
     GWireSerializationContext worker_ctx;
     worker_ctx.enabled = true;
     worker_ctx.registry = &worker_reg;
-    FlatManyGroups r2;
+    ManyGroups r2;
     {
         GWireSerializationScope scope(&worker_ctx);
         r2.fromString(s_full, mode::BINARY);
@@ -1331,12 +1331,12 @@ TEST_CASE("Wire results-only return: genome omitted, grafted from the original",
     using mode = Gem::Common::serializationMode;
 
     // The originally-submitted item the server still holds (full genome).
-    FlatManyGroups original(24);
+    ManyGroups original(24);
     original.randomInit(activityMode::ALLPARAMETERS);
     const std::vector<double> original_vals = valuesOf(original);
 
     // The worker's processed copy: same genome, plus a computed result.
-    auto worker_copy = original.clone<FlatManyGroups>();
+    auto worker_copy = original.clone<ManyGroups>();
     worker_copy->process(); // evaluates -> PROCESSED with a stored result
     REQUIRE(worker_copy->is_processed());
     const double worker_fitness = worker_copy->getStoredResult(0).rawFitness();
@@ -1354,7 +1354,7 @@ TEST_CASE("Wire results-only return: genome omitted, grafted from the original",
     }
 
     // A full serialization of the same item is materially larger (it carries the 24-group genome).
-    auto full_copy = original.clone<FlatManyGroups>();
+    auto full_copy = original.clone<ManyGroups>();
     full_copy->process();
     const std::string s_full = full_copy->toString(mode::BINARY); // no scope -> self-contained
     CHECK(s_results_only.size() < s_full.size());
@@ -1364,7 +1364,7 @@ TEST_CASE("Wire results-only return: genome omitted, grafted from the original",
     GWireSerializationContext server_ctx;
     server_ctx.enabled = true;
     server_ctx.registry = &server_reg; // returning stays false (the server submits, not returns)
-    FlatManyGroups received;
+    ManyGroups received;
     {
         GWireSerializationScope scope(&server_ctx);
         received.fromString(s_results_only, mode::BINARY);
@@ -1388,13 +1388,13 @@ TEST_CASE("In-place return-reconciliation primitives keep genome / relocate noth
     // the geneva overrides):
     //   - absorbResultsFrom(): the server keeps THIS element's genome (+ scratch) and takes only results;
     //   - loadContentFrom():   a full in-place deep copy (genome + results) without relocation.
-    FlatManyGroups server_item(24);
+    ManyGroups server_item(24);
     server_item.randomInit(activityMode::ALLPARAMETERS);
     const std::vector<double> server_vals = valuesOf(server_item);
 
     // A returned worker result with a DIFFERENT genome (independent RNG draw off the shared stream), so
     // "genome kept" vs "genome taken" is observable; processed, so it carries a result + status.
-    auto returned = server_item.clone<FlatManyGroups>();
+    auto returned = server_item.clone<ManyGroups>();
     returned->randomInit(activityMode::ALLPARAMETERS);
     returned->process();
     REQUIRE(returned->is_processed());
@@ -1410,7 +1410,7 @@ TEST_CASE("In-place return-reconciliation primitives keep genome / relocate noth
 
     // loadContentFrom(): full in-place deep copy; the object is not relocated (its address is fixed here,
     // documenting the contract the networked refill relies on) and returns true for a geneva individual.
-    FlatManyGroups failed(24);
+    ManyGroups failed(24);
     failed.randomInit(activityMode::ALLPARAMETERS);
     const GOptimizableEntity *failed_addr = &failed;
     const bool did_load = failed.loadContentFrom(*returned);
@@ -1426,10 +1426,10 @@ TEST_CASE("Wire results-only return: a client may opt into a full return", "[fla
     using mode = Gem::Common::serializationMode;
 
     // A network-tiered client modifies the individual (here: re-initialises it) and returns it in full.
-    FlatManyGroups submitted(24);
+    ManyGroups submitted(24);
     submitted.randomInit(activityMode::ALLPARAMETERS);
 
-    auto worker_copy = submitted.clone<FlatManyGroups>();
+    auto worker_copy = submitted.clone<ManyGroups>();
     worker_copy->randomInit(activityMode::ALLPARAMETERS); // a "better" individual the worker found
     worker_copy->process();
     worker_copy->setReturnFullIndividual(true); // <-- the opt-in
@@ -1450,7 +1450,7 @@ TEST_CASE("Wire results-only return: a client may opt into a full return", "[fla
     GWireSerializationContext server_ctx;
     server_ctx.enabled = true;
     server_ctx.registry = &server_reg;
-    FlatManyGroups received;
+    ManyGroups received;
     {
         GWireSerializationScope scope(&server_ctx);
         received.fromString(s, mode::BINARY);
@@ -1468,7 +1468,7 @@ TEST_CASE("Wire send-once: large-genome wire-size before/after", "[flat][wire]")
     // id-only) and the return direction (full individual vs results-only).
     using mode = Gem::Common::serializationMode;
 
-    FlatManyGroups big(2000);
+    ManyGroups big(2000);
     big.randomInit(activityMode::ALLPARAMETERS);
 
     // --- submit direction ---
@@ -1543,7 +1543,7 @@ TEST_CASE("Wire send-once over a real websocket loopback interns one layout", "[
     std::vector<std::unique_ptr<GOptimizableEntity>> items;
     items.reserve(N);
     for(std::size_t i = 0; i < N; ++i) {
-        auto ind = std::make_unique<FlatManyGroups>(40); // all share one layout structure -> one id
+        auto ind = std::make_unique<ManyGroups>(40); // all share one layout structure -> one id
         ind->randomInit(activityMode::ALLPARAMETERS);
         items.push_back(std::move(ind));
     }
@@ -1625,7 +1625,7 @@ TEST_CASE("Wire send-once over a real ASIO loopback interns one layout", "[flat]
     std::vector<std::unique_ptr<GOptimizableEntity>> items;
     items.reserve(N);
     for(std::size_t i = 0; i < N; ++i) {
-        auto ind = std::make_unique<FlatManyGroups>(40);
+        auto ind = std::make_unique<ManyGroups>(40);
         ind->randomInit(activityMode::ALLPARAMETERS);
         items.push_back(std::move(ind));
     }
@@ -1703,7 +1703,7 @@ TEST_CASE("Networked reconciliation keeps population elements at stable addresse
     std::vector<std::unique_ptr<GOptimizableEntity>> items;
     items.reserve(N);
     for(std::size_t i = 0; i < N; ++i) {
-        auto ind = std::make_unique<FlatManyGroups>(16);
+        auto ind = std::make_unique<ManyGroups>(16);
         ind->randomInit(activityMode::ALLPARAMETERS);
         items.push_back(std::move(ind));
     }
@@ -1791,7 +1791,7 @@ TEST_CASE("Wire send-once: many distinct layouts under a bounded registry stay c
     std::vector<std::unique_ptr<GOptimizableEntity>> items;
     items.reserve(N);
     for(std::size_t i = 0; i < N; ++i) {
-        auto ind = std::make_unique<FlatManyGroups>(sizes[i % sizes.size()]);
+        auto ind = std::make_unique<ManyGroups>(sizes[i % sizes.size()]);
         ind->randomInit(activityMode::ALLPARAMETERS);
         items.push_back(std::move(ind));
     }
@@ -1890,7 +1890,7 @@ TEST_CASE("EA over a websocket consumer with results-only returns keeps full gen
     auto pop = std::make_shared<oa::GEvolutionaryAlgorithm>();
     pop->setPopulationSizes(40, 6);
     pop->setMaxIteration(120);
-    FlatSphere proto(8);
+    Sphere proto(8);
     for(std::size_t i = 0; i < 40; ++i) {
         pop->push_back(proto.clone_unique());
     }
@@ -1898,7 +1898,7 @@ TEST_CASE("EA over a websocket consumer with results-only returns keeps full gen
     c2::GConsumerRegistryT<GOptimizableEntity>::instance().setConsumer(consumer);
 
     pop->optimize();
-    auto best = pop->getBestGlobalIndividual<FlatSphere>();
+    auto best = pop->getBestGlobalIndividual<Sphere>();
 
     for(auto &client : clients) { client->flagCloseRequested(); }
     for(auto &t : client_threads) { if(t.joinable()) t.join(); }

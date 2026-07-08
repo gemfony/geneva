@@ -87,14 +87,14 @@ constexpr std::size_t N_DIM = 5;
  * started at 3.0 (so the initial fitness is N_DIM * 9 = 45). Authored entirely through the builder;
  * clone/load/compare come from the CRTP base + GGenome.
  */
-class FlatSphereOA : public gen::GGenomeT<FlatSphereOA> {
+class SphereOA : public gen::GGenomeT<SphereOA> {
 public:
-    FlatSphereOA() {
+    SphereOA() {
         gen::GGenomeBuilder b;
         b.addDoubleGroup(N_DIM, -5., 5.).init(3.0); // structure only; the adaptor lives on the OA config
         this->setGenome(b.build());
     }
-    FlatSphereOA(const FlatSphereOA &) = default;
+    SphereOA(const SphereOA &) = default;
 
     /** @brief The OA-owned Gauss adaption config for this genome's single double group. */
     std::shared_ptr<oa::GAdaptionConfigBase> buildAdaptionConfig() const {
@@ -125,14 +125,14 @@ protected:
  * constrained fold never distorts a line-search probe (the same setup real CGD usage employs, e.g. the
  * GFunctionMinimizer example over GConstrainedDoubleObject).
  */
-class FlatSphereWideOA : public gen::GGenomeT<FlatSphereWideOA> {
+class SphereWideOA : public gen::GGenomeT<SphereWideOA> {
 public:
-    FlatSphereWideOA() {
+    SphereWideOA() {
         gen::GGenomeBuilder b;
         b.addDoubleGroup(N_DIM, -25., 25.).init(3.0);
         this->setGenome(b.build());
     }
-    FlatSphereWideOA(const FlatSphereWideOA &) = default;
+    SphereWideOA(const SphereWideOA &) = default;
 
 protected:
     std::vector<double> evaluate() override {
@@ -151,16 +151,16 @@ protected:
  * A continuous flat sphere driven by a BI-GAUSSIAN adaptor (instead of the single gaussian): N_DIM
  * constrained doubles in [-5, 5), started at 3.0. Demonstrates the bi-gauss kernel end-to-end.
  */
-class FlatBiGaussSphereOA : public gen::GGenomeT<FlatBiGaussSphereOA> {
+class BiGaussSphereOA : public gen::GGenomeT<BiGaussSphereOA> {
 public:
-    FlatBiGaussSphereOA() {
+    BiGaussSphereOA() {
         gen::GGenomeBuilder b;
         // sigma1, sigmaSigma1, minSigma1, maxSigma1, sigma2, sigmaSigma2, minSigma2, maxSigma2,
         // delta, sigmaDelta, minDelta, maxDelta, adProb
         b.addDoubleGroup(N_DIM, -5., 5.).init(3.0); // structure only; the adaptor lives on the OA config
         this->setGenome(b.build());
     }
-    FlatBiGaussSphereOA(const FlatBiGaussSphereOA &) = default;
+    BiGaussSphereOA(const BiGaussSphereOA &) = default;
 
     /** @brief The OA-owned bi-gaussian adaption config for this genome's single double group. */
     std::shared_ptr<oa::GAdaptionConfigBase> buildAdaptionConfig() const {
@@ -190,14 +190,14 @@ protected:
  */
 constexpr std::size_t N_INT = 5;
 
-class FlatIntSphereOA : public gen::GGenomeT<FlatIntSphereOA> {
+class IntSphereOA : public gen::GGenomeT<IntSphereOA> {
 public:
-    FlatIntSphereOA() {
+    IntSphereOA() {
         gen::GGenomeBuilder b;
         b.addInt32Group(N_INT, -10, 10).init(7); // structure only; the adaptor lives on the OA config
         this->setGenome(b.build());
     }
-    FlatIntSphereOA(const FlatIntSphereOA &) = default;
+    IntSphereOA(const IntSphereOA &) = default;
 
     /** @brief The OA-owned flip adaption config for this genome's single int32 group. */
     std::shared_ptr<oa::GAdaptionConfigBase> buildAdaptionConfig() const {
@@ -225,14 +225,14 @@ protected:
  */
 constexpr std::size_t N_BOOL = 16;
 
-class FlatOneMaxOA : public gen::GGenomeT<FlatOneMaxOA> {
+class OneMaxOA : public gen::GGenomeT<OneMaxOA> {
 public:
-    FlatOneMaxOA() {
+    OneMaxOA() {
         gen::GGenomeBuilder b;
         b.addBoolGroup(N_BOOL).init(false); // structure only; the adaptor lives on the OA config
         this->setGenome(b.build());
     }
-    FlatOneMaxOA(const FlatOneMaxOA &) = default;
+    OneMaxOA(const OneMaxOA &) = default;
 
     /** @brief The OA-owned flip adaption config for this genome's single bool group. */
     std::shared_ptr<oa::GAdaptionConfigBase> buildAdaptionConfig() const {
@@ -261,15 +261,15 @@ protected:
  * per-dimension velocity range is l*(upper-lower) == 0 for the frozen dim) tolerates a fixed parameter
  * rather than crashing.
  */
-class FlatFrozenOA : public gen::GGenomeT<FlatFrozenOA> {
+class FrozenOA : public gen::GGenomeT<FrozenOA> {
 public:
-    FlatFrozenOA() {
+    FrozenOA() {
         gen::GGenomeBuilder b;
         b.addDoubleGroup(2, -5., 5.).init(3.0);
         b.addDouble(4., 4., 4.); // a parameter frozen at 4 (lower == upper)
         this->setGenome(b.build());
     }
-    FlatFrozenOA(const FlatFrozenOA &) = default;
+    FrozenOA(const FrozenOA &) = default;
 
 protected:
     std::vector<double> evaluate() override {
@@ -293,14 +293,14 @@ std::vector<std::int32_t> g_scan_int_samples;            ///< every int value th
 std::vector<std::pair<double, double>> g_scan_pair_samples; ///< every (x, y) the 2-double probe was evaluated at
 
 /** @brief A single-int32 probe (genome bound [-10, 10]) recording each evaluated int value. */
-class FlatScanIntProbe : public gen::GGenomeT<FlatScanIntProbe> {
+class ScanIntProbe : public gen::GGenomeT<ScanIntProbe> {
 public:
-    FlatScanIntProbe() {
+    ScanIntProbe() {
         gen::GGenomeBuilder b;
         b.addInt32Group(1, -10, 10).init(0);
         this->setGenome(b.build());
     }
-    FlatScanIntProbe(const FlatScanIntProbe &) = default;
+    ScanIntProbe(const ScanIntProbe &) = default;
 
 protected:
     std::vector<double> evaluate() override {
@@ -315,14 +315,14 @@ protected:
 };
 
 /** @brief A two-double probe (genome bounds [-5, 5)) recording each evaluated (x, y) pair. */
-class FlatScanPairProbe : public gen::GGenomeT<FlatScanPairProbe> {
+class ScanPairProbe : public gen::GGenomeT<ScanPairProbe> {
 public:
-    FlatScanPairProbe() {
+    ScanPairProbe() {
         gen::GGenomeBuilder b;
         b.addDoubleGroup(2, -5., 5.).init(0.0);
         this->setGenome(b.build());
     }
-    FlatScanPairProbe(const FlatScanPairProbe &) = default;
+    ScanPairProbe(const ScanPairProbe &) = default;
 
 protected:
     std::vector<double> evaluate() override {
@@ -342,14 +342,14 @@ protected:
 
 /** @brief A ONE-dimensional flat sphere: a single constrained double in [-5, 5), started at 3.0. Used to
  *  exercise the n_vert == 2 (1-D) Nelder-Mead simplex path. */
-class FlatSphere1D : public gen::GGenomeT<FlatSphere1D> {
+class Sphere1D : public gen::GGenomeT<Sphere1D> {
 public:
-    FlatSphere1D() {
+    Sphere1D() {
         gen::GGenomeBuilder b;
         b.addDoubleGroup(1, -5., 5.).init(3.0);
         this->setGenome(b.build());
     }
-    FlatSphere1D(const FlatSphere1D &) = default;
+    Sphere1D(const Sphere1D &) = default;
 
 protected:
     std::vector<double> evaluate() override {
@@ -362,14 +362,14 @@ protected:
 /** @brief A flat individual with INVERTED bounds (lower > upper): three constrained doubles declared as
  *  [5, -5]. The genome builder does not reject this, so it is used to confirm the swarm rejects the
  *  resulting negative velocity range with a clear error instead of hitting undefined behaviour. */
-class FlatInvertedBoundsOA : public gen::GGenomeT<FlatInvertedBoundsOA> {
+class InvertedBoundsOA : public gen::GGenomeT<InvertedBoundsOA> {
 public:
-    FlatInvertedBoundsOA() {
+    InvertedBoundsOA() {
         gen::GGenomeBuilder b;
         b.addDoubleGroup(3, 5., -5.); // lower = 5 > upper = -5 (intentionally inverted)
         this->setGenome(b.build());
     }
-    FlatInvertedBoundsOA(const FlatInvertedBoundsOA &) = default;
+    InvertedBoundsOA(const InvertedBoundsOA &) = default;
 
 protected:
     std::vector<double> evaluate() override {
@@ -386,15 +386,15 @@ protected:
 /** @brief A MIXED flat individual: 3 constrained doubles in [-5, 5) plus 2 constrained int32 in [-10, 10].
  *  Used to confirm sep-CMA-ES (an FP-only evolution strategy) optimizes the doubles, leaves the integers
  *  at their start values, and warns rather than crashing on the non-FP parameters. */
-class FlatMixedOA : public gen::GGenomeT<FlatMixedOA> {
+class MixedOA : public gen::GGenomeT<MixedOA> {
 public:
-    FlatMixedOA() {
+    MixedOA() {
         gen::GGenomeBuilder b;
         b.addDoubleGroup(3, -5., 5.).init(3.0);
         b.addInt32Group(2, -10, 10).init(7);
         this->setGenome(b.build());
     }
-    FlatMixedOA(const FlatMixedOA &) = default;
+    MixedOA(const MixedOA &) = default;
 
 protected:
     std::vector<double> evaluate() override {
@@ -414,7 +414,7 @@ protected:
 };
 
 /** @brief Sphere value of the best individual, also asserting the constraints held. */
-double bestSphere(const std::shared_ptr<FlatSphereOA> &best) {
+double bestSphere(const std::shared_ptr<SphereOA> &best) {
     std::vector<double> v;
     best->streamline<double>(v);
     double s = 0.;
@@ -435,12 +435,12 @@ TEST_CASE("Evolutionary algorithm optimizes a flat individual", "[flat][oa]") {
     pop->setPopulationSizes(18, 6);
     pop->setMaxIteration(120);
     pop->setReportIteration(100000);
-    FlatSphereOA src;
+    SphereOA src;
     pop->push_back(src.clone_unique());
     pop->setAdaptionConfig(src.buildAdaptionConfig());
     pop->optimize();
 
-    auto best = pop->getBestGlobalIndividual<FlatSphereOA>();
+    auto best = pop->getBestGlobalIndividual<SphereOA>();
     REQUIRE(best);
     CHECK(bestSphere(best) < 20.0); // far below the f=45 start
 }
@@ -456,12 +456,12 @@ TEST_CASE("EA in a PARETO mode degenerates safely on a single-objective individu
     pop->setMaxIteration(120);
     pop->setReportIteration(100000);
     pop->setSortingScheme(Gem::Geneva::sortingMode::MUPLUSNU_PARETO); // multi-objective mode, single-objective problem
-    FlatSphereOA src;
+    SphereOA src;
     pop->push_back(src.clone_unique());
     pop->setAdaptionConfig(src.buildAdaptionConfig());
     CHECK_NOTHROW(pop->optimize());
 
-    auto best = pop->getBestGlobalIndividual<FlatSphereOA>();
+    auto best = pop->getBestGlobalIndividual<SphereOA>();
     REQUIRE(best);
     CHECK(bestSphere(best) < 20.0); // still converges via the single-eval fallback
 }
@@ -546,7 +546,7 @@ TEST_CASE("EA adopts an externally-provided adaption config", "[flat][oa]") {
     pop->setMaxIteration(120);
     pop->setReportIteration(100000);
 
-    auto ind = FlatSphereOA().clone_unique();
+    auto ind = SphereOA().clone_unique();
     auto &flat = dynamic_cast<gen::GGenome &>(*ind);
     auto cfg = std::make_shared<oa::GEAAdaptionConfig>(flat);
     cfg->groupDouble(0).gauss(0.5, 0.8, 1e-3, 2., 1.); // author the Gauss settings explicitly
@@ -555,7 +555,7 @@ TEST_CASE("EA adopts an externally-provided adaption config", "[flat][oa]") {
     pop->setAdaptionConfig(cfg);
     pop->optimize();
 
-    auto best = pop->getBestGlobalIndividual<FlatSphereOA>();
+    auto best = pop->getBestGlobalIndividual<SphereOA>();
     REQUIRE(best);
     CHECK(bestSphere(best) < 20.0); // the provided config drives a converging adaption (far below the f=45 start)
 }
@@ -569,7 +569,7 @@ TEST_CASE("EA rejects an adaption config built for a different genome", "[flat][
     pop->setPopulationSizes(6, 2);
     pop->setMaxIteration(2);
     pop->setReportIteration(100000);
-    pop->push_back(FlatSphereOA().clone_unique()); // genome: a 5-double group
+    pop->push_back(SphereOA().clone_unique()); // genome: a 5-double group
 
     // A config built from a structurally DIFFERENT genome (a line fit: 2 doubles) must be rejected when
     // the algorithm validates it against its population's genome at setup.
@@ -590,7 +590,7 @@ TEST_CASE("EA with no adaption config is a hard error", "[flat][oa]") {
     pop->setPopulationSizes(6, 2);
     pop->setMaxIteration(2);
     pop->setReportIteration(100000);
-    pop->push_back(FlatSphereOA().clone_unique());
+    pop->push_back(SphereOA().clone_unique());
     CHECK_THROWS(pop->optimize()); // no setAdaptionConfig() -> init() hard-errors
 }
 
@@ -601,12 +601,12 @@ TEST_CASE("Simulated annealing optimizes a flat individual", "[flat][oa]") {
     pop->setPopulationSizes(18, 6);
     pop->setMaxIteration(120);
     pop->setReportIteration(100000);
-    FlatSphereOA src;
+    SphereOA src;
     pop->push_back(src.clone_unique());
     pop->setAdaptionConfig(src.buildAdaptionConfig());
     pop->optimize();
 
-    auto best = pop->getBestGlobalIndividual<FlatSphereOA>();
+    auto best = pop->getBestGlobalIndividual<SphereOA>();
     REQUIRE(best);
     CHECK(bestSphere(best) < 20.0);
 }
@@ -648,7 +648,7 @@ TEST_CASE("Simulated annealing cools geometrically and floors above zero", "[fla
         pop->setMaxIteration(40);
         pop->setMaxStallIteration(0); // run all 40 iterations, so the cooling is fully exercised
         pop->setReportIteration(100000);
-        FlatSphereOA src;
+        SphereOA src;
         pop->push_back(src.clone_unique());
         pop->setAdaptionConfig(src.buildAdaptionConfig());
         pop->optimize();
@@ -670,7 +670,7 @@ TEST_CASE("Simulated annealing cools geometrically and floors above zero", "[fla
         pop->setMaxIteration(50);
         pop->setMaxStallIteration(0);
         pop->setReportIteration(100000);
-        FlatSphereOA src;
+        SphereOA src;
         pop->push_back(src.clone_unique());
         pop->setAdaptionConfig(src.buildAdaptionConfig());
         pop->optimize();
@@ -688,10 +688,10 @@ TEST_CASE("Swarm optimization optimizes a flat individual", "[flat][oa]") {
     pop->setSwarmSizes(3, 6); // 3 neighborhoods x 6 members
     pop->setMaxIteration(120);
     pop->setReportIteration(100000);
-    pop->push_back(FlatSphereOA().clone_unique());
+    pop->push_back(SphereOA().clone_unique());
     pop->optimize();
 
-    auto best = pop->getBestGlobalIndividual<FlatSphereOA>();
+    auto best = pop->getBestGlobalIndividual<SphereOA>();
     REQUIRE(best);
     CHECK(bestSphere(best) < 20.0);
 }
@@ -706,10 +706,10 @@ TEST_CASE("Swarm tolerates a frozen (equal-bound) parameter", "[flat][oa]") {
     pop->setSwarmSizes(3, 6);
     pop->setMaxIteration(60);
     pop->setReportIteration(100000);
-    pop->push_back(FlatFrozenOA().clone_unique());
+    pop->push_back(FrozenOA().clone_unique());
     CHECK_NOTHROW(pop->optimize()); // must NOT crash on the frozen dimension
 
-    auto best = pop->getBestGlobalIndividual<FlatFrozenOA>();
+    auto best = pop->getBestGlobalIndividual<FrozenOA>();
     REQUIRE(best);
     std::vector<double> v;
     best->streamline<double>(v);
@@ -735,11 +735,11 @@ TEST_CASE("Swarm normalizes a non-canonical user population at setup", "[flat][o
         pop->setMaxIteration(40);
         pop->setReportIteration(100000);
         for(std::size_t i = 0; i < 10; i++) { // 3 < 10 < 18
-            pop->push_back(FlatSphereOA().clone_unique());
+            pop->push_back(SphereOA().clone_unique());
         }
         CHECK_NOTHROW(pop->optimize());
         CHECK(pop->size() == default_pop_size); // filled to capacity, nothing discarded mid-setup
-        auto best = pop->getBestGlobalIndividual<FlatSphereOA>();
+        auto best = pop->getBestGlobalIndividual<SphereOA>();
         REQUIRE(best);
         CHECK(bestSphere(best) < 20.0);
     }
@@ -750,11 +750,11 @@ TEST_CASE("Swarm normalizes a non-canonical user population at setup", "[flat][o
         pop->setMaxIteration(40);
         pop->setReportIteration(100000);
         for(std::size_t i = 0; i < 25; i++) { // 25 > 18
-            pop->push_back(FlatSphereOA().clone_unique());
+            pop->push_back(SphereOA().clone_unique());
         }
         CHECK_NOTHROW(pop->optimize());
         CHECK(pop->size() == default_pop_size); // surplus trimmed, topology intact (no last-neighborhood dump)
-        auto best = pop->getBestGlobalIndividual<FlatSphereOA>();
+        auto best = pop->getBestGlobalIndividual<SphereOA>();
         REQUIRE(best);
         CHECK(bestSphere(best) < 20.0);
     }
@@ -767,7 +767,7 @@ TEST_CASE("Inverted parameter bounds are rejected at genome build instead of UB"
     // requires a non-negative scale (upper - lower). setGenome() rejects inverted bounds up front with a
     // clear exception (at genome construction), rather than deferring to an OA that happens to trip over
     // the resulting negative range. (lower == upper stays valid -- a frozen parameter.)
-    CHECK_THROWS(FlatInvertedBoundsOA()); // inverted bounds -> clean throw in setGenome(), not UB
+    CHECK_THROWS(InvertedBoundsOA()); // inverted bounds -> clean throw in setGenome(), not UB
 }
 
 /******************************************************************************/
@@ -783,10 +783,10 @@ TEST_CASE("Swarm with many neighborhoods does not overflow its bookkeeping", "[f
     pop->setSwarmSizes(8, 8); // 8 neighborhoods (> the default), 64 particles
     pop->setMaxIteration(40);
     pop->setReportIteration(100000);
-    pop->push_back(FlatSphereOA().clone_unique());
+    pop->push_back(SphereOA().clone_unique());
     CHECK_NOTHROW(pop->optimize());
 
-    auto best = pop->getBestGlobalIndividual<FlatSphereOA>();
+    auto best = pop->getBestGlobalIndividual<SphereOA>();
     REQUIRE(best);
     CHECK(bestSphere(best) < 20.0);
 }
@@ -798,10 +798,10 @@ TEST_CASE("Conjugate gradient descent optimizes a flat individual", "[flat][oa]"
     pop->setNStartingPoints(1);
     pop->setMaxIteration(500);
     pop->setReportIteration(100000);
-    pop->push_back(FlatSphereWideOA().clone_unique());
+    pop->push_back(SphereWideOA().clone_unique());
     pop->optimize();
 
-    auto best = pop->getBestGlobalIndividual<FlatSphereWideOA>();
+    auto best = pop->getBestGlobalIndividual<SphereWideOA>();
     REQUIRE(best);
     std::vector<double> v;
     best->streamline<double>(v);
@@ -824,10 +824,10 @@ TEST_CASE("Conjugate gradient descent: every beta formula converges", "[flat][oa
         pop->setGradientMethod(method);
         pop->setMaxIteration(500);
         pop->setReportIteration(100000);
-        pop->push_back(FlatSphereWideOA().clone_unique());
+        pop->push_back(SphereWideOA().clone_unique());
         pop->optimize();
 
-        auto best = pop->getBestGlobalIndividual<FlatSphereWideOA>();
+        auto best = pop->getBestGlobalIndividual<SphereWideOA>();
         REQUIRE(best);
         std::vector<double> v;
         best->streamline<double>(v);
@@ -847,11 +847,11 @@ TEST_CASE("Conjugate gradient descent: central-difference gradient converges", "
     pop->setCentralDifferences(true); // O(h^2) gradient: two probe children per direction
     pop->setMaxIteration(500);
     pop->setReportIteration(100000);
-    pop->push_back(FlatSphereWideOA().clone_unique());
+    pop->push_back(SphereWideOA().clone_unique());
     pop->optimize();
 
     CHECK(pop->getCentralDifferences());
-    auto best = pop->getBestGlobalIndividual<FlatSphereWideOA>();
+    auto best = pop->getBestGlobalIndividual<SphereWideOA>();
     REQUIRE(best);
     std::vector<double> v;
     best->streamline<double>(v);
@@ -872,11 +872,11 @@ TEST_CASE("Conjugate gradient descent: L-BFGS converges", "[flat][oa]") {
         pop->setLBFGSMemory(m);
         pop->setMaxIteration(500);
         pop->setReportIteration(100000);
-        pop->push_back(FlatSphereWideOA().clone_unique());
+        pop->push_back(SphereWideOA().clone_unique());
         pop->optimize();
 
         CHECK(pop->getLBFGSMemory() == m);
-        auto best = pop->getBestGlobalIndividual<FlatSphereWideOA>();
+        auto best = pop->getBestGlobalIndividual<SphereWideOA>();
         REQUIRE(best);
         std::vector<double> v;
         best->streamline<double>(v);
@@ -894,10 +894,10 @@ TEST_CASE("Nelder-Mead optimizes a flat individual", "[flat][oa]") {
     auto pop = std::make_shared<oa::GNelderMead>();
     pop->setMaxIteration(200);
     pop->setReportIteration(100000);
-    pop->push_back(FlatSphereOA().clone_unique());
+    pop->push_back(SphereOA().clone_unique());
     pop->optimize();
 
-    auto best = pop->getBestGlobalIndividual<FlatSphereOA>();
+    auto best = pop->getBestGlobalIndividual<SphereOA>();
     REQUIRE(best);
     CHECK(bestSphere(best) < 5.0); // simplex descent on a sphere converges well
 }
@@ -911,11 +911,11 @@ TEST_CASE("Nelder-Mead with oriented restart still converges", "[flat][oa]") {
     pop->setMaxIteration(300);
     pop->setReportIteration(100000);
     pop->setRestartThreshold(5); // restart every 5 stalled iterations
-    pop->push_back(FlatSphereOA().clone_unique());
+    pop->push_back(SphereOA().clone_unique());
     pop->optimize();
 
     CHECK(pop->getRestartThreshold() == 5);
-    auto best = pop->getBestGlobalIndividual<FlatSphereOA>();
+    auto best = pop->getBestGlobalIndividual<SphereOA>();
     REQUIRE(best);
     CHECK(bestSphere(best) < 5.0);
 }
@@ -930,10 +930,10 @@ TEST_CASE("Nelder-Mead optimizes a 1-D individual", "[flat][oa][nm]") {
     auto pop = std::make_shared<oa::GNelderMead>();
     pop->setMaxIteration(200);
     pop->setReportIteration(100000);
-    pop->push_back(FlatSphere1D().clone_unique());
+    pop->push_back(Sphere1D().clone_unique());
     pop->optimize();
 
-    auto best = pop->getBestGlobalIndividual<FlatSphere1D>();
+    auto best = pop->getBestGlobalIndividual<Sphere1D>();
     REQUIRE(best);
     std::vector<double> v;
     best->streamline<double>(v);
@@ -953,10 +953,10 @@ TEST_CASE("Parameter scan sweeps a flat individual", "[flat][oa]") {
     pop->setMaxStallIteration(0);    // 0 == disabled: sweep the WHOLE grid (the origin is on it),
                                      // do not stop early on stall-convergence (order/seed dependent)
     pop->setReportIteration(100000);
-    pop->push_back(FlatSphereOA().clone_unique());
+    pop->push_back(SphereOA().clone_unique());
     pop->optimize();
 
-    auto best = pop->getBestGlobalIndividual<FlatSphereOA>();
+    auto best = pop->getBestGlobalIndividual<SphereOA>();
     REQUIRE(best);
     // The scan swept the grid and returned the best grid point (near the origin); the grid's
     // resolution -- not the optimum -- bounds how close it gets.
@@ -978,13 +978,13 @@ TEST_CASE("Parameter scan grid clone round-trip preserves the grid", "[flat][oa]
     pop->setMaxIteration(100000);
     pop->setMaxStallIteration(0);
     pop->setReportIteration(100000);
-    pop->push_back(FlatSphereOA().clone_unique());
+    pop->push_back(SphereOA().clone_unique());
 
     // Deep-copy through the copy constructor (exactly what clone() / load_() use).
     auto clone = std::make_shared<oa::GParameterScan>(*pop);
     CHECK_NOTHROW(clone->optimize()); // would throw before the fix (empty grid -> at(step_) out of range)
 
-    auto best = clone->getBestGlobalIndividual<FlatSphereOA>();
+    auto best = clone->getBestGlobalIndividual<SphereOA>();
     REQUIRE(best);
     CHECK(bestSphere(best) < 1.0e-6); // the 3-step grid (-5, 0, 5) per dim includes the origin
 }
@@ -1006,7 +1006,7 @@ TEST_CASE("Parameter scan random int stays within the inclusive bounds", "[flat]
     pop->setMaxIteration(100000);
     pop->setMaxStallIteration(0);
     pop->setReportIteration(100000);
-    pop->push_back(FlatScanIntProbe().clone_unique());
+    pop->push_back(ScanIntProbe().clone_unique());
     pop->optimize();
 
     std::lock_guard<std::mutex> lock(g_scan_probe_mutex);
@@ -1036,7 +1036,7 @@ TEST_CASE("Parameter scan grid covers exactly the product of the per-dimension s
     pop->setMaxIteration(100000);
     pop->setMaxStallIteration(0);
     pop->setReportIteration(100000);
-    pop->push_back(FlatScanPairProbe().clone_unique());
+    pop->push_back(ScanPairProbe().clone_unique());
     pop->optimize();
 
     std::lock_guard<std::mutex> lock(g_scan_probe_mutex);
@@ -1067,7 +1067,7 @@ TEST_CASE("Parameter scan simple-scan evaluates exactly N random items", "[flat]
     pop->setMaxIteration(100000);
     pop->setMaxStallIteration(0);
     pop->setReportIteration(100000);
-    pop->push_back(FlatScanPairProbe().clone_unique());
+    pop->push_back(ScanPairProbe().clone_unique());
     pop->optimize();
 
     CHECK(pop->getNScansPerformed() == k); // exact count, not k-1 (the former under-count)
@@ -1130,7 +1130,7 @@ TEST_CASE("Parameter scan with no scanned parameters does not crash", "[flat][oa
     pop->setMaxIteration(10);
     pop->setMaxStallIteration(0);
     pop->setReportIteration(100000);
-    pop->push_back(FlatSphereOA().clone_unique()); // no setParameterSpecs / setNSimpleScans
+    pop->push_back(SphereOA().clone_unique()); // no setParameterSpecs / setNSimpleScans
     CHECK_NOTHROW(pop->optimize());
 }
 
@@ -1143,12 +1143,12 @@ TEST_CASE("EA optimizes a flat individual with a BI-GAUSSIAN adaptor", "[flat][o
     pop->setPopulationSizes(18, 6);
     pop->setMaxIteration(150);
     pop->setReportIteration(100000);
-    FlatBiGaussSphereOA src;
+    BiGaussSphereOA src;
     pop->push_back(src.clone_unique());
     pop->setAdaptionConfig(src.buildAdaptionConfig());
     pop->optimize();
 
-    auto best = pop->getBestGlobalIndividual<FlatBiGaussSphereOA>();
+    auto best = pop->getBestGlobalIndividual<BiGaussSphereOA>();
     REQUIRE(best);
     std::vector<double> v;
     best->streamline<double>(v);
@@ -1168,12 +1168,12 @@ TEST_CASE("EA optimizes a flat INTEGER individual with a FLIP adaptor", "[flat][
     pop->setPopulationSizes(18, 6);
     pop->setMaxIteration(200);
     pop->setReportIteration(100000);
-    FlatIntSphereOA src;
+    IntSphereOA src;
     pop->push_back(src.clone_unique());
     pop->setAdaptionConfig(src.buildAdaptionConfig());
     pop->optimize();
 
-    auto best = pop->getBestGlobalIndividual<FlatIntSphereOA>();
+    auto best = pop->getBestGlobalIndividual<IntSphereOA>();
     REQUIRE(best);
     std::vector<std::int32_t> v;
     best->streamline<std::int32_t>(v);
@@ -1193,12 +1193,12 @@ TEST_CASE("EA optimizes a flat BOOLEAN OneMax with a FLIP adaptor", "[flat][oa][
     pop->setPopulationSizes(18, 6);
     pop->setMaxIteration(400);
     pop->setReportIteration(100000);
-    FlatOneMaxOA src;
+    OneMaxOA src;
     pop->push_back(src.clone_unique());
     pop->setAdaptionConfig(src.buildAdaptionConfig());
     pop->optimize();
 
-    auto best = pop->getBestGlobalIndividual<FlatOneMaxOA>();
+    auto best = pop->getBestGlobalIndividual<OneMaxOA>();
     REQUIRE(best);
     std::vector<bool> v;
     best->streamline<bool>(v);
@@ -1252,14 +1252,14 @@ namespace {
 
 /** @brief A high-dimensional flat sphere: N constrained doubles in [-5, 5), started at 3.0. */
 template <std::size_t N>
-class FlatHighDimSphere : public gen::GGenomeT<FlatHighDimSphere<N>> {
+class HighDimSphere : public gen::GGenomeT<HighDimSphere<N>> {
 public:
-    FlatHighDimSphere() {
+    HighDimSphere() {
         gen::GGenomeBuilder b;
         b.addDoubleGroup(N, -5., 5.).init(3.0);
         this->setGenome(b.build());
     }
-    FlatHighDimSphere(const FlatHighDimSphere &) = default;
+    HighDimSphere(const HighDimSphere &) = default;
 
     /** @brief Gauss adaption config for the stock EA (sepcma needs none -- it owns its own distribution). */
     std::shared_ptr<oa::GAdaptionConfigBase> buildAdaptionConfig() const {
@@ -1296,15 +1296,15 @@ double sphereValue(const std::shared_ptr<gen::GOptimizableEntity> &best) {
  * constrained doubles in [-5, 5). The Pareto front is the segment x_i in [0, 2]; used for the NSGA-II
  * selection smoke test.
  */
-class FlatBiObjective : public gen::GGenomeT<FlatBiObjective> {
+class BiObjective : public gen::GGenomeT<BiObjective> {
 public:
-    FlatBiObjective() {
+    BiObjective() {
         gen::GGenomeBuilder b;
         b.addDoubleGroup(N_DIM, -5., 5.).init(3.0);
         this->setGenome(b.build());
         this->setNStoredResults(2); // two evaluation criteria
     }
-    FlatBiObjective(const FlatBiObjective &) = default;
+    BiObjective(const BiObjective &) = default;
 
     /** @brief A Gauss adaption config for the EA (sep-CMA needs none). */
     std::shared_ptr<oa::GAdaptionConfigBase> buildAdaptionConfig() const {
@@ -1335,10 +1335,10 @@ TEST_CASE("Separable CMA-ES optimizes a flat individual", "[flat][oa][sepcma]") 
     auto pop = std::make_shared<oa::GSepCmaEvolutionStrategy>();
     pop->setMaxIteration(200);
     pop->setReportIteration(100000);
-    pop->push_back(FlatSphereOA().clone_unique());
+    pop->push_back(SphereOA().clone_unique());
     pop->optimize(); // sepcma owns its own distribution: NO adaption config needed
 
-    auto best = pop->getBestGlobalIndividual<FlatSphereOA>();
+    auto best = pop->getBestGlobalIndividual<SphereOA>();
     REQUIRE(best);
     CHECK(bestSphere(best) < 1.0e-3); // sep-CMA drives the sphere far below the f=45 start
 }
@@ -1350,10 +1350,10 @@ TEST_CASE("Pure CSA-ES (no diagonal covariance) optimizes a flat individual", "[
     pop->setUseDiagonalCMA(false); // step-size control only
     pop->setMaxIteration(300);
     pop->setReportIteration(100000);
-    pop->push_back(FlatSphereOA().clone_unique());
+    pop->push_back(SphereOA().clone_unique());
     pop->optimize();
 
-    auto best = pop->getBestGlobalIndividual<FlatSphereOA>();
+    auto best = pop->getBestGlobalIndividual<SphereOA>();
     REQUIRE(best);
     CHECK(bestSphere(best) < 1.0e-2); // CSA alone still converges the isotropic sphere
 }
@@ -1365,7 +1365,7 @@ TEST_CASE("Separable CMA-ES out-converges the stock EA at high dimension", "[fla
     // dimension-scaled sep-CMA-ES reaches a far better fitness than the stock self-adaptive EA, whose
     // per-individual sigma adaption lacks the 1/n / 1/sqrt(n) scaling.
     constexpr std::size_t N = 200;
-    using Ind = FlatHighDimSphere<N>;
+    using Ind = HighDimSphere<N>;
 
     // Stock EA: (6 + 24) population, 120 generations -> 30 + 119*24 = 2886 evaluations
     // (generation 0 evaluates the full population; later generations only the 24 children).
@@ -1416,10 +1416,10 @@ TEST_CASE("Separable CMA-ES tolerates (and warns about) non-FP parameters", "[fl
     auto pop = std::make_shared<oa::GSepCmaEvolutionStrategy>();
     pop->setMaxIteration(150);
     pop->setReportIteration(100000);
-    pop->push_back(FlatMixedOA().clone_unique());
+    pop->push_back(MixedOA().clone_unique());
     CHECK_NOTHROW(pop->optimize()); // warns about the 2 int parameters, does not throw
 
-    auto best = pop->getBestGlobalIndividual<FlatMixedOA>();
+    auto best = pop->getBestGlobalIndividual<MixedOA>();
     REQUIRE(best);
     std::vector<double> v;
     best->streamline<double>(v);
@@ -1442,10 +1442,10 @@ TEST_CASE("Separable CMA-ES Pareto mode runs on a two-objective individual", "[f
     pop->setParetoMode(true); // NSGA-II non-dominated sort + crowding distance as the ranking key
     pop->setMaxIteration(120);
     pop->setReportIteration(100000);
-    pop->push_back(FlatBiObjective().clone_unique());
+    pop->push_back(BiObjective().clone_unique());
     CHECK_NOTHROW(pop->optimize());
 
-    auto best = pop->getBestGlobalIndividual<FlatBiObjective>();
+    auto best = pop->getBestGlobalIndividual<BiObjective>();
     REQUIRE(best);
     // The Pareto front for (sum x^2, sum (x-2)^2) is the box x_i in [0, 2]. The global-best individual is
     // selected by criterion 0 (f1), so it sits at the f1 end of the front (x near 0): f1 is tiny while f2
@@ -1477,7 +1477,7 @@ TEST_CASE("ea NSGA-II Pareto selection spreads the survivors across the front", 
     pop->setMaxStallIteration(0);
     pop->setReportIteration(100000);
     pop->setSortingScheme(Gem::Geneva::sortingMode::MUPLUSNU_PARETO);
-    FlatBiObjective src;
+    BiObjective src;
     pop->push_back(src.clone_unique());
     pop->setAdaptionConfig(src.buildAdaptionConfig());
     pop->optimize();
