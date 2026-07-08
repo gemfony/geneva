@@ -37,9 +37,7 @@
 #include <vector>
 
 // Geneva headers
-#include "geneva/ind/GOptimizableEntity.hpp"
-#include "geneva/ind/GFlatGenome.hpp" // streamlineInto fast path (downcast target)
-#include "courtier/gpu/GGPUEvaluableI.hpp"
+#include "geneva/ind/GBaseGPUMarshallerT.hpp" // generic flatten/scatter/itemDimension scaffolding
 #include "GImageScalar.hpp"
 #include "GMonaLisaProblem.hpp"
 
@@ -49,52 +47,28 @@ namespace Gem::Geneva::MonaLisa {
 
 /******************************************************************************/
 /**
- * GGPUEvaluableI marshaller for the Mona-Lisa problem of example 15.
+ * GPU marshaller for the Mona-Lisa problem of example 15.
  *
- * flatten()           streamlines each individual's genome (10*NT triangle params + 3 background) into
- *                     a row-major scalar buffer (alpha-sort is disabled on the individual, so the
- *                     streamline order is the canonical render order the kernel expects).
+ * The generic prepare/reconcile plumbing (itemDimension / flatten / scatter) is inherited from
+ * GBaseGPUMarshallerT; this class supplies only the problem-specific device pieces:
+ *
  * problemConstants()  packs, as scalars, [W, H, target(W*H*3)] -- the loaded target image; uploaded
  *                     once per launch. NT and the background come from the per-item parameters.
+ * parallelWorkPerItem() 256 cooperating threads per individual (pixel-stripe parallelism).
  * hostEvaluate()      the CPU reference -- calls the SAME score() the individual's
  *                     evaluate() and the device kernel use.
- * scatter()           injects the device-computed fitness via process() (leaves each item PROCESSED).
  *
  * One kernel launch per batch: minimal kernels, full bulk.
  *
  * The scalar type (gimage_fp_t, see GImageScalar.hpp) is selected at COMPILE TIME: DOUBLE by default,
  * or FLOAT when the example is built with GIMAGE_USE_FLOAT. The marshaller is that scalar end-to-end:
- * GGPUEvaluableI<gen::GOptimizableEntity, gimage_fp_t>, so the genome and fitness flat buffers, the device
- * ABI and the CUDA kernel all use it -- no widening/narrowing. The matching device kernel is selected
- * through the default GPU-consumer config.
+ * GBaseGPUMarshallerT<gimage_fp_t>, so the genome and fitness flat buffers, the device ABI and the CUDA
+ * kernel all use it -- no widening/narrowing. The matching device kernel is selected through the default
+ * GPU-consumer config.
  */
 class GMonaLisaGPUMarshaller final
-  : public Gem::Courtier::GPU::GGPUEvaluableI<gen::GOptimizableEntity, gimage_fp_t> {
+  : public Gem::Geneva::GBaseGPUMarshallerT<gimage_fp_t> {
 public:
-    /** @brief The flattened dimension of one image genome: every value is a gimage_fp_t, so the count of
-     *  gimage_fp_t parameters is exactly what flatten() streams per item. The consumer uses this to
-     *  enforce a uniform geometry across the batch. */
-    [[nodiscard]] std::size_t itemDimension(const item_ptr &item) const override {
-        return item->countParameters<gimage_fp_t>();
-    }
-
-    void flatten(std::span<const item_ptr> items, std::vector<gimage_fp_t> &params_out) const override {
-        if(items.empty()) {
-            params_out.clear();
-            return;
-        }
-        // Bulk flatten: GFlatGenome::streamlineInto() writes each item's external (range-folded) values
-        // STRAIGHT into the output buffer -- no per-item temporary vector and no second copy (which adds
-        // up over a large population). NB a raw memcpy of the channel storage would be wrong: constrained
-        // values are kept unbounded and folded to their external range only on read.
-        const std::size_t dim = this->itemDimension(items.front());
-        params_out.resize(items.size() * dim);
-        for(std::size_t i = 0; i < items.size(); ++i) {
-            const auto *flat = dynamic_cast<const gen::GFlatGenome *>(items[i].get());
-            flat->streamlineInto(params_out.data() + i * dim);
-        }
-    }
-
     [[nodiscard]] std::vector<std::byte> problemConstants() const override {
         const Target &t = target();
         std::vector<gimage_fp_t> blob;
@@ -113,13 +87,6 @@ public:
      *  small population still fills the GPU. The CUDA backend launches n_items*256 threads and the
      *  kernel atomic-accumulates each item's fitness; the CPU backend clamps this to 1. */
     [[nodiscard]] int parallelWorkPerItem() const override { return 256; }
-
-    void scatter(std::span<const item_ptr> items, const std::vector<gimage_fp_t> &fitness) const override {
-        for(auto const& [item, fit] : std::views::zip(items, fitness)) {
-            item->process(std::vector<gen::individual_processing_result>(
-                1, gen::individual_processing_result(fit)));
-        }
-    }
 
     void hostEvaluate(
         const gimage_fp_t *params, int n_items, int dim,

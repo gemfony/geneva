@@ -1144,6 +1144,16 @@ Recommended Versions:
 
 ************************* Noteworthy Changes ***********************************
 
+- A GPU marshaller's generic prepare/reconcile plumbing was hoisted into a reusable base,
+  Gem::Geneva::GBaseGPUMarshallerT<scalar>: itemDimension (parameter count), flatten
+  (streamline each flat genome's external values row-major into the device buffer, doing
+  the double-to-scalar conversion) and scatter (inject each device fitness through the
+  item's process() channel) are now provided once. A concrete GPU marshaller supplies only
+  the device-specific pieces (problemConstants, parallelWorkPerItem, hostEvaluate). The
+  Mona-Lisa marshaller (example 15) was ported onto it. The base lives in geneva (deriving
+  from courtier's genome-agnostic GGPUEvaluableI) because the generic plumbing knows the
+  geneva individual model.
+
 - The serial consumer (GSerialConsumerT, mnemonic "sc") was retired: the std-thread
   consumer (stc) is now the single local consumer, and serial execution is simply "stc"
   with one worker thread (nWorkerThreads == 1). The "sc" mnemonic is removed; the examples
