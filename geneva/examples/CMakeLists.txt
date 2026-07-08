@@ -91,6 +91,9 @@ IF(GENEVA_GPU_CONSUMER_ENABLED)
 	# Example 20: a stock GFunctionIndividual evaluated on the GPU purely via "--consumer gpu" -- the
 	# store-based GPU path for an ordinary library individual. Needs no libpng (unlike example 15).
 	ADD_SUBDIRECTORY(20_GFunctionGPU)
+	# Example 22: the GPU North Star -- ONE loadable module carries both the individual and its GPU
+	# marshaller; a generic optimizer loads it via --module and runs it on the device with --consumer gpu.
+	ADD_SUBDIRECTORY(22_GLoadableGPU)
 ENDIF()
 
 IF(GENEVA_BUILD_WITH_MPI_CONSUMER)

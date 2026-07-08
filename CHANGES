@@ -125,6 +125,10 @@ Recommended Versions:
   marshaller (device target, GPU-config path and -- via the handle it produces -- the device scalar kind)
   travels inside its provider, no change to the manifest ABI was needed. A single module may now carry both a
   GPU problem's individual and its marshaller, so `--individual foo.so --consumer gpu` works end to end.
+  Example 22 (GLoadableGPU) demonstrates this GPU North Star: one loadable module ships an n-dimensional
+  paraboloid individual, its GPU marshaller and its device kernel; a generic optimizer with nothing
+  problem-specific compiled in loads it with `--module` and runs it entirely on the device via
+  `--consumer gpu` (or on the CPU via `--consumer stc`, using the individual's own evaluate()).
 
 - NEW: Go2 can now be configured entirely from `main()` -- for every setting it takes from the command line
   there is a matching setter (and getter): `setConsumerName()` (the consumer mnemonic), `addModulePath()` /
