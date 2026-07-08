@@ -36,63 +36,47 @@
 // Standard headers
 #include <cstddef>
 #include <cstring>
-#include <memory>
 #include <span>
 #include <vector>
 
 // Geneva headers
-#include "courtier/gpu/GGPUEvaluableI.hpp"
-#include "geneva/individuals/GBenchmarkFunctions.hpp"
+#include "geneva/ind/GBaseGPUMarshallerT.hpp"
 #include "geneva/individuals/GFunctionIndividual.hpp"
-#include "geneva/ind/GFlatGenome.hpp"
 
 namespace gind = Gem::Geneva::Individuals;
-namespace gen = Gem::Geneva::Genome;
 
 namespace Gem::Geneva::Benchmarks {
 
 /******************************************************************************/
 /**
- * A GGPUEvaluableI marshaller for the CUDA optimisation benchmark. It turns a batch of
- * GFunctionIndividuals into flat device buffers for the unified courtier GPU consumer
- * (Gem::Courtier::GPU::GGPUConsumerT): the whole population is scored in ONE bulk, runtime-compiled
- * kernel launch (kernels/benchmark_eval.cu via NVRTC), instead of the previous
- * build-time-compiled .cu consumer. This is what unifies the benchmark with example 15 onto the same
- * backend.
+ * A GPU marshaller for the CUDA optimisation benchmark. It adapts a batch of GFunctionIndividuals to the
+ * device kernel for the unified courtier GPU consumer (Gem::Courtier::GPU::GGPUConsumerT): the whole
+ * population is scored in ONE bulk, runtime-compiled kernel launch (kernels/benchmark_eval.cu via NVRTC).
  *
- * The benchmark function is the same for every individual in a run; it is read from the first item's
- * demoFunction() in flatten() and passed to the kernel as the opaque problem-constant (a single int
- * funcId). The GPU consumer is device-only; a CPU run uses the individual's own evaluate() through a
- * CPU consumer (e.g. --consumer stc), which shares the EXACT same function math the device kernel
- * replicates (Gem::Geneva::Benchmarks::eval in GBenchmarkFunctions.hpp), so a CPU run and a GPU run
- * agree and the GPU can be cross-checked.
+ * It derives Gem::Geneva::GBaseGPUMarshallerT<double>, so the mechanical part -- itemDimension() /
+ * flatten() / scatter(), the double->scalar conversion and the scalar-kind witness -- is inherited. Only
+ * the benchmark-specific piece remains: the function id (the same for every individual in a run) is read
+ * from the batch and handed to the kernel as the opaque problem constant (a single int), so flatten() is
+ * overridden ONLY to sample it before delegating the actual flattening to the base.
+ *
+ * The GPU consumer is device-only; a CPU run uses the individual's own evaluate() through a CPU consumer
+ * (e.g. --consumer stc), which shares the EXACT same function math the device kernel replicates
+ * (Gem::Geneva::Benchmarks::eval in GBenchmarkFunctions.hpp), so a CPU run and a GPU run agree and the GPU
+ * can be cross-checked.
  */
-class GBenchmarkGPUMarshaller final
-  : public Gem::Courtier::GPU::GGPUEvaluableI<gen::GOptimizableEntity> {
+class GBenchmarkGPUMarshaller final : public Gem::Geneva::GBaseGPUMarshallerT<double> {
 public:
-    /** @brief The flattened dimension of one benchmark genome (its count of double parameters), used by
-     *  the consumer to enforce a uniform geometry across the batch. */
-    [[nodiscard]] std::size_t itemDimension(const item_ptr &item) const override {
-        return item->countParameters<double>();
-    }
-
+    /** @brief Samples the batch's benchmark function id, then delegates the flattening to the base. All
+     *  items in a run share the same function, so it is read once from the first item and handed to the
+     *  kernel through problemConstants(). */
     void flatten(std::span<const item_ptr> items, std::vector<double> &params_out) const override {
-        if(items.empty()) {
-            params_out.clear();
-            return;
+        if(not items.empty()) {
+            const auto *first = dynamic_cast<const gind::GFunctionIndividual *>(items.front().get());
+            if(first != nullptr) {
+                funcId_ = static_cast<int>(first->getDemoFunction());
+            }
         }
-        // All items in a benchmark run share the same function and dimension.
-        auto *first = dynamic_cast<gind::GFunctionIndividual *>(items.front().get());
-        funcId_ = static_cast<int>(first->getDemoFunction());
-
-        // Bulk flatten via GFlatGenome::streamlineInto(): each item's external (range-folded) values are
-        // written straight into the output buffer -- no per-item temporary vector and no second copy.
-        const std::size_t dim = this->itemDimension(items.front());
-        params_out.resize(items.size() * dim);
-        for(std::size_t i = 0; i < items.size(); ++i) {
-            const auto *flat = dynamic_cast<const gen::GFlatGenome *>(items[i].get());
-            flat->streamlineInto(params_out.data() + i * dim);
-        }
+        Gem::Geneva::GBaseGPUMarshallerT<double>::flatten(items, params_out);
     }
 
     /** @brief The opaque problem constant is a single int: the benchmark function id. It is read from
@@ -101,13 +85,6 @@ public:
         std::vector<std::byte> b(sizeof(int));
         std::memcpy(b.data(), &funcId_, sizeof(int));
         return b;
-    }
-
-    void scatter(std::span<const item_ptr> items, const std::vector<double> &fitness) const override {
-        for(std::size_t i = 0; i < items.size(); ++i) {
-            items[i]->process(std::vector<gen::individual_processing_result>(
-                1, gen::individual_processing_result(fitness[i])));
-        }
     }
 
 private:
