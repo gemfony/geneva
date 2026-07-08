@@ -42,6 +42,7 @@
 #include <mutex>
 #include <optional>
 #include <shared_mutex>
+#include <span>
 #include <stop_token>
 #include <type_traits>
 #include <utility>
@@ -53,6 +54,7 @@
 #include "common/GErrorStreamer.hpp"
 #include "common/GExceptions.hpp"
 #include "common/GLogger.hpp"
+#include "common/concurrency/GCompletionLatchT.hpp"
 #include "common/concurrency/GThreadGroup.hpp"
 
 namespace Gem::Common::Concurrency {
@@ -230,6 +232,45 @@ public:
                     << " task dropped." << '\n'
                     << GWARNING;
         }
+    }
+
+    /***************************************************************************/
+    /**
+     * @brief Runs @p per_item over every element of @p items on the pool and blocks until all have
+     * finished (a bulk fork/join).
+     *
+     * One task per element is submitted (fire-and-forget), and a private @c GCompletionLatchT sized to the
+     * batch is used to wait for exactly this batch -- not the whole pool -- so it is safe when the pool is
+     * shared (e.g. several algorithms submitting concurrently). @p per_item is invoked CONCURRENTLY, once
+     * per element, so it must be safe to run on distinct elements in parallel (evaluating distinct work
+     * items is the intended use). An exception thrown by @p per_item is swallowed (the element is expected
+     * to record its own failure state, as a work item's processing status does); the latch is still
+     * counted down so the join never hangs. A single-thread pool degenerates to sequential execution in
+     * submission order.
+     *
+     * @tparam T The element type of the span (e.g. a work-item unique_ptr)
+     * @tparam Fn A callable invoked as @c per_item(T&) for each element
+     * @param items The batch to run; its backing storage must outlive the call (this blocks until done)
+     * @param per_item The work to run on each element (invoked concurrently)
+     */
+    template <typename T, typename Fn>
+    void blocking_for_each(std::span<T> items, const Fn &per_item) {
+        if(items.empty()) {
+            return;
+        }
+        auto latch = std::make_shared<GCompletionLatchT>(items.size());
+        for(std::size_t i = 0; i < items.size(); ++i) {
+            T *elem = &items[i]; // stable pointer into the caller's span (which outlives this blocking call)
+            this->post([elem, &per_item, latch]() {
+                try {
+                    per_item(*elem);
+                }
+                catch(...) { /* the element records its own failure; swallow so the join never hangs */
+                }
+                latch->count_down();
+            });
+        }
+        latch->wait();
     }
 
 private:

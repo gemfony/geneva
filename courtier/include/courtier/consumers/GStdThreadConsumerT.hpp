@@ -40,7 +40,6 @@
 #include <vector>
 
 // Geneva headers (reused from the common library)
-#include "common/concurrency/GCompletionLatchT.hpp"
 #include "common/concurrency/GThreadPool.hpp"
 #include "courtier/GBaseConsumerT.hpp"
 
@@ -91,50 +90,22 @@ protected:
      * @brief Evaluates all items of one round concurrently. process() sets PROCESSED on success and
      * EXCEPTION_CAUGHT on a caught processing exception (which it also re-throws -- swallowed here).
      *
-     * Waits on a PER-BATCH completion latch rather than GThreadPool::wait() (a global drain barrier): the
-     * pool is shared, so several algorithms can submit concurrently (the fan-in case -- e.g. a
-     * meta-optimization over a population of inner algorithms), and each must wait for ONLY its own
-     * items, not the whole pool.
-     *
-     * The latch is heap-allocated and captured by the tasks AS WELL AS held by the waiter, so it lives
-     * until the last party drops its reference -- see the lifetime note on GCompletionLatchT for why it
-     * must NOT be stack-allocated across this worker/waiter boundary (a use-after-scope otherwise).
+     * Delegates the fork/join to GThreadPool::blocking_for_each, which waits on a PER-BATCH latch rather
+     * than GThreadPool::wait() (a global drain barrier): the pool is shared, so several algorithms can
+     * submit concurrently (the fan-in case -- e.g. a meta-optimization over a population of inner
+     * algorithms), and each must wait for ONLY its own items, not the whole pool.
      *
      * @param items The work items of one round; each is evaluated on the shared pool and the call blocks until all have finished
      */
     void dispatch_(std::span<item_ptr> items) override {
-        // Post one pool task per DO_PROCESS slot of the batch span (skipping null/already-resolved
-        // slots); the latch is sized to exactly the number of tasks posted.
-        std::size_t n_pending = 0;
-        for(auto &it : items) {
+        // Run the batch across the shared pool and block until it finishes. Only DO_PROCESS slots are
+        // evaluated (null/already-resolved slots are no-ops); an item that throws records its own failure
+        // status (EXCEPTION_CAUGHT), which blocking_for_each swallows so it never escapes the worker.
+        pool_.blocking_for_each(items, [](item_ptr &it) {
             if(it && it->getProcessingStatus() == Gem::Courtier::processingStatus::DO_PROCESS) {
-                ++n_pending;
+                it->process();
             }
-        }
-        if(n_pending == 0) {
-            return;
-        }
-        auto latch = std::make_shared<Gem::Common::Concurrency::GCompletionLatchT>(n_pending);
-        for(auto &it : items) {
-            if(not it || it->getProcessingStatus() != Gem::Courtier::processingStatus::DO_PROCESS) {
-                continue;
-            }
-            // Items travel by unique_ptr; the task borrows a raw pointer rather than copying the owner.
-            // The batch (items) outlives every task because dispatch_ blocks on the latch below.
-            processable_type *raw = it.get();
-            pool_.post([raw, latch]() {
-                try {
-                    raw->process();
-                }
-                catch(...) {
-                    // The item's status already reflects the failure (EXCEPTION_CAUGHT); the
-                    // re-thrown exception is intentionally swallowed so it never escapes the
-                    // worker thread. Reconciliation reads the status, not an exception.
-                }
-                latch->count_down(); // records this item's completion; wakes the waiter on the last
-            });
-        }
-        latch->wait();
+        });
     }
 
 private:

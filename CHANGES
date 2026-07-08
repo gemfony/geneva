@@ -1144,6 +1144,12 @@ Recommended Versions:
 
 ************************* Noteworthy Changes ***********************************
 
+- GThreadPool gained a bulk fork/join, blocking_for_each(span, per_item): it submits one
+  task per element and blocks on a per-batch completion latch (not the global drain
+  barrier), so it stays correct when the pool is shared across several algorithms. The
+  std-thread consumer's dispatch now delegates to it, retiring its hand-rolled
+  post/latch/wait loop.
+
 - The consumer catalog is now data in the shared Gem::Common::GProviderStoreT rather than a
   hard-coded table plus an if/else dispatch. Each courtier consumer (serial, std-thread, Asio,
   websocket, and, when built, MPI) is a GConsumerProviderT registered under its mnemonic at
