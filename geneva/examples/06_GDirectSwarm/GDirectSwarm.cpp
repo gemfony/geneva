@@ -369,8 +369,9 @@ int main(int argc, char **argv) {
         ConsumerSpec spec;
         switch(cType) {
         //---------------------------------------------------------------------------
-        case consumerType::SERIAL: // Serial (inline) execution
-            spec.mnemonic = "sc";
+        case consumerType::SERIAL: // Serial (single-threaded) execution
+            spec.mnemonic  = "stc";
+            spec.n_threads = 1;
             break;
 
             //---------------------------------------------------------------------------

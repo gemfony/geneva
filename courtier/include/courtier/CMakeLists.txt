@@ -48,7 +48,6 @@ SET ( COMMUNICATIONINCLUDES
 SET ( CONSUMER_INCLUDES
     consumers/GAsioConsumerT.hpp
     consumers/GNetworkedConsumerT.hpp
-    consumers/GSerialConsumerT.hpp
     consumers/GStdThreadConsumerT.hpp
     consumers/GWebsocketConsumerT.hpp
 )

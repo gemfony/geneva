@@ -393,13 +393,14 @@ int main(int argc, char **argv) {
     std::shared_ptr<oa::GEvolutionaryAlgorithm> pop_ptr(new oa::GEvolutionaryAlgorithm());
 
     // All three modes are LOCAL here (the "broker" mode used a local thread consumer too); build and
-    // register the ONE process-wide consumer. Serial -> inline, the others -> multithreaded.
+    // register the ONE process-wide consumer. Serial -> stc with one thread, the others -> multithreaded.
     {
         Gem::Geneva::ConsumerSpec spec;
         switch(parallelizationMode) {
-        case execMode::SERIAL: // Serial (inline) execution
+        case execMode::SERIAL: // Serial (single-threaded) execution
             std::cout << "Using serial execution." << std::endl;
-            spec.mnemonic = "sc";
+            spec.mnemonic  = "stc";
+            spec.n_threads = 1;
             break;
 
         case execMode::MULTITHREADED: // Multi-threaded local execution

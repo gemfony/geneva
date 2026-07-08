@@ -1144,6 +1144,13 @@ Recommended Versions:
 
 ************************* Noteworthy Changes ***********************************
 
+- The serial consumer (GSerialConsumerT, mnemonic "sc") was retired: the std-thread
+  consumer (stc) is now the single local consumer, and serial execution is simply "stc"
+  with one worker thread (nWorkerThreads == 1). The "sc" mnemonic is removed; the examples
+  and benchmark that ran serially (06_GDirect*, GBrokerOverhead) now select "stc" with one
+  thread. One local-consumer type remains, sitting on the shared thread pool's
+  blocking_for_each.
+
 - GThreadPool gained a bulk fork/join, blocking_for_each(span, per_item): it submits one
   task per element and blocks on a per-batch completion latch (not the global drain
   barrier), so it stays correct when the pool is shared across several algorithms. The

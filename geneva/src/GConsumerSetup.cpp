@@ -52,7 +52,6 @@
 // The concrete courtier consumers -- known ONLY here.
 #include "courtier/consumers/GAsioConsumerT.hpp"
 #include "courtier/consumers/GMPIConsumerT.hpp" // self-guarded by GENEVA_BUILD_WITH_MPI_CONSUMER
-#include "courtier/consumers/GSerialConsumerT.hpp"
 #include "courtier/consumers/GStdThreadConsumerT.hpp"
 #include "courtier/consumers/GWebsocketConsumerT.hpp"
 
@@ -86,36 +85,8 @@ individualCloneFunction() {
 // consumerProviderStore() at static init (see the registrar below). Building a consumer has side effects,
 // so provide() (inherited) stays the default nullptr and the consumer is built through setup().
 
-/** @brief Provider for the serial (single-threaded, in-process) consumer. */
-class GSerialConsumerProvider final : public GConsumerProviderT {
-public:
-    std::string getMnemonic() const override { return "sc"; }
-    std::string getName() const override { return "GSerialConsumerT"; }
-    bool needsClient() const override { return false; }
-
-    ConsumerSetup setup(const ConsumerSpec & /*spec*/) override {
-        auto consumer = std::make_shared<c2::GSerialConsumerT<gen::GOptimizableEntity>>();
-        consumer->setCloneFunction(individualCloneFunction());
-        ConsumerSetup setup;
-        setup.consumer = consumer;
-        return setup;
-    }
-
-    ConsumerSpec specFromCommandLine(const po::variables_map & /*vm*/) const override {
-        return ConsumerSpec{}; // "sc" carries no networked spec fields; the defaults suffice
-    }
-
-    std::shared_ptr<c2::GBaseClientT<gen::GOptimizableEntity>>
-    buildClient(const ConsumerSpec & /*spec*/) const override {
-        return nullptr; // local-only
-    }
-
-    void addCLOptions(po::options_description & /*visible*/, po::options_description & /*hidden*/) override {
-        /* the serial consumer has no command-line options */
-    }
-};
-
-/** @brief Provider for the local multi-threaded (std::thread pool) consumer. */
+/** @brief Provider for the local single-/multi-threaded (std::thread pool) consumer. This is the only
+ *  local consumer: serial execution is this consumer with one worker thread (nWorkerThreads == 1). */
 class GStdThreadConsumerProvider final : public GConsumerProviderT {
 public:
     std::string getMnemonic() const override { return "stc"; }
@@ -409,7 +380,6 @@ public:
 struct ConsumerProviderRegistrar {
     ConsumerProviderRegistrar() {
         auto store = consumerProviderStore();
-        store->setOnce("sc", std::make_shared<GSerialConsumerProvider>());
         store->setOnce("stc", std::make_shared<GStdThreadConsumerProvider>());
         store->setOnce("asio", std::make_shared<GAsioConsumerProvider>());
         store->setOnce("beast", std::make_shared<GWebsocketConsumerProvider>());
@@ -527,7 +497,7 @@ ConsumerSpec specFromCommandLine(
 /**
  * @brief Builds the networked client matching a consumer specification.
  *
- * Delegates to the matching provider's buildClient(); local-only consumers (sc/stc) and MPI (whose worker
+ * Delegates to the matching provider's buildClient(); the local consumer (stc) and MPI (whose worker
  * loop comes from buildConsumerSetup().run_worker) return nullptr.
  *
  * @param spec The consumer specification (mnemonic plus connection/serialization settings)

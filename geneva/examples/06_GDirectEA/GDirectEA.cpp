@@ -368,8 +368,9 @@ int main(int argc, char **argv) {
         Gem::Geneva::ConsumerSpec spec;
         switch(parallelizationMode) {
         //----------------------------------------------------------------------------
-        case execMode::SERIAL: // Serial (inline) execution
-            spec.mnemonic = "sc";
+        case execMode::SERIAL: // Serial (single-threaded) execution
+            spec.mnemonic  = "stc";
+            spec.n_threads = 1;
             break;
 
             //----------------------------------------------------------------------------

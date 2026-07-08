@@ -61,7 +61,7 @@ namespace Gem::Geneva {
  * concrete courtier consumer types -- those are known only to buildConsumerSetup().
  */
 struct ConsumerSpec {
-    std::string mnemonic;            ///< "sc" | "stc" | "asio" | "beast" | "mpi"
+    std::string mnemonic;            ///< "stc" | "asio" | "beast" | "mpi" (serial = "stc" with n_threads == 1)
     unsigned int n_threads = 0;      ///< local thread-pool / networked IO-thread count (0 == hardware concurrency)
     unsigned short port = 0;         ///< listening / target port (networked socket consumers)
     Gem::Common::serializationMode serialization_mode =
@@ -176,7 +176,7 @@ ConsumerSetup buildConsumerSetup(const ConsumerSpec &spec);
  * beast_serializationMode, nWorkerThreads, ...) onto the transport-agnostic spec, keeping callers
  * (Go2, the standalone examples) free of per-consumer option knowledge.
  *
- * @param mnemonic The consumer mnemonic to build a spec for ("sc"|"stc"|"asio"|"beast"|"mpi").
+ * @param mnemonic The consumer mnemonic to build a spec for ("stc"|"asio"|"beast"|"mpi").
  * @param vm The parsed program-options variables map to read consumer option values from.
  * @return The populated ConsumerSpec. Options absent from @p vm fall back to the spec's defaults; an
  *   unknown mnemonic yields a spec carrying only the mnemonic.
@@ -194,7 +194,7 @@ ConsumerSpec specFromCommandLine(
  *
  * @param spec The consumer description; its client-side fields (ip, port, serialization, reconnects,
  *   prefetch depth) drive the client that is constructed.
- * @return The constructed client, or null for mnemonics that have no socket client (sc/stc are local;
+ * @return The constructed client, or null for mnemonics that have no socket client (stc is local;
  *   the mpi worker loop is obtained from buildConsumerSetup().run_worker instead).
  */
 std::shared_ptr<Gem::Courtier::GBaseClientT<gen::GOptimizableEntity>>
@@ -217,7 +217,7 @@ void addConsumerOptions(
 
 /******************************************************************************/
 /**
- * @brief Whether a mnemonic names a consumer this layer can build (sc/stc/asio/beast/mpi).
+ * @brief Whether a mnemonic names a consumer this layer can build (stc/asio/beast/mpi).
  * @param mnemonic The consumer mnemonic to test.
  * @return true if the mnemonic is a known/buildable consumer, false otherwise.
  */
