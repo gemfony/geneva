@@ -50,12 +50,29 @@
  *
  * Because there is no network involved, this example is also a convenient stress-test harness for the
  * courtier framework, the broker, and Hap.
+ *
+ * PARITY-CHECK MODE (config key "parity_check_n", default 0 == off): when set to a positive N, the
+ * program does NOT optimise. Instead it draws N random individuals from the factory and, for each,
+ * compares the CPU reference fitness (the individual's own evaluate(), the SAME render+score the kernel
+ * replicates) against the GPU fitness (the CUDA kernel via the device consumer). It prints per-item and
+ * summary RELATIVE errors and a PARITY PASS/FAIL verdict, then exits with 0 (pass) or 1 (fail). Parity is
+ * tolerance-based, not exact: the kernel accumulates in parallel (atomic/reordered reduction) while
+ * evaluate() sums sequentially, so identical genomes differ by floating-point rounding. Combined with the
+ * non-deterministic RNG (a fresh random population each run), the verdict is a best-of-N fraction within a
+ * generous relative tolerance -- never an exact-match assertion.
  */
 
 // Standard headers
+#include <algorithm>
 #include <csignal>
+#include <cmath>
+#include <cstdlib>
+#include <format>
 #include <memory>
+#include <numeric>
+#include <span>
 #include <string>
+#include <vector>
 
 // Geneva headers
 #include "common/GParserBuilder.hpp"
@@ -75,6 +92,132 @@ using namespace Gem::Geneva;
 namespace gpu = Gem::Courtier::GPU;
 namespace gen = Gem::Geneva::Genome;
 
+namespace {
+
+/******************************************************************************/
+/**
+ * GPU/CPU parity check for example 15 (entered when the config key "parity_check_n" is > 0).
+ *
+ * It cross-checks the CUDA kernel against the individual's own evaluate() on IDENTICAL genomes:
+ *   1. Draw @p n random individuals from GImageIndividualFactory.
+ *   2. Clone each genome for the GPU BEFORE evaluating on the CPU (both process() calls store their
+ *      result on the item, so the two paths must run on separate copies of the same genome).
+ *   3. CPU reference: run each individual's own evaluation via the public process() path (which invokes
+ *      evaluate() and stores the result) and read raw_fitness(0) -- exactly what a CPU consumer does.
+ *   4. GPU: build the marshaller + device consumer just like the registerGPUConsumerBuilder closure and
+ *      evaluate the whole batch in one bulk launch via processBatch(); read raw_fitness(0) back.
+ *   5. Report per-item and summary RELATIVE errors and a best-of-N PASS/FAIL verdict.
+ *
+ * Parity is tolerance-based (float rounding + parallel/atomic reduction order on the device vs sequential
+ * summation on the host) and the RNG is non-deterministic, so the criterion is a fraction of items within a
+ * generous relative tolerance -- not an exact match.
+ *
+ * @param n The number of random individuals to check (> 0)
+ * @param consumerConfig The GPU-consumer config file (backend + kernel selection)
+ * @return The process exit code: 0 if parity passes, 1 if it fails
+ */
+int runParityCheck(int n, const std::string &consumerConfig) {
+    using gen::GOptimizableEntity;
+
+    // Generous RELATIVE tolerance: the device kernel accumulates in the selected scalar (float by default)
+    // with a parallel/atomic reduction, while evaluate() sums sequentially, so even identical genomes differ
+    // by floating-point rounding whose magnitude grows with the pixel/triangle count. 1e-2 (1%) comfortably
+    // absorbs that reordering noise without hiding a genuine kernel/evaluate mismatch (which would show up as
+    // errors orders of magnitude larger).
+    constexpr double kRelTol = 1.0e-2;
+    // At least this fraction of items must land within kRelTol for an overall PASS (best-of-N, Inv 18).
+    constexpr double kPassFraction = 0.90;
+    // Floor for the relative-error denominator, so a near-zero CPU fitness cannot blow the ratio up.
+    constexpr double kEps = 1.0e-12;
+
+    glogger << "Example 15 (Mona-Lisa): PARITY CHECK -- CPU evaluate() vs GPU kernel over " << n
+            << " random individuals" << '\n'
+            << GLOGGING;
+
+    GImageIndividualFactory f("config/GImageIndividual.json");
+
+    // Draw n random individuals for the CPU reference and, for each, an independent clone for the GPU so the
+    // two paths score IDENTICAL genomes (each process() stores its result on its own item).
+    std::vector<std::shared_ptr<GImageIndividual>> cpuInds;
+    std::vector<std::unique_ptr<GOptimizableEntity>> gpuBatch;
+    cpuInds.reserve(static_cast<std::size_t>(n));
+    gpuBatch.reserve(static_cast<std::size_t>(n));
+    for(int i = 0; i < n; ++i) {
+        auto ind = f.get_as<GImageIndividual>(); // a fresh random genome
+        gpuBatch.push_back(ind->clone_unique()); // identical-genome copy for the device path
+        cpuInds.push_back(ind);
+    }
+
+    // CPU reference: run each individual's own evaluation through the public process() path (the same
+    // channel a CPU consumer uses) and read the stored raw fitness.
+    std::vector<double> fitness_cpu(static_cast<std::size_t>(n));
+    for(int i = 0; i < n; ++i) {
+        cpuInds[i]->set_processing_status(Gem::Courtier::processingStatus::DO_PROCESS);
+        cpuInds[i]->process();
+        fitness_cpu[i] = cpuInds[i]->raw_fitness(0);
+    }
+
+    // GPU: build the device marshaller + consumer exactly as the registerGPUConsumerBuilder closure does and
+    // evaluate the whole batch in a single bulk launch. full_success_or_fatal: every item must be evaluated.
+    auto marshaller = std::make_shared<MonaLisa::GMonaLisaGPUMarshaller>();
+    auto consumer =
+        std::make_shared<gpu::GGPUConsumerT<GOptimizableEntity, gimage_fp_t>>(consumerConfig, marshaller);
+    consumer->setCloneFunction([](const std::unique_ptr<GOptimizableEntity> &p) {
+        return p->clone_unique();
+    });
+    consumer->processBatch(
+        std::span<std::unique_ptr<GOptimizableEntity>>(gpuBatch.data(), gpuBatch.size()),
+        Gem::Courtier::GSubmissionPolicy::full_success_or_fatal());
+
+    std::vector<double> fitness_gpu(static_cast<std::size_t>(n));
+    for(int i = 0; i < n; ++i) {
+        fitness_gpu[i] = gpuBatch[i]->raw_fitness(0);
+    }
+
+    // Per-item relative error, plus per-item report for the first few.
+    std::vector<double> rel(static_cast<std::size_t>(n));
+    const int nShow = std::min(n, 8);
+    for(int i = 0; i < n; ++i) {
+        const double denom = std::max(std::abs(fitness_cpu[i]), kEps);
+        rel[i] = std::abs(fitness_gpu[i] - fitness_cpu[i]) / denom;
+        if(i < nShow) {
+            glogger << std::format(
+                           "  item {:3d}:  cpu={:.9g}  gpu={:.9g}  rel-err={:.3e}",
+                           i, fitness_cpu[i], fitness_gpu[i], rel[i])
+                    << '\n'
+                    << GLOGGING;
+        }
+    }
+
+    // Summary statistics over the relative errors.
+    std::vector<double> sorted = rel;
+    std::sort(sorted.begin(), sorted.end());
+    const double relMin = sorted.front();
+    const double relMax = sorted.back();
+    const double relMedian = sorted[sorted.size() / 2];
+    const double relMean = std::accumulate(rel.begin(), rel.end(), 0.0) / static_cast<double>(n);
+    const std::size_t within =
+        static_cast<std::size_t>(std::count_if(rel.begin(), rel.end(), [&](double r) { return r <= kRelTol; }));
+    const double withinFraction = static_cast<double>(within) / static_cast<double>(n);
+
+    glogger << std::format(
+                   "Parity relative error over {} items:  min={:.3e}  median={:.3e}  mean={:.3e}  max={:.3e}",
+                   n, relMin, relMedian, relMean, relMax)
+            << '\n'
+            << std::format(
+                   "Within tolerance ({:.1e}):  {}/{} = {:.1f}%  (pass threshold {:.0f}%)",
+                   kRelTol, within, n, 100.0 * withinFraction, 100.0 * kPassFraction)
+            << '\n'
+            << GLOGGING;
+
+    const bool pass = withinFraction >= kPassFraction;
+    glogger << (pass ? "PARITY PASS" : "PARITY FAIL") << '\n' << GLOGGING;
+
+    return pass ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+} // anonymous namespace
+
 int main(int argc, char **argv) {
     // ---- example-specific settings, read from a Geneva config file ----------------------------
     // These were previously command-line-only; they are now ordinary config-file parameters like
@@ -85,6 +228,7 @@ int main(int argc, char **argv) {
     std::string consumerConfig;
     bool logImages = false;
     bool emitBestOnly = false;
+    int parityCheckN = 0;
 
     Gem::Common::GParserBuilder gpb;
     gpb.registerFileParameter<std::string>(
@@ -102,6 +246,10 @@ int main(int argc, char **argv) {
     gpb.registerFileParameter<bool>(
         "emit_best_only", emitBestOnly, true, Gem::Common::VAR_IS_SECONDARY,
         "When logging images, only emit one for iterations that improved the best result");
+    gpb.registerFileParameter<int>(
+        "parity_check_n", parityCheckN, 0, Gem::Common::VAR_IS_SECONDARY,
+        "If > 0: run a GPU/CPU parity check over this many random individuals (CPU evaluate() vs the"
+        " CUDA kernel) and exit, instead of optimizing; 0 == off (normal optimization run)");
     gpb.parseConfigFile("./config/GImageGeneral.json");
 
     // Go2 parses its own framework options from the command line / its own config file.
@@ -130,6 +278,14 @@ int main(int argc, char **argv) {
     glogger << "Example 15 (Mona-Lisa): target " << targetFile << " (" << tgt.width << "x"
             << tgt.height << ")" << '\n'
             << GLOGGING;
+
+    // ---- parity-check mode: cross-check the GPU kernel against the CPU evaluate(), then exit --
+    // Config key "parity_check_n" (0 == off). When positive, do NOT optimize: draw that many random
+    // individuals and compare each individual's CPU evaluate() against the device kernel on identical
+    // genomes, print the relative errors + a PASS/FAIL verdict, and return the verdict as the exit code.
+    if(parityCheckN > 0) {
+        return runParityCheck(parityCheckN, consumerConfig);
+    }
 
     // ---- register the GPU consumer builder; select it with "--consumer gpu" -------------------
     // The GPU consumer is now a first-class, mnemonic-selectable consumer: run with "--consumer gpu" to

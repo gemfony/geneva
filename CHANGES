@@ -1144,6 +1144,15 @@ Recommended Versions:
 
 ************************* Noteworthy Changes ***********************************
 
+- Example 15 gained a GPU parity check (config key "parity_check_n" > 0): it scores N
+  random individuals with both the individual's own CPU evaluate() and the CUDA kernel (the
+  device consumer) on identical genomes and reports the relative error, passing when the
+  best-of-N fraction is within a generous relative tolerance. It guards that the kernel and
+  evaluate() stay in agreement now that the CPU-mirror path is gone -- the observed max
+  relative error is ~2.5e-4 with the default float32 kernel, far inside the 1% tolerance
+  (the gap is float32 rounding plus the device's reordered/atomic reduction, so parity is
+  deliberately tolerance-based, never an exact match).
+
 - The GPU consumer is now DEVICE-ONLY. The CPU-mirror path was removed: GGPUHostEvalI /
   hostEvaluate (the flat-buffer CPU reference every GPU marshaller had to write) and the
   GCPUBackend are gone, and the backend no longer silently falls back to the CPU -- an
