@@ -60,13 +60,14 @@
 /******************************************************************************/
 /*
  * Contribution kinds. A module may contribute several things (e.g. an OA plus its personality traits plus a
- * bundled monitor). Only INDIVIDUAL is wired by the loader today; the others are reserved and added as their
- * categories are modularised.
+ * bundled monitor, or an individual plus its GPU marshaller). INDIVIDUAL, OA and MARSHALLER are wired by the
+ * loader today; MONITOR and CONSUMER are reserved and added as their categories are modularised.
  */
 #define GENEVA_CONTRIBUTION_INDIVIDUAL 1u
 #define GENEVA_CONTRIBUTION_OA 2u
 #define GENEVA_CONTRIBUTION_MONITOR 3u
 #define GENEVA_CONTRIBUTION_CONSUMER 4u
+#define GENEVA_CONTRIBUTION_MARSHALLER 5u
 
 /* Two-level stringization, and the Geneva version as a "MAJOR.MINOR.PATCH" string literal (a module's own
  * version string when it is a Geneva-shipped module). */

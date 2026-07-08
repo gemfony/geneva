@@ -48,6 +48,8 @@
 #include "common/GProviderT.hpp"
 #include "geneva/oa/GFactoryStore.hpp" // oaFactoryStore() -- the OA-contribution registration target
 #include "geneva/oa/GOAPlugin.hpp"     // GOAProviderPtr -- the OA contribution's void* holder type
+#include "geneva/GMarshallerSetup.hpp" // marshallerProviderStore() -- the marshaller registration target
+#include "geneva/GMarshallerPlugin.hpp" // GMarshallerProviderPtr -- the marshaller contribution's void* holder
 
 namespace Gem::Geneva {
 
@@ -276,6 +278,43 @@ void registerOAContribution(const GenevaContribution &contrib, const std::string
     }
 }
 
+/** @brief Registers one MARSHALLER contribution's provider into marshallerProviderStore(). The thunk hands
+ *  back a heap-allocated GMarshallerProviderPtr (the plain-C void* boundary); move it out, delete the holder,
+ *  and setOnce it under the marshaller's device target. A device target already held (a compiled-in
+ *  marshaller or another module) is a hard error -- one problem per process means one marshaller per target. */
+void registerMarshallerContribution(const GenevaContribution &contrib, const std::string &path_str) {
+    void *raw = contrib.make_factory();
+    if(raw == nullptr) {
+        throw geneva_exception(
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+            << "In Gem::Geneva::loadModule(): Error!" << '\n'
+            << "The module '" << path_str << "' produced a null marshaller provider." << '\n'
+        );
+    }
+    auto *holder = static_cast<GMarshallerProviderPtr *>(raw);
+    GMarshallerProviderPtr provider = std::move(*holder);
+    delete holder;
+    if(not provider) {
+        throw geneva_exception(
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+            << "In Gem::Geneva::loadModule(): Error!" << '\n'
+            << "The module '" << path_str << "' returned an empty marshaller provider." << '\n'
+        );
+    }
+    const std::string device_target = provider->getMnemonic();
+    if(not marshallerProviderStore()->setOnce(device_target, provider)) {
+        throw geneva_exception(
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+            << "In Gem::Geneva::loadModule(): Error!" << '\n'
+            << "The module '" << path_str << "' contributes a GPU marshaller for device target '"
+            << device_target << "'," << '\n'
+            << "but that target is already registered (a compiled-in marshaller or another module owns it)."
+            << '\n'
+            << "One problem per process means at most one marshaller per target." << '\n'
+        );
+    }
+}
+
 /** @brief Moves one INDIVIDUAL contribution's factory out of the plain-C void* holder (throws on null). */
 GIndividualFactoryPtr takeIndividualContribution(const GenevaContribution &contrib, const std::string &path_str) {
     void *raw = contrib.make_factory();
@@ -345,8 +384,13 @@ LoadedModule loadModule(const std::filesystem::path &module_path) {
                     ++result.oa_count;
                     break;
                 }
+                case GENEVA_CONTRIBUTION_MARSHALLER: {
+                    registerMarshallerContribution(contrib, path_str);
+                    ++result.marshaller_count;
+                    break;
+                }
                 default:
-                    // Reserved kinds (monitor / consumer / marshaller) are not yet wired -- ignore them.
+                    // Reserved kinds (monitor / consumer) are not yet wired -- ignore them.
                     break;
             }
         }

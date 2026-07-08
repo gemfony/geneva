@@ -69,15 +69,17 @@ const GenevaModuleManifest *openModule(const std::filesystem::path &module_path)
 /**
  * @brief What a loaded module contributed to this process.
  *
- * A module may carry several typed contributions. The store-backed kinds (optimization algorithms today,
- * consumers/marshallers later) are registered into their process-global stores by @c loadModule() as a side
- * effect; the claim-once individual (at most one per process) is handed back here for the caller to claim.
+ * A module may carry several typed contributions. The store-backed kinds (optimization algorithms and GPU
+ * marshallers today, consumers later) are registered into their process-global stores by @c loadModule() as a
+ * side effect; the claim-once individual (at most one per process) is handed back here for the caller to claim.
  */
 struct LoadedModule {
     /** @brief The module's individual content-creator factory, or null if it contributes no individual. */
     GIndividualFactoryPtr individual;
     /** @brief How many optimization algorithms the module registered into @c oaFactoryStore(). */
     std::uint32_t oa_count = 0;
+    /** @brief How many GPU marshallers the module registered into @c marshallerProviderStore(). */
+    std::uint32_t marshaller_count = 0;
 };
 
 /**

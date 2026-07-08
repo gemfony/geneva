@@ -116,6 +116,16 @@ Recommended Versions:
   individual and/or optimization algorithms, each dispatched by kind. Example 21 (GLoadableOA) demonstrates
   a loadable "Random Search" algorithm optimizing a compiled-in individual, selected purely via `--module`.
 
+- NEW: a GPU marshaller (the device adapter that makes `--consumer gpu` work for a problem) can now be
+  shipped as a runtime-loadable module too, via the new Gem::Geneva::marshallerManifest<Marshaller,
+  "device", "config">() helper (manifest kind GENEVA_CONTRIBUTION_MARSHALLER). The module loader registers a
+  contributed marshaller into the marshaller store under its device target, exactly as a compiled-in
+  registerGPUMarshaller() would; a device target already held (a compiled-in marshaller or another module) is
+  a hard error, since a process runs one problem and thus at most one marshaller per target. Because the whole
+  marshaller (device target, GPU-config path and -- via the handle it produces -- the device scalar kind)
+  travels inside its provider, no change to the manifest ABI was needed. A single module may now carry both a
+  GPU problem's individual and its marshaller, so `--individual foo.so --consumer gpu` works end to end.
+
 - NEW: Go2 can now be configured entirely from `main()` -- for every setting it takes from the command line
   there is a matching setter (and getter): `setConsumerName()` (the consumer mnemonic), `addModulePath()` /
   `setModulePaths()` / `getModulePaths()` (runtime modules), and `setAlgorithmChain()` / `getAlgorithmChain()`

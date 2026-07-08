@@ -74,6 +74,7 @@
 #include "geneva/ind/GGenome.hpp"
 #include "geneva/ind/GIndividualFactory.hpp"
 #include "geneva/GModuleLoader.hpp"
+#include "geneva/GMarshallerPlugin.hpp" // marshallerManifest / GMarshallerProviderPtr / the marshaller store
 #include "geneva/ind/GGenomeT.hpp"
 #include "geneva/ind/GGenomeArchitecture.hpp"
 #include "geneva/ind/GGenomeBuilder.hpp"
@@ -1964,6 +1965,61 @@ TEST_CASE("Module compat gate rejects a mismatched toolchain, naming the axis", 
         CHECK_FALSE(d.empty());
         CHECK(d.find("Geneva version") != std::string::npos);
     }
+}
+
+namespace {
+/** @brief A trivial host-only GPU marshaller: the flat-genome flatten/scatter scaffolding is complete in the
+ *  base, so a concrete marshaller is pure HOST code and needs no device code -- the problem's device kernel is
+ *  a separate, config-referenced source the GPU consumer's backend compiles at runtime (NVRTC), not part of
+ *  the marshaller. Used only to witness that a marshaller module contribution registers correctly. */
+class ProbeGPUMarshaller final : public GBaseGPUMarshallerT<double> {};
+} // anonymous namespace
+
+// A runtime module may contribute a GPU marshaller (manifest kind GENEVA_CONTRIBUTION_MARSHALLER): the device
+// adapter that makes --consumer gpu work for a loaded problem. This pins the author helper (marshallerManifest)
+// and the registration mechanics the loader uses -- the whole marshaller (device target, GPU-config path and,
+// via the produced handle, the scalar kind) travels inside the provider with no manifest ABI change.
+TEST_CASE("Marshaller module manifest contributes a registrable GPU marshaller", "[flat][plugin][marshaller]") {
+    // The author helper builds a one-contribution manifest tagged as the marshaller kind, carrying this host's
+    // own toolchain fingerprint (so it would pass the loader's compat gate).
+    const GenevaModuleManifest *manifest =
+        marshallerManifest<ProbeGPUMarshaller, "cuda", "config/ProbeGPU.json">();
+    REQUIRE(manifest != nullptr);
+    CHECK(Gem::Geneva::moduleCompatMismatch(manifest->compat).empty());
+    REQUIRE(manifest->contributions_count == 1);
+    const GenevaContribution &contribution = manifest->contributions[0];
+    CHECK(contribution.kind == GENEVA_CONTRIBUTION_MARSHALLER);
+    CHECK(std::string(contribution.name_or_mnemonic) == "cuda");
+
+    // The contribution thunk yields the marshaller provider across the plain-C void* boundary (the same
+    // move-out the loader does), carrying the device target, the GPU-consumer config path, and -- via the
+    // handle it hands out -- the device scalar kind.
+    REQUIRE(contribution.make_factory != nullptr);
+    void *raw = contribution.make_factory();
+    REQUIRE(raw != nullptr);
+    auto *holder = static_cast<GMarshallerProviderPtr *>(raw);
+    GMarshallerProviderPtr provider = std::move(*holder);
+    delete holder;
+    REQUIRE(provider);
+    CHECK(provider->getMnemonic() == "cuda");
+    CHECK(provider->gpuConfigFile() == "config/ProbeGPU.json");
+    CHECK(provider->provide()->scalarKind() == GPUScalarKind::Double);
+
+    // It registers into marshallerProviderStore() exactly like a compiled-in registerGPUMarshaller, and the
+    // one-per-target rule (setOnce) rejects a second marshaller for the same device target -- one problem per
+    // process, so a module cannot shadow an existing marshaller.
+    auto store = Gem::Geneva::marshallerProviderStore();
+    store->remove("cuda"); // start from a clean slot (independent of any other test / registration)
+    CHECK(store->setOnce("cuda", provider));
+
+    const GenevaModuleManifest *other =
+        marshallerManifest<ProbeGPUMarshaller, "cuda", "config/OtherGPU.json">();
+    auto *holder2 = static_cast<GMarshallerProviderPtr *>(other->contributions[0].make_factory());
+    GMarshallerProviderPtr provider2 = std::move(*holder2);
+    delete holder2;
+    CHECK_FALSE(store->setOnce("cuda", provider2)); // collision: at most one marshaller per device target
+
+    store->remove("cuda"); // leave the process-global store as we found it
 }
 
 TEST_CASE("Go2 enforces exactly one individual (optimization problem) per process", "[flat][plugin][go2]") {
