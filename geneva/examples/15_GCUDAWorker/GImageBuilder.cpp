@@ -77,6 +77,7 @@
 // Geneva headers
 #include "common/GParserBuilder.hpp"
 #include "courtier/gpu/GGPUConsumer.hpp"
+#include "geneva/GMarshallerSetup.hpp"
 #include "geneva/Go2.hpp"
 #include "geneva/oa/GEvolutionaryAlgorithm.hpp"
 #include "geneva/oa/GEvolutionaryAlgorithmFactory.hpp"
@@ -104,8 +105,8 @@ namespace {
  *      result on the item, so the two paths must run on separate copies of the same genome).
  *   3. CPU reference: run each individual's own evaluation via the public process() path (which invokes
  *      evaluate() and stores the result) and read raw_fitness(0) -- exactly what a CPU consumer does.
- *   4. GPU: build the marshaller + device consumer just like the registerGPUConsumerBuilder closure and
- *      evaluate the whole batch in one bulk launch via processBatch(); read raw_fitness(0) back.
+ *   4. GPU: build the marshaller + device consumer directly (the same GGPUConsumerT the "gpu" mnemonic
+ *      builds) and evaluate the whole batch in one bulk launch via processBatch(); read raw_fitness(0) back.
  *   5. Report per-item and summary RELATIVE errors and a best-of-N PASS/FAIL verdict.
  *
  * Parity is tolerance-based (float rounding + parallel/atomic reduction order on the device vs sequential
@@ -157,8 +158,8 @@ int runParityCheck(int n, const std::string &consumerConfig) {
         fitness_cpu[i] = cpuInds[i]->raw_fitness(0);
     }
 
-    // GPU: build the device marshaller + consumer exactly as the registerGPUConsumerBuilder closure does and
-    // evaluate the whole batch in a single bulk launch. full_success_or_fatal: every item must be evaluated.
+    // GPU: build the device marshaller + consumer directly (the same GGPUConsumerT the "gpu" mnemonic
+    // builds) and evaluate the whole batch in a single bulk launch. full_success_or_fatal: every item must be evaluated.
     auto marshaller = std::make_shared<MonaLisa::GMonaLisaGPUMarshaller>();
     auto consumer =
         std::make_shared<gpu::GGPUConsumerT<GOptimizableEntity, gimage_fp_t>>(consumerConfig, marshaller);
@@ -252,17 +253,28 @@ int main(int argc, char **argv) {
         " CUDA kernel) and exit, instead of optimizing; 0 == off (normal optimization run)");
     gpb.parseConfigFile("./config/GImageGeneral.json");
 
+    // ---- contribute the problem's GPU marshaller; select it with "--consumer gpu" -------------
+    // The GPU consumer is a first-class, mnemonic-selectable consumer: run with "--consumer gpu" to
+    // evaluate on the device (device-only -- backend cuda, kernel chosen in the gpu_config file), or with
+    // any other consumer (e.g. the default "--consumer stc") to evaluate on the CPU via the individual's
+    // own evaluate(). We only contribute the problem-specific piece -- the device marshaller (flatten /
+    // scatter + kernel) -- into the marshaller store; Go2 owns consumer selection and lifecycle and builds
+    // the generic GGPUConsumerT around it. Registering BEFORE constructing Go2 makes gpu a normal
+    // construction-time mnemonic: the consumer constructor only loads its config (backend/kernel are
+    // acquired lazily on the first dispatch), so no device is touched here and the target need not be
+    // loaded yet -- the marshaller reads it only at dispatch.
+    registerGPUMarshaller<MonaLisa::GMonaLisaGPUMarshaller>("cuda", consumerConfig);
+
     // Go2 parses its own framework options from the command line / its own config file.
     Go2 go(argc, argv, "./config/Go2.json");
 
     // ---- --update-configs: materialize the configs this example owns, then exit ---------------
-    // Go2 forces the local thread-pool consumer for a config refresh, so the registered GPU consumer
-    // builder below never runs and its config would be missed; materialize it directly here. The GPU
-    // consumer constructor only loads its config file (the backend/kernel are acquired lazily on the first
-    // dispatch), so no device is required. This runs BEFORE loadTarget() below, which needs the target
-    // image -- irrelevant to a config refresh and absent when configs are materialized. GImageGeneral.json
-    // was already refreshed by the parse above; Go2 refreshes Go2.json and the algorithm configs when
-    // optimize() runs.
+    // Go2 forces the local thread-pool consumer for a config refresh, so the GPU consumer is not built and
+    // its config would be missed; materialize it directly here. The GPU consumer constructor only loads its
+    // config file (the backend/kernel are acquired lazily on the first dispatch), so no device is required.
+    // This runs BEFORE loadTarget() below, which needs the target image -- irrelevant to a config refresh
+    // and absent when configs are materialized. GImageGeneral.json was already refreshed by the parse
+    // above; Go2 refreshes Go2.json and the algorithm configs when optimize() runs.
     if(go.updateConfigsMode()) {
         auto marshaller = std::make_shared<MonaLisa::GMonaLisaGPUMarshaller>();
         gpu::GGPUConsumerT<gen::GOptimizableEntity, gimage_fp_t>(consumerConfig, marshaller);
@@ -287,24 +299,9 @@ int main(int argc, char **argv) {
         return runParityCheck(parityCheckN, consumerConfig);
     }
 
-    // ---- register the GPU consumer builder; select it with "--consumer gpu" -------------------
-    // The GPU consumer is now a first-class, mnemonic-selectable consumer: run with "--consumer gpu" to
-    // evaluate on the device (the GPU consumer is device-only -- backend cuda, kernel chosen in
-    // GGPUConsumer.json), or with any other consumer (e.g. the default "--consumer stc") to evaluate on
-    // the CPU via the individual's evaluate(). We only contribute the problem-specific piece -- a closure that builds the
-    // device marshaller + consumer; Go2 owns selection and lifecycle. The closure is invoked lazily at
-    // optimize() (after the target is loaded), only when gpu is selected. GGPUConsumerT evaluates a whole
+    // The GPU marshaller was contributed above (before constructing Go2), so "--consumer gpu" already
+    // built the device consumer through the normal mnemonic path; GGPUConsumerT evaluates a whole
     // generation in one bulk launch via the marshaller.
-    go.registerGPUConsumerBuilder([consumerConfig]() {
-        auto marshaller = std::make_shared<MonaLisa::GMonaLisaGPUMarshaller>();
-        auto consumer =
-            std::make_shared<gpu::GGPUConsumerT<gen::GOptimizableEntity, gimage_fp_t>>(consumerConfig, marshaller);
-        // The clone-on-partial-return policy used by the evolutionary algorithm needs a polymorphic clone.
-        consumer->setCloneFunction([](const std::unique_ptr<gen::GOptimizableEntity> &p) {
-            return p->clone_unique();
-        });
-        return std::shared_ptr<Gem::Courtier::GBaseConsumerT<gen::GOptimizableEntity>>(consumer);
-    });
 
     // ---- as this is a server, allow interrupting the run "on the fly" -------------------------
     signal(G_SIGHUP, Gem::Geneva::sigHupHandler);

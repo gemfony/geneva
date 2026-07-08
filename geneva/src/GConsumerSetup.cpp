@@ -60,6 +60,14 @@
 #include "courtier/transport/GAsioTransportT.hpp"     // GAsioConsumerClientT
 #include "courtier/transport/GWebsocketTransportT.hpp" // GWebsocketClientT
 
+// The GPU consumer + the marshaller store it is built from -- known ONLY here (folded into
+// gemfony-courtier / geneva only when the GPU consumer is built).
+#ifdef GENEVA_BUILD_WITH_GPU_CONSUMER
+#include "courtier/gpu/GGPUConsumer.hpp"
+#include "geneva/GMarshallerSetup.hpp"
+#include "geneva/ind/GBaseGPUMarshallerT.hpp"
+#endif /* GENEVA_BUILD_WITH_GPU_CONSUMER */
+
 namespace Gem::Geneva {
 
 namespace c2 = Gem::Courtier;
@@ -332,26 +340,53 @@ public:
 
 #ifdef GENEVA_BUILD_WITH_GPU_CONSUMER
 /**
- * @brief Metadata-only provider for the GPU consumer.
+ * @brief Provider for the (local, device-only) GPU consumer.
  *
- * The GPU consumer is built by Go2 from a problem-registered builder (it needs a device marshaller Go2
- * cannot supply), NOT through buildConsumerSetup() -- Go2 intercepts the "gpu" mnemonic before this layer.
- * This provider exists only so the mnemonic is recognised/listed/validated (isKnownConsumer / consumerListing
- * / consumerNeedsClient); setup() is therefore never reached and throws defensively if it ever is.
+ * The GPU consumer is a normal mnemonic ("gpu") built through buildConsumerSetup() like every other
+ * consumer. The one GPU-specific piece -- the problem's device marshaller (flatten / scatter + kernel) --
+ * is contributed into marshallerProviderStore() by the problem; setup() looks it up under its device
+ * target ("cuda"), reads its scalar kind and builds the matching GGPUConsumerT<..,scalar_type> around it.
+ * A missing marshaller means the problem never opted into GPU evaluation -> a clear error.
+ *
+ * The scalar (float / double) stays a compile-time template parameter of GGPUConsumerT; the marshaller
+ * declares it at runtime (GGPUMarshallerHandle::scalarKind()) and buildGPUConsumer() recovers the typed
+ * marshaller for the one matching instantiation. The GPU consumer is device-only and local (no wire, no
+ * client), so a CPU run uses a CPU consumer (e.g. --consumer stc) via the individual's own evaluate().
  */
-class GGPUConsumerMetadataProvider final : public GConsumerProviderT {
+class GGPUConsumerProvider final : public GConsumerProviderT {
 public:
     std::string getMnemonic() const override { return "gpu"; }
     std::string getName() const override { return "GGPUConsumerT"; }
     bool needsClient() const override { return false; }
 
     ConsumerSetup setup(const ConsumerSpec & /*spec*/) override {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GGPUConsumerMetadataProvider::setup(): Error!" << '\n'
-            << "The gpu consumer is built by Go2 from the problem-registered builder, not through" << '\n'
-            << "buildConsumerSetup(). This provider is metadata-only and setup() must not be reached." << '\n'
-        );
+        // The problem contributes its GPU marshaller into marshallerProviderStore() (compiled-in: before
+        // constructing Go2; a loaded individual module: at module load). Its absence means "--consumer gpu"
+        // was selected for a problem that never registered a device marshaller.
+        std::shared_ptr<Gem::Common::GProviderT<GGPUMarshallerHandle>> base;
+        if(not marshallerProviderStore()->get("cuda", base) || not base) {
+            throw geneva_exception(
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+                << "In GGPUConsumerProvider::setup(): Error!" << '\n'
+                << "\"--consumer gpu\" was selected but no GPU marshaller is registered for device target" << '\n'
+                << "\"cuda\". A GPU problem must register its marshaller before constructing Go2, e.g." << '\n'
+                << "Gem::Geneva::registerGPUMarshaller<YourMarshaller>(\"cuda\", <gpu-config-file>)." << '\n'
+            );
+        }
+        auto provider           = std::static_pointer_cast<GGPUMarshallerProviderBase>(base);
+        auto handle             = provider->provide();
+        const std::string &cfg  = provider->gpuConfigFile();
+
+        ConsumerSetup setup;
+        switch(handle->scalarKind()) {
+            case GPUScalarKind::Double:
+                setup.consumer = buildGPUConsumer<double>(handle, cfg);
+                break;
+            case GPUScalarKind::Float:
+                setup.consumer = buildGPUConsumer<float>(handle, cfg);
+                break;
+        }
+        return setup;
     }
 
     ConsumerSpec specFromCommandLine(const po::variables_map & /*vm*/) const override {
@@ -365,6 +400,32 @@ public:
 
     void addCLOptions(po::options_description & /*visible*/, po::options_description & /*hidden*/) override {
         /* the gpu consumer's config (backend / kernel) lives in its own config file, not on the command line */
+    }
+
+private:
+    /**
+     * @brief Recovers the scalar-typed marshaller from the handle and builds the matching GPU consumer.
+     * @tparam scalar_type The device scalar the marshaller was built for (matched to its scalarKind())
+     * @param handle The scalar-agnostic marshaller handle from the store
+     * @param configFile The GPU-consumer config file (backend + kernel selection)
+     * @return The ready GPU consumer (clone function set)
+     */
+    template <typename scalar_type>
+    static std::shared_ptr<c2::GBaseConsumerT<gen::GOptimizableEntity>>
+    buildGPUConsumer(const std::shared_ptr<GGPUMarshallerHandle> &handle, const std::string &configFile) {
+        auto marshaller = std::dynamic_pointer_cast<
+            Gem::Courtier::GPU::GGPUEvaluableI<gen::GOptimizableEntity, scalar_type>>(handle);
+        if(not marshaller) {
+            throw geneva_exception(
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+                << "In GGPUConsumerProvider::buildGPUConsumer(): Error!" << '\n'
+                << "The registered GPU marshaller does not match its own declared scalar kind." << '\n'
+            );
+        }
+        auto consumer = std::make_shared<
+            Gem::Courtier::GPU::GGPUConsumerT<gen::GOptimizableEntity, scalar_type>>(configFile, marshaller);
+        consumer->setCloneFunction(individualCloneFunction());
+        return consumer;
     }
 };
 #endif /* GENEVA_BUILD_WITH_GPU_CONSUMER */
@@ -387,7 +448,7 @@ struct ConsumerProviderRegistrar {
         store->setOnce("mpi", std::make_shared<GMPIConsumerProvider>());
 #endif /* GENEVA_BUILD_WITH_MPI_CONSUMER */
 #ifdef GENEVA_BUILD_WITH_GPU_CONSUMER
-        store->setOnce("gpu", std::make_shared<GGPUConsumerMetadataProvider>());
+        store->setOnce("gpu", std::make_shared<GGPUConsumerProvider>());
 #endif /* GENEVA_BUILD_WITH_GPU_CONSUMER */
     }
 };

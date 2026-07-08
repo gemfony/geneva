@@ -553,7 +553,6 @@ Go2 const *Go2::optimize_(std::uint32_t offset) {
         this->refreshAllConfigs_();
         return this;
     }
-    this->ensureGPUConsumerBuilt(); // build the gpu consumer (if selected) now the marshaller is available
     this->ensureAlgorithmPresent();
     std::uint32_t const first_algorithm_offset = this->prepareInitialPopulation(offset);
     this->runAlgorithmChain(first_algorithm_offset);
@@ -1259,51 +1258,6 @@ void Go2::registerConsumer(
 
 /******************************************************************************/
 /**
- * @brief Registers the problem's GPU consumer builder; see the header for the rationale. The closure is
- * stored and invoked lazily by ensureGPUConsumerBuilt() at the start of optimize_(), only when the gpu
- * mnemonic is selected.
- *
- * @param builder A closure returning the ready-to-use GPU consumer (as the courtier base pointer).
- */
-void Go2::registerGPUConsumerBuilder(
-    std::move_only_function<std::shared_ptr<Gem::Courtier::GBaseConsumerT<gen::GOptimizableEntity>>()> builder) {
-    gpu_consumer_builder_ = std::move(builder);
-}
-
-/******************************************************************************/
-/**
- * @brief Builds + registers the GPU consumer from the registered builder when the gpu mnemonic is
- * selected. A no-op for every other consumer. Deferred to optimize_() (rather than the construction-time
- * setupChosenConsumer()) so the problem's marshaller / data are already available. The GPU consumer is
- * local (no client), so this runs on the single optimization process.
- */
-void Go2::ensureGPUConsumerBuilt() {
-    if(consumer_name_ != "gpu" || consumer_) {
-        return; // not a GPU run, or already built
-    }
-    if(not gpu_consumer_builder_) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In Go2::ensureGPUConsumerBuilt(): Error!" << '\n'
-            << "Consumer \"gpu\" was selected, but no GPU consumer builder was registered." << '\n'
-            << "Call go.registerGPUConsumerBuilder(...) (with the problem's device marshaller) after" << '\n'
-            << "constructing Go2 and before optimize()." << '\n'
-        );
-    }
-    consumer_ = gpu_consumer_builder_();
-    if(not consumer_) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In Go2::ensureGPUConsumerBuilt(): Error!" << '\n'
-            << "The registered GPU consumer builder returned a null consumer." << '\n'
-        );
-    }
-    Gem::Courtier::GConsumerRegistryT<gen::GOptimizableEntity>::instance().setConsumer(consumer_);
-    std::println("Routing consumer \"gpu\" through courtier (problem-registered builder)");
-}
-
-/******************************************************************************/
-/**
  * @brief Validates, initialises, configures and enrols the consumer chosen on the command line.
  *
  * Operates on the consumer_name_ member; assembles the transport-agnostic consumer spec, builds the
@@ -1349,14 +1303,6 @@ void Go2::setupChosenConsumer(boost::program_options::variables_map const &vm) {
     }
 
     std::println("Using consumer {}", consumer_name_);
-
-    // The GPU consumer is built from a problem-registered builder closure (it owns the device marshaller,
-    // the scalar type and the kernel/backend config -- pieces Go2 cannot supply). Those are only available
-    // after construction, whereas this runs during construction, so defer the build to optimize() via
-    // ensureGPUConsumerBuilt(). Nothing to assemble here (gpu is a local consumer, no networked client).
-    if(consumer_name_ == "gpu") {
-        return;
-    }
 
     // courtier is the submission path. Assemble the transport-agnostic spec from the command line and
     // remember it, so clientRun_() can build the matching networked client without a second pass.

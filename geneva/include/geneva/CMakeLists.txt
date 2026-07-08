@@ -6,6 +6,7 @@ SET ( OPTIMIZATIONINCLUDES
     GMultiConstraintT.hpp
 	Go2.hpp
 	GConsumerSetup.hpp
+	GMarshallerSetup.hpp
     GOptimizationEnums.hpp
     GSigHupHandler.hpp
 	GPersonalityTraits.hpp

@@ -105,6 +105,14 @@ Recommended Versions:
   replace `double fitnessCalculation()` with `std::vector<double> evaluate()` returning the raw result
   vector (a size-1 vector for a single-criterion problem).
 
+- CHANGED: the GPU consumer is now built through the ordinary consumer setup, like every other mnemonic.
+  A GPU problem contributes only its device marshaller into a marshaller store (Gem::Geneva::
+  registerGPUMarshaller<Marshaller>("cuda", <gpu-config>)) before constructing Go2; the "gpu" consumer
+  provider looks it up, reads the marshaller's scalar kind and builds the matching GGPUConsumerT around it.
+  The problem-supplied builder closure (Go2::registerGPUConsumerBuilder) and Go2's deferred, special-cased
+  GPU-build path have been removed, so "gpu" is now a first-class mnemonic assembled by the same factory as
+  stc/asio/beast/mpi. Example 15 registers its Mona-Lisa marshaller through the new call.
+
 - FIXED / CHANGED: the installed header set is now COMPLETE and self-contained. Header installation switched
   from hand-maintained per-file lists to a wholesale directory install per library, so every header under a
   library's include/<namespace>/ ships. Previously several headers transitively required by installed public
