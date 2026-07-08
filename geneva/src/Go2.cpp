@@ -969,12 +969,15 @@ void Go2::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) {
       << '\n'
       << "command-line option overrides this setting.";
 
-    // NOTE: a config-file key for module_paths (a vector-of-strings parameter) is deliberately NOT
-    // registered here -- the GParserBuilder vector-reference variant currently fails to write back an empty
-    // list during --update-configs (GFileVectorReferenceParsableParameterT::save_to throws), which would
-    // break config emission for every Go2 binary. Runtime modules are therefore selected via the repeatable
-    // --module command-line option only (see parseCommandLine); a config-file form can be added once the
-    // vector-parameter emission is fixed (a D2/D3 config-handling item).
+    gpb.registerFileParameter<std::string>(
+        "module_paths",
+        module_paths_,
+        std::vector<std::string>(),
+        Gem::Common::VAR_IS_SECONDARY,
+        "Filesystem paths to runtime Geneva modules (.so) loaded at startup, each of which may contribute "
+        "optimization algorithms (usable by their mnemonic) and/or the optimization individual. Repeated "
+        "--module command-line options add to this list. Empty (the default) loads no modules."
+    );
 
     gpb.registerFileParameter<std::string>(
         "consumer",
@@ -1129,7 +1132,7 @@ void Go2::parseCommandLine(
 				("module,m", po::value<std::vector<std::string>>()->composing(),
 				 "Filesystem path to a runtime Geneva module (.so) to load at startup (repeatable). A module "
 				 "may contribute optimization algorithms (usable by their mnemonic) and/or the optimization "
-				 "individual.");
+				 "individual. Adds to the module_paths config-file setting.");
 
         // Add additional options coming from the algorithms and consumers
         boost::program_options::options_description visible(

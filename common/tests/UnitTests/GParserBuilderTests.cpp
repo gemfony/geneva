@@ -105,6 +105,44 @@ TEST_CASE("GParserBuilder: writeConfigFile + parseConfigFile round-trip "
 }
 
 // ---------------------------------------------------------------------------
+// Regression: a vector file-parameter with an EMPTY default must emit + round-trip.
+// Its save_to() previously threw "You need to provide at least one default value" on an
+// empty default vector, which broke config emission (--update-configs) for any binary
+// registering such a parameter (e.g. Go2's list of module paths). An empty default is
+// valid -- it denotes a list that is empty unless the user fills it in.
+
+TEST_CASE("GParserBuilder: vector file-parameter with an empty default round-trips",
+          "[common][parser-builder]") {
+    auto cfg = scratch("rt_empty_vector");
+    std::filesystem::remove(cfg);
+
+    {
+        GParserBuilder gpb;
+        std::vector<std::string> paths;
+        // Missing file -> GParserBuilder emits it from the (empty) default, then parses it back.
+        // Before the fix this parseConfigFile() threw during emission; it must now succeed and
+        // write an empty array.
+        gpb.registerFileParameter<std::string>(
+            "paths", paths, std::vector<std::string>{}, VAR_IS_SECONDARY, "optional paths");
+        REQUIRE_NOTHROW(gpb.parseConfigFile(cfg));
+        REQUIRE(std::filesystem::exists(cfg));
+        CHECK(paths.empty());
+    }
+
+    // Re-parse the generated file: the empty list must survive.
+    {
+        GParserBuilder gpb;
+        std::vector<std::string> paths{"stale", "values"};
+        gpb.registerFileParameter<std::string>(
+            "paths", paths, std::vector<std::string>{}, VAR_IS_SECONDARY, "optional paths");
+        REQUIRE_NOTHROW(gpb.parseConfigFile(cfg));
+        CHECK(paths.empty());
+    }
+
+    std::filesystem::remove(cfg);
+}
+
+// ---------------------------------------------------------------------------
 // Call-back form: callback receives the parsed value.
 
 TEST_CASE("GParserBuilder::registerFileParameter (callback form) fires after parse",

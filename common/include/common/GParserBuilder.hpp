@@ -1413,9 +1413,8 @@ private:
 /******************************************************************************/
 /**
  * This class wraps a std::vector of values (obviously of identical type).
- * Note that this class does not enforce a given amount of parameters. However,
- * there needs to be at least one default value in the def_val vector, if
- * you plan to write out a parameter file.
+ * The default vector may be empty -- that denotes a list-valued parameter which
+ * is empty unless the user fills it in; it round-trips through a config file as "[]".
  *
  * @tparam parameter_type The element type of the wrapped parameter vector
  */
@@ -1535,8 +1534,8 @@ private:
     /***************************************************************************/
     /**
 	  * Saves data to a property tree object, including comments. Default
-	  * values are taken from the def_val_ vector. Note that there needs
-	  * to be at least a single default value in it.
+	  * values are taken from the def_val_ vector, which may be empty (it is
+	  * then written out as an empty "default"/"value" array).
 	  *
 	  * @param pt The object to which data should be saved
 	  */
@@ -1550,15 +1549,9 @@ private:
             );
         }
 
-        // Do some error checking
-        if(GVectorParT<parameter_type>::def_val_cnt_.empty()) {
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GFileVectorParsableParameterT::save_to(): Error!" << '\n'
-                << "You need to provide at least one default value" << '\n'
-            );
-        }
-
+        // An empty default is valid: it denotes a list-valued parameter that is empty unless the user fills
+        // it in (e.g. a set of optional paths). save_to() and load_from() both round-trip it as "[]"; the
+        // two loops below iterate def_val_cnt_ / par_cnt_ independently, so an empty vector is harmless.
         boost::json::object entry;
         if(this->hasComments()) {
             detail::cfgWriteComments(entry, GParsableI::splitComment(this->comment(0)));
@@ -1610,9 +1603,8 @@ private:
 /******************************************************************************/
 /**
  * This class wraps a reference std::vector of values (obviously of identical type).
- * Note that this class does not enforce a given amount of parameters. However,
- * there needs to be at least one default value in the def_val vector, if
- * you plan to write out a parameter file.
+ * The default vector may be empty -- that denotes a list-valued parameter which
+ * is empty unless the user fills it in; it round-trips through a config file as "[]".
  *
  * @tparam parameter_type The element type of the referenced parameter vector
  */
@@ -1719,8 +1711,8 @@ private:
     /***************************************************************************/
     /**
 	  * Saves data to a property tree object, including comments. Default
-	  * values are taken from the def_val_ vector. Note that there needs
-	  * to be at least a single default value in it.
+	  * values are taken from the def_val_ vector, which may be empty (it is
+	  * then written out as an empty "default"/"value" array).
 	  *
 	  * @param pt The object to which data should be saved
 	  */
@@ -1734,15 +1726,9 @@ private:
             );
         }
 
-        // Do some error checking
-        if(GVectorParT<parameter_type>::def_val_cnt_.empty()) {
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GFileVectorReferenceParsableParameterT::save_to(): Error!" << '\n'
-                << "You need to provide at least one default value" << '\n'
-            );
-        }
-
+        // An empty default is valid: it denotes a list-valued parameter that is empty unless the user fills
+        // it in (e.g. a set of optional paths). save_to() and load_from() both round-trip it as "[]"; the
+        // two loops below iterate def_val_cnt_ / par_cnt_ independently, so an empty vector is harmless.
         boost::json::object entry;
         if(this->hasComments()) {
             detail::cfgWriteComments(entry, GParsableI::splitComment(this->comment(0)));

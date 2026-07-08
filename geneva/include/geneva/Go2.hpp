@@ -558,9 +558,9 @@ private:
     // Filesystem path to a runtime individual plugin (.so) to load; settable via config or --individual.
     // Empty (the default) means no plugin is loaded -- the individual is expected to be compiled in.
     std::string individual_plugin_path_;
-    // Filesystem paths to runtime Geneva modules (.so) to load at startup; populated from the repeatable
-    // --module command-line option. Each may contribute optimization algorithms (usable by mnemonic) and/or
-    // the optimization individual. Loaded before the algorithm mnemonics are resolved.
+    // Filesystem paths to runtime Geneva modules (.so) to load at startup; settable via the module_paths
+    // config key and repeated --module options. Each may contribute optimization algorithms (usable by
+    // mnemonic) and/or the optimization individual. Loaded before the algorithm mnemonics are resolved.
     std::vector<std::string> module_paths_;
     // A user-defined means for information retrieval
     std::vector<std::shared_ptr<oa::GBasePluggableOM>> pluggable_monitors_cnt_;
