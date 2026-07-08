@@ -35,13 +35,14 @@ courtier framework, the broker and Hap.
 Building
 --------
 The example is built automatically when libpng is available (it is skipped otherwise). The CUDA
-backend is compiled into gemfony-courtier when a CUDA toolkit is present. Without it, set backend=cpu
-in config/GGPUConsumer.json to run on the CPU.
+backend is compiled into gemfony-courtier when a CUDA toolkit is present. The GPU consumer is
+device-only; to run on the CPU, use a CPU consumer instead (e.g. --consumer stc), which evaluates via
+the individual's own evaluate().
 
 Running
 -------
-  ./GCUDAWorker --consumer gpu      # evaluate on the device (backend chosen in GGPUConsumer.json)
-  ./GCUDAWorker                     # default --consumer stc: evaluate on the CPU (fitnessCalculation)
+  ./GCUDAWorker --consumer gpu      # evaluate on the device (kernel chosen in GGPUConsumer.json)
+  ./GCUDAWorker                     # default --consumer stc: evaluate on the CPU (individual's evaluate())
 
 Useful options:
   --consumer gpu       Select the GPU consumer (omit to use the default CPU thread-pool consumer)
@@ -50,8 +51,9 @@ Useful options:
   --logImages <bool>   Write the best candidate image per iteration (default true)
   --emitBestOnly <bool> Only emit an image when the best result improved (default true)
 
-To run on the CPU instead of the GPU, edit config/GGPUConsumer.json and set "backend" to "cpu"
-(the kernel path is then ignored; the host reference evaluation is used).
+To run on the CPU instead of the GPU, use a CPU consumer (e.g. --consumer stc): the GPU consumer is
+device-only, so a CPU run evaluates through the individual's own evaluate() rather than the device
+kernel. (The "backend" key in config/GGPUConsumer.json only accepts "cuda".)
 
 Output
 ------

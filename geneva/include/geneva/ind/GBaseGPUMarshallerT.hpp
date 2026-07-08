@@ -62,8 +62,10 @@ namespace Gem::Geneva {
  *
  *  - @c problemConstants() / @c problemConstantsStatic() -- the opaque blob the kernel also needs (default:
  *    none, inherited);
- *  - @c parallelWorkPerItem() -- intra-item device parallelism (default: 1, inherited);
- *  - @c hostEvaluate() -- the CPU reference mirroring the device kernel (still pure-virtual here).
+ *  - @c parallelWorkPerItem() -- intra-item device parallelism (default: 1, inherited).
+ *
+ * The GPU consumer is device-only: it never evaluates on the host. A CPU run uses the individual's own
+ * @c evaluate() through a CPU consumer (e.g. --consumer stc), not this marshaller.
  *
  * The generic plumbing provided here:
  *  - @c itemDimension() -- the flattened scalar count of one individual (its parameter count);

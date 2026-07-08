@@ -45,9 +45,10 @@ namespace Gem::Courtier::GPU {
  * kernel without recompiling.
  */
 struct GGPUConsumerConfig {
-    std::string backend = "cuda";             ///< "cpu" | "cuda" -- defaults to the GPU ("cuda"); the
-                                              ///< consumer falls back to "cpu" with a warning if the CUDA
-                                              ///< backend was not compiled into this build
+    std::string backend = "cuda";             ///< "cuda" -- the GPU consumer is device-only; any other
+                                              ///< value (including the retired "cpu") is rejected by
+                                              ///< backendKindFromString(). To run on the CPU, use a CPU
+                                              ///< consumer instead (e.g. --consumer stc)
     std::string kernel_path;                  ///< path to the kernel source / prebuilt module
     std::string kernel_entry = "evaluate";    ///< kernel entry-point name
     int device_id = 0;                        ///< which device
@@ -66,7 +67,7 @@ struct GGPUConsumerConfig {
         Gem::Common::GParserBuilder gpb;
         gpb.registerFileParameter<std::string>(
             "backend", backend, backend, Gem::Common::VAR_IS_ESSENTIAL,
-            "GPU backend: cpu | cuda");
+            "GPU backend: cuda (device-only; use a CPU consumer such as --consumer stc for CPU runs)");
         gpb.registerFileParameter<std::string>(
             "kernel_path", kernel_path, kernel_path, Gem::Common::VAR_IS_ESSENTIAL,
             "Path to the kernel source (.cu, runtime-compiled) or prebuilt module (.ptx/.cubin)");
@@ -106,7 +107,7 @@ struct GGPUConsumerConfig {
 
     /**
      * @brief The selected backend kind.
-     * @return The BackendKind parsed from the "backend" string ("cpu" | "cuda")
+     * @return The BackendKind parsed from the "backend" string ("cuda"); throws on any other value
      */
     [[nodiscard]] BackendKind backendKind() const { return backendKindFromString(backend); }
 };

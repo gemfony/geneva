@@ -47,10 +47,9 @@
  * deviation of the alpha-blended triangle superimposition from a TARGET image, summed per pixel and
  * channel through a rational saturation function -- exactly the metric example 15's GPU kernel uses.
  *
- * These pure host functions are shared by the individual's evaluate() (CPU) and the
- * marshaller's hostEvaluate (CPU reference); the runtime CUDA kernel (kernels/monalisa_eval_*.cu)
- * replicates the SAME formulas, so a CPU run and a GPU run give the same fitness and the GPU can be
- * cross-checked against the CPU.
+ * These pure host functions back the individual's evaluate() (CPU); the runtime CUDA kernel
+ * (kernels/monalisa_eval_*.cu) replicates the SAME formulas, so a CPU run (via a CPU consumer such as
+ * --consumer stc) and a GPU run give the same fitness and the GPU can be cross-checked against the CPU.
  *
  * The scalar type is selected at COMPILE TIME via gimage_fp_t (GImageScalar.hpp): DOUBLE by default,
  * or FLOAT when the example is built with GIMAGE_USE_FLOAT. Double precision makes the CPU/GPU

@@ -40,9 +40,10 @@
  * The evaluation runs on the GPU via the unified courtier GPU consumer
  * (Gem::Courtier::GPU::GGPUConsumerT): a whole generation is flattened and scored in ONE bulk kernel
  * launch (runtime-compiled with NVRTC; pixel-parallel so even a small population fills the GPU). The
- * SAME render+score math is also available on the CPU (GImageIndividual::evaluate() and the
- * marshaller's host reference), so a CPU run cross-checks the GPU. Switch backend / kernel in
- * config/GGPUConsumer.json -- no recompilation needed; set backend=cpu to run without a GPU.
+ * SAME render+score math is also available on the CPU (GImageIndividual::evaluate()), so a CPU run
+ * cross-checks the GPU: the GPU consumer is device-only, so a CPU run uses the individual's own
+ * evaluate() via a CPU consumer (--consumer stc). Switch the kernel in config/GGPUConsumer.json --
+ * no recompilation needed.
  *
  * The useful output is produced at the end of each iteration: GImagePOM rasterises the current best
  * candidate and writes it to ./results/ as a PNG, so the picture can be watched converging.
@@ -132,9 +133,9 @@ int main(int argc, char **argv) {
 
     // ---- register the GPU consumer builder; select it with "--consumer gpu" -------------------
     // The GPU consumer is now a first-class, mnemonic-selectable consumer: run with "--consumer gpu" to
-    // evaluate on the device (backend cpu/cuda chosen in GGPUConsumer.json), or with any other
-    // consumer (e.g. the default "--consumer stc") to evaluate on the CPU via the individual's
-    // evaluate(). We only contribute the problem-specific piece -- a closure that builds the
+    // evaluate on the device (the GPU consumer is device-only -- backend cuda, kernel chosen in
+    // GGPUConsumer.json), or with any other consumer (e.g. the default "--consumer stc") to evaluate on
+    // the CPU via the individual's evaluate(). We only contribute the problem-specific piece -- a closure that builds the
     // device marshaller + consumer; Go2 owns selection and lifecycle. The closure is invoked lazily at
     // optimize() (after the target is loaded), only when gpu is selected. GGPUConsumerT evaluates a whole
     // generation in one bulk launch via the marshaller.

@@ -39,16 +39,12 @@ namespace Gem::Courtier::GPU {
 
 template <typename scalar_type>
 class GGPUDeviceBackendI;
-template <typename scalar_type>
-class GGPUHostEvalI;
 
 /******************************************************************************/
 /**
- * Builds the device backend for @p kind. The CPU backend uses @p hostEval for its host reference
- * evaluation (a marshaller is-a GGPUHostEvalI); the CUDA backend ignores it (it runs the kernel) but
- * takes it for a uniform signature. Throws a geneva_exception if the requested backend was not
- * compiled in (its toolkit was absent at configure time) -- the caller can fall back to
- * BackendKind::CPU.
+ * Builds the device backend for @p kind. The GPU consumer is device-only, so the only backend is CUDA
+ * (which runs the kernel). Throws a geneva_exception if the requested backend was not compiled in (its
+ * toolkit was absent at configure time).
  *
  * This factory is the extensible backend picker: new device backends (e.g. HIP/SYCL) slot in behind a
  * new BackendKind and a GPUGEN_HAVE_<X> guard in GGPUBackendFactory.cpp.
@@ -58,16 +54,14 @@ class GGPUHostEvalI;
  * would need an additional explicit instantiation.
  *
  * @tparam scalar_type The host-side scalar element type (double or float) of the param/fitness buffers
- * @param kind The requested backend kind (CPU or CUDA)
- * @param hostEval Host-evaluation interface used by the CPU backend; ignored by the CUDA backend
+ * @param kind The requested backend kind (currently only CUDA)
  * @return An owning pointer to the constructed device backend
  */
 template <typename scalar_type = double>
-std::unique_ptr<GGPUDeviceBackendI<scalar_type>> makeBackend(BackendKind kind,
-                                                             const GGPUHostEvalI<scalar_type> *hostEval);
+std::unique_ptr<GGPUDeviceBackendI<scalar_type>> makeBackend(BackendKind kind);
 
 /**
- * @brief Whether @p kind was compiled into this build (cpu is always true).
+ * @brief Whether @p kind was compiled into this build.
  * @param kind The backend kind to query
  * @return true if the backend was compiled into this build, otherwise false
  */

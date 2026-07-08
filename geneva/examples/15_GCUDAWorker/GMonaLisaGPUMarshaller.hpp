@@ -55,8 +55,9 @@ namespace Gem::Geneva::MonaLisa {
  * problemConstants()  packs, as scalars, [W, H, target(W*H*3)] -- the loaded target image; uploaded
  *                     once per launch. NT and the background come from the per-item parameters.
  * parallelWorkPerItem() 256 cooperating threads per individual (pixel-stripe parallelism).
- * hostEvaluate()      the CPU reference -- calls the SAME score() the individual's
- *                     evaluate() and the device kernel use.
+ *
+ * The GPU consumer is device-only; a CPU run uses the individual's own evaluate() through a CPU
+ * consumer (e.g. --consumer stc), which shares the SAME score() math the device kernel replicates.
  *
  * One kernel launch per batch: minimal kernels, full bulk.
  *
@@ -85,21 +86,8 @@ public:
 
     /** @brief Use intra-item (pixel-stripe) parallelism: 256 cooperating threads per individual, so a
      *  small population still fills the GPU. The CUDA backend launches n_items*256 threads and the
-     *  kernel atomic-accumulates each item's fitness; the CPU backend clamps this to 1. */
+     *  kernel atomic-accumulates each item's fitness. */
     [[nodiscard]] int parallelWorkPerItem() const override { return 256; }
-
-    void hostEvaluate(
-        const gimage_fp_t *params, int n_items, int dim,
-        const std::byte * /*pconst*/, std::size_t /*pconst_size*/,
-        gimage_fp_t *fitness_out) const override {
-        const Target &t = target();
-        std::vector<gimage_fp_t> scratch;
-        for(int i = 0; i < n_items; ++i) {
-            // Native scalar: the params buffer already uses gimage_fp_t, so feed it straight to score().
-            const gimage_fp_t *src = params + static_cast<std::size_t>(i) * static_cast<std::size_t>(dim);
-            fitness_out[i] = score(src, dim, t.width, t.height, t.rgb.data(), scratch);
-        }
-    }
 };
 
 /******************************************************************************/

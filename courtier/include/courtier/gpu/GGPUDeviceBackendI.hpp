@@ -42,8 +42,8 @@ namespace Gem::Courtier::GPU {
 /**
  * The GPU consumer framework -- the device-programming-model abstraction.
  *
- * This is the "different technical content" layer: one interface, several implementations
- * (GCPUBackend always; GCUDABackend when its toolkit is present). The consumer
+ * This is the "different technical content" layer: one interface, one implementation per device model
+ * (GCUDABackend when its toolkit is present). The GPU consumer is device-only. The consumer
  * marshals a whole batch into flat host buffers (via GGPUEvaluableI) and hands them to a backend,
  * which uploads, launches the kernel ONCE over the whole batch (bulk submission), and downloads the
  * per-item fitness. All backends share this API; they differ only in how they acquire and run the

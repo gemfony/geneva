@@ -34,44 +34,55 @@
 #include <cstdint>
 #include <string>
 
+// Geneva headers
+#include "common/GCommonHelperFunctions.hpp"
+#include "common/GErrorStreamer.hpp"
+#include "common/GExceptions.hpp"
+
 namespace Gem::Courtier::GPU {
 
 /******************************************************************************/
 /**
  * The GPU consumer framework -- common, device-agnostic descriptors.
  *
- * Which device-programming-model backend evaluates a batch. The CPU backend is always available
- * (it runs the marshaller's host reference evaluation); the CUDA backend is compiled in only when
- * its toolkit was found at configure time.
+ * Which device-programming-model backend evaluates a batch. The GPU consumer is DEVICE-ONLY: the only
+ * backend is CUDA, compiled in when its toolkit was found at configure time. There is no CPU backend
+ * -- a CPU run uses the individual's own evaluate() through a CPU consumer (e.g. --consumer stc).
  *
  * This enum is the extension point for new device backends: add a kind here, then teach
  * backendKindFromString()/toString() about it and add a branch in the GGPUBackendFactory (guarded by
  * a matching GPUGEN_HAVE_<X> compile definition).
  */
 enum class BackendKind {
-    CPU,
     CUDA
 };
 
-/** @brief Parse a backend mnemonic ("cpu" | "cuda"); falls back to Cpu on anything else.
+/** @brief Parse a backend mnemonic. The GPU consumer is device-only, so only "cuda" is accepted;
+ *  anything else (including the retired "cpu") throws.
  *  @param s The backend mnemonic string to parse
- *  @return The matching BackendKind, or BackendKind::CPU for any unrecognized string */
+ *  @return BackendKind::CUDA for "cuda"
+ *  @throws geneva_exception on any string other than "cuda" */
 inline BackendKind backendKindFromString(const std::string &s) {
     if(s == "cuda") {
         return BackendKind::CUDA;
     }
-    return BackendKind::CPU;
+    throw geneva_exception(
+        g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+        << "In Gem::Courtier::GPU::backendKindFromString(): Error!" << '\n'
+        << "Unknown GPU backend '" << s << "'. The GPU consumer is device-only; the only backend is"
+        << " 'cuda'." << '\n'
+        << "To run on the CPU, use a CPU consumer instead (e.g. --consumer stc), which evaluates via"
+        << " the individual's own evaluate()." << '\n');
 }
 
 /** @brief Human-readable name of a backend kind.
  *  @param k The backend kind to name
- *  @return Its mnemonic ("cuda" | "cpu") */
+ *  @return Its mnemonic ("cuda") */
 inline const char *toString(BackendKind k) {
     switch(k) {
     case BackendKind::CUDA:   return "cuda";
-    case BackendKind::CPU:    return "cpu";
     }
-    return "cpu";
+    return "cuda";
 }
 
 /******************************************************************************/

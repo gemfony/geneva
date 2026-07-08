@@ -62,9 +62,10 @@ namespace Gem::Geneva::Benchmarks {
  *
  * The benchmark function is the same for every individual in a run; it is read from the first item's
  * demoFunction() in flatten() and passed to the kernel as the opaque problem-constant (a single int
- * funcId). The host reference (hostEvaluate) reuses the EXACT same function math the CPU path uses
- * (Gem::Geneva::Benchmarks::eval in GBenchmarkFunctions.hpp), so a CPU run and a GPU run agree and the
- * GPU can be cross-checked.
+ * funcId). The GPU consumer is device-only; a CPU run uses the individual's own evaluate() through a
+ * CPU consumer (e.g. --consumer stc), which shares the EXACT same function math the device kernel
+ * replicates (Gem::Geneva::Benchmarks::eval in GBenchmarkFunctions.hpp), so a CPU run and a GPU run
+ * agree and the GPU can be cross-checked.
  */
 class GBenchmarkGPUMarshaller final
   : public Gem::Courtier::GPU::GGPUEvaluableI<gen::GOptimizableEntity> {
@@ -106,20 +107,6 @@ public:
         for(std::size_t i = 0; i < items.size(); ++i) {
             items[i]->process(std::vector<gen::individual_processing_result>(
                 1, gen::individual_processing_result(fitness[i])));
-        }
-    }
-
-    void hostEvaluate(
-        const double *params, int n_items, int dim,
-        const std::byte *pconst, std::size_t pconst_size,
-        double *fitness_out) const override {
-        int fid = 0;
-        if(pconst_size >= sizeof(int)) {
-            std::memcpy(&fid, pconst, sizeof(int));
-        }
-        for(int i = 0; i < n_items; ++i) {
-            const double *x = params + static_cast<std::size_t>(i) * static_cast<std::size_t>(dim);
-            fitness_out[i] = eval(fid, x, dim); // the shared CPU/GPU function math
         }
     }
 

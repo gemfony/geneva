@@ -39,50 +39,19 @@ namespace Gem::Courtier::GPU {
 
 /******************************************************************************/
 /**
- * The GPU consumer framework. Logically a Gem::Courtier consumer (it derives from
- * GBaseConsumerT), so it lives in Gem::Courtier::GPU and is generic in the processable type, with NO
- * dependency on the Gem::Geneva layer (which sits above courtier). The concrete, genome-aware
- * marshallers live with the problems (the demos), not here.
+ * The problem-specific marshalling interface, generic in the processable type. Logically a
+ * Gem::Courtier consumer helper (the GPU consumer derives from GBaseConsumerT), so it lives in
+ * Gem::Courtier::GPU with NO dependency on the Gem::Geneva layer (which sits above courtier). The
+ * concrete, genome-aware marshallers live with the problems (the demos), not here.
  *
- * GGPUHostEvalI is the processable-type-free host-reference part of a marshaller: it evaluates a batch
- * in flat scalars only (no individuals). It is templated ONLY on the scalar type (default double, for
- * backward compatibility) -- not on the processable type -- so the CPU backend and the backend factory
- * depend only on this, staying free of the processable type. scalar_type selects the genome/fitness
- * flat-buffer element type (double for full parity, float for FP32 device speed).
- *
- * @tparam scalar_type The flat-buffer element type for parameters and fitness (double for full parity, float for FP32 device speed); defaults to double
- */
-template <typename scalar_type = double>
-class GGPUHostEvalI {
-public:
-    virtual ~GGPUHostEvalI() = default;
-
-    /**
-     * @brief CPU reference evaluation mirroring the device kernel (used by the CPU backend and for GPU/CPU parity checks).
-     *
-     * @param params Row-major parameter buffer of n_items * dim scalar_type (params[i*dim + j] = parameter j of item i)
-     * @param n_items Number of items in the batch
-     * @param dim Number of scalar_type parameters per item
-     * @param pconst Opaque problem-constant blob the kernel also receives; may be null when pconst_size is 0
-     * @param pconst_size Size in bytes of the problem-constant blob
-     * @param fitness_out Output buffer receiving n_items fitness scalar_type values
-     */
-    virtual void hostEvaluate(
-        const scalar_type *params, int n_items, int dim,
-        const std::byte *pconst, std::size_t pconst_size,
-        scalar_type *fitness_out) const = 0;
-};
-
-/******************************************************************************/
-/**
- * The problem-specific marshalling interface, generic in the processable type. The GPU consumer owns
- * the device plumbing; the problem owns how a batch of items becomes flat device buffers and how
- * device results are written back.
+ * The GPU consumer owns the device plumbing; the problem owns how a batch of items becomes flat device
+ * buffers and how device results are written back. The GPU consumer is DEVICE-ONLY: it never evaluates
+ * on the host -- a CPU run uses the individual's own evaluate() through a CPU consumer (e.g.
+ * --consumer stc), not this marshaller.
  *
  * ABI: parameters are row-major, one row of `dim` scalar_type per item (params[i*dim + j] = parameter
  * j of item i); the kernel writes one fitness scalar_type per item. problemConstants() is an opaque
  * byte blob the kernel also receives (function id, target image, ...), uploaded once per launch.
- * hostEvaluate() (inherited) must compute the same fitness as the device kernel.
  *
  * scalar_type defaults to double, so GGPUEvaluableI<MyProblem> is unchanged from before; pass float as
  * the second argument (GGPUEvaluableI<MyProblem, float>) for an FP32 device path.
@@ -91,9 +60,12 @@ public:
  * @tparam scalar_type The flat-buffer element type for parameters and fitness (double for parity, float for FP32); defaults to double
  */
 template <typename processable_type, typename scalar_type = double>
-class GGPUEvaluableI : public GGPUHostEvalI<scalar_type> {
+class GGPUEvaluableI {
 public:
     using item_ptr = std::unique_ptr<processable_type>;
+
+    /** @brief The virtual destructor. */
+    virtual ~GGPUEvaluableI() = default;
 
     /** @brief The number of scalar_type values one item flattens to -- i.e. its genome geometry. The GPU
      *  consumer evaluates a batch as a uniform row-major [n_items * dim] grid, so every item in a batch
@@ -124,7 +96,7 @@ public:
     /** @brief Writes the per-item fitness back into each item (typically via item->process(result),
      *  which also leaves the item PROCESSED for the courtier reconciliation).
      *  @param items The batch span of items to write results into
-     *  @param fitness The per-item fitness values produced by the device/host evaluation (one per item, in batch order) */
+     *  @param fitness The per-item fitness values produced by the device evaluation (one per item, in batch order) */
     virtual void scatter(std::span<const item_ptr> items, const std::vector<scalar_type> &fitness) const = 0;
 
     /** @brief How many GPU threads should cooperate on ONE item (intra-item / pixel-level parallelism).

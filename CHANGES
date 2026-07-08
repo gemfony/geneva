@@ -1144,6 +1144,15 @@ Recommended Versions:
 
 ************************* Noteworthy Changes ***********************************
 
+- The GPU consumer is now DEVICE-ONLY. The CPU-mirror path was removed: GGPUHostEvalI /
+  hostEvaluate (the flat-buffer CPU reference every GPU marshaller had to write) and the
+  GCPUBackend are gone, and the backend no longer silently falls back to the CPU -- an
+  unavailable CUDA backend is now a clear error. To run a GPU problem on the CPU, use a CPU
+  consumer (e.g. --consumer stc), which evaluates through the individual's own evaluate() --
+  the single source of the fitness math the device kernel replicates. A GPU marshaller
+  (GBaseGPUMarshallerT subclass) therefore supplies only flatten/scatter geometry plus the
+  device kernel, and no longer duplicates the fitness math on the host.
+
 - A GPU marshaller's generic prepare/reconcile plumbing was hoisted into a reusable base,
   Gem::Geneva::GBaseGPUMarshallerT<scalar>: itemDimension (parameter count), flatten
   (streamline each flat genome's external values row-major into the device buffer, doing

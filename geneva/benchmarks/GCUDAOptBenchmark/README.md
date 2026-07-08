@@ -41,9 +41,10 @@ would arise if each run used its own `Go2` instance.
 
 The benchmark itself builds with an ordinary C++ toolchain — it does **not** require the CUDA
 language at build time. The GPU backend lives in the optional GPU consumer folded into
-`gemfony-courtier`: a CUDA toolkit enables the CUDA backend. Without it, set
-`backend` to `cpu` in `config/GGPUConsumer.json` to run on the CPU (the marshaller's host reference).
-The device/backend and kernel are chosen at run time, so no compute-capability list needs editing.
+`gemfony-courtier`: a CUDA toolkit enables the CUDA backend. The GPU consumer is **device-only**; to
+run on the CPU, use a CPU consumer instead (e.g. `--consumer stc`), which evaluates via the
+individual's own `evaluate()`. The kernel is chosen at run time in `config/GGPUConsumer.json`, so no
+compute-capability list needs editing.
 
 ---
 
@@ -230,8 +231,9 @@ GBenchmarkGPUMarshaller.hpp
   GBenchmarkGPUMarshaller — a Gem::Courtier::GPU::GGPUEvaluableI marshaller: flattens a batch of
            GFunctionIndividuals into a row-major device buffer, passes the benchmark function id
            (read from the batch) as the opaque problem constant, and injects the device-computed
-           fitness back via process(). Its host reference reuses the shared function math
-           (geneva/individuals/GBenchmarkFunctions.hpp), so a CPU run cross-checks the GPU.
+           fitness back via process(). The kernel reuses the shared function math
+           (geneva/individuals/GBenchmarkFunctions.hpp) that the individual's evaluate() also uses, so
+           a CPU run (via a CPU consumer such as --consumer stc) cross-checks the GPU.
 
 kernels/benchmark_eval.cu
   The evaluation kernel, loaded and compiled at RUN TIME (NVRTC for CUDA) by the consumer's

@@ -34,7 +34,7 @@
 # and applies the matching link libraries + compile definitions:
 #   COURTIER_GPU_SRCS         -- backend .cpp to compile into courtier (paths relative to courtier/src)
 #   COURTIER_GPU_HAVE_CUDA    -- TRUE when the CUDA (NVRTC + driver API) backend is included
-# The always-available CPU backend is header-only; the CUDA headers are confined to these .cpp,
+# The GPU consumer is device-only (no CPU backend); the CUDA headers are confined to these .cpp,
 # so folding them in does not leak device headers into courtier's public interface.
 
 SET ( COURTIER_GPU_SRCS
