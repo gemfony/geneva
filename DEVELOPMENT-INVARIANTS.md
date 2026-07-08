@@ -63,7 +63,7 @@ consumer / broker / executor. The transport is chosen externally (via `Go2` or t
 
 ## 6. The genome is pure data; mutation strategy lives on the optimization algorithm
 
-The genome (`GFlatGenome`) carries the problem's parameter values and structure — **not** adaptors or
+The genome (`GGenome`) carries the problem's parameter values and structure — **not** adaptors or
 optimization-algorithm scratch. Adaption is configured on the OA-owned `GAdaptionConfig`; per-individual OA
 scratch (e.g. self-adaptive σ) lives on OA-owned storage, never on the genome (the "config-strip" model).
 

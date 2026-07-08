@@ -41,8 +41,8 @@ Recommended Versions:
   objects (GParameterSet holding GConstrainedDoubleObject / GDoubleCollection /
   GParameterObjectCollection nodes, each carrying its own adaptor) has been removed
   entirely and replaced by a single, FLAT genome. A problem is now defined by
-  subclassing GFlatGenome (typically through the CRTP helper
-  GFlatGenomeT<Derived>) and building a flat, fixed-structure array of
+  subclassing GGenome (typically through the CRTP helper
+  GGenomeT<Derived>) and building a flat, fixed-structure array of
   double / float / int32 / bool values once in the constructor with GGenomeBuilder
   (addDoubleGroup, addDouble, addInt32Group, addBoolArray, ...) installed via
   setGenome(); values are read by position in fitnessCalculation() via
@@ -66,10 +66,10 @@ Recommended Versions:
   algorithm-facing value API (streamline<T>() / assignValueVector<T>() /
   countParameters<T>() / boundaries<T>() and the FP / internal views, plus
   toPropertyTree / toCSV / crossOverWith / cannibalize) is declared on
-  GOptimizableEntity and implemented by GFlatGenome, so the algorithms reach the
-  parameters through the base. The CRTP authoring helper was renamed
-  GFlatIndividualT<Derived> -> GFlatGenomeT<Derived> (derive that, or GFlatGenome
-  directly). The per-individual debugging "random crash" facility was retired.
+  GOptimizableEntity and implemented by GGenome, so the algorithms reach the
+  parameters through the base. The CRTP authoring helper is GGenomeT<Derived>
+  (derive that, or GGenome directly). The per-individual debugging "random crash"
+  facility was retired.
 
 - INDIVIDUAL FURTHER SLIMMED (serialization-affecting; part of the same
   checkpoint-breaking individual-architecture window). Optimization-algorithm
@@ -104,6 +104,17 @@ Recommended Versions:
   thereafter read without locking). This is a SOURCE-breaking change for any out-of-tree problem definition:
   replace `double fitnessCalculation()` with `std::vector<double> evaluate()` returning the raw result
   vector (a size-1 vector for a single-criterion problem).
+
+- RENAMED (source-breaking): the vestigial "Flat" qualifier has been dropped from the genome layer. It
+  dated from the migration off the old tree-of-parameter-objects model; with only the flat genome left it
+  distinguished nothing and implied a non-flat option that no longer exists. `GFlatGenome` → `GGenome`,
+  `GFlatGenomeT` → `GGenomeT`, `GFlatIndividualFactory` → `GIndividualFactory` (the headers move with them:
+  `geneva/ind/GFlatGenome.hpp` → `GGenome.hpp`, `GFlatGenomeT.hpp` → `GGenomeT.hpp`,
+  `GFlatIndividualFactory.hpp` → `GIndividualFactory.hpp`). This is a clean break with no compatibility
+  aliases: an out-of-tree problem definition that subclasses `GFlatGenomeT<Derived>` must switch to
+  `GGenomeT<Derived>` and update its includes. (The `flatten()` genome→device-buffer operation is
+  unaffected — it is a genuine operation, not the vestigial qualifier.) Serialization GUIDs follow the new
+  names; older binary checkpoints (already incompatible) do not load.
 
 - NEW: example 20 (GFunctionGPU) evaluates a stock GFunctionIndividual (the standard benchmark-function
   individual, e.g. the parabola) on the GPU purely by selecting "--consumer gpu". It demonstrates the
@@ -332,7 +343,7 @@ Recommended Versions:
 
 - FIXED: copying an individual factory no longer drops its registered pre-processor.
   GOptimizableEntityFactory's copy constructor deep-cloned the post-processor twice and
-  never copied the pre-processor, so any factory copy (GFlatIndividualFactory::clone(),
+  never copied the pre-processor, so any factory copy (GIndividualFactory::clone(),
   the OA content-creator copy, the meta-optimizer's factory clone) silently lost a
   registered pre-processor. The copy constructor now clones the pre-processor as well; a
   regression test copies a factory carrying both processors and asserts each survives as
@@ -550,7 +561,7 @@ Recommended Versions:
 - NEW: OPTIMIZATION PROBLEMS (INDIVIDUALS) CAN NOW BE LOADED AT RUNTIME as plugins, so a
   new problem can be run WITHOUT recompiling Geneva. A problem author turns an ordinary
   individual into a loadable shared object with a single macro line,
-  GENEVA_INDIVIDUAL_PLUGIN(GFlatIndividualFactory<MyProblem>, "./config/MyProblem.json")
+  GENEVA_INDIVIDUAL_PLUGIN(GIndividualFactory<MyProblem>, "./config/MyProblem.json")
   (in include/geneva/ind/GIndividualPlugin.hpp), alongside the individual's usual
   BOOST_CLASS_EXPORT. A generic optimizer with NO problem compiled in then loads it with
   --individual <path>.so (or the individual_plugin_path config-file key, parsed through the
@@ -572,8 +583,8 @@ Recommended Versions:
       an individual in AND loading one (or loading two) is a hard error naming both sources;
       providing none is a clear error listing the three ways to supply a problem (compile in
       / push_back / --individual). This mirrors the one-consumer-per-process rule.
-    * GOptimizableEntityFactory gained a virtual getAdaptionConfig(const GFlatGenome&) (the
-      base returns none; GFlatIndividualFactory overrides it), so a generic launcher can wire
+    * GOptimizableEntityFactory gained a virtual getAdaptionConfig(const GGenome&) (the
+      base returns none; GIndividualFactory overrides it), so a generic launcher can wire
       an adapting algorithm's OA-owned adaption config from a loaded factory WITHOUT knowing
       the concrete problem type -- the config-strip model made type-erased.
     * CHECKPOINTS: a checkpoint stores the concrete individuals, so resuming one needs the
@@ -768,7 +779,7 @@ Recommended Versions:
 
 - Individual factories have been unified. Every hand-written GXxxIndividualFactory
   is replaced by the generic, config-driven
-  Gem::Geneva::Genome::GFlatIndividualFactory<Derived>; a concrete individual now
+  Gem::Geneva::Genome::GIndividualFactory<Derived>; a concrete individual now
   supplies static hooks (a nested Config struct, describeConfig(), buildGenome(),
   and optionally buildAdaptionConfig() / applyConfig() / finalize()) instead of a
   bespoke factory class. As part of this the legacy Gem::Common::GFactoryT
@@ -866,7 +877,7 @@ Recommended Versions:
   enters Geneva's translation units (a compile-time win). This is internal only --
   not source-breaking.
 
-- Individuals (the flat GFlatGenome) now travel by std::unique_ptr rather than
+- Individuals (the flat GGenome) now travel by std::unique_ptr rather than
   std::shared_ptr along the hot path: the optimization-algorithm population
   container, the courtier work item and wire payload, and the transport
   get/put callbacks all carry sole ownership now. Only genuinely shared
@@ -987,7 +998,7 @@ Recommended Versions:
   interface headers -> geneva/Interface/G<X>.hpp; #include paths must be updated
   accordingly. User code must qualify these types with oa:: / Interface:: (or the
   full namespace) and fix its include paths. The common high-level workflow
-  (subclass GFlatGenome / GFlatIndividualT, drive it via Gem::Geneva::Go2 with a
+  (subclass GGenome / GGenomeT, drive it via Gem::Geneva::Go2 with a
   JSON config and algorithm mnemonics) is otherwise unaffected -- Go2 itself is unchanged
   -- except for the updated include paths. Note also that, as a consequence,
   Boost.Serialization class-export keys changed: checkpoint/archive files
@@ -1045,7 +1056,7 @@ Recommended Versions:
   infrastructure (network clients, sessions, MPI nodes, the GCommandContainerT wire protocol
   and MPI initialisation) was kept and relocated under courtier/transport/. Code that drove
   submission through the old Courtier API directly must be updated; the usual high-level path
-  (subclass GFlatGenome, drive it via Go2 with a consumer mnemonic) is unaffected.
+  (subclass GGenome, drive it via Go2 with a consumer mnemonic) is unaffected.
 - The networked consumers (GAsioConsumerT, GWebsocketConsumerT and, when built,
   GMPIConsumerT) now share a common fan-in core (GNetworkedConsumerT): many optimization
   algorithms can submit to the SAME client pool concurrently, results are correlated by a
@@ -1148,7 +1159,7 @@ Recommended Versions:
   Gem::Geneva::GObject directly -- as a type, an explicit base class, a
   GObject* pointer/cast, or via a GObject::-qualified call -- must be updated to
   the relevant category root (most users never do: the standard workflow
-  subclasses GFlatGenome and drives it via Go2, which is unaffected). The
+  subclasses GGenome and drives it via Go2, which is unaffected). The
   former static SIGHUP signal API moved off GObject into free functions in the
   new header geneva/GSigHupHandler.hpp: GObject::sigHupHandler ->
   Gem::Geneva::sigHupHandler and GObject::G_SIGHUP_SENT() ->
@@ -1226,7 +1237,7 @@ Recommended Versions:
   std::atomic / mutex idiom now sit on it: the load-once problem store (GProblemStoreT is
   now a thin alias for the cell), the genome layout's lazily-cached content id
   (GGenomeLayout::layoutId), and the flat-individual factory's build-once shared genome
-  (GFlatIndividualFactory). Behaviour is unchanged; the concurrency mechanism now lives in
+  (GIndividualFactory). Behaviour is unchanged; the concurrency mechanism now lives in
   exactly one place instead of three.
 
 - The plotting library gained a plotter-object-free data-logging API, GDataLog, and

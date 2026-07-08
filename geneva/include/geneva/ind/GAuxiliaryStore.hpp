@@ -130,7 +130,7 @@ inline std::uint32_t auxTypeTag() {
 /**
  * The unified, per-individual home for optimization-algorithm-owned auxiliary data.
  *
- * It is genome-layout-agnostic: the flat individual (GFlatGenome) holds exactly one, so the place
+ * It is genome-layout-agnostic: the flat individual (GGenome) holds exactly one, so the place
  * where an optimization algorithm stashes its per-individual data is the same regardless of how the
  * genome is stored.
  *

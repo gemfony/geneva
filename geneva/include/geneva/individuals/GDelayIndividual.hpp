@@ -52,7 +52,7 @@
 #include "common/GCommonHelperFunctionsT.hpp"
 #include "common/GCommonMathHelperFunctionsT.hpp"
 #include "common/GExceptions.hpp"
-#include "geneva/ind/GFlatGenome.hpp"
+#include "geneva/ind/GGenome.hpp"
 #include "geneva/ind/GGenomeBuilder.hpp"
 #include "hap/GRandomDistributionsT.hpp"
 
@@ -82,14 +82,14 @@ public:
  * clients and server.
  */
 class GDelayIndividual
-  : public gen::GFlatGenome // NOLINT(cppcoreguidelines-special-member-functions)
+  : public gen::GGenome // NOLINT(cppcoreguidelines-special-member-functions)
 {
     /////////////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
     template <class Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gen::GFlatGenome) &
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gen::GGenome) &
             BOOST_SERIALIZATION_NVP(fixed_sleep_time_) & BOOST_SERIALIZATION_NVP(may_crash_) &
             BOOST_SERIALIZATION_NVP(throw_likelihood_) & BOOST_SERIALIZATION_NVP(sleep_randomly_) &
             BOOST_SERIALIZATION_NVP(rand_sleep_boundaries_);
@@ -263,7 +263,7 @@ private:
      * @brief Creates a deep clone of this object
      * @return A pointer to a newly allocated deep copy of this object
      */
-    gen::GFlatGenome *clone_() const final;
+    gen::GGenome *clone_() const final;
 
     double
         fixed_sleep_time_; ///< The amount of time the evaluation function should sleep before continuing (seconds)

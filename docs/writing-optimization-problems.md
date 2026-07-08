@@ -8,15 +8,15 @@ the genome). This guide covers the current API after the "config-strip": the gen
 Canonical examples: `examples/10_GStarter` (minimal), `examples/03_GParameterObjectUsagePatterns`
 (parameter patterns), `examples/09_GNeuralNetwork` (an architecture-decoded flat genome).
 
-## 1. Subclass `GFlatGenomeT` and override `fitnessCalculation()`
+## 1. Subclass `GGenomeT` and override `fitnessCalculation()`
 
 ```cpp
-#include "geneva/ind/GFlatGenomeT.hpp"
+#include "geneva/ind/GGenomeT.hpp"
 #include "geneva/ind/GGenomeBuilder.hpp"
 
 namespace gen = Gem::Geneva::Genome;
 
-class MyProblem : public gen::GFlatGenomeT<MyProblem> {       // CRTP: pass yourself
+class MyProblem : public gen::GGenomeT<MyProblem> {       // CRTP: pass yourself
 public:
     MyProblem() { buildGenome(); }                                 // build the STRUCTURE in the ctor
     MyProblem(const MyProblem &) = default;
@@ -39,7 +39,7 @@ private:
 };
 ```
 
-`GFlatGenomeT<Derived>` supplies the clone/load/compare/serialize machinery. Your genome is a
+`GGenomeT<Derived>` supplies the clone/load/compare/serialize machinery. Your genome is a
 flat set of value channels (double / float / int32 / bool); read it with `streamline<T>()`,
 `streamlineFP()`, or — for a structured genome — a `GGenomeArchitecture` decoder (see ex09).
 
@@ -148,15 +148,15 @@ from a single source:
 ### What a loadable individual needs
 
 To be built by the generic factory (and thus loadable), the individual is a **Tier-2, config-driven**
-flat individual — it supplies the static hooks `GFlatIndividualFactory<Derived>` calls (see section 3
-of `GFlatIndividualFactory.hpp` and the `GFunctionIndividual` / `GLineFitIndividual` examples):
+flat individual — it supplies the static hooks `GIndividualFactory<Derived>` calls (see section 3
+of `GIndividualFactory.hpp` and the `GFunctionIndividual` / `GLineFitIndividual` examples):
 
 - a public default constructor,
 - a nested `struct Config` holding the configurable values,
 - `static void describeConfig(GParserBuilder&, Config&)` — registers the config-file options,
 - `static GenomeData buildGenome(const Config&)` — builds the structure-only genome,
 - optionally `static void applyConfig(Derived&, const Config&)` and
-  `static std::shared_ptr<...GAdaptionConfigBase> buildAdaptionConfig(const GFlatGenome&, const Config&)`.
+  `static std::shared_ptr<...GAdaptionConfigBase> buildAdaptionConfig(const GGenome&, const Config&)`.
 
 **External data is no obstacle.** A loaded `.so` runs in the host process with full, unsandboxed
 runtime access: name the resource (data file, URL, database, helper program) in `Config`, and open it
@@ -176,14 +176,14 @@ It does *not* repeat the export:
 ```cpp
 #include <boost/config.hpp>                     // BOOST_SYMBOL_EXPORT
 #include "common/GModuleManifest.hpp"           // GenevaModuleManifest
-#include "geneva/ind/GFlatIndividualFactory.hpp"
+#include "geneva/ind/GIndividualFactory.hpp"
 #include "geneva/ind/GIndividualPlugin.hpp"     // Gem::Geneva::individualManifest<>
 #include "MyProblem.hpp"
 
 extern "C" BOOST_SYMBOL_EXPORT const GenevaModuleManifest *geneva_module_manifest();
 extern "C" BOOST_SYMBOL_EXPORT const GenevaModuleManifest *geneva_module_manifest() {
     return Gem::Geneva::individualManifest<
-        Gem::Geneva::Genome::GFlatIndividualFactory<MyProblem>,
+        Gem::Geneva::Genome::GIndividualFactory<MyProblem>,
         "./config/MyProblem.json", "MyProblem">();
 }
 ```

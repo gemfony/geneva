@@ -107,9 +107,9 @@ void GMPISubClientParaboloidIndividualMultiD::load_(const gen::GOptimizableEntit
 /**
  * Creates a deep clone of this object
  *
- * @return A deep clone of this object, camouflaged as a GFlatGenome
+ * @return A deep clone of this object, camouflaged as a GGenome
  */
-gen::GFlatGenome *GMPISubClientParaboloidIndividualMultiD::clone_() const {
+gen::GGenome *GMPISubClientParaboloidIndividualMultiD::clone_() const {
     return new GMPISubClientParaboloidIndividualMultiD(*this);
 }
 
@@ -123,7 +123,7 @@ gen::GFlatGenome *GMPISubClientParaboloidIndividualMultiD::clone_() const {
  * @return A shared pointer to the populated OA-owned adaption config
  */
 std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase>
-GMPISubClientParaboloidIndividualMultiD::buildAdaptionConfig(const gen::GFlatGenome &sample) {
+GMPISubClientParaboloidIndividualMultiD::buildAdaptionConfig(const gen::GGenome &sample) {
     auto cfg = OptimizationAlgorithms::makeAdaptionConfig<OptimizationAlgorithms::GAdaptionConfigBase>(sample);
     for(std::size_t npar = 0; npar < cfg->doubleGroups().size(); npar++) {
         cfg->groupDouble(npar).gauss(DEFAULTSIGMA, DEFAULTSIGMASIGMA, DEFAULTMINSIGMA, DEFAULTMAXSIGMA, DEFAULTADPROB);

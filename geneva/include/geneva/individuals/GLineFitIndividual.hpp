@@ -50,7 +50,7 @@
 #include "common/GExceptions.hpp"
 #include "common/GParserBuilder.hpp"
 #include "geneva/GOptimizationEnums.hpp"
-#include "geneva/ind/GFlatGenome.hpp"
+#include "geneva/ind/GGenome.hpp"
 #include "geneva/ind/GGenomeBuilder.hpp"
 
 namespace Gem::Geneva::OptimizationAlgorithms {
@@ -65,7 +65,7 @@ namespace Gem::Geneva::Individuals {
  * root-square deviation from the line defined by its two parameters
  */
 class GLineFitIndividual // NOLINT(cppcoreguidelines-special-member-functions)
-  : public gen::GFlatGenome {
+  : public gen::GGenome {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
@@ -73,7 +73,7 @@ class GLineFitIndividual // NOLINT(cppcoreguidelines-special-member-functions)
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         using boost::serialization::make_nvp;
 
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gen::GFlatGenome) &
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gen::GGenome) &
             BOOST_SERIALIZATION_NVP(data_points_);
     }
     ///////////////////////////////////////////////////////////////////////
@@ -81,7 +81,7 @@ class GLineFitIndividual // NOLINT(cppcoreguidelines-special-member-functions)
 public:
     /**
      * @brief The default constructor. Produces a genome-less shell; it is only meaningful after a genome is
-     * installed -- either by GFlatIndividualFactory (the loadable / config-driven path, which then reads the
+     * installed -- either by GIndividualFactory (the loadable / config-driven path, which then reads the
      * data points from the config-named file via applyConfig) or by (de-)serialization. Public because the
      * generic factory default-constructs the individual before installing its genome.
      */
@@ -114,7 +114,7 @@ public:
     std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase> getAdaptionConfig() const;
 
     //---------------------------------------------------------------------------
-    // GFlatIndividualFactory<GLineFitIndividual> hooks. These make GLineFitIndividual a Tier-2
+    // GIndividualFactory<GLineFitIndividual> hooks. These make GLineFitIndividual a Tier-2
     // (config-driven) flat individual, hence packageable as a runtime-loadable module: the generic factory
     // default-constructs the individual, installs the genome from buildGenome(), and hands the parsed Config
     // to applyConfig(), which opens the config-named data file at runtime and loads the (x,y) points. A
@@ -147,7 +147,7 @@ public:
      * @return A shared pointer to the populated adaption config
      */
     static std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase>
-    buildAdaptionConfig(const gen::GFlatGenome & sample, const Config & c);
+    buildAdaptionConfig(const gen::GGenome & sample, const Config & c);
     /**
      * @brief Per-object post-config hook: opens the config-named data file at runtime and loads the (x,y)
      * points into the produced individual. An empty path leaves the point set empty.
@@ -209,9 +209,9 @@ protected:
 private:
     /**
      * @brief Creates a deep clone of this object.
-     * @return A deep clone of this object, camouflaged as a GFlatGenome
+     * @return A deep clone of this object, camouflaged as a GGenome
      */
-    gen::GFlatGenome *clone_() const final;
+    gen::GGenome *clone_() const final;
 
     std::vector<std::tuple<double, double>>
         data_points_; ///< Holds the data points used for the fit procedure

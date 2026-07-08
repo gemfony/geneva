@@ -43,8 +43,8 @@
 
 #include "common/GExceptions.hpp"
 #include "geneva/GOptimizationEnums.hpp"
-#include "geneva/ind/GFlatGenome.hpp"
-#include "geneva/ind/GFlatGenomeT.hpp"
+#include "geneva/ind/GGenome.hpp"
+#include "geneva/ind/GGenomeT.hpp"
 #include "geneva/ind/GGenomeBuilder.hpp"
 #include "geneva/oa/GAdaption.hpp"
 #include "geneva/oa/GAdaptionConfig.hpp"
@@ -62,7 +62,7 @@ namespace Gem::Tests {
  * sharing the interned label "position", one unlabelled FP group, an int32 group with an integer Gauss
  * adaptor labelled "count", and a bool group with a flip adaptor.
  */
-class AdaptCfgIndividual : public GFlatGenomeT<AdaptCfgIndividual> {
+class AdaptCfgIndividual : public GGenomeT<AdaptCfgIndividual> {
 public:
     AdaptCfgIndividual() { buildGenome(); }
     AdaptCfgIndividual(const AdaptCfgIndividual &) = default;
@@ -91,8 +91,8 @@ private:
     template <typename Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         ar &boost::serialization::make_nvp(
-            "GFlatGenomeT",
-            boost::serialization::base_object<GFlatGenomeT<AdaptCfgIndividual>>(*this)
+            "GGenomeT",
+            boost::serialization::base_object<GGenomeT<AdaptCfgIndividual>>(*this)
         );
     }
 };

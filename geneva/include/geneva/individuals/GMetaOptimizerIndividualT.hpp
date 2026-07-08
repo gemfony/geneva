@@ -50,7 +50,7 @@
 #include "common/GParserBuilder.hpp"
 #include "dietrich/GPlotDesigner.hpp"
 #include "geneva/individuals/GFunctionIndividual.hpp"
-#include "geneva/ind/GFlatGenome.hpp"
+#include "geneva/ind/GGenome.hpp"
 #include "geneva/ind/GGenomeBuilder.hpp"
 #include "geneva/ind/GOptimizableEntity.hpp"
 #include "geneva/GPluggableOptimizationMonitors.hpp"
@@ -175,13 +175,13 @@ const bool GMETAOPT_DEF_SUBEXECMODE = GMETAOPT_SUBEXEC_MULTITHREADED;
  */
 template <typename ind_type = Gem::Geneva::Individuals::GFunctionIndividual>
 class GMetaOptimizerIndividualT // NOLINT(cppcoreguidelines-special-member-functions)
-  : public gen::GFlatGenome {
+  : public gen::GGenome {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
     template <class Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gen::GFlatGenome) &
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gen::GGenome) &
             BOOST_SERIALIZATION_NVP(n_runs_per_optimization_) &
             BOOST_SERIALIZATION_NVP(fitness_target_) & BOOST_SERIALIZATION_NVP(iteration_threshold_) &
             BOOST_SERIALIZATION_NVP(mo_target_) & BOOST_SERIALIZATION_NVP(sub_ea_config_) &
@@ -196,7 +196,7 @@ public:
      * The default constructor.
      */
     GMetaOptimizerIndividualT()
-      : gen::GFlatGenome()
+      : gen::GGenome()
       , n_runs_per_optimization_(GMETAOPT_DEF_NRUNSPEROPT)
       , fitness_target_(GMETAOPT_DEF_FITNESSTARGET)
       , iteration_threshold_(GMETAOPT_DEF_ITERATIONTHRESHOLD)
@@ -212,7 +212,7 @@ public:
      * @param cp A constant reference to another GMetaOptimizerIndividualT object
      */
     GMetaOptimizerIndividualT(const GMetaOptimizerIndividualT<ind_type> &cp)
-      : gen::GFlatGenome(cp)
+      : gen::GGenome(cp)
       , n_runs_per_optimization_(cp.n_runs_per_optimization_)
       , fitness_target_(cp.fitness_target_)
       , iteration_threshold_(cp.iteration_threshold_)
@@ -578,7 +578,7 @@ protected:
      */
     void addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) override {
         // Call our parent class'es function
-        gen::GFlatGenome::addConfigurationOptions_(gpb);
+        gen::GGenome::addConfigurationOptions_(gpb);
 
         // Add local data
         gpb.registerFileParameter<std::size_t>(
@@ -660,7 +660,7 @@ protected:
             );
 
         // Load our parent class'es data ...
-        gen::GFlatGenome::load_(cp);
+        gen::GGenome::load_(cp);
 
         // ... and then our local data, derived from the single localMembers() declaration
         Gem::Common::g_load_members(this->localMembers_(), p_load->localMembers_());
@@ -700,7 +700,7 @@ protected:
         Gem::Common::GToken token("GMetaOptimizerIndividualT<ind_type>", e);
 
         // Compare our parent data ...
-        Gem::Common::compare_base_t<gen::GFlatGenome>(*this, *p_load, token);
+        Gem::Common::compare_base_t<gen::GGenome>(*this, *p_load, token);
 
         // ... and then the local data, derived from the single localMembers() declaration
         Gem::Common::g_compare_members(this->localMembers_(), p_load->localMembers_(), token);
@@ -757,10 +757,10 @@ protected:
         // The sub-individuals' adaptors live on an OA-owned config (their genome is structure-only). The
         // meta individual OWNS the adaptor parameters it optimises, so it authors that config INLINE here
         // (the inner individuals are single-Gauss). It is built here from a sample genome rather than via
-        // the factory because GFlatIndividualFactory re-applies its config file on every get_(), so
+        // the factory because GIndividualFactory re-applies its config file on every get_(), so
         // programmatic setters on the factory would not stick.
         auto sub_adaption_config = oa::makeAdaptionConfig<oa::GAdaptionConfigBase>(
-            dynamic_cast<const gen::GFlatGenome &>(*ind_factory_->get())
+            dynamic_cast<const gen::GGenome &>(*ind_factory_->get())
         );
         for(std::size_t i = 0; i < sub_adaption_config->doubleGroups().size(); i++) {
             sub_adaption_config->groupDouble(i).gauss(
@@ -930,7 +930,7 @@ protected:
         bool result = false;
 
         // Call the parent classes' functions
-        if(gen::GFlatGenome::modify_GUnitTests_()) {
+        if(gen::GGenome::modify_GUnitTests_()) {
             result = true;
         }
 
@@ -964,7 +964,7 @@ protected:
         using namespace Gem::Geneva;
 
         // Call the parent classes' functions
-        gen::GFlatGenome::specificTestsNoFailureExpected_GUnitTests_();
+        gen::GGenome::specificTestsNoFailureExpected_GUnitTests_();
 
         //------------------------------------------------------------------------------
 
@@ -989,7 +989,7 @@ protected:
         using namespace Gem::Geneva;
 
         // Call the parent classes' functions
-        gen::GFlatGenome::specificTestsFailuresExpected_GUnitTests_();
+        gen::GGenome::specificTestsFailuresExpected_GUnitTests_();
 
         //------------------------------------------------------------------------------
 
@@ -1045,9 +1045,9 @@ private:
     /**
      * Creates a deep clone of this object
      *
-     * @return A deep clone of this object, camouflaged as a GFlatGenome
+     * @return A deep clone of this object, camouflaged as a GGenome
      */
-    gen::GFlatGenome *clone_() const final {
+    gen::GGenome *clone_() const final {
         return new GMetaOptimizerIndividualT<ind_type>(*this);
     }
 
@@ -1088,7 +1088,7 @@ std::ostream &operator<<(std::ostream &stream, const GMetaOptimizerIndividualT<i
  * A factory for GMetaOptimizerIndividualT<ind_type> objects.
  *
  * This is intentionally a hand-written factory rather than the generic
- * Gem::Geneva::Genome::GFlatIndividualFactory used by every other individual: a meta-optimizer
+ * Gem::Geneva::Genome::GIndividualFactory used by every other individual: a meta-optimizer
  * COMPOSES a sub-individual's own factory (registerIndividualFactory() clones and stores an
  * ind_type::FACTORYTYPE, which is then injected into each produced meta-individual so it can spawn the
  * inner population it optimises). That is per-factory-instance state handed to each product -- a capability

@@ -53,7 +53,7 @@
 /******************************************************************************/
 /**
  * Non-intrusive Boost.Serialization support for the (otherwise POD-clean) adaption-layout structs.
- * The layout is serialised by value as part of GFlatGenome's transport encoding (it carries no
+ * The layout is serialised by value as part of GGenome's transport encoding (it carries no
  * pointers and no evolving state, so a flat serialisation is sufficient and self-contained).
  */
 namespace boost::serialization {

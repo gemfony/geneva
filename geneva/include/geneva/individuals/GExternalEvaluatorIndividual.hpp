@@ -48,8 +48,8 @@
 #include "common/GCommonEnums.hpp"
 #include "common/GCommonHelperFunctions.hpp"
 #include "common/GParserBuilder.hpp"
-#include "geneva/ind/GFlatGenome.hpp"
-#include "geneva/ind/GFlatIndividualFactory.hpp"
+#include "geneva/ind/GGenome.hpp"
+#include "geneva/ind/GIndividualFactory.hpp"
 #include "geneva/ind/GGenomeBuilder.hpp"
 #include "geneva/par/GOptimizableEntityMultiConstraint.hpp"
 #include "hap/GRandomT.hpp"
@@ -116,7 +116,7 @@ const bool GEEI_DEF_REMOVETEMPORARIES = "true";
  * program needs to read and write this JSON format.
  */
 class GExternalEvaluatorIndividual
-  : public gen::GFlatGenome { // NOLINT(cppcoreguidelines-special-member-functions)
+  : public gen::GGenome { // NOLINT(cppcoreguidelines-special-member-functions)
     ///////////////////////////////////////////////////////////////////////
 
     friend class boost::serialization::access;
@@ -149,7 +149,7 @@ class GExternalEvaluatorIndividual
         // run_id_ was previously omitted here and silently lost on
         // (de)serialization; derive the member list from the single
         // localMembers() declaration so it stays in sync.
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gen::GFlatGenome);
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gen::GGenome);
         Gem::Common::serialize_members(ar, this->localMembers_());
     }
 
@@ -158,7 +158,7 @@ class GExternalEvaluatorIndividual
 public:
     /***************************************************************************/
     using FACTORYTYPE =
-        Gem::Geneva::Genome::GFlatIndividualFactory<GExternalEvaluatorIndividual>;
+        Gem::Geneva::Genome::GIndividualFactory<GExternalEvaluatorIndividual>;
 
     /** @brief The default constructor */
     GExternalEvaluatorIndividual();
@@ -250,7 +250,7 @@ public:
 
     /***************************************************************************/
     /**
-     * The configuration read from the config file by GFlatIndividualFactory<GExternalEvaluatorIndividual>.
+     * The configuration read from the config file by GIndividualFactory<GExternalEvaluatorIndividual>.
      * Besides the Gauss / bi-Gauss adaptor settings and the external-program parameters, two fields
      * (run_id, n_results_expected) are not parsed from the file but DISCOVERED by buildGenome() when it
      * queries the external evaluator; buildGenome writes them back so applyConfig() can hand them to each
@@ -306,7 +306,7 @@ public:
      * @return A shared pointer to the constructed adaption config
      */
     static std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase>
-    buildAdaptionConfig(const gen::GFlatGenome &sample, const Config &c);
+    buildAdaptionConfig(const gen::GGenome &sample, const Config &c);
     /**
      * @brief Per-object post-config hook: applies the external-program parameters + discovered metadata
      * @param ind The individual that the configuration is applied to
@@ -369,7 +369,7 @@ private:
      * @brief Creates a deep clone of this object
      * @return A pointer to a newly allocated deep copy of this object
      */
-    gen::GFlatGenome *clone_() const final;
+    gen::GGenome *clone_() const final;
 
     /***************************************************************************/
 
@@ -387,12 +387,12 @@ private:
 /******************************************************************************/
 /**
  * A factory for GExternalEvaluatorIndividual objects: an alias for the generic, config-driven
- * GFlatIndividualFactory, for which GExternalEvaluatorIndividual supplies the static describeConfig /
+ * GIndividualFactory, for which GExternalEvaluatorIndividual supplies the static describeConfig /
  * buildGenome / buildAdaptionConfig / applyConfig / finalize hooks (plus the static archive() helper).
  * Call sites use ctor(path), get_as<>(), getAdaptionConfig() and registerContentCreator().
  */
 using GExternalEvaluatorIndividualFactory =
-    Gem::Geneva::Genome::GFlatIndividualFactory<GExternalEvaluatorIndividual>;
+    Gem::Geneva::Genome::GIndividualFactory<GExternalEvaluatorIndividual>;
 
 /******************************************************************************/
 

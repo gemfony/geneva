@@ -91,7 +91,7 @@ int main(int argc, char **argv) {
 
     // We want the GFunctionIndividual objects to always use bounded parameters. This is expressed in the
     // config file (config/GFunctionIndividual.json: "parameter_type": 3 == BOUNDED_PER_PARAMETER) rather
-    // than through a factory setter -- the generic GFlatIndividualFactory re-applies its config file on
+    // than through a factory setter -- the generic GIndividualFactory re-applies its config file on
     // every produced object, so a programmatic setter would not stick.
 
     //---------------------------------------------------------------------------

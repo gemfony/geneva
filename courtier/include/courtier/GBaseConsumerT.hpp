@@ -252,7 +252,7 @@ protected:
 
     /***************************************************************************/
     /** @brief Deep-clones one (uniquely owned) work item into a fresh owning item. Uses the polymorphic
-     *  clone functor when set (required for polymorphic item types such as GFlatGenome, to avoid
+     *  clone functor when set (required for polymorphic item types such as GGenome, to avoid
      *  slicing), otherwise copy-construction (correct for leaf/concrete item types). Used both by the
      *  refill path and by the networked consumers when handing a session a copy to ship.
      *  @param src The (borrowed) uniquely owned work item to clone from
@@ -276,7 +276,7 @@ protected:
 public:
     /***************************************************************************/
     /** @brief Sets a polymorphic clone function for clone-on-partial-return. REQUIRED when the work
-     *  item is a polymorphic base (e.g. GFlatGenome holding a concrete individual): plain
+     *  item is a polymorphic base (e.g. GGenome holding a concrete individual): plain
      *  copy-construction of processable_type would SLICE it. The functor should deep-clone via the
      *  type's own clone mechanism, e.g. `[](const item_ptr& p){ return p->template clone<T>(); }`.
      *  When unset, refill falls back to copy-construction (correct for leaf/concrete item types).

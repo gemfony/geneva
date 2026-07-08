@@ -44,7 +44,7 @@
 #include "common/GCommonEnums.hpp"
 #include "common/GLogger.hpp"
 #include "geneva/GenevaInitializer.hpp"
-#include "geneva/ind/GFlatGenome.hpp"
+#include "geneva/ind/GGenome.hpp"
 #include "geneva/oa/GOptimizationAlgorithmBase.hpp"
 #include "geneva/oa/GEvolutionaryAlgorithmFactory.hpp"
 #include "geneva/oa/GConjugateGradientDescentFactory.hpp"

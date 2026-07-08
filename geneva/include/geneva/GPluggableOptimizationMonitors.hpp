@@ -1311,7 +1311,7 @@ private:
  * asking the class to only log solutions better than a given set of values. What
  * is considered better depends on whether evaluation criteria are maximized or minimized
  * and is determined from the individual. Note that this class operates on the
- * GOptimizableEntity hierarchy (the flat-genome GFlatGenome / its GenomeData), i.e. on
+ * GOptimizableEntity hierarchy (the flat-genome GGenome / its GenomeData), i.e. on
  * the optimizable entities managed by the algorithm.
  */
 class GAllSolutionFileLogger // NOLINT(cppcoreguidelines-special-member-functions)

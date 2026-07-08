@@ -268,7 +268,7 @@ void GImageIndividual::applyConfig(GImageIndividual &ind, const Config &c) {
 	 * @return A shared pointer to the populated OA-owned adaption config
 	 */
 std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase>
-GImageIndividual::buildAdaptionConfig(const gen::GFlatGenome &sample, const Config &c) {
+GImageIndividual::buildAdaptionConfig(const gen::GGenome &sample, const Config &c) {
     namespace oa = Gem::Geneva::OptimizationAlgorithms;
     auto cfg = oa::makeAdaptionConfig<oa::GAdaptionConfigBase>(sample);
     cfg->forLabel("loc").gauss(
@@ -305,7 +305,7 @@ void GImageIndividual::compare_(
     GToken token("GImageIndividual", e);
 
     // Compare our parent data ...
-    Gem::Common::compare_base_t<gen::GFlatGenome>(*this, *p_load, token);
+    Gem::Common::compare_base_t<gen::GGenome>(*this, *p_load, token);
 
     // ... and then the local data
     Gem::Common::g_compare_members(this->localMembers_(), p_load->localMembers_(), token);
@@ -400,9 +400,9 @@ std::vector<CircleTriangle> GImageIndividual::getTriangleData() const {
 
 /******************************************************************************/
 /**
-	 * Loads the data of another GImageIndividual, camouflaged as a GFlatGenome.
+	 * Loads the data of another GImageIndividual, camouflaged as a GGenome.
 	 *
-	 * @param cp A copy of another GImageIndividual, camouflaged as a GFlatGenome
+	 * @param cp A copy of another GImageIndividual, camouflaged as a GGenome
 	 */
 void GImageIndividual::load_(const gen::GOptimizableEntity *cp) {
     // Check that we are indeed dealing with a GImageIndividual reference
@@ -410,7 +410,7 @@ void GImageIndividual::load_(const gen::GOptimizableEntity *cp) {
         Gem::Common::g_convert_and_compare<gen::GOptimizableEntity, GImageIndividual>(cp, this);
 
     // Load our parent's data
-    gen::GFlatGenome::load_(cp);
+    gen::GGenome::load_(cp);
 
     // Load local data
     Gem::Common::g_load_members(this->localMembers_(), p_load->localMembers_());
@@ -420,9 +420,9 @@ void GImageIndividual::load_(const gen::GOptimizableEntity *cp) {
 /**
 	 * Creates a deep clone of this object
 	 *
-	 * @return A deep clone of this object, camouflaged as a GFlatGenome
+	 * @return A deep clone of this object, camouflaged as a GGenome
 	 */
-gen::GFlatGenome *GImageIndividual::clone_() const {
+gen::GGenome *GImageIndividual::clone_() const {
     return new GImageIndividual(*this);
 }
 
@@ -457,7 +457,7 @@ bool GImageIndividual::modify_GUnitTests_() {
     // Call the parent classes' functions. This already random-initialises every genome parameter, so
     // the object is changed. The Gauss adaptor configuration is OA-owned and not exercised here (the
     // individual carries no adaptor data).
-    gen::GFlatGenome::modify_GUnitTests();
+    gen::GGenome::modify_GUnitTests();
 
     return true;
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
@@ -475,7 +475,7 @@ void GImageIndividual::specificTestsNoFailureExpected_GUnitTests_() {
     using namespace Gem::Geneva;
 
     // Call the parent classes' functions
-    gen::GFlatGenome::specificTestsNoFailureExpected_GUnitTests();
+    gen::GGenome::specificTestsNoFailureExpected_GUnitTests();
 
     const std::size_t NTESTS = 100;
 
@@ -508,7 +508,7 @@ void GImageIndividual::specificTestsFailuresExpected_GUnitTests_() {
     using namespace Gem::Geneva;
 
     // Call the parent classes' functions
-    gen::GFlatGenome::specificTestsFailuresExpected_GUnitTests();
+    gen::GGenome::specificTestsFailuresExpected_GUnitTests();
 
     //------------------------------------------------------------------------------
     //------------------------------------------------------------------------------

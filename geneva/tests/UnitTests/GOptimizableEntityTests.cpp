@@ -30,7 +30,7 @@
 /**
  * @file
  * @brief Characterization tests for the new candidate-solution hierarchy (GOptimizableEntity /
- * GFlatGenome / GFlatGenomeT). The hierarchy is additive and unwired at this stage; these tests
+ * GGenome / GGenomeT). The hierarchy is additive and unwired at this stage; these tests
  * exercise it in isolation: value-channel round-trips, evaluation + external-result acceptance, the
  * multi-format serialization round-trip, clone independence, and -- the watertight part -- the
  * layout-keyed countParameters cache and its invalidation when the genome's layout changes.
@@ -50,7 +50,7 @@
 #include <boost/serialization/base_object.hpp>
 
 #include "geneva/ind/GOptimizableEntity.hpp"
-#include "geneva/ind/GFlatGenomeT.hpp"
+#include "geneva/ind/GGenomeT.hpp"
 #include "geneva/ind/GGenomeBuilder.hpp"
 #include "geneva/ind/GProblemStoreT.hpp"
 
@@ -64,9 +64,9 @@ namespace Gem::Tests {
 /**
  * A minimal flat individual on the NEW hierarchy: a sphere over its double channel, with optional int32
  * and bool channels so the parameter-count cache can be exercised across channels. Adds no data members,
- * so clone/load/compare come from the CRTP base + GFlatGenome.
+ * so clone/load/compare come from the CRTP base + GGenome.
  */
-class NewSphere : public GFlatGenomeT<NewSphere> {
+class NewSphere : public GGenomeT<NewSphere> {
 public:
     NewSphere() { buildGenome(3, 2, 4); }
     NewSphere(std::size_t nd, std::size_t ni, std::size_t nb) { buildGenome(nd, ni, nb); }
@@ -100,8 +100,8 @@ private:
     template <typename Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         ar &boost::serialization::make_nvp(
-            "GFlatGenomeT",
-            boost::serialization::base_object<GFlatGenomeT<NewSphere>>(*this)
+            "GGenomeT",
+            boost::serialization::base_object<GGenomeT<NewSphere>>(*this)
         );
     }
 };
@@ -120,7 +120,7 @@ namespace Gem::Tests {
  * returning a one-element raw-fitness vector, with evaluate() delegating to it (single-sourced).
  * Used to prove the free-evaluator dispatch path produces byte-identical results to the virtual path.
  */
-class SeamSphere : public GFlatGenomeT<SeamSphere> {
+class SeamSphere : public GGenomeT<SeamSphere> {
 public:
     SeamSphere() {
         GGenomeBuilder b;
@@ -143,7 +143,7 @@ private:
     template <typename Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         ar &boost::serialization::make_nvp(
-            "GFlatGenomeT", boost::serialization::base_object<GFlatGenomeT<SeamSphere>>(*this));
+            "GGenomeT", boost::serialization::base_object<GGenomeT<SeamSphere>>(*this));
     }
 };
 
@@ -154,7 +154,7 @@ private:
  * writes the secondary results via setResult(), so the virtual and free-evaluator paths are single-sourced.
  * Used to prove the dispatch's secondary-result handling matches the res_vec / virtual paths.
  */
-class SeamMulti : public GFlatGenomeT<SeamMulti> {
+class SeamMulti : public GGenomeT<SeamMulti> {
 public:
     SeamMulti() {
         GGenomeBuilder b;
@@ -178,7 +178,7 @@ private:
     template <typename Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         ar &boost::serialization::make_nvp(
-            "GFlatGenomeT", boost::serialization::base_object<GFlatGenomeT<SeamMulti>>(*this));
+            "GGenomeT", boost::serialization::base_object<GGenomeT<SeamMulti>>(*this));
     }
 };
 
@@ -297,7 +297,7 @@ TEST_CASE("GOptimizableEntity: clone is independent of the original", "[candidat
 }
 
 /******************************************************************************/
-TEST_CASE("GFlatGenome: countParameters is cached and re-keyed on layout change", "[candidate][cache]") {
+TEST_CASE("GGenome: countParameters is cached and re-keyed on layout change", "[candidate][cache]") {
     NewSphere ind(3, 2, 4); // 3 doubles, 2 int32, 4 bool, 0 float
 
     SECTION("counts are correct and stable across repeated queries (cache hit)") {

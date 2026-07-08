@@ -269,7 +269,7 @@ std::size_t adaptGaussGroup(
  * GaussConfig<double> / GaussState<double> POD). Only the value step differs: instead of an FP delta it
  * adds a truncated gaussian integer step, with a guaranteed minimal change of +/-1 when the truncated step
  * is zero (mirroring GIntGaussAdaptorT::customAdaptions). There is NO fold in the kernel -- a
- * constrained integer folds into its range on read (GFlatGenome / foldConstrainedInt), exactly as the
+ * constrained integer folds into its range on read (GGenome / foldConstrainedInt), exactly as the
  * tree applies it via GConstrainedIntT.
  *
  * @param cfg The static, shared Gauss configuration for this group (sigma is a double; bounds, rates, mode).
@@ -379,7 +379,7 @@ inline std::size_t adaptGaussIntGroup(
  * ad_prob (which self-adapts log-normally like the Gauss one). There is no sigma self-adaption, so no
  * adaption-counter draw is made for a flip adaptor and none is modelled here. The value step is a
  * deterministic ±1 (integers) or a toggle (booleans); the integer fold into a constrained range is
- * applied by the genome on read (GFlatGenome / foldConstrainedInt).
+ * applied by the genome on read (GGenome / foldConstrainedInt).
  *
  * The adaption-fp type for the integer and boolean channels is double (their adaption_fp_type), so the
  * flip config / state are plain double POD.

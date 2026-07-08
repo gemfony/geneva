@@ -89,9 +89,9 @@ std::ostream &operator<<(
 /**
      * Creates a deep clone of this object
      *
-     * @return A deep clone of this object, camouflaged as a GFlatGenome
+     * @return A deep clone of this object, camouflaged as a GGenome
      */
-gen::GFlatGenome *GMultiCriterionParabolaIndividual::clone_() const {
+gen::GGenome *GMultiCriterionParabolaIndividual::clone_() const {
     return new GMultiCriterionParabolaIndividual(*this);
 }
 
@@ -190,7 +190,7 @@ void GMultiCriterionParabolaIndividual::applyConfig(
  * @return A shared pointer to the populated OA-owned adaption config
  */
 std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase>
-GMultiCriterionParabolaIndividual::buildAdaptionConfig(const gen::GFlatGenome &sample, [[maybe_unused]] const Config &c) {
+GMultiCriterionParabolaIndividual::buildAdaptionConfig(const gen::GGenome &sample, [[maybe_unused]] const Config &c) {
     auto cfg = OptimizationAlgorithms::makeAdaptionConfig<OptimizationAlgorithms::GAdaptionConfigBase>(sample);
     for(std::size_t npar = 0; npar < cfg->doubleGroups().size(); npar++) {
         cfg->groupDouble(npar).gauss(

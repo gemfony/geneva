@@ -47,7 +47,7 @@
 #include "common/GLogger.hpp"
 #include "common/GParserBuilder.hpp"
 #include "common/concurrency/GLoadOnceCellT.hpp"
-#include "geneva/ind/GFlatGenome.hpp"
+#include "geneva/ind/GGenome.hpp"
 #include "geneva/ind/GGenomeBuilder.hpp"
 #include "geneva/ind/GOptimizableEntity.hpp"
 #include "geneva/par/GOptimizableEntityFactory.hpp"
@@ -69,10 +69,10 @@ namespace Gem::Geneva::Genome {
 template <typename Derived>
 concept HasFinalizeHook = requires(const typename Derived::Config &c) { Derived::finalize(c); };
 
-/** @brief Satisfied if Derived supplies a static buildAdaptionConfig(const GFlatGenome&, const Config&) hook. */
+/** @brief Satisfied if Derived supplies a static buildAdaptionConfig(const GGenome&, const Config&) hook. */
 template <typename Derived>
 concept HasBuildAdaptionConfigHook =
-    requires(const GFlatGenome &g, const typename Derived::Config &c) {
+    requires(const GGenome &g, const typename Derived::Config &c) {
         Derived::buildAdaptionConfig(g, c);
     };
 
@@ -85,7 +85,7 @@ concept HasApplyConfigHook =
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * A generic, config-driven factory for flat individuals. Because GFlatGenome holds all genome state
+ * A generic, config-driven factory for flat individuals. Because GGenome holds all genome state
  * generically and the shared GGenomeLayout is built once and reused by every produced individual,
  * the factory machinery -- read the config, build the structure once, spawn, attach pre/post
  * processors -- is identical for every concrete flat individual. So instead of hand-writing a factory
@@ -108,7 +108,7 @@ concept HasApplyConfigHook =
  *
  * Usage (Tier 2):
  * @code
- *   class MyIndividual : public GFlatGenomeT<MyIndividual> {
+ *   class MyIndividual : public GGenomeT<MyIndividual> {
  *   public:
  *       MyIndividual() = default;   // genome is installed by the factory
  *       std::vector<double> evaluate() override { ... }
@@ -126,14 +126,14 @@ concept HasApplyConfigHook =
  *   };
  *   BOOST_CLASS_EXPORT(MyIndividual)
  *
- *   GFlatIndividualFactory<MyIndividual> f("config/MyIndividual.json");
+ *   GIndividualFactory<MyIndividual> f("config/MyIndividual.json");
  *   auto ind = f.get_as<MyIndividual>();
  * @endcode
  *
  * @tparam Derived The concrete flat individual type, supplying the Config / describeConfig / buildGenome hooks
  */
 template <class Derived>
-class GFlatIndividualFactory // NOLINT(cppcoreguidelines-special-member-functions)
+class GIndividualFactory // NOLINT(cppcoreguidelines-special-member-functions)
   : public GOptimizableEntityFactory {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
@@ -164,7 +164,7 @@ public:
      *
      * @param configFile The path of the configuration file holding the genome parameters
      */
-    explicit GFlatIndividualFactory(std::filesystem::path const &configFile)
+    explicit GIndividualFactory(std::filesystem::path const &configFile)
       : GOptimizableEntityFactory(configFile) { /* nothing */
     }
 
@@ -175,7 +175,7 @@ public:
      *
      * @param cp The factory to copy from (base state and parsed Config are copied)
      */
-    GFlatIndividualFactory(const GFlatIndividualFactory<Derived> &cp)
+    GIndividualFactory(const GIndividualFactory<Derived> &cp)
       : GOptimizableEntityFactory(cp)
       , config_(cp.config_) { /* nothing */
     }
@@ -187,7 +187,7 @@ public:
      * telling an external evaluator program to finalise). An individual without the hook gets the default
      * (trivial) teardown. A destructor must never propagate an exception, so the hook is shielded.
      */
-    ~GFlatIndividualFactory() override {
+    ~GIndividualFactory() override {
         if constexpr (HasFinalizeHook<Derived>) {
             if(genome_cell_.loaded()) {
                 try {
@@ -206,14 +206,14 @@ public:
      * @return A shared pointer to a deep copy of this factory
      */
     std::shared_ptr<Gem::Common::GFactoryT<GOptimizableEntity>> clone() const override {
-        return std::make_shared<GFlatIndividualFactory<Derived>>(*this);
+        return std::make_shared<GIndividualFactory<Derived>>(*this);
     }
 
     /***************************************************************************/
     /**
      * Builds the OA-owned adaption configuration for a genome produced by this factory, for the
      * adapting algorithms (typically passed to Go2::registerAdaptionConfig). Optional: it delegates to
-     * the individual's @c static buildAdaptionConfig(const GFlatGenome&, const Config&) hook if it
+     * the individual's @c static buildAdaptionConfig(const GGenome&, const Config&) hook if it
      * provides one, and otherwise returns a null pointer (the individual has no default adaption config,
      * e.g. a derivative-free or test individual). The configuration must have been parsed first (call
      * after a get_()/get() so config_ is populated).
@@ -222,7 +222,7 @@ public:
      * @return The OA-owned adaption configuration, or a null pointer if the individual provides no hook
      */
     std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase>
-    getAdaptionConfig(const GFlatGenome &sample) const override {
+    getAdaptionConfig(const GGenome &sample) const override {
         if constexpr (HasBuildAdaptionConfigHook<Derived>) {
             return Derived::buildAdaptionConfig(sample, config_);
         }
@@ -249,7 +249,7 @@ protected:
      * layout) exactly once, then installs it on the freshly produced individual (a cheap value-array
      * copy plus a bind to the shared layout handle).
      *
-     * @param p The freshly produced individual to install the shared genome on (must be a GFlatGenome)
+     * @param p The freshly produced individual to install the shared genome on (must be a GGenome)
      */
     void postProcess_(std::shared_ptr<GOptimizableEntity> &p) override {
         // Build the shared genome exactly once (the cell serialises the first build; later produces read it
@@ -257,12 +257,12 @@ protected:
         const GenomeData &genome =
             genome_cell_.getOrCompute([this]() { return Derived::buildGenome(config_); });
 
-        auto *fg = dynamic_cast<GFlatGenome *>(p.get());
+        auto *fg = dynamic_cast<GGenome *>(p.get());
         if(fg == nullptr) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GFlatIndividualFactory::postProcess_(): Error!" << '\n'
-                << "The produced object is not a GFlatGenome derivative" << '\n'
+                << "In GIndividualFactory::postProcess_(): Error!" << '\n'
+                << "The produced object is not a GGenome derivative" << '\n'
             );
         }
         fg->setGenome(genome);
@@ -303,7 +303,7 @@ private:
      * GFunctionIndividualFactory, serialized as part of a network-transported GMetaOptimizerIndividualT)
      * be reconstructed.
      */
-    GFlatIndividualFactory()
+    GIndividualFactory()
       : GOptimizableEntityFactory("empty") { /* nothing */
     }
 

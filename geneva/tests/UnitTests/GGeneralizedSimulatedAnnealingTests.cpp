@@ -44,7 +44,7 @@
 #include <numbers>
 #include <vector>
 
-#include "geneva/ind/GFlatGenomeT.hpp"
+#include "geneva/ind/GGenomeT.hpp"
 #include "geneva/ind/GGenomeBuilder.hpp"
 #include "geneva/oa/GGeneralizedSimulatedAnnealing.hpp"
 
@@ -60,7 +60,7 @@ namespace {
  * adaption config. fitness = sum of squares (optimum: the origin, f = 0).
  */
 template <std::size_t N_DIM>
-class FlatSphereGSA : public gen::GFlatGenomeT<FlatSphereGSA<N_DIM>> {
+class FlatSphereGSA : public gen::GGenomeT<FlatSphereGSA<N_DIM>> {
 public:
     FlatSphereGSA() {
         gen::GGenomeBuilder b;
@@ -89,7 +89,7 @@ protected:
  * heavy-tailed visiting jumps and generalized acceptance that let GSA escape local optima.
  */
 template <std::size_t N_DIM>
-class FlatRastriginGSA : public gen::GFlatGenomeT<FlatRastriginGSA<N_DIM>> {
+class FlatRastriginGSA : public gen::GGenomeT<FlatRastriginGSA<N_DIM>> {
 public:
     FlatRastriginGSA() {
         gen::GGenomeBuilder b;

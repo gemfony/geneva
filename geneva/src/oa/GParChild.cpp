@@ -40,7 +40,7 @@
 #include "geneva/oa/GAdaption.hpp"
 #include "geneva/oa/GAdaptionConfig.hpp"
 #include "geneva/ind/GOptimizableEntity.hpp"
-#include "geneva/ind/GFlatGenome.hpp"
+#include "geneva/ind/GGenome.hpp"
 #include <algorithm>
 #include <cstddef>
 #include <cstdint>
@@ -574,7 +574,7 @@ void GParChild::adaptChildren_() {
             // Drive the data-oriented adaption from the OA-owned config instead of the
             // individual's own adapt(). The config is read-only here, so the schedule stays lock-free.
             [it, cfg = adaption_config_.get()]() {
-                auto &flat = dynamic_cast<gen::GFlatGenome &>((*(*it)));
+                auto &flat = dynamic_cast<gen::GGenome &>((*(*it)));
                 return adaptIndividual(flat, (*it)->scratch(), *cfg);
             } // Returns the number of adaptions
         ));
@@ -888,7 +888,7 @@ void GParChild::init() {
     // individual's own adapt(). It is transient run scratch, rebuilt on every optimize().
     adaption_config_.reset();
     if(not this->empty()) {
-        if(const auto *flat = dynamic_cast<const gen::GFlatGenome *>(&(*this->at(0)))) {
+        if(const auto *flat = dynamic_cast<const gen::GGenome *>(&(*this->at(0)))) {
             // The genome carries only structure -- the adaptors live on an OA-owned GAdaptionConfig that
             // MUST be provided explicitly (via setAdaptionConfig(), e.g. Go2::registerAdaptionConfig() for
             // this algorithm's personality type). Adaption intent is never inferred from the genome, so an

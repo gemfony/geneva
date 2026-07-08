@@ -39,7 +39,7 @@
 
 // Geneva headers go here
 #include "geneva/GOptimizableEntityCommandContainerExport.hpp"
-#include "geneva/ind/GFlatGenome.hpp"
+#include "geneva/ind/GGenome.hpp"
 #include "geneva/oa/GFactoryStore.hpp"
 #include "geneva/oa/GInitializerT.hpp"
 #include "hap/GRandomFactory.hpp"

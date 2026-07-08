@@ -133,7 +133,7 @@ GStarterIndividual::GStarterIndividual(
  * @param cp A copy of another GStarterIndividual
  */
 GStarterIndividual::GStarterIndividual(const GStarterIndividual &cp)
-  : gen::GFlatGenome(cp)
+  : gen::GGenome(cp)
   , targetFunction_(cp.targetFunction_) { /* nothing */
 }
 
@@ -167,7 +167,7 @@ void GStarterIndividual::compare_(
     Gem::Common::GToken token("GStarterIndividual", e);
 
     // Compare our parent data ...
-    Gem::Common::compare_base_t<gen::GFlatGenome>(*this, *p_load, token);
+    Gem::Common::compare_base_t<gen::GGenome>(*this, *p_load, token);
 
     // ... and then the local data
     Gem::Common::g_compare_members(this->localMembers_(), p_load->localMembers_(), token);
@@ -207,7 +207,7 @@ targetFunction GStarterIndividual::getTargetFunction() const {
  * @return A shared pointer to the populated OA-owned adaption config
  */
 std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase>
-GStarterIndividual::buildAdaptionConfig(const gen::GFlatGenome &sample, const Config &c) {
+GStarterIndividual::buildAdaptionConfig(const gen::GGenome &sample, const Config &c) {
     auto cfg = oa::makeAdaptionConfig<oa::GAdaptionConfigBase>(sample);
     for(std::size_t i = 0; i < cfg->doubleGroups().size(); i++) {
         cfg->groupDouble(i).gauss(c.sigma, c.sigma_sigma, c.min_sigma, c.max_sigma, c.ad_prob);
@@ -241,9 +241,9 @@ std::string GStarterIndividual::print() {
 
 /******************************************************************************/
 /**
- * Loads the data of another GStarterIndividual, camouflaged as a GFlatGenome
+ * Loads the data of another GStarterIndividual, camouflaged as a GGenome
  *
- * @param cp A copy of another GStarterIndividual, camouflaged as a GFlatGenome
+ * @param cp A copy of another GStarterIndividual, camouflaged as a GGenome
  */
 void GStarterIndividual::load_(const gen::GOptimizableEntity *cp) {
     // Check that we are dealing with a GStarterIndividual reference independent of this object and convert the pointer
@@ -251,7 +251,7 @@ void GStarterIndividual::load_(const gen::GOptimizableEntity *cp) {
         Gem::Common::g_convert_and_compare<gen::GOptimizableEntity, GStarterIndividual>(cp, this);
 
     // Load our parent class'es data ...
-    gen::GFlatGenome::load_(cp);
+    gen::GGenome::load_(cp);
 
     // ... and then our local data
     Gem::Common::g_load_members(this->localMembers_(), p_load->localMembers_());
@@ -261,9 +261,9 @@ void GStarterIndividual::load_(const gen::GOptimizableEntity *cp) {
 /**
  * Creates a deep clone of this object
  *
- * @return A deep clone of this object, camouflaged as a GFlatGenome
+ * @return A deep clone of this object, camouflaged as a GGenome
  */
-gen::GFlatGenome *GStarterIndividual::clone_() const {
+gen::GGenome *GStarterIndividual::clone_() const {
     return new GStarterIndividual(*this);
 }
 
@@ -329,7 +329,7 @@ bool GStarterIndividual::modify_GUnitTests_() {
     bool result = false;
 
     // Call the parent classes' functions
-    if(gen::GFlatGenome::modify_GUnitTests_()) {
+    if(gen::GGenome::modify_GUnitTests_()) {
         result = true;
     }
 
@@ -357,7 +357,7 @@ void GStarterIndividual::specificTestsNoFailureExpected_GUnitTests_() {
     using namespace Gem::Geneva;
 
     // Call the parent classes' functions
-    gen::GFlatGenome::specificTestsNoFailureExpected_GUnitTests_();
+    gen::GGenome::specificTestsNoFailureExpected_GUnitTests_();
 
     //------------------------------------------------------------------------------
 
@@ -421,7 +421,7 @@ void GStarterIndividual::specificTestsFailuresExpected_GUnitTests_() {
     using namespace Gem::Geneva;
 
     // Call the parent classes' functions
-    gen::GFlatGenome::specificTestsFailuresExpected_GUnitTests_();
+    gen::GGenome::specificTestsFailuresExpected_GUnitTests_();
 
     //------------------------------------------------------------------------------
 

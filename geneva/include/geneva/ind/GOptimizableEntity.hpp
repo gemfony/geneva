@@ -96,7 +96,7 @@ namespace Gem::Geneva::Genome {
  * The algorithms reach the parameters THROUGH THIS BASE: the genome value API (streamline<T> /
  * assignValueVector<T> / countParameters<T> / boundaries<T> + the FP / internal views + getVarVal<T> +
  * toJSON / toCSV / crossOverWith / cannibalize) is declared here, dispatching to pure-virtual
- * hooks that the value-bearing genome layer (GFlatGenome) implements. "Read my parameters as a vector" is
+ * hooks that the value-bearing genome layer (GGenome) implements. "Read my parameters as a vector" is
  * a universal optimization operation; only the storage is genome-specific. This keeps the assembly
  * representation-agnostic: a future non-flat genome would derive GOptimizableEntity directly.
  */
@@ -483,7 +483,7 @@ public:
     /***************************************************************************/
     // Genome value channels (genome-agnostic). The public per-type templates are the ergonomic surface the
     // optimization algorithms use; each dispatches to a non-template virtual that the flat genome
-    // (GFlatGenome) implements. The algorithms therefore read and write parameter values without knowing
+    // (GGenome) implements. The algorithms therefore read and write parameter values without knowing
     // the storage layout -- no downcast. "Read my parameters as a vector" is a universal optimization
     // operation; only the storage is genome-specific, so the base declares it and the flat impl overrides.
 

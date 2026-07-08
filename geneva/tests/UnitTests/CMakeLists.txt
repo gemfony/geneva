@@ -35,10 +35,10 @@ SET ( ${EXECUTABLENAME}_SRCS
 	GHesseErrorTests.cpp
 	GAuxiliaryStoreTests.cpp
 	GAdaptionKernelTests.cpp
-	GFlatGenomeTests.cpp
+	GGenomeTests.cpp
 	GOptimizableEntityTests.cpp
 	GNormalizedGenomeTests.cpp
-	GFlatOptimizationAlgorithmsTests.cpp
+	GOptimizationAlgorithmsTests.cpp
 	GStandardPSO2011Tests.cpp
 	GAntColonyOptimizationTests.cpp
 	GGeneralizedSimulatedAnnealingTests.cpp

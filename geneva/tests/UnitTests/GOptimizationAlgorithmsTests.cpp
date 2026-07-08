@@ -29,7 +29,7 @@
 
 /**
  * End-to-end checks that EVERY optimization algorithm can drive a
- * GFlatGenome individual, not just the EA. Each algorithm only ever touches an individual through the
+ * GGenome individual, not just the EA. Each algorithm only ever touches an individual through the
  * storage-agnostic channel interface (streamline / assignValueVector / boundaries / countParameters /
  * adapt / randomInit) + population-level access + personality traits -- and the OA populations already
  * hold a GUniquePtrContainerT<GOptimizableEntity>, so the flat genome drops in with ZERO OA changes.
@@ -58,8 +58,8 @@
 
 #include "geneva/ind/GAdaptionAuxKeys.hpp"
 #include "geneva/ind/GAdaptionKernels.hpp"
-#include "geneva/ind/GFlatGenome.hpp"
-#include "geneva/ind/GFlatGenomeT.hpp"
+#include "geneva/ind/GGenome.hpp"
+#include "geneva/ind/GGenomeT.hpp"
 #include "geneva/ind/GGenomeBuilder.hpp"
 #include "geneva/individuals/GLineFitIndividual.hpp"
 #include "geneva/oa/GAdaption.hpp"
@@ -85,9 +85,9 @@ constexpr std::size_t N_DIM = 5;
 /**
  * A flat-genome sphere individual: N_DIM constrained doubles in [-5, 5), sharing one Gauss adaptor,
  * started at 3.0 (so the initial fitness is N_DIM * 9 = 45). Authored entirely through the builder;
- * clone/load/compare come from the CRTP base + GFlatGenome.
+ * clone/load/compare come from the CRTP base + GGenome.
  */
-class FlatSphereOA : public gen::GFlatGenomeT<FlatSphereOA> {
+class FlatSphereOA : public gen::GGenomeT<FlatSphereOA> {
 public:
     FlatSphereOA() {
         gen::GGenomeBuilder b;
@@ -125,7 +125,7 @@ protected:
  * constrained fold never distorts a line-search probe (the same setup real CGD usage employs, e.g. the
  * GFunctionMinimizer example over GConstrainedDoubleObject).
  */
-class FlatSphereWideOA : public gen::GFlatGenomeT<FlatSphereWideOA> {
+class FlatSphereWideOA : public gen::GGenomeT<FlatSphereWideOA> {
 public:
     FlatSphereWideOA() {
         gen::GGenomeBuilder b;
@@ -151,7 +151,7 @@ protected:
  * A continuous flat sphere driven by a BI-GAUSSIAN adaptor (instead of the single gaussian): N_DIM
  * constrained doubles in [-5, 5), started at 3.0. Demonstrates the bi-gauss kernel end-to-end.
  */
-class FlatBiGaussSphereOA : public gen::GFlatGenomeT<FlatBiGaussSphereOA> {
+class FlatBiGaussSphereOA : public gen::GGenomeT<FlatBiGaussSphereOA> {
 public:
     FlatBiGaussSphereOA() {
         gen::GGenomeBuilder b;
@@ -190,7 +190,7 @@ protected:
  */
 constexpr std::size_t N_INT = 5;
 
-class FlatIntSphereOA : public gen::GFlatGenomeT<FlatIntSphereOA> {
+class FlatIntSphereOA : public gen::GGenomeT<FlatIntSphereOA> {
 public:
     FlatIntSphereOA() {
         gen::GGenomeBuilder b;
@@ -225,7 +225,7 @@ protected:
  */
 constexpr std::size_t N_BOOL = 16;
 
-class FlatOneMaxOA : public gen::GFlatGenomeT<FlatOneMaxOA> {
+class FlatOneMaxOA : public gen::GGenomeT<FlatOneMaxOA> {
 public:
     FlatOneMaxOA() {
         gen::GGenomeBuilder b;
@@ -261,7 +261,7 @@ protected:
  * per-dimension velocity range is l*(upper-lower) == 0 for the frozen dim) tolerates a fixed parameter
  * rather than crashing.
  */
-class FlatFrozenOA : public gen::GFlatGenomeT<FlatFrozenOA> {
+class FlatFrozenOA : public gen::GGenomeT<FlatFrozenOA> {
 public:
     FlatFrozenOA() {
         gen::GGenomeBuilder b;
@@ -293,7 +293,7 @@ std::vector<std::int32_t> g_scan_int_samples;            ///< every int value th
 std::vector<std::pair<double, double>> g_scan_pair_samples; ///< every (x, y) the 2-double probe was evaluated at
 
 /** @brief A single-int32 probe (genome bound [-10, 10]) recording each evaluated int value. */
-class FlatScanIntProbe : public gen::GFlatGenomeT<FlatScanIntProbe> {
+class FlatScanIntProbe : public gen::GGenomeT<FlatScanIntProbe> {
 public:
     FlatScanIntProbe() {
         gen::GGenomeBuilder b;
@@ -315,7 +315,7 @@ protected:
 };
 
 /** @brief A two-double probe (genome bounds [-5, 5)) recording each evaluated (x, y) pair. */
-class FlatScanPairProbe : public gen::GFlatGenomeT<FlatScanPairProbe> {
+class FlatScanPairProbe : public gen::GGenomeT<FlatScanPairProbe> {
 public:
     FlatScanPairProbe() {
         gen::GGenomeBuilder b;
@@ -342,7 +342,7 @@ protected:
 
 /** @brief A ONE-dimensional flat sphere: a single constrained double in [-5, 5), started at 3.0. Used to
  *  exercise the n_vert == 2 (1-D) Nelder-Mead simplex path. */
-class FlatSphere1D : public gen::GFlatGenomeT<FlatSphere1D> {
+class FlatSphere1D : public gen::GGenomeT<FlatSphere1D> {
 public:
     FlatSphere1D() {
         gen::GGenomeBuilder b;
@@ -362,7 +362,7 @@ protected:
 /** @brief A flat individual with INVERTED bounds (lower > upper): three constrained doubles declared as
  *  [5, -5]. The genome builder does not reject this, so it is used to confirm the swarm rejects the
  *  resulting negative velocity range with a clear error instead of hitting undefined behaviour. */
-class FlatInvertedBoundsOA : public gen::GFlatGenomeT<FlatInvertedBoundsOA> {
+class FlatInvertedBoundsOA : public gen::GGenomeT<FlatInvertedBoundsOA> {
 public:
     FlatInvertedBoundsOA() {
         gen::GGenomeBuilder b;
@@ -386,7 +386,7 @@ protected:
 /** @brief A MIXED flat individual: 3 constrained doubles in [-5, 5) plus 2 constrained int32 in [-10, 10].
  *  Used to confirm sep-CMA-ES (an FP-only evolution strategy) optimizes the doubles, leaves the integers
  *  at their start values, and warns rather than crashing on the non-FP parameters. */
-class FlatMixedOA : public gen::GFlatGenomeT<FlatMixedOA> {
+class FlatMixedOA : public gen::GGenomeT<FlatMixedOA> {
 public:
     FlatMixedOA() {
         gen::GGenomeBuilder b;
@@ -469,7 +469,7 @@ TEST_CASE("EA in a PARETO mode degenerates safely on a single-objective individu
 /******************************************************************************/
 
 TEST_CASE("EA checkpoint round-trip preserves the per-individual adaption scratch", "[flat][oa]") {
-    using gen::GFlatGenome;
+    using gen::GGenome;
     using Gem::Geneva::Genome::AUXKEY_GAUSS_DOUBLE;
     using Gem::Geneva::Genome::GaussState;
 
@@ -547,7 +547,7 @@ TEST_CASE("EA adopts an externally-provided adaption config", "[flat][oa]") {
     pop->setReportIteration(100000);
 
     auto ind = FlatSphereOA().clone_unique();
-    auto &flat = dynamic_cast<gen::GFlatGenome &>(*ind);
+    auto &flat = dynamic_cast<gen::GGenome &>(*ind);
     auto cfg = std::make_shared<oa::GEAAdaptionConfig>(flat);
     cfg->groupDouble(0).gauss(0.5, 0.8, 1e-3, 2., 1.); // author the Gauss settings explicitly
 
@@ -574,7 +574,7 @@ TEST_CASE("EA rejects an adaption config built for a different genome", "[flat][
     // A config built from a structurally DIFFERENT genome (a line fit: 2 doubles) must be rejected when
     // the algorithm validates it against its population's genome at setup.
     gind::GLineFitIndividual other(std::vector<std::tuple<double, double>>{{0., 0.}, {1., 1.}});
-    auto &oflat = dynamic_cast<gen::GFlatGenome &>(other);
+    auto &oflat = dynamic_cast<gen::GGenome &>(other);
     auto cfg = std::make_shared<oa::GEAAdaptionConfig>(oflat);
 
     pop->setAdaptionConfig(cfg);
@@ -1252,7 +1252,7 @@ namespace {
 
 /** @brief A high-dimensional flat sphere: N constrained doubles in [-5, 5), started at 3.0. */
 template <std::size_t N>
-class FlatHighDimSphere : public gen::GFlatGenomeT<FlatHighDimSphere<N>> {
+class FlatHighDimSphere : public gen::GGenomeT<FlatHighDimSphere<N>> {
 public:
     FlatHighDimSphere() {
         gen::GGenomeBuilder b;
@@ -1296,7 +1296,7 @@ double sphereValue(const std::shared_ptr<gen::GOptimizableEntity> &best) {
  * constrained doubles in [-5, 5). The Pareto front is the segment x_i in [0, 2]; used for the NSGA-II
  * selection smoke test.
  */
-class FlatBiObjective : public gen::GFlatGenomeT<FlatBiObjective> {
+class FlatBiObjective : public gen::GGenomeT<FlatBiObjective> {
 public:
     FlatBiObjective() {
         gen::GGenomeBuilder b;

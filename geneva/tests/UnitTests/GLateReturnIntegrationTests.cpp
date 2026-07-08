@@ -53,7 +53,7 @@
 
 #include "courtier/GCourtierEnums.hpp" // SUBMISSION_UUID_TYPE
 #include "geneva/ind/GOptimizableEntity.hpp"
-#include "geneva/ind/GFlatGenomeT.hpp"
+#include "geneva/ind/GGenomeT.hpp"
 #include "geneva/ind/GGenomeBuilder.hpp"
 #include "geneva/oa/GOptimizationAlgorithmBase.hpp"
 
@@ -66,7 +66,7 @@ namespace Gem::Tests {
 
 /******************************************************************************/
 /** A minimal flat individual: a sphere over a single double channel. */
-class LRSphere : public GFlatGenomeT<LRSphere> {
+class LRSphere : public GGenomeT<LRSphere> {
 public:
     LRSphere() {
         GGenomeBuilder b;
@@ -88,15 +88,15 @@ private:
     template <typename Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         ar &boost::serialization::make_nvp(
-            "GFlatGenomeT",
-            boost::serialization::base_object<GFlatGenomeT<LRSphere>>(*this)
+            "GGenomeT",
+            boost::serialization::base_object<GGenomeT<LRSphere>>(*this)
         );
     }
 };
 
 /******************************************************************************/
 /** A flat individual whose evaluation always throws, used to manufacture an errored work item. */
-class LRThrower : public GFlatGenomeT<LRThrower> {
+class LRThrower : public GGenomeT<LRThrower> {
 public:
     LRThrower() {
         GGenomeBuilder b;
@@ -115,8 +115,8 @@ private:
     template <typename Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         ar &boost::serialization::make_nvp(
-            "GFlatGenomeT",
-            boost::serialization::base_object<GFlatGenomeT<LRThrower>>(*this)
+            "GGenomeT",
+            boost::serialization::base_object<GGenomeT<LRThrower>>(*this)
         );
     }
 };

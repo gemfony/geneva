@@ -45,7 +45,7 @@
 #include "common/GExceptions.hpp"
 #include "common/GLogger.hpp"
 #include "courtier/gpu/GGPUEvaluableI.hpp"
-#include "geneva/ind/GFlatGenome.hpp"
+#include "geneva/ind/GGenome.hpp"
 #include "geneva/ind/GOptimizableEntity.hpp"
 
 namespace Gem::Geneva {
@@ -111,7 +111,7 @@ public:
  *    channel (which leaves the item PROCESSED for the courtier reconciliation).
  *
  * This sits in @c geneva (not @c courtier) because the generic flatten/scatter necessarily know the geneva
- * individual model (@c GFlatGenome, @c individual_processing_result); it derives from courtier's
+ * individual model (@c GGenome, @c individual_processing_result); it derives from courtier's
  * genome-agnostic @c GGPUEvaluableI, which stays free of the geneva layer.
  *
  * @tparam scalar_type The device ABI / flat-buffer element type (double for full parity, float for FP32 speed)
@@ -154,7 +154,7 @@ public:
     /**
      * @brief Streamlines every item's external values row-major into @p params_out (@c scalar_type each).
      *
-     * @param items The batch to flatten (every item must be a GFlatGenome of uniform dimension)
+     * @param items The batch to flatten (every item must be a GGenome of uniform dimension)
      * @param params_out Filled with @c items.size() * itemDimension() scalars (parameter j of item i at i*dim + j)
      */
     void flatten(std::span<const item_ptr> items, std::vector<scalar_type> &params_out) const override {
@@ -165,12 +165,12 @@ public:
         const std::size_t dim = this->itemDimension(items.front());
         params_out.resize(items.size() * dim);
         for(std::size_t i = 0; i < items.size(); ++i) {
-            const auto *flat = dynamic_cast<const Gem::Geneva::Genome::GFlatGenome *>(items[i].get());
+            const auto *flat = dynamic_cast<const Gem::Geneva::Genome::GGenome *>(items[i].get());
             if(flat == nullptr) {
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                     << "In GBaseGPUMarshallerT::flatten(): Error!" << '\n'
-                    << "A work item is not a GFlatGenome; a GPU marshaller requires flat-genome"
+                    << "A work item is not a GGenome; a GPU marshaller requires flat-genome"
                     << " individuals." << '\n'
                 );
             }

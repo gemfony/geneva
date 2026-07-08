@@ -27,7 +27,7 @@
  *
  ********************************************************************************/
 
-#include "geneva/ind/GFlatGenome.hpp"
+#include "geneva/ind/GGenome.hpp"
 
 #include <algorithm>
 #include <cstddef>
@@ -56,14 +56,14 @@ namespace Gem::Geneva::Genome {
 /**
  * @brief The default constructor (a single fitness criterion, an empty genome to be filled by setGenome()).
  */
-GFlatGenome::GFlatGenome() = default;
+GGenome::GGenome() = default;
 
 /******************************************************************************/
 /**
  * @brief Initialization with the number of fitness criteria.
  * @param n_fitness_criteria The number of fitness criteria this genome will evaluate to
  */
-GFlatGenome::GFlatGenome(const std::size_t n_fitness_criteria)
+GGenome::GGenome(const std::size_t n_fitness_criteria)
   : GOptimizableEntity(n_fitness_criteria) {
     /* nothing */
 }
@@ -71,9 +71,9 @@ GFlatGenome::GFlatGenome(const std::size_t n_fitness_criteria)
 /******************************************************************************/
 /**
  * @brief The copy constructor.
- * @param cp A constant reference to another GFlatGenome object to be copied
+ * @param cp A constant reference to another GGenome object to be copied
  */
-GFlatGenome::GFlatGenome(GFlatGenome const &cp)
+GGenome::GGenome(GGenome const &cp)
   : GOptimizableEntity(cp)
   , dv_(cp.dv_)
   , fv_(cp.fv_)
@@ -88,7 +88,7 @@ GFlatGenome::GFlatGenome(GFlatGenome const &cp)
  * @brief Installs the value arrays and shared structural layout produced by a GGenomeBuilder.
  * @param g The GenomeData bundle (double/float/int/bool value arrays plus the shared layout) to install
  */
-void GFlatGenome::setGenome(GenomeData const &g) {
+void GGenome::setGenome(GenomeData const &g) {
     // Install the new layout (re-keys the parameter-count cache).
     this->setLayout(g.layout ? g.layout : std::make_shared<const GGenomeLayout>());
 
@@ -98,7 +98,7 @@ void GFlatGenome::setGenome(GenomeData const &g) {
             if(ch.fold[k] && ch.lower[k] > ch.upper[k]) {
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                    << "In GFlatGenome::setGenome(): Error!" << '\n'
+                    << "In GGenome::setGenome(): Error!" << '\n'
                     << "Bounded " << type_name << " parameter " << k << " has inverted bounds (lower "
                     << ch.lower[k] << " > upper " << ch.upper[k] << ")." << '\n'
                 );
@@ -127,21 +127,21 @@ void GFlatGenome::setGenome(GenomeData const &g) {
 /******************************************************************************/
 /**
  * @brief Searches for compliance with expectations with respect to another object of the same type.
- * @param cp A constant reference to another GFlatGenome, camouflaged as a GOptimizableEntity
+ * @param cp A constant reference to another GGenome, camouflaged as a GOptimizableEntity
  * @param e The expected outcome of the comparison
  * @param limit The maximum deviation tolerated for floating point comparisons (unused here)
  */
-void GFlatGenome::compare_(
+void GGenome::compare_(
     GOptimizableEntity const &cp,
     Gem::Common::expectation const &e,
     [[maybe_unused]] double const &limit
 ) const {
     using namespace Gem::Common;
 
-    const GFlatGenome *p_load =
-        Gem::Common::g_convert_and_compare<GOptimizableEntity, GFlatGenome>(cp, this);
+    const GGenome *p_load =
+        Gem::Common::g_convert_and_compare<GOptimizableEntity, GGenome>(cp, this);
 
-    GToken token("GFlatGenome", e);
+    GToken token("GGenome", e);
 
     Gem::Common::compare_base_t<GOptimizableEntity>(*this, *p_load, token);
 
@@ -153,12 +153,12 @@ void GFlatGenome::compare_(
 
 /******************************************************************************/
 /**
- * @brief Loads the data of another GFlatGenome object, camouflaged as a GOptimizableEntity.
- * @param cp A pointer to another GFlatGenome object, camouflaged as a GOptimizableEntity
+ * @brief Loads the data of another GGenome object, camouflaged as a GOptimizableEntity.
+ * @param cp A pointer to another GGenome object, camouflaged as a GOptimizableEntity
  */
-void GFlatGenome::load_(const GOptimizableEntity *cp) {
-    const GFlatGenome *p_load =
-        Gem::Common::g_convert_and_compare<GOptimizableEntity, GFlatGenome>(cp, this);
+void GGenome::load_(const GOptimizableEntity *cp) {
+    const GGenome *p_load =
+        Gem::Common::g_convert_and_compare<GOptimizableEntity, GGenome>(cp, this);
 
     GOptimizableEntity::load_(cp);
 
@@ -176,7 +176,7 @@ void GFlatGenome::load_(const GOptimizableEntity *cp) {
  * @param am The activity mode that selects which parameters are initialized
  * @return true if at least one parameter value was modified, false otherwise
  */
-bool GFlatGenome::randomInit_(activityMode const &am) {
+bool GGenome::randomInit_(activityMode const &am) {
     bool modified = false;
     if(randomInitFP<double>(dv_, layout_->d, am)) { modified = true; }
     if(randomInitFP<float>(fv_, layout_->f, am)) { modified = true; }
@@ -195,7 +195,7 @@ bool GFlatGenome::randomInit_(activityMode const &am) {
  * @return true if at least one entry was modified, false otherwise
  */
 template <typename T>
-bool GFlatGenome::randomInitFP(std::vector<T> &store, ChannelLayout<T> const &ch, activityMode const &am) {
+bool GGenome::randomInitFP(std::vector<T> &store, ChannelLayout<T> const &ch, activityMode const &am) {
     bool modified = false;
     std::uniform_real_distribution<T> dist;
     for(std::size_t k = 0; k < store.size(); ++k) {
@@ -218,7 +218,7 @@ bool GFlatGenome::randomInitFP(std::vector<T> &store, ChannelLayout<T> const &ch
  * @param am The activity mode that selects which entries are initialized
  * @return true if at least one entry was modified, false otherwise
  */
-bool GFlatGenome::randomInitInt(activityMode const &am) {
+bool GGenome::randomInitInt(activityMode const &am) {
     bool modified = false;
     std::uniform_int_distribution<std::int32_t> dist;
     const ChannelLayout<std::int32_t> &ch = layout_->i;
@@ -243,7 +243,7 @@ bool GFlatGenome::randomInitInt(activityMode const &am) {
  * @param am The activity mode that selects which entries are initialized
  * @return true if at least one entry was modified, false otherwise
  */
-bool GFlatGenome::randomInitBool(activityMode const &am) {
+bool GGenome::randomInitBool(activityMode const &am) {
     bool modified = false;
     std::bernoulli_distribution dist(0.5);
     const ChannelLayout<bool> &ch = layout_->b;
@@ -264,18 +264,18 @@ bool GFlatGenome::randomInitBool(activityMode const &am) {
  * @param upper The (exclusive) upper bound of the position range; must be > lower
  * @return A uniformly drawn position in the half-open range [lower, upper)
  */
-std::size_t GFlatGenome::getCrossOverPos(const std::size_t lower, const std::size_t upper) {
+std::size_t GGenome::getCrossOverPos(const std::size_t lower, const std::size_t upper) {
     if(lower == 0) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GFlatGenome::getCrossOverPos(): Error!" << '\n'
+            << "In GGenome::getCrossOverPos(): Error!" << '\n'
             << "lower boundary is 0, but must be > 0" << '\n'
         );
     }
     if(upper <= lower) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GFlatGenome::getCrossOverPos(): Error!" << '\n'
+            << "In GGenome::getCrossOverPos(): Error!" << '\n'
             << "Invalid range: upper (" << upper << ") must be > lower (" << lower << ")" << '\n'
         );
     }
@@ -285,12 +285,12 @@ std::size_t GFlatGenome::getCrossOverPos(const std::size_t lower, const std::siz
 /******************************************************************************/
 /**
  * @brief Perform a cross-over operation between this genome and another.
- * @param cp_base A constant reference to the other parent (a GFlatGenome)
- * @return A newly created GFlatGenome holding the crossed-over genome, upcast to GOptimizableEntity
+ * @param cp_base A constant reference to the other parent (a GGenome)
+ * @return A newly created GGenome holding the crossed-over genome, upcast to GOptimizableEntity
  */
-std::shared_ptr<GOptimizableEntity> GFlatGenome::crossOverWith(GOptimizableEntity const &cp_base) const {
-    const auto &cp = dynamic_cast<const GFlatGenome &>(cp_base);
-    std::shared_ptr<GFlatGenome> this_cp = this->clone<GFlatGenome>();
+std::shared_ptr<GOptimizableEntity> GGenome::crossOverWith(GOptimizableEntity const &cp_base) const {
+    const auto &cp = dynamic_cast<const GGenome &>(cp_base);
+    std::shared_ptr<GGenome> this_cp = this->clone<GGenome>();
 
     std::vector<double> this_d, cp_d;
     std::vector<float> this_f, cp_f;
@@ -334,15 +334,15 @@ std::shared_ptr<GOptimizableEntity> GFlatGenome::crossOverWith(GOptimizableEntit
 
 /******************************************************************************/
 /**
- * @brief Retrieves parameters relevant for the evaluation from another GFlatGenome.
- * @param cp A reference to the foreign genome (a GFlatGenome); it is moved-from and cleared
+ * @brief Retrieves parameters relevant for the evaluation from another GGenome.
+ * @param cp A reference to the foreign genome (a GGenome); it is moved-from and cleared
  */
-void GFlatGenome::cannibalize(GOptimizableEntity &cp_base) {
-    auto &cp = dynamic_cast<GFlatGenome &>(cp_base);
+void GGenome::cannibalize(GOptimizableEntity &cp_base) {
+    auto &cp = dynamic_cast<GGenome &>(cp_base);
     if(cp.is_due_for_processing() || cp.has_errors()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GFlatGenome::cannibalize(): Error!" << '\n'
+            << "In GGenome::cannibalize(): Error!" << '\n'
             << "cp isn't processed or has errors" << '\n'
         );
     }
@@ -367,7 +367,7 @@ void GFlatGenome::cannibalize(GOptimizableEntity &cp_base) {
  * @param idx The positional index into the streamlined double channel
  * @return The double value at the given index
  */
-double GFlatGenome::getVarVal_d_(std::size_t idx) {
+double GGenome::getVarVal_d_(std::size_t idx) {
     std::vector<double> v;
     this->streamline<double>(v);
     return v.at(idx);
@@ -378,7 +378,7 @@ double GFlatGenome::getVarVal_d_(std::size_t idx) {
  * @param idx The positional index into the streamlined float channel
  * @return The float value at the given index
  */
-float GFlatGenome::getVarVal_f_(std::size_t idx) {
+float GGenome::getVarVal_f_(std::size_t idx) {
     std::vector<float> v;
     this->streamline<float>(v);
     return v.at(idx);
@@ -389,7 +389,7 @@ float GFlatGenome::getVarVal_f_(std::size_t idx) {
  * @param idx The positional index into the streamlined int32 channel
  * @return The int32 value at the given index
  */
-std::int32_t GFlatGenome::getVarVal_i_(std::size_t idx) {
+std::int32_t GGenome::getVarVal_i_(std::size_t idx) {
     std::vector<std::int32_t> v;
     this->streamline<std::int32_t>(v);
     return v.at(idx);
@@ -400,7 +400,7 @@ std::int32_t GFlatGenome::getVarVal_i_(std::size_t idx) {
  * @param idx The positional index into the streamlined boolean channel
  * @return The boolean value at the given index
  */
-bool GFlatGenome::getVarVal_b_(std::size_t idx) {
+bool GGenome::getVarVal_b_(std::size_t idx) {
     std::vector<bool> v;
     this->streamline<bool>(v);
     return static_cast<bool>(v.at(idx));
@@ -417,7 +417,7 @@ bool GFlatGenome::getVarVal_b_(std::size_t idx) {
  *
  * @return A boost::json::object holding this individual's parameters, metadata and results
  */
-boost::json::object GFlatGenome::toJSON() const {
+boost::json::object GGenome::toJSON() const {
     namespace json = boost::json;
 
     bool dirty_flag = (Gem::Courtier::processingStatus::DO_PROCESS == this->getProcessingStatus());
@@ -428,7 +428,7 @@ boost::json::object GFlatGenome::toJSON() const {
     body["is_dirty"] = dirty_flag;
     body["has_errors"] = has_errors;
     body["isValid"] = has_errors || dirty_flag ? false : this->isValid();
-    body["type"] = "GFlatGenome";
+    body["type"] = "GGenome";
 
     std::vector<double> d_data;
     std::vector<float> f_data;
@@ -495,7 +495,7 @@ boost::json::object GFlatGenome::toJSON() const {
  * @param show_validity If true, append a trailing validity column
  * @return A string holding the CSV (tab-separated) representation, terminated with a newline
  */
-std::string GFlatGenome::toCSV(
+std::string GGenome::toCSV(
     bool with_name_and_type,
     bool with_commas,
     bool use_raw_fitness,
@@ -592,7 +592,7 @@ std::string GFlatGenome::toCSV(
  * @brief Applies modifications to this object. This is needed for testing purposes.
  * @return true if modifications were made, false otherwise
  */
-bool GFlatGenome::modify_GUnitTests_() {
+bool GGenome::modify_GUnitTests_() {
 #ifdef GEM_TESTING
     bool result = false;
 
@@ -609,7 +609,7 @@ bool GFlatGenome::modify_GUnitTests_() {
 
     return result;
 #else  /* GEM_TESTING */
-    Gem::Common::condnotset("GFlatGenome::modify_GUnitTests", "GEM_TESTING");
+    Gem::Common::condnotset("GGenome::modify_GUnitTests", "GEM_TESTING");
     return false;
 #endif /* GEM_TESTING */
 }
@@ -618,17 +618,17 @@ bool GFlatGenome::modify_GUnitTests_() {
 /**
  * @brief Performs self tests that are expected to succeed. This is needed for testing purposes.
  */
-void GFlatGenome::specificTestsNoFailureExpected_GUnitTests_() {
+void GGenome::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
     {
-        std::shared_ptr<GFlatGenome> p_test = this->clone<GFlatGenome>();
+        std::shared_ptr<GGenome> p_test = this->clone<GGenome>();
         CHECK_NOTHROW(p_test->setMaxMode(maxMode::MAXIMIZE));
         CHECK(p_test->getMaxMode() == maxMode::MAXIMIZE);
         CHECK_NOTHROW(p_test->setMaxMode(maxMode::MINIMIZE));
         CHECK(p_test->getMaxMode() == maxMode::MINIMIZE);
     }
     {
-        std::shared_ptr<GFlatGenome> p_test = this->clone<GFlatGenome>();
+        std::shared_ptr<GGenome> p_test = this->clone<GGenome>();
         for(std::uint32_t i = 1; i < 10; i++) {
             CHECK_NOTHROW(p_test->setAssignedIteration(i));
             CHECK(p_test->getAssignedIteration() == i);
@@ -636,7 +636,7 @@ void GFlatGenome::specificTestsNoFailureExpected_GUnitTests_() {
     }
 #else  /* GEM_TESTING */
     Gem::Common::condnotset(
-        "GFlatGenome::specificTestsNoFailureExpected_GUnitTests",
+        "GGenome::specificTestsNoFailureExpected_GUnitTests",
         "GEM_TESTING"
     );
 #endif /* GEM_TESTING */
@@ -646,12 +646,12 @@ void GFlatGenome::specificTestsNoFailureExpected_GUnitTests_() {
 /**
  * @brief Performs self tests that are expected to fail. This is needed for testing purposes.
  */
-void GFlatGenome::specificTestsFailuresExpected_GUnitTests_() {
+void GGenome::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
     // no tests here yet
 #else  /* GEM_TESTING */
     Gem::Common::condnotset(
-        "GFlatGenome::specificTestsFailuresExpected_GUnitTests",
+        "GGenome::specificTestsFailuresExpected_GUnitTests",
         "GEM_TESTING"
     );
 #endif /* GEM_TESTING */

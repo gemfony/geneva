@@ -43,7 +43,7 @@
  *  2. The fixed entry point geneva_module_manifest(): a small extern "C" wrapper (the loader resolves this
  *     unmangled symbol via dlsym) delegating to the typed helper individualManifest<Factory, Config, Name>(),
  *     which builds the module manifest -- the toolchain-compatibility fingerprint the loader validates first,
- *     plus one INDIVIDUAL contribution whose factory is the standard GFlatIndividualFactory<Derived>. That is
+ *     plus one INDIVIDUAL contribution whose factory is the standard GIndividualFactory<Derived>. That is
  *     the entire author-facing surface: no Geneva macro, ordinary C++.
  */
 
@@ -51,7 +51,7 @@
 #include <boost/serialization/export.hpp>
 
 #include "common/GModuleManifest.hpp" // GenevaModuleManifest
-#include "geneva/ind/GFlatIndividualFactory.hpp"
+#include "geneva/ind/GIndividualFactory.hpp"
 #include "geneva/ind/GIndividualPlugin.hpp" // Gem::Geneva::individualManifest<>
 
 #include "GLoadableParaboloid.hpp"
@@ -65,6 +65,6 @@ BOOST_CLASS_EXPORT(GLoadableParaboloid) // NOLINT
 // config-file path (auto-created with the individual's defaults if absent), and a display name.
 extern "C" BOOST_SYMBOL_EXPORT const GenevaModuleManifest *geneva_module_manifest();
 extern "C" BOOST_SYMBOL_EXPORT const GenevaModuleManifest *geneva_module_manifest() {
-    return Gem::Geneva::individualManifest<Gem::Geneva::Genome::GFlatIndividualFactory<GLoadableParaboloid>,
+    return Gem::Geneva::individualManifest<Gem::Geneva::Genome::GIndividualFactory<GLoadableParaboloid>,
                                            "./config/GLoadableParaboloid.json", "GLoadableParaboloid">();
 }

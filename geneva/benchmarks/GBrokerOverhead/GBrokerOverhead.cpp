@@ -48,7 +48,7 @@
 #include "geneva/GConsumerSetup.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/Go2.hpp"
-#include "geneva/ind/GFlatGenome.hpp"
+#include "geneva/ind/GGenome.hpp"
 #include "geneva/ind/GGenomeBuilder.hpp"
 #include "geneva/oa/GAdaption.hpp"
 
@@ -382,7 +382,7 @@ int main(int argc, char **argv) {
         // factory-produced genome with the benchmark's command-line geometry.
         gen::GGenomeBuilder b;
         b.addDoublePlainGroup(parDim, minVar, maxVar); // structure only; the adaptor lives on the OA config
-        dynamic_cast<gen::GFlatGenome &>(*functionIndividual_ptr).setGenome(b.build());
+        dynamic_cast<gen::GGenome &>(*functionIndividual_ptr).setGenome(b.build());
 
         parentIndividuals.push_back(functionIndividual_ptr);
     }
@@ -426,7 +426,7 @@ int main(int argc, char **argv) {
     // The EA's Gauss adaptor now lives on the OA-owned config (authored here from the shared genome
     // geometry), not baked into the genome layout. Hand it to the population.
     {
-        const auto &flat0 = dynamic_cast<const gen::GFlatGenome &>(*parentIndividuals[0]);
+        const auto &flat0 = dynamic_cast<const gen::GGenome &>(*parentIndividuals[0]);
         auto cfg = oa::makeAdaptionConfig<oa::GEAAdaptionConfig>(flat0);
         cfg->groupDouble(0).gauss(sigma, sigmaSigma, minSigma, maxSigma, adProb, 0., adaptionThreshold);
         pop_ptr->setAdaptionConfig(cfg);

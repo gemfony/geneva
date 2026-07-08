@@ -109,7 +109,7 @@ std::vector<GAlgorithmBenchmarkResult> GAlgorithmBenchmarkRunner::run() {
             << std::endl << GLOGGING;
 
     // Individual configuration (shared across all runs). GFunctionIndividual is a flat individual driven
-    // by the generic GFlatIndividualFactory; this benchmark needs a specific genome DIMENSION, so it builds
+    // by the generic GIndividualFactory; this benchmark needs a specific genome DIMENSION, so it builds
     // individuals directly through the static hooks rather than through the factory (whose par_dim is fixed
     // by the config file).
     gind::GFunctionIndividual::Config indCfg =

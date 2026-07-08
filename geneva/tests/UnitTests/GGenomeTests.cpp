@@ -71,10 +71,10 @@
 #include "geneva/GenevaInitializer.hpp"
 #include "hap/GRandomT.hpp"
 #include "hap/GRandomFactory.hpp"
-#include "geneva/ind/GFlatGenome.hpp"
-#include "geneva/ind/GFlatIndividualFactory.hpp"
+#include "geneva/ind/GGenome.hpp"
+#include "geneva/ind/GIndividualFactory.hpp"
 #include "geneva/ind/GIndividualPluginLoader.hpp"
-#include "geneva/ind/GFlatGenomeT.hpp"
+#include "geneva/ind/GGenomeT.hpp"
 #include "geneva/ind/GGenomeArchitecture.hpp"
 #include "geneva/ind/GGenomeBuilder.hpp"
 #include "geneva/oa/GAdaption.hpp"
@@ -95,9 +95,9 @@ namespace Gem::Tests {
  * A minimal flat individual: a sphere over n constrained doubles sharing one Gauss adaptor. It
  * demonstrates the intended authoring effort -- a constructor that builds the genome, a
  * evaluate(), and the serialize hook; clone/load/compare come from the CRTP base +
- * GFlatGenome.
+ * GGenome.
  */
-class FlatSphere : public GFlatGenomeT<FlatSphere> {
+class FlatSphere : public GGenomeT<FlatSphere> {
 public:
     FlatSphere() { buildGenome(5); }
     explicit FlatSphere(std::size_t n) { buildGenome(n); }
@@ -131,8 +131,8 @@ private:
     template <typename Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         ar &boost::serialization::make_nvp(
-            "GFlatGenomeT",
-            boost::serialization::base_object<GFlatGenomeT<FlatSphere>>(*this)
+            "GGenomeT",
+            boost::serialization::base_object<GGenomeT<FlatSphere>>(*this)
         );
     }
 };
@@ -140,10 +140,10 @@ private:
 /******************************************************************************/
 /**
  * A config-driven (Tier-2) flat individual: the same sphere, but its genome is built by the generic
- * GFlatIndividualFactory from a Config that the factory reads from a configuration file. The default
+ * GIndividualFactory from a Config that the factory reads from a configuration file. The default
  * constructor leaves the genome empty -- the factory installs it via setGenome() in postProcess_.
  */
-class FactorySphere : public GFlatGenomeT<FactorySphere> {
+class FactorySphere : public GGenomeT<FactorySphere> {
 public:
     FactorySphere() = default; // the factory installs the genome
     FactorySphere(const FactorySphere &) = default;
@@ -180,9 +180,9 @@ public:
     }
 
     /** @brief Optional hook: the OA-owned Gauss adaption config for a genome this individual produces.
-     *  Exercised through GFlatIndividualFactory::getAdaptionConfig(). */
+     *  Exercised through GIndividualFactory::getAdaptionConfig(). */
     static std::shared_ptr<oa::GAdaptionConfigBase>
-    buildAdaptionConfig(const Gem::Geneva::Genome::GFlatGenome &sample, const Config &c) {
+    buildAdaptionConfig(const Gem::Geneva::Genome::GGenome &sample, const Config &c) {
         auto cfg = oa::makeAdaptionConfig<oa::GAdaptionConfigBase>(sample);
         for(std::size_t i = 0; i < cfg->doubleGroups().size(); i++) {
             cfg->groupDouble(i).gauss(c.sigma, 0.8, 1e-3, 2., 1.);
@@ -203,8 +203,8 @@ private:
     template <typename Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         ar &boost::serialization::make_nvp(
-            "GFlatGenomeT",
-            boost::serialization::base_object<GFlatGenomeT<FactorySphere>>(*this)
+            "GGenomeT",
+            boost::serialization::base_object<GGenomeT<FactorySphere>>(*this)
         );
     }
 };
@@ -382,7 +382,7 @@ TEST_CASE("GGenomeLayout::layoutId survives a serialization round-trip", "[flat]
 }
 
 /******************************************************************************/
-TEST_CASE("GFlatGenome::streamlineInto matches streamline (bulk-flatten fast path)", "[flat]") {
+TEST_CASE("GGenome::streamlineInto matches streamline (bulk-flatten fast path)", "[flat]") {
     // streamlineInto() is the GPU marshallers' bulk-flatten fast path: it must produce EXACTLY the same
     // external (range-folded) values as streamline<T>(), just written straight into a caller buffer with
     // no temporary vector. FlatSphere's group is Constrained, so the per-element fold is exercised.
@@ -449,7 +449,7 @@ TEST_CASE("GGenomeBuilder: interned group labels", "[flat]") {
     CHECK(L->groupsForLabel("scale").size() == 1);
     CHECK(L->groupsForLabel("absent").empty());
 
-    // Serialize round-trip (through a GFlatGenome) preserves the labels + their resolution.
+    // Serialize round-trip (through a GGenome) preserves the labels + their resolution.
     FlatSphere ind;
     ind.setGenome(g);
     const std::string xml = ind.toString(Gem::Common::serializationMode::XML);
@@ -473,7 +473,7 @@ TEST_CASE("GGenomeBuilder: interned group labels", "[flat]") {
 // algorithm and vetoed on the work item's processing metadata, leaving no OA-identity mnemonic on the genome.)
 
 /******************************************************************************/
-TEST_CASE("GFlatGenome: layout interning round-trips losslessly (compact + escape route)", "[flat]") {
+TEST_CASE("GGenome: layout interning round-trips losslessly (compact + escape route)", "[flat]") {
     // COMPACT PATH: a genome whose channels are all group-uniform (the normal case) must round-trip with
     // its per-value layout arrays reconstructed EXACTLY from the compact per-group wire form.
     GGenomeBuilder b;
@@ -535,7 +535,7 @@ TEST_CASE("GFlatGenome: layout interning round-trips losslessly (compact + escap
 }
 
 /******************************************************************************/
-TEST_CASE("GFlatGenome: value round-trip (streamline / assignValueVector)", "[flat]") {
+TEST_CASE("GGenome: value round-trip (streamline / assignValueVector)", "[flat]") {
     FlatSphere ind(4);
 
     std::vector<double> v;
@@ -576,7 +576,7 @@ TEST_CASE("Constrained fold helpers map into range", "[flat]") {
 }
 
 /******************************************************************************/
-TEST_CASE("GFlatGenome: clone is independent", "[flat]") {
+TEST_CASE("GGenome: clone is independent", "[flat]") {
     FlatSphere ind(6);
 
     auto twin = ind.clone<FlatSphere>();
@@ -612,7 +612,7 @@ TEST_CASE("GFlatGenome: clone is independent", "[flat]") {
 }
 
 /******************************************************************************/
-TEST_CASE("GFlatGenome: serialization round-trip", "[flat]") {
+TEST_CASE("GGenome: serialization round-trip", "[flat]") {
     FlatSphere ind(5);
     ind.assignValueVector<double>(std::vector<double>{1., -2., 3., -4., 5.});
 
@@ -634,7 +634,7 @@ TEST_CASE("GFlatGenome: serialization round-trip", "[flat]") {
 
 /******************************************************************************/
 // CHARACTERIZATION NET (B0, 2026-06-28): outcome-pins for the individual-architecture swap. These
-// assert behaviour that must survive the GProcessable / GOptimizableEntity / GFlatGenome rebuild,
+// assert behaviour that must survive the GProcessable / GOptimizableEntity / GGenome rebuild,
 // independent of the mechanisms being retired (results-only wire form, the population slot, genome_omitted).
 // See prompts/2026-06-28-characterization-net.md.
 
@@ -642,7 +642,7 @@ TEST_CASE("GFlatGenome: serialization round-trip", "[flat]") {
 // VERBATIM and marks the item PROCESSED, WITHOUT invoking the local evaluate(). This is the
 // GPU / external-marshaller path; pinned so the contract survives the swap (and a prospective
 // acceptEvaluationResults rename of the injection entry point).
-TEST_CASE("GFlatGenome: external evaluation result is accepted verbatim (no local evaluate())",
+TEST_CASE("GGenome: external evaluation result is accepted verbatim (no local evaluate())",
           "[flat][external]") {
     FlatSphere ind(5);
     // Place the genome where the true sphere fitness is a known NON-zero value (five 1.0s -> 5.0), so
@@ -669,7 +669,7 @@ TEST_CASE("GFlatGenome: external evaluation result is accepted verbatim (no loca
 // round-trip above exercises XML only; the swap rewrites the individual inheritance graph, and Boost
 // class export/tracking is sensitive to that exact graph, so a re-run of this same test post-swap
 // proves the new export macros produce valid archives in text, XML and binary alike.
-TEST_CASE("GFlatGenome: a derived individual round-trips in TEXT, XML and BINARY",
+TEST_CASE("GGenome: a derived individual round-trips in TEXT, XML and BINARY",
           "[flat][serialize][formats]") {
     using mode = Gem::Common::serializationMode;
     const std::vector<double> vals{1., -2., 3., -4., 5.};
@@ -691,7 +691,7 @@ TEST_CASE("GFlatGenome: a derived individual round-trips in TEXT, XML and BINARY
 }
 
 /******************************************************************************/
-TEST_CASE("GFlatGenome: adapt() mutates within bounds", "[flat]") {
+TEST_CASE("GGenome: adapt() mutates within bounds", "[flat]") {
     FlatSphere ind(8);
 
     oa::StandaloneAdapter adapter(ind, ind.getAdaptionConfig());
@@ -711,7 +711,7 @@ TEST_CASE("GFlatGenome: adapt() mutates within bounds", "[flat]") {
 }
 
 /******************************************************************************/
-TEST_CASE("GFlatGenome: randomInit stays within bounds and changes values", "[flat]") {
+TEST_CASE("GGenome: randomInit stays within bounds and changes values", "[flat]") {
     FlatSphere ind(10);
 
     std::vector<double> before;
@@ -729,7 +729,7 @@ TEST_CASE("GFlatGenome: randomInit stays within bounds and changes values", "[fl
 }
 
 /******************************************************************************/
-TEST_CASE("GFlatGenome: OA stall-reset restores sigma to its seed", "[flat][oa]") {
+TEST_CASE("GGenome: OA stall-reset restores sigma to its seed", "[flat][oa]") {
     FlatSphere ind(3);
 
     // The OA-owned config drives both the sigma readout and the stall-reset. It is the
@@ -765,7 +765,7 @@ TEST_CASE("GFlatGenome: OA stall-reset restores sigma to its seed", "[flat][oa]"
  */
 namespace Gem::Tests {
 
-class FlatMixed : public GFlatGenomeT<FlatMixed> {
+class FlatMixed : public GGenomeT<FlatMixed> {
 public:
     FlatMixed() {
         GGenomeBuilder b;
@@ -793,8 +793,8 @@ private:
     template <typename Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         ar &boost::serialization::make_nvp(
-            "GFlatGenomeT",
-            boost::serialization::base_object<GFlatGenomeT<FlatMixed>>(*this)
+            "GGenomeT",
+            boost::serialization::base_object<GGenomeT<FlatMixed>>(*this)
         );
     }
 };
@@ -805,7 +805,7 @@ private:
  * groups: three (groups 0–2) driven by the integer Gauss kernel and one (group 3) by the flip kernel, so the
  * test confirms both int adaptor kinds coexist on the same channel.
  */
-class FlatIntGauss : public GFlatGenomeT<FlatIntGauss> {
+class FlatIntGauss : public GGenomeT<FlatIntGauss> {
 public:
     FlatIntGauss() {
         GGenomeBuilder b;
@@ -835,8 +835,8 @@ private:
     template <typename Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         ar &boost::serialization::make_nvp(
-            "GFlatGenomeT",
-            boost::serialization::base_object<GFlatGenomeT<FlatIntGauss>>(*this)
+            "GGenomeT",
+            boost::serialization::base_object<GGenomeT<FlatIntGauss>>(*this)
         );
     }
 };
@@ -846,7 +846,7 @@ private:
  * so it makes the transport layout send-once visible: the full layout is sizeable, but every item after
  * the first to a peer carries only a 16-byte layout id.
  */
-class FlatManyGroups : public GFlatGenomeT<FlatManyGroups> {
+class FlatManyGroups : public GGenomeT<FlatManyGroups> {
 public:
     FlatManyGroups() { build(64); }
     explicit FlatManyGroups(std::size_t n) { build(n); }
@@ -871,8 +871,8 @@ private:
     template <typename Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         ar &boost::serialization::make_nvp(
-            "GFlatGenomeT",
-            boost::serialization::base_object<GFlatGenomeT<FlatManyGroups>>(*this)
+            "GGenomeT",
+            boost::serialization::base_object<GGenomeT<FlatManyGroups>>(*this)
         );
     }
 };
@@ -887,7 +887,7 @@ using Gem::Tests::FlatManyGroups;
 using Gem::Tests::FlatMixed;
 
 /******************************************************************************/
-TEST_CASE("GFlatGenome: flip adaptor mutates int32 and bool channels", "[flat][flip]") {
+TEST_CASE("GGenome: flip adaptor mutates int32 and bool channels", "[flat][flip]") {
     FlatMixed ind;
 
     std::vector<std::int32_t> i_before;
@@ -923,7 +923,7 @@ TEST_CASE("GFlatGenome: flip adaptor mutates int32 and bool channels", "[flat][f
 }
 
 /******************************************************************************/
-TEST_CASE("GFlatGenome: bi-gaussian adaptor mutates the FP channel within bounds", "[flat][bigauss]") {
+TEST_CASE("GGenome: bi-gaussian adaptor mutates the FP channel within bounds", "[flat][bigauss]") {
     FlatMixed ind;
 
     std::vector<double> before;
@@ -945,7 +945,7 @@ TEST_CASE("GFlatGenome: bi-gaussian adaptor mutates the FP channel within bounds
 }
 
 /******************************************************************************/
-TEST_CASE("GFlatGenome: mixed flip/bigauss genome serialises round-trip", "[flat][flip][bigauss]") {
+TEST_CASE("GGenome: mixed flip/bigauss genome serialises round-trip", "[flat][flip][bigauss]") {
     FlatMixed ind;
     oa::StandaloneAdapter adapter(ind, ind.getAdaptionConfig());
     for(int i = 0; i < 5; ++i) {
@@ -966,7 +966,7 @@ TEST_CASE("GFlatGenome: mixed flip/bigauss genome serialises round-trip", "[flat
 using Gem::Tests::FlatIntGauss;
 
 /******************************************************************************/
-TEST_CASE("GFlatGenome: integer Gauss adaptor mutates int32 within bounds", "[flat][intgauss]") {
+TEST_CASE("GGenome: integer Gauss adaptor mutates int32 within bounds", "[flat][intgauss]") {
     FlatIntGauss ind;
 
     std::vector<std::int32_t> before;
@@ -996,7 +996,7 @@ TEST_CASE("GFlatGenome: integer Gauss adaptor mutates int32 within bounds", "[fl
 }
 
 /******************************************************************************/
-TEST_CASE("GFlatGenome: integer Gauss genome serialises round-trip", "[flat][intgauss]") {
+TEST_CASE("GGenome: integer Gauss genome serialises round-trip", "[flat][intgauss]") {
     FlatIntGauss ind;
     oa::StandaloneAdapter adapter(ind, ind.getAdaptionConfig());
     for(int i = 0; i < 5; ++i) {
@@ -1037,7 +1037,7 @@ TEST_CASE("GGridArchitecture reads any genome through the §2 seam (flat)", "[fl
 }
 
 /******************************************************************************/
-TEST_CASE("GFlatIndividualFactory: one shared layout across N produced individuals", "[flat][factory]") {
+TEST_CASE("GIndividualFactory: one shared layout across N produced individuals", "[flat][factory]") {
     // A temporary config file. writeConfigFile() generates it from the individual's describeConfig()
     // defaults; get_as<>() then reads it back and produces individuals.
     namespace fs = std::filesystem;
@@ -1045,7 +1045,7 @@ TEST_CASE("GFlatIndividualFactory: one shared layout across N produced individua
     fs::create_directories(base);
     const fs::path cfg = base / "FactorySphere.json";
 
-    GFlatIndividualFactory<FactorySphere> f(cfg);
+    GIndividualFactory<FactorySphere> f(cfg);
     f.writeConfigFile("FactorySphere test configuration");
 
     constexpr std::size_t N = 4;
@@ -1087,7 +1087,7 @@ TEST_CASE("GFlatIndividualFactory: one shared layout across N produced individua
 }
 
 /******************************************************************************/
-TEST_CASE("GFlatIndividualFactory::getAdaptionConfig delegates to buildAdaptionConfig", "[flat][factory]") {
+TEST_CASE("GIndividualFactory::getAdaptionConfig delegates to buildAdaptionConfig", "[flat][factory]") {
     // The factory's getAdaptionConfig() forwards to the individual's optional buildAdaptionConfig hook
     // and returns the OA-owned config matching the produced genome (used with registerAdaptionConfig).
     namespace fs = std::filesystem;
@@ -1095,7 +1095,7 @@ TEST_CASE("GFlatIndividualFactory::getAdaptionConfig delegates to buildAdaptionC
     fs::create_directories(base);
     const fs::path cfg = base / "FactorySphereAdaption.json";
 
-    GFlatIndividualFactory<FactorySphere> f(cfg);
+    GIndividualFactory<FactorySphere> f(cfg);
     f.writeConfigFile("FactorySphere adaption-config test");
 
     auto sample = f.get_as<FactorySphere>();
@@ -1137,7 +1137,7 @@ TEST_CASE("GNeuralNetworkArchitecture computes per-layer weight offsets", "[arch
 }
 
 /******************************************************************************/
-// Wire transport: the layout send-once wire form. These exercise GFlatGenome::save()/load() under an
+// Wire transport: the layout send-once wire form. These exercise GGenome::save()/load() under an
 // active Gem::Courtier::GWireSerializationScope, simulating the server->worker wire path WITHOUT any real
 // transport: a server-side registry interns each distinct layout, the first item to a peer carries the
 // full layout and every later item only its 16-byte id, and a worker resolves an id-only item from its
@@ -1976,8 +1976,8 @@ TEST_CASE("Go2 enforces exactly one individual (optimization problem) per proces
     char *argv[] = {arg0, nullptr};
     Go2 go(argc, argv, base / "Go2.json");
 
-    auto f1 = std::make_shared<GFlatIndividualFactory<FactorySphere>>(base / "claimonce1.json");
-    auto f2 = std::make_shared<GFlatIndividualFactory<FactorySphere>>(base / "claimonce2.json");
+    auto f1 = std::make_shared<GIndividualFactory<FactorySphere>>(base / "claimonce1.json");
+    auto f2 = std::make_shared<GIndividualFactory<FactorySphere>>(base / "claimonce2.json");
 
     go.registerContentCreator(f1); // first claim succeeds
     REQUIRE(go.getContentCreator());
@@ -2017,7 +2017,7 @@ TEST_CASE("destroying a GenevaInitializer keeps the process RNG alive", "[go2][r
 
 /******************************************************************************/
 // Regression guard for the GOptimizableEntityFactory copy-constructor defect: it deep-cloned the
-// POST-processor twice and never copied the PRE-processor, so any factory copy (GFlatIndividualFactory
+// POST-processor twice and never copied the PRE-processor, so any factory copy (GIndividualFactory
 // ::clone(), the GOAFactoryT content-creator copy, the meta-optimizer's factory->clone()) silently
 // dropped a registered pre-processor. This exercises the copy ctor directly and asserts both processors
 // survive as independent deep clones. It fails on the unfixed code (copy.pre() is null) and passes once
@@ -2040,9 +2040,9 @@ private:
 };
 
 /** @brief Exposes the protected pre-/post-processor slots so a factory copy is observable in a test. */
-class ProbeFactory : public GFlatIndividualFactory<FactorySphere> {
+class ProbeFactory : public GIndividualFactory<FactorySphere> {
 public:
-    using GFlatIndividualFactory<FactorySphere>::GFlatIndividualFactory;
+    using GIndividualFactory<FactorySphere>::GIndividualFactory;
 
     std::shared_ptr<Gem::Common::GSerializableFunctionObjectT<GOptimizableEntity>> pre() const {
         return this->pre_processor_;

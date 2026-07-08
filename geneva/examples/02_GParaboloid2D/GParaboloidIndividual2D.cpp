@@ -73,7 +73,7 @@ GParaboloidIndividual2D::GParaboloidIndividual2D()
  * @return A shared pointer to the populated OA-owned adaption config
  */
 std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase>
-GParaboloidIndividual2D::buildAdaptionConfig(const gen::GFlatGenome &sample) {
+GParaboloidIndividual2D::buildAdaptionConfig(const gen::GGenome &sample) {
     auto cfg = OptimizationAlgorithms::makeAdaptionConfig<OptimizationAlgorithms::GAdaptionConfigBase>(sample);
     for(std::size_t npar = 0; npar < 2; npar++) {
         cfg->groupDouble(npar).gauss(
@@ -127,7 +127,7 @@ gen::GenomeData GParaboloidIndividual2D::buildGenome(const Config &c) {
  * @return A shared pointer to the populated OA-owned adaption config
  */
 std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase>
-GParaboloidIndividual2D::buildAdaptionConfig(const gen::GFlatGenome &sample, [[maybe_unused]] const Config &c) {
+GParaboloidIndividual2D::buildAdaptionConfig(const gen::GGenome &sample, [[maybe_unused]] const Config &c) {
     return buildAdaptionConfig(sample);
 }
 
@@ -138,7 +138,7 @@ GParaboloidIndividual2D::buildAdaptionConfig(const gen::GFlatGenome &sample, [[m
  * @param cp A copy of another GParaboloidIndividual2D
  */
 GParaboloidIndividual2D::GParaboloidIndividual2D(const GParaboloidIndividual2D &cp)
-  : gen::GFlatGenome(cp)
+  : gen::GGenome(cp)
   , M_PAR_MIN(-10.)
   , M_PAR_MAX(10) { /* nothing */
 }
@@ -163,7 +163,7 @@ void GParaboloidIndividual2D::load_(const gen::GOptimizableEntity *cp) {
         Gem::Common::g_convert_and_compare<gen::GOptimizableEntity, GParaboloidIndividual2D>(cp, this);
 
     // Load our parent's data
-    gen::GFlatGenome::load_(cp);
+    gen::GGenome::load_(cp);
 
     // No local data
     // sampleVariable = p_load->sampleVariable;
@@ -173,9 +173,9 @@ void GParaboloidIndividual2D::load_(const gen::GOptimizableEntity *cp) {
 /**
  * Creates a deep clone of this object
  *
- * @return A deep clone of this object, camouflaged as a GFlatGenome
+ * @return A deep clone of this object, camouflaged as a GGenome
  */
-gen::GFlatGenome *GParaboloidIndividual2D::clone_() const {
+gen::GGenome *GParaboloidIndividual2D::clone_() const {
     return new GParaboloidIndividual2D(*this);
 }
 

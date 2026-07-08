@@ -44,7 +44,7 @@
 #include "geneva/oa/GAdaption.hpp"
 #include "geneva/oa/GAdaptionConfig.hpp"
 #include "geneva/ind/GOptimizableEntity.hpp"
-#include "geneva/ind/GFlatGenome.hpp"
+#include "geneva/ind/GGenome.hpp"
 #include <algorithm>
 #include <cmath>
 #include <cstddef>

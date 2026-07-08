@@ -45,7 +45,7 @@
 // Boost header files go here
 
 // Geneva header files go here
-#include <geneva/ind/GFlatGenome.hpp>
+#include <geneva/ind/GGenome.hpp>
 #include <geneva/ind/GGenomeBuilder.hpp>
 
 #include <memory>
@@ -61,7 +61,7 @@ class GAdaptionConfigBase;
  * This individual searches for the minimum of a 2-dimensional parabola.
  * It is part of an introductory example, used in the Geneva manual.
  */
-class GMPIEvaluatedIndividual : public gen::GFlatGenome {
+class GMPIEvaluatedIndividual : public gen::GGenome {
     /** @brief Make the class accessible to Boost.Serialization */
     friend class boost::serialization::access;
 
@@ -74,7 +74,7 @@ class GMPIEvaluatedIndividual : public gen::GFlatGenome {
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         using boost::serialization::make_nvp;
         // Serialize the base class
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gen::GFlatGenome);
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gen::GGenome);
         // Add other variables here like this:
         // ar & BOOST_SERIALIZATION_NVP(sampleVariable);
     }
@@ -90,7 +90,7 @@ public:
     /** @brief The OA-owned adaption config authoring this genome's two Gauss groups, built from the genome
      *  layout. Static (no adaptor data resides on the individual). */
     static std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase>
-    buildAdaptionConfig(const gen::GFlatGenome &sample);
+    buildAdaptionConfig(const gen::GGenome &sample);
 
     static void setCommunicator(MPI_Comm);
 
@@ -103,7 +103,7 @@ protected:
 
 private:
     /** @brief Creates a deep clone of this object */
-    gen::GFlatGenome *clone_() const final;
+    gen::GGenome *clone_() const final;
 
     const double M_PAR_MIN;
     const double M_PAR_MAX;

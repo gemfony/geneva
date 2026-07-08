@@ -90,7 +90,7 @@ struct GFixedString {
  * @code
  *   extern "C" BOOST_SYMBOL_EXPORT const GenevaModuleManifest *geneva_module_manifest() {
  *       return Gem::Geneva::individualManifest<
- *           Gem::Geneva::Genome::GFlatIndividualFactory<MyProblem>,
+ *           Gem::Geneva::Genome::GIndividualFactory<MyProblem>,
  *           "./config/MyProblem.json", "MyProblem">();
  *   }
  * @endcode
@@ -106,7 +106,7 @@ struct GFixedString {
  * carries it (the same registration a compiled-in individual needs), so there is no double registration.
  *
  * @tparam FactoryType The content-creator factory (a GFactoryT<GOptimizableEntity>, e.g.
- *         GFlatIndividualFactory<MyProblem>)
+ *         GIndividualFactory<MyProblem>)
  * @tparam Config The factory's configuration-file path (a string literal), passed to its constructor
  * @tparam Name   The module/contribution name, for diagnostics (a string literal)
  * @return A pointer to this module's process-lifetime manifest

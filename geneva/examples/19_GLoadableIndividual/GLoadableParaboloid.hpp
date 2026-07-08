@@ -43,7 +43,7 @@
 
 // Geneva headers
 #include "common/GParserBuilder.hpp"
-#include "geneva/ind/GFlatGenomeT.hpp"
+#include "geneva/ind/GGenomeT.hpp"
 #include "geneva/ind/GGenomeBuilder.hpp"
 #include "geneva/oa/GAdaptionConfig.hpp"
 
@@ -58,7 +58,7 @@
  *
  * The problem is an @f$ n @f$-dimensional paraboloid @f$ f(x)=\sum_i x_i^2 @f$, minimised at the origin.
  *
- * It follows the config-driven flat-individual pattern that GFlatIndividualFactory<Derived> drives:
+ * It follows the config-driven flat-individual pattern that GIndividualFactory<Derived> drives:
  *  - a @c Config struct of tunables, bound to the config file by @c describeConfig();
  *  - @c buildGenome() turning the config into the (structure-only) genome;
  *  - @c buildAdaptionConfig() supplying the OA-owned mutation config (the "config-strip" model: the
@@ -67,7 +67,7 @@
  *  - @c evaluate() computing the objective;
  *  - @c serialize() + a BOOST_CLASS_EXPORT in the .cpp, so the individual can cross the wire / a checkpoint.
  */
-class GLoadableParaboloid : public Gem::Geneva::Genome::GFlatGenomeT<GLoadableParaboloid> {
+class GLoadableParaboloid : public Gem::Geneva::Genome::GGenomeT<GLoadableParaboloid> {
 public:
     /** @brief The factory installs the genome via setGenome(), so the default constructor leaves it empty. */
     GLoadableParaboloid() = default;
@@ -104,7 +104,7 @@ public:
     /** @brief The OA-owned Gauss adaption config for a genome this problem produces. Reached generically
      *  through GOptimizableEntityFactory::getAdaptionConfig(), so a launcher need not know this type. */
     static std::shared_ptr<Gem::Geneva::OptimizationAlgorithms::GAdaptionConfigBase>
-    buildAdaptionConfig(const Gem::Geneva::Genome::GFlatGenome &sample, const Config &c) {
+    buildAdaptionConfig(const Gem::Geneva::Genome::GGenome &sample, const Config &c) {
         namespace oa = Gem::Geneva::OptimizationAlgorithms;
         auto cfg = oa::makeAdaptionConfig<oa::GAdaptionConfigBase>(sample);
         for(std::size_t i = 0; i < cfg->doubleGroups().size(); ++i) {
@@ -128,8 +128,8 @@ private:
     template <typename Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         ar &boost::serialization::make_nvp(
-            "GFlatGenomeT",
-            boost::serialization::base_object<Gem::Geneva::Genome::GFlatGenomeT<GLoadableParaboloid>>(*this)
+            "GGenomeT",
+            boost::serialization::base_object<Gem::Geneva::Genome::GGenomeT<GLoadableParaboloid>>(*this)
         );
     }
 };

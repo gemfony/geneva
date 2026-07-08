@@ -35,7 +35,7 @@ the binary in the cloud):
 2. **Add one translation unit** (`GLoadableParaboloidPlugin.cpp`) with exactly two registrations:
 
    ```cpp
-   #include "geneva/ind/GFlatIndividualFactory.hpp"
+   #include "geneva/ind/GIndividualFactory.hpp"
    #include "geneva/ind/GIndividualPlugin.hpp"
    #include "MyProblem.hpp"
 
@@ -43,7 +43,7 @@ the binary in the cloud):
 
    extern "C" BOOST_SYMBOL_EXPORT const GenevaModuleManifest *geneva_module_manifest() {
        return Gem::Geneva::individualManifest<
-           Gem::Geneva::Genome::GFlatIndividualFactory<MyProblem>,
+           Gem::Geneva::Genome::GIndividualFactory<MyProblem>,
            "./config/MyProblem.json", "MyProblem">();               // factory / config file / name
    }
    ```

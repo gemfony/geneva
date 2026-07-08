@@ -40,7 +40,7 @@
 #include <boost/config.hpp> // BOOST_SYMBOL_EXPORT
 
 #include "common/GModuleManifest.hpp" // GenevaModuleManifest
-#include "geneva/ind/GFlatIndividualFactory.hpp"
+#include "geneva/ind/GIndividualFactory.hpp"
 #include "geneva/ind/GIndividualPlugin.hpp" // Gem::Geneva::individualManifest<>
 
 #include "GFMinIndividual.hpp"
@@ -48,6 +48,6 @@
 extern "C" BOOST_SYMBOL_EXPORT const GenevaModuleManifest *geneva_module_manifest();
 extern "C" BOOST_SYMBOL_EXPORT const GenevaModuleManifest *geneva_module_manifest() {
     return Gem::Geneva::individualManifest<
-        Gem::Geneva::Genome::GFlatIndividualFactory<Gem::Geneva::GFMinIndividual>,
+        Gem::Geneva::Genome::GIndividualFactory<Gem::Geneva::GFMinIndividual>,
         "./config/GFMinIndividual.json", "GFMinIndividual">();
 }

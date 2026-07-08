@@ -72,8 +72,8 @@
 #include "common/GContainerT.hpp"
 #include "common/GSingletonT.hpp"
 #include "common/GUnitTestFrameworkT.hpp"
-#include "geneva/ind/GFlatGenome.hpp"
-#include "geneva/ind/GFlatIndividualFactory.hpp"
+#include "geneva/ind/GGenome.hpp"
+#include "geneva/ind/GIndividualFactory.hpp"
 #include "geneva/ind/GGenomeArchitecture.hpp"
 #include "geneva/ind/GGenomeBuilder.hpp"
 #include "hap/GRandomT.hpp"
@@ -519,7 +519,7 @@ private:
  * standard back-propagation algorithm to train feed-forward neural networks.
  */
 class GNeuralNetworkIndividual // NOLINT(cppcoreguidelines-special-member-functions)
-  : public gen::GFlatGenome {
+  : public gen::GGenome {
     /////////////////////////////////////////////////////////////////////////////
 
     friend class boost::serialization::access;
@@ -536,7 +536,7 @@ class GNeuralNetworkIndividual // NOLINT(cppcoreguidelines-special-member-functi
     void load(Archive &ar, [[maybe_unused]] const unsigned int version) {
         using boost::serialization::make_nvp;
 
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gen::GFlatGenome);
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gen::GGenome);
         // t_f_ was previously never (de)serialised and silently reset to its
         // default; read it back via the single localMembers() declaration. In a
         // split save()/load(), the same serialize_members() drives both -- the
@@ -551,7 +551,7 @@ class GNeuralNetworkIndividual // NOLINT(cppcoreguidelines-special-member-functi
     void save(Archive &ar, [[maybe_unused]] const unsigned int version) const {
         using boost::serialization::make_nvp;
 
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gen::GFlatGenome);
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gen::GGenome);
         // The const localMembers() overload yields const refs, which the output
         // archive writes -- the symmetric counterpart to load() above.
         Gem::Common::serialize_members(ar, this->localMembers_());
@@ -1235,7 +1235,7 @@ public:
 
     /***************************************************************************/
     /**
-     * The configuration read from the config file by GFlatIndividualFactory<GNeuralNetworkIndividual>.
+     * The configuration read from the config file by GIndividualFactory<GNeuralNetworkIndividual>.
      * The genome geometry itself comes from the global training-data store (see buildGenome); these are
      * the per-weight Gauss-adaptor settings plus the parameter init range and transfer function.
      */
@@ -1272,7 +1272,7 @@ public:
      * @return A shared pointer to the populated adaption config
      */
     static std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase>
-    buildAdaptionConfig(const gen::GFlatGenome &sample, const Config &c);
+    buildAdaptionConfig(const gen::GGenome &sample, const Config &c);
     /**
      * @brief Per-object post-config hook: applies the (non-genome) transfer function to a produced individual.
      * @param ind The individual to configure (modified in place)
@@ -1330,9 +1330,9 @@ private:
     /***************************************************************************/
     /**
      * @brief Creates a deep clone of this object.
-     * @return A deep clone of this object, camouflaged as a GFlatGenome
+     * @return A deep clone of this object, camouflaged as a GGenome
      */
-    gen::GFlatGenome *clone_() const final;
+    gen::GGenome *clone_() const final;
 
     /**
      * @brief The transfer function.
@@ -1360,12 +1360,12 @@ private:
 /******************************************************************************/
 /**
  * A factory for GNeuralNetworkIndividual objects: an alias for the generic, config-driven
- * GFlatIndividualFactory, for which GNeuralNetworkIndividual supplies the static describeConfig /
+ * GIndividualFactory, for which GNeuralNetworkIndividual supplies the static describeConfig /
  * buildGenome / buildAdaptionConfig / applyConfig hooks. Call sites use ctor(path),
  * get_as<>(), getAdaptionConfig() and registerContentCreator().
  */
 using GNeuralNetworkIndividualFactory =
-    Gem::Geneva::Genome::GFlatIndividualFactory<GNeuralNetworkIndividual>;
+    Gem::Geneva::Genome::GIndividualFactory<GNeuralNetworkIndividual>;
 
 /******************************************************************************/
 

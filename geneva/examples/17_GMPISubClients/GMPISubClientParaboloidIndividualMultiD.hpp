@@ -79,7 +79,7 @@ class GMPISubClientParaboloidIndividualMultiD : public GMPISubClientIndividual {
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         using boost::serialization::make_nvp;
         // Serialize the base class
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gen::GFlatGenome);
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gen::GGenome);
         // Add other variables here like this:
         // ar & BOOST_SERIALIZATION_NVP(sampleVariable);
     }
@@ -96,7 +96,7 @@ public:
     /** @brief The OA-owned adaption config authoring this genome's per-parameter Gauss groups, built from
      *  the genome layout. Static (no adaptor data resides on the individual). */
     static std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase>
-    buildAdaptionConfig(const gen::GFlatGenome &sample);
+    buildAdaptionConfig(const gen::GGenome &sample);
 
 protected:
     /** @brief Loads the data of another GMPISubClientParaboloidIndividualMultiD */
@@ -115,7 +115,7 @@ private:
     );
 
     /** @brief Creates a deep clone of this object */
-    [[nodiscard]] gen::GFlatGenome *clone_() const final;
+    [[nodiscard]] gen::GGenome *clone_() const final;
 
     const double M_PAR_MIN;
     const double M_PAR_MAX;

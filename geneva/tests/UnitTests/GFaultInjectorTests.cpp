@@ -47,7 +47,7 @@
 #include "courtier/GCourtierEnums.hpp" // processingStatus
 #include "geneva/GFaultInjector.hpp"
 #include "geneva/ind/GOptimizableEntity.hpp"
-#include "geneva/ind/GFlatGenomeT.hpp"
+#include "geneva/ind/GGenomeT.hpp"
 #include "geneva/ind/GGenomeBuilder.hpp"
 
 using namespace Gem::Geneva;
@@ -58,7 +58,7 @@ namespace Gem::Tests {
 
 /******************************************************************************/
 /** A minimal flat individual: a sphere over a single double group. Fresh instances are DO_PROCESS. */
-class FISphere : public GFlatGenomeT<FISphere> {
+class FISphere : public GGenomeT<FISphere> {
 public:
     FISphere() {
         GGenomeBuilder b;
@@ -80,8 +80,8 @@ private:
     template <typename Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         ar &boost::serialization::make_nvp(
-            "GFlatGenomeT",
-            boost::serialization::base_object<GFlatGenomeT<FISphere>>(*this)
+            "GGenomeT",
+            boost::serialization::base_object<GGenomeT<FISphere>>(*this)
         );
     }
 };

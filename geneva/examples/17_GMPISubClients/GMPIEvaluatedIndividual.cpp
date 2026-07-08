@@ -50,7 +50,7 @@ MPI_Comm GMPIEvaluatedIndividual::communicator{MPI_COMM_NULL};
  * each of which has a constrained value range [-10:10].
  */
 GMPIEvaluatedIndividual::GMPIEvaluatedIndividual()
-  : gen::GFlatGenome()
+  : gen::GGenome()
   , M_PAR_MIN(-10.)
   , M_PAR_MAX(10.) {
     // Build a flat genome of two constrained doubles in [M_PAR_MIN, M_PAR_MAX[, each its own Gauss
@@ -72,7 +72,7 @@ GMPIEvaluatedIndividual::GMPIEvaluatedIndividual()
  * @param cp A copy of another GMPIEvaluatedIndividual
  */
 GMPIEvaluatedIndividual::GMPIEvaluatedIndividual(const GMPIEvaluatedIndividual &cp)
-  : gen::GFlatGenome(cp)
+  : gen::GGenome(cp)
   , M_PAR_MIN(-10.)
   , M_PAR_MAX(10) { /* nothing */
 }
@@ -106,7 +106,7 @@ void GMPIEvaluatedIndividual::load_(const gen::GOptimizableEntity *cp) {
         Gem::Common::g_convert_and_compare<gen::GOptimizableEntity, GMPIEvaluatedIndividual>(cp, this);
 
     // Load our parent's data
-    gen::GFlatGenome::load_(cp);
+    gen::GGenome::load_(cp);
 
     // No local data
     // sampleVariable = p_load->sampleVariable;
@@ -116,9 +116,9 @@ void GMPIEvaluatedIndividual::load_(const gen::GOptimizableEntity *cp) {
 /**
  * Creates a deep clone of this object
  *
- * @return A deep clone of this object, camouflaged as a GFlatGenome
+ * @return A deep clone of this object, camouflaged as a GGenome
  */
-gen::GFlatGenome *GMPIEvaluatedIndividual::clone_() const {
+gen::GGenome *GMPIEvaluatedIndividual::clone_() const {
     return new GMPIEvaluatedIndividual(*this);
 }
 
@@ -132,7 +132,7 @@ gen::GFlatGenome *GMPIEvaluatedIndividual::clone_() const {
  * @return A shared pointer to the populated OA-owned adaption config
  */
 std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase>
-GMPIEvaluatedIndividual::buildAdaptionConfig(const gen::GFlatGenome &sample) {
+GMPIEvaluatedIndividual::buildAdaptionConfig(const gen::GGenome &sample) {
     auto cfg = OptimizationAlgorithms::makeAdaptionConfig<OptimizationAlgorithms::GAdaptionConfigBase>(sample);
     for(std::size_t npar = 0; npar < cfg->doubleGroups().size(); npar++) {
         cfg->groupDouble(npar).gauss(DEFAULTSIGMA, DEFAULTSIGMASIGMA, DEFAULTMINSIGMA, DEFAULTMAXSIGMA, DEFAULTADPROB);

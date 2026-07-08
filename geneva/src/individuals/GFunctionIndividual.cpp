@@ -39,7 +39,7 @@
 #include "common/GLogger.hpp"
 #include "common/GParserBuilder.hpp"
 #include "geneva/GMultiConstraintT.hpp"
-#include "geneva/ind/GFlatGenome.hpp"
+#include "geneva/ind/GGenome.hpp"
 #include "geneva/ind/GGenomeBuilder.hpp"
 #include "geneva/oa/GAdaption.hpp"
 #include "geneva/oa/GAdaptionConfig.hpp"
@@ -502,7 +502,7 @@ void GFunctionIndividual::compare_(
     Gem::Common::GToken token("GFunctionIndividual", e);
 
     // Compare our parent data ...
-    Gem::Common::compare_base_t<gen::GFlatGenome>(*this, *p_load, token);
+    Gem::Common::compare_base_t<gen::GGenome>(*this, *p_load, token);
 
     // ... and then the local data, derived from the single localMembers() declaration
     Gem::Common::g_compare_members(this->localMembers_(), p_load->localMembers_(), token);
@@ -520,8 +520,8 @@ void GFunctionIndividual::compare_(
 void GFunctionIndividual::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) {
     // Call our parent class'es function. The demo_function option (and all other configurable values)
     // is registered by the static describeConfig() hook and applied via applyConfig(), so the generic
-    // GFlatIndividualFactory<GFunctionIndividual> handles all of this individual's configuration.
-    gen::GFlatGenome::addConfigurationOptions_(gpb);
+    // GIndividualFactory<GFunctionIndividual> handles all of this individual's configuration.
+    gen::GGenome::addConfigurationOptions_(gpb);
 }
 
 /******************************************************************************/
@@ -569,7 +569,7 @@ void GFunctionIndividual::load_(const gen::GOptimizableEntity *cp) {
         Gem::Common::g_convert_and_compare<gen::GOptimizableEntity, GFunctionIndividual>(cp, this);
 
     // Load our parent class'es data ...
-    gen::GFlatGenome::load_(cp);
+    gen::GGenome::load_(cp);
 
     // ... and then our local data, derived from the single localMembers() declaration
     Gem::Common::g_load_members(this->localMembers_(), p_load->localMembers_());
@@ -579,9 +579,9 @@ void GFunctionIndividual::load_(const gen::GOptimizableEntity *cp) {
 /**
  * @brief Creates a deep clone of this object.
  *
- * @return A deep clone of this object, camouflaged as a GFlatGenome pointer
+ * @return A deep clone of this object, camouflaged as a GGenome pointer
  */
-gen::GFlatGenome *GFunctionIndividual::clone_() const {
+gen::GGenome *GFunctionIndividual::clone_() const {
     return new GFunctionIndividual(*this);
 }
 
@@ -597,7 +597,7 @@ bool GFunctionIndividual::modify_GUnitTests_() {
     bool result = false;
 
     // Call the parent classes' functions
-    if(gen::GFlatGenome::modify_GUnitTests_()) {
+    if(gen::GGenome::modify_GUnitTests_()) {
         result = true;
     }
 
@@ -621,7 +621,7 @@ void GFunctionIndividual::specificTestsNoFailureExpected_GUnitTests_() {
     using namespace Gem::Geneva;
 
     // Call the parent classes' functions
-    gen::GFlatGenome::specificTestsNoFailureExpected_GUnitTests_();
+    gen::GGenome::specificTestsNoFailureExpected_GUnitTests_();
 
     //------------------------------------------------------------------------------
     //------------------------------------------------------------------------------
@@ -643,7 +643,7 @@ void GFunctionIndividual::specificTestsFailuresExpected_GUnitTests_() {
     using namespace Gem::Geneva;
 
     // Call the parent classes' functions
-    gen::GFlatGenome::specificTestsFailuresExpected_GUnitTests_();
+    gen::GGenome::specificTestsFailuresExpected_GUnitTests_();
 
     //------------------------------------------------------------------------------
     //------------------------------------------------------------------------------
@@ -905,7 +905,7 @@ gen::GenomeData GFunctionIndividual::buildGenome(const Config &c) {
  * @return A shared pointer to the populated OA-owned adaption configuration
  */
 std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase>
-GFunctionIndividual::buildAdaptionConfig(const gen::GFlatGenome &sample, const Config &c) {
+GFunctionIndividual::buildAdaptionConfig(const gen::GGenome &sample, const Config &c) {
     namespace oa = Gem::Geneva::OptimizationAlgorithms;
     auto cfg = oa::makeAdaptionConfig<oa::GAdaptionConfigBase>(sample);
     for(std::size_t i = 0; i < cfg->doubleGroups().size(); i++) {

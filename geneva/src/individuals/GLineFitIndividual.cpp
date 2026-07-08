@@ -33,7 +33,7 @@
 #include "common/GCommonMathHelperFunctionsT.hpp"
 #include "common/GExpectationChecksT.hpp"
 #include "common/GParserBuilder.hpp"
-#include "geneva/ind/GFlatGenome.hpp"
+#include "geneva/ind/GGenome.hpp"
 #include "geneva/ind/GGenomeBuilder.hpp"
 #include "geneva/oa/GAdaption.hpp"
 #include "geneva/oa/GAdaptionConfig.hpp"
@@ -128,7 +128,7 @@ gen::GenomeData GLineFitIndividual::buildGenome([[maybe_unused]] const Config &c
  *         adaptor settings (sigma 0.025, sigma_sigma 0.1, min_sigma 0.0001, max_sigma 0.4, ad_prob 1.0)
  */
 std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase>
-GLineFitIndividual::buildAdaptionConfig(const gen::GFlatGenome &sample, [[maybe_unused]] const Config &c) {
+GLineFitIndividual::buildAdaptionConfig(const gen::GGenome &sample, [[maybe_unused]] const Config &c) {
     auto cfg = OptimizationAlgorithms::makeAdaptionConfig<OptimizationAlgorithms::GAdaptionConfigBase>(sample);
     for(std::size_t i = 0; i < cfg->doubleGroups().size(); i++) {
         // sigma, sigma_sigma, min_sigma, max_sigma, ad_prob
@@ -191,7 +191,7 @@ void GLineFitIndividual::applyConfig(GLineFitIndividual &ind, const Config &c) {
  * @param cp A constant reference to another GLineFitIndividual object to be copied
  */
 GLineFitIndividual::GLineFitIndividual(const GLineFitIndividual &cp)
-  : gen::GFlatGenome(cp)
+  : gen::GGenome(cp)
   , data_points_(cp.data_points_) { /* nothing */
 }
 
@@ -224,7 +224,7 @@ void GLineFitIndividual::compare_(
     GToken token("GLineFitIndividual", e);
 
     // Compare our parent data ...
-    Gem::Common::compare_base_t<gen::GFlatGenome>(*this, *p_load, token);
+    Gem::Common::compare_base_t<gen::GGenome>(*this, *p_load, token);
 
     // ... and then the local data, derived from the single localMembers() declaration
     g_compare_members(this->localMembers_(), p_load->localMembers_(), token);
@@ -260,7 +260,7 @@ void GLineFitIndividual::load_(const gen::GOptimizableEntity *cp) {
         Gem::Common::g_convert_and_compare<gen::GOptimizableEntity, GLineFitIndividual>(cp, this);
 
     // Load our parent's data
-    gen::GFlatGenome::load_(cp);
+    gen::GGenome::load_(cp);
 
     // and then our local data, derived from the single localMembers() declaration
     Gem::Common::g_load_members(this->localMembers_(), p_load->localMembers_());
@@ -270,9 +270,9 @@ void GLineFitIndividual::load_(const gen::GOptimizableEntity *cp) {
 /**
  * @brief Creates a deep clone of this object.
  *
- * @return A deep clone of this object, camouflaged as a GFlatGenome pointer
+ * @return A deep clone of this object, camouflaged as a GGenome pointer
  */
-gen::GFlatGenome *GLineFitIndividual::clone_() const {
+gen::GGenome *GLineFitIndividual::clone_() const {
     return new GLineFitIndividual(*this);
 }
 
@@ -315,7 +315,7 @@ bool GLineFitIndividual::modify_GUnitTests_() {
     bool result = false;
 
     // Call the parent classes' functions
-    if(gen::GFlatGenome::modify_GUnitTests_()) {
+    if(gen::GGenome::modify_GUnitTests_()) {
         result = true;
     }
 
@@ -338,7 +338,7 @@ void GLineFitIndividual::specificTestsNoFailureExpected_GUnitTests_() {
     using namespace Gem::Geneva;
 
     // Call the parent classes' functions
-    gen::GFlatGenome::specificTestsNoFailureExpected_GUnitTests_();
+    gen::GGenome::specificTestsNoFailureExpected_GUnitTests_();
 
     //------------------------------------------------------------------------------
     //------------------------------------------------------------------------------
@@ -359,7 +359,7 @@ void GLineFitIndividual::specificTestsFailuresExpected_GUnitTests_() {
     using namespace Gem::Geneva;
 
     // Call the parent classes' functions
-    gen::GFlatGenome::specificTestsFailuresExpected_GUnitTests_();
+    gen::GGenome::specificTestsFailuresExpected_GUnitTests_();
 
     //------------------------------------------------------------------------------
     //------------------------------------------------------------------------------

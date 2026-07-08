@@ -37,7 +37,7 @@
 #include <boost/serialization/nvp.hpp>
 
 // Geneva headers go here
-#include "geneva/ind/GFlatGenome.hpp"
+#include "geneva/ind/GGenome.hpp"
 
 namespace Gem::Geneva::Genome {
 
@@ -45,10 +45,10 @@ namespace Gem::Geneva::Genome {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * The sole CRTP base a concrete flat individual derives. Because GFlatGenome holds all genome state
+ * The sole CRTP base a concrete flat individual derives. Because GGenome holds all genome state
  * generically, a typical individual adds no extra data members, so its deep-clone is purely mechanical --
  * this base generates it (clone_ = new Derived(*this)). load_ / compare_ are inherited from
- * GFlatGenome unchanged (they copy / compare the value arrays, which is all such an individual has).
+ * GGenome unchanged (they copy / compare the value arrays, which is all such an individual has).
  * The result: a minimal flat individual is a constructor that builds its genome plus an
  * evaluate(), with one BOOST_CLASS_EXPORT(Derived) for serialisation.
  *
@@ -57,7 +57,7 @@ namespace Gem::Geneva::Genome {
  *
  * Usage:
  * @code
- *   class MyIndividual : public GFlatGenomeT<MyIndividual> {
+ *   class MyIndividual : public GGenomeT<MyIndividual> {
  *   public:
  *       MyIndividual() {
  *           GGenomeBuilder b;
@@ -69,8 +69,8 @@ namespace Gem::Geneva::Genome {
  *       friend class boost::serialization::access;
  *       template <typename Archive> void serialize(Archive& ar, [[maybe_unused]] const unsigned int version) {
  *           ar & boost::serialization::make_nvp(
- *               "GFlatGenomeT",
- *               boost::serialization::base_object<GFlatGenomeT<MyIndividual>>(*this));
+ *               "GGenomeT",
+ *               boost::serialization::base_object<GGenomeT<MyIndividual>>(*this));
  *       }
  *   };
  *   BOOST_CLASS_EXPORT(MyIndividual)
@@ -79,12 +79,12 @@ namespace Gem::Geneva::Genome {
  * @tparam Derived The concrete flat individual type (CRTP), supplying its constructor and evaluate()
  */
 template <class Derived>
-class GFlatGenomeT : public GFlatGenome {
+class GGenomeT : public GGenome {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
     /**
-     * @brief Serialises this individual through its GFlatGenome base (no extra members to add).
+     * @brief Serialises this individual through its GGenome base (no extra members to add).
      * @tparam Archive The Boost.Serialization archive type
      * @param ar The archive to read from / write to
      * @param version The (unused) serialization version number
@@ -92,20 +92,20 @@ class GFlatGenomeT : public GFlatGenome {
     template <typename Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         ar &boost::serialization::make_nvp(
-            "GFlatGenome",
-            boost::serialization::base_object<GFlatGenome>(*this)
+            "GGenome",
+            boost::serialization::base_object<GGenome>(*this)
         );
     }
     ///////////////////////////////////////////////////////////////////////
 
 public:
-    /** @brief Inherit the GFlatGenome constructors (default + n-fitness-criteria) */
-    using GFlatGenome::GFlatGenome;
+    /** @brief Inherit the GGenome constructors (default + n-fitness-criteria) */
+    using GGenome::GGenome;
 
 private:
     /** @brief Creates a deep clone of this object via the Derived copy constructor.
-     *  @return A heap-allocated deep copy of this individual (as a GFlatGenome base pointer) */
-    GFlatGenome *clone_() const override {
+     *  @return A heap-allocated deep copy of this individual (as a GGenome base pointer) */
+    GGenome *clone_() const override {
         return new Derived(*static_cast<const Derived *>(this));
     }
 };

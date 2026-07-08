@@ -50,7 +50,7 @@ namespace Gem::Geneva::Genome {
 /**
  * The product of GGenomeBuilder::build(): the per-individual value arrays plus a handle to the
  * shared, immutable adaption layout. A flat individual is set up by handing this to
- * GFlatGenome::setGenome(). The layout is shared (std::shared_ptr<const>) -- a factory builds it
+ * GGenome::setGenome(). The layout is shared (std::shared_ptr<const>) -- a factory builds it
  * once and every produced individual binds to the same instance, so per-individual cost is only the
  * value-array copy.
  */

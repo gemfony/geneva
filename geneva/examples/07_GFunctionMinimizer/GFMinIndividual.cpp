@@ -94,7 +94,7 @@ GFMinIndividual::GFMinIndividual() { /* nothing */
  * @param cp A copy of another GFunctionIndidivual
  */
 GFMinIndividual::GFMinIndividual(const GFMinIndividual &cp)
-  : gen::GFlatGenome(cp)
+  : gen::GGenome(cp)
   , targetFunction_(cp.targetFunction_)
   , seed_sigma_(cp.seed_sigma_) { /* nothing */
 }
@@ -155,7 +155,7 @@ void GFMinIndividual::load_(const gen::GOptimizableEntity *cp) {
         Gem::Common::g_convert_and_compare<gen::GOptimizableEntity, GFMinIndividual>(cp, this);
 
     // Load our parent class'es data ...
-    gen::GFlatGenome::load_(cp);
+    gen::GGenome::load_(cp);
 
     // ... and then our local data
     targetFunction_ = p_load->targetFunction_;
@@ -166,9 +166,9 @@ void GFMinIndividual::load_(const gen::GOptimizableEntity *cp) {
 /**
  * Creates a deep clone of this object
  *
- * @return A deep clone of this object, camouflaged as a GFlatGenome
+ * @return A deep clone of this object, camouflaged as a GGenome
  */
-gen::GFlatGenome *GFMinIndividual::clone_() const {
+gen::GGenome *GFMinIndividual::clone_() const {
     return new GFMinIndividual(*this);
 }
 
@@ -330,7 +330,7 @@ gen::GenomeData GFMinIndividual::buildGenome(const Config &c) {
  * double group gets a Gauss adaptor with the configured parameters.
  */
 std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase>
-GFMinIndividual::buildAdaptionConfig(const gen::GFlatGenome &sample, const Config &c) {
+GFMinIndividual::buildAdaptionConfig(const gen::GGenome &sample, const Config &c) {
     namespace oa = Gem::Geneva::OptimizationAlgorithms;
     auto cfg = oa::makeAdaptionConfig<oa::GAdaptionConfigBase>(sample);
     for(std::size_t i = 0; i < cfg->doubleGroups().size(); i++) {

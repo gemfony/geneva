@@ -45,8 +45,8 @@
 
 // Geneva header files go here
 #include "common/GParserBuilder.hpp"
-#include "geneva/ind/GFlatGenome.hpp"
-#include "geneva/ind/GFlatIndividualFactory.hpp"
+#include "geneva/ind/GGenome.hpp"
+#include "geneva/ind/GIndividualFactory.hpp"
 #include "geneva/ind/GGenomeBuilder.hpp"
 #include "geneva/par/GOptimizableEntityFactory.hpp"
 #include "geneva/par/GOptimizableEntityMultiConstraint.hpp"
@@ -317,21 +317,21 @@ const solverFunction GO_DEF_EVALFUNCTION = solverFunction::PARABOLA;
  *       explicitly; the factory default of [-10, 10] is not suitable for that function.
  */
 class GFunctionIndividual
-  : public gen::GFlatGenome // NOLINT(cppcoreguidelines-special-member-functions)
+  : public gen::GGenome // NOLINT(cppcoreguidelines-special-member-functions)
 {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
     template <class Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gen::GFlatGenome) &
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gen::GGenome) &
             BOOST_SERIALIZATION_NVP(demo_function_);
     }
 
     ///////////////////////////////////////////////////////////////////////
 
 public:
-    using FACTORYTYPE = Gem::Geneva::Genome::GFlatIndividualFactory<GFunctionIndividual>;
+    using FACTORYTYPE = Gem::Geneva::Genome::GIndividualFactory<GFunctionIndividual>;
 
     /** @brief The default constructor */
     GFunctionIndividual() = default;
@@ -518,7 +518,7 @@ public:
     }
 
     //---------------------------------------------------------------------------
-    // GFlatIndividualFactory<GFunctionIndividual> hooks. GFunctionIndividual is a Tier-2
+    // GIndividualFactory<GFunctionIndividual> hooks. GFunctionIndividual is a Tier-2
     // (config-driven) flat individual: it supplies the static hooks the generic factory needs --
     // describeConfig (the configurable values), buildGenome (the genome structure for the five
     // parameter-type modes), buildAdaptionConfig (the OA-owned Gauss / bi-Gauss adaption config) and
@@ -570,7 +570,7 @@ public:
      * @return A shared pointer to the populated adaption config
      */
     static std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase>
-    buildAdaptionConfig(const gen::GFlatGenome &sample, const Config &c);
+    buildAdaptionConfig(const gen::GGenome &sample, const Config &c);
     /**
      * @brief Per-object post-config hook: applies the (non-genome) demo function to a produced individual.
      * @param ind The individual to configure (modified in place)
@@ -659,9 +659,9 @@ private:
     //---------------------------------------------------------------------------
     /**
      * @brief Creates a deep clone of this object.
-     * @return A deep clone of this object, camouflaged as a GFlatGenome
+     * @return A deep clone of this object, camouflaged as a GGenome
      */
-    gen::GFlatGenome *clone_() const final;
+    gen::GGenome *clone_() const final;
 
     //---------------------------------------------------------------------------
     // Data
@@ -694,12 +694,12 @@ operator<<(std::ostream & s, std::shared_ptr<Gem::Geneva::Individuals::GFunction
 /******************************************************************************/
 /**
  * A factory for GFunctionIndividual objects: an alias for the generic, config-driven
- * GFlatIndividualFactory, for which GFunctionIndividual supplies the static describeConfig /
+ * GIndividualFactory, for which GFunctionIndividual supplies the static describeConfig /
  * buildGenome / buildAdaptionConfig / applyConfig hooks. Call sites use ctor(path), get()/get_as<>(),
  * getAdaptionConfig(), registerContentCreator() and serialization via GMetaOptimizer.
  */
 using GFunctionIndividualFactory =
-    Gem::Geneva::Genome::GFlatIndividualFactory<GFunctionIndividual>;
+    Gem::Geneva::Genome::GIndividualFactory<GFunctionIndividual>;
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////

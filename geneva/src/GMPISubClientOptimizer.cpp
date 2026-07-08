@@ -38,7 +38,7 @@
 #include "common/GParserBuilder.hpp"
 #include "geneva/GMPISubClientIndividual.hpp"
 #include "geneva/Go2.hpp"
-#include "geneva/ind/GFlatGenome.hpp"
+#include "geneva/ind/GGenome.hpp"
 #include <boost/program_options.hpp>
 #include <cstdint>
 #include <functional>

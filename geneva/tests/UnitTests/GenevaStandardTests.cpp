@@ -434,7 +434,7 @@ TEST_CASE(
 // and checks they survive both an in-memory load() (clone path) AND a wire round-trip; if any
 // member were dropped from serialize()/load_()/compare_(), one of those would fail. The shared
 // optimization direction (carried by the policy) is checked alongside. Exercised on the concrete
-// GTestIndividual1 (a GFlatGenome subclass).
+// GTestIndividual1 (a GGenome subclass).
 TEST_CASE(
     "GOptimizableEntity (via GTestIndividual1) round-trips its serialised members",
     "[geneva][serialization]"
@@ -459,7 +459,7 @@ TEST_CASE(
         CHECK(restored.getMaxMode() == maxMode::MAXIMIZE);
 
         GEqualityPrinter gep(
-            "GFlatGenome-load-roundtrip",
+            "GGenome-load-roundtrip",
             pow(10, -7),
             Gem::Common::CE_WITH_MESSAGES
         );
@@ -480,7 +480,7 @@ TEST_CASE(
         CHECK(restored.getMaxMode() == maxMode::MAXIMIZE);
 
         GEqualityPrinter gep(
-            "GFlatGenome-roundtrip",
+            "GGenome-roundtrip",
             pow(10, -7),
             Gem::Common::CE_WITH_MESSAGES
         );

@@ -33,7 +33,7 @@ SET ( IND_INCLUDES
     ind/GAuxiliaryStore.hpp
     ind/GIndividualProcessingResult.hpp
     ind/GProblemPolicy.hpp
-    ind/GFlatGenomeT.hpp
+    ind/GGenomeT.hpp
     ind/GOptimizableEntity.hpp
     ind/GAdaptionAuxKeys.hpp
     ind/GAdaptionKernels.hpp
@@ -41,8 +41,8 @@ SET ( IND_INCLUDES
     ind/GGenomeLayoutSerialization.hpp
     ind/GGenomeBuilder.hpp
     ind/GGenomeArchitecture.hpp
-    ind/GFlatGenome.hpp
-    ind/GFlatIndividualFactory.hpp
+    ind/GGenome.hpp
+    ind/GIndividualFactory.hpp
     ind/GIndividualPlugin.hpp
 )
 

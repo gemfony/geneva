@@ -174,7 +174,7 @@ T foldConstrainedInt(const T &val, const T &lo, const T &hi) {
 // With a width-1 interval, scale == (upper - lower) and anchor == (upper + lower) / 2, so internal
 // -0.5 maps to `lower` and +0.5 to `upper`. `scale` is the single scale concept of the model, computed
 // here from the bounds (ngScale) -- there is no separately stored copy. These helpers are the single
-// source of truth for the coordinate transform and back the live read/write path (GFlatGenome). All maps
+// source of truth for the coordinate transform and back the live read/write path (GGenome). All maps
 // compose in long double for a faithful, well-conditioned round-trip even for offset / narrow boxes.
 
 /** @brief external = anchor + u * scale, composed in long double and narrowed back to T. */
@@ -283,7 +283,7 @@ struct GroupSpec {
  * The structural description of one value channel (all parameters of a single type). Per-value: the
  * hard bound [lower, upper], the init perimeter [init_lower, init_upper], a `fold` bit and an active
  * flag; plus the list of adaption groups tiling the channel. Held by the shared GGenomeLayout; the
- * per-individual GFlatGenome only stores the value array and a handle to this.
+ * per-individual GGenome only stores the value array and a handle to this.
  *
  * The `fold` bit is the single bounded/unbounded distinction (§2.5):
  *   - fold == true  (bounded): the value folds into the half-open [lower, upper) (FP) / closed [lower,

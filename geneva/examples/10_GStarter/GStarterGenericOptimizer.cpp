@@ -49,7 +49,7 @@
 
 // Geneva headers
 #include "geneva/Go2.hpp"
-#include "geneva/ind/GFlatGenome.hpp"
+#include "geneva/ind/GGenome.hpp"
 #include "geneva/par/GOptimizableEntityFactory.hpp"
 
 using namespace Gem::Geneva;
@@ -76,7 +76,7 @@ int main(int argc, char **argv) {
     if(auto factory = go.getContentCreator()) {
         auto oef = std::dynamic_pointer_cast<Genome::GOptimizableEntityFactory>(factory);
         auto sample = (*factory)(); // a sample individual (also parses the factory's config)
-        const auto *flat = dynamic_cast<const Genome::GFlatGenome *>(sample.get());
+        const auto *flat = dynamic_cast<const Genome::GGenome *>(sample.get());
         if(oef && (flat != nullptr)) {
             if(auto cfg = oef->getAdaptionConfig(*flat)) {
                 go.registerAdaptionConfig("PERSONALITY_EA", cfg);
@@ -96,7 +96,7 @@ int main(int argc, char **argv) {
     //---------------------------------------------------------------------------
     // Optimize and report. The best individual is read back through the flat-genome base, so this launcher
     // stays problem-agnostic.
-    auto best = go.optimize()->getBestGlobalIndividual<Genome::GFlatGenome>();
+    auto best = go.optimize()->getBestGlobalIndividual<Genome::GGenome>();
     const auto [raw, transformed] = best->getFitnessTuple();
 
     std::vector<double> v;

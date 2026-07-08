@@ -48,7 +48,7 @@ class GAdaptionConfigBase;
 
 namespace Gem::Geneva::Genome {
 
-class GFlatGenome;
+class GGenome;
 
 
 
@@ -150,14 +150,14 @@ public:
      * This lets an adapting algorithm be configured WITHOUT the caller knowing the concrete individual
      * type -- essential when the individual is supplied at runtime through a plugin (a generic launcher
      * pulls the config from the loaded factory through this base interface). The base returns a null
-     * pointer (no adaption config); GFlatIndividualFactory overrides it to delegate to the individual's
+     * pointer (no adaption config); GIndividualFactory overrides it to delegate to the individual's
      * @c buildAdaptionConfig hook.
      *
      * @param sample A sample genome produced by this factory (passed to the individual's hook)
      * @return The OA-owned adaption configuration, or a null pointer if the individual provides none
      */
     virtual std::shared_ptr<Gem::Geneva::OptimizationAlgorithms::GAdaptionConfigBase>
-    getAdaptionConfig([[maybe_unused]] const GFlatGenome &sample) const {
+    getAdaptionConfig([[maybe_unused]] const GGenome &sample) const {
         return {};
     }
 

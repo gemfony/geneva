@@ -48,8 +48,8 @@
 // Geneva header files go here
 #include "common/GParserBuilder.hpp"
 #include "common/GSerializationHelperFunctionsT.hpp"
-#include "geneva/ind/GFlatGenome.hpp"
-#include "geneva/ind/GFlatIndividualFactory.hpp"
+#include "geneva/ind/GGenome.hpp"
+#include "geneva/ind/GIndividualFactory.hpp"
 #include "geneva/ind/GGenomeBuilder.hpp"
 #include <filesystem>
 #include <memory>
@@ -94,13 +94,13 @@ const targetFunction GO_DEF_TARGETFUNCTION = targetFunction::GFM_PARABOLA;
  * This individual searches for a minimum of a number of predefined functions, each capable
  * of processing their input in multiple dimensions.
  */
-class GFMinIndividual : public gen::GFlatGenome {
+class GFMinIndividual : public gen::GGenome {
     /////////////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
     template <class Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gen::GFlatGenome) &
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gen::GGenome) &
             BOOST_SERIALIZATION_NVP(targetFunction_) & BOOST_SERIALIZATION_NVP(seed_sigma_);
     }
 
@@ -123,7 +123,7 @@ public:
     double getAverageSigma() const;
 
     //---------------------------------------------------------------------------
-    // GFlatIndividualFactory<GFMinIndividual> hooks. The individual supplies the static hooks the generic
+    // GIndividualFactory<GFMinIndividual> hooks. The individual supplies the static hooks the generic
     // factory needs: describeConfig (the configurable values, including the
     // target function), buildGenome (one shared constrained-double group), buildAdaptionConfig (the
     // OA-owned Gauss adaptor for that group) and applyConfig (the target function + the seed sigma stamped
@@ -148,7 +148,7 @@ public:
     static gen::GenomeData buildGenome(const Config &c);
     /** @brief The OA-owned adaption config: the shared double group gets the configured Gauss adaptor */
     static std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase>
-    buildAdaptionConfig(const gen::GFlatGenome &sample, const Config &c);
+    buildAdaptionConfig(const gen::GGenome &sample, const Config &c);
     /** @brief Per-object post-config hook: the target function and the seed sigma for getAverageSigma() */
     static void applyConfig(GFMinIndividual &ind, const Config &c);
 
@@ -165,7 +165,7 @@ protected:
 private:
     /***************************************************************************/
     /** @brief Creates a deep clone of this object */
-    virtual gen::GFlatGenome *clone_() const final;
+    virtual gen::GGenome *clone_() const final;
 
     /***************************************************************************/
     targetFunction targetFunction_ =
@@ -193,11 +193,11 @@ std::ostream &operator<<(std::ostream &, std::shared_ptr<Gem::Geneva::GFMinIndiv
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * A factory for GFMinIndividual objects: an alias for the generic, config-driven GFlatIndividualFactory,
+ * A factory for GFMinIndividual objects: an alias for the generic, config-driven GIndividualFactory,
  * for which GFMinIndividual supplies the static describeConfig / buildGenome / buildAdaptionConfig /
  * applyConfig hooks. Call sites use ctor(path), operator(), get_as<>() and getAdaptionConfig().
  */
-using GFMinIndividualFactory = Gem::Geneva::Genome::GFlatIndividualFactory<GFMinIndividual>;
+using GFMinIndividualFactory = Gem::Geneva::Genome::GIndividualFactory<GFMinIndividual>;
 
 /******************************************************************************/
 

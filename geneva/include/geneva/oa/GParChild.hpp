@@ -50,7 +50,7 @@
 #include "geneva/oa/GBaseParChildPersonalityTraits.hpp"
 
 namespace Gem::Geneva::Genome {
-class GFlatGenome;
+class GGenome;
 } // namespace Gem::Geneva::Genome
 
 namespace Gem::Geneva::OptimizationAlgorithms {

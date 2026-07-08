@@ -38,7 +38,7 @@
 #include "common/GLogger.hpp"
 #include "common/GParserBuilder.hpp"
 #include "common/GSingletonT.hpp"
-#include "geneva/ind/GFlatGenome.hpp"
+#include "geneva/ind/GGenome.hpp"
 #include "geneva/ind/GGenomeBuilder.hpp"
 #include "geneva/oa/GAdaption.hpp"
 #include "geneva/oa/GAdaptionConfig.hpp"
@@ -716,7 +716,7 @@ GNeuralNetworkIndividual::GNeuralNetworkIndividual(
  * @param cp A copy of another GNeuralNetworkIndividual object
  */
 GNeuralNetworkIndividual::GNeuralNetworkIndividual(const GNeuralNetworkIndividual &cp)
-  : gen::GFlatGenome(cp)
+  : gen::GGenome(cp)
   , t_f_(cp.t_f_)
   , n_d_(nnTrainingDataStore()) // We want a single source for the training data
 {                             /* nothing */
@@ -752,7 +752,7 @@ void GNeuralNetworkIndividual::compare_(
     GToken token("GNeuralNetworkIndividual", e);
 
     // Compare our parent data ...
-    Gem::Common::compare_base_t<gen::GFlatGenome>(*this, *p_load, token);
+    Gem::Common::compare_base_t<gen::GGenome>(*this, *p_load, token);
 
     // ... and then the local data, derived from the single localMembers() declaration
     g_compare_members(this->localMembers_(), p_load->localMembers_(), token);
@@ -1408,7 +1408,7 @@ void GNeuralNetworkIndividual::load_(const gen::GOptimizableEntity *cp) {
         Gem::Common::g_convert_and_compare<gen::GOptimizableEntity, GNeuralNetworkIndividual>(cp, this);
 
     // Load the parent class'es data
-    gen::GFlatGenome::load_(cp);
+    gen::GGenome::load_(cp);
 
     // Load our local data, derived from the single localMembers() declaration.
     // We do not copy the network data, as it is always initialized through
@@ -1420,9 +1420,9 @@ void GNeuralNetworkIndividual::load_(const gen::GOptimizableEntity *cp) {
 /**
  * @brief Creates a deep clone of this object
  *
- * @return A deep clone of this object, camouflaged as a GFlatGenome
+ * @return A deep clone of this object, camouflaged as a GGenome
  */
-gen::GFlatGenome *GNeuralNetworkIndividual::clone_() const {
+gen::GGenome *GNeuralNetworkIndividual::clone_() const {
     return new GNeuralNetworkIndividual(*this);
 }
 
@@ -1586,7 +1586,7 @@ double GNeuralNetworkIndividual::transfer(const double &value) const {
 /******************************************************************************/
 /**
  * @brief Registers the config-file options, binding them to the passed Config. The base
- * GOptimizableEntity options are registered separately by GFlatIndividualFactory::getObject_ (via
+ * GOptimizableEntity options are registered separately by GIndividualFactory::getObject_ (via
  * addConfigurationOptions).
  *
  * @param gpb The parser builder the file-parameter options are registered with
@@ -1705,7 +1705,7 @@ gen::GenomeData GNeuralNetworkIndividual::buildGenome(const Config &c) {
  * @return A std::shared_ptr to the populated OA-owned adaption config
  */
 std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase>
-GNeuralNetworkIndividual::buildAdaptionConfig(const gen::GFlatGenome &sample, const Config &c) {
+GNeuralNetworkIndividual::buildAdaptionConfig(const gen::GGenome &sample, const Config &c) {
     namespace oa = Gem::Geneva::OptimizationAlgorithms;
     auto cfg = oa::makeAdaptionConfig<oa::GAdaptionConfigBase>(sample);
     for(std::size_t i = 0; i < cfg->doubleGroups().size(); i++) {
@@ -1719,7 +1719,7 @@ GNeuralNetworkIndividual::buildAdaptionConfig(const gen::GFlatGenome &sample, co
 
 /******************************************************************************/
 /**
- * @brief Per-object post-config hook (called by GFlatIndividualFactory::postProcess_ after the genome is
+ * @brief Per-object post-config hook (called by GIndividualFactory::postProcess_ after the genome is
  * installed): applies the non-genome transfer function to a produced individual.
  *
  * @param ind The individual to configure (its transfer function is set)

@@ -37,7 +37,7 @@
 #include "common/GLogger.hpp"
 #include "common/GParserBuilder.hpp"
 #include "geneva/GMultiConstraintT.hpp"
-#include "geneva/ind/GFlatGenome.hpp"
+#include "geneva/ind/GGenome.hpp"
 #include "geneva/ind/GGenomeBuilder.hpp"
 #include "geneva/oa/GAdaption.hpp"
 #include "geneva/oa/GAdaptionConfig.hpp"
@@ -80,7 +80,7 @@ GExternalEvaluatorIndividual::GExternalEvaluatorIndividual()
  * @param cp A constant reference to another GExternalEvaluatorIndividual to be copied
  */
 GExternalEvaluatorIndividual::GExternalEvaluatorIndividual(const GExternalEvaluatorIndividual &cp)
-  : gen::GFlatGenome(cp) // copies the base genome (value channels + layout)
+  : gen::GGenome(cp) // copies the base genome (value channels + layout)
   , program_name_(cp.program_name_)
   , custom_options_(cp.custom_options_)
   , parameter_file_base_name_(cp.parameter_file_base_name_)
@@ -116,7 +116,7 @@ void GExternalEvaluatorIndividual::compare_(
     Gem::Common::GToken token("GExternalEvaluatorIndividual", e);
 
     // Compare our parent data ...
-    Gem::Common::compare_base_t<gen::GFlatGenome>(*this, *p_load, token);
+    Gem::Common::compare_base_t<gen::GGenome>(*this, *p_load, token);
 
     // ... and then the local data
     Gem::Common::g_compare_members(this->localMembers_(), p_load->localMembers_(), token);
@@ -236,7 +236,7 @@ void GExternalEvaluatorIndividual::load_(const gen::GOptimizableEntity *cp) {
         Gem::Common::g_convert_and_compare<gen::GOptimizableEntity, GExternalEvaluatorIndividual>(cp, this);
 
     // First load the data of our parent class ...
-    gen::GFlatGenome::load_(cp);
+    gen::GGenome::load_(cp);
 
     // ... and then our own, derived from the single localMembers() declaration
     Gem::Common::g_load_members(this->localMembers_(), p_load->localMembers_());
@@ -246,9 +246,9 @@ void GExternalEvaluatorIndividual::load_(const gen::GOptimizableEntity *cp) {
 /**
  * @brief Creates a deep clone of this object.
  *
- * @return A deep clone of this object, camouflaged as a GFlatGenome pointer
+ * @return A deep clone of this object, camouflaged as a GGenome pointer
  */
-gen::GFlatGenome *GExternalEvaluatorIndividual::clone_() const {
+gen::GGenome *GExternalEvaluatorIndividual::clone_() const {
     return new GExternalEvaluatorIndividual(*this);
 }
 
@@ -484,7 +484,7 @@ bool GExternalEvaluatorIndividual::getRemoveExecTemporaries() const {
 /**
  * @brief Registers the config-file options, binding them to the passed Config.
  *
- * The base GOptimizableEntity options are registered separately by GFlatIndividualFactory::getObject_
+ * The base GOptimizableEntity options are registered separately by GIndividualFactory::getObject_
  * (via addConfigurationOptions).
  *
  * @param gpb The GParserBuilder object with which the configuration file options are registered
@@ -710,7 +710,7 @@ gen::GenomeData GExternalEvaluatorIndividual::buildGenome(Config &c) {
  * @return A shared pointer to the populated OA-owned adaption configuration
  */
 std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase>
-GExternalEvaluatorIndividual::buildAdaptionConfig(const gen::GFlatGenome &sample, const Config &c) {
+GExternalEvaluatorIndividual::buildAdaptionConfig(const gen::GGenome &sample, const Config &c) {
     namespace oa = Gem::Geneva::OptimizationAlgorithms;
     auto cfg = oa::makeAdaptionConfig<oa::GAdaptionConfigBase>(sample);
     const auto &groups = cfg->doubleGroups();
@@ -739,7 +739,7 @@ GExternalEvaluatorIndividual::buildAdaptionConfig(const gen::GFlatGenome &sample
 /**
  * @brief Per-object post-config hook applying the external-program parameters and discovered metadata.
  *
- * Called by GFlatIndividualFactory::postProcess_ after the genome is installed; applies the
+ * Called by GIndividualFactory::postProcess_ after the genome is installed; applies the
  * external-program parameters and the metadata discovered by buildGenome (run-id, expected result
  * count).
  *
@@ -759,7 +759,7 @@ void GExternalEvaluatorIndividual::applyConfig(GExternalEvaluatorIndividual &ind
 /**
  * @brief Teardown hook giving the external evaluator program a chance to perform final work (--finalize).
  *
- * Called by GFlatIndividualFactory's destructor once a genome has been produced. Errors here are fatal.
+ * Called by GIndividualFactory's destructor once a genome has been produced. Errors here are fatal.
  *
  * @param c The Config supplying the program name and custom options used to invoke the external program with --finalize
  */

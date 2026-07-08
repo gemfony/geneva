@@ -32,7 +32,7 @@
 #include "common/GExceptions.hpp"
 #include "common/GExpectationChecksT.hpp"
 #include "common/GLogger.hpp"
-#include "geneva/ind/GFlatGenome.hpp"
+#include "geneva/ind/GGenome.hpp"
 #include "geneva/ind/GGenomeBuilder.hpp"
 #include <algorithm>
 #include <cstddef>
@@ -94,7 +94,7 @@ GTestIndividual3::GTestIndividual3() {
  * @param cp A constant reference to another GTestIndividual3 object
  */
 GTestIndividual3::GTestIndividual3(const GTestIndividual3 &cp)
-  : gen::GFlatGenome(cp) { /* nothing */
+  : gen::GGenome(cp) { /* nothing */
 }
 
 /******************************************************************************/
@@ -128,7 +128,7 @@ void GTestIndividual3::compare_(
     Gem::Common::GToken token("GTestIndividual3", e);
 
     // Compare our parent data ...
-    Gem::Common::compare_base_t<gen::GFlatGenome>(*this, *p_load, token);
+    Gem::Common::compare_base_t<gen::GGenome>(*this, *p_load, token);
 
     // ...no local data
 
@@ -151,7 +151,7 @@ void GTestIndividual3::load_(const gen::GOptimizableEntity *cp) {
         Gem::Common::g_convert_and_compare<gen::GOptimizableEntity, GTestIndividual3>(cp, this);
 
     // Load our parent's data
-    gen::GFlatGenome::load_(cp);
+    gen::GGenome::load_(cp);
 
     // no local data
 }
@@ -160,9 +160,9 @@ void GTestIndividual3::load_(const gen::GOptimizableEntity *cp) {
 /**
  * @brief Creates a deep clone of this object
  *
- * @return A deep clone of this object, camouflaged as a GFlatGenome
+ * @return A deep clone of this object, camouflaged as a GGenome
  */
-gen::GFlatGenome *GTestIndividual3::clone_() const {
+gen::GGenome *GTestIndividual3::clone_() const {
     return new GTestIndividual3(*this);
 }
 
@@ -235,7 +235,7 @@ bool GTestIndividual3::modify_GUnitTests_() {
     bool result = false;
 
     // Call the parent classes' functions
-    if(gen::GFlatGenome::modify_GUnitTests_()) {
+    if(gen::GGenome::modify_GUnitTests_()) {
         result = true;
     }
 
@@ -259,7 +259,7 @@ void GTestIndividual3::specificTestsNoFailureExpected_GUnitTests_() {
     using namespace Gem::Geneva;
 
     // Call the parent classes' functions
-    gen::GFlatGenome::specificTestsNoFailureExpected_GUnitTests_();
+    gen::GGenome::specificTestsNoFailureExpected_GUnitTests_();
 
     constexpr std::size_t ntests = 100;
 
@@ -300,7 +300,7 @@ void GTestIndividual3::specificTestsFailuresExpected_GUnitTests_() {
     using namespace Gem::Geneva;
 
     // Call the parent classes' functions
-    gen::GFlatGenome::specificTestsFailuresExpected_GUnitTests_();
+    gen::GGenome::specificTestsFailuresExpected_GUnitTests_();
 
     //------------------------------------------------------------------------------
     //------------------------------------------------------------------------------

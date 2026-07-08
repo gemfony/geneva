@@ -64,7 +64,7 @@ SET ( OPTIMIZATIONSOURCES
 	ind/GIndividualPluginLoader.cpp
 	ind/GProblemPolicy.cpp
 	ind/GOptimizableEntity.cpp
-	ind/GFlatGenome.cpp
+	ind/GGenome.cpp
 	par/GOptimizableEntityFixedSizePriorityQueue.cpp
 	par/GOptimizableEntityMultiConstraint.cpp
 	GPersonalityTraits.cpp
@@ -108,7 +108,7 @@ GENEVA_DECLARE_INDIVIDUAL(GExternalEvaluatorIndividual
 
 # GDelayIndividual is a pure benchmarking / testing individual (it performs no real optimisation -- its
 # fitness just sleeps, its genome is transport ballast) and deliberately owns its own config parsing and
-# construction (readConfig / create) instead of going through GFlatIndividualFactory. There is nothing to
+# construction (readConfig / create) instead of going through GIndividualFactory. There is nothing to
 # load into the generic optimizer, so it is MODE compile: an object library its benchmark / test consumers
 # link, but no runtime-loadable module. (Maintainer-confirmed 2026-07-06: compile-in is fine here.)
 GENEVA_DECLARE_INDIVIDUAL(GDelayIndividual

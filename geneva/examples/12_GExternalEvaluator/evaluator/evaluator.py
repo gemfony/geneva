@@ -88,7 +88,7 @@ def setup(setup_file, initial_values):
         "n_individuals": 1,
         "individuals": [
             {
-                "type": "GFlatGenome",
+                "type": "GGenome",
                 "nVars": 4,
                 "n_results": 1,
                 "nBounds": 0,
@@ -190,7 +190,7 @@ def read_input(in_file):
     if nr_params != 4:
         sys.exit("\nERROR: unexpected parameter: nVars=" + str(nr_params) + " (expected 4)!")
 
-    # The flat genome (GFlatGenome::toJSON) writes one scalar "value" per entry of the "vars" array.
+    # The flat genome (GGenome::toJSON) writes one scalar "value" per entry of the "vars" array.
     params = ind["vars"]
     if len(params) != nr_params:
         sys.exit("\nERROR: inconsistent data in input file: nVars=" + str(nr_params)

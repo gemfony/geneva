@@ -69,15 +69,15 @@ namespace Gem::Geneva::Genome {
  * The flat-genome representation layer of the individual hierarchy and the non-template concrete cast /
  * signature target the optimization algorithms operate on.
  *
- * GFlatGenome derives the genome-agnostic GOptimizableEntity and adds the parameter STORAGE: four
+ * GGenome derives the genome-agnostic GOptimizableEntity and adds the parameter STORAGE: four
  * contiguous, type-homogeneous value arrays (double / float / int32 / bool) plus a handle to a shared,
  * immutable GGenomeLayout that describes their bounds, grouping and adaption configuration. The
  * per-individual, per-group adaption state (Gauss sigma, ...) lives in the OA-owned slot scratch, not in
  * the genome. Because all genome state is generic, a concrete individual adds no extra members and only
  * supplies a constructor (building its genome with GGenomeBuilder + setGenome()) and evaluate();
- * the clone/load/compare/serialize machinery is provided here and reused unchanged via GFlatGenomeT.
+ * the clone/load/compare/serialize machinery is provided here and reused unchanged via GGenomeT.
  *
- * Value access is genome-agnostic: GFlatGenome implements the per-type value-channel virtuals declared on
+ * Value access is genome-agnostic: GGenome implements the per-type value-channel virtuals declared on
  * GOptimizableEntity (streamline_ / assignValueVector_ / countParametersX_ / boundaries_ and the FP /
  * internal views), so the algorithms read and write parameter values through the base's templated surface
  * without a downcast. A floating-point parameter is stored in the NORMALIZED INTERNAL coordinate (magnitude
@@ -90,7 +90,7 @@ namespace Gem::Geneva::Genome {
  * Feasibility is a concrete operation on the base (GOptimizableEntity::fulfillsConstraints), reading this
  * genome's values through the shared GProblemPolicy's constraint -- the genome adds no feasibility hook.
  */
-class GFlatGenome // NOLINT(cppcoreguidelines-special-member-functions)
+class GGenome // NOLINT(cppcoreguidelines-special-member-functions)
   : public GOptimizableEntity {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
@@ -141,7 +141,7 @@ class GFlatGenome // NOLINT(cppcoreguidelines-special-member-functions)
         Gem::Common::serialize_members(ar, this->localMembers_());
 
         // The layout is shared & immutable in memory; sharing does not survive serialisation. Two wire
-        // forms (see GFlatGenome's historical note): SELF-CONTAINED (full layout by value, the only form
+        // forms (see GGenome's historical note): SELF-CONTAINED (full layout by value, the only form
         // with no active scope -- checkpoint / file) and SEND-ONCE (referenced by content id, shipped to a
         // peer only the first time the id is seen). A leading `layout_interned` tag is self-describing.
         const bool interned =
@@ -237,7 +237,7 @@ class GFlatGenome // NOLINT(cppcoreguidelines-special-member-functions)
         if(not have || blob.empty()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GFlatGenome::load(): Error!" << '\n'
+                << "In GGenome::load(): Error!" << '\n'
                 << "An id-only layout reference could not be resolved (cache miss with no usable fetch)."
                 << '\n'
             );
@@ -250,15 +250,15 @@ class GFlatGenome // NOLINT(cppcoreguidelines-special-member-functions)
 
 public:
     /** @brief The default constructor */
-    GFlatGenome();
+    GGenome();
     /** @brief Initialization with the number of fitness criteria.
      *  @param n_fitness_criteria The number of fitness criteria this genome will report */
-    explicit GFlatGenome(std::size_t n_fitness_criteria);
+    explicit GGenome(std::size_t n_fitness_criteria);
     /** @brief The copy constructor.
      *  @param cp The genome to copy from (value channels and shared layout handle) */
-    GFlatGenome(GFlatGenome const &cp);
+    GGenome(GGenome const &cp);
     /** @brief The destructor */
-    ~GFlatGenome() override = default;
+    ~GGenome() override = default;
 
     /** @brief Un-hide the inherited public load(shared_ptr/unique_ptr/ref) overloads, which the boost
      *  split-member load(Archive&, unsigned) below would otherwise hide by name. */
@@ -291,7 +291,7 @@ public:
     auto internalBoolValues(this Self &&self) noexcept { return std::span{self.bv_}; }
 
     /***************************************************************************/
-    // Bulk-flatten fast path (the GPU marshallers) -- see GFlatGenome's historical notes.
+    // Bulk-flatten fast path (the GPU marshallers) -- see GGenome's historical notes.
 
     /** @brief Bulk-flatten the double channel directly into a caller buffer (external/scaled values).
      *  @param dst The destination buffer (must be large enough)
@@ -338,12 +338,12 @@ public:
         bool show_validity = true
     ) const override;
 
-    /** @brief Perform a cross-over operation between this genome and another (a GFlatGenome).
-     *  @param cp_base The other entity to cross over with (must be a GFlatGenome)
+    /** @brief Perform a cross-over operation between this genome and another (a GGenome).
+     *  @param cp_base The other entity to cross over with (must be a GGenome)
      *  @return A new genome holding the recombined parameter values */
     std::shared_ptr<GOptimizableEntity> crossOverWith(GOptimizableEntity const &cp_base) const override;
 
-    /** @brief Retrieves parameters relevant for the evaluation from another GFlatGenome.
+    /** @brief Retrieves parameters relevant for the evaluation from another GGenome.
      *  @param cp_base The entity whose evaluation-relevant parameters are absorbed into this one */
     void cannibalize(GOptimizableEntity &cp_base) override;
 
@@ -357,18 +357,18 @@ public:
     /***************************************************************************/
     // Deleted functions
 
-    explicit GFlatGenome(float const &) = delete;  ///< Intentionally undefined
-    explicit GFlatGenome(double const &) = delete; ///< Intentionally undefined
+    explicit GGenome(float const &) = delete;  ///< Intentionally undefined
+    explicit GGenome(double const &) = delete; ///< Intentionally undefined
 
 protected:
-    /** @brief Loads the data of another GFlatGenome, camouflaged as a base pointer.
-     *  @param cp A base pointer to the GFlatGenome whose data is copied into this object */
+    /** @brief Loads the data of another GGenome, camouflaged as a base pointer.
+     *  @param cp A base pointer to the GGenome whose data is copied into this object */
     void load_(const GOptimizableEntity *cp) override;
 
     /** @brief Allow access to this class's compare_ function. */
-    friend void Gem::Common::compare_base_t<GFlatGenome>(
-        GFlatGenome const &,
-        GFlatGenome const &,
+    friend void Gem::Common::compare_base_t<GGenome>(
+        GGenome const &,
+        GGenome const &,
         Gem::Common::GToken &
     );
 
@@ -397,17 +397,17 @@ protected:
 private:
     /***************************************************************************/
     /** @brief Emits a name for this class / object. @return The name of this class / object */
-    std::string name_() const override { return std::string("GFlatGenome"); }
+    std::string name_() const override { return std::string("GGenome"); }
     /** @brief Creates a deep clone of this object (supplied by the concrete individual). @return A copy */
-    GFlatGenome *clone_() const override = 0;
+    GGenome *clone_() const override = 0;
 
     /** @brief Whether this genome was deserialised from a results-only return (input data omitted).
      *  @return true iff the input parameters were omitted on the wire and must be grafted. */
     bool inputDataOmitted_() const override { return input_omitted_; }
     /** @brief Grafts the input parameters of @p original onto this results-only genome.
-     *  @param original The originally-submitted item (a GFlatGenome) supplying the input data. */
+     *  @param original The originally-submitted item (a GGenome) supplying the input data. */
     void graftInputDataFrom_(const GOptimizableEntity &original) override {
-        const auto &src = dynamic_cast<const GFlatGenome &>(original);
+        const auto &src = dynamic_cast<const GGenome &>(original);
         dv_ = src.dv_;
         fv_ = src.fv_;
         iv_ = src.iv_;
@@ -509,7 +509,7 @@ private:
             if(scale > T(0) && not(stored >= T(-0.5) && stored < T(0.5))) {
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                    << "In GFlatGenome::externalValue(): Error!" << '\n'
+                    << "In GGenome::externalValue(): Error!" << '\n'
                     << "Internal coordinate " << stored << " of bounded parameter " << k
                     << " is outside the canonical interval [-0.5, 0.5) -- a write path failed to fold." << '\n'
                 );
@@ -548,7 +548,7 @@ private:
             if(below || above) {
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                    << "In GFlatGenome::externalToInternalChecked(): Error!" << '\n'
+                    << "In GGenome::externalToInternalChecked(): Error!" << '\n'
                     << "External value " << x << " is outside the "
                     << (allow_upper_bound ? "range [" : "half-open range [")
                     << ch.lower[k] << ", " << ch.upper[k] << (allow_upper_bound ? "]" : ")")
@@ -841,5 +841,5 @@ private:
 /**
  * @brief Needed for Boost.Serialization
  */
-BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::Geneva::Genome::GFlatGenome) // NOLINT
+BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::Geneva::Genome::GGenome) // NOLINT
 /******************************************************************************/

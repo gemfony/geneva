@@ -50,7 +50,7 @@
 #include "geneva/ind/GAdaptionAuxKeys.hpp"
 #include "geneva/ind/GAdaptionKernels.hpp"
 #include "geneva/ind/GAuxiliaryStore.hpp"
-#include "geneva/ind/GFlatGenome.hpp"
+#include "geneva/ind/GGenome.hpp"
 #include "geneva/ind/GGenomeLayout.hpp"
 
 namespace Gem::Geneva::OptimizationAlgorithms {
@@ -63,7 +63,7 @@ using Gem::Geneva::Genome::ChannelTag;
 using Gem::Geneva::Genome::FlipConfig;
 using Gem::Geneva::Genome::GaussConfig;
 using Gem::Geneva::Genome::GAuxiliaryStore;
-using Gem::Geneva::Genome::GFlatGenome;
+using Gem::Geneva::Genome::GGenome;
 using Gem::Geneva::Genome::GGenomeLayout;
 using Gem::Geneva::Genome::GroupRef;
 using Gem::Geneva::Genome::GroupSpec;
@@ -527,7 +527,7 @@ public:
      *
      * @param genome The genome whose (structure-only) layout is snapshotted into this config
      */
-    explicit GAdaptionConfigBase(const GFlatGenome &genome) { initFrom(*genome.getLayout()); }
+    explicit GAdaptionConfigBase(const GGenome &genome) { initFrom(*genome.getLayout()); }
     /**
      * @brief Builds a config describing exactly the groups of the passed layout.
      *
@@ -615,7 +615,7 @@ public:
      *
      * @param genome The genome whose layout is cross-checked against this config's group structure
      */
-    void checkConsistency(const GFlatGenome &genome) const { checkConsistency(*genome.getLayout()); }
+    void checkConsistency(const GGenome &genome) const { checkConsistency(*genome.getLayout()); }
 
     /**
      * @brief Throws unless the passed layout has exactly the structure this config was authored against.
@@ -981,7 +981,7 @@ private:
     }
 
     /***************************************************************************/
-    // State seeding helpers (mirror GFlatGenome::installAdaptionStates).
+    // State seeding helpers (mirror GGenome::installAdaptionStates).
 
     /**
      * @brief Installs and seeds a per-group Gauss state block into the scratch store (no-op if no group uses Gauss).

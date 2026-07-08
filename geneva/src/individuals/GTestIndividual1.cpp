@@ -37,7 +37,7 @@
 #include "geneva/oa/GEvolutionaryAlgorithm_PersonalityTraits.hpp"
 #include "geneva/oa/GGradientDescent_PersonalityTraits.hpp"
 #include "geneva/oa/GSwarmAlgorithm_PersonalityTraits.hpp"
-#include "geneva/ind/GFlatGenome.hpp"
+#include "geneva/ind/GGenome.hpp"
 #include "geneva/ind/GOptimizableEntity.hpp"
 #include "geneva/ind/GGenomeBuilder.hpp"
 #include "geneva/oa/GAdaption.hpp"
@@ -117,7 +117,7 @@ void GTestIndividual1::compare_(
     GToken token("GTestIndividual1", e);
 
     // Compare our parent data ...
-    Gem::Common::compare_base_t<gen::GFlatGenome>(*this, *p_load, token);
+    Gem::Common::compare_base_t<gen::GGenome>(*this, *p_load, token);
 
     // ... no local data
 
@@ -140,7 +140,7 @@ void GTestIndividual1::load_(const gen::GOptimizableEntity *cp) {
         Gem::Common::g_convert_and_compare<gen::GOptimizableEntity, GTestIndividual1>(cp, this);
 
     // Load our parent's data
-    gen::GFlatGenome::load_(cp);
+    gen::GGenome::load_(cp);
 
     // No local data
 }
@@ -149,9 +149,9 @@ void GTestIndividual1::load_(const gen::GOptimizableEntity *cp) {
 /**
  * @brief Creates a deep clone of this object.
  *
- * @return A deep clone of this object, camouflaged as a GFlatGenome pointer
+ * @return A deep clone of this object, camouflaged as a GGenome pointer
  */
-gen::GFlatGenome *GTestIndividual1::clone_() const {
+gen::GGenome *GTestIndividual1::clone_() const {
     return new GTestIndividual1(*this);
 }
 
@@ -185,7 +185,7 @@ bool GTestIndividual1::modify_GUnitTests_() {
     bool result = false;
 
     // Call the parent classes' functions
-    if(gen::GFlatGenome::modify_GUnitTests_()) {
+    if(gen::GGenome::modify_GUnitTests_()) {
         result = true;
     }
 
@@ -209,7 +209,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
     using namespace Gem::Geneva;
 
     // Call the parent classes' functions
-    gen::GFlatGenome::specificTestsNoFailureExpected_GUnitTests_();
+    gen::GGenome::specificTestsNoFailureExpected_GUnitTests_();
 
     //------------------------------------------------------------------------------
 
@@ -392,7 +392,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
 
     //------------------------------------------------------------------------------
 
-    { // Check of the GFlatGenome::customAdaptions() function
+    { // Check of the GGenome::customAdaptions() function
         std::shared_ptr<Gem::Geneva::Individuals::GTestIndividual1> p_test1 =
             this->clone<Gem::Geneva::Individuals::GTestIndividual1>();
         std::shared_ptr<Gem::Geneva::Individuals::GTestIndividual1> p_test2 =
@@ -567,7 +567,7 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests_() {
     using namespace Gem::Geneva;
 
     // Call the parent classes' functions
-    gen::GFlatGenome::specificTestsFailuresExpected_GUnitTests_();
+    gen::GGenome::specificTestsFailuresExpected_GUnitTests_();
 
     //------------------------------------------------------------------------------
 

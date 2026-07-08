@@ -36,7 +36,7 @@
 #include "common/GExpectationChecksT.hpp"
 #include "common/GLogger.hpp"
 #include "common/GParserBuilder.hpp"
-#include "geneva/ind/GFlatGenome.hpp"
+#include "geneva/ind/GGenome.hpp"
 #include "geneva/ind/GGenomeBuilder.hpp"
 #include <chrono>
 #include <cstddef>
@@ -67,7 +67,7 @@ GDelayIndividual::GDelayIndividual()
  * @param cp A copy of another GDelayIndividual
  */
 GDelayIndividual::GDelayIndividual(const GDelayIndividual &cp)
-  : gen::GFlatGenome(cp)
+  : gen::GGenome(cp)
   , fixed_sleep_time_(cp.fixed_sleep_time_)
   , may_crash_(cp.may_crash_)
   , throw_likelihood_(cp.throw_likelihood_)
@@ -104,7 +104,7 @@ void GDelayIndividual::compare_(
     Gem::Common::GToken token("GDelayIndividual", e);
 
     // Compare our parent data ...
-    Gem::Common::compare_base_t<gen::GFlatGenome>(*this, *p_load, token);
+    Gem::Common::compare_base_t<gen::GGenome>(*this, *p_load, token);
 
     // ... and then the local data
     Gem::Common::g_compare_members(this->localMembers_(), p_load->localMembers_(), token);
@@ -125,7 +125,7 @@ void GDelayIndividual::load_(const gen::GOptimizableEntity *cp) {
         Gem::Common::g_convert_and_compare<gen::GOptimizableEntity, GDelayIndividual>(cp, this);
 
     // Load our parent class'es data ...
-    gen::GFlatGenome::load_(cp);
+    gen::GGenome::load_(cp);
 
     // ... and then our own, derived from the single localMembers() declaration
     Gem::Common::g_load_members(this->localMembers_(), p_load->localMembers_());
@@ -135,9 +135,9 @@ void GDelayIndividual::load_(const gen::GOptimizableEntity *cp) {
 /**
  * @brief Creates a deep clone of this object.
  *
- * @return A deep clone of this object, camouflaged as a GFlatGenome pointer
+ * @return A deep clone of this object, camouflaged as a GGenome pointer
  */
-gen::GFlatGenome *GDelayIndividual::clone_() const {
+gen::GGenome *GDelayIndividual::clone_() const {
     return new GDelayIndividual(*this);
 }
 

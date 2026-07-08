@@ -48,7 +48,7 @@
 #include "courtier/GConsumerRegistry.hpp"
 #include "courtier/consumers/GStdThreadConsumerT.hpp"
 #include "geneva/GConsumerSetup.hpp"
-#include "geneva/ind/GFlatGenomeT.hpp"
+#include "geneva/ind/GGenomeT.hpp"
 #include "geneva/ind/GGenomeBuilder.hpp"
 #include "geneva/ind/GOptimizableEntity.hpp"
 #include "geneva/oa/GAdaption.hpp"
@@ -62,7 +62,7 @@ namespace oa = Gem::Geneva::OptimizationAlgorithms;
 namespace {
 
 /** @brief A tiny flat sphere: 3 constrained doubles in [-5, 5), started at 3.0. The inner problem. */
-class InnerSphere : public gen::GFlatGenomeT<InnerSphere> {
+class InnerSphere : public gen::GGenomeT<InnerSphere> {
 public:
     InnerSphere() {
         gen::GGenomeBuilder b;
@@ -94,7 +94,7 @@ protected:
  * (un-injected) submission path -- i.e. exactly the nesting the invariant targets. Its own genome is
  * one constrained double (so the outer EA has something to adapt); the value is unused.
  */
-class MetaSphere : public gen::GFlatGenomeT<MetaSphere> {
+class MetaSphere : public gen::GGenomeT<MetaSphere> {
 public:
     MetaSphere() {
         gen::GGenomeBuilder b;

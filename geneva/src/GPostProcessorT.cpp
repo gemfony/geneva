@@ -278,7 +278,7 @@ bool GEvolutionaryAlgorithmPostOptimizer::raw_processing_(gen::GOptimizableEntit
     // group, an integer-Gauss adaptor on every int32 group and a flip adaptor on every bool group. Each
     // Gauss step is scaled by the group's comparative range, so a single relative sigma suits any
     // parameter bounds. Without this the sub-EA has no adaption config and would hard-error at init().
-    if(const auto *flat = dynamic_cast<const gen::GFlatGenome *>(p_unopt_ptr.get())) {
+    if(const auto *flat = dynamic_cast<const gen::GGenome *>(p_unopt_ptr.get())) {
         auto cfg = oa::makeAdaptionConfig<oa::GAdaptionConfigBase>(*flat);
         for(std::size_t i = 0; i < cfg->doubleGroups().size(); ++i) {
             cfg->groupDouble(i).gauss(0.5, 0.8, 1e-3, 2., 1.);

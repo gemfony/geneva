@@ -42,7 +42,7 @@
 #include "geneva/ind/GAdaptionAuxKeys.hpp"
 #include "geneva/ind/GAdaptionKernels.hpp"
 #include "geneva/ind/GAuxiliaryStore.hpp"
-#include "geneva/ind/GFlatGenome.hpp"
+#include "geneva/ind/GGenome.hpp"
 #include "geneva/oa/GAdaptionConfig.hpp"
 #include "hap/GRandomBase.hpp"
 
@@ -67,7 +67,7 @@ using Gem::Geneva::Genome::BiGaussState;
 using Gem::Geneva::Genome::FlipState;
 using Gem::Geneva::Genome::GaussState;
 using Gem::Geneva::Genome::GAuxiliaryStore;
-using Gem::Geneva::Genome::GFlatGenome;
+using Gem::Geneva::Genome::GGenome;
 using Gem::Geneva::Genome::GroupSpec;
 
 /**
@@ -161,7 +161,7 @@ std::size_t adaptBiGaussChannel(
 /******************************************************************************/
 /**
  * @brief Runs the data-oriented adaption kernels over an individual once, driven by the config (the
- * "customAdaptions" half of adapt(), config-injected). Mirrors GFlatGenome::customAdaptions()'s channel
+ * "customAdaptions" half of adapt(), config-injected). Mirrors GGenome::customAdaptions()'s channel
  * order exactly (Gauss double/float, bi-Gauss double/float, int Gauss, int flip, bool flip), then folds
  * constrained values back into range.
  *
@@ -172,7 +172,7 @@ std::size_t adaptBiGaussChannel(
  * @return The total number of values actually adapted across all channels.
  */
 inline std::size_t runAdaptionKernels(
-    detail::GFlatGenome &ind,
+    detail::GGenome &ind,
     detail::GAuxiliaryStore &scratch,
     const GAdaptionConfigBase &cfg,
     Gem::Hap::GRandomBase &gr
@@ -266,7 +266,7 @@ inline std::size_t runAdaptionKernels(
  * RNG, so it composes with the EA's parallel adaptChildren_.
  */
 inline std::size_t adaptIndividual(
-    detail::GFlatGenome &ind,
+    detail::GGenome &ind,
     detail::GAuxiliaryStore &scratch,
     const GAdaptionConfigBase &cfg
 ) {
@@ -306,7 +306,7 @@ inline std::size_t adaptIndividual(
 /******************************************************************************/
 /**
  * @brief Resets an individual's per-group adaption state to the config's seed values (the stall-reset).
- * Mirrors GFlatGenome::updateAdaptorsOnStall(), but driven by the OA-owned config.
+ * Mirrors GGenome::updateAdaptorsOnStall(), but driven by the OA-owned config.
  */
 inline void resetAdaptionState(detail::GAuxiliaryStore &scratch, const GAdaptionConfigBase &cfg) {
     using namespace Gem::Geneva::Genome;
@@ -422,7 +422,7 @@ inline std::vector<double> readAdaptionSigmas(
  * GGenomeBuilder lives in geneva/ind/ (oa depends on ind, not the reverse).
  */
 template <typename ConfigT = GAdaptionConfigBase>
-std::shared_ptr<ConfigT> makeAdaptionConfig(const detail::GFlatGenome &genome) {
+std::shared_ptr<ConfigT> makeAdaptionConfig(const detail::GGenome &genome) {
     return std::make_shared<ConfigT>(genome);
 }
 
@@ -544,13 +544,13 @@ inline double readRepresentativeMaxSigma(const GAdaptionConfigBase &cfg, double 
  */
 class StandaloneAdapter {
 public:
-    StandaloneAdapter(const detail::GFlatGenome &ind, const std::shared_ptr<GAdaptionConfigBase> &cfg)
+    StandaloneAdapter(const detail::GGenome &ind, const std::shared_ptr<GAdaptionConfigBase> &cfg)
       : cfg_(*cfg) {
         cfg_.checkConsistency(ind);
         cfg_.installInto(scratch_);
     }
 
-    std::size_t adapt(detail::GFlatGenome &ind) { return adaptIndividual(ind, scratch_, cfg_); }
+    std::size_t adapt(detail::GGenome &ind) { return adaptIndividual(ind, scratch_, cfg_); }
 
 private:
     detail::GAuxiliaryStore scratch_;

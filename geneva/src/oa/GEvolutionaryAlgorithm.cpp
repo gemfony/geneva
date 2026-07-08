@@ -51,7 +51,7 @@
 #include "geneva/oa/GAdaptionConfig.hpp"
 #include "geneva/oa/GParetoTools.hpp"
 #include "geneva/ind/GOptimizableEntity.hpp"
-#include "geneva/ind/GFlatGenome.hpp"
+#include "geneva/ind/GGenome.hpp"
 #include "geneva/par/GOptimizableEntityFixedSizePriorityQueue.hpp"
 #include <algorithm>
 #include <cmath>

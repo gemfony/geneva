@@ -49,8 +49,8 @@
 #include <string>
 #include <vector>
 
-#include <geneva/ind/GFlatGenome.hpp>
-#include <geneva/ind/GFlatIndividualFactory.hpp>
+#include <geneva/ind/GGenome.hpp>
+#include <geneva/ind/GIndividualFactory.hpp>
 #include <geneva/ind/GGenomeBuilder.hpp>
 
 namespace Gem::Geneva {
@@ -67,7 +67,7 @@ constexpr std::size_t NPAR_MC = 3;
  * This individual implements several, possibly conflicting evaluation
  * criteria, each implemented as a parabola with its own minimum
  */
-class GMultiCriterionParabolaIndividual : public gen::GFlatGenome {
+class GMultiCriterionParabolaIndividual : public gen::GGenome {
     /***************************************************************************/
     /**
 	  * This function triggers serialization of this class and its
@@ -76,7 +76,7 @@ class GMultiCriterionParabolaIndividual : public gen::GFlatGenome {
     template <typename Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         using boost::serialization::make_nvp;
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gen::GFlatGenome);
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gen::GGenome);
     }
 
     /** @brief Make the class accessible to Boost.Serialization */
@@ -92,7 +92,7 @@ public:
     ~GMultiCriterionParabolaIndividual() override = default;
 
     //---------------------------------------------------------------------------
-    // GFlatIndividualFactory<GMultiCriterionParabolaIndividual> hooks. The individual supplies the static
+    // GIndividualFactory<GMultiCriterionParabolaIndividual> hooks. The individual supplies the static
     // hooks the generic factory needs: describeConfig (the configurable
     // values), buildGenome (one constrained-double Gauss group per minimum), applyConfig (the number of
     // evaluation criteria and the per-criterion minima) and buildAdaptionConfig (the OA-owned Gauss
@@ -115,7 +115,7 @@ public:
     /** @brief The OA-owned Gauss adaption config: every parameter group gets the configured adaptor.
      *  Authored from the genome layout -- no adaptor data resides on the individual. */
     static std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase>
-    buildAdaptionConfig(const gen::GFlatGenome &sample, const Config &c);
+    buildAdaptionConfig(const gen::GGenome &sample, const Config &c);
 
 protected:
     /** @brief The evaluation hook: one parabola per criterion, each around its own minimum (read from the
@@ -124,7 +124,7 @@ protected:
 
 private:
     /** @brief Creates a deep clone of this object */
-    gen::GFlatGenome *clone_() const final;
+    gen::GGenome *clone_() const final;
 };
 
 /******************************************************************************/
@@ -132,12 +132,12 @@ private:
 /******************************************************************************/
 /**
  * A factory for GMultiCriterionParabolaIndividual objects: an alias for the generic, config-driven
- * GFlatIndividualFactory, for which GMultiCriterionParabolaIndividual supplies the static
+ * GIndividualFactory, for which GMultiCriterionParabolaIndividual supplies the static
  * describeConfig / buildGenome / applyConfig hooks. Call sites use ctor(path), get() and
  * registerContentCreator().
  */
 using GMultiCriterionParabolaIndividualFactory =
-    Gem::Geneva::Genome::GFlatIndividualFactory<GMultiCriterionParabolaIndividual>;
+    Gem::Geneva::Genome::GIndividualFactory<GMultiCriterionParabolaIndividual>;
 
 /******************************************************************************/
 /**
