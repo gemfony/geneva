@@ -141,6 +141,11 @@ Recommended Versions:
   bodies (never their presence in the vtable) depend on the test flag. A latent build error surfaced by this
   (an unqualified condnotset() in the non-testing branch of GImageIndividual's test hooks) was fixed.
 
+- example 17 (GMPISubClients): removed the unused GMPIEvaluatedIndividual (dead code, never referenced by the
+  launcher). The multi-stage MPI individual GMPISubClientParaboloidIndividualMultiD remains compiled into the
+  binary: its sub-client orchestration (the subClientJob callback and the process-global communicator set by
+  the optimizer) is inseparable from the launcher, so it is not a loadable module.
+
 - NEW: the networked consumers' timeout / death-detection is now user-configurable through a config file
   (config/GNetworkedConsumer.json), no command-line option required. A `timeoutTreatment` selects HOW an
   unreturned work item is judged lost: `adaptive` (the default) sizes the give-up window and reclaim lease as
