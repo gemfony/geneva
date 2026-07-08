@@ -130,6 +130,17 @@ Recommended Versions:
   problem-specific compiled in loads it with `--module` and runs it entirely on the device via
   `--consumer gpu` (or on the CPU via `--consumer stc`, using the individual's own evaluate()).
 
+- CHANGED: example 15 (GCUDAWorker, the Mona-Lisa image problem) is now packaged as a runtime-loadable GPU
+  module, the same shape as example 22. Its optimization individual and GPU marshaller ship in one shared
+  object (libGImageIndividual.so, a two-contribution manifest); GCUDAWorker is a thin launcher that loads it
+  with `--module`, loads the target image, registers the image-writing monitor, and runs it on the device
+  (`--consumer gpu`) or the CPU (`--consumer stc`). Loadable individual modules are now compiled with the test
+  framework disabled: a runtime module links none of the Geneva libraries and is dlopened with eager symbol
+  resolution, so an individual whose unit-test hooks reference Catch2 would otherwise fail to load. This is
+  ABI-neutral -- the *_GUnitTests_ hooks are declared unconditionally on the common interface, so only their
+  bodies (never their presence in the vtable) depend on the test flag. A latent build error surfaced by this
+  (an unqualified condnotset() in the non-testing branch of GImageIndividual's test hooks) was fixed.
+
 - NEW: the networked consumers' timeout / death-detection is now user-configurable through a config file
   (config/GNetworkedConsumer.json), no command-line option required. A `timeoutTreatment` selects HOW an
   unreturned work item is judged lost: `adaptive` (the default) sizes the give-up window and reclaim lease as

@@ -91,6 +91,14 @@ IF(NOT GENEVA_INDIVIDUAL_MODULE_INCLUDED)
 		SET_TARGET_PROPERTIES(${_target} PROPERTIES PREFIX "lib")
 		TARGET_COMPILE_FEATURES(${_target} PRIVATE cxx_std_${GENEVA_INDIVIDUAL_CXX_STANDARD})
 		TARGET_COMPILE_OPTIONS(${_target} PRIVATE ${GENEVA_INDIVIDUAL_ABI_OPTIONS})
+		# A loadable module is a production artifact and must NEVER carry the test framework: a
+		# testing-enabled Geneva build defines GEM_TESTING tree-wide (ADD_DEFINITIONS), which would pull
+		# Catch2 (REQUIRE/CHECK) into any individual whose *_GUnitTests_ bodies use it -- and since the module
+		# links no Geneva libraries and the loader dlopens RTLD_NOW (eager), those unresolvable Catch2 symbols
+		# would abort the load. Undefine GEM_TESTING for the module so its sources compile the non-testing
+		# branch. This is ABI-safe: the *_GUnitTests_ hooks are declared unconditionally on GCommonInterfaceT
+		# (only their bodies are GEM_TESTING-conditional), so the vtable / layout is identical either way.
+		TARGET_COMPILE_OPTIONS(${_target} PRIVATE -UGEM_TESTING)
 		# Boost_INCLUDE_DIRS is read here (call time), not when this module was included, so it is set even
 		# if Boost is found after this module (in-tree) / by the config package's find_dependency (out-of-tree).
 		TARGET_INCLUDE_DIRECTORIES(${_target} PRIVATE

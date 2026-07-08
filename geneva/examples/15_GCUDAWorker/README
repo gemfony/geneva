@@ -12,48 +12,53 @@ closer the resemblance.
 What is new
 -----------
 This example is evaluated through the unified courtier GPU consumer
-(Gem::Courtier::GPU::GGPUConsumerT), which lives in the Courtier library and is built as the optional
-add-on `gemfony-courtier-gpu`. The GPU consumer is now a first-class, mnemonic-selectable consumer:
-run with `--consumer gpu` to evaluate on the device. The example contributes only its device marshaller
-via Go2::registerGPUConsumerBuilder(...); Go2 selects and builds the consumer like any other. Running
-without `--consumer gpu` (e.g. the default `--consumer stc`) evaluates on the CPU through the
-individual's fitnessCalculation(). A whole generation is flattened and scored in ONE bulk kernel launch.
-The kernel (kernels/monalisa_eval.cu) is compiled at RUN TIME (NVRTC for CUDA), so:
+(Gem::Courtier::GPU::GGPUConsumerT), a first-class, mnemonic-selectable consumer (folded into
+gemfony-courtier when GENEVA_BUILD_WITH_GPU_CONSUMER is ON): run with `--consumer gpu` to evaluate on
+the device, or with any other consumer (e.g. the default `--consumer stc`) to evaluate on the CPU through
+the individual's own evaluate(). A whole generation is flattened and scored in ONE bulk kernel launch.
+The kernel (kernels/monalisa_eval_{double,float}.cu) is compiled at RUN TIME (NVRTC), so:
 
   * the example builds with an ordinary C++ toolchain -- no CUDA language is enabled at build time;
-  * the device-programming model AND the kernel are chosen in config/GGPUConsumer.json, so you can
-    switch between CPU and CUDA without recompiling.
+  * the kernel is chosen in config/GGPUConsumer.json, so you can switch it without recompiling.
 
 The kernel is pixel-parallel (256 threads cooperate on each candidate and atomic-accumulate its
 fitness), so even a modest population fills the GPU. The SAME render+score math is also implemented on
-the CPU (GImageIndividual::fitnessCalculation and the marshaller's host reference), so a CPU run
-cross-checks the GPU result.
+the CPU (GImageIndividual::evaluate() and the shared host renderer in GMonaLisaProblem.hpp), so a CPU
+run cross-checks the GPU result (see the parity-check mode below).
 
 Because there is no network involved, this example doubles as a convenient stress-test harness for the
 courtier framework, the broker and Hap.
 
+Structure: a loadable module + a thin launcher
+----------------------------------------------
+The optimization individual (GImageIndividual) AND its GPU marshaller (GMonaLisaGPUMarshaller) are
+packaged into ONE runtime-loadable shared object, libGImageIndividual.so (built by
+GImageIndividualPlugin.cpp, a two-contribution manifest -- the same GPU-problem-as-a-module shape as
+example 22). GCUDAWorker is a thin launcher: it loads that module with `--module`, names only the
+flat-genome base and the loaded factory, and adds the two pieces a generic optimizer cannot -- it loads
+the target image (the fitness reference + canvas) and registers GImagePOM (the per-iteration PNG output).
+
 Building
 --------
-The example is built automatically when libpng is available (it is skipped otherwise). The CUDA
-backend is compiled into gemfony-courtier when a CUDA toolkit is present. The GPU consumer is
-device-only; to run on the CPU, use a CPU consumer instead (e.g. --consumer stc), which evaluates via
-the individual's own evaluate().
+The example is built automatically when libpng is available (it is skipped otherwise) and the GPU
+consumer is enabled. The launcher and the module share the compile-time scalar (float by default, or
+double when GIMAGE_USE_FLOAT is OFF).
 
 Running
 -------
-  ./GCUDAWorker --consumer gpu      # evaluate on the device (kernel chosen in GGPUConsumer.json)
-  ./GCUDAWorker                     # default --consumer stc: evaluate on the CPU (individual's evaluate())
+  ./GCUDAWorker --module ./libGImageIndividual.so --consumer gpu   # evaluate on the device
+  ./GCUDAWorker --module ./libGImageIndividual.so --consumer stc   # CPU cross-check (individual's evaluate())
 
-Useful options:
-  --consumer gpu       Select the GPU consumer (omit to use the default CPU thread-pool consumer)
-  --target <png>       The target image (default ./pictures/ml-small.png)
-  --gpuConfig <json>   The GPU consumer config (default ./config/GGPUConsumer.json)
-  --logImages <bool>   Write the best candidate image per iteration (default true)
-  --emitBestOnly <bool> Only emit an image when the best result improved (default true)
+The GPU consumer is device-only, so a CPU run uses a CPU consumer (e.g. --consumer stc), evaluating
+through the individual's own evaluate() rather than the device kernel. (The "backend" key in
+config/GGPUConsumer.json only accepts "cuda".)
 
-To run on the CPU instead of the GPU, use a CPU consumer (e.g. --consumer stc): the GPU consumer is
-device-only, so a CPU run evaluates through the individual's own evaluate() rather than the device
-kernel. (The "backend" key in config/GGPUConsumer.json only accepts "cuda".)
+Example-specific settings are config-file keys in config/GImageGeneral.json (edit + re-run, no rebuild):
+  target_image     The target image PNG (default ./pictures/ml-small.png); also sets the canvas size
+  gpu_config       The GPU consumer config (backend + kernel selection)
+  log_images       Write the best candidate image per iteration (default true)
+  emit_best_only   Only emit an image when the best result improved (default true)
+  parity_check_n   If > 0: run a GPU/CPU parity check over this many random individuals and exit
 
 Output
 ------

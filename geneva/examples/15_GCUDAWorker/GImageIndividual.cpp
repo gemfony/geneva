@@ -461,7 +461,7 @@ bool GImageIndividual::modify_GUnitTests_() {
 
     return true;
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-    condnotset("GImageIndividual::modify_GUnitTests", "GEM_TESTING");
+    Gem::Common::condnotset("GImageIndividual::modify_GUnitTests", "GEM_TESTING");
     return false;
 #endif                  /* GEM_TESTING */
 }
@@ -495,7 +495,7 @@ void GImageIndividual::specificTestsNoFailureExpected_GUnitTests_() {
 
     //------------------------------------------------------------------------------
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-    condnotset("GImageIndividual::modify_GUnitTests", "GEM_TESTING");
+    Gem::Common::condnotset("GImageIndividual::modify_GUnitTests", "GEM_TESTING");
 #endif                  /* GEM_TESTING */
 }
 
@@ -514,7 +514,7 @@ void GImageIndividual::specificTestsFailuresExpected_GUnitTests_() {
     //------------------------------------------------------------------------------
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-    condnotset("GImageIndividual::modify_GUnitTests", "GEM_TESTING");
+    Gem::Common::condnotset("GImageIndividual::modify_GUnitTests", "GEM_TESTING");
 #endif                  /* GEM_TESTING */
 }
 

@@ -58,22 +58,41 @@ SET ( MONALISAINCLUDES
 )
 ADD_CUSTOM_TARGET ( CLION_EXAMPLE15_HEADERS SOURCES ${MONALISAINCLUDES} )
 
-SET ( EXECUTABLENAME GCUDAWorker )
-
-ADD_EXECUTABLE ( ${EXECUTABLENAME}
-	GImageBuilder.cpp
-	GImageIndividual.cpp
-	GImageHelperFunctions.cpp
-)
-
-TARGET_INCLUDE_DIRECTORIES ( ${EXECUTABLENAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} )
-
-# Compile-time scalar selection: float (default) or double.
+# The compile-time scalar selection (float default, double when GIMAGE_USE_FLOAT is OFF) must be identical
+# for the module and the launcher: the launcher's parity check + GPU-config materialization construct a
+# GGPUConsumerT<..., gimage_fp_t> that must match the marshaller the module contributes. Applied to both
+# targets below.
 IF ( GIMAGE_USE_FLOAT )
-	TARGET_COMPILE_DEFINITIONS ( ${EXECUTABLENAME} PRIVATE GIMAGE_USE_FLOAT )
 	MESSAGE ( STATUS "Example 15 (GCUDAWorker): building with FLOAT parameters + the float GPU kernel (default)" )
 ELSE ()
 	MESSAGE ( STATUS "Example 15 (GCUDAWorker): building with DOUBLE parameters + the double GPU kernel (GIMAGE_USE_FLOAT=OFF)" )
+ENDIF ()
+
+# (1) The loadable GPU-problem module -> libGImageIndividual.so. It carries the Mona-Lisa individual, its GPU
+# marshaller, the individual's serialization GUID (BOOST_CLASS_EXPORT_KEY/_IMPLEMENT live in the individual's
+# own hpp/cpp) and a TWO-contribution manifest entry point (GImageIndividualPlugin.cpp) -- the same
+# individual-plus-marshaller module shape as the GPU North Star (example 22). It links none of the Geneva
+# libraries (their symbols resolve from the host process at load via RTLD_GLOBAL) and needs no libpng: the
+# individual's evaluate() scores against the process-wide target and never touches PNG I/O.
+GENEVA_ADD_INDIVIDUAL_MODULE ( GImageIndividual GImageIndividual.cpp GImageIndividualPlugin.cpp )
+IF ( GIMAGE_USE_FLOAT )
+	TARGET_COMPILE_DEFINITIONS ( GImageIndividual PRIVATE GIMAGE_USE_FLOAT )
+ENDIF ()
+
+# (2) The thin launcher -> loads the problem module at runtime. It names only the flat-genome base and the
+# loaded factory; the image I/O (target load + PNG output via GImageHelperFunctions.cpp) and the host-side
+# render math stay here (a generic optimizer cannot provide the image POM / target). ENABLE_EXPORTS so a
+# module loaded RTLD_GLOBAL resolves against one symbol namespace (single Boost.Serialization registry +
+# single Geneva singletons, incl. the shared MonaLisa target store).
+SET ( EXECUTABLENAME GCUDAWorker )
+ADD_EXECUTABLE ( ${EXECUTABLENAME}
+	GCUDAWorker.cpp
+	GImageHelperFunctions.cpp
+)
+SET_TARGET_PROPERTIES ( ${EXECUTABLENAME} PROPERTIES ENABLE_EXPORTS TRUE )
+TARGET_INCLUDE_DIRECTORIES ( ${EXECUTABLENAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} )
+IF ( GIMAGE_USE_FLOAT )
+	TARGET_COMPILE_DEFINITIONS ( ${EXECUTABLENAME} PRIVATE GIMAGE_USE_FLOAT )
 ENDIF ()
 
 # The Geneva libraries (the GPU consumer + its CUDA backend are folded into gemfony-courtier
@@ -94,10 +113,27 @@ ADD_CUSTOM_COMMAND ( TARGET ${EXECUTABLENAME} POST_BUILD
 FILE ( COPY ${CMAKE_CURRENT_SOURCE_DIR}/pictures DESTINATION ${CMAKE_CURRENT_BINARY_DIR} )
 
 # Materialize the configuration from code defaults at build time and overlay this example's overrides
-# (config/config-overrides.json: consumer=gpu and the GPU-consumer kernel paths), then install it.
-GENEVA_MATERIALIZE_CONFIGS ( ${EXECUTABLENAME} ${INSTALL_PREFIX_DATA}/examples/15_GCUDAWorker/config )
+# (config/config-overrides.json: consumer=gpu and the GPU-consumer kernel paths). The individual's and GPU
+# consumer's configs only exist once the module is loaded, so materialize with the just-built module (and
+# depend on it so it exists first). This build-time run also loads the module under RTLD_NOW, so it doubles
+# as the smoke check that both contributions (individual + marshaller) resolve.
+ADD_DEPENDENCIES ( ${EXECUTABLENAME} GImageIndividual )
+GENEVA_MATERIALIZE_CONFIGS ( ${EXECUTABLENAME} ${INSTALL_PREFIX_DATA}/examples/15_GCUDAWorker/config
+	--module $<TARGET_FILE:GImageIndividual> )
 
-INSTALL ( TARGETS ${EXECUTABLENAME}
+# Device-free end-to-end test: the launcher loads the module and optimizes the loaded individual on the CPU
+# (--consumer stc uses the individual's own evaluate()). This exercises the module load (individual +
+# marshaller contributions, single shared Boost registry) without requiring a GPU; the on-device GPU run
+# (--consumer gpu) needs a CUDA device and is verified separately.
+IF ( GENEVA_RUN_EXAMPLES_AS_TESTS )
+	ADD_TEST (
+		NAME GCUDAWorker_CPU
+		COMMAND ${EXECUTABLENAME} --module $<TARGET_FILE:GImageIndividual> --consumer stc
+		WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+	)
+ENDIF ()
+
+INSTALL ( TARGETS ${EXECUTABLENAME} GImageIndividual
 	DESTINATION ${INSTALL_PREFIX_DATA}/examples/15_GCUDAWorker )
 INSTALL ( DIRECTORY kernels pictures
 	DESTINATION ${INSTALL_PREFIX_DATA}/examples/15_GCUDAWorker )
