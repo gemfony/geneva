@@ -50,7 +50,7 @@ namespace Gem::Geneva {
 /******************************************************************************/
 /**
  * @brief The (unmangled) names of the two entry points of the LEGACY individual-plugin convention.
- * The loader (GIndividualPluginLoader) still accepts a module built the old way, but new modules use the
+ * The loader (GModuleLoader) still accepts a module built the old way, but new modules use the
  * unified manifest (geneva_module_manifest, built via individualManifest() below).
  */
 inline constexpr const char *GENEVA_INDIVIDUAL_ABI_SYMBOL = "geneva_individual_abi_version";
@@ -65,22 +65,8 @@ using GIndividualFactoryPtr = std::shared_ptr<Gem::Common::GFactoryT<Genome::GOp
 using geneva_individual_abi_version_fn = std::uint32_t();
 using geneva_individual_factory_fn = GIndividualFactoryPtr();
 
-/******************************************************************************/
-/**
- * @brief A structural, compile-time fixed string usable as a non-type template parameter (C++20/23).
- *
- * Lets individualManifest() take the config path and module name as template arguments (string literals),
- * so a loadable individual's manifest is an ordinary typed C++ construct rather than a preprocessor macro.
- */
-template <std::size_t N>
-struct GFixedString {
-    char value[N]{};
-    // NOLINTNEXTLINE(google-explicit-constructor) -- implicit from a string literal is the whole point.
-    constexpr GFixedString(const char (&str)[N]) {
-        for(std::size_t i = 0; i < N; ++i) { value[i] = str[i]; }
-    }
-    [[nodiscard]] constexpr const char *c_str() const noexcept { return value; }
-};
+/** @brief The compile-time fixed string NTTP the manifest helpers use (shared, in common). */
+using Gem::Common::GFixedString;
 
 /******************************************************************************/
 /**

@@ -45,7 +45,7 @@
 #include "geneva/GenevaHelperFunctions.hpp"
 #include "geneva/oa/GOptimizationAlgorithmBase.hpp"
 #include "geneva/oa/GFactoryStore.hpp"
-#include "geneva/ind/GIndividualPluginLoader.hpp"
+#include "geneva/GModuleLoader.hpp"
 #include "geneva/ind/GOptimizableEntity.hpp"
 #include "hap/GRandomFactory.hpp"
 #include <boost/program_options.hpp>
@@ -125,18 +125,13 @@ Go2::Go2(
     this->parseConfigFile(config_filename);
 
     //--------------------------------------------
-    // Load configuration options from the command line
+    // Load configuration options from the command line. Any requested runtime modules / individual plugin
+    // are loaded from inside parseCommandLine (via loadRequestedModules_), after the command line is parsed
+    // but before the algorithm mnemonics are resolved -- so a module's optimization algorithms are usable by
+    // mnemonic, and a contributed individual claims the single content-creator slot (a compiled-in
+    // registerContentCreator() or a second plugin then hits the one-individual-per-process guard). Server
+    // and client are the same binary launched with different options, so both load identically.
     parseCommandLine(argc, argv, user_descriptions);
-
-    //--------------------------------------------
-    // If a runtime individual (optimization-problem) plugin was requested -- via the config file or the
-    // command line -- load it now, before any population is built or (on a client) any work item /
-    // checkpoint is deserialized. The load claims the single content-creator slot; a compiled-in
-    // registerContentCreator() or a second plugin then hits the one-individual-per-process guard. Server
-    // and client are the same binary launched with different options, so both load it identically here.
-    if(not individual_plugin_path_.empty()) {
-        this->claimContentCreator_(loadIndividualPlugin(individual_plugin_path_), individualSource::LOADED);
-    }
 
     //--------------------------------------------
     // Random numbers are our most valuable good.
@@ -974,6 +969,13 @@ void Go2::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) {
       << '\n'
       << "command-line option overrides this setting.";
 
+    // NOTE: a config-file key for module_paths (a vector-of-strings parameter) is deliberately NOT
+    // registered here -- the GParserBuilder vector-reference variant currently fails to write back an empty
+    // list during --update-configs (GFileVectorReferenceParsableParameterT::save_to throws), which would
+    // break config emission for every Go2 binary. Runtime modules are therefore selected via the repeatable
+    // --module command-line option only (see parseCommandLine); a config-file form can be added once the
+    // vector-parameter emission is fixed (a D2/D3 config-handling item).
+
     gpb.registerFileParameter<std::string>(
         "consumer",
         GO2_DEF_CONSUMER,
@@ -1123,7 +1125,11 @@ void Go2::parseCommandLine(
 				("individual,i", po::value<std::string>(&individual_plugin_path_),
 				 "Filesystem path to a runtime individual (optimization-problem) plugin (.so) to load at "
 				 "startup. Overrides the individual_plugin_path config-file setting. Omit it to use an "
-				 "individual compiled into this binary.");
+				 "individual compiled into this binary.")
+				("module,m", po::value<std::vector<std::string>>()->composing(),
+				 "Filesystem path to a runtime Geneva module (.so) to load at startup (repeatable). A module "
+				 "may contribute optimization algorithms (usable by their mnemonic) and/or the optimization "
+				 "individual.");
 
         // Add additional options coming from the algorithms and consumers
         boost::program_options::options_description visible(
@@ -1164,6 +1170,16 @@ void Go2::parseCommandLine(
         this->emitHelpIfRequested(vm, general, basic, visible, user_options, usage_string);
 
         po::notify(vm);
+
+        // Load any runtime modules now -- after the command line is parsed (so --module is known) but before
+        // the algorithm mnemonics are resolved below -- so a module's optimization algorithms are in
+        // oaFactoryStore() when parseRequestedAlgorithms() looks them up. (The two-phase configure of
+        // Deliverable D3 will move this ahead of the --help algorithm listing too; for now a loaded OA is
+        // usable by mnemonic with its config-file defaults.)
+        if(vm.contains("module")) {
+            for(auto const &p : vm["module"].as<std::vector<std::string>>()) { module_paths_.push_back(p); }
+        }
+        this->loadRequestedModules_();
 
         if(vm.contains("client")) {
             client_mode_ = true;
@@ -1326,6 +1342,33 @@ void Go2::setupChosenConsumer(boost::program_options::variables_map const &vm) {
 
         if(consumer_) {
             std::println("Routing consumer \"{}\" through courtier", consumer_name_);
+        }
+    }
+}
+
+/******************************************************************************/
+/******************************************************************************/
+/**
+ * @brief Loads every requested runtime module and dispatches its contributions.
+ *
+ * Walks module_paths_ (from --module) and, last, the individual plugin path (config + --individual):
+ * each module's optimization algorithms are registered into oaFactoryStore() and any contributed individual
+ * claims the single content-creator slot. Run before the algorithm mnemonics are resolved so a loaded OA is
+ * usable by its mnemonic. A collision (a module's OA mnemonic already registered, or a second individual)
+ * throws from the loader / the content-creator guard.
+ */
+void Go2::loadRequestedModules_() {
+    for(auto const &path : module_paths_) {
+        if(path.empty()) { continue; }
+        LoadedModule loaded = loadModule(path);
+        if(loaded.individual) {
+            this->claimContentCreator_(loaded.individual, individualSource::LOADED);
+        }
+    }
+    if(not individual_plugin_path_.empty()) {
+        LoadedModule loaded = loadModule(individual_plugin_path_);
+        if(loaded.individual) {
+            this->claimContentCreator_(loaded.individual, individualSource::LOADED);
         }
     }
 }

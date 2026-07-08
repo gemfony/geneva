@@ -51,6 +51,7 @@
 #include "common/GBuildFingerprint.hpp" // GenevaCompat + GENEVA_BUILD_FINGERPRINT
 
 // Standard headers go here
+#include <cstddef>
 #include <cstdint>
 
 // Boost headers go here
@@ -106,6 +107,24 @@ inline constexpr const char *GENEVA_MODULE_MANIFEST_SYMBOL = "geneva_module_mani
 
 /** @brief Signature of the manifest entry point (used by the loader's typed symbol lookup). */
 using geneva_module_manifest_fn = const GenevaModuleManifest *();
+
+/******************************************************************************/
+/**
+ * @brief A structural, compile-time fixed string usable as a non-type template parameter (C++20/23).
+ *
+ * Lets the manifest author helpers (individualManifest() / oaManifest()) take the config path and
+ * module/contribution name as template arguments (string literals), so a loadable module's manifest is an
+ * ordinary typed C++ construct rather than a preprocessor macro. Shared by every kind's helper.
+ */
+template <std::size_t N>
+struct GFixedString {
+    char value[N]{};
+    // NOLINTNEXTLINE(google-explicit-constructor) -- implicit from a string literal is the whole point.
+    constexpr GFixedString(const char (&str)[N]) {
+        for(std::size_t i = 0; i < N; ++i) { value[i] = str[i]; }
+    }
+    [[nodiscard]] constexpr const char *c_str() const noexcept { return value; }
+};
 
 } // namespace Gem::Common
 

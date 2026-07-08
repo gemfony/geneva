@@ -105,6 +105,17 @@ Recommended Versions:
   replace `double fitnessCalculation()` with `std::vector<double> evaluate()` returning the raw result
   vector (a size-1 vector for a single-criterion problem).
 
+- NEW: optimization algorithms can be shipped as runtime-loadable modules, alongside the existing loadable
+  individuals. A `.so` built with the new Gem::Geneva::oaManifest<Factory, "Name">() helper contributes an
+  optimization algorithm through the unified module manifest; `--module <path>.so` (repeatable) loads it and
+  registers it in the algorithm store, so it is selectable by its mnemonic (`--optimizationAlgorithms
+  <mnemonic>`) exactly like a built-in. Multiple OA modules may be loaded; a module whose algorithm mnemonic
+  collides with a built-in (or another module) is a hard error -- a module cannot shadow an existing
+  algorithm. The individual-plugin loader was generalized into a kind-agnostic module loader
+  (`geneva/GModuleLoader.hpp`, formerly `geneva/ind/GIndividualPluginLoader.hpp`): one module may carry an
+  individual and/or optimization algorithms, each dispatched by kind. Example 21 (GLoadableOA) demonstrates
+  a loadable "Random Search" algorithm optimizing a compiled-in individual, selected purely via `--module`.
+
 - RENAMED (source-breaking): the vestigial "Flat" qualifier has been dropped from the genome layer. It
   dated from the migration off the old tree-of-parameter-objects model; with only the flat genome left it
   distinguished nothing and implied a non-flat option that no longer exists. `GFlatGenome` → `GGenome`,
@@ -569,7 +580,7 @@ Recommended Versions:
   binary launched with different options, so both load the same .so identically -- on an HPC
   shared filesystem nothing extra is staged; in the cloud the .so ships next to the binary.
   Details:
-    * The loader (Gem::Geneva::loadIndividualPlugin, using Boost.DLL) loads with RTLD_GLOBAL
+    * The loader (Gem::Geneva::loadModule, using Boost.DLL) loads with RTLD_GLOBAL
       so the plugin shares one symbol namespace with the process -- a single
       Boost.Serialization type registry and single Geneva singletons -- which is what lets a
       plugin-defined individual cross the networked wire and a checkpoint. The loaded library

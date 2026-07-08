@@ -477,6 +477,10 @@ private:
         boost::program_options::variables_map const &vm,
         std::string const &optimization_algorithms
     );
+    /** @brief Loads every module in module_paths_ (plus the individual plugin path): registers each
+     *  module's optimization algorithms into oaFactoryStore() and claims a contributed individual. Run
+     *  early -- before the algorithm mnemonics are resolved -- so a loaded OA is usable by its mnemonic. */
+    void loadRequestedModules_();
 
     /***************************************************************************/
     // Initialization code for the Geneva library
@@ -554,6 +558,10 @@ private:
     // Filesystem path to a runtime individual plugin (.so) to load; settable via config or --individual.
     // Empty (the default) means no plugin is loaded -- the individual is expected to be compiled in.
     std::string individual_plugin_path_;
+    // Filesystem paths to runtime Geneva modules (.so) to load at startup; populated from the repeatable
+    // --module command-line option. Each may contribute optimization algorithms (usable by mnemonic) and/or
+    // the optimization individual. Loaded before the algorithm mnemonics are resolved.
+    std::vector<std::string> module_paths_;
     // A user-defined means for information retrieval
     std::vector<std::shared_ptr<oa::GBasePluggableOM>> pluggable_monitors_cnt_;
 };

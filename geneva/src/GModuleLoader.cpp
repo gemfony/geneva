@@ -27,7 +27,7 @@
  *
  ********************************************************************************/
 
-#include "geneva/ind/GIndividualPluginLoader.hpp"
+#include "geneva/GModuleLoader.hpp"
 
 // Standard headers go here
 #include <cstdint>
@@ -45,6 +45,9 @@
 #include "common/GExceptions.hpp"
 #include "common/GLogger.hpp"
 #include "common/GModuleManifest.hpp"
+#include "common/GProviderT.hpp"
+#include "geneva/oa/GFactoryStore.hpp" // oaFactoryStore() -- the OA-contribution registration target
+#include "geneva/oa/GOAPlugin.hpp"     // GOAProviderPtr -- the OA contribution's void* holder type
 
 namespace Gem::Geneva {
 
@@ -206,7 +209,7 @@ std::string moduleCompatMismatch(const GenevaCompat &moduleCompat) {
 
 /******************************************************************************/
 
-const GenevaModuleManifest *loadModule(const std::filesystem::path &module_path) {
+const GenevaModuleManifest *openModule(const std::filesystem::path &module_path) {
     const std::string path_str = module_path.string();
     std::scoped_lock lock(g_module_mutex);
 
@@ -215,7 +218,7 @@ const GenevaModuleManifest *loadModule(const std::filesystem::path &module_path)
     if(not lib.has(Gem::Common::GENEVA_MODULE_MANIFEST_SYMBOL)) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In Gem::Geneva::loadModule(): Error!" << '\n'
+            << "In Gem::Geneva::openModule(): Error!" << '\n'
             << "'" << path_str << "' is not a Geneva module: it exports no '"
             << Gem::Common::GENEVA_MODULE_MANIFEST_SYMBOL << "' manifest." << '\n'
         );
@@ -225,7 +228,7 @@ const GenevaModuleManifest *loadModule(const std::filesystem::path &module_path)
     if(manifest == nullptr) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In Gem::Geneva::loadModule(): Error!" << '\n'
+            << "In Gem::Geneva::openModule(): Error!" << '\n'
             << "The module '" << path_str << "' returned a null manifest." << '\n'
         );
     }
@@ -235,77 +238,138 @@ const GenevaModuleManifest *loadModule(const std::filesystem::path &module_path)
 
 /******************************************************************************/
 
-GIndividualFactoryPtr loadIndividualPlugin(const std::filesystem::path &plugin_path) {
-    const std::string path_str = plugin_path.string();
+namespace {
+
+/** @brief Registers one OA contribution's provider into oaFactoryStore(). The thunk hands back a
+ *  heap-allocated GOAProviderPtr (the plain-C void* boundary); move it out, delete the holder, and setOnce
+ *  it under the algorithm's own mnemonic. A mnemonic already held (a built-in or another module) is a hard
+ *  error -- a module cannot shadow one. */
+void registerOAContribution(const GenevaContribution &contrib, const std::string &path_str) {
+    void *raw = contrib.make_factory();
+    if(raw == nullptr) {
+        throw geneva_exception(
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+            << "In Gem::Geneva::loadModule(): Error!" << '\n'
+            << "The module '" << path_str << "' produced a null OA provider." << '\n'
+        );
+    }
+    auto *holder = static_cast<GOAProviderPtr *>(raw);
+    GOAProviderPtr provider = std::move(*holder);
+    delete holder;
+    if(not provider) {
+        throw geneva_exception(
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+            << "In Gem::Geneva::loadModule(): Error!" << '\n'
+            << "The module '" << path_str << "' returned an empty OA provider." << '\n'
+        );
+    }
+    const std::string mnemonic = provider->getMnemonic();
+    if(not oaFactoryStore()->setOnce(mnemonic, provider)) {
+        throw geneva_exception(
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+            << "In Gem::Geneva::loadModule(): Error!" << '\n'
+            << "The module '" << path_str << "' contributes an optimization algorithm with mnemonic '"
+            << mnemonic << "'," << '\n'
+            << "but that mnemonic is already registered (a built-in or another module owns it). A module"
+            << " cannot shadow an existing algorithm; give the module's algorithm a distinct mnemonic." << '\n'
+        );
+    }
+}
+
+/** @brief Moves one INDIVIDUAL contribution's factory out of the plain-C void* holder (throws on null). */
+GIndividualFactoryPtr takeIndividualContribution(const GenevaContribution &contrib, const std::string &path_str) {
+    void *raw = contrib.make_factory();
+    if(raw == nullptr) {
+        throw geneva_exception(
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+            << "In Gem::Geneva::loadModule(): Error!" << '\n'
+            << "The module '" << path_str << "' produced a null individual factory." << '\n'
+        );
+    }
+    auto *holder = static_cast<GIndividualFactoryPtr *>(raw);
+    GIndividualFactoryPtr factory = std::move(*holder);
+    delete holder;
+    if(not factory) {
+        throw geneva_exception(
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+            << "In Gem::Geneva::loadModule(): Error!" << '\n'
+            << "The module '" << path_str << "' returned an empty individual factory." << '\n'
+        );
+    }
+    return factory;
+}
+
+} // namespace
+
+/******************************************************************************/
+
+LoadedModule loadModule(const std::filesystem::path &module_path) {
+    const std::string path_str = module_path.string();
     std::scoped_lock lock(g_module_mutex);
 
-    // Load once; branch on whichever contract the plugin carries.
+    // Load once; branch on whichever contract the module carries.
     boost::dll::shared_library &lib = openAndKeep(path_str);
 
-    // Preferred: the unified manifest. Validate GenevaCompat first, then read the INDIVIDUAL contribution.
+    // Preferred: the unified manifest. Validate GenevaCompat first, then dispatch every contribution by kind.
     if(lib.has(Gem::Common::GENEVA_MODULE_MANIFEST_SYMBOL)) {
         const GenevaModuleManifest *manifest =
             lib.get<Gem::Common::geneva_module_manifest_fn>(Gem::Common::GENEVA_MODULE_MANIFEST_SYMBOL)();
         if(manifest == nullptr) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In Gem::Geneva::loadIndividualPlugin(): Error!" << '\n'
-                << "The plugin '" << path_str << "' returned a null manifest." << '\n'
+                << "In Gem::Geneva::loadModule(): Error!" << '\n'
+                << "The module '" << path_str << "' returned a null manifest." << '\n'
             );
         }
-        validateCompatOrThrow(manifest->compat, path_str); // BEFORE any individual is constructed
+        validateCompatOrThrow(manifest->compat, path_str); // BEFORE any C++ contribution is constructed
 
+        LoadedModule result;
         for(std::uint32_t i = 0; i < manifest->contributions_count; ++i) {
             const GenevaContribution &contrib = manifest->contributions[i];
-            if(contrib.kind != GENEVA_CONTRIBUTION_INDIVIDUAL || contrib.make_factory == nullptr) {
-                continue;
+            if(contrib.make_factory == nullptr) { continue; }
+            switch(contrib.kind) {
+                case GENEVA_CONTRIBUTION_INDIVIDUAL: {
+                    if(result.individual) {
+                        throw geneva_exception(
+                            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+                            << "In Gem::Geneva::loadModule(): Error!" << '\n'
+                            << "The module '" << path_str << "' contributes more than one individual;"
+                            << " a module may contribute at most one (one problem per process)." << '\n'
+                        );
+                    }
+                    result.individual = takeIndividualContribution(contrib, path_str);
+                    break;
+                }
+                case GENEVA_CONTRIBUTION_OA: {
+                    registerOAContribution(contrib, path_str);
+                    ++result.oa_count;
+                    break;
+                }
+                default:
+                    // Reserved kinds (monitor / consumer / marshaller) are not yet wired -- ignore them.
+                    break;
             }
-            // For an INDIVIDUAL contribution make_factory hands back a heap-allocated GIndividualFactoryPtr;
-            // move it out and delete the holder (the void* keeps the boundary plain C).
-            void *raw = contrib.make_factory();
-            if(raw == nullptr) {
-                throw geneva_exception(
-                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                    << "In Gem::Geneva::loadIndividualPlugin(): Error!" << '\n'
-                    << "The plugin '" << path_str << "' produced a null individual factory." << '\n'
-                );
-            }
-            auto *holder = static_cast<GIndividualFactoryPtr *>(raw);
-            GIndividualFactoryPtr factory = std::move(*holder);
-            delete holder;
-            if(not factory) {
-                throw geneva_exception(
-                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                    << "In Gem::Geneva::loadIndividualPlugin(): Error!" << '\n'
-                    << "The plugin '" << path_str << "' returned an empty individual factory." << '\n'
-                );
-            }
-            return factory;
         }
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In Gem::Geneva::loadIndividualPlugin(): Error!" << '\n'
-            << "The module '" << path_str << "' exports a manifest but contributes no individual." << '\n'
-        );
+        return result;
     }
 
-    // Fallback: the legacy two-symbol convention (GENEVA_VERSION-only gate). Accepted for one release.
+    // Fallback: the legacy two-symbol individual convention (GENEVA_VERSION-only gate). One release only.
     if(not lib.has(GENEVA_INDIVIDUAL_ABI_SYMBOL)) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In Gem::Geneva::loadIndividualPlugin(): Error!" << '\n'
-            << "'" << path_str << "' is not a Geneva individual plugin: it exports neither the '"
+            << "In Gem::Geneva::loadModule(): Error!" << '\n'
+            << "'" << path_str << "' is not a Geneva module: it exports neither the '"
             << Gem::Common::GENEVA_MODULE_MANIFEST_SYMBOL << "' manifest nor the legacy '"
             << GENEVA_INDIVIDUAL_ABI_SYMBOL << "' marker" << '\n'
             << "(it may predate the plugin scheme, or was built without a geneva_module_manifest() entry"
-            << " point -- see Gem::Geneva::individualManifest())." << '\n'
+            << " point -- see Gem::Geneva::individualManifest() / oaManifest())." << '\n'
         );
     }
     const auto plugin_abi = lib.get<geneva_individual_abi_version_fn>(GENEVA_INDIVIDUAL_ABI_SYMBOL)();
     if(plugin_abi != static_cast<std::uint32_t>(GENEVA_VERSION)) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In Gem::Geneva::loadIndividualPlugin(): Error!" << '\n'
+            << "In Gem::Geneva::loadModule(): Error!" << '\n'
             << "The individual plugin '" << path_str << "' was built against Geneva version " << plugin_abi
             << ',' << '\n'
             << "but this Geneva is version " << static_cast<std::uint32_t>(GENEVA_VERSION) << '.' << '\n'
@@ -315,21 +379,21 @@ GIndividualFactoryPtr loadIndividualPlugin(const std::filesystem::path &plugin_p
     if(not lib.has(GENEVA_INDIVIDUAL_FACTORY_SYMBOL)) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In Gem::Geneva::loadIndividualPlugin(): Error!" << '\n'
+            << "In Gem::Geneva::loadModule(): Error!" << '\n'
             << "The individual plugin '" << path_str << "' exports no '" << GENEVA_INDIVIDUAL_FACTORY_SYMBOL
             << "' factory entry point." << '\n'
         );
     }
-    GIndividualFactoryPtr factory =
-        lib.get<geneva_individual_factory_fn>(GENEVA_INDIVIDUAL_FACTORY_SYMBOL)();
-    if(not factory) {
+    LoadedModule result;
+    result.individual = lib.get<geneva_individual_factory_fn>(GENEVA_INDIVIDUAL_FACTORY_SYMBOL)();
+    if(not result.individual) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In Gem::Geneva::loadIndividualPlugin(): Error!" << '\n'
+            << "In Gem::Geneva::loadModule(): Error!" << '\n'
             << "The individual plugin '" << path_str << "' returned an empty factory." << '\n'
         );
     }
-    return factory;
+    return result;
 }
 
 /******************************************************************************/

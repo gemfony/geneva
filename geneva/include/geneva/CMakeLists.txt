@@ -7,6 +7,7 @@ SET ( OPTIMIZATIONINCLUDES
 	Go2.hpp
 	GConsumerSetup.hpp
 	GMarshallerSetup.hpp
+	GModuleLoader.hpp
     GOptimizationEnums.hpp
     GSigHupHandler.hpp
 	GPersonalityTraits.hpp
@@ -58,6 +59,7 @@ SET ( OA_INCLUDES
     oa/GAdaption.hpp
     oa/GInitializerT.hpp
     oa/GOAFactoryT.hpp
+    oa/GOAPlugin.hpp
     oa/GFactoryStore.hpp
     oa/GBaseParChildPersonalityTraits.hpp
     oa/GConjugateGradientDescent.hpp

@@ -73,7 +73,7 @@
 #include "hap/GRandomFactory.hpp"
 #include "geneva/ind/GGenome.hpp"
 #include "geneva/ind/GIndividualFactory.hpp"
-#include "geneva/ind/GIndividualPluginLoader.hpp"
+#include "geneva/GModuleLoader.hpp"
 #include "geneva/ind/GGenomeT.hpp"
 #include "geneva/ind/GGenomeArchitecture.hpp"
 #include "geneva/ind/GGenomeBuilder.hpp"
@@ -1916,11 +1916,11 @@ TEST_CASE("EA over a websocket consumer with results-only returns keeps full gen
 // Runtime individual-plugin mechanism: the loader's failure handling and the one-individual-per-process
 // rule. The successful load-and-optimize path is exercised end-to-end by example 19's integration test
 // (it must build a .so, which a unit test cannot).
-TEST_CASE("Individual plugin loader rejects a missing library cleanly", "[flat][plugin]") {
+TEST_CASE("Module loader rejects a missing library cleanly", "[genome][plugin]") {
     // A missing file must raise a clean geneva exception (a "could not load" diagnostic), never crash.
     const std::filesystem::path missing =
-        std::filesystem::temp_directory_path() / "geneva_no_such_individual_plugin_xyz.so";
-    CHECK_THROWS(Gem::Geneva::loadIndividualPlugin(missing));
+        std::filesystem::temp_directory_path() / "geneva_no_such_module_xyz.so";
+    CHECK_THROWS(Gem::Geneva::loadModule(missing));
 }
 
 // Toolchain-compatibility gate (GenevaCompat). The loader validates a module's fingerprint before touching

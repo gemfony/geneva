@@ -63,6 +63,7 @@ ADD_SUBDIRECTORY( 01_GSimpleOptimizer )
 # (02/04/07, ...) run their problem modules on; it is configured first so those examples can depend on it
 # (e.g. to materialize their configs from its code defaults at build time).
 ADD_SUBDIRECTORY( 19_GLoadableIndividual )
+ADD_SUBDIRECTORY( 21_GLoadableOA )
 ADD_SUBDIRECTORY( 02_GParaboloid2D )
 ADD_SUBDIRECTORY( 03_GParameterObjectUsagePatterns )
 ADD_SUBDIRECTORY( 04_GMultiCriterionParabola )

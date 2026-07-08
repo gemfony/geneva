@@ -33,22 +33,23 @@
 #include "common/GGlobalDefines.hpp"
 
 // Standard headers go here
+#include <cstdint>
 #include <filesystem>
 #include <string>
 
 // Geneva headers go here
 #include "common/GModuleManifest.hpp"       // GenevaModuleManifest (the unified module manifest)
-#include "geneva/ind/GIndividualPlugin.hpp" // the plugin contract (entry-point names + factory type)
+#include "geneva/ind/GIndividualPlugin.hpp" // the individual plugin contract (entry-point names + factory type)
 
 namespace Gem::Geneva {
 
 /******************************************************************************/
 /**
- * @brief Loads a runtime Geneva module from @p module_path, validates its toolchain-compatibility
+ * @brief Opens a runtime Geneva module from @p module_path, validates its toolchain-compatibility
  * fingerprint (`GenevaCompat`) against this host, keeps it resident and returns its manifest.
  *
- * This is the general module entry point (individuals, and -- as further categories are modularised --
- * optimization algorithms and consumers). It:
+ * This is the low-level module primitive -- it dlopens and gates but does NOT dispatch any contribution;
+ * @c loadModule() below builds on it. It:
  *  - loads the shared object with @c RTLD_GLOBAL (one symbol namespace: a single Boost.Serialization
  *    registry and single Geneva singletons) and @c RTLD_NOW (eager resolution);
  *  - resolves @c geneva_module_manifest() and validates its @c GenevaCompat **before touching any C++
@@ -62,7 +63,39 @@ namespace Gem::Geneva {
  * @param module_path The filesystem path to the module shared object
  * @return The module's manifest (never nullptr; throws on any failure, incl. a missing manifest)
  */
-const GenevaModuleManifest *loadModule(const std::filesystem::path &module_path);
+const GenevaModuleManifest *openModule(const std::filesystem::path &module_path);
+
+/******************************************************************************/
+/**
+ * @brief What a loaded module contributed to this process.
+ *
+ * A module may carry several typed contributions. The store-backed kinds (optimization algorithms today,
+ * consumers/marshallers later) are registered into their process-global stores by @c loadModule() as a side
+ * effect; the claim-once individual (at most one per process) is handed back here for the caller to claim.
+ */
+struct LoadedModule {
+    /** @brief The module's individual content-creator factory, or null if it contributes no individual. */
+    GIndividualFactoryPtr individual;
+    /** @brief How many optimization algorithms the module registered into @c oaFactoryStore(). */
+    std::uint32_t oa_count = 0;
+};
+
+/**
+ * @brief Loads a runtime Geneva module and dispatches every contribution it carries by kind.
+ *
+ * Opens + compat-gates the module (see @c openModule()), then walks its manifest contributions:
+ *  - an @c OA contribution is @c setOnce-registered into @c oaFactoryStore() under the algorithm's mnemonic
+ *    (its personality nickname); a mnemonic a built-in or another module already holds is a hard error (a
+ *    module cannot shadow one);
+ *  - the (at most one) @c INDIVIDUAL contribution's factory is returned in @c LoadedModule::individual for
+ *    the caller to claim (the single content-creator slot lives in Go2, not here);
+ *  - reserved kinds (monitor / consumer / marshaller) are not yet wired and are ignored.
+ * A legacy two-symbol individual plugin (no manifest) is still accepted and returned as the individual.
+ *
+ * @param module_path The filesystem path to the module shared object
+ * @return The module's contributions (individual + OA count); throws on any load/compat/collision failure
+ */
+LoadedModule loadModule(const std::filesystem::path &module_path);
 
 /******************************************************************************/
 /** @brief This host's own toolchain-compatibility fingerprint (built from the host's predefined macros).
@@ -76,31 +109,6 @@ const GenevaCompat &thisHostCompat();
  * shared object.
  */
 std::string moduleCompatMismatch(const GenevaCompat &moduleCompat);
-
-/******************************************************************************/
-/**
- * @brief Loads a runtime individual (optimization-problem) plugin from @p plugin_path and returns its
- * content-creator factory, so a problem can be supplied without recompiling Geneva.
- *
- * The plugin is a shared object whose geneva_module_manifest() entry point is built with the
- * Gem::Geneva::individualManifest() helper (a legacy two-symbol plugin is also still accepted). This function:
- *  - loads it with @c RTLD_GLOBAL (one symbol namespace: a single Boost.Serialization registry and single
- *    Geneva singletons across the process) and @c RTLD_NOW (eager resolution);
- *  - if the plugin exports the unified manifest, **validates its full toolchain fingerprint**
- *    (`GenevaCompat`: compiler/stdlib/`_GLIBCXX_USE_CXX11_ABI`/Boost/build-mode/Geneva-version) against
- *    this host and rejects a mismatch with a diagnostic naming the offending axis -- BEFORE any individual
- *    is constructed. A plugin that predates the manifest (legacy two-symbol convention) falls back to the
- *    weaker @c GENEVA_VERSION-only gate for one release;
- *  - returns the factory from the plugin's @c INDIVIDUAL contribution (or the legacy
- *    @c geneva_make_individual() entry point).
- *
- * The loaded library is kept resident for the entire process lifetime (its code backs live individuals and
- * its Boost.Serialization type registrations); it is deliberately never unloaded.
- *
- * @param plugin_path The filesystem path to the individual plugin shared object
- * @return The plugin's content-creator factory (never empty; throws on any failure)
- */
-GIndividualFactoryPtr loadIndividualPlugin(const std::filesystem::path &plugin_path);
 
 /******************************************************************************/
 
