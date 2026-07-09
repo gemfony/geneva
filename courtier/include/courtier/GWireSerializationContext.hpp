@@ -36,6 +36,7 @@
 #include <array>
 #include <cstddef>
 #include <cstdint>
+#include <expected>
 #include <functional>
 #include <list>
 #include <mutex>
@@ -148,9 +149,10 @@ struct GWireSerializationContext {
     bool returning = false;
 
     /** @brief Worker-side cache-miss fetch: given a layout id whose blob is absent locally, performs the
-     *  blocking round trip to the server (REQUEST_LAYOUT -> SEND_LAYOUT) and returns the serialized blob,
-     *  or an empty string on failure. Null on the server side (which never fetches). */
-    std::function<std::string(const GWireLayoutId &)> fetch_blob;
+     *  blocking round trip to the server (REQUEST_LAYOUT -> SEND_LAYOUT) and returns the serialized blob on
+     *  success, or a std::unexpected carrying the failure reason (timeout, transport error, malformed/empty
+     *  reply). The value is always a non-empty blob. Null on the server side (which never fetches). */
+    std::function<std::expected<std::string, std::string>(const GWireLayoutId &)> fetch_blob;
 };
 
 /******************************************************************************/

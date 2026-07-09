@@ -146,6 +146,13 @@ Recommended Versions:
   binary: its sub-client orchestration (the subClientJob callback and the process-global communicator set by
   the optimizer) is inseparable from the launcher, so it is not a loadable module.
 
+- the worker-side layout-fetch slice now reports failure through std::expected instead of an empty string. The
+  networked-transport cache-miss fetch (GWireSerializationContext::fetch_blob, backed by the MPI and Asio
+  fetchLayoutBlob_ helpers) returns std::expected<std::string, std::string>: on success a non-empty layout
+  blob, on failure the reason (timeout, transport error, malformed/empty reply -- the MPI ones tagged with the
+  worker rank). GGenome::load() surfaces that reason in its exception rather than discarding it in a warning,
+  so an unresolvable id-only layout reference now says WHY it could not be resolved.
+
 - NEW: the networked consumers' timeout / death-detection is now user-configurable through a config file
   (config/GNetworkedConsumer.json), no command-line option required. A `timeoutTreatment` selects HOW an
   unreturned work item is judged lost: `adaptive` (the default) sizes the give-up window and reclaim lease as

@@ -225,13 +225,19 @@ class GGenome // NOLINT(cppcoreguidelines-special-member-functions)
 
         std::string blob;
         bool have = (ctx != nullptr) && (ctx->registry != nullptr) && ctx->registry->tryGet(wid, blob);
+        std::string fetch_error;
         if(not have && ctx != nullptr && ctx->fetch_blob) {
-            blob = ctx->fetch_blob(wid);
-            if(not blob.empty()) {
+            // The fetch resolves a cache miss over the network; on success it yields a non-empty blob, on
+            // failure a std::unexpected carrying the reason (surfaced in the throw below).
+            if(auto fetched = ctx->fetch_blob(wid); fetched.has_value()) {
+                blob = std::move(fetched.value());
                 if(ctx->registry != nullptr) {
                     ctx->registry->put(wid, blob);
                 }
                 have = true;
+            }
+            else {
+                fetch_error = std::move(fetched.error());
             }
         }
         if(not have || blob.empty()) {
@@ -240,6 +246,7 @@ class GGenome // NOLINT(cppcoreguidelines-special-member-functions)
                 << "In GGenome::load(): Error!" << '\n'
                 << "An id-only layout reference could not be resolved (cache miss with no usable fetch)."
                 << '\n'
+                << (fetch_error.empty() ? std::string{} : ("Fetch failure: " + fetch_error + '\n'))
             );
         }
         this->setLayout(layoutFromWireBlob(blob));

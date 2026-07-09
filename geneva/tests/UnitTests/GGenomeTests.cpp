@@ -33,6 +33,7 @@
 #include <any>
 #include <cmath>
 #include <cstdint>
+#include <expected>
 #include <filesystem>
 #include <functional>
 #include <memory>
@@ -1245,11 +1246,13 @@ TEST_CASE("Wire send-once: a cache miss is resolved by the fetch fallback", "[fl
     worker_ctx.enabled = true;
     worker_ctx.peer = 0;
     worker_ctx.registry = &worker_reg;
-    worker_ctx.fetch_blob = [&](const GWireLayoutId &id) -> std::string {
+    worker_ctx.fetch_blob = [&](const GWireLayoutId &id) -> std::expected<std::string, std::string> {
         ++fetch_calls;
         std::string blob;
-        server_reg.tryGet(id, blob);
-        return blob;
+        if(server_reg.tryGet(id, blob)) {
+            return blob;
+        }
+        return std::unexpected(std::string("layout id not held by the server"));
     };
 
     ManyGroups r;

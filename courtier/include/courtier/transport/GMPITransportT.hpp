@@ -39,6 +39,7 @@
 #include <array>
 #include <chrono>
 #include <cstdint>
+#include <expected>
 #include <functional>
 #include <iostream>
 #include <memory>
@@ -301,7 +302,8 @@ public:
         // GNetworkedConsumerT::bufferLateReturn_locked). A work item can force a full return per item via
         // setReturnFullIndividual().
         wireCtx_.returning = true;
-        wireCtx_.fetch_blob = [this](const Gem::Courtier::GWireLayoutId &id) -> std::string {
+        wireCtx_.fetch_blob =
+            [this](const Gem::Courtier::GWireLayoutId &id) -> std::expected<std::string, std::string> {
             return this->fetchLayoutBlob_(id);
         };
     }
@@ -661,7 +663,7 @@ private:
          * @param id The content id of the layout to fetch from the master.
          * @return The serialized layout blob, or an empty string if the fetch failed / timed out.
          */
-    std::string fetchLayoutBlob_(const Gem::Courtier::GWireLayoutId &id) {
+    std::expected<std::string, std::string> fetchLayoutBlob_(const Gem::Courtier::GWireLayoutId &id) {
         // Build and serialise the REQUEST_LAYOUT message (no genome payload, so no nested wire scope).
         std::string requestStr;
         // Build the REQUEST_LAYOUT message (under a null scope; carries no genome). MPI identifies the
@@ -685,27 +687,27 @@ private:
         );
         MPI_Status status{};
         if(not waitForRequestOrTimeout(sendReq, status) || status.MPI_ERROR != MPI_SUCCESS) {
-            glogger << "In GMPIConsumerWorkerNodeT<processable_type>::fetchLayoutBlob_() with rank="
-                    << commRank_ << ":" << '\n'
-                    << "Timed out / errored sending a REQUEST_LAYOUT to the master." << '\n'
-                    << GWARNING;
-            return {};
+            return std::unexpected("rank=" + std::to_string(commRank_) +
+                                   ": timed out / errored sending a REQUEST_LAYOUT to the master");
         }
 
         // Receive the SEND_LAYOUT reply on its dedicated tag. Probe first so a layout blob of any size
         // can be received (a large layout is exactly what would have exceeded the old fixed cap).
         if(not probeWithTimeout(RANK_MASTER_NODE, TAG_SEND_LAYOUT, status) ||
            status.MPI_ERROR != MPI_SUCCESS) {
-            glogger << "In GMPIConsumerWorkerNodeT<processable_type>::fetchLayoutBlob_() with rank="
-                    << commRank_ << ":" << '\n'
-                    << "Timed out / errored waiting for the SEND_LAYOUT reply from the master." << '\n'
-                    << GWARNING;
-            return {};
+            return std::unexpected("rank=" + std::to_string(commRank_) +
+                                   ": timed out / errored waiting for the SEND_LAYOUT reply from the master");
         }
 
-        // Deserialise the reply (again no nested wire scope) and hand back the blob.
+        // Deserialise the reply (again no nested wire scope) and hand back the blob. An empty blob means a
+        // malformed/empty reply -- a failure, not a usable layout, so report it as such.
         const std::string replyStr = receiveProbedMessage(status);
-        return Gem::Courtier::parseLayoutReply<processable_type>(replyStr, config_.serializationMode);
+        std::string blob = Gem::Courtier::parseLayoutReply<processable_type>(replyStr, config_.serializationMode);
+        if(blob.empty()) {
+            return std::unexpected("rank=" + std::to_string(commRank_) +
+                                   ": empty or malformed SEND_LAYOUT reply");
+        }
+        return blob;
     }
 
     //-------------------------------------------------------------------------

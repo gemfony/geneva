@@ -37,6 +37,7 @@
 #include <chrono>
 #include <cstddef>
 #include <deque>
+#include <expected>
 #include <functional>
 #include <iostream>
 #include <limits>
@@ -145,7 +146,8 @@ public:
         // the originally-submitted item and grafts the parameters back on); a work item can override
         // per item via setReturnFullIndividual().
         wire_ctx_.returning = true;
-        wire_ctx_.fetch_blob = [this](const Gem::Courtier::GWireLayoutId &id) -> std::string {
+        wire_ctx_.fetch_blob =
+            [this](const Gem::Courtier::GWireLayoutId &id) -> std::expected<std::string, std::string> {
             return this->fetch_layout_blob_(id);
         };
     }
@@ -669,7 +671,7 @@ private:
 	  * @param id The content id of the layout to fetch from the server.
 	  * @return The serialized layout blob, or an empty string if the fetch failed.
 	  */
-    std::string fetch_layout_blob_(const Gem::Courtier::GWireLayoutId &id) {
+    std::expected<std::string, std::string> fetch_layout_blob_(const Gem::Courtier::GWireLayoutId &id) {
         try {
             // This runs mid-decode (inside a genome load() under the work-item wire scope). The codec's
             // build/parse helpers each (de)serialize under a null scope so the REQUEST_LAYOUT/SEND_LAYOUT
@@ -697,20 +699,19 @@ private:
             boost::system::error_code read_ec;
             boost::asio::read(fetch_socket, boost::asio::dynamic_buffer(response_str), read_ec);
             if(read_ec && read_ec != boost::asio::error::eof) {
-                glogger << "In GAsioConsumerClientT<processable_type>::fetch_layout_blob_(): " << '\n'
-                        << "read error: " << read_ec.message() << '\n'
-                        << GWARNING;
-                return {};
+                return std::unexpected("read error: " + read_ec.message());
             }
 
-            // De-serialize the SEND_LAYOUT reply (under a null scope) and pull out the blob.
-            return Gem::Courtier::parseLayoutReply<processable_type>(response_str, serialization_mode_);
+            // De-serialize the SEND_LAYOUT reply (under a null scope) and pull out the blob. An empty blob
+            // means a malformed/empty reply -- a failure, not a usable layout, so report it as such.
+            std::string blob = Gem::Courtier::parseLayoutReply<processable_type>(response_str, serialization_mode_);
+            if(blob.empty()) {
+                return std::unexpected(std::string("empty or malformed SEND_LAYOUT reply"));
+            }
+            return blob;
         }
         catch(const std::exception &e) {
-            glogger << "In GAsioConsumerClientT<processable_type>::fetch_layout_blob_(): " << '\n'
-                    << "fetch failed: " << e.what() << '\n'
-                    << GWARNING;
-            return {};
+            return std::unexpected(std::string("fetch failed: ") + e.what());
         }
     }
 
