@@ -28,7 +28,6 @@
 ################################################################################
 
 
-ADD_SUBDIRECTORY ( GRandomMutationLoad )
 ADD_SUBDIRECTORY ( GRandomThroughput )
 ADD_SUBDIRECTORY ( GRandomUsage )
 

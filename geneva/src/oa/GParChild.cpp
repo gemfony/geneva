@@ -831,13 +831,6 @@ std::tuple<double, double> GParChild::cycleLogic_() {
     // adapt children
     adaptChildren_();
 
-    // RNG prefetch DISABLED for now: adaption draws its standard normals inline (see
-    // runAdaptionKernels()). The previous design launched an asynchronous per-individual cache refill on
-    // the OA's organizational thread pool to overlap the evaluation below, but that refill raced the
-    // local consumer's evaluation pool for cores and touched the same individuals, for little gain on the
-    // local path. It is switched off pending a redesign that moves prefetching into Hap itself -- see
-    // prompts/2026-07-03-rng-prefetch-redesign.md.
-
     // calculate the children's (and possibly their parents' values)
     runFitnessCalculation_();
 
@@ -920,9 +913,6 @@ void GParChild::init() {
                     adaption_config_->installInto(slot->scratch());
                 }
             }
-
-            // (The former one-time warm-up of the per-individual RNG prefetch caches was removed with the
-            // prefetch itself -- adaption now draws inline. See prompts/2026-07-03-rng-prefetch-redesign.md.)
         }
     }
 }

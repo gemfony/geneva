@@ -105,6 +105,14 @@ Recommended Versions:
   replace `double fitnessCalculation()` with `std::vector<double> evaluate()` returning the raw result
   vector (a size-1 vector for a single-criterion problem).
 
+- REMOVED: the standard-normal RNG prefetch cache and its adaption fast path. The cache
+  (hap/GDistributionCache.hpp, GRNGDistributionCacheT), the optional prefetch parameter on the Gauss adaption
+  kernels, the GAdaptionPrefetch benchmark and the GRandomMutationLoad manual test are gone; adaption always
+  draws its gaussian step inline. The facility only paid off for a very short evaluate() and did not raise the
+  achievable speedup (it shrank the already-parallel adaption region, not the serial fraction), so it was not
+  worth its complexity. The genuinely useful pieces it prompted were kept and shipped separately: hardware-sized
+  RNG producers, the factory supply-health counters, and the per-candidate RNG removal (below).
+
 - CHANGED (source-breaking for problem definitions that drew randomness from the candidate): an optimization
   candidate no longer carries a random-number engine of its own. The per-candidate GRandom member and its
   getRandomEngine() accessor have been removed; the candidate is now pure data. Every external operation that
