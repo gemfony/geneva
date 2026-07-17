@@ -36,6 +36,7 @@
 #include "common/GExpectationChecksT.hpp"
 #include "common/GLogger.hpp"
 #include "common/GParserBuilder.hpp"
+#include "hap/GRandomLeasePool.hpp"
 #include "geneva/ind/GGenome.hpp"
 #include "geneva/ind/GGenomeBuilder.hpp"
 #include <chrono>
@@ -152,12 +153,16 @@ gen::GGenome *GDelayIndividual::clone_() const {
  * @return A random value in [0, 1); the result is not used for any actual optimization
  */
 std::vector<double> GDelayIndividual::evaluate() {
+    // The candidate holds no RNG of its own -- lease a proxy for this evaluation's random draws.
+    auto             gr_lease = Gem::Hap::randomLeasePool().acquire();
+    Gem::Hap::GRandomBase &gr = *gr_lease;
+
     std::uniform_real_distribution<double> uniform_real_distribution;
 
     if(sleep_randomly_) {
         // Calculate the sleep time
         double sleep_time = uniform_real_distribution(
-            gr_,
+            gr,
             std::uniform_real_distribution<double>::param_type(
                 std::get<0>(rand_sleep_boundaries_),
                 std::get<1>(rand_sleep_boundaries_)
@@ -177,7 +182,7 @@ std::vector<double> GDelayIndividual::evaluate() {
     // Throw if we were asked to do so
     if(may_crash_) {
         if(uniform_real_distribution(
-               gr_,
+               gr,
                std::uniform_real_distribution<double>::param_type(0., 1.)
            ) < throw_likelihood_) {
             throw fitnessException();
@@ -186,7 +191,7 @@ std::vector<double> GDelayIndividual::evaluate() {
 
     // Return a random value - we do not perform any real optimization
     return {uniform_real_distribution(
-        gr_,
+        gr,
         std::uniform_real_distribution<double>::param_type(0., 1.)
     )};
 }

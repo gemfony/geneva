@@ -45,6 +45,7 @@
 #include "geneva/ind/GGenome.hpp"
 #include "geneva/oa/GAdaptionConfig.hpp"
 #include "hap/GRandomBase.hpp"
+#include "hap/GRandomLeasePool.hpp"
 
 namespace Gem::Geneva::OptimizationAlgorithms {
 
@@ -270,7 +271,10 @@ inline std::size_t adaptIndividual(
     detail::GAuxiliaryStore &scratch,
     const GAdaptionConfigBase &cfg
 ) {
-    Gem::Hap::GRandomBase &gr = ind.getRandomEngine();
+    // The candidate holds no RNG of its own -- lease a proxy for the duration of this adaption. The
+    // lease is thread-scoped, so this composes with the EA's parallel adaptChildren_.
+    auto             lease = Gem::Hap::randomLeasePool().acquire();
+    Gem::Hap::GRandomBase &gr = *lease;
 
     const std::size_t max_unsuccessful = cfg.getMaxUnsuccessfulAdaptions();
     const std::size_t max_retries = cfg.getMaxRetriesUntilValid();

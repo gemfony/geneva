@@ -751,15 +751,16 @@ private:
 
     /** @brief Randomly initialises a floating-point channel's active parameters.
      *  @tparam T The channel's value type. @param store The internal storage (overwritten at active positions)
-     *  @param ch The channel layout. @param am The activity mode. @return true if a value changed */
+     *  @param ch The channel layout. @param am The activity mode. @param gr The leased random proxy to draw from.
+     *  @return true if a value changed */
     template <typename T>
-    bool randomInitFP(std::vector<T> &store, ChannelLayout<T> const &ch, activityMode const &am);
+    bool randomInitFP(std::vector<T> &store, ChannelLayout<T> const &ch, activityMode const &am, Gem::Hap::GRandomBase &gr);
     /** @brief Randomly initialises the int32 channel's active parameters.
-     *  @param am The activity mode. @return true if a value changed */
-    bool randomInitInt(activityMode const &am);
+     *  @param am The activity mode. @param gr The leased random proxy to draw from. @return true if a value changed */
+    bool randomInitInt(activityMode const &am, Gem::Hap::GRandomBase &gr);
     /** @brief Randomly initialises the bool channel's active parameters.
-     *  @param am The activity mode. @return true if a value changed */
-    bool randomInitBool(activityMode const &am);
+     *  @param am The activity mode. @param gr The leased random proxy to draw from. @return true if a value changed */
+    bool randomInitBool(activityMode const &am, Gem::Hap::GRandomBase &gr);
 
     /***************************************************************************/
     // The §2 per-type virtual overrides of the GOptimizableEntity value-channel dispatch targets (forward

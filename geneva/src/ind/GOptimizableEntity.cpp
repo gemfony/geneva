@@ -40,6 +40,7 @@
 #include "common/GCommonHelperFunctionsT.hpp"
 #include "common/GCommonMathHelperFunctionsT.hpp"
 #include "common/GExceptions.hpp"
+#include "hap/GRandomLeasePool.hpp"
 #include "common/GLogger.hpp"
 #include "common/GParserBuilder.hpp"
 
@@ -185,7 +186,9 @@ GOptimizableEntity::process(const std::vector<individual_processing_result> &res
     // otherwise force EXCEPTION_CAUGHT, and the try's terminal PROCESSED assignment would clobber it).
     GFaultInjector::Fault injected_fault = GFaultInjector::Fault::NONE;
     if(GFaultInjector *injector = GFaultInjectorRegistry::get(); injector != nullptr) {
-        injected_fault = injector->evaluate(*this, this->getRandomEngine());
+        // Rare (test-only) path: lease a proxy for the fault injector; the candidate holds no RNG.
+        auto lease = Gem::Hap::randomLeasePool().acquire();
+        injected_fault = injector->evaluate(*this, *lease);
     }
 
     try {

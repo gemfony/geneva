@@ -376,15 +376,6 @@ public:
     std::size_t getNAdaptions() const { return scratch_ ? scratch_->getNAdaptions() : 0; }
 
     /**
-     * @brief Public, non-folding access to this candidate's per-individual RNG stream (the OA-owned
-     * adaption free functions draw from it; each candidate owns its own stream, so parallel adaption is
-     * lock-free).
-     * @return A reference to this candidate's per-individual random engine
-     */
-    Gem::Hap::GRandomBase &getRandomEngine() { return gr_; }
-
-
-    /**
      * @brief Public constraint check used by the OA-owned adaption retry loop. Feasibility is a concrete
      * base operation: it reads this entity's parameter values (streamlineFP, below) through the shared
      * policy's constraint. Returns true if the entity satisfies its constraints and writes the validity
@@ -851,13 +842,11 @@ protected:
     ) const override;
 
     /***************************************************************************/
-    // A per-individual random engine + a reusable integer distribution (used by adaption helpers).
-
-    Gem::Hap::GRandom gr_; ///< Per-individual engine; follows the HAP_RANDOM_SOURCE-selected backend
-    std::uniform_int_distribution<std::size_t> uniform_int_; ///< Uniformly distributed integer randoms
-    // (The per-individual standard-normal RNG prefetch cache was removed with the OA-pool prefetch;
-    // adaption draws inline. A future prefetch will live in Hap -- see
-    // prompts/2026-07-03-rng-prefetch-redesign.md.)
+    // A candidate carries NO random-number state of its own -- it is pure data. Every external
+    // operation that needs randomness on it (adaption, random-init, cross-over position) leases a
+    // proxy from the process-global Gem::Hap::randomLeasePool() for the duration of the operation, so
+    // the number of live proxies is bounded by peak concurrency (O(worker threads)), not by the
+    // population size.
 
     /***************************************************************************/
     // Pure-virtual hooks implemented by the genome layer.

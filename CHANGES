@@ -105,6 +105,17 @@ Recommended Versions:
   replace `double fitnessCalculation()` with `std::vector<double> evaluate()` returning the raw result
   vector (a size-1 vector for a single-criterion problem).
 
+- CHANGED (source-breaking for problem definitions that drew randomness from the candidate): an optimization
+  candidate no longer carries a random-number engine of its own. The per-candidate GRandom member and its
+  getRandomEngine() accessor have been removed; the candidate is now pure data. Every external operation that
+  needs randomness on a candidate (adaption, random initialization, cross-over, a stochastic evaluate()) leases
+  a proxy from a new process-global pool, Gem::Hap::randomLeasePool() (hap/GRandomLeasePool.hpp), for the
+  duration of that operation and returns it automatically. The number of live proxies is therefore bounded by
+  the peak worker-thread count instead of the population size -- for the default (QUEUE) source that is the
+  difference between a handful of 80 KB random packages and one per candidate, and it removes a per-clone
+  package pull. A problem whose evaluate() previously called this->getRandomEngine() should instead lease:
+  `auto l = Gem::Hap::randomLeasePool().acquire(); ... draw from *l;`.
+
 - NEW: the random-number factory exposes two supply-health counters -- getNPackagesProduced() (packages the
   producer threads have delivered to the fresh buffer) and getNGetTimeouts() (times a container request timed
   out because production could not keep up). They make RNG production throughput and starvation observable,

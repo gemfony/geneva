@@ -31,6 +31,7 @@
 #include "common/GExceptions.hpp"
 #include "common/GExpectationChecksT.hpp"
 #include "common/GLogger.hpp"
+#include "hap/GRandomLeasePool.hpp"
 #include "courtier/GProcessingContainerT.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/GPersonalityTraits.hpp"
@@ -255,9 +256,10 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
         gen::GAuxiliaryStore scratch;
         cfg->installInto(scratch);
 
+        auto gr_lease = Gem::Hap::randomLeasePool().acquire();
         for(std::size_t i = 0; i < n_tests; i++) {
             // Change the parameters without instantly triggering fitness calculation
-            CHECK_NOTHROW(OptimizationAlgorithms::runAdaptionKernels(*p_test, scratch, *cfg, p_test->getRandomEngine()));
+            CHECK_NOTHROW(OptimizationAlgorithms::runAdaptionKernels(*p_test, scratch, *cfg, *gr_lease));
             // The dirty flag should not have been set yet (done in adapt() )
             INFO("Processing status = " << p_test->getProcessingStatusAsStr() << ", i = " << i);
             CHECK((p_test->is_processed() || p_test->is_unprocessed()));
@@ -425,7 +427,8 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
             auto cfg = p_test1->getAdaptionConfig();
             gen::GAuxiliaryStore scratch;
             cfg->installInto(scratch);
-            CHECK_NOTHROW(OptimizationAlgorithms::runAdaptionKernels(*p_test1, scratch, *cfg, p_test1->getRandomEngine()));
+            auto gr_lease = Gem::Hap::randomLeasePool().acquire();
+            CHECK_NOTHROW(OptimizationAlgorithms::runAdaptionKernels(*p_test1, scratch, *cfg, *gr_lease));
         }
         // We need to manually mark the individual as dirty
         CHECK_NOTHROW(p_test1->mark_as_due_for_processing());

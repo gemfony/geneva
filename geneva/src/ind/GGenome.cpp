@@ -44,6 +44,7 @@
 #include "common/GExceptions.hpp"
 #include "common/GExpectationChecksT.hpp"
 #include "common/GLogger.hpp"
+#include "hap/GRandomLeasePool.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 
 #ifdef GEM_TESTING
@@ -177,11 +178,15 @@ void GGenome::load_(const GOptimizableEntity *cp) {
  * @return true if at least one parameter value was modified, false otherwise
  */
 bool GGenome::randomInit_(activityMode const &am) {
+    // The candidate holds no RNG of its own -- lease a proxy for the duration of this initialization.
+    auto             lease = Gem::Hap::randomLeasePool().acquire();
+    Gem::Hap::GRandomBase &gr = *lease;
+
     bool modified = false;
-    if(randomInitFP<double>(dv_, layout_->d, am)) { modified = true; }
-    if(randomInitFP<float>(fv_, layout_->f, am)) { modified = true; }
-    if(randomInitInt(am)) { modified = true; }
-    if(randomInitBool(am)) { modified = true; }
+    if(randomInitFP<double>(dv_, layout_->d, am, gr)) { modified = true; }
+    if(randomInitFP<float>(fv_, layout_->f, am, gr)) { modified = true; }
+    if(randomInitInt(am, gr)) { modified = true; }
+    if(randomInitBool(am, gr)) { modified = true; }
     return modified;
 }
 
@@ -195,7 +200,7 @@ bool GGenome::randomInit_(activityMode const &am) {
  * @return true if at least one entry was modified, false otherwise
  */
 template <typename T>
-bool GGenome::randomInitFP(std::vector<T> &store, ChannelLayout<T> const &ch, activityMode const &am) {
+bool GGenome::randomInitFP(std::vector<T> &store, ChannelLayout<T> const &ch, activityMode const &am, Gem::Hap::GRandomBase &gr) {
     bool modified = false;
     std::uniform_real_distribution<T> dist;
     for(std::size_t k = 0; k < store.size(); ++k) {
@@ -203,7 +208,7 @@ bool GGenome::randomInitFP(std::vector<T> &store, ChannelLayout<T> const &ch, ac
             continue;
         }
         const T x = dist(
-            gr_,
+            gr,
             typename std::uniform_real_distribution<T>::param_type(ch.init_lower[k], ch.init_upper[k])
         );
         store[k] = externalToInternalChecked<T>(ch, x, k);
@@ -218,7 +223,7 @@ bool GGenome::randomInitFP(std::vector<T> &store, ChannelLayout<T> const &ch, ac
  * @param am The activity mode that selects which entries are initialized
  * @return true if at least one entry was modified, false otherwise
  */
-bool GGenome::randomInitInt(activityMode const &am) {
+bool GGenome::randomInitInt(activityMode const &am, Gem::Hap::GRandomBase &gr) {
     bool modified = false;
     std::uniform_int_distribution<std::int32_t> dist;
     const ChannelLayout<std::int32_t> &ch = layout_->i;
@@ -231,7 +236,7 @@ bool GGenome::randomInitInt(activityMode const &am) {
         if(hi < lo) {
             std::swap(lo, hi);
         }
-        iv_[k] = dist(gr_, std::uniform_int_distribution<std::int32_t>::param_type(lo, hi));
+        iv_[k] = dist(gr, std::uniform_int_distribution<std::int32_t>::param_type(lo, hi));
         modified = true;
     }
     return modified;
@@ -243,7 +248,7 @@ bool GGenome::randomInitInt(activityMode const &am) {
  * @param am The activity mode that selects which entries are initialized
  * @return true if at least one entry was modified, false otherwise
  */
-bool GGenome::randomInitBool(activityMode const &am) {
+bool GGenome::randomInitBool(activityMode const &am, Gem::Hap::GRandomBase &gr) {
     bool modified = false;
     std::bernoulli_distribution dist(0.5);
     const ChannelLayout<bool> &ch = layout_->b;
@@ -251,7 +256,7 @@ bool GGenome::randomInitBool(activityMode const &am) {
         if(not amMatch(ch.active[k], am)) {
             continue;
         }
-        bv_[k] = dist(gr_) ? static_cast<std::uint8_t>(1) : static_cast<std::uint8_t>(0);
+        bv_[k] = dist(gr) ? static_cast<std::uint8_t>(1) : static_cast<std::uint8_t>(0);
         modified = true;
     }
     return modified;
@@ -279,7 +284,9 @@ std::size_t GGenome::getCrossOverPos(const std::size_t lower, const std::size_t 
             << "Invalid range: upper (" << upper << ") must be > lower (" << lower << ")" << '\n'
         );
     }
-    return uniform_int_(gr_, std::uniform_int_distribution<std::size_t>::param_type(lower, upper - 1));
+    auto lease = Gem::Hap::randomLeasePool().acquire();
+    std::uniform_int_distribution<std::size_t> dist;
+    return dist(*lease, std::uniform_int_distribution<std::size_t>::param_type(lower, upper - 1));
 }
 
 /******************************************************************************/
