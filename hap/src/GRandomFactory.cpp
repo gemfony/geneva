@@ -213,7 +213,7 @@ void GRandomFactory::returnUsedPackage(std::unique_ptr<random_container> &&p) {
  * for the rationale of the double-checked locking pattern. Note that only an
  * increase of the number of threads is allowed when threads are already
  * running; a requested decrease is ignored with a warning, and a request for 0
- * threads falls back to the default DEFAULT01PRODUCERTHREADS.
+ * threads auto-sizes the pool to the hardware (autoProducerThreadCount()).
  *
  * @param n_producer_threads The requested number of threads simultaneously producing random numbers
  */
@@ -225,17 +225,9 @@ void GRandomFactory::setNProducerThreads(const std::uint16_t &n_producer_threads
         // to check again using DCLP .
         std::unique_lock<std::mutex> lk(thread_creation_mutex_);
         // Make a suggestion for the number of threads, if requested
-        std::uint16_t n_producer_threads_local = DEFAULT01PRODUCERTHREADS;
-        if(0 == n_producer_threads) {
-            glogger << "In GRandomFactory::setNProducerThreads(n_producer_threads) / 1:" << '\n'
-                    << "n_producer_threads == 0 was requested. n_producer_threads_local was set to the "
-                       "default "
-                    << DEFAULT01PRODUCERTHREADS << '\n'
-                    << GWARNING;
-        }
-        else {
-            n_producer_threads_local = n_producer_threads;
-        }
+        // A request of 0 means "auto-size to the hardware" (not an error) -- see autoProducerThreadCount().
+        const std::uint16_t n_producer_threads_local =
+            (0 == n_producer_threads) ? autoProducerThreadCount() : n_producer_threads;
 
         if(n_producer_threads_local > n_producer_threads_.load()) { // start new 01 threads
             for(std::uint16_t i = n_producer_threads_.load(); i < n_producer_threads_local;
@@ -262,17 +254,9 @@ void GRandomFactory::setNProducerThreads(const std::uint16_t &n_producer_threads
         // Here it appears that no threads were running. We do need to check again, though (DLCP)
         std::unique_lock<std::mutex> tc_lk(thread_creation_mutex_);
         // Make a suggestion for the number of threads, if requested
-        std::uint16_t n_producer_threads_local = DEFAULT01PRODUCERTHREADS;
-        if(n_producer_threads == 0) {
-            glogger << "In GRandomFactory::setNProducerThreads(n_producer_threads) / 2:" << '\n'
-                    << "n_producer_threads == 0 was requested. n_producer_threads_local was set to the "
-                       "default "
-                    << DEFAULT01PRODUCERTHREADS << '\n'
-                    << GWARNING;
-        }
-        else {
-            n_producer_threads_local = n_producer_threads;
-        }
+        // A request of 0 means "auto-size to the hardware" (not an error) -- see autoProducerThreadCount().
+        const std::uint16_t n_producer_threads_local =
+            (n_producer_threads == 0) ? autoProducerThreadCount() : n_producer_threads;
 
         if(threads_started_) { // Someone has started the threads in the meantime. Adjust the number of threads
             if(n_producer_threads_local > n_producer_threads_.load()) { // start new 01 threads

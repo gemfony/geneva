@@ -33,8 +33,11 @@
 #include "common/GGlobalDefines.hpp"
 
 // Standard includes go here
+#include <algorithm>
+#include <cstdint>
 #include <cstdlib>
 #include <random>
+#include <thread>
 
 // Geneva headers go here
 #include "common/GCommonEnums.hpp"  // for DEFAULTBUFFERSIZE
@@ -108,9 +111,37 @@ constexpr std::size_t DEFAULTSEEDVECTORSIZE = 2000; ///< The size of the seeding
 
 /******************************************************************************/
 /**
- * The number of threads that simultaneously produce [0,1[ random numbers
+ * The fallback number of threads that simultaneously produce [0,1[ random numbers when the core
+ * count cannot be determined, and the floor for the hardware-derived count (see
+ * autoProducerThreadCount()).
  */
 constexpr std::uint16_t DEFAULT01PRODUCERTHREADS = 2;
+
+/** @brief Divisor applied to hardware_concurrency() when auto-sizing the RNG producer pool. */
+constexpr unsigned int PRODUCERTHREADS_HW_DIVISOR = 4;
+/** @brief Upper clamp on the auto-sized producer count (bounds fresh-queue lock contention). */
+constexpr std::uint16_t MAXAUTOPRODUCERTHREADS = 8;
+
+/******************************************************************************/
+/**
+ * @brief The producer-thread count used when an automatic ("0") count is requested.
+ *
+ * A request of 0 producer threads means "size the producer pool to the hardware" (mirroring the
+ * "0 == auto" convention elsewhere in Geneva). Random-number production is cheap and the producers
+ * block on the bounded fresh-package buffer once it is full, so an idle surplus costs little; the
+ * hardware count is nevertheless scaled by @c PRODUCERTHREADS_HW_DIVISOR and clamped to
+ * <tt>[DEFAULT01PRODUCERTHREADS, MAXAUTOPRODUCERTHREADS]</tt> to bound contention on the single
+ * fresh-package queue. If @c std::thread::hardware_concurrency() cannot determine the core count
+ * (returns 0), the fixed @c DEFAULT01PRODUCERTHREADS is used.
+ *
+ * @return A hardware-derived producer-thread count, clamped to <tt>[DEFAULT01PRODUCERTHREADS, MAXAUTOPRODUCERTHREADS]</tt>
+ */
+inline std::uint16_t autoProducerThreadCount() {
+    const unsigned int hw = std::thread::hardware_concurrency();
+    if(hw == 0) { return DEFAULT01PRODUCERTHREADS; }
+    const unsigned int scaled = std::max<unsigned int>(DEFAULT01PRODUCERTHREADS, hw / PRODUCERTHREADS_HW_DIVISOR);
+    return static_cast<std::uint16_t>(std::min<unsigned int>(scaled, MAXAUTOPRODUCERTHREADS));
+}
 
 /******************************************************************************/
 /**

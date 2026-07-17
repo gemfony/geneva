@@ -105,6 +105,12 @@ Recommended Versions:
   replace `double fitnessCalculation()` with `std::vector<double> evaluate()` returning the raw result
   vector (a size-1 vector for a single-criterion problem).
 
+- CHANGED: the random-number factory now sizes its producer-thread pool to the hardware. Requesting 0 producer
+  threads (`setNProducerThreads(0)`, which is Go2's default) previously fell back to a fixed 2 and logged a
+  warning; it now auto-sizes to a hardware-derived count (a fraction of the core count, clamped to a small
+  range, falling back to 2 only when the core count cannot be determined) and no longer warns. This gives a
+  heavily multi-threaded run more random-number supply without any configuration change.
+
 - NEW: optimization algorithms can be shipped as runtime-loadable modules, alongside the existing loadable
   individuals. A `.so` built with the new Gem::Geneva::oaManifest<Factory, "Name">() helper contributes an
   optimization algorithm through the unified module manifest; `--module <path>.so` (repeatable) loads it and

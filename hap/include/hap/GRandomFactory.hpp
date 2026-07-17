@@ -416,8 +416,8 @@ private:
     std::atomic<bool> threads_started_{false}; ///< Indicates whether threads were already started
     std::atomic<bool> threads_stop_requested_{false}; ///< Indicates whether all threads were requested to stop
     std::atomic<std::uint16_t> n_producer_threads_{
-        DEFAULT01PRODUCERTHREADS
-    }; ///< The number of threads used to produce random numbers
+        autoProducerThreadCount()
+    }; ///< The number of threads used to produce random numbers (hardware-derived by default)
 
     Gem::Common::Concurrency::GThreadGroup
         producer_threads_; ///< A thread group that holds [0,1[ producer threads
