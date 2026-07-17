@@ -105,6 +105,11 @@ Recommended Versions:
   replace `double fitnessCalculation()` with `std::vector<double> evaluate()` returning the raw result
   vector (a size-1 vector for a single-criterion problem).
 
+- NEW: the random-number factory exposes two supply-health counters -- getNPackagesProduced() (packages the
+  producer threads have delivered to the fresh buffer) and getNGetTimeouts() (times a container request timed
+  out because production could not keep up). They make RNG production throughput and starvation observable,
+  e.g. to check whether the producer-thread count is adequate for a heavily multi-threaded run.
+
 - CHANGED: the random-number factory now sizes its producer-thread pool to the hardware. Requesting 0 producer
   threads (`setNProducerThreads(0)`, which is Go2's default) previously fell back to a fixed 2 and logged a
   warning; it now auto-sizes to a hardware-derived count (a fraction of the core count, clamped to a small

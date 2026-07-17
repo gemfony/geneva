@@ -37,6 +37,7 @@
 
 #include "GHap_tests.hpp"
 #include "hap/GRandomDefines.hpp"
+#include "hap/GRandomFactory.hpp"
 
 TEST_CASE_METHOD(GHap_tests, "GHap no_failure_expected", "[hap][standard]") {
     no_failure_expected();
@@ -67,4 +68,25 @@ TEST_CASE("GHap autoProducerThreadCount is hardware-derived and clamped", "[hap]
             static_cast<std::uint16_t>(std::min<unsigned int>(scaled, Gem::Hap::MAXAUTOPRODUCERTHREADS));
         REQUIRE(n == expected);
     }
+}
+
+// PRE-1: the factory exposes supply-health counters so RNG production/starvation is observable.
+TEST_CASE("GHap factory exposes supply-health counters", "[hap][standard]") {
+    auto factory = Gem::Hap::randomFactory();
+
+    // Draw a few containers; a healthy supply hands them out (producers auto-start on first access).
+    bool got = false;
+    for(int i = 0; i < 100 && not got; ++i) {
+        if(auto p = factory->getNewRandomContainer()) { got = true; }
+    }
+    REQUIRE(got);
+
+    // The production counter must reflect that packages were produced to satisfy those draws.
+    REQUIRE(factory->getNPackagesProduced() > 0);
+
+    // The starvation counter is readable and monotonic; we do not assert > 0 (a healthy supply may
+    // never time out), only that it is queryable without side effects.
+    const std::uint64_t t1 = factory->getNGetTimeouts();
+    const std::uint64_t t2 = factory->getNGetTimeouts();
+    REQUIRE(t2 >= t1);
 }

@@ -401,6 +401,29 @@ public:
      */
     void returnUsedPackage(std::unique_ptr<random_container> &&p);
 
+    /**
+     * @brief The number of random-number packages the producer threads have delivered to the fresh
+     * buffer over the factory's lifetime.
+     *
+     * A supply-throughput signal: it climbs continuously while producers keep the buffer fed. Read
+     * together with getNGetTimeouts() to reason about whether production keeps up with demand.
+     *
+     * @return The lifetime count of packages delivered to the fresh buffer
+     */
+    [[nodiscard]] std::uint64_t getNPackagesProduced() const noexcept { return n_packages_produced_.load(std::memory_order_relaxed); }
+
+    /**
+     * @brief The number of times getNewRandomContainer() returned empty because no package became
+     * available within the internal timeout -- i.e. production could not keep up with demand.
+     *
+     * This is the aggregate starvation signal: every consumer-side retry (a proxy waiting for a new
+     * package) corresponds to one such timeout here. A non-zero and rising value indicates the
+     * producer pool is under-supplying its consumers (consider more producer threads).
+     *
+     * @return The lifetime count of empty (timed-out) getNewRandomContainer() results
+     */
+    [[nodiscard]] std::uint64_t getNGetTimeouts() const noexcept { return n_get_timeouts_.load(std::memory_order_relaxed); }
+
 private:
     /**
      * @brief The production of random number packages takes place here.
@@ -411,6 +434,9 @@ private:
      * @param seed The seed used to initialize this producer thread's engine
      */
     void producer(std::uint32_t seed);
+
+    std::atomic<std::uint64_t> n_packages_produced_{0}; ///< Lifetime count of packages delivered to the fresh buffer (supply-throughput signal)
+    std::atomic<std::uint64_t> n_get_timeouts_{0}; ///< Lifetime count of empty getNewRandomContainer() results (aggregate starvation signal)
 
     std::atomic<bool> finalized_{false};
     std::atomic<bool> threads_started_{false}; ///< Indicates whether threads were already started

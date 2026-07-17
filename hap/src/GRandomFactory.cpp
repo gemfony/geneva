@@ -318,7 +318,11 @@ std::unique_ptr<random_container> GRandomFactory::getNewRandomContainer() {
     if(auto popped = p_fresh_bfr_.pop_wait(std::chrono::milliseconds(DEFAULTFACTORYGETWAIT))) {
         p = std::move(*popped);
     }
-    // On timeout p stays empty -- our way of signaling a time out is an empty std::unique_ptr
+    else {
+        // On timeout p stays empty -- our way of signaling a time out is an empty std::unique_ptr.
+        // Count it: this is the aggregate "production could not keep up with demand" signal.
+        n_get_timeouts_.fetch_add(1, std::memory_order_relaxed);
+    }
 
     return p;
 }
@@ -390,6 +394,7 @@ void GRandomFactory::producer(std::uint32_t seed) {
             if(not p_fresh_bfr_.push(std::move(p))) {
                 break; // buffer closed at shutdown -- leave the producer loop
             }
+            n_packages_produced_.fetch_add(1, std::memory_order_relaxed); // supply-throughput signal
         }
     }
     // producer() is the body of a std::thread, so no exception may escape it:
