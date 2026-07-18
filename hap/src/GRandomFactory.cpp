@@ -112,6 +112,9 @@ void GRandomFactory::finalize() {
     // Wait for all threads to return
     producer_threads_.join_all();
 
+    // The producers are joined -- return their reservation to the thread budget.
+    producer_budget_.release();
+
     // Let the audience know
     finalized_.store(true);
 }
@@ -248,6 +251,12 @@ std::unique_ptr<random_container> GRandomFactory::getNewRandomContainer() {
         std::unique_lock<std::mutex> tc_lk(thread_creation_mutex_);
         if(not threads_started_) { // double checked locking pattern
             //---------------------------------------------------------
+            // Account the producers in the process-wide thread budget for their lifetime.
+            producer_budget_ = Gem::Common::Concurrency::threadBudget().reserve(
+                "hap:producers",
+                n_producer_threads_.load(),
+                Gem::Common::Concurrency::ThreadElasticity::Elastic
+            );
             for(std::uint16_t i = 0; i < n_producer_threads_.load(); i++) {
                 producer_threads_.create_thread([this]() { this->producer(this->getSeed()); });
             }

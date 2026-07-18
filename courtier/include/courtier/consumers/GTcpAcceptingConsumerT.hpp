@@ -48,6 +48,7 @@
 #include "common/GErrorStreamer.hpp"
 #include "common/GExceptions.hpp"
 #include "common/GLogger.hpp"
+#include "common/concurrency/GThreadBudget.hpp"
 #include "common/concurrency/GThreadGroup.hpp"
 #include "courtier/consumers/GNetworkedConsumerT.hpp"
 #include "courtier/GWireSerializationContext.hpp" // layout send-once: shared registry
@@ -152,6 +153,14 @@ public:
 
         this->async_start_accept();
 
+        // Account the io threads in the process-wide thread budget (io threads mostly block, but
+        // they are threads all the same; the budget's warning factor allows for the overlap).
+        io_budget_ = Gem::Common::Concurrency::threadBudget().reserve(
+            consumer_name_,
+            static_cast<unsigned int>(n_threads_),
+            Gem::Common::Concurrency::ThreadElasticity::Elastic
+        );
+
         for(std::size_t t = 0; t < n_threads_; ++t) {
             gtg_.create_thread([this] { io_context_.run(); });
         }
@@ -180,6 +189,9 @@ public:
         work_guard_.reset();
         io_context_.stop();
         gtg_.join_all();
+
+        // The io threads are joined -- return their reservation to the thread budget.
+        io_budget_.release();
     }
 
 protected:
@@ -313,6 +325,11 @@ private:
     };
     /// Backoff timer used to retry accept after a transient failure (e.g. EMFILE) without busy-spinning.
     boost::asio::steady_timer accept_retry_timer_{io_context_};
+
+    /// The io threads' reservation in the process-wide thread budget (held from startServer()
+    /// until the threads are joined in stopServer()). Declared before gtg_ as belt-and-braces:
+    /// stopServer() releases it explicitly right after join_all().
+    Gem::Common::Concurrency::GThreadBudget::Reservation io_budget_;
 
     Gem::Common::Concurrency::GThreadGroup gtg_;
     std::atomic<std::size_t> n_active_sessions_{0};

@@ -51,7 +51,11 @@ GMetaEvolutionaryAlgorithm::evaluatePopulationRange_(std::size_t start, std::siz
         const unsigned int n = n_orchestration_threads_ != 0
                                    ? n_orchestration_threads_
                                    : std::max(1u, std::thread::hardware_concurrency());
-        orchestration_pool_ = std::make_unique<Gem::Common::Concurrency::GThreadPool>(n);
+        orchestration_pool_ = std::make_unique<Gem::Common::Concurrency::GThreadPool>(
+            "meta:orchestration",
+            n,
+            Gem::Common::Concurrency::ThreadElasticity::Elastic
+        );
     }
 
     // Run each umbrella-individual's process() on the orchestration pool. process() funnels any thrown

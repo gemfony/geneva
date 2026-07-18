@@ -58,6 +58,32 @@ GThreadPool::GThreadPool(unsigned int n_threads)
 
 /******************************************************************************/
 /**
+ * @brief Budgeted initialisation (see the declaration). Reserves the (normalized) thread count
+ * in the process-wide GThreadBudget and starts the granted number of workers. In the budget's
+ * accounting stage the grant always equals the request; once elastic granting is enabled an
+ * Elastic pool may be started smaller under contention.
+ *
+ * @param source A short name identifying this pool in the budget (e.g. "oa:tp")
+ * @param n_threads The number of worker threads the pool wants (0 picks a hardware-based default)
+ * @param elasticity Whether the pool could correctly run with fewer workers than requested
+ */
+GThreadPool::GThreadPool(
+    std::string_view source,
+    unsigned int n_threads,
+    ThreadElasticity elasticity
+)
+  : budget_reservation_(threadBudget().reserve(
+        source,
+        n_threads > 0 ? n_threads : DEFAULTNHARDWARETHREADS,
+        elasticity
+    ))
+  , n_threads_(budget_reservation_.granted()) {
+    task_queue_.emplace(); // construct the (unbounded) task queue
+    start_workers(n_threads_);
+}
+
+/******************************************************************************/
+/**
  * @brief The destructor.
  *
  * Closing the queue makes the workers drain any remaining tasks (running them, so their

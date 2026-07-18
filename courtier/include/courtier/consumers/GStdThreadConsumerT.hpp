@@ -65,7 +65,11 @@ public:
     /** @brief Initialization with the number of worker threads (0 == hardware concurrency).
      *  @param n_threads Number of worker threads in the pool; 0 means use the hardware concurrency. */
     explicit GStdThreadConsumerT(unsigned int n_threads = 0)
-        : pool_(n_threads == 0 ? default_threads() : n_threads)
+        : pool_(
+              "consumer:stc",
+              n_threads == 0 ? default_threads() : n_threads,
+              Gem::Common::Concurrency::ThreadElasticity::Elastic
+          )
     {
         instances_constructed().fetch_add(1, std::memory_order_relaxed);
     }
