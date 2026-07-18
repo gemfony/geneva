@@ -76,6 +76,11 @@ public:
     /** @brief Deleted copy constructor */
     GMPISubClientOptimizer(GMPISubClientOptimizer const &) = delete;
 
+    /** @brief The destructor: tears the consumer down first, then finalizes MPI if this object
+     *  initialized it (every rank must call MPI_Finalize, or mpirun treats the exit as abnormal
+     *  and kills the remaining ranks). */
+    ~GMPISubClientOptimizer() override;
+
     /**
          * @brief Registers a function to be called by sub-clients.
          *
@@ -149,6 +154,12 @@ private:
          * Flag which is true if the current process is a sub-client
          */
     bool isSubClient_{};
+    /**
+         * Whether THIS object performed the MPI initialization (and therefore owns the matching
+         * MPI_Finalize in the destructor). False when the user pre-initialized MPI (custom base
+         * communicator) or in a pure --update-configs run.
+         */
+    bool i_initialized_mpi_{false};
     /**
          * Callback function which is executed by sub-clients when clientRun() is called
          */
