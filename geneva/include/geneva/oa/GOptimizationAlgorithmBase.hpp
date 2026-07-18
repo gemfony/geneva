@@ -615,6 +615,16 @@ protected:
     // Overridden or virtual protected functions
 
     /**
+     * @brief The shared population precondition of the floating-point-only algorithms (CGD, Nelder-
+     * Mead): requires a non-empty population whose first individual carries at least one active
+     * floating-point parameter (throws otherwise), and logs a note when integer/boolean parameters
+     * ride along (they are left unchanged by such an algorithm).
+     * @param algorithm_name The calling algorithm's class name, used in the error/log texts
+     * @return The number of active floating-point parameters of the first individual
+     */
+    std::size_t requireFloatingPointGenome_(const std::string &algorithm_name) const;
+
+    /**
      * @brief Adds local configuration options to a GParserBuilder object.
      * @param gpb A reference to the parser-builder that collects this algorithm's configuration options
      */

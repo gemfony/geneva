@@ -381,16 +381,6 @@ GHesseErrorResult GConjugateGradientDescent::getLastErrorEstimate() const {
 
 /******************************************************************************/
 /**
- * @brief Retrieve the number of processable items in the current iteration.
- *
- * @return The number of items to process, i.e. the full population size (every individual is re-evaluated each iteration)
- */
-std::size_t GConjugateGradientDescent::getNProcessableItems_() const {
-    return this->size(); // The entire population is (re-)evaluated every iteration
-}
-
-/******************************************************************************/
-/**
  * @brief Searches for compliance with expectations with respect to another object
  * of the same type
  *
@@ -1183,49 +1173,10 @@ void GConjugateGradientDescent::actOnStalls_() {
  * children.
  */
 void GConjugateGradientDescent::adjustPopulation_() {
-    std::size_t n_start = this->size();
-
-    if(n_start == 0) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GConjugateGradientDescent::adjustPopulation():" << '\n'
-            << "You didn't add any individuals to the collection. We need at least one."
-            << '\n'
-        );
-    }
-
-    n_fp_parms_first_ = this->at(0)->countFPParameters(activityMode::ACTIVEONLY);
-
-    if(n_fp_parms_first_ == 0) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GConjugateGradientDescent::adjustPopulation():" << '\n'
-            << "No floating point parameters in individual." << '\n'
-        );
-    }
-
-    // Conjugate gradient descent operates on the floating point parameters
-    // only. Any integer / boolean parameters are left unchanged -- this is
-    // normal, user-expected behaviour, so it is merely logged (not warned about).
-    {
-        // countParameters<T> is part of the genome-agnostic value-channel interface.
-        auto const &ind0 = (*this->at(0));
-        const std::size_t n_int_parms =
-            ind0.countParameters<std::int32_t>(activityMode::ACTIVEONLY);
-        const std::size_t n_bool_parms =
-            ind0.countParameters<bool>(activityMode::ACTIVEONLY);
-        if(n_int_parms + n_bool_parms > 0) {
-            glogger
-                << "In GConjugateGradientDescent::adjustPopulation_(): Note:" << '\n'
-                << "The individual carries " << n_int_parms << " integer and " << n_bool_parms
-                << " boolean parameter(s) alongside " << n_fp_parms_first_
-                << " floating point parameter(s)." << '\n'
-                << "Conjugate gradient descent only operates on the floating point parameters;"
-                << '\n'
-                << "the non-differentiable parameters are left unchanged." << '\n'
-                << GLOGGING;
-        }
-    }
+    // Non-empty population + at least one active FP parameter; logs a note for int/bool riders
+    // (the shared precondition of the floating-point-only algorithms).
+    n_fp_parms_first_ = this->requireFloatingPointGenome_("GConjugateGradientDescent");
+    const std::size_t n_start = this->size();
 
 #ifdef DEBUG
     for(std::size_t i = 1; i < this->size(); i++) {

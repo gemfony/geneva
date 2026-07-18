@@ -274,35 +274,10 @@ public:
           , distance_(distance) { /* nothing */
         }
 
-        /**
-		   * @brief The copy constructor.
-		   *
-		   * @param params The param_type object to copy from
-		   */
-        param_type(const param_type &params)
-          : mean_(params.mean_)
-          , sigma1_(params.sigma1_)
-          , sigma2_(params.sigma2_)
-          , distance_(params.distance_) { /* nothing */
-        }
-
-        /**
-		   * @brief The assignment operator.
-		   *
-		   * @param params The param_type object to assign from
-		   * @return A reference to this object
-		   */
-        param_type &operator=(param_type const &params) {
-            if(this == &params) {
-                return *this;
-            }
-            mean_ = params.mean_;
-            sigma1_ = params.sigma1_;
-            sigma2_ = params.sigma2_;
-            distance_ = params.distance_;
-
-            return *this;
-        }
+        /** @brief The copy constructor (memberwise over four scalars) */
+        param_type(const param_type &) = default;
+        /** @brief The copy-assignment operator (memberwise over four scalars) */
+        param_type &operator=(param_type const &) = default;
 
         /**
 		   * @brief Access to the mean() value.
@@ -337,24 +312,8 @@ public:
             return distance_;
         }
 
-        /**
-		   * @brief Compare for equality with another param_type object.
-		   *
-		   * @param p The param_type object to compare against
-		   * @return true if all parameters are equal, false otherwise
-		   */
-        bool operator==(const param_type &p) const {
-            if(mean_ != p.mean_) {
-                return false;
-            }
-            if(sigma1_ != p.sigma1()) {
-                return false;
-            }
-            if(sigma2_ != p.sigma2()) {
-                return false;
-            }
-            return distance_ == p.distance();
-        }
+        /** @brief Compare for equality with another param_type object (memberwise) */
+        friend bool operator==(const param_type &, const param_type &) = default;
 
     private:
         fp_type mean_ = 0.;
@@ -396,28 +355,12 @@ public:
       , params_store_(params) { /* nothing */
     }
 
-    /**
-	  * @brief The copy constructor.
-	  *
-	  * @param cp The bi_normal_distribution object to copy from
-	  */
-    bi_normal_distribution(bi_normal_distribution<fp_type> const &cp)
-      : params_(cp.params_)
-      , params_store_(cp.params_store_) { /* nothing */
-    }
-
-    /**
-	  * @brief Assignment operator.
-	  *
-	  * @param cp The bi_normal_distribution object to assign from
-	  * @return A reference to this object
-	  */
-    bi_normal_distribution<fp_type> &operator=(bi_normal_distribution<fp_type> const &cp) {
-        params_ = cp.params_;
-        params_store_ = cp.params_store_;
-
-        return *this;
-    }
+    /** @brief The copy constructor (memberwise, so it cannot silently drop a member; the former
+     *  hand-written version skipped the inner normal distribution and the boolean source).
+     *  Copy assignment is implicitly deleted through the const params_store_ member -- a
+     *  distribution carrying a const reset target is not assignable (the former hand-written
+     *  operator assigned that const member and was ill-formed; it merely was never instantiated). */
+    bi_normal_distribution(bi_normal_distribution<fp_type> const &) = default;
 
     /**
      * @brief Returns the middle between both peaks.

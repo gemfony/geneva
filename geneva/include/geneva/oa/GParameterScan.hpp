@@ -896,9 +896,6 @@ private:
     /** @brief Triggers fitness calculation of a number of individuals */
     void runFitnessCalculation_() override;
 
-    /** @brief Retrieves the number of processable items for the current iteration
-     *  @return The number of items that can be processed in the current iteration */
-    std::size_t getNProcessableItems_() const override;
 
     /** @brief A custom halt criterion for the optimization, allowing to stop the loop when no items are left to be scanned
      *  @return true if the optimization should be halted, false otherwise */

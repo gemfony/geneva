@@ -124,24 +124,21 @@ std::string
 GHistogram1D::headerData_(bool is_secondary, std::size_t p_id, std::size_t own_id, const std::string &indent) const {
     EmitStream header_data; // NOLINT(cppcoreguidelines-init-variables)
 
-    std::string comment; // NOLINT(cppcoreguidelines-init-variables)
-    if(!ds_marker_.empty()) {
-        comment = "// " + rootEscape(ds_marker_);
-    }
+    const std::string comment = dsMarkerComment(ds_marker_);
 
     std::string hist_name = "histD" + suffix(is_secondary, p_id, own_id);
 
     if(min_x_ != max_x_) {
         header_data << indent << "TH1D *" << hist_name << " = new TH1D(\"" << hist_name << "\", \""
                     << hist_name << "\"," << n_bins_x_ << ", " << min_x_ << ", " << max_x_ << ");"
-                    << (!comment.empty() ? comment : "") << '\n'
+                    << comment << '\n'
                     << '\n';
     }
     else { // automatic range detection
         std::tuple<double, double> minmax = this->getMinMaxElements();
         header_data << indent << "TH1D *" << hist_name << " = new TH1D(\"" << hist_name << "\", \""
                     << hist_name << "\"," << n_bins_x_ << ", " << std::get<0>(minmax) << ", "
-                    << std::get<1>(minmax) << ");" << (!comment.empty() ? comment : "") << '\n'
+                    << std::get<1>(minmax) << ");" << comment << '\n'
                     << '\n';
     }
 
@@ -162,13 +159,7 @@ std::string
 GHistogram1D::bodyData_(bool is_secondary, std::size_t p_id, std::size_t own_id, const std::string &indent) const {
     EmitStream body_data; // NOLINT(cppcoreguidelines-init-variables)
 
-    std::string comment; // NOLINT(cppcoreguidelines-init-variables)
-    if(!ds_marker_.empty()) {
-        comment = "// " + rootEscape(ds_marker_);
-    }
-    else {
-        comment = "";
-    }
+    const std::string comment = dsMarkerComment(ds_marker_);
 
     std::string hist_name = "histD" + suffix(is_secondary, p_id, own_id);
 
@@ -199,12 +190,7 @@ GHistogram1D::footerData_(bool is_secondary, std::size_t p_id, std::size_t own_i
 
     std::string hist_name = "histD" + suffix(is_secondary, p_id, own_id);
 
-    if(!plot_label_.empty()) {
-        footer_data << indent << hist_name << "->SetTitle(\"" << rootEscape(plot_label_) << "\");" << '\n';
-    }
-    else {
-        footer_data << indent << hist_name << "->SetTitle(\" \");" << '\n';
-    }
+    emitRootTitle(footer_data, indent, hist_name, plot_label_);
 
     std::string comment; // NOLINT(cppcoreguidelines-init-variables)
     if(!ds_marker_.empty()) {
@@ -421,16 +407,13 @@ std::string
 GHistogram1I::headerData_(bool is_secondary, std::size_t p_id, std::size_t own_id, const std::string &indent) const {
     EmitStream header_data; // NOLINT(cppcoreguidelines-init-variables)
 
-    std::string comment; // NOLINT(cppcoreguidelines-init-variables)
-    if(!ds_marker_.empty()) {
-        comment = "// " + rootEscape(ds_marker_);
-    }
+    const std::string comment = dsMarkerComment(ds_marker_);
 
     std::string hist_name = "histI" + suffix(is_secondary, p_id, own_id);
 
     header_data << indent << "TH1I *" << hist_name << " = new TH1I(\"" << hist_name << "\", \""
                 << hist_name << "\"," << n_bins_x_ << ", " << min_x_ << ", " << max_x_ << ");"
-                << (!comment.empty() ? comment : "") << '\n'
+                << comment << '\n'
                 << '\n';
 
     return header_data.str();
@@ -450,13 +433,7 @@ std::string
 GHistogram1I::bodyData_(bool is_secondary, std::size_t p_id, std::size_t own_id, const std::string &indent) const {
     EmitStream body_data; // NOLINT(cppcoreguidelines-init-variables)
 
-    std::string comment; // NOLINT(cppcoreguidelines-init-variables)
-    if(!ds_marker_.empty()) {
-        comment = "// " + rootEscape(ds_marker_);
-    }
-    else {
-        comment = "";
-    }
+    const std::string comment = dsMarkerComment(ds_marker_);
 
     std::string hist_name = "histI" + suffix(is_secondary, p_id, own_id);
 
@@ -488,12 +465,7 @@ GHistogram1I::footerData_(bool is_secondary, std::size_t p_id, std::size_t own_i
 
     std::string hist_name = "histI" + suffix(is_secondary, p_id, own_id);
 
-    if(!plot_label_.empty()) {
-        footer_data << indent << hist_name << "->SetTitle(\"" << rootEscape(plot_label_) << "\");" << '\n';
-    }
-    else {
-        footer_data << indent << hist_name << "->SetTitle(\" \");" << '\n';
-    }
+    emitRootTitle(footer_data, indent, hist_name, plot_label_);
 
     std::string comment; // NOLINT(cppcoreguidelines-init-variables)
     if(!ds_marker_.empty()) {
@@ -751,10 +723,7 @@ std::string
 GHistogram2D::headerData_(bool is_secondary, std::size_t p_id, std::size_t own_id, const std::string &indent) const {
     EmitStream header_data; // NOLINT(cppcoreguidelines-init-variables)
 
-    std::string comment; // NOLINT(cppcoreguidelines-init-variables)
-    if(!ds_marker_.empty()) {
-        comment = "// " + rootEscape(ds_marker_);
-    }
+    const std::string comment = dsMarkerComment(ds_marker_);
 
     std::string hist_name = "hist2D" + suffix(is_secondary, p_id, own_id);
 
@@ -762,7 +731,7 @@ GHistogram2D::headerData_(bool is_secondary, std::size_t p_id, std::size_t own_i
         header_data << indent << "TH2D *" << hist_name << " = new TH2D(\"" << hist_name << "\", \""
                     << hist_name << "\"," << n_bins_x_ << ", " << min_x_ << ", " << max_x_ << ","
                     << n_bins_y_ << ", " << min_y_ << ", " << max_y_ << ");"
-                    << (!comment.empty() ? comment : "") << '\n'
+                    << comment << '\n'
                     << '\n';
     }
     else { // // automatic range detection
@@ -771,7 +740,7 @@ GHistogram2D::headerData_(bool is_secondary, std::size_t p_id, std::size_t own_i
         header_data << indent << "TH2D *" << hist_name << " = new TH2D(\"" << hist_name << "\", \""
                     << hist_name << "\"," << n_bins_x_ << ", " << std::get<0>(minmax) << ", "
                     << std::get<1>(minmax) << "," << n_bins_y_ << ", " << std::get<2>(minmax) << ", "
-                    << std::get<3>(minmax) << ");" << (!comment.empty() ? comment : "") << '\n'
+                    << std::get<3>(minmax) << ");" << comment << '\n'
                     << '\n';
     }
 
@@ -792,13 +761,7 @@ std::string
 GHistogram2D::bodyData_(bool is_secondary, std::size_t p_id, std::size_t own_id, const std::string &indent) const {
     EmitStream body_data; // NOLINT(cppcoreguidelines-init-variables)
 
-    std::string comment; // NOLINT(cppcoreguidelines-init-variables)
-    if(!ds_marker_.empty()) {
-        comment = "// " + rootEscape(ds_marker_);
-    }
-    else {
-        comment = "";
-    }
+    const std::string comment = dsMarkerComment(ds_marker_);
 
     std::string hist_name = "hist2D" + suffix(is_secondary, p_id, own_id);
 
@@ -831,12 +794,7 @@ GHistogram2D::footerData_(bool is_secondary, std::size_t p_id, std::size_t own_i
 
     std::string hist_name = "hist2D" + suffix(is_secondary, p_id, own_id);
 
-    if(!plot_label_.empty()) {
-        footer_data << indent << hist_name << "->SetTitle(\"" << rootEscape(plot_label_) << "\");" << '\n';
-    }
-    else {
-        footer_data << indent << hist_name << "->SetTitle(\" \");" << '\n';
-    }
+    emitRootTitle(footer_data, indent, hist_name, plot_label_);
 
     std::string comment; // NOLINT(cppcoreguidelines-init-variables)
     if(!ds_marker_.empty()) {

@@ -37,6 +37,7 @@
 #include <cstdlib>
 #include <functional>
 #include <memory>
+#include <algorithm>
 #include <ranges>
 #include <span>
 #include <string>
@@ -138,14 +139,12 @@ public:
             // resolved/unresolved slots are not.) There is no temporary working vector: the consumer
             // evaluates the batch span IN PLACE, processing exactly the slots whose status is DO_PROCESS
             // and writing each (possibly replaced) result straight back into its own slot.
-            bool any_pending = false;
-            for(std::size_t i = 0; i < n; ++i) {
-                if(state[i] == slot::pending && items[i] &&
-                   items[i]->getProcessingStatus() == processingStatus::DO_PROCESS) {
-                    any_pending = true;
-                    break;
-                }
-            }
+            const bool any_pending = std::ranges::any_of(
+                std::views::zip(state, items), [](auto &&slot_and_item) {
+                    auto &&[s, item] = slot_and_item;
+                    return s == slot::pending && item &&
+                           item->getProcessingStatus() == processingStatus::DO_PROCESS;
+                });
             if(not any_pending) {
                 break; // every slot is resolved or unresolved
             }

@@ -275,8 +275,6 @@ private:
     /** @brief Triggers fitness calculation of all individuals via the one process consumer */
     void runFitnessCalculation_() override;
 
-    /** @brief Retrieves the number of processable items for the current iteration */
-    std::size_t getNProcessableItems_() const override;
 
     /** @brief Retrieve a GPersonalityTraits object belonging to this algorithm */
     std::shared_ptr<GPersonalityTraits> getPersonalityTraits_() const override;

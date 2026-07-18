@@ -95,6 +95,44 @@ inline std::string rootEscape(const std::string &in) {
 
 /******************************************************************************/
 /**
+ * Builds the "// <marker>" ROOT comment for a data-set marker, or an empty string when no marker was
+ * set. This construction used to be copy-pasted (in an assignment and a direct-streaming form, plus
+ * a redundant emptiness ternary at the use sites) throughout the graph / histogram plotters.
+ *
+ * @param ds_marker The (unescaped) data-set marker; may be empty
+ * @return The escaped ROOT comment line content, or an empty string
+ */
+inline std::string dsMarkerComment(const std::string &ds_marker) {
+    return ds_marker.empty() ? std::string{} : "// " + rootEscape(ds_marker);
+}
+
+/******************************************************************************/
+/**
+ * Emits one ROOT SetTitle line for @p obj into @p s: the escaped @p label if one was set, else the
+ * single-space placeholder ROOT needs to suppress its default object title. This block used to be
+ * copy-pasted into every graph / histogram plotter's footer.
+ *
+ * @param s The stream the ROOT macro line is written to
+ * @param indent The indentation prefix of the emitted line
+ * @param obj The ROOT object variable name the title is set on
+ * @param label The (unescaped) plot label; may be empty
+ */
+inline void emitRootTitle(
+    std::ostream &s,
+    const std::string &indent,
+    const std::string &obj,
+    const std::string &label
+) {
+    if(!label.empty()) {
+        s << indent << obj << "->SetTitle(\"" << rootEscape(label) << "\");" << '\n';
+    }
+    else {
+        s << indent << obj << "->SetTitle(\" \");" << '\n';
+    }
+}
+
+/******************************************************************************/
+/**
  * Escape a user-supplied string for safe inclusion inside a gnuplot DOUBLE-quoted
  * string literal (labels, titles). gnuplot double-quoted strings interpret C-style
  * backslash escapes (\" \\ \n \t), so the metacharacters must be backslash-escaped

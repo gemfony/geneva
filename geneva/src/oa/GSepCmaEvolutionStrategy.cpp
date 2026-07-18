@@ -676,15 +676,6 @@ void GSepCmaEvolutionStrategy::actOnStalls_() {
 
 /******************************************************************************/
 /**
- * Retrieves the number of processable items for the current iteration. All offspring are sampled fresh
- * each generation, so all of them are processed.
- */
-std::size_t GSepCmaEvolutionStrategy::getNProcessableItems_() const {
-    return this->size();
-}
-
-/******************************************************************************/
-/**
  * Retrieve a GPersonalityTraits object belonging to this algorithm.
  */
 std::shared_ptr<GPersonalityTraits> GSepCmaEvolutionStrategy::getPersonalityTraits_() const {

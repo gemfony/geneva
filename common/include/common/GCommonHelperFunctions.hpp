@@ -141,6 +141,15 @@ constexpr std::string_view serializationModeToString(serializationMode s) noexce
 
 /******************************************************************************/
 /**
+ * @brief Trims leading and trailing whitespace (spaces, tabs, CR, LF) from a string.
+ *
+ * @param s The string to trim
+ * @return The trimmed string; an empty string if @p s is whitespace-only
+ */
+std::string trimWhitespace(std::string_view s);
+
+/******************************************************************************/
+/**
  * @brief Splits a string into a vector of strings, according to a separator character.
  *
  * @param str The string to be split

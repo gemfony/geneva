@@ -1780,16 +1780,5 @@ bool GSwarmAlgorithm::neighborhoodsFilledUpRandomly() const {
 }
 
 /******************************************************************************/
-/**
- * Retrieve the number of processable items in the current iteration.
- *
- * @return The number of processable items in the current iteration
- */
-std::size_t GSwarmAlgorithm::getNProcessableItems_() const {
-    return this
-        ->size(); // All items in the population are updated in each iteration and need to be processed
-}
-
-/******************************************************************************/
 
 } /* namespace Gem::Geneva::OptimizationAlgorithms */

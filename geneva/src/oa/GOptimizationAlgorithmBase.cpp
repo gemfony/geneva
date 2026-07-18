@@ -244,6 +244,56 @@ std::int32_t GOptimizationAlgorithmBase::getCheckpointInterval() const {
 
 /******************************************************************************/
 /**
+ * @brief The shared population precondition of the floating-point-only algorithms (CGD, Nelder-Mead):
+ * requires a non-empty population whose first individual carries at least one active floating-point
+ * parameter, and logs a note when integer/boolean parameters ride along (such an algorithm leaves
+ * them unchanged). Formerly duplicated verbatim in both algorithms' adjustPopulation_().
+ *
+ * @param algorithm_name The calling algorithm's class name, used in the error/log texts
+ * @return The number of active floating-point parameters of the first individual
+ */
+std::size_t GOptimizationAlgorithmBase::requireFloatingPointGenome_(
+    const std::string &algorithm_name
+) const {
+    if(this->empty()) {
+        throw geneva_exception(
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+            << "In " << algorithm_name << "::adjustPopulation():" << '\n'
+            << "You didn't add any individuals to the collection. We need at least one."
+            << '\n'
+        );
+    }
+
+    const std::size_t n_fp_parms = this->at(0)->countFPParameters(activityMode::ACTIVEONLY);
+
+    if(n_fp_parms == 0) {
+        throw geneva_exception(
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+            << "In " << algorithm_name << "::adjustPopulation():" << '\n'
+            << "No floating point parameters in individual." << '\n'
+        );
+    }
+
+    // A floating-point-only algorithm leaves any integer / boolean parameters unchanged -- this is
+    // normal, user-expected behaviour, so it is merely logged (not warned about).
+    auto const &ind0 = (*this->at(0));
+    const std::size_t n_int_parms = ind0.countParameters<std::int32_t>(activityMode::ACTIVEONLY);
+    const std::size_t n_bool_parms = ind0.countParameters<bool>(activityMode::ACTIVEONLY);
+    if(n_int_parms + n_bool_parms > 0) {
+        glogger << "In " << algorithm_name << "::adjustPopulation_(): Note:" << '\n'
+                << "The individual carries " << n_int_parms << " integer and " << n_bool_parms
+                << " boolean parameter(s) alongside " << n_fp_parms
+                << " floating point parameter(s)." << '\n'
+                << "The algorithm only operates on the floating point parameters;" << '\n'
+                << "the non-floating-point parameters are left unchanged." << '\n'
+                << GLOGGING;
+    }
+
+    return n_fp_parms;
+}
+
+/******************************************************************************/
+/**
  * Allows to set the base name of the checkpoint file and the directory where it
  * should be stored. The directory is only validated here (an existing path must
  * be a directory); a missing directory is created lazily when the first

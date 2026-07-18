@@ -351,15 +351,10 @@ private:
         switch(r) {
         case run_state::INIT:
             return "run_state::INIT";
-            break;
-
         case run_state::RUN:
             return "run_state::RUN";
-            break;
-
         case run_state::FINALLY:
             return "run_state::FINALLY";
-            break;
         }
 
         // Make the compiler happy

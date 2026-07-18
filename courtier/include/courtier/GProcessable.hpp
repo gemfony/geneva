@@ -226,90 +226,38 @@ public:
             );
         }
 
-        // We want to enforce specific targets depending on the current state
-        switch(processing_status_) {
+        // The transition table, stated once: from UNPROCESSED only DO_PROCESS is reachable, from
+        // DO_PROCESS only UNPROCESSED (an un-submit), and from any terminal state (PROCESSED /
+        // EXCEPTION_CAUGHT / ERROR_FLAGGED) the item may be recycled to UNPROCESSED or DO_PROCESS.
+        const bool allowed = [&] {
             using enum Gem::Courtier::processingStatus;
-            //------------------------------------------------------------------------------------
-
-        case UNPROCESSED:
-            if(target_ps == processingStatus::DO_PROCESS) {
-                processing_status_ = target_ps;
-                stored_error_descriptions_.clear();
-                this->clearStoredResults_();
+            switch(processing_status_) {
+            case UNPROCESSED:
+                return target_ps == DO_PROCESS;
+            case DO_PROCESS:
+                return target_ps == UNPROCESSED;
+            case PROCESSED:
+            case EXCEPTION_CAUGHT:
+            case ERROR_FLAGGED:
+                return target_ps == UNPROCESSED || target_ps == DO_PROCESS;
             }
-            else {
-                throw geneva_exception(
-                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                    << "In GProcessable::set_processing_status():" << '\n'
-                    << "Got invalid target processing status " << psToStr(target_ps) << '\n'
-                    << "Expected a new state of DO_PROCESS for the" << '\n'
-                    << "current state of " << psToStr(processing_status_) << '\n'
-                );
-            }
-            break;
+            return false;
+        }();
 
-            //------------------------------------------------------------------------------------
+        if(not allowed) {
+            throw geneva_exception(
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+                << "In GProcessable::set_processing_status():" << '\n'
+                << "Got invalid target processing status " << psToStr(target_ps) << '\n'
+                << "for the current state of " << psToStr(processing_status_) << '\n'
+            );
+        }
 
-        case DO_PROCESS:
-            if(target_ps == processingStatus::UNPROCESSED) {
-                processing_status_ = target_ps;
-                stored_error_descriptions_.clear();
-                this->clearStoredResults_();
-            }
-            else {
-                throw geneva_exception(
-                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                    << "In GProcessable::set_processing_status():" << '\n'
-                    << "Got invalid target processing status " << psToStr(target_ps) << '\n'
-                    << "Expected a new state of UNPROCESSED for the" << '\n'
-                    << "current state of " << psToStr(processing_status_) << '\n'
-                );
-            }
-            break;
-
-            //------------------------------------------------------------------------------------
-
-        case PROCESSED:
-            if(target_ps == processingStatus::UNPROCESSED ||
-               target_ps == processingStatus::DO_PROCESS) {
-                processing_status_ = target_ps;
-                stored_error_descriptions_.clear();
-                this->clearStoredResults_();
-            }
-            else {
-                throw geneva_exception(
-                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                    << "In GProcessable::set_processing_status():" << '\n'
-                    << "Got invalid target processing status " << psToStr(target_ps) << '\n'
-                    << "Expected a new state of UNPROCESSED or DO_PROCESS for the" << '\n'
-                    << "current state of " << psToStr(processing_status_) << '\n'
-                );
-            }
-            break;
-
-            //------------------------------------------------------------------------------------
-
-        case EXCEPTION_CAUGHT:
-        case ERROR_FLAGGED:
-            if(target_ps == processingStatus::UNPROCESSED ||
-               target_ps == processingStatus::DO_PROCESS) {
-                processing_status_ = target_ps;
-                stored_error_descriptions_.clear();
-                this->clearStoredResults_();
-            }
-            else {
-                throw geneva_exception(
-                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                    << "In GProcessable::set_processing_status():" << '\n'
-                    << "Got invalid target processing status " << psToStr(target_ps) << '\n'
-                    << "Expected a new state of UNPROCESSED or DO_PROCESS for the" << '\n'
-                    << "current state of " << psToStr(processing_status_) << '\n'
-                );
-            }
-            break;
-
-            //------------------------------------------------------------------------------------
-        };
+        // Every accepted transition performs the same reset: adopt the state, forget past errors,
+        // drop any stored results (via the clearStoredResults_() hook of the result-bearing class).
+        processing_status_ = target_ps;
+        stored_error_descriptions_.clear();
+        this->clearStoredResults_();
     }
 
     /** @brief Marks this item as being due for processing (DO_PROCESS). */

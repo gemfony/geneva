@@ -54,12 +54,10 @@ GProblemPolicy::GProblemPolicy(GProblemPolicy const &cp)
  * @return A reference to this object
  */
 GProblemPolicy &GProblemPolicy::operator=(GProblemPolicy const &cp) {
+    // Copy-construct (the ONE place the member list is stated, including the constraint deep-clone)
+    // and move-assign the result, so the two copy paths cannot drift apart when a member is added.
     if(this != &cp) {
-        maxmode_ = cp.maxmode_;
-        eval_policy_ = cp.eval_policy_;
-        sigmoid_steepness_ = cp.sigmoid_steepness_;
-        sigmoid_extremes_ = cp.sigmoid_extremes_;
-        Gem::Common::copyCloneableSmartPointer(cp.constraint_ptr_, constraint_ptr_);
+        *this = GProblemPolicy(cp);
     }
     return *this;
 }

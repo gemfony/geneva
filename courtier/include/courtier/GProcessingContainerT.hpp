@@ -34,6 +34,7 @@
 
 // Standard headers go here
 #include <chrono>
+#include <algorithm>
 #include <concepts>
 #include <exception>
 #include <functional>
@@ -488,10 +489,7 @@ private:
 	  * @brief Little helper function to (re-)initialize the result storage vector
 	  */
     void clear_stored_results_vec() {
-        // "Nullify the result list. We cannot use range-based for here, as stored_results_cnt_ might hold booleans
-        for(auto it = stored_results_cnt_.begin(); it != stored_results_cnt_.end(); ++it) {
-            *it = processing_result_type();
-        }
+        std::ranges::fill(stored_results_cnt_, processing_result_type());
     }
 
     /***************************************************************************/

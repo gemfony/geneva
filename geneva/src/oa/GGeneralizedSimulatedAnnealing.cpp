@@ -396,15 +396,6 @@ void GGeneralizedSimulatedAnnealing::actOnStalls_() {
 
 /******************************************************************************/
 /**
- * Retrieve the number of processable items in the current iteration. The whole population (2 * n_chains_
- * individuals) is (re-)evaluated every iteration.
- */
-std::size_t GGeneralizedSimulatedAnnealing::getNProcessableItems_() const {
-    return this->size();
-}
-
-/******************************************************************************/
-/**
  * Retrieve a GPersonalityTraits object belonging to this algorithm.
  */
 std::shared_ptr<GPersonalityTraits> GGeneralizedSimulatedAnnealing::getPersonalityTraits_() const {

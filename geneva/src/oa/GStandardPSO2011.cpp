@@ -311,15 +311,6 @@ void GStandardPSO2011::actOnStalls_() {
 
 /******************************************************************************/
 /**
- * Retrieve the number of processable items in the current iteration. The whole swarm is (re-)evaluated
- * every iteration.
- */
-std::size_t GStandardPSO2011::getNProcessableItems_() const {
-    return this->size();
-}
-
-/******************************************************************************/
-/**
  * Retrieve a GPersonalityTraits object belonging to this algorithm.
  */
 std::shared_ptr<GPersonalityTraits> GStandardPSO2011::getPersonalityTraits_() const {

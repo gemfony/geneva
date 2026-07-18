@@ -326,8 +326,6 @@ private:
     /** @brief Submits offspring to the one process consumer and waits for processed items */
     void runFitnessCalculation_() override;
 
-    /** @brief Retrieves the number of processable items for the current iteration */
-    std::size_t getNProcessableItems_() const override;
 
     /** @brief Retrieve a GPersonalityTraits object belonging to this algorithm */
     std::shared_ptr<GPersonalityTraits> getPersonalityTraits_() const override;

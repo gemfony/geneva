@@ -284,16 +284,6 @@ GParameterScan::GParameterScan(const GParameterScan &cp)
 
 /******************************************************************************/
 /**
- * @brief Retrieve the number of processable items in the current iteration.
- *
- * @return The number of processable items in the current iteration (the whole population size)
- */
-std::size_t GParameterScan::getNProcessableItems_() const {
-    return this->size(); // Evaluation always needs to be done for the entire population
-}
-
-/******************************************************************************/
-/**
  * @brief Searches for compliance with expectations with respect to another object
  * of the same type.
  *

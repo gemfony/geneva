@@ -199,13 +199,10 @@ GGraph2D::headerData_(bool is_secondary, std::size_t p_id, std::size_t own_id, c
     std::string x_array_name = "x_" + array_base_name;
     std::string y_array_name = "y_" + array_base_name;
 
-    std::string comment; // NOLINT(cppcoreguidelines-init-variables)
-    if(!ds_marker_.empty()) {
-        comment = "// " + rootEscape(ds_marker_);
-    }
+    const std::string comment = dsMarkerComment(ds_marker_);
 
     header_data << indent << "double " << x_array_name << "[" << to_string(this->currentSize()) << "];"
-                << (!comment.empty() ? comment : "") << '\n'
+                << comment << '\n'
                 << indent << "double " << y_array_name << "[" << to_string(this->currentSize()) << "];"
                 << '\n'
                 << '\n';
@@ -294,12 +291,7 @@ GGraph2D::footerData_(bool is_secondary, std::size_t p_id, std::size_t own_id, c
                 << indent << graph_name << "->GetYaxis()->SetTitle(\"" << rootEscape(yAxisLabel()) << "\");"
                 << '\n';
 
-    if(!plot_label_.empty()) {
-        footer_data << indent << graph_name << "->SetTitle(\"" << rootEscape(plot_label_) << "\");" << '\n';
-    }
-    else {
-        footer_data << indent << graph_name << "->SetTitle(\" \");" << '\n';
-    }
+    emitRootTitle(footer_data, indent, graph_name, plot_label_);
 
     footer_data << indent << graph_name << "->Draw(\"" << d_a << "\");" << '\n' << '\n';
 
@@ -498,10 +490,7 @@ GGraph2ED::headerData_(bool is_secondary, std::size_t p_id, std::size_t own_id, 
     std::string y_array_name = "y_" + array_base_name;
     std::string ey_array_name = "ey_" + array_base_name;
 
-    std::string comment; // NOLINT(cppcoreguidelines-init-variables)
-    if(!ds_marker_.empty()) {
-        comment = "// " + rootEscape(ds_marker_);
-    }
+    const std::string comment = dsMarkerComment(ds_marker_);
 
     header_data << indent << "double " << x_array_name << "[" << to_string(this->currentSize()) << "];"
                 << comment << '\n'
@@ -609,12 +598,7 @@ GGraph2ED::footerData_(bool is_secondary, std::size_t p_id, std::size_t own_id, 
                 << indent << graph_name << "->GetYaxis()->SetTitle(\"" << rootEscape(yAxisLabel()) << "\");"
                 << '\n';
 
-    if(!plot_label_.empty()) {
-        footer_data << indent << graph_name << "->SetTitle(\"" << rootEscape(plot_label_) << "\");" << '\n';
-    }
-    else {
-        footer_data << indent << graph_name << "->SetTitle(\" \");" << '\n';
-    }
+    emitRootTitle(footer_data, indent, graph_name, plot_label_);
 
     footer_data << indent << graph_name << "->Draw(\"" << d_a << "\");" << '\n' << '\n';
 
@@ -787,13 +771,10 @@ GGraph3D::headerData_(bool is_secondary, std::size_t p_id, std::size_t own_id, c
     std::string y_array_name = "y_" + array_base_name;
     std::string z_array_name = "z_" + array_base_name;
 
-    std::string comment; // NOLINT(cppcoreguidelines-init-variables)
-    if(!ds_marker_.empty()) {
-        comment = "// " + rootEscape(ds_marker_);
-    }
+    const std::string comment = dsMarkerComment(ds_marker_);
 
     header_data << indent << "double " << x_array_name << "[" << to_string(this->currentSize()) << "];"
-                << (!comment.empty() ? comment : "") << '\n'
+                << comment << '\n'
                 << indent << "double " << y_array_name << "[" << to_string(this->currentSize()) << "];"
                 << '\n'
                 << indent << "double " << z_array_name << "[" << to_string(this->currentSize()) << "];"
@@ -898,12 +879,7 @@ GGraph3D::footerData_(bool is_secondary, std::size_t p_id, std::size_t own_id, c
                 << indent << graph_name << "->SetMarkerSize(1);" << '\n'
                 << indent << graph_name << "->SetMarkerColor(2);" << '\n';
 
-    if(!plot_label_.empty()) {
-        footer_data << indent << graph_name << "->SetTitle(\"" << rootEscape(plot_label_) << "\");" << '\n';
-    }
-    else {
-        footer_data << indent << graph_name << "->SetTitle(\" \");" << '\n';
-    }
+    emitRootTitle(footer_data, indent, graph_name, plot_label_);
 
     footer_data << indent << graph_name << "->Draw(\"" << d_a << "\");" << '\n' << '\n';
 
@@ -1482,15 +1458,12 @@ std::string GFunctionPlotter1D::headerData_(
 
     EmitStream result; // NOLINT(cppcoreguidelines-init-variables)
 
-    std::string comment; // NOLINT(cppcoreguidelines-init-variables)
-    if(!ds_marker_.empty()) {
-        comment = "// " + rootEscape(ds_marker_);
-    }
+    const std::string comment = dsMarkerComment(ds_marker_);
 
     std::string function_name = "func1D" + suffix(is_secondary, p_id, own_id);
     result << indent << "TF1 *" << function_name << " = new TF1(\"" << function_name << "\", \""
            << rootEscape(function_description_) << "\"," << std::get<0>(x_extremes_) << ", "
-           << std::get<1>(x_extremes_) << ");" << (!comment.empty() ? comment : "") << '\n';
+           << std::get<1>(x_extremes_) << ");" << comment << '\n';
 
     return result.str();
 }
@@ -1525,10 +1498,7 @@ std::string GFunctionPlotter1D::footerData_(
 ) const {
     EmitStream footer_data; // NOLINT(cppcoreguidelines-init-variables)
 
-    std::string comment; // NOLINT(cppcoreguidelines-init-variables)
-    if(!ds_marker_.empty()) {
-        comment = "// " + rootEscape(ds_marker_);
-    }
+    const std::string comment = dsMarkerComment(ds_marker_);
 
     std::string function_name = "func1D" + suffix(is_secondary, p_id, own_id);
     footer_data << indent << function_name << "->GetXaxis()->SetTitle(\"" << rootEscape(xAxisLabel()) << "\");"
@@ -1537,17 +1507,12 @@ std::string GFunctionPlotter1D::footerData_(
                 << '\n'
                 << indent << function_name << "->SetNpx(" << n_samples_x_ << ");" << '\n';
 
-    if(!plot_label_.empty()) {
-        footer_data << indent << function_name << "->SetTitle(\"" << rootEscape(plot_label_) << "\");" << '\n';
-    }
-    else {
-        footer_data << indent << function_name << "->SetTitle(\" \");" << '\n';
-    }
+    emitRootTitle(footer_data, indent, function_name, plot_label_);
 
     std::string d_a = this->drawingArguments(is_secondary);
 
     footer_data << indent << function_name << "->Draw(\"" << d_a << "\");"
-                << (!comment.empty() ? comment : "") << '\n'
+                << comment << '\n'
                 << '\n';
 
     return footer_data.str();
@@ -1746,16 +1711,13 @@ std::string GFunctionPlotter2D::headerData_(
 
     EmitStream result; // NOLINT(cppcoreguidelines-init-variables)
 
-    std::string comment; // NOLINT(cppcoreguidelines-init-variables)
-    if(!ds_marker_.empty()) {
-        comment = "// " + rootEscape(ds_marker_);
-    }
+    const std::string comment = dsMarkerComment(ds_marker_);
 
     std::string function_name = "func2D" + suffix(is_secondary, p_id, own_id);
     result << indent << "TF2 *" << function_name << " = new TF2(\"" << function_name << "\", \""
            << rootEscape(function_description_) << "\"," << std::get<0>(x_extremes_) << ", "
            << std::get<1>(x_extremes_) << ", " << std::get<0>(y_extremes_) << ", "
-           << std::get<1>(y_extremes_) << ");" << (!comment.empty() ? comment : "") << '\n';
+           << std::get<1>(y_extremes_) << ");" << comment << '\n';
 
     return result.str();
 }
@@ -1790,10 +1752,7 @@ std::string GFunctionPlotter2D::footerData_(
 ) const {
     EmitStream footer_data; // NOLINT(cppcoreguidelines-init-variables)
 
-    std::string comment; // NOLINT(cppcoreguidelines-init-variables)
-    if(!ds_marker_.empty()) {
-        comment = "// " + rootEscape(ds_marker_);
-    }
+    const std::string comment = dsMarkerComment(ds_marker_);
 
     std::string function_name = "func2D" + suffix(is_secondary, p_id, own_id);
     footer_data << indent << function_name << "->GetXaxis()->SetTitle(\"" << rootEscape(xAxisLabel()) << "\");"
@@ -1805,17 +1764,12 @@ std::string GFunctionPlotter2D::footerData_(
                 << indent << function_name << "->SetNpx(" << n_samples_x_ << ");" << '\n'
                 << indent << function_name << "->SetNpy(" << n_samples_y_ << ");" << '\n';
 
-    if(!plot_label_.empty()) {
-        footer_data << indent << function_name << "->SetTitle(\"" << rootEscape(plot_label_) << "\");" << '\n';
-    }
-    else {
-        footer_data << indent << function_name << "->SetTitle(\" \");" << '\n';
-    }
+    emitRootTitle(footer_data, indent, function_name, plot_label_);
 
     std::string d_a = this->drawingArguments(is_secondary);
 
     footer_data << indent << function_name << "->Draw(\"" << d_a << "\");"
-                << (!comment.empty() ? comment : "") << '\n'
+                << comment << '\n'
                 << '\n';
 
     return footer_data.str();

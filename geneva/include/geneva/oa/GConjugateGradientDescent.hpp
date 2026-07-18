@@ -459,12 +459,6 @@ private:
     /** @brief Triggers fitness calculation of a number of individuals */
     void runFitnessCalculation_() override;
 
-    /**
-     * @brief Retrieves the number of processable items for the current iteration.
-     *
-     * @return The number of work items to be processed this iteration
-     */
-    std::size_t getNProcessableItems_() const override;
 
     /**
      * @brief Retrieve a GPersonalityTraits object belonging to this algorithm.

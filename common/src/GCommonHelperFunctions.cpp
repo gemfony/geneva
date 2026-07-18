@@ -327,6 +327,25 @@ int runExternalCommand(
  * Any trailing or leading white spaces are removed from the result strings.
  *
  * @param str The string to be split
+ * @brief Trims leading and trailing whitespace (spaces, tabs, CR, LF) from a string.
+ *
+ * @param s The string to trim
+ * @return The trimmed string; an empty string if @p s is whitespace-only
+ */
+std::string trimWhitespace(std::string_view s) {
+    const auto b = s.find_first_not_of(" \t\r\n");
+    if(b == std::string_view::npos) {
+        return {};
+    }
+    const auto e = s.find_last_not_of(" \t\r\n");
+    return std::string(s.substr(b, e - b + 1));
+}
+
+/******************************************************************************/
+/**
+ * @brief Splits a string into a vector of strings, according to a separator character.
+ *
+ * @param str The string to be split
  * @param sep The separator character
  * @return A std::vector holding the fragments
  */
@@ -344,37 +363,20 @@ std::vector<std::string> splitString(std::string const &str, const char *sep) {
     }
 #endif /* DEBUG */
 
-    char sep_char = sep[0];
-    std::string::size_type start = 0;
-    std::string::size_type pos = 0;
-    while((pos = str.find(sep_char, start)) != std::string::npos) {
-        std::string frag = str.substr(start, pos - start);
-        // Trim leading/trailing whitespace
-        auto b = frag.find_first_not_of(" \t\r\n");
-        auto e = frag.find_last_not_of(" \t\r\n");
-        if(b != std::string::npos) {
-            frag = frag.substr(b, e - b + 1);
-        }
-        else {
-            frag.clear();
-        }
+    const char sep_char = sep[0];
+    const std::string_view sv{str};
+    std::string_view::size_type start = 0;
+    for(;;) {
+        const auto pos = sv.find(sep_char, start);
+        // One shared tail for every fragment, including the remainder after the last separator
+        std::string frag = trimWhitespace(sv.substr(start, pos - start));
         if(not frag.empty()) {
             result.push_back(std::move(frag));
         }
+        if(pos == std::string_view::npos) {
+            break;
+        }
         start = pos + 1;
-    }
-    // Remainder after the last separator
-    std::string frag = str.substr(start);
-    auto b = frag.find_first_not_of(" \t\r\n");
-    auto e = frag.find_last_not_of(" \t\r\n");
-    if(b != std::string::npos) {
-        frag = frag.substr(b, e - b + 1);
-    }
-    else {
-        frag.clear();
-    }
-    if(not frag.empty()) {
-        result.push_back(std::move(frag));
     }
 
     return result;

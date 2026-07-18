@@ -587,8 +587,8 @@ private:
  *
  * The base owns the OA-agnostic machinery: existence-validated authoring, a structural signature +
  * checkConsistency(genome) cross-check (so a genome and a config can be verified as belonging
- * together), label resolution, and the install-state-into-aux hook. Derived classes (GEAAdaptionConfig
- * / GSAAdaptionConfig) are the per-OA types.
+ * together), label resolution, and the install-state-into-aux hook. A per-OA subclass (e.g.
+ * GEAAdaptionConfig) may add algorithm-specific configuration on top.
  */
 class GAdaptionConfigBase {
 public:
@@ -1155,13 +1155,6 @@ private:
 /******************************************************************************/
 /** @brief The evolutionary-algorithm adaption configuration. */
 class GEAAdaptionConfig : public GAdaptionConfigBase {
-public:
-    using GAdaptionConfigBase::GAdaptionConfigBase;
-};
-
-/******************************************************************************/
-/** @brief The simulated-annealing adaption configuration. */
-class GSAAdaptionConfig : public GAdaptionConfigBase {
 public:
     using GAdaptionConfigBase::GAdaptionConfigBase;
 };
