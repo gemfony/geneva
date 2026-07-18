@@ -62,8 +62,11 @@ use it as the starting point for your own project.
        export LD_LIBRARY_PATH="<geneva-install-prefix>/lib:$LD_LIBRARY_PATH"
        ./GStarter --help
 
-   The example expects its configuration files under ./config (copied
-   into the build tree at configure time).
+   The example expects its configuration files under ./config; they are
+   materialized into the build tree from the code's registered defaults
+   right after the build (GENEVA_MATERIALIZE_CONFIGS, exported by the
+   installed Geneva CMake package), so no hand-maintained config files
+   are shipped.
 
 --------------------------------------------------------------------
 Optional unit test

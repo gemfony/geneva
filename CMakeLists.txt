@@ -665,6 +665,11 @@ INSTALL(
 	# The individual-packaging helpers, so an out-of-tree consumer's find_package(Geneva) exposes
 	# GENEVA_ADD_INDIVIDUAL_MODULE / GENEVA_DECLARE_INDIVIDUAL (GenevaConfig.cmake includes this file).
 	${PROJECT_SOURCE_DIR}/CMakeModules/GenevaIndividualModule.cmake
+	# The config-materialization helper (GENEVA_MATERIALIZE_CONFIGS) and the quiet-run script it drives,
+	# so an out-of-tree consumer materializes its configs from code defaults the same way the in-tree
+	# examples do (GenevaConfig.cmake includes the former; the latter must sit next to it).
+	${PROJECT_SOURCE_DIR}/CMakeModules/GenevaConfigMaterialization.cmake
+	${PROJECT_SOURCE_DIR}/CMakeModules/GenevaRunQuiet.cmake
 	DESTINATION ${GENEVA_INSTALL_CMAKEDIR}
 )
 
