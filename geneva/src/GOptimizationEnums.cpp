@@ -239,35 +239,6 @@ std::istream &operator>>(std::istream &i, Gem::Geneva::infoMode &im) {
 
 /******************************************************************************/
 /**
- * Puts a Gem::Geneva::adaptorId item into a stream
- *
- * @param o The ostream the item should be added to
- * @param aid the item to be added to the stream
- * @return The std::ostream object used to add the item to
- */
-std::ostream &operator<<(std::ostream &o, const Gem::Geneva::adaptorId &aid) {
-    auto tmp = std::to_underlying(aid);
-    o << tmp;
-    return o;
-}
-
-/******************************************************************************/
-/**
- * Reads a Gem::Geneva::adaptorId item from a stream
- *
- * @param i The stream the item should be read from
- * @param aid The item read from the stream
- * @return The std::istream object used to read the item from
- */
-std::istream &operator>>(std::istream &i, Gem::Geneva::adaptorId &aid) {
-    Gem::Common::ENUMBASETYPE tmp = 0;
-    i >> tmp;
-    aid = static_cast<Gem::Geneva::adaptorId>(tmp);
-    return i;
-}
-
-/******************************************************************************/
-/**
  * Puts a Gem::Geneva::sortingMode item into a stream
  *
  * @param o The ostream the item should be added to
@@ -292,35 +263,6 @@ std::istream &operator>>(std::istream &i, Gem::Geneva::sortingMode &smode) {
     Gem::Common::ENUMBASETYPE tmp = 0;
     i >> tmp;
     smode = static_cast<Gem::Geneva::sortingMode>(tmp);
-    return i;
-}
-
-/******************************************************************************/
-/**
- * Puts a Gem::Geneva::sortingModeMP item into a stream
- *
- * @param o The ostream the item should be added to
- * @param smode the item to be added to the stream
- * @return The std::ostream object used to add the item to
- */
-std::ostream &operator<<(std::ostream &o, const Gem::Geneva::sortingModeMP &smode) {
-    auto tmp = std::to_underlying(smode);
-    o << tmp;
-    return o;
-}
-
-/******************************************************************************/
-/**
- * Reads a Gem::Geneva::sortingModeMP item from a stream
- *
- * @param i The stream the item should be read from
- * @param smode The item read from the stream
- * @return The std::istream object used to read the item from
- */
-std::istream &operator>>(std::istream &i, Gem::Geneva::sortingModeMP &smode) {
-    Gem::Common::ENUMBASETYPE tmp = 0;
-    i >> tmp;
-    smode = static_cast<Gem::Geneva::sortingModeMP>(tmp);
     return i;
 }
 

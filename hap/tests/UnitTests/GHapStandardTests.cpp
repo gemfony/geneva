@@ -90,3 +90,34 @@ TEST_CASE("GHap factory exposes supply-health counters", "[hap][standard]") {
     const std::uint64_t t2 = factory->getNGetTimeouts();
     REQUIRE(t2 >= t1);
 }
+
+// Regression (2026-07-18): setNProducerThreads() must record the new count even when the producer
+// threads are already running. On the unfixed code the started-threads branch launched the missing
+// threads but never stored the new count, so the getter kept the stale value and every subsequent
+// grow request re-computed its delta from that stale count, silently spawning duplicate producers.
+TEST_CASE("GHap setNProducerThreads keeps its count in step with the running pool", "[hap][standard]") {
+    auto factory = Gem::Hap::randomFactory();
+
+    // Ensure the producer threads are running (they start lazily on the first draw).
+    bool got = false;
+    for(int i = 0; i < 100 && not got; ++i) {
+        if(auto p = factory->getNewRandomContainer()) { got = true; }
+    }
+    REQUIRE(got);
+
+    const std::uint16_t before = factory->getNProducerThreads();
+    REQUIRE(before > 0);
+
+    // Grow the running pool: the stored count must follow the request.
+    const auto target = static_cast<std::uint16_t>(before + 2);
+    factory->setNProducerThreads(target);
+    REQUIRE(factory->getNProducerThreads() == target);
+
+    // Repeating the same request is a no-op (the delta is computed from the CURRENT pool size).
+    factory->setNProducerThreads(target);
+    REQUIRE(factory->getNProducerThreads() == target);
+
+    // A decrease while threads run is refused (warning) and leaves the count unchanged.
+    factory->setNProducerThreads(1);
+    REQUIRE(factory->getNProducerThreads() == target);
+}

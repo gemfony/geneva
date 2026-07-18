@@ -30,7 +30,6 @@
 #include "geneva/GenevaHelperFunctions.hpp"
 #include "common/GExceptions.hpp"
 #include "common/GLogger.hpp"
-#include "courtier/GProcessingContainerT.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/ind/GOptimizableEntity.hpp"
 #include <cstddef>

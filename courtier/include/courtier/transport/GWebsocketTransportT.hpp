@@ -51,6 +51,7 @@
 #include <boost/asio/executor_work_guard.hpp>
 #include <boost/asio/post.hpp>
 #include <boost/asio/steady_timer.hpp>
+#include <boost/asio/strand.hpp>
 #include <boost/asio/thread_pool.hpp>
 #include <boost/beast/core.hpp>
 #include <boost/beast/websocket.hpp>
@@ -387,10 +388,11 @@ private:
                     << "This will terminate the client." << '\n'
                     << GLOGGING;
 
-            // Give the audience a hint why we are terminating
+            // Give the audience a hint why we are terminating, and close the underlying TCP
+            // socket (the connect succeeded, only the websocket handshake failed) so nothing
+            // keeps io_context::run() from draining.
             close_code_ = boost::beast::websocket::close_code::going_away;
-
-            // This will terminate the client
+            do_close(close_code_);
             return;
         }
 
@@ -430,6 +432,11 @@ private:
             }
             close_code_ = boost::beast::websocket::close_code::going_away;
             writing_ = false;
+            // Tear the connection down: without this the halt timer keeps re-arming (the base
+            // halt() condition never becomes true on a transport error) and io_context::run()
+            // never drains -- the client would hang instead of terminating. A repeated
+            // do_close() during shutdown (ec == operation_aborted) is a no-op.
+            do_close(close_code_);
             return;
         }
 
@@ -462,15 +469,19 @@ private:
                         << GLOGGING;
             }
             close_code_ = boost::beast::websocket::close_code::going_away;
+            // Tear the connection down so io_context::run() drains (see when_written()); a
+            // repeated do_close() during shutdown (ec == operation_aborted) is a no-op.
+            do_close(close_code_);
             return;
         }
 
         // Handle the message: a COMPUTE item is moved to the compute pool (so the io thread stays free
         // to service pings while the -- possibly long -- evaluation runs); lighter commands (NODATA)
-        // are answered directly. Then re-arm the read so exactly one read stays outstanding.
+        // are answered directly. Then re-arm the read so exactly one read stays outstanding --
+        // unless handle_message() shut the connection down (fatal decode failure / bad command).
         handle_message();
 
-        if(not this->halt()) {
+        if(not this->halt() && ws_.is_open()) {
             async_start_read();
         }
     }
@@ -499,6 +510,7 @@ private:
                     << "The client will shut down." << '\n'
                     << GWARNING;
             close_code_ = boost::beast::websocket::close_code::internal_error;
+            do_close(close_code_); // actually shut down: cancel the timers and close the stream
             return;
         }
 
@@ -538,6 +550,7 @@ private:
                     << "The client will shut down." << '\n'
                     << GWARNING;
             close_code_ = boost::beast::websocket::close_code::internal_error;
+            do_close(close_code_); // actually shut down: cancel the timers and close the stream
             break;
         }
     }
@@ -657,6 +670,7 @@ private:
                     << "The client will shut down." << '\n'
                     << GWARNING;
             close_code_ = boost::beast::websocket::close_code::internal_error;
+            do_close(close_code_); // actually shut down: cancel the timers and close the stream
         }
     }
 

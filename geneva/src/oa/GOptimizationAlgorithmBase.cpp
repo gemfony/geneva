@@ -43,7 +43,6 @@
 #include "common/GSerializationHelperFunctionsT.hpp"
 #include "courtier/GCourtierEnums.hpp"
 #include "courtier/GExecutorStatusT.hpp"
-#include "courtier/GProcessingContainerT.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/GPostProcessorT.hpp"
 #include "geneva/GenevaHelperFunctions.hpp"
@@ -72,147 +71,6 @@ namespace Gem::Geneva::OptimizationAlgorithms {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
-	 * Searches for compliance with expectations with respect to another object
-	 * of the same type
-	 *
-	 * @param cp A constant reference to another GBasePluggableOM object
-	 * @param e The expected outcome of the comparison
-	 * @param limit The maximum deviation for floating point values (important for similarity checks)
-	 */
-void GBasePluggableOM::compare_(
-    const GBasePluggableOM &cp,
-    const Gem::Common::expectation &e,
-    [[maybe_unused]] const double & limit
-) const {
-    using namespace Gem::Common;
-
-    // Check that we are dealing with a GBasePluggableOM reference independent of this object and convert the pointer
-    const auto *p_load =
-        Gem::Common::g_convert_and_compare<GBasePluggableOM, GBasePluggableOM>(cp, this);
-
-    GToken token("GBasePluggableOM", e);
-
-    // Compare our parent data ...
-    Gem::Common::compare_base_t<Gem::Common::GCommonInterfaceT<GBasePluggableOM>>(*this, *p_load, token);
-
-    // ... and then our local data, derived from the single localMembers() declaration
-    g_compare_members(this->localMembers_(), p_load->localMembers_(), token);
-
-    // React on deviations from the expectation
-    token.evaluate();
-}
-
-/******************************************************************************/
-/**
- * @brief Allows to set the use_raw_evaluation_ variable
- *
- * @param use_raw If true, the monitor reports raw (untransformed) fitness values instead of transformed ones
- */
-void GBasePluggableOM::setUseRawEvaluation(bool use_raw) {
-    use_raw_evaluation_ = use_raw;
-}
-
-/******************************************************************************/
-/**
- * @brief Allows to retrieve the value of the use_raw_evaluation_ variable
- *
- * @return True if the monitor reports raw (untransformed) fitness values, false if it reports transformed ones
- */
-bool GBasePluggableOM::getUseRawEvaluation() const {
-    return use_raw_evaluation_;
-}
-
-/******************************************************************************/
-/**
- * @brief Access to information about the current iteration. This is a wrapper
- * function to avoid public virtual.
- *
- * @param im The information mode (INFOINIT, INFOPROCESSING or INFOEND) describing the optimization phase
- * @param goa A pointer to the optimization algorithm currently being monitored (not owned)
- */
-void GBasePluggableOM::informationFunction(
-    infoMode im,
-    GOptimizationAlgorithmBase const *const goa
-) {
-    informationFunction_(im, goa);
-}
-
-/******************************************************************************/
-/**
- * @brief Loads the data of another object
- *
- * @param cp A pointer to another GBasePluggableOM object, camouflaged as a GBasePluggableOM (not owned)
- */
-void GBasePluggableOM::load_(const GBasePluggableOM *cp) {
-    // Check that we are dealing with a GBasePluggableOM reference independent of this object and convert the pointer
-    const auto *p_load =
-        Gem::Common::g_convert_and_compare<GBasePluggableOM, GBasePluggableOM>(cp, this);
-
-    // This is the category root; there is no GObject parent class to load.
-
-    // Our own data, derived from the single localMembers() declaration
-    Gem::Common::g_load_members(this->localMembers_(), p_load->localMembers_());
-}
-
-/******************************************************************************/
-/**
- * @brief Applies modifications to this object. This is needed for testing purposes
- *
- * @return A boolean which indicates whether modifications were made
- */
-bool GBasePluggableOM::modify_GUnitTests_() {
-#ifdef GEM_TESTING
-    bool result = false;
-
-    // This is the category root; there is no modifiable parent class.
-
-    this->setUseRawEvaluation(!this->getUseRawEvaluation());
-    result = true;
-
-    return result;
-
-#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-    Gem::Common::condnotset("GBasePluggableOM", "GEM_TESTING");
-    return false;
-#endif                  /* GEM_TESTING */
-}
-
-/******************************************************************************/
-/**
- * @brief Performs self tests that are expected to succeed. This is needed for testing purposes
- */
-void GBasePluggableOM::specificTestsNoFailureExpected_GUnitTests_() {
-#ifdef GEM_TESTING
-    // This is the category root; there is no parent class to test.
-
-#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-    Gem::Common::condnotset(
-        "GBasePluggableOM::specificTestsNoFailureExpected_GUnitTests",
-        "GEM_TESTING"
-    );
-#endif                  /* GEM_TESTING */
-}
-
-/******************************************************************************/
-/**
- * @brief Performs self tests that are expected to fail. This is needed for testing purposes
- */
-void GBasePluggableOM::specificTestsFailuresExpected_GUnitTests_() {
-#ifdef GEM_TESTING
-    // This is the category root; there is no parent class to test.
-
-#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-    Gem::Common::condnotset(
-        "GBasePluggableOM::specificTestsFailuresExpected_GUnitTests",
-        "GEM_TESTING"
-    );
-#endif                  /* GEM_TESTING */
-}
-
-/******************************************************************************/
-////////////////////////////////////////////////////////////////////////////////
-/******************************************************************************/
-/**
  * The copy constructor. There is no per-algorithm executor or consumer to copy: every
  * algorithm submits to the process-wide consumer held in GConsumerRegistry.
  *
@@ -220,43 +78,20 @@ void GBasePluggableOM::specificTestsFailuresExpected_GUnitTests_() {
  */
 GOptimizationAlgorithmBase::GOptimizationAlgorithmBase(const GOptimizationAlgorithmBase &cp)
   : Gem::Common::GCommonInterfaceT<GOptimizationAlgorithmBase>(cp)
-  , Gem::Common::GUniquePtrContainerT<gen::GOptimizableEntity>(cp)
-  , iteration_(cp.iteration_)
-  , offset_(DEFAULTOFFSET)
-  , min_iteration_(cp.min_iteration_)
-  , max_iteration_(cp.max_iteration_)
-  , max_stall_iteration_(cp.max_stall_iteration_)
-  , report_iteration_(cp.report_iteration_)
-  , n_recordbest_global_individuals_(cp.n_recordbest_global_individuals_)
-  , best_global_individuals_pq_(cp.best_global_individuals_pq_)
-  , best_iteration_individuals_pq_(cp.best_iteration_individuals_pq_)
-  , default_population_size_(cp.default_population_size_)
-  , best_known_primary_fitness_(cp.best_known_primary_fitness_)
-  , best_current_primary_fitness_(cp.best_current_primary_fitness_)
-  , stall_counter_(cp.stall_counter_)
-  , stall_counter_threshold_(cp.stall_counter_threshold_)
-  , cp_interval_(cp.cp_interval_)
-  , cp_base_name_(cp.cp_base_name_)
-  , cp_directory_path_(cp.cp_directory_path_)
-  , cp_last_(cp.cp_last_)
-  , cp_remove_(cp.cp_remove_)
-  , cp_serialization_mode_(cp.cp_serialization_mode_)
-  , quality_threshold_(cp.quality_threshold_)
-  , has_quality_threshold_(cp.has_quality_threshold_)
-  , max_duration_(cp.max_duration_)
-  , min_duration_(cp.min_duration_)
-  , termination_file_(cp.termination_file_)
-  , terminate_on_file_modification_(cp.terminate_on_file_modification_)
-  , emit_termination_reason_(cp.emit_termination_reason_)
-  , worst_known_valids_cnt_(cp.worst_known_valids_cnt_) {
-    // Copy atomics over
-    halted_.store(cp.halted_.load());
+  , Gem::Common::GUniquePtrContainerT<gen::GOptimizableEntity>(cp) {
+    // All local data is copied from the single localMembers_() declaration -- the same
+    // machinery load_() uses -- so this constructor cannot drift from the member list:
+    // plain members are assigned, the cloneable monitor container is deep-cloned and the
+    // atomic halted_ is transferred via .store(.load()).
+    Gem::Common::g_load_members(this->localMembers_(), cp.localMembers_());
 
-    // Copy the pluggable optimization monitors over (if any)
-    Gem::Common::copyCloneableSmartPointerContainer(
-        cp.pluggable_monitors_cnt_,
-        pluggable_monitors_cnt_
-    );
+    // best_iteration_individuals_pq_ is transient (per iteration) and deliberately not part
+    // of localMembers_(); it is copied in memory here, mirroring load_().
+    best_iteration_individuals_pq_ = cp.best_iteration_individuals_pq_;
+
+    // A copied algorithm starts a NEW run: its iteration offset reverts to the default
+    // instead of inheriting a checkpoint-resume offset from the source.
+    offset_ = DEFAULTOFFSET;
 }
 
 /******************************************************************************/
@@ -1195,9 +1030,12 @@ double GOptimizationAlgorithmBase::getLateReturnCapFactor() const {
  * @return The best raw and transformed fitness found so far
  */
 std::tuple<double, double> GOptimizationAlgorithmBase::getBestKnownPrimaryFitness() const {
-    return (best_global_individuals_pq_.best())->getFitnessTuple();
-
-    // return best_known_primary_fitness_;
+    // The single source of the best-known fitness: the same member the stall counter and the
+    // quality-threshold halt use (serialized, initialized to the worst case at optimization
+    // start). Reading the best-individuals priority queue here instead would create a second
+    // source of truth -- and throw on an empty queue (e.g. for a checkpoint file name written
+    // before the first iteration completes).
+    return best_known_primary_fitness_;
 }
 
 /******************************************************************************/
@@ -1605,14 +1443,13 @@ void GOptimizationAlgorithmBase::load_(const GOptimizationAlgorithmBase *cp) {
 
 /******************************************************************************/
 /**
-	 * Delegation of work to be performed to the private executor object. Note that
-	 * the return values "is_complete" and "has_errors" may both be true, i.e. all items
-	 * may have returned, but there were errors in some or all of them. The function
-	 * will also make the executor use this objects iteration counter.
+	 * Submits the sub-range [start, end) of @p work_items to the one process-wide consumer for
+	 * evaluation. Note that the returned "is_complete" and "has_errors" may both be true, i.e. all
+	 * items may have returned, but there were errors in some or all of them.
 	 *
-	 * @param work_items The set of work items to be processed
-	 * @param resubmit_unprocessed Indicates whether unprocessed work items should be resubmitted after a timeout
-	 * @param caller The name of the caller (used for error messages and logs)
+	 * @param work_items The work-item vector whose sub-range is submitted (reconciled in place)
+	 * @param start The (inclusive) start index of the range to evaluate
+	 * @param end The (exclusive) end index of the range to evaluate
 	 * @return A struct which indicates whether all items have returned ("is_complete") and whether there were errors ("has_errors")
 	 */
 Gem::Courtier::executor_status_t GOptimizationAlgorithmBase::workOn(
@@ -1620,9 +1457,69 @@ Gem::Courtier::executor_status_t GOptimizationAlgorithmBase::workOn(
     std::size_t start,
     std::size_t end
 ) {
-    // All submission goes through courtier's span+policy path. init() guarantees a courtier routing
-    // is selected (an injected broker, a chosen local kind, or the multithreaded default).
+    // All submission goes through courtier's span+policy path. init() guarantees the process
+    // consumer is established (registered explicitly, or the lazily-built local default).
     return this->workOnViaConsumer_(work_items, start, end);
+}
+
+/******************************************************************************/
+/**
+ * Enforces the "need-all" evaluation policy after a submission (see the header).
+ *
+ * @param status The executor status returned by the submission
+ * @param caller The calling function's name, used in the error message
+ */
+void GOptimizationAlgorithmBase::requireCompleteEvaluation_(
+    const Gem::Courtier::executor_status_t &status,
+    const std::string &caller
+) const {
+    if(not status.is_complete || status.has_errors) {
+        throw geneva_exception(
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+            << "In " << caller << ": Error!" << '\n'
+            << "No complete set of items received or errors found in some individuals"
+            << '\n'
+        );
+    }
+}
+
+/******************************************************************************/
+/**
+ * Applies the "tolerant" evaluation policy after a submission (see the header): individuals that a
+ * partial or errored return left unusable -- still flagged DO_PROCESS, or error-flagged -- are
+ * erased from the population.
+ *
+ * @param status The executor status returned by the submission
+ */
+void GOptimizationAlgorithmBase::discardUnusableItems_(
+    const Gem::Courtier::executor_status_t &status,
+    [[maybe_unused]] const std::string &caller
+) {
+    if(not status.is_complete) {
+        [[maybe_unused]] const std::size_t n_erased =
+            std::erase_if(data_cnt_, [](const std::unique_ptr<gen::GOptimizableEntity> &p) -> bool {
+                return (p->getProcessingStatus() == Gem::Courtier::processingStatus::DO_PROCESS);
+            });
+
+#ifdef DEBUG
+        glogger << "In " << caller << ": " << '\n'
+                << "Removed " << n_erased << " unprocessed work items in iteration "
+                << this->getIteration() << '\n'
+                << GLOGGING;
+#endif
+    }
+
+    if(status.has_errors) {
+        [[maybe_unused]] const std::size_t n_erased =
+            std::erase_if(data_cnt_, [](const auto &p) -> bool { return p->has_errors(); });
+
+#ifdef DEBUG
+        glogger << "In " << caller << ": " << '\n'
+                << "Removed " << n_erased << " erroneous work items in iteration "
+                << this->getIteration() << '\n'
+                << GLOGGING;
+#endif
+    }
 }
 
 /******************************************************************************/

@@ -37,34 +37,6 @@ namespace Gem::Common {
 
 /******************************************************************************/
 /**
- * Puts a Gem::Common::parameter_source into a stream. Needed for streaming / Gem::Common::fromString<>
- *
- * @param o The output stream to write to
- * @param x The parameter_source value to write
- * @return The output stream, to allow chaining
- */
-std::ostream &operator<<(std::ostream &o, Gem::Common::parameter_source const &x) {
-    o << std::to_underlying(x);
-    return o;
-}
-
-/******************************************************************************/
-/**
- * Reads a Gem::Common::parameter_source item from a stream. Needed for streaming / Gem::Common::fromString<>
- *
- * @param i The input stream to read from
- * @param x Output parameter: receives the parameter_source value read from the stream
- * @return The input stream, to allow chaining
- */
-std::istream &operator>>(std::istream &i, Gem::Common::parameter_source &x) {
-    Gem::Common::ENUMBASETYPE tmp = 0;
-    i >> tmp;
-    x = static_cast<Gem::Common::parameter_source>(tmp);
-    return i;
-}
-
-/******************************************************************************/
-/**
  * Puts a Gem::Common::sortOrder into a stream. Needed for streaming / Gem::Common::fromString<>
  *
  * @param o The output stream to write to

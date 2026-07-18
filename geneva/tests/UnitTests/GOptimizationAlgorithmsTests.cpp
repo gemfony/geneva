@@ -1538,3 +1538,80 @@ TEST_CASE("ea NSGA-II Pareto selection spreads the survivors across the front", 
     CHECK(spread > 16.0); // near-full coverage of the 20-wide front (boundary retention), not a cluster
     CHECK(hv > 200.0);    // converged AND spread (a clustered/unconverged front falls well below this)
 }
+
+/******************************************************************************/
+
+TEST_CASE("OA base copy preserves every configuration knob (copy ctor vs localMembers_)", "[flat][oa]") {
+    using Gem::Common::expectation;
+
+    // Regression (2026-07-18): the hand-written member-by-member copy constructor of
+    // GOptimizationAlgorithmBase had drifted from the localMembers_() single source -- clones silently
+    // lost n_threads_, late_return_ttl_ and late_return_cap_factor_ (e.g. a Go2-configured algorithm
+    // cloned into a run reverted those knobs to defaults). The ctor now copies THROUGH localMembers_(),
+    // so any future member joins the copy automatically. Pin non-default values across a copy.
+    auto pop = std::make_shared<oa::GEvolutionaryAlgorithm>();
+    pop->setNThreads(7);
+    pop->setLateReturnTTL(1234);
+    pop->setLateReturnCapFactor(2.5);
+    pop->setMaxIteration(999);
+
+    auto copy = std::make_shared<oa::GEvolutionaryAlgorithm>(*pop);
+
+    // The formerly-dropped knobs travel with the copy ...
+    CHECK(copy->getNThreads() == 7);
+    CHECK(copy->getLateReturnTTL() == 1234);
+    CHECK(copy->getLateReturnCapFactor() == 2.5);
+    CHECK(copy->getMaxIteration() == 999);
+
+    // ... and the copy compares EQUAL on the full localMembers_-driven state.
+    CHECK_NOTHROW(pop->compare(*copy, expectation::EQUALITY, 0.));
+}
+
+/******************************************************************************/
+
+TEST_CASE("EA global-sigma controller resumes its evolved sigma from a checkpoint", "[flat][oa]") {
+    using Gem::Geneva::Genome::AUXKEY_GAUSS_DOUBLE;
+    using Gem::Geneva::Genome::GaussState;
+
+    // Regression (2026-07-18): under ONE_FIFTH / CSA the single global sigma is pushed into every
+    // slot's scratch each generation and therefore checkpoints with the population -- but on resume
+    // installStepController() skipped its seeding block for a resumed run, leaving global_sigma_
+    // at the fresh-start 1.0. A long-evolved small step size snapped back to 1.0 on every resume.
+    // The controller must instead seed from the (restored) scratch. Deterministic pin: seed a
+    // distinctive sigma, checkpoint, resume for exactly ONE generation (the controller's warm-up
+    // generation applies no update, only the write-back), and expect the seeded sigma -- not 1.0 --
+    // in the resumed slots.
+    namespace gind = Gem::Geneva::Individuals;
+    const std::vector<std::tuple<double, double>> data_points{{0., 0.}, {1., 1.}, {2., 2.}};
+
+    auto pop = std::make_shared<oa::GEvolutionaryAlgorithm>();
+    pop->setStepControl(oa::stepControl::ONE_FIFTH); // serialized; travels with the checkpoint
+    pop->push_back(gind::GLineFitIndividual(data_points).clone_unique());
+
+    auto &ind0 = pop->at(0);
+    auto cfg = dynamic_cast<gind::GLineFitIndividual &>((*ind0)).getAdaptionConfig();
+    cfg->installInto(ind0->scratch());
+    constexpr double evolved_sigma = 0.123456; // stands in for a long-evolved global step size
+    oa::writeGlobalSigma(ind0->scratch(), *cfg, evolved_sigma);
+    REQUIRE(oa::readRepresentativeSigma(ind0->scratch(), *cfg, -1.) == evolved_sigma);
+
+    const std::filesystem::path cp =
+        std::filesystem::temp_directory_path() / "checkpoint-PERSONALITY_EA-globalsigmatest.cp";
+    pop->toFile(cp, pop->getCheckpointSerializationMode());
+
+    auto resumed = std::make_shared<oa::GEvolutionaryAlgorithm>();
+    resumed->loadCheckpoint(cp); // sets the resume marker; slots carry the evolved scratch
+    resumed->setPopulationSizes(18, 6);
+    resumed->setMaxIteration(1); // exactly one (warm-up) generation: write-back only, no sigma update
+    resumed->setReportIteration(100000);
+    resumed->setAdaptionConfig(
+        dynamic_cast<gind::GLineFitIndividual &>((*resumed->at(0))).getAdaptionConfig());
+    resumed->optimize();
+
+    // The slot scratch is deliberately cleared at the algorithm boundary (resetIndividualPersonalities),
+    // so the observable is the controller's own state: the resumed run's global sigma must be the
+    // checkpointed evolved sigma (its warm-up generation applies no update). Pre-fix it reads ~1.0.
+    CHECK(std::abs(resumed->getGlobalSigma() - evolved_sigma) < 1e-9);
+
+    std::filesystem::remove(cp);
+}

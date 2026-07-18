@@ -252,142 +252,6 @@ constexpr bool GCL_IMPLICIT_NOT_ALLOWED = false;
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * Allows to store values for a single entity from different sources, such
- * as command line, configuration files or environment variables. The enum class
- * parameter_source holds the available parameter sources. These sources are
- * grouped in the order "network", "command line", "environment variable",
- * "configuration file" and "assignment".
- *
- * @tparam parameter_type The type of the stored parameter value
- */
-template <typename parameter_type>
-class GMultiSourceParameterT {
-    ///////////////////////////////////////////////////////////////////////
-    friend class boost::serialization::access;
-
-    template <typename Archive>
-    void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
-        using boost::serialization::make_nvp;
-
-        ar &BOOST_SERIALIZATION_NVP(default_value_) & BOOST_SERIALIZATION_NVP(parameter_values_);
-    }
-    ///////////////////////////////////////////////////////////////////////
-
-public:
-    /***************************************************************************/
-    /**
-	  * Construction with a default value
-	  *
-	  * @param default_value The value returned by value() when none of the
-	  * registered sources has set a value
-	  */
-    explicit GMultiSourceParameterT(parameter_type default_value)
-      : default_value_(default_value) { /* nothing */
-    }
-
-    /***************************************************************************/
-    // Defaulted constructors. destructors and assignment operators
-
-    GMultiSourceParameterT(GMultiSourceParameterT<parameter_type> const &cp) = default;
-    GMultiSourceParameterT(GMultiSourceParameterT<parameter_type> &&cp) noexcept = default;
-    GMultiSourceParameterT<parameter_type> &
-    operator=(GMultiSourceParameterT<parameter_type> const &cp) = default;
-    GMultiSourceParameterT<parameter_type> &
-    operator=(GMultiSourceParameterT<parameter_type> &&cp) noexcept = default;
-    ~GMultiSourceParameterT() = default;
-
-    /***************************************************************************/
-    /**
-	  * Allows to set the value associated with a given data source
-	  *
-	  * @param data_source The source (command line, environment, config file, ...) the value originates from
-	  * @param parameter_value The value to store for that source
-	  */
-    void set(Gem::Common::parameter_source data_source, parameter_type parameter_value) {
-        parameter_values_.at(data_source) = parameter_value;
-    }
-
-    /***************************************************************************/
-    /**
-	  * Allows to check whether the value for a given data source was set
-	  *
-	  * @param data_source The source whose set-state should be queried
-	  * @return true if a value has been stored for the given source, false otherwise
-	  */
-    bool isSet(Gem::Common::parameter_source data_source) {
-        return parameter_values_.at(data_source).second;
-    }
-
-    /***************************************************************************/
-    /**
-	  * Retrieves the first stored value that has been set, in the order of
-	  * appearance in parameter_values_, or alternatively the default value,
-	  * if the value was not set from any source.
-	  *
-	  * @return The first source value that was set, or the default value if none was set
-	  */
-    parameter_type value() const {
-        for(auto const &v_pair : parameter_values_) {
-            if(v_pair.second) { // Value was set
-                return *v_pair.second;
-            }
-
-            // Not set -- continue loop
-        }
-
-        // Nothing found
-        return default_value_;
-    }
-
-    /***************************************************************************/
-    /**
-	  * Returns the value stored for a given data source. The function will throw
-	  * when called for a parameter source not listed in parameter_values_.
-	  *
-	  * @param data_source The source whose stored value should be retrieved
-	  * @return The value stored for the given source
-	  */
-    parameter_type value(Gem::Common::parameter_source data_source) {
-        return parameter_values_.at(data_source);
-    }
-
-    /***************************************************************************/
-    /**
-	  * Automatic conversion for constant callers
-	  *
-	  * @return The effective value, as returned by value()
-	  */
-    operator parameter_type() const { // NOLINT
-        return value();
-    }
-
-private:
-    /***************************************************************************/
-    /**
-    * Default constructor -- Only needed for (de-)serialization purposes
-    */
-    GMultiSourceParameterT() = default;
-
-    /***************************************************************************/
-    // Data
-
-    parameter_type default_value_ =
-        parameter_type(nullptr); // The default value to be returned when all else fails
-
-    // Value retrieval will look at each entry of the map until it finds one that was set.
-    // If none was set, the default value will be returned
-    std::map<Gem::Common::parameter_source, std::optional<parameter_type>> parameter_values_{
-        {Gem::Common::parameter_source::NETWORK, std::optional<parameter_type>()},
-        {Gem::Common::parameter_source::COMMAND_LINE, std::optional<parameter_type>()},
-        {Gem::Common::parameter_source::ENVIRONMENT_VARIABLE, std::optional<parameter_type>()},
-        {Gem::Common::parameter_source::CONFIGURATION_FILE, std::optional<parameter_type>()},
-        {Gem::Common::parameter_source::ASSIGNMENT, std::optional<parameter_type>()}
-    };
-};
-/******************************************************************************/
-////////////////////////////////////////////////////////////////////////////////
-/******************************************************************************/
-/**
  * A manipulator object that allows to identify the id of the comment to be
  * added
  */
@@ -2398,10 +2262,13 @@ public:
     GParserBuilder &operator=(GParserBuilder const &) = delete;
     GParserBuilder &operator=(GParserBuilder &&) = delete;
 
-    /** @brief Reads and parses a configuration file, applying the values to the registered options. Optionally hands the parsed JSON document back via the second argument so callers can cache it.
+    /** @brief Reads and parses a configuration file, applying the values to the registered options. A
+     *  missing file is created from defaults (also a success). Optionally hands the parsed JSON document
+     *  back via the second argument so callers can cache it.
      *  @param config_file The path of the configuration file to read and parse
      *  @param captured Optional output pointer; if non-null, receives a copy of the parsed JSON document for caching
-     *  @return true if the file already existed and was parsed, false if it had to be created from defaults */
+     *  @return true on success (the file was parsed, or a missing one was created from its defaults);
+     *          false if an error occurred (the exception is logged and swallowed) */
     bool parseConfigFile(std::filesystem::path const &config_file, boost::json::value *captured = nullptr);
     /** @brief Applies an already-parsed configuration document to the registered options (no file access); runs the optional unknown-key diagnostic.
      *  @param root The already-parsed JSON document to apply to the registered options
@@ -2426,7 +2293,8 @@ public:
      *  because it targets exactly the file it was given.
      *  @param config_file The path of the configuration file to update in place
      *  @param header An optional header comment; empty uses the standard auto-created header
-     *  @return true if the file already existed (and was updated), false if it had to be created from defaults */
+     *  @return true on success (the file was updated, or a missing one was created from its defaults);
+     *          false if an error occurred (the exception is logged and swallowed) */
     bool updateConfigFile(std::filesystem::path const &config_file, std::string const &header = "");
     /** @brief Globally enables/disables update-in-place: when enabled, every successful parseConfigFile() that
      *  read an existing file also rewrites it in canonical form (mirrors setCheckUnknownKeys). Call once at startup.
@@ -2546,37 +2414,18 @@ public:
         std::string const &comment = std::string()
     ) {
 #ifdef DEBUG
-        auto it = std::ranges::find_if(
-            file_parameter_proxies_,
-            [&](std::shared_ptr<GFileParsableI> const &candidate_ptr) {
-                return (candidate_ptr->GParsableI::optionName(0) == option_name);
-            }
-        );
-        if(it != file_parameter_proxies_.end()) {
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GParserBuilder::registerFileParameter(single_parm_ptr): Error!" << '\n'
-                << "Parameter " << option_name << " has already been registered" << '\n'
-            );
-        }
+        assertNotRegistered_(option_name, file_parameter_proxies_, "registerFileParameter(single_parm_ptr)");
 #endif /* DEBUG */
 
-        std::shared_ptr<GFileSingleParsableParameterT<parameter_type>> single_parm_ptr;
-
-        if(comment.empty()) {
-            single_parm_ptr = std::make_shared<GFileSingleParsableParameterT<parameter_type>>(
-                option_name,
-                def_val
-            );
-        }
-        else {
-            single_parm_ptr = std::make_shared<GFileSingleParsableParameterT<parameter_type>>(
-                option_name,
-                comment,
-                is_essential,
-                def_val
-            );
-        }
+        // Always route through the full constructor: the comment may legitimately be empty, but the
+        // caller's is_essential choice must never be dropped (the comment-less constructor hardcodes
+        // VAR_IS_ESSENTIAL, which used to silently mark comment-less SECONDARY parameters essential).
+        auto single_parm_ptr = std::make_shared<GFileSingleParsableParameterT<parameter_type>>(
+            option_name,
+            comment,
+            is_essential,
+            def_val
+        );
 
         single_parm_ptr->registerCallBackFunction(std::move(call_back));
 
@@ -2606,39 +2455,18 @@ public:
         std::string const &comment = std::string()
     ) {
 #ifdef DEBUG
-        auto it = std::ranges::find_if(
-            file_parameter_proxies_,
-            [&](std::shared_ptr<GFileParsableI> const &candidate_ptr) {
-                return (candidate_ptr->GParsableI::optionName(0) == option_name);
-            }
-        );
-        if(it != file_parameter_proxies_.end()) {
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GParserBuilder::registerFileParameter(ref_parm_ptr): Error!" << '\n'
-                << "Parameter " << option_name << " has already been registered" << '\n'
-            );
-        }
+        assertNotRegistered_(option_name, file_parameter_proxies_, "registerFileParameter(ref_parm_ptr)");
 #endif /* DEBUG */
 
-        std::shared_ptr<GFileReferenceParsableParameterT<parameter_type>> ref_parm_ptr;
-
-        if(comment.empty()) {
-            ref_parm_ptr = std::make_shared<GFileReferenceParsableParameterT<parameter_type>>(
-                parameter,
-                option_name,
-                def_val
-            );
-        }
-        else {
-            ref_parm_ptr = std::make_shared<GFileReferenceParsableParameterT<parameter_type>>(
-                parameter,
-                option_name,
-                comment,
-                is_essential,
-                def_val
-            );
-        }
+        // Always route through the full constructor -- see registerFileParameter(single_parm_ptr):
+        // an empty comment must not drop the caller's is_essential choice.
+        auto ref_parm_ptr = std::make_shared<GFileReferenceParsableParameterT<parameter_type>>(
+            parameter,
+            option_name,
+            comment,
+            is_essential,
+            def_val
+        );
 
         // Add to the proxy store
         file_parameter_proxies_.push_back(ref_parm_ptr);
@@ -2709,45 +2537,21 @@ public:
         std::string const &comment2 = std::string()
     ) {
 #ifdef DEBUG
-        // Check whether the option already exists
-        auto it = std::ranges::find_if(
-            file_parameter_proxies_,
-            [&](std::shared_ptr<GFileParsableI> const &candidate_ptr) {
-                return (candidate_ptr->GParsableI::optionName(0) == option_name1);
-            }
-        );
-        if(it != file_parameter_proxies_.end()) {
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GParserBuilder::registerFileParameter(comb_parm_ptr): Error!" << '\n'
-                << "Parameter " << option_name1 << " has already been registered" << '\n'
-            );
-        }
+        assertNotRegistered_(option_name1, file_parameter_proxies_, "registerFileParameter(comb_parm_ptr)");
 #endif /* DEBUG */
 
-        std::shared_ptr<GFileCombinedParsableParameterT<par_type1, par_type2>> comb_parm_ptr;
-
-        if(comment1.empty() && comment2.empty()) {
-            comb_parm_ptr = std::make_shared<GFileCombinedParsableParameterT<par_type1, par_type2>>(
-                option_name1,
-                def_val1,
-                option_name2,
-                def_val2,
-                combined_label
-            );
-        }
-        else {
-            comb_parm_ptr = std::make_shared<GFileCombinedParsableParameterT<par_type1, par_type2>>(
-                option_name1,
-                comment1,
-                def_val1,
-                option_name2,
-                comment2,
-                def_val2,
-                is_essential,
-                combined_label
-            );
-        }
+        // Always route through the full constructor -- see registerFileParameter(single_parm_ptr):
+        // empty comments must not drop the caller's is_essential choice.
+        auto comb_parm_ptr = std::make_shared<GFileCombinedParsableParameterT<par_type1, par_type2>>(
+            option_name1,
+            comment1,
+            def_val1,
+            option_name2,
+            comment2,
+            def_val2,
+            is_essential,
+            combined_label
+        );
 
         comb_parm_ptr->registerCallBackFunction(std::move(call_back));
 
@@ -2817,38 +2621,17 @@ public:
         std::string const &comment = std::string()
     ) {
 #ifdef DEBUG
-        // Check whether the option already exists
-        auto it = std::ranges::find_if(
-            file_parameter_proxies_,
-            [&](std::shared_ptr<GFileParsableI> const &candidate_ptr) {
-                return (candidate_ptr->GParsableI::optionName(0) == option_name);
-            }
-        );
-        if(it != file_parameter_proxies_.end()) {
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GParserBuilder::registerFileParameter(vec_parm_ptr): Error!" << '\n'
-                << "Parameter " << option_name << " has already been registered" << '\n'
-            );
-        }
+        assertNotRegistered_(option_name, file_parameter_proxies_, "registerFileParameter(vec_parm_ptr)");
 #endif /* DEBUG */
 
-        std::shared_ptr<GFileVectorParsableParameterT<parameter_type>> vec_parm_ptr;
-
-        if(comment.empty()) {
-            vec_parm_ptr = std::make_shared<GFileVectorParsableParameterT<parameter_type>>(
-                option_name,
-                def_val
-            );
-        }
-        else {
-            vec_parm_ptr = std::make_shared<GFileVectorParsableParameterT<parameter_type>>(
-                option_name,
-                comment,
-                def_val,
-                is_essential
-            );
-        }
+        // Always route through the full constructor -- see registerFileParameter(single_parm_ptr):
+        // an empty comment must not drop the caller's is_essential choice.
+        auto vec_parm_ptr = std::make_shared<GFileVectorParsableParameterT<parameter_type>>(
+            option_name,
+            comment,
+            def_val,
+            is_essential
+        );
 
         vec_parm_ptr->registerCallBackFunction(std::move(call_back));
 
@@ -2878,42 +2661,19 @@ public:
         std::string const &comment = std::string()
     ) {
 #ifdef DEBUG
-        // Check whether the option already exists
-        auto it = std::ranges::find_if(
-            file_parameter_proxies_,
-            [&](std::shared_ptr<GFileParsableI> const &candidate_ptr) {
-                return (candidate_ptr->GParsableI::optionName(0) == option_name);
-            }
-        );
-        if(it != file_parameter_proxies_.end()) {
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GParserBuilder::registerFileParameter(vec_ref_parm_ptr): Error!" << '\n'
-                << "Parameter " << option_name << " has already been registered" << '\n'
-            );
-        }
+        assertNotRegistered_(option_name, file_parameter_proxies_, "registerFileParameter(vec_ref_parm_ptr)");
 #endif /* DEBUG */
 
-        std::shared_ptr<GFileVectorReferenceParsableParameterT<parameter_type>> vec_ref_parm_ptr;
-
-        if(comment.empty()) {
-            vec_ref_parm_ptr =
-                std::make_shared<GFileVectorReferenceParsableParameterT<parameter_type>>(
-                    stored_reference,
-                    option_name,
-                    def_val
-                );
-        }
-        else {
-            vec_ref_parm_ptr =
-                std::make_shared<GFileVectorReferenceParsableParameterT<parameter_type>>(
-                    stored_reference,
-                    option_name,
-                    comment,
-                    def_val,
-                    is_essential
-                );
-        }
+        // Always route through the full constructor -- see registerFileParameter(single_parm_ptr):
+        // an empty comment must not drop the caller's is_essential choice.
+        auto vec_ref_parm_ptr =
+            std::make_shared<GFileVectorReferenceParsableParameterT<parameter_type>>(
+                stored_reference,
+                option_name,
+                comment,
+                def_val,
+                is_essential
+            );
 
         // Add to the proxy store
         file_parameter_proxies_.push_back(vec_ref_parm_ptr);
@@ -2979,38 +2739,19 @@ public:
         std::string const &comment = std::string()
     ) {
 #ifdef DEBUG
-        // Check whether the option already exists
-        auto it = std::ranges::find_if(
-            file_parameter_proxies_,
-            [&](std::shared_ptr<GFileParsableI> const &candidate_ptr) {
-                return (candidate_ptr->GParsableI::optionName(0) == option_name);
-            }
-        );
-        if(it != file_parameter_proxies_.end()) {
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GParserBuilder::registerFileParameter(array_parm_ptr): Error!" << '\n'
-                << "Parameter " << option_name << " has already been registered" << '\n'
-            );
-        }
+        assertNotRegistered_(option_name, file_parameter_proxies_, "registerFileParameter(array_parm_ptr)");
 #endif /* DEBUG */
 
         std::shared_ptr<GFileArrayParsableParameterT<parameter_type, N>> array_parm_ptr;
 
-        if(comment.empty()) {
-            array_parm_ptr = std::make_shared<GFileArrayParsableParameterT<parameter_type, N>>(
-                option_name,
-                def_val
-            );
-        }
-        else {
-            array_parm_ptr = std::make_shared<GFileArrayParsableParameterT<parameter_type, N>>(
-                option_name,
-                comment,
-                def_val,
-                is_essential
-            );
-        }
+        // Always route through the full constructor -- see registerFileParameter(single_parm_ptr):
+        // an empty comment must not drop the caller's is_essential choice.
+        array_parm_ptr = std::make_shared<GFileArrayParsableParameterT<parameter_type, N>>(
+            option_name,
+            comment,
+            def_val,
+            is_essential
+        );
 
         // Register the call back function
         array_parm_ptr->registerCallBackFunction(std::move(call_back));
@@ -3043,42 +2784,21 @@ public:
         std::string const &comment = std::string()
     ) {
 #ifdef DEBUG
-        // Check whether the option already exists
-        auto it = std::ranges::find_if(
-            file_parameter_proxies_,
-            [&](std::shared_ptr<GFileParsableI> const &candidate_ptr) {
-                return (candidate_ptr->GParsableI::optionName(0) == option_name);
-            }
-        );
-        if(it != file_parameter_proxies_.end()) {
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GParserBuilder::registerFileParameter(array_ref_parm_ptr): Error!" << '\n'
-                << "Parameter " << option_name << " has already been registered" << '\n'
-            );
-        }
+        assertNotRegistered_(option_name, file_parameter_proxies_, "registerFileParameter(array_ref_parm_ptr)");
 #endif /* DEBUG */
 
         std::shared_ptr<GFileArrayReferenceParsableParameterT<parameter_type, N>>
             array_ref_parm_ptr;
-        if(comment.empty()) {
-            array_ref_parm_ptr =
-                std::make_shared<GFileArrayReferenceParsableParameterT<parameter_type, N>>(
-                    stored_reference,
-                    option_name,
-                    def_val
-                );
-        }
-        else {
-            array_ref_parm_ptr =
-                std::make_shared<GFileArrayReferenceParsableParameterT<parameter_type, N>>(
-                    stored_reference,
-                    option_name,
-                    comment,
-                    def_val,
-                    is_essential
-                );
-        }
+        // Always route through the full constructor -- see registerFileParameter(single_parm_ptr):
+        // an empty comment must not drop the caller's is_essential choice.
+        array_ref_parm_ptr =
+            std::make_shared<GFileArrayReferenceParsableParameterT<parameter_type, N>>(
+                stored_reference,
+                option_name,
+                comment,
+                def_val,
+                is_essential
+            );
 
         // Add to the proxy store
         file_parameter_proxies_.push_back(array_ref_parm_ptr);
@@ -3145,21 +2865,7 @@ public:
         parameter_type impl_val = GDefaultValueT<parameter_type>::value()
     ) {
 #ifdef DEBUG
-        // Check whether the option already exists
-        auto it = std::ranges::find_if(
-            cl_parameter_proxies_,
-            [&](std::shared_ptr<GCLParsableI> const &candidate_ptr) {
-                return (candidate_ptr->GParsableI::optionName(0) == option_name);
-            }
-        );
-
-        if(it != cl_parameter_proxies_.end()) {
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GParserBuilder::registerCLParameter(ref_parm_ptr): Error!" << '\n'
-                << "Parameter " << option_name << " has already been registered" << '\n'
-            );
-        }
+        assertNotRegistered_(option_name, cl_parameter_proxies_, "registerCLParameter(ref_parm_ptr)");
 #endif /* DEBUG */
 
         std::shared_ptr<GCLReferenceParsableParameterT<parameter_type>> ref_parm_ptr;
@@ -3190,6 +2896,32 @@ public:
     }
 
 private:
+    /***************************************************************************/
+    /** @brief DEBUG-build helper shared by every registration overload: throws if an option of
+     *  the given name was already registered in @p proxies (formerly an identical 15-line
+     *  #ifdef DEBUG block per overload).
+     *  @tparam proxy_vector_type The proxy-vector type (file or command-line proxies)
+     *  @param option_name The (first) option name about to be registered
+     *  @param proxies The proxy store to check for a duplicate
+     *  @param caller The registering overload, used in the error message */
+    template <typename proxy_vector_type>
+    static void assertNotRegistered_(
+        std::string const &option_name,
+        proxy_vector_type const &proxies,
+        char const *caller
+    ) {
+        auto it = std::ranges::find_if(proxies, [&](auto const &candidate_ptr) {
+            return (candidate_ptr->GParsableI::optionName(0) == option_name);
+        });
+        if(it != proxies.end()) {
+            throw geneva_exception(
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+                << "In GParserBuilder::" << caller << ": Error!" << '\n'
+                << "Parameter " << option_name << " has already been registered" << '\n'
+            );
+        }
+    }
+
     /***************************************************************************/
 
     std::vector<std::shared_ptr<GFileParsableI>>

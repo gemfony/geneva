@@ -35,33 +35,17 @@
 // Standard headers go here
 
 #include <atomic>
-#include <cctype>
-#include <charconv>
 #include <chrono>
 #include <cstdint>
-#include <functional>
-#include <iostream>
 #include <memory>
-#include <sstream>
 #include <string>
-#include <string_view>
-#include <system_error>
-#include <type_traits>
-#include <vector>
 
 // Boost headers go here
-#include <boost/archive/text_iarchive.hpp>
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/archive/xml_iarchive.hpp>
-#include <boost/archive/xml_oarchive.hpp>
-#include <boost/asio.hpp>
-#include <boost/serialization/vector.hpp>
 
 // Geneva headers go here
 #include "common/GErrorStreamer.hpp"
 #include "common/GExceptions.hpp"
 #include "common/GLogger.hpp"
-#include "common/GSerializationHelperFunctionsT.hpp"
 #include "courtier/GCourtierEnums.hpp"
 #include "courtier/GProcessable.hpp"
 
@@ -294,121 +278,43 @@ protected:
 	  * @return A boolean indicating whether a halt condition was reached
 	  */
     bool halt() {
+        // The transports poll this once per second (halt timer), so the reason is logged only
+        // ONCE -- otherwise every poll after the condition triggers would repeat the line.
+        auto haltOnce = [this](const char *reason) {
+            if(not halt_logged_) {
+                halt_logged_ = true;
+                glogger << "Client is terminating because " << reason << '\n' << GLOGGING;
+            }
+            return true;
+        };
+
         // Has a terminal error been flagged?
         if(terminalErrorFlagged()) {
-            glogger << "Client is terminating because an unrecoverable error was flagged"
-                    << '\n'
-                    << GLOGGING;
-
-            return true;
+            return haltOnce("an unrecoverable error was flagged");
         }
 
         // Has the application been asked to shut down?
         if(closeRequested()) {
-            glogger << "Client is terminating because the application was asked to shut down"
-                    << '\n'
-                    << GLOGGING;
-
-            return true;
+            return haltOnce("the application was asked to shut down");
         }
 
         // Maximum number of processing steps reached ?
         if(process_max_ > 0 && (processed_ >= process_max_)) {
-            glogger << "Client is terminating because the maximum number of processing steps was "
-                       "exceeded"
-                    << '\n'
-                    << GLOGGING;
-
-            return true;
+            return haltOnce("the maximum number of processing steps was exceeded");
         }
 
         // Maximum duration reached ?
         if(max_duration_.count() > 0. &&
            ((std::chrono::high_resolution_clock::now() - start_time_) >= max_duration_)) {
-            glogger << "Client is terminating because the maximum time frame was exceeded"
-                    << '\n'
-                    << GLOGGING;
-
-            return true;
+            return haltOnce("the maximum time frame was exceeded");
         }
 
         // Custom halt condition reached ?
         if(customHalt()) {
-            glogger << "Client is terminating because custom halt condition has triggered"
-                    << '\n'
-                    << GLOGGING;
-
-            return true;
+            return haltOnce("a custom halt condition has triggered");
         }
 
         return false;
-    }
-
-    //---------------------------------------------------------------------------
-    /**
-	  * @brief Parses an in-bound "idle" command string, so we know how long the client should wait
-	  * before reconnecting to the server.
-	  *
-	  * The idle command will be of the type "idle(5000)", where the number specifies the amount of
-	  * milliseconds the client should wait before reconnecting.
-	  *
-	  * @param idleTime Output: the parsed wait time in milliseconds (written only on a successful parse)
-	  * @param idleCommand The command string to parse, e.g. "idle(5000)" (surrounding whitespace tolerated)
-	  * @return true if @p idleCommand was a well-formed idle command; false otherwise (idleTime left unchanged)
-	  */
-    bool parseIdleCommand(std::uint32_t &idleTime, const std::string &idleCommand) {
-        // Hand-written replacement for the former Spirit grammar
-        // (lit("idle") >> '(' >> uint_ >> ')') with an ascii::space skipper: matches
-        // "idle(<ms>)" tolerating arbitrary surrounding/interspersed whitespace.
-        const std::string_view s(idleCommand);
-        std::size_t i = 0;
-        const std::size_t n = s.size();
-
-        auto skipws = [&]() {
-            while(i < n && std::isspace(static_cast<unsigned char>(s[i])) != 0) {
-                ++i;
-            }
-        };
-        auto match = [&](char c) {
-            skipws();
-            if(i < n && s[i] == c) {
-                ++i;
-                return true;
-            }
-            return false;
-        };
-
-        skipws();
-        constexpr std::string_view keyword("idle");
-        if(s.substr(i, keyword.size()) != keyword) {
-            return false;
-        }
-        i += keyword.size();
-
-        if(not match('(')) {
-            return false;
-        }
-
-        skipws();
-        std::uint32_t value = 0;
-        const char *first = s.data() + i;
-        auto [ptr, ec] = std::from_chars(first, s.data() + n, value);
-        if(ec != std::errc() || ptr == first) {
-            return false;
-        }
-        i = static_cast<std::size_t>(ptr - s.data());
-
-        if(not match(')')) {
-            return false;
-        }
-
-        skipws();
-        if(i != n) { // trailing garbage -> the original required from == to
-            return false;
-        }
-
-        idleTime = value;
-        return true;
     }
 
 private:
@@ -475,6 +381,7 @@ private:
     std::atomic<bool> close_requested_{
         false
     }; ///< Indicates whether a the termination was requested by the server
+    bool halt_logged_ = false; ///< Ensures the halt reason is logged only once (halt() is polled)
 
     std::shared_ptr<processable_type>
         additional_data_template_; ///< Optionally holds a template of the object to be processed

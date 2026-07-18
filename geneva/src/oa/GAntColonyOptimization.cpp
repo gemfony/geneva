@@ -547,13 +547,7 @@ void GAntColonyOptimization::runFitnessCalculation_() {
 
     auto status = this->workOnPopulation(0, n_eval);
 
-    if(not status.is_complete || status.has_errors) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GAntColonyOptimization::runFitnessCalculation_(): Error!" << '\n'
-            << "No complete set of items received or errors found in some individuals." << '\n'
-        );
-    }
+    this->requireCompleteEvaluation_(status, "GAntColonyOptimization::runFitnessCalculation_()");
 }
 
 /******************************************************************************/

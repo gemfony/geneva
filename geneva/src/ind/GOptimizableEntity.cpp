@@ -182,8 +182,8 @@ GOptimizableEntity::process(const std::vector<individual_processing_result> &res
 
     // Consult the process-global fault injector once (no-op unless a GFaultInjector is registered -- a
     // single null-pointer check on the default path). A THROW fault is raised inside the try below so it
-    // surfaces as EXCEPTION_CAUGHT; a FLAG_ERROR fault is applied AFTER the try/catch (the catch would
-    // otherwise force EXCEPTION_CAUGHT, and the try's terminal PROCESSED assignment would clobber it).
+    // surfaces as EXCEPTION_CAUGHT; a FLAG_ERROR fault is applied after the evaluation, like a user
+    // flagging an error from within evaluate(), and surfaces as ERROR_FLAGGED.
     GFaultInjector::Fault injected_fault = GFaultInjector::Fault::NONE;
     if(GFaultInjector *injector = GFaultInjectorRegistry::get(); injector != nullptr) {
         // Rare (test-only) path: lease a proxy for the fault injector; the candidate holds no RNG.
@@ -205,15 +205,20 @@ GOptimizableEntity::process(const std::vector<individual_processing_result> &res
 
         this->runEvaluation_(res_vec);
 
-        // The fitness has now been computed, so the work item is processed. Mark it PROCESSED before
-        // post-processing: a post-processor refines an ALREADY-EVALUATED item and rejects a dirty one.
-        // If processing flagged an error, the error status is left intact.
-        if(not this->has_errors()) {
-            processing_status_ = processingStatus::PROCESSED;
+        // An injected FLAG_ERROR fault mimics a user flagging an error from within evaluate()
+        if(injected_fault == GFaultInjector::Fault::FLAG_ERROR && not this->has_errors()) {
+            this->force_set_error("Fault injected during GOptimizableEntity::process() (FLAG_ERROR)\n");
         }
 
+        // The fitness has now been computed, so the work item is processed. Mark it PROCESSED before
+        // post-processing: a post-processor refines an ALREADY-EVALUATED item and rejects a dirty one.
+        // If processing flagged an error (ERROR_FLAGGED), the error status is left intact and
+        // post-processing is skipped.
         const auto after_processing = std::chrono::high_resolution_clock::now();
-        this->postProcess_();
+        if(not this->has_errors()) {
+            processing_status_ = processingStatus::PROCESSED;
+            this->postProcess_();
+        }
         const auto after_post_processing = std::chrono::high_resolution_clock::now();
 
         pre_processing_time_ =
@@ -222,8 +227,6 @@ GOptimizableEntity::process(const std::vector<individual_processing_result> &res
             std::chrono::duration<double>(after_processing - after_pre_processing).count();
         post_processing_time_ =
             std::chrono::duration<double>(after_post_processing - after_processing).count();
-
-        processing_status_ = processingStatus::PROCESSED;
     }
     catch(std::exception &e) {
         processing_status_ = processingStatus::EXCEPTION_CAUGHT;
@@ -236,12 +239,6 @@ GOptimizableEntity::process(const std::vector<individual_processing_result> &res
         processing_status_ = processingStatus::EXCEPTION_CAUGHT;
         error_description_stream << "In GOptimizableEntity::process():" << '\n'
                                  << "Processing has thrown an unknown exception." << '\n';
-    }
-
-    // Apply an injected FLAG_ERROR fault now, after the try/catch, so it surfaces as ERROR_FLAGGED
-    // (rather than being overridden by the catch's EXCEPTION_CAUGHT or the try's terminal PROCESSED).
-    if(injected_fault == GFaultInjector::Fault::FLAG_ERROR && not this->has_errors()) {
-        this->force_set_error("Fault injected during GOptimizableEntity::process() (FLAG_ERROR)\n");
     }
 
     if(this->has_errors()) { // Either an exception was caught or the user flagged an error
@@ -346,24 +343,7 @@ void GOptimizableEntity::runEvaluation_(const std::vector<individual_processing_
     }
     else {
         // Some constraints were violated. Act on the chosen policy.
-        if(evaluationPolicy::USEWORSTCASEFORINVALID == this->getEvaluationPolicy()) {
-            this->setAllFitnessTo(this->getWorstCase());
-        }
-        else if(evaluationPolicy::USESIGMOID == this->getEvaluationPolicy()) {
-            double uniform_fitness_value = 0.;
-            const double barrier = this->getBarrier();
-            if(maxMode::MAXIMIZE == this->getMaxMode()) {
-                uniform_fitness_value = (std::numeric_limits<double>::max() == validity_level_)
-                                            ? this->getWorstCase()
-                                            : -validity_level_ * barrier;
-            }
-            else {
-                uniform_fitness_value = (std::numeric_limits<double>::max() == validity_level_)
-                                            ? this->getWorstCase()
-                                            : validity_level_ * barrier;
-            }
-            this->setAllFitnessTo(this->getWorstCase(), uniform_fitness_value);
-        }
+        this->applyInvalidityPolicy_();
     }
 }
 
@@ -410,24 +390,34 @@ void GOptimizableEntity::setFitness_(std::vector<double> const &f_cnt) {
         this->markAsProcessedWith(processing_results);
     }
     else {
-        if(evaluationPolicy::USEWORSTCASEFORINVALID == this->getEvaluationPolicy()) {
-            this->setAllFitnessTo(this->getWorstCase());
+        this->applyInvalidityPolicy_();
+    }
+}
+
+/******************************************************************************/
+/**
+ * @brief Applies the configured invalidity policy to a constraint-violating candidate: worst-case
+ * the whole quality surface (USEWORSTCASEFORINVALID), or assign the sigmoid barrier value derived
+ * from the validity level (USESIGMOID). Shared by runEvaluation_() and setFitness_().
+ */
+void GOptimizableEntity::applyInvalidityPolicy_() {
+    if(evaluationPolicy::USEWORSTCASEFORINVALID == this->getEvaluationPolicy()) {
+        this->setAllFitnessTo(this->getWorstCase());
+    }
+    else if(evaluationPolicy::USESIGMOID == this->getEvaluationPolicy()) {
+        double uniform_fitness_value = 0.;
+        const double barrier = this->getBarrier();
+        if(maxMode::MAXIMIZE == this->getMaxMode()) {
+            uniform_fitness_value = (std::numeric_limits<double>::max() == validity_level_)
+                                        ? this->getWorstCase()
+                                        : -validity_level_ * barrier;
         }
-        else if(evaluationPolicy::USESIGMOID == this->getEvaluationPolicy()) {
-            double uniform_fitness_value = 0.;
-            const double barrier = this->getBarrier();
-            if(maxMode::MAXIMIZE == this->getMaxMode()) {
-                uniform_fitness_value = (std::numeric_limits<double>::max() == validity_level_)
-                                            ? this->getWorstCase()
-                                            : -validity_level_ * barrier;
-            }
-            else {
-                uniform_fitness_value = (std::numeric_limits<double>::max() == validity_level_)
-                                            ? this->getWorstCase()
-                                            : validity_level_ * barrier;
-            }
-            this->setAllFitnessTo(this->getWorstCase(), uniform_fitness_value);
+        else {
+            uniform_fitness_value = (std::numeric_limits<double>::max() == validity_level_)
+                                        ? this->getWorstCase()
+                                        : validity_level_ * barrier;
         }
+        this->setAllFitnessTo(this->getWorstCase(), uniform_fitness_value);
     }
 }
 

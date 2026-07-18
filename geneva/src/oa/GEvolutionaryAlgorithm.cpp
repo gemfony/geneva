@@ -37,7 +37,6 @@
 #include "common/GLogger.hpp"
 #include "common/GParserBuilder.hpp"
 #include "common/concurrency/GThreadPool.hpp"
-#include "courtier/GProcessingContainerT.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/GPersonalityTraits.hpp"
 #include "geneva/GenevaHelperFunctions.hpp"
@@ -408,18 +407,7 @@ void GType::runFitnessCalculation_() {
 
     auto status = this->evaluatePopulationRange_(std::get<0>(range), std::get<1>(range));
 
-    if(not status.is_complete) {
-        std::erase_if(this->data_cnt_, [](const std::unique_ptr<gen::GOptimizableEntity> &p) -> bool {
-            return (p->getProcessingStatus() == Gem::Courtier::processingStatus::DO_PROCESS);
-        });
-    }
-
-    if(status.has_errors) {
-        std::erase_if(
-            this->data_cnt_,
-            [](const auto &p) -> bool { return p->has_errors(); }
-        );
-    }
+    this->discardUnusableItems_(status, "GEvolutionaryAlgorithm::runFitnessCalculation()");
 
     fixAfterJobSubmission();
 }
@@ -502,15 +490,6 @@ void GType::selectBest_() {
 
 /******************************************************************************/
 
-std::tuple<std::size_t, std::size_t> GType::getEvaluationRange_() const {
-    return std::make_tuple<std::size_t, std::size_t>(
-        this->inFirstIteration() ? static_cast<std::size_t>(0) : this->getNParents(),
-        this->size()
-    );
-}
-
-/******************************************************************************/
-
 std::shared_ptr<GPersonalityTraits> GType::getPersonalityTraits_() const {
     return std::make_shared<TraitsType>();
 }
@@ -557,14 +536,17 @@ void GType::installStepController() {
     case stepControl::CSA: {
         // The global controller owns sigma: stop the per-group log-normal self-adaption.
         cfg->suppressPerGroupSigmaSelfAdaption();
-        // Seed the global sigma from a representative seed sigma in the (already seeded) scratch.
+        // Seed the global sigma from a representative sigma in the slots' scratch. On a fresh run
+        // that is the config's seed sigma (GParChild::init() just installed it); on a checkpoint
+        // resume it is the EVOLVED sigma the interrupted run had reached (the scratch is
+        // serialized), so the controller resumes where it left off instead of restarting at 1.0.
         global_sigma_ = 1.;
         p_sigma_ = 0.;
         last_p_success_ = 0.;
-        have_prev_best_ = false;
-        if(not this->empty() && not this->resumedFromCheckpoint()) {
+        controller_warmed_up_ = false;
+        if(not this->empty()) {
             global_sigma_ = readRepresentativeSigma(this->at(0)->scratch(), *cfg, 1.);
-            // Push the seed global sigma into every slot so the first adaption uses it uniformly.
+            // Push the global sigma into every slot so the first adaption uses it uniformly.
             for(auto const &slot : *this) {
                 writeGlobalSigma(slot->scratch(), *cfg, global_sigma_);
             }
@@ -647,7 +629,7 @@ void GType::driveGlobalSigmaController() {
 
     // Skip the very first measured generation (warm-up): measureOffspringSuccess_ leaves last_p_success_
     // at 0 in iteration 0, which would otherwise spuriously shrink sigma before any real signal exists.
-    if(have_prev_best_) {
+    if(controller_warmed_up_) {
         if(step_control_ == stepControl::ONE_FIFTH) {
             // Rechenberg 1/5 success rule: grow sigma while more than 1/5 of the offspring improve on
             // their parent, shrink it otherwise. A responsive damping lets sigma track the success rate.
@@ -681,7 +663,7 @@ void GType::driveGlobalSigmaController() {
         writeGlobalSigma(slot->scratch(), *cfg, global_sigma_);
     }
 
-    have_prev_best_ = true;
+    controller_warmed_up_ = true;
 }
 
 /******************************************************************************/

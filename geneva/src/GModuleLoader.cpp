@@ -397,47 +397,15 @@ LoadedModule loadModule(const std::filesystem::path &module_path) {
         return result;
     }
 
-    // Fallback: the legacy two-symbol individual convention (GENEVA_VERSION-only gate). One release only.
-    if(not lib.has(GENEVA_INDIVIDUAL_ABI_SYMBOL)) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In Gem::Geneva::loadModule(): Error!" << '\n'
-            << "'" << path_str << "' is not a Geneva module: it exports neither the '"
-            << Gem::Common::GENEVA_MODULE_MANIFEST_SYMBOL << "' manifest nor the legacy '"
-            << GENEVA_INDIVIDUAL_ABI_SYMBOL << "' marker" << '\n'
-            << "(it may predate the plugin scheme, or was built without a geneva_module_manifest() entry"
-            << " point -- see Gem::Geneva::individualManifest() / oaManifest())." << '\n'
-        );
-    }
-    const auto plugin_abi = lib.get<geneva_individual_abi_version_fn>(GENEVA_INDIVIDUAL_ABI_SYMBOL)();
-    if(plugin_abi != static_cast<std::uint32_t>(GENEVA_VERSION)) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In Gem::Geneva::loadModule(): Error!" << '\n'
-            << "The individual plugin '" << path_str << "' was built against Geneva version " << plugin_abi
-            << ',' << '\n'
-            << "but this Geneva is version " << static_cast<std::uint32_t>(GENEVA_VERSION) << '.' << '\n'
-            << "The two are not guaranteed compatible; rebuild the plugin against this Geneva." << '\n'
-        );
-    }
-    if(not lib.has(GENEVA_INDIVIDUAL_FACTORY_SYMBOL)) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In Gem::Geneva::loadModule(): Error!" << '\n'
-            << "The individual plugin '" << path_str << "' exports no '" << GENEVA_INDIVIDUAL_FACTORY_SYMBOL
-            << "' factory entry point." << '\n'
-        );
-    }
-    LoadedModule result;
-    result.individual = lib.get<geneva_individual_factory_fn>(GENEVA_INDIVIDUAL_FACTORY_SYMBOL)();
-    if(not result.individual) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In Gem::Geneva::loadModule(): Error!" << '\n'
-            << "The individual plugin '" << path_str << "' returned an empty factory." << '\n'
-        );
-    }
-    return result;
+    // No manifest entry point: not a Geneva module.
+    throw geneva_exception(
+        g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+        << "In Gem::Geneva::loadModule(): Error!" << '\n'
+        << "'" << path_str << "' is not a Geneva module: it does not export the '"
+        << Gem::Common::GENEVA_MODULE_MANIFEST_SYMBOL << "' manifest entry point" << '\n'
+        << "(it may predate the plugin scheme, or was built without a geneva_module_manifest()"
+        << " entry point -- see Gem::Geneva::individualManifest() / oaManifest())." << '\n'
+    );
 }
 
 /******************************************************************************/

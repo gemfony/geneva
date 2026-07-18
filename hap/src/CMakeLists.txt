@@ -45,7 +45,6 @@ SET ( HAPSOURCES
 	GHapEnums.cpp
 	GRandomBase.cpp
 	GRandomFactory.cpp
-	GRandomT.cpp
 	GStagedSource.cpp
 	GQuarantineSource.cpp
 )

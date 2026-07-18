@@ -1231,7 +1231,7 @@ GGraph4D::footerData_(bool is_secondary, std::size_t p_id, std::size_t own_id, c
     if(data_size < static_cast<std::size_t>(2)) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GBasePlotter::getMinMax(4D): Error!" << '\n'
+            << "In GGraph4D::footerData_(): Error!" << '\n'
             << "Got vector of invalid size " << data_size << '\n'
         );
     }
@@ -1246,20 +1246,22 @@ GGraph4D::footerData_(bool is_secondary, std::size_t p_id, std::size_t own_id, c
         *std::ranges::max_element(w_col)
     };
 
-    // Set up TView object for our 3D data, spanning the minimum and maximum values
-    footer_data << indent << R"(TH3F *fr = new TH3F("fr","fr",)"
+    // Set up the TH3F frame for our 3D data, spanning the minimum and maximum values. The
+    // frame name carries the plot suffix so two 4D plots on one canvas do not collide.
+    const std::string frame_name = std::string("fr_") + base_name;
+    footer_data << indent << "TH3F *" << frame_name << " = new TH3F(\"" << frame_name << "\",\"" << frame_name << "\","
                 << "10, " << std::get<0>(min_max) << ", " << std::get<1>(min_max) << ", "
                 << "10, " << std::get<2>(min_max) << ", " << std::get<3>(min_max) << ", "
                 << "10, " << std::get<4>(min_max) << ", " << std::get<5>(min_max) << ");" << '\n'
-                << indent << "fr->SetTitle(\" \");" << '\n'
-                << indent << "fr->GetXaxis()->SetTitle(\"" << rootEscape(xAxisLabel()) << "\");" << '\n'
-                << indent << "fr->GetXaxis()->SetTitleOffset(1.6);" << '\n'
-                << indent << "fr->GetYaxis()->SetTitle(\"" << rootEscape(yAxisLabel()) << "\");" << '\n'
-                << indent << "fr->GetYaxis()->SetTitleOffset(1.6);" << '\n'
-                << indent << "fr->GetZaxis()->SetTitle(\"" << rootEscape(zAxisLabel()) << "\");" << '\n'
-                << indent << "fr->GetZaxis()->SetTitleOffset(1.6);" << '\n'
+                << indent << frame_name << "->SetTitle(\" \");" << '\n'
+                << indent << frame_name << "->GetXaxis()->SetTitle(\"" << rootEscape(xAxisLabel()) << "\");" << '\n'
+                << indent << frame_name << "->GetXaxis()->SetTitleOffset(1.6);" << '\n'
+                << indent << frame_name << "->GetYaxis()->SetTitle(\"" << rootEscape(yAxisLabel()) << "\");" << '\n'
+                << indent << frame_name << "->GetYaxis()->SetTitleOffset(1.6);" << '\n'
+                << indent << frame_name << "->GetZaxis()->SetTitle(\"" << rootEscape(zAxisLabel()) << "\");" << '\n'
+                << indent << frame_name << "->GetZaxis()->SetTitleOffset(1.6);" << '\n'
                 << '\n'
-                << indent << "fr->Draw();" << '\n';
+                << indent << frame_name << "->Draw();" << '\n';
 
     double w_min = std::get<6>(min_max);
     double w_max = std::get<7>(min_max);

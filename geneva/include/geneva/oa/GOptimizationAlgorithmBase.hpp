@@ -697,6 +697,32 @@ protected:
     Gem::Courtier::executor_status_t workOnPopulation(std::size_t start, std::size_t end);
 
     /**
+     * @brief Enforces the "need-all" evaluation policy after a submission: throws if the returned
+     * status is incomplete or carries errors. The strict counterpart of discardUnusableItems_() --
+     * together the two helpers state the strict/tolerant split exactly once, mirroring the
+     * per-algorithm submission policy (getSubmissionPolicy_()).
+     * @param status The executor status returned by the submission
+     * @param caller The calling function's name, used in the error message
+     */
+    void requireCompleteEvaluation_(
+        const Gem::Courtier::executor_status_t &status,
+        const std::string &caller
+    ) const;
+
+    /**
+     * @brief Applies the "tolerant" evaluation policy after a submission: erases the individuals a
+     * partial or errored return left unusable (still due for processing, or error-flagged), so the
+     * population continues with evaluated individuals only. In DEBUG builds the number of erased
+     * individuals is logged. See requireCompleteEvaluation_().
+     * @param status The executor status returned by the submission
+     * @param caller The calling function's name, used in the DEBUG log lines
+     */
+    void discardUnusableItems_(
+        const Gem::Courtier::executor_status_t &status,
+        const std::string &caller
+    );
+
+    /**
      * @brief Drains the consumer's late-return buffer and returns only the late returns that are SAFE
      * TO INTEGRATE -- this is the single, algorithm-agnostic gate every optimization algorithm reaps
      * late returns through. Two universal correctness filters are applied here (NOT per algorithm), so

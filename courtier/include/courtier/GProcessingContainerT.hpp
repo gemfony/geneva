@@ -286,14 +286,13 @@ public:
 
             // The fitness has now been computed, so the work item is processed. Mark it PROCESSED
             // BEFORE post-processing: a post-processor refines an ALREADY-EVALUATED item (e.g. by running
-            // a short sub-optimization) and rejects a dirty one. If processing flagged an error, the
-            // error status is left intact.
+            // a short sub-optimization) and rejects a dirty one. If processing flagged an error
+            // (ERROR_FLAGGED), the error status is left intact and post-processing is skipped.
+            const auto after_processing = std::chrono::high_resolution_clock::now();
             if(not this->has_errors()) {
                 processing_status_ = processingStatus::PROCESSED;
+                this->postProcess_();
             }
-
-            const auto after_processing = std::chrono::high_resolution_clock::now();
-            this->postProcess_();
             const auto after_post_processing = std::chrono::high_resolution_clock::now();
 
             // Make a note of the time needed for each step
@@ -303,8 +302,6 @@ public:
                 std::chrono::duration<double>(after_processing - after_pre_processing).count();
             post_processing_time_ =
                 std::chrono::duration<double>(after_post_processing - after_processing).count();
-
-            processing_status_ = processingStatus::PROCESSED;
         }
         catch(std::exception &e) {
             // Let the audience know we had an error
@@ -393,28 +390,6 @@ public:
     void loadConstantData(std::shared_ptr<processable_type> cd_ptr) {
         this->loadConstantData_(cd_ptr);
     }
-
-    /***************************************************************************/
-    /**
-	  * @brief Whether this (deserialized) work item arrived WITHOUT its input data -- the lightweight
-	  * "results-only" return form, in which a worker returns the computed results but not the (large)
-	  * input parameters, because the server still holds the originally-submitted item. The server grafts
-	  * the input data back on via graftInputDataFrom() before using the item. Default false; a derived
-	  * type that supports results-only returns overrides the hook below.
-	  *
-	  * @return true iff this item's input data was omitted on the wire and must be grafted from the original
-	  */
-    bool inputDataOmitted() const { return this->inputDataOmitted_(); }
-
-    /***************************************************************************/
-    /**
-	  * @brief Grafts the input data (parameters) of @p original onto this item, which carries valid
-	  * computed results but no input data (a results-only return). After the graft the item is complete
-	  * and equivalent to a full return. Default no-op.
-	  *
-	  * @param original The originally-submitted item, still held by the server, that supplies the input data
-	  */
-    void graftInputDataFrom(const processable_type &original) { this->graftInputDataFrom_(original); }
 
     /***************************************************************************/
     /**
@@ -526,45 +501,6 @@ public:
         return stored_results_cnt_.size();
     }
 
-    /***************************************************************************/
-    /**
-	  * @brief Loads the data of another GProcessingContainerT<processable_type, processing_result_type> object
-	  *
-	  * @param cp A pointer to the source object whose data is copied into this one (must differ from this)
-	  */
-    void load_pc(const GProcessingContainerT<processable_type, processing_result_type> *cp) {
-        // Check that we are dealing with a GProcessingContainerT<processable_type, processing_result_type> reference independent of this object and convert the pointer
-        const auto *p_load =
-            Gem::Common::g_convert_and_compare<
-                GProcessingContainerT<processable_type, processing_result_type>,
-                GProcessingContainerT<processable_type, processing_result_type>>(cp, this);
-
-        // Load local data
-        iteration_counter_ = p_load->iteration_counter_;
-        resubmission_counter_ = p_load->resubmission_counter_;
-        collection_position_ = p_load->collection_position_;
-        correlation_id_ = p_load->correlation_id_;
-        pre_processing_disabled_ = p_load->pre_processing_disabled_;
-        post_processing_disabled_ = p_load->post_processing_disabled_;
-        pre_processing_time_ = p_load->pre_processing_time_;
-        processing_time_ = p_load->processing_time_;
-        post_processing_time_ = p_load->post_processing_time_;
-        broker_raw_submission_time_ = p_load->broker_raw_submission_time_;
-        broker_raw_retrieval_time_ = p_load->broker_raw_retrieval_time_;
-        broker_proc_submission_time_ = p_load->broker_proc_submission_time_;
-        broker_proc_retrieval_time_ = p_load->broker_proc_retrieval_time_;
-        stored_results_cnt_ =
-            p_load
-                ->stored_results_cnt_; // note that this implies that processing_result_type is copyable --> e.g. it should not contain pointers
-        stored_error_descriptions_ = p_load->stored_error_descriptions_;
-        processing_status_ = p_load->processing_status_;
-        // evaluation_id_ = p_load->evaluation_id_;
-
-        Gem::Common::copyCloneableSmartPointer(p_load->pre_processor_ptr_, pre_processor_ptr_);
-        Gem::Common::copyCloneableSmartPointer(p_load->post_processor_ptr_, post_processor_ptr_);
-    }
-
-
 protected:
     /***************************************************************************/
     /**
@@ -667,16 +603,6 @@ private:
 	  */
     virtual void loadConstantData_([[maybe_unused]] std::shared_ptr<processable_type> cd_ptr) { /* nothing */
     }
-
-    /***************************************************************************/
-    /** @brief Hook: whether this item arrived without its input data (a results-only return). Default
-     *  false; overridden by work-item types that support the lightweight return form.
-     *  @return false in the base. */
-    virtual bool inputDataOmitted_() const { return false; }
-
-    /** @brief Hook: graft the input data of @p original onto this (results-only) item. Default no-op.
-     *  @param original The originally-submitted item supplying the input data (unused in the default). */
-    virtual void graftInputDataFrom_([[maybe_unused]] const processable_type &original) { /* nothing */ }
 
     /***************************************************************************/
 

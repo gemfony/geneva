@@ -31,6 +31,7 @@
 
 #include <filesystem>
 #include <fstream>
+#include <iterator>
 #include <functional>
 #include <string>
 #include <vector>
@@ -938,4 +939,35 @@ TEST_CASE("GParserBuilder::setEmitTimestamp toggles the header creation timestam
 
     std::filesystem::remove(with_ts);
     std::filesystem::remove(without_ts);
+}
+
+// ---------------------------------------------------------------------------
+// Regression (2026-07-18): a comment-less registration must keep the caller's is_essential
+// choice. The empty-comment fast path used to route through the comment-less node constructor,
+// which hardcodes VAR_IS_ESSENTIAL -- a comment-less SECONDARY parameter was silently promoted
+// to essential and leaked into essential-only config files.
+
+TEST_CASE("GParserBuilder: comment-less registration honors is_essential",
+          "[common][parser-builder]") {
+    GParserBuilder gpb;
+
+    int essential_v = 0;
+    int secondary_v = 0;
+    gpb.registerFileParameter<int>("essential_option", essential_v, 1, VAR_IS_ESSENTIAL);
+    gpb.registerFileParameter<int>("secondary_option", secondary_v, 2, VAR_IS_SECONDARY);
+
+    // The registered proxies must carry the requested essentiality ...
+    CHECK(gpb.file_at<GFileParsableI>("essential_option")->isEssential());
+    CHECK_FALSE(gpb.file_at<GFileParsableI>("secondary_option")->isEssential());
+
+    // ... and an essential-only config write must omit the secondary parameter.
+    const auto path = scratch("essential_only");
+    gpb.writeConfigFile(path, "essential-only test", /*write_all=*/false);
+
+    std::ifstream in(path);
+    const std::string text((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
+    CHECK(text.find("essential_option") != std::string::npos);
+    CHECK(text.find("secondary_option") == std::string::npos);
+
+    std::filesystem::remove(path);
 }

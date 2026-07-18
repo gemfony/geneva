@@ -393,12 +393,10 @@ void GParChild::doRecombine() {
     // ------------------------------------------------------------------------
     // Parallel fast path: when no cross-over can occur (amalgamation disabled)
     // and a derived algorithm supplies a thread pool, select the parent for every
-    // child sequentially first -- this reproduces both the random-number sequence
-    // and the chosen recombination scheme exactly -- and then run only the heavy
-    // load() deep-copies in parallel. Parents are read only and each child slot is
-    // written by exactly one task, so there are no data races. load() does not copy
-    // the per-individual RNG (gr_ is deliberately absent from localMembers()), so
-    // children keep their own generators.
+    // child sequentially first (the draws happen on the orchestration thread, so
+    // there is no concurrent use of the algorithm's RNG) and then run only the
+    // heavy load() deep-copies in parallel. Parents are read only and each child
+    // slot is written by exactly one task, so there are no data races.
     Gem::Common::Concurrency::GThreadPool *tp = this->tp_ptr_.get();
     const std::size_t n_children = GOptimizationAlgorithmBase::data_cnt_.size() - n_parents_;
     if(tp != nullptr && amalgamation_likelihood_ <= 0. && n_children > 1) {
@@ -406,14 +404,12 @@ void GParChild::doRecombine() {
             (duplicationScheme::VALUEDUPLICATIONSCHEME == recombination_method_)
             && not GOptimizationAlgorithmBase::inFirstIteration();
 
-        // (1) Sequential parent selection -- mirrors the serial path's draws exactly.
+        // (1) Sequential parent selection (same selection semantics as the serial path; Geneva's
+        // RNG is never deterministic, so no draw-for-draw mirroring of that path is attempted).
         std::vector<std::size_t> parent_pos(n_children);
         for(std::size_t c = 0; c < n_children; ++c) {
             std::size_t pp = 0;
             if(n_parents_ > 1) {
-                // The serial path flips an (always-false) cross-over coin here; flip it
-                // too so the random-number stream stays identical.
-                (void) amalgamation_wanted(this->gr_);
                 if(value_scheme) {
                     const double rand_test = GOptimizationAlgorithmBase::uniform_real_distribution_(this->gr_);
                     pp = n_parents_ - 1; // threshold[n_parents_-1] == 1, so a match is guaranteed

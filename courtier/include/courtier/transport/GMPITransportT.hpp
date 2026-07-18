@@ -93,7 +93,10 @@ constexpr std::chrono::seconds GMPICONSUMERSHUTDOWNGRACE{10};
 /// always answers a request promptly (work or NODATA), so this only trips when the master has died or
 /// gone silent -- it is generous to avoid ever false-killing a worker while a live master is busy.
 constexpr std::chrono::seconds GMPICONSUMERWORKERMPITIMEOUT{120};
-static MPI_Comm MPI_COMMUNICATOR =
+/// The communicator all MPI transport operations run on. `inline` (not `static`): every translation
+/// unit must see the SAME object, so that setMPICommunicator() (e.g. an application splitting
+/// MPI_COMM_WORLD) takes effect in all TUs rather than only in the one that called it.
+inline MPI_Comm MPI_COMMUNICATOR =
     MPI_COMM_WORLD; // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
 
 /******************************************************************************/
@@ -939,14 +942,18 @@ private:
             }
             }
         }
-        catch(const geneva_exception &ex) {
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+        catch(const std::exception &ex) {
+            // A malformed / truncated request must not unwind the master's session machinery (one bad
+            // worker message would take down the whole master). Log and refuse the request; the worker's
+            // own receive timeout bounds how long it waits for the answer that will not come.
+            // (boost archive exceptions derive from std::exception, not geneva_exception, so the wider
+            // catch is required to actually contain deserialization failures.)
+            glogger
                 << "GMPIConsumerSessionT<processable_type>::processRequest() connected to rank="
                 << mpiStatus_.MPI_SOURCE << ":" << '\n'
                 << "Caught exception while deserializing request" << '\n'
                 << ex.what() << '\n'
-            );
+                << GWARNING;
         }
 
         return false;

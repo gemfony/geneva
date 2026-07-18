@@ -1280,6 +1280,114 @@ Recommended Versions:
 
 ************************* Noteworthy Changes ***********************************
 
+- A batch of defect fixes from a full-tree code review:
+  * An error flagged from inside an evaluation (force_set_error / ERROR_FLAGGED) was
+    silently clobbered by an unconditional terminal PROCESSED assignment in both
+    process() implementations (GProcessingContainerT and GOptimizableEntity); an
+    error-flagged item now keeps its status, process() raises the processing
+    exception, and post-processing is skipped for a dirty item. Regression tests
+    cover both classes.
+  * GRandomFactory::setNProducerThreads() never recorded the new thread count once
+    the producer threads were running, so repeated grow requests spawned duplicate
+    producers from a stale count. The function was rewritten as a single locked
+    block that always records the count; a getNProducerThreads() getter was added.
+  * The copy constructor of GOptimizationAlgorithmBase had drifted from the
+    localMembers_() member list and dropped n_threads_, late_return_ttl_ and
+    late_return_cap_factor_ on every copy. It now copies through localMembers_()
+    (the same single source load_() uses), so it can no longer drift.
+  * The websocket client's fatal transport paths (read/write error, undecodable or
+    invalid message, serialization failure) set a close code but never tore the
+    connection down, leaving the halt-poll timer spinning forever -- a client whose
+    server died would hang instead of terminating. All paths now close the
+    connection so io_context::run() drains; a loopback regression test kills the
+    server and expects the client to return on its own.
+  * The networked consumer's batch bookkeeping (checkout / checkin / requeue /
+    lease sweep) dereferenced null span slots although the dispatch contract
+    explicitly permits them; all four sites now skip null slots.
+  * The EA's global-sigma step controllers (ONE_FIFTH / CSA) restarted at sigma 1.0
+    on every checkpoint resume; the controller now re-seeds from the restored slot
+    scratch, resuming the evolved step size. The current value is exposed via
+    GEvolutionaryAlgorithm::getGlobalSigma().
+  * The MPI master's per-request session now contains deserialization failures
+    (catch std::exception, log, refuse the request) instead of rethrowing out of
+    the session machinery; MPI_COMMUNICATOR became a C++17 inline variable (one
+    object program-wide instead of one copy per translation unit).
+  * GParserBuilder: a comment-less registerFileParameter() silently discarded the
+    caller's is_essential choice (the comment-less node constructors hardcode
+    VAR_IS_ESSENTIAL); all registration overloads now route through the full
+    constructors. The parseConfigFile()/updateConfigFile() return-value docs were
+    corrected to match the implementation (true on success including
+    created-from-defaults; false only on a logged-and-swallowed error).
+  * Dietrich: GMarker's bounded decoratorData() had its clipping inverted (it drew
+    only out-of-range markers); the integer histogram (hist_1i) was constructible
+    through GPlotSpec but not fillable through GDataLog's generic appendRow() path
+    (int32 axes now checked-narrow their values); GGraph4D's ROOT frame object was
+    always named "fr" (colliding when two 4D plots share a canvas) and now carries
+    the plot suffix; two name/token typos in the decorator classes were fixed.
+  * GFixedSizePriorityQueueT::worst() reported itself as best() in its error
+    message; getBaseIdentity() printed a stray line to std::cout on every call;
+    GEEI_DEF_REMOVETEMPORARIES was a bool initialized from a string literal.
+
+- Several facts that were stated in more than one place are now stated once.
+  The strict/tolerant evaluation policy after a submission -- formerly ten
+  near-identical runFitnessCalculation_() bodies -- lives in two shared
+  optimization-algorithm base helpers (requireCompleteEvaluation_ /
+  discardUnusableItems_); the EA/SA evaluation range became a shared GParChild
+  default; the invalidity transform shared by runEvaluation_() and setFitness_()
+  became applyInvalidityPolicy_(); getBestKnownPrimaryFitness() now reads the
+  same member the stall counter and quality halt use (the former priority-queue
+  variant was a second source of truth that could throw on an empty queue);
+  GProgressPlotterT's per-dimension logging switch (duplicated for best-only vs
+  all individuals, and again for the boundary filter) collapsed onto one
+  logIndividual_() helper; GParserBuilder's eight identical DEBUG
+  duplicate-registration blocks became one helper; and GBasePluggableOM's
+  implementation moved out of GOptimizationAlgorithmBase.cpp into its own
+  translation unit. The results-only return hooks (inputDataOmitted /
+  graftInputDataFrom) moved from the two sibling work-item implementations onto
+  their shared GProcessable base, next to the other reconciliation hooks, so the
+  networked consumers now bind them through the base instead of by duck typing.
+  Smaller fixes in the same spirit: the socket consumers' session counters use a
+  race-free fetch_sub; the client base logs its halt reason once instead of once
+  per poll; the wire container no longer includes Beast headers (and its
+  redundant boost::system::system_error catches -- subsumed by std::exception --
+  are gone). The fluent adaption-config label handle gained the biGauss()
+  forwarding it was missing (a labelled bi-Gauss group was unauthorable by
+  name); GEvolutionaryAlgorithm exposes getGlobalSigma() and GRandomFactory
+  getNProducerThreads() as observability hooks.
+
+- A tree-wide sweep removed the dead remains of earlier designs. In courtier: the
+  broker/executor-era constants, enums and helpers (submission-return modes, broker
+  wait factors, buffer-size and command-length constants, assembleQueryString /
+  extractDataSize / disconnect / getBooleanMask, the idle-command parser) and the
+  never-read broker bookkeeping that was still SERIALIZED with every wire item
+  (iteration/resubmission/collection-position counters and four broker queue
+  time stamps, plus their accessors and load_pc()) -- networked work items and
+  checkpoints shrink accordingly (old binary checkpoints do not load; already the
+  case for this release). In geneva: the removed-design constants and enums in
+  GOptimizationEnums (adaptorId, sortingModeMP, re-evaluation/raw-fitness flags,
+  constrained-value maxima and other orphans), the empty GMutableI interface
+  header, three dead Go2 constants, and the legacy two-symbol module-loader
+  fallback (a module now must export geneva_module_manifest()). The parameter
+  scan lost its vestigial by-name addressing machinery (all parameters are
+  positional; singleParameter no longer carries mode/name) and the dead
+  n_monitor_inds_ knob; the EA's parallel recombination no longer mirrors the
+  serial path's random draws (Geneva's RNG is never deterministic, so the
+  draw-for-draw ritual guarded nothing). In hap: the commented-out GRandomT.cpp
+  translation unit, the seed-queue-era constants and engine typedefs, and an
+  unreachable bad_alloc catch; the corresponding stale -D flags left the config
+  script's documentation. In common: GMultiSourceParameterT, a parameter class
+  that could never have compiled if instantiated, together with its
+  parameter_source enum. Twelve stale cross-library includes (courtier's
+  processing container in seven geneva translation units, the plotter header in
+  five algorithm headers) were dropped.
+
+- The random factory's fresh-package buffer default shrank from the generic queue
+  default (5000 packages, which the producers treat as a fill target -- about
+  400 MB of resident memory at the default package size) to a deliberate
+  hap-specific budget of 64 packages (~5 MB). The GENEVA_HAP_RANDOM_FACTORY_DEFAULT_BUFFER_SIZE
+  configure-time override is unchanged; a persistent supply shortfall is visible
+  through the getNGetTimeouts() counter rather than hidden by a huge buffer.
+
 - Example 15 gained a GPU parity check (config key "parity_check_n" > 0): it scores N
   random individuals with both the individual's own CPU evaluate() and the CUDA kernel (the
   device consumer) on identical genomes and reports the relative error, passing when the

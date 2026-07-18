@@ -413,7 +413,7 @@ private:
     bool inputDataOmitted_() const override { return input_omitted_; }
     /** @brief Grafts the input parameters of @p original onto this results-only genome.
      *  @param original The originally-submitted item (a GGenome) supplying the input data. */
-    void graftInputDataFrom_(const GOptimizableEntity &original) override {
+    void graftInputDataFrom_(const Gem::Courtier::GProcessable &original) override {
         const auto &src = dynamic_cast<const GGenome &>(original);
         dv_ = src.dv_;
         fv_ = src.fv_;

@@ -314,14 +314,14 @@ public:
     /**
 	  * @brief Retrieves the decorator data. Plot boundaries are taken into account.
 	  *
-	  * The marker is drawn only when its coordinates lie outside the supplied axis
-	  * ranges; an in-range marker yields an empty string.
+	  * The marker is drawn only when its coordinates lie inside the supplied axis
+	  * ranges (clipping); an out-of-range marker yields an empty string.
 	  *
 	  * @param x_axis_range A (min, max) tuple delimiting the plot range along the x-axis
 	  * @param y_axis_range A (min, max) tuple delimiting the plot range along the y-axis
 	  * @param indent The leading whitespace prepended to each emitted line of plotting code
 	  * @param pos A running index that disambiguates the names of the generated plot objects
-	  * @return Plotting code for the marker, or an empty string if it falls within the boundaries
+	  * @return Plotting code for the marker, or an empty string if it falls outside the boundaries
 	  */
     std::string decoratorData(
         const std::tuple<coordinate_type, coordinate_type> &x_axis_range,
@@ -336,12 +336,11 @@ public:
         coordinate_type y_min = std::get<0>(y_axis_range);
         coordinate_type y_max = std::get<1>(y_axis_range);
 
-        // Check if our coordinates are inside of the axis range
+        // Clip: a marker outside the axis ranges is not drawn
         if(marker_x < x_min || marker_x > x_max || marker_y < y_min || marker_y > y_max) {
-            return this->decoratorData(indent, pos);
+            return {};
         }
-                    return {};
-       
+        return this->decoratorData(indent, pos);
     }
 
 protected:
@@ -616,7 +615,7 @@ private:
 	  * @return The mnemonic name of this class
 	  */
     std::string name_() const override {
-        return std::string("GDecorator<imensions::Dim3, coordinate_type>");
+        return std::string("GDecorator<dimensions::Dim3, coordinate_type>");
     }
 
     /***************************************************************************/
@@ -1233,7 +1232,7 @@ protected:
         // Check that we are dealing with a GDecoratorContainer reference independent of this object and convert the pointer
         const auto *p_load = g_convert_and_compare(cp, this);
 
-        GToken token("GDecoratorContainer_3D<dimensions::Dim2>", e);
+        GToken token("GDecoratorContainer_3D<dimensions::Dim3>", e);
 
         // Compare our parent data ...
         Gem::Common::compare_base_t<GDecoratorContainer<dimensions::Dim3, coordinate_type>>(

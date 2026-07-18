@@ -43,7 +43,6 @@
 #include "common/GCommonInterfaceT.hpp"
 #include "common/GExceptions.hpp"
 #include "common/GContainerT.hpp"
-#include "dietrich/GPlotDesigner.hpp"
 #include "common/GSerializeTupleT.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/par/GParameterPropertyParser.hpp"
@@ -666,19 +665,17 @@ public:
 
 /******************************************************************************/
 /**
- * @brief A single scanned parameter value together with its addressing metadata.
+ * @brief A single scanned parameter value together with its position.
  *
- * Replaces the former positional 4-tuple (value, mode, name, position), whose anonymous std::get<N>
- * accesses were error-prone.
+ * Every scan parameter is addressed positionally (the former by-name addressing modes have been
+ * removed together with their mode/name metadata).
  *
  * @tparam T The parameter value type (bool, std::int32_t, float, double)
  */
 template <typename T>
 struct singleParameter {
-    T value{};            ///< The parameter value to be written into the individual
-    std::size_t mode{0};  ///< The addressing mode (always 0 = positional / by-index)
-    std::string name;   ///< The parameter's name (may be empty for purely positional addressing)
-    std::size_t pos{0};   ///< The parameter's position within its value channel
+    T value{};          ///< The parameter value to be written into the individual
+    std::size_t pos{0}; ///< The parameter's position within its value channel
 };
 
 // Convenience aliases for the value/position descriptor of a single scanned parameter
@@ -707,7 +704,6 @@ std::ostream &operator<<(std::ostream &os, const parSet &p_s);
 
 /******************************************************************************/
 /** @brief The default number of "best" individuals to be kept during the algorithm run */
-constexpr std::size_t DEFAULTNMONITORINDS = 10;
 
 /******************************************************************************/
 /**
@@ -782,7 +778,6 @@ private:
     auto localMembers_(this Self &self) {
         return std::make_tuple(
             Gem::Common::make_member("scan_randomly_", self.scan_randomly_),
-            Gem::Common::make_member("n_monitor_inds_", self.n_monitor_inds_),
             Gem::Common::make_member("simple_scan_items_", self.simple_scan_items_),
             Gem::Common::make_member("scans_performed_", self.scans_performed_),
             Gem::Common::make_member("cycle_logic_halt_", self.cycle_logic_halt_),
@@ -818,13 +813,6 @@ public:
     GParameterScan(const GParameterScan &cp);
     /** @brief The destructor */
     ~GParameterScan() override = default;
-
-    /** @brief Allows to set the number of "best" individuals to be monitored over the course of the algorithm run
-     *  @param n_monitor_inds The number of best individuals of the entire run to be kept */
-    void setNMonitorInds(std::size_t n_monitor_inds);
-    /** @brief Allows to retrieve the number of "best" individuals to be monitored over the course of the algorithm run
-     *  @return The number of best individuals being monitored */
-    std::size_t getNMonitorInds() const;
 
     /** @brief Fills the parameter vectors from a textual parameter specification
      *  @param par_str The parameter specification string to be parsed */
@@ -937,16 +925,6 @@ private:
         const singleParameter<data_type> &data_point,
         std::vector<data_type> &data_vec
     ) {
-#ifdef DEBUG
-        if(0 != data_point.mode) {
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GParameterScan::addDataPoint(mode 0): Error!" << '\n'
-                << "Function was called for invalid mode " << data_point.mode << '\n'
-            );
-        }
-#endif
-
         // Check that we haven't exceeded the size of the data vector
         if(data_point.pos >= data_vec.size()) {
             throw geneva_exception(
@@ -973,7 +951,7 @@ private:
     /** @brief Retrieves the next available parameter set
      *  @param mode An out-parameter receiving the running index of the returned parameter set
      *  @return A shared_ptr to the next parameter set to be evaluated */
-    std::shared_ptr<parSet> getParameterSet(std::size_t &mode);
+    std::shared_ptr<parSet> getParameterSet();
 
     /** @brief Switches to the next parameter set
      *  @return true if all parameter sets have been exhausted (warp-around), false otherwise */
@@ -989,8 +967,6 @@ private:
         false; ///< Temporary flag used to specify that the optimization should be halted
     bool scan_randomly_ =
         true; ///< Determines whether the algorithm should scan the parameter space randomly or on a grid
-    std::size_t n_monitor_inds_ =
-        DEFAULTNMONITORINDS; ///< The number of best individuals of the entire run to be kept
 
     std::vector<std::shared_ptr<GBScanPar>> b_cnt_; ///< Holds boolean parameters to be scanned
     std::vector<std::shared_ptr<GInt32ScanPar>>

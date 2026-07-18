@@ -100,7 +100,6 @@ SET ( OA_INCLUDES
 # Interface headers (namespace Gem::Geneva::Interface), installed under
 # geneva/Interface to mirror the nested `Interface` namespace.
 SET ( IFACE_INCLUDES
-    Interface/GMutableI.hpp
     Interface/GRateableI.hpp
     Interface/GOptimizerIT.hpp
 )

@@ -92,7 +92,7 @@ constexpr std::size_t GEEI_DEF_NRESULTS = 1;
 const std::string GEEI_DEF_STARTMODE = "random";
 const std::string GEEI_DEF_DATATYPE = "setup_data";
 const std::string GEEI_DEF_RUNID = "empty";
-const bool GEEI_DEF_REMOVETEMPORARIES = "true";
+constexpr bool GEEI_DEF_REMOVETEMPORARIES = true;
 
 
 /******************************************************************************/

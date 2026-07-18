@@ -289,3 +289,28 @@ TEST_CASE("GAdaptionConfig: installInto seeds the per-group state", "[flat][adap
     CHECK(sig[1] == 0.5);  // the others keep their original seed
     CHECK(sig[2] == 0.5);
 }
+
+/******************************************************************************/
+// API-gap fix (2026-07-18): the label handle used to offer gauss/intGauss/flip/adaptionMode but
+// silently missed biGauss, so a labelled bi-Gauss group was unauthorable by name. Pin the
+// forwarding: biGauss through forLabel() must author every FP group carrying the label.
+TEST_CASE("GAdaptionConfig: biGauss is authorable by label", "[flat][adaptcfg]") {
+    AdaptCfgIndividual ind;
+    auto cfg = authoredConfig(ind);
+
+    CHECK_NOTHROW(cfg.forLabel("position").biGauss(
+        /*sigma1*/ 0.25, /*sigma_sigma1*/ 0.8, /*min_sigma1*/ 1e-3, /*max_sigma1*/ 2.,
+        /*sigma2*/ 0.15, /*sigma_sigma2*/ 0.8, /*min_sigma2*/ 1e-3, /*max_sigma2*/ 2.,
+        /*delta*/ 0.05, /*sigma_delta*/ 0.8, /*min_delta*/ 0., /*max_delta*/ 0.5,
+        /*ad_prob*/ 1.
+    ));
+
+    // Both "position" groups became bi-Gauss groups with the requested start sigmas ...
+    CHECK(cfg.doubleGroups()[0].has_bigauss);
+    CHECK(cfg.doubleGroups()[1].has_bigauss);
+    CHECK(cfg.doubleGroups()[0].start_sigma1 == 0.25);
+    CHECK(cfg.doubleGroups()[1].start_sigma2 == 0.15);
+
+    // ... and the unlabelled group is untouched.
+    CHECK_FALSE(cfg.doubleGroups()[2].has_bigauss);
+}

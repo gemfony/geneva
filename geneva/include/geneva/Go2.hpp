@@ -70,10 +70,7 @@ namespace Gem::Geneva {
 // Default values for the variables used by the optimizer
 const std::string GO2_DEF_DEFAULTCONFIGFILE{"config/Go2.json"}; // NOLINT
 constexpr bool GO2_DEF_CLIENTMODE = false;
-constexpr execMode GO2_DEF_DEFAULPARALLELIZATIONMODE = execMode::MULTITHREADED;
-constexpr bool GO2_DEF_COPYBESTONLY = true;
 constexpr std::uint16_t GO2_DEF_NPRODUCERTHREADS = 0;
-const std::string GO2_DEF_OPTALGS{""};        // NOLINT
 const std::string GO2_DEF_NOCONSUMER{"none"}; // NOLINT
 const std::string GO2_DEF_CONSUMER{"stc"};    // NOLINT: default consumer mnemonic when none is chosen
 constexpr bool GO2_DEF_COPYBESTINDIVIDUALSONLY = true;

@@ -697,14 +697,7 @@ void GNelderMead::runFitnessCalculation_() {
 
     auto status = this->workOnPopulation(0, this->data_cnt_.size());
 
-    if(not status.is_complete || status.has_errors) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GNelderMead::runFitnessCalculation(): Error!" << '\n'
-            << "No complete set of items received or errors found in some individuals"
-            << '\n'
-        );
-    }
+    this->requireCompleteEvaluation_(status, "GNelderMead::runFitnessCalculation()");
 }
 
 /******************************************************************************/

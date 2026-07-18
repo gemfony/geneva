@@ -275,17 +275,6 @@ public:
     /** @brief Removes any registered post-processor */
     void clearPostProcessor() { post_processor_ptr_.reset(); }
 
-    /***************************************************************************/
-    // Results-only return hooks (the genome overrides these).
-
-    /** @brief @return true if this (deserialized) item arrived without its input data (results-only return) */
-    bool inputDataOmitted() const { return this->inputDataOmitted_(); }
-    /** @brief Grafts the input data of @p original onto this results-only item.
-     *  @param original The originally-submitted item supplying the input data */
-    void graftInputDataFrom(const GOptimizableEntity &original) {
-        this->graftInputDataFrom_(original);
-    }
-
     /** @brief Loads otherwise-constant data into this (freshly de-serialized) item from a template held at
      *  a remote site, so that data need not travel with every work item (a networked-client convenience;
      *  the default is a no-op, a derived type overrides the hook below if it carries such data).
@@ -923,14 +912,6 @@ private:
     virtual void assignValueVectorInternal_(std::vector<double> const &, activityMode const &) = 0;
     virtual void assignValueVectorInternal_(std::vector<float> const &, activityMode const &) = 0;
 
-    /***************************************************************************/
-    // Results-only return hooks (default: full item; the genome overrides).
-
-    /** @brief @return false in the base (a full item); genome overrides for results-only returns */
-    virtual bool inputDataOmitted_() const { return false; }
-    /** @brief Default no-op graft; the genome overrides. @param original The originally-submitted item */
-    virtual void graftInputDataFrom_([[maybe_unused]] const GOptimizableEntity &original) { /* nothing */ }
-
     /** @brief Re-attaches the OA-owned scratch from @p original onto this individual (the wire omits the
      *  scratch, so a networked return arrives without it; the consumer grafts it back from the retained
      *  original -- see Gem::Courtier::GProcessable::graftOaScratchFrom()).
@@ -976,6 +957,11 @@ private:
     /** @brief The evaluation body run inside process(): feasibility check + evaluate()/res_vec
      *  adoption + the evaluation-policy transform. @param res_vec Optional pre-computed raw results */
     void runEvaluation_(const std::vector<individual_processing_result> &res_vec);
+
+    /** @brief Applies the configured invalidity policy (worst-case, or the sigmoid barrier value)
+     *  to the whole quality surface of a constraint-violating candidate. Shared by
+     *  runEvaluation_() and setFitness_() (formerly two identical copies). */
+    void applyInvalidityPolicy_();
 
     /** @brief Runs the registered pre-processor (if allowed) on this candidate */
     void preProcess_();

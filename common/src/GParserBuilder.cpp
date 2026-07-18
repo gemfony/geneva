@@ -325,18 +325,13 @@ std::vector<std::string> GParsableI::splitComment(std::string const &comment) {
     std::vector<std::string> results;
 
     if(not comment.empty() && comment != "empty") {
-        // First split the comment according to newlines
-        std::vector<std::string> nl_comments;
+        // Split according to newlines, then break each line into sub-tokens at semicolons
         std::istringstream buffer(comment);
         std::string line; // NOLINT(cppcoreguidelines-init-variables)
-
-        // Break the sub-comments into individual lines after each semicolon
         while(std::getline(buffer, line)) {
             for(auto const &t : Gem::Common::splitString(line, ";")) {
                 results.push_back(t);
             }
-
-            nl_comments.push_back(line);
         }
     }
 

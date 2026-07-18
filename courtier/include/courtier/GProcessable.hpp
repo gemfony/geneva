@@ -45,9 +45,11 @@
 #include <boost/serialization/nvp.hpp>
 
 // Geneva headers
+#include "common/GCommonHelperFunctions.hpp"    // timeAndPlace
+#include "common/GErrorStreamer.hpp"            // g_error_streamer, DO_LOG
 #include "common/GExceptions.hpp"
 #include "common/GLogger.hpp"
-#include "courtier/GCourtierEnums.hpp"          // processingStatus, dispatchState, the counter typedefs
+#include "courtier/GCourtierEnums.hpp"          // processingStatus, dispatchState, the id typedefs
 #include "courtier/GCourtierHelperFunctions.hpp" // psToStr
 
 namespace Gem::Courtier {
@@ -111,9 +113,9 @@ class g_processing_exception : public geneva_exception {
  *
  * GProcessable holds everything about a work item that is INDEPENDENT of what it computes: its
  * processing status (the UNPROCESSED / DO_PROCESS / PROCESSED / EXCEPTION_CAUGHT / ERROR_FLAGGED
- * state machine), its accumulated error descriptions, the transport routing/bookkeeping counters
- * (iteration / resubmission / collection-position / correlation id), the transient per-batch
- * dispatch-scheduling state, and the broker/processing timing. It carries NO result store and is NOT
+ * state machine), its accumulated error descriptions, the transport routing ids (the per-dispatch
+ * correlation id and the stable lineage id), the transient per-batch dispatch-scheduling state, and
+ * the processing timing. It carries NO result store and is NOT
  * templated on a result type, so the courtier transport and consumer machinery can reason about a work
  * item's lifecycle without knowing what it evaluates to.
  *
@@ -131,7 +133,7 @@ class GProcessable {
     friend class boost::serialization::access;
 
     /**
-     * @brief Serialises the non-generic lifecycle state (status, errors, routing counters, timing).
+     * @brief Serialises the non-generic lifecycle state (status, errors, routing ids, timing).
      * The transient dispatch-scheduling state (dispatch_state_) is deliberately NOT serialised.
      *
      * @tparam Archive The Boost.Serialization archive type
@@ -145,17 +147,10 @@ class GProcessable {
         // PRESERVES it -- see detail::LineageId for why this preserves while clone() mints fresh.
         ar &make_nvp("submission_uuid_hi", submission_uuid_.value[0]) &
             make_nvp("submission_uuid_lo", submission_uuid_.value[1]) &
-            BOOST_SERIALIZATION_NVP(iteration_counter_) &
-            BOOST_SERIALIZATION_NVP(resubmission_counter_) &
-            BOOST_SERIALIZATION_NVP(collection_position_) &
             BOOST_SERIALIZATION_NVP(correlation_id_) &
             BOOST_SERIALIZATION_NVP(pre_processing_time_) &
             BOOST_SERIALIZATION_NVP(processing_time_) &
             BOOST_SERIALIZATION_NVP(post_processing_time_) &
-            BOOST_SERIALIZATION_NVP(broker_raw_retrieval_time_) &
-            BOOST_SERIALIZATION_NVP(broker_raw_submission_time_) &
-            BOOST_SERIALIZATION_NVP(broker_proc_retrieval_time_) &
-            BOOST_SERIALIZATION_NVP(broker_proc_submission_time_) &
             BOOST_SERIALIZATION_NVP(stored_error_descriptions_) &
             BOOST_SERIALIZATION_NVP(processing_status_);
     }
@@ -322,30 +317,7 @@ public:
     void mark_as_ignorable() { processing_status_ = processingStatus::UNPROCESSED; }
 
     /***************************************************************************/
-    // Transport routing / bookkeeping counters
-
-    /** @brief Sets the iteration counter. @param counter The iteration counter value to store */
-    void setIterationCounter(const ITERATION_COUNTER_TYPE &counter) noexcept {
-        iteration_counter_ = counter;
-    }
-    /** @brief @return The iteration counter stored on this work item */
-    ITERATION_COUNTER_TYPE getIterationCounter() const noexcept { return iteration_counter_; }
-
-    /** @brief Sets the resubmission counter. @param resubmission_counter The value to store */
-    void setResubmissionCounter(const RESUBMISSION_COUNTER_TYPE &resubmission_counter) noexcept {
-        resubmission_counter_ = resubmission_counter;
-    }
-    /** @brief @return The resubmission counter stored on this work item */
-    RESUBMISSION_COUNTER_TYPE getResubmissionCounter() const noexcept {
-        return resubmission_counter_;
-    }
-
-    /** @brief Sets the position inside the submitted collection. @param pos The position to store */
-    void setCollectionPosition(const COLLECTION_POSITION_TYPE &pos) noexcept {
-        collection_position_ = pos;
-    }
-    /** @brief @return The position of this work item within its submitted collection */
-    COLLECTION_POSITION_TYPE getCollectionPosition() const noexcept { return collection_position_; }
+    // Transport routing
 
     /**
      * @brief Sets the transport correlation id -- the token used to route/match a work item through the
@@ -386,43 +358,9 @@ public:
     /***************************************************************************/
     // Timing
 
-    /** @brief @return The time point at which this item was retrieved from the raw queue */
-    std::chrono::high_resolution_clock::time_point getRawRetrievalTime() const {
-        return broker_raw_retrieval_time_;
-    }
-    /** @brief @return The time point at which this item was submitted to the raw queue */
-    std::chrono::high_resolution_clock::time_point getRawSubmissionTime() const {
-        return broker_raw_submission_time_;
-    }
-    /** @brief @return The time point at which this item was retrieved from the processed queue */
-    std::chrono::high_resolution_clock::time_point getProcRetrievalTime() const {
-        return broker_proc_retrieval_time_;
-    }
-    /** @brief @return The time point at which this item was submitted to the processed queue */
-    std::chrono::high_resolution_clock::time_point getProcSubmissionTime() const {
-        return broker_proc_submission_time_;
-    }
-
     /** @brief @return A tuple of (pre-processing, processing, post-processing) times in seconds */
     std::tuple<double, double, double> getProcessingTimes() const {
         return std::make_tuple(pre_processing_time_, processing_time_, post_processing_time_);
-    }
-
-    /** @brief Marks the time when the item was added to a GBufferPortT raw queue */
-    void markRawSubmissionTime() {
-        broker_raw_submission_time_ = std::chrono::high_resolution_clock::now();
-    }
-    /** @brief Marks the time when the item was retrieved from a GBufferPortT raw queue */
-    void markRawRetrievalTime() {
-        broker_raw_retrieval_time_ = std::chrono::high_resolution_clock::now();
-    }
-    /** @brief Marks the time when the item was submitted to a GBufferPortT processed queue */
-    void markProcSubmissionTime() {
-        broker_proc_submission_time_ = std::chrono::high_resolution_clock::now();
-    }
-    /** @brief Marks the time when the item was retrieved from a GBufferPortT processed queue */
-    void markProcRetrievalTime() {
-        broker_proc_retrieval_time_ = std::chrono::high_resolution_clock::now();
     }
 
     /***************************************************************************/
@@ -480,6 +418,21 @@ public:
     void absorbResultsFrom(const GProcessable &src) { this->absorbResultsFrom_(src); }
 
     /**
+     * @brief Whether this item arrived without its input data (a results-only return), so the server
+     * must graft the input data back on via graftInputDataFrom() before using the item. Default
+     * false; a work-item type supporting the lightweight return form overrides the hook.
+     * @return true iff the input data was omitted on the wire and must be grafted
+     */
+    bool inputDataOmitted() const { return this->inputDataOmitted_(); }
+
+    /**
+     * @brief Grafts the input data of @p original onto this (results-only) item. A no-op in the
+     * base; a work-item type supporting the lightweight return form overrides the hook.
+     * @param original The originally-submitted item supplying the input data
+     */
+    void graftInputDataFrom(const GProcessable &original) { this->graftInputDataFrom_(original); }
+
+    /**
      * @brief Replaces this work item's content in place with a deep copy of @p src, keeping this item's
      * heap address (a fresh lineage id is the caller's responsibility -- a refill is a new individual).
      *
@@ -522,6 +475,14 @@ protected:
      */
     virtual void absorbResultsFrom_(const GProcessable &src) { GProcessable::operator=(src); }
 
+    /** @brief Hook behind inputDataOmitted(): whether this item is a results-only return. Default false.
+     *  @return false in the base */
+    virtual bool inputDataOmitted_() const { return false; }
+
+    /** @brief Hook behind graftInputDataFrom(): grafts @p original's input data onto this item. Default no-op.
+     *  @param original The originally-submitted item supplying the input data (unused in the default) */
+    virtual void graftInputDataFrom_([[maybe_unused]] const GProcessable &original) { /* nothing */ }
+
     /**
      * @brief Hook behind loadContentFrom(): performs an in-place deep copy of @p src into this item.
      * The base carries no content and cannot, so it returns false; a result-bearing derived class
@@ -555,9 +516,6 @@ protected:
     /// semantics implement "fresh on clone, kept on load, preserved on the wire" -- see detail::LineageId.
     detail::LineageId submission_uuid_;
 
-    ITERATION_COUNTER_TYPE iteration_counter_ = static_cast<ITERATION_COUNTER_TYPE>(0);
-    RESUBMISSION_COUNTER_TYPE resubmission_counter_ = static_cast<RESUBMISSION_COUNTER_TYPE>(0);
-    COLLECTION_POSITION_TYPE collection_position_ = static_cast<COLLECTION_POSITION_TYPE>(0);
     CORRELATION_ID_TYPE correlation_id_ = CORRELATION_ID_TYPE();
 
     /// Transient, server-side-only per-batch scheduling state for the networked consumers.
@@ -567,15 +525,6 @@ protected:
     double pre_processing_time_ = 0.;  ///< Time needed for pre-processing (seconds)
     double processing_time_ = 0.;      ///< Time needed for the actual processing step (seconds)
     double post_processing_time_ = 0.; ///< Time needed for post-processing (seconds)
-
-    std::chrono::high_resolution_clock::time_point
-        broker_raw_retrieval_time_; ///< Time when the item was retrieved from the raw queue
-    std::chrono::high_resolution_clock::time_point
-        broker_raw_submission_time_; ///< Time when the item was submitted to the raw queue
-    std::chrono::high_resolution_clock::time_point
-        broker_proc_retrieval_time_; ///< Time when the item was retrieved from the processed queue
-    std::chrono::high_resolution_clock::time_point
-        broker_proc_submission_time_; ///< Time when the item was submitted to the processed queue
 
     std::string
         stored_error_descriptions_; ///< Stores exceptions that may have occurred during processing

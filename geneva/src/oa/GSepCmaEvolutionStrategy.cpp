@@ -43,7 +43,6 @@
 #include "common/GExpectationChecksT.hpp"
 #include "common/GLogger.hpp"
 #include "common/GParserBuilder.hpp"
-#include "courtier/GProcessingContainerT.hpp"
 #include "geneva/GenevaHelperFunctions.hpp"
 #include "geneva/GPersonalityTraits.hpp"
 #include "geneva/ind/GOptimizableEntity.hpp"
@@ -493,18 +492,8 @@ void GSepCmaEvolutionStrategy::sampleOffspring() {
 void GSepCmaEvolutionStrategy::runFitnessCalculation_() {
     auto status = this->workOnPopulation(0, this->size());
 
-    // Drop unprocessed items, if any.
-    if(not status.is_complete) {
-        std::erase_if(this->data_cnt_, [](const std::unique_ptr<gen::GOptimizableEntity> &p) -> bool {
-            return (p->getProcessingStatus() == Gem::Courtier::processingStatus::DO_PROCESS);
-        });
-    }
-    // Drop items that errored out.
-    if(status.has_errors) {
-        std::erase_if(this->data_cnt_, [](const std::unique_ptr<gen::GOptimizableEntity> &p) -> bool {
-            return p->has_errors();
-        });
-    }
+    // Drop items a partial or errored return left unusable.
+    this->discardUnusableItems_(status, "GSepCmaEvolutionStrategy::runFitnessCalculation_()");
 }
 
 /******************************************************************************/

@@ -427,6 +427,76 @@ public:
     }
 
     /**
+     * @brief Applies a bi-Gauss adaptor to the labelled floating-point (double + float) groups,
+     * mirroring the per-index handle's biGauss() so a labelled bi-Gauss group is authorable by name.
+     *
+     * @param sigma1 The initial step width of the first Gaussian
+     * @param sigma_sigma1 The self-adaption strength applied to sigma1
+     * @param min_sigma1 The lower clamp for sigma1
+     * @param max_sigma1 The upper clamp for sigma1
+     * @param sigma2 The initial step width of the second Gaussian
+     * @param sigma_sigma2 The self-adaption strength applied to sigma2
+     * @param min_sigma2 The lower clamp for sigma2
+     * @param max_sigma2 The upper clamp for sigma2
+     * @param delta The initial distance between the two Gaussian peaks
+     * @param sigma_delta The self-adaption strength applied to delta
+     * @param min_delta The lower clamp for delta
+     * @param max_delta The upper clamp for delta
+     * @param ad_prob The probability that a given parameter is adapted
+     * @param use_symmetric_sigmas If true, both Gaussians share a single sigma (default false)
+     * @param adapt_ad_prob The self-adaption strength applied to ad_prob (default 0, i.e. fixed)
+     * @param adaption_threshold The number of calls after which sigmas are self-adapted (default 1)
+     * @param mode The adaption mode (default WITHPROBABILITY)
+     * @param min_ad_prob The lower clamp for ad_prob during self-adaption (default 0)
+     * @param max_ad_prob The upper clamp for ad_prob during self-adaption (default 1)
+     * @return A reference to this handle, for fluent chaining
+     */
+    GLabelConfigHandle &biGauss(
+        double sigma1,
+        double sigma_sigma1,
+        double min_sigma1,
+        double max_sigma1,
+        double sigma2,
+        double sigma_sigma2,
+        double min_sigma2,
+        double max_sigma2,
+        double delta,
+        double sigma_delta,
+        double min_delta,
+        double max_delta,
+        double ad_prob,
+        bool use_symmetric_sigmas = false,
+        double adapt_ad_prob = 0.,
+        std::uint32_t adaption_threshold = 1,
+        adaptionMode mode = adaptionMode::WITHPROBABILITY,
+        double min_ad_prob = 0.,
+        double max_ad_prob = 1.
+    ) {
+        if(d_.size() > 0) {
+            d_.biGauss(
+                sigma1, sigma_sigma1, min_sigma1, max_sigma1, sigma2, sigma_sigma2, min_sigma2,
+                max_sigma2, delta, sigma_delta, min_delta, max_delta, ad_prob,
+                use_symmetric_sigmas, adapt_ad_prob, adaption_threshold, mode, min_ad_prob,
+                max_ad_prob
+            );
+        }
+        if(f_.size() > 0) {
+            f_.biGauss(
+                static_cast<float>(sigma1), static_cast<float>(sigma_sigma1),
+                static_cast<float>(min_sigma1), static_cast<float>(max_sigma1),
+                static_cast<float>(sigma2), static_cast<float>(sigma_sigma2),
+                static_cast<float>(min_sigma2), static_cast<float>(max_sigma2),
+                static_cast<float>(delta), static_cast<float>(sigma_delta),
+                static_cast<float>(min_delta), static_cast<float>(max_delta),
+                static_cast<float>(ad_prob), use_symmetric_sigmas,
+                static_cast<float>(adapt_ad_prob), adaption_threshold, mode,
+                static_cast<float>(min_ad_prob), static_cast<float>(max_ad_prob)
+            );
+        }
+        return *this;
+    }
+
+    /**
      * @brief Applies an integer Gauss adaptor to the labelled int32 groups.
      *
      * @param sigma The initial step width (standard deviation) of the Gaussian

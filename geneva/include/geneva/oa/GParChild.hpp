@@ -239,6 +239,19 @@ protected:
         const double &limit
     ) const override;
 
+    /** @brief Retrieves the evaluation range in a given iteration and sorting scheme. Protected so
+     *  the derived algorithms' runFitnessCalculation_() can call it.
+     *  @return A tuple holding the [start, end) index range of individuals to be evaluated */
+    virtual std::tuple<std::size_t, std::size_t> getEvaluationRange_() const {
+        // Default shared by the parent/child algorithms (EA / SA): evaluate everything in the
+        // first iteration (so pluggable optimization monitors need not distinguish between
+        // algorithms), and only the children afterwards.
+        return std::tuple<std::size_t, std::size_t>{
+            this->inFirstIteration() ? 0 : this->getNParents(),
+            this->size()
+        };
+    }
+
 private:
     /** @brief The function checks that the population size meets the requirements and resizes the population to the appropriate size, if required. */
     void adjustPopulation_() override;
@@ -371,10 +384,6 @@ private:
     /** @brief Choose new parents, based on the selection scheme set by the user */
     virtual void selectBest_() = 0;
 
-    /** @brief Retrieves the evaluation range in a given iteration and sorting scheme
-     *  @return A tuple holding the [start, end) index range of individuals to be evaluated */
-    virtual std::tuple<std::size_t, std::size_t>
-    getEvaluationRange_() const = 0; // Depends on selection scheme
     /** @brief Some error checks related to population sizes (implemented per algorithm, e.g.
      *  GEvolutionaryAlgorithm / GSimulatedAnnealing; invoked from GParChild::init). */
     virtual void populationSanityChecks_() const = 0;

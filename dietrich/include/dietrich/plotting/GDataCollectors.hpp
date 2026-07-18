@@ -513,15 +513,17 @@ public:
     /**
 	  * Appends one data row (one value per axis, in column order) generically -- the
 	  * inverse of dataColumns(), used by GDataLog to fill a plotter built from a
-	  * GPlotSpec without knowing its concrete type. Only an all-double collector accepts
-	  * rows this way (the values are pushed straight into the columns); a collector with a
-	  * non-double axis (the integer histogram) rejects the call, as does a row of the
-	  * wrong width.
+	  * GPlotSpec without knowing its concrete type. Any collector whose axes are double
+	  * or int32 accepts rows this way (the same set dataColumns() exposes); an int32 axis
+	  * checked-narrows its value (range-checked, fraction truncated -- the same semantics
+	  * as the tuple insertion operators), so e.g. the integer histogram (hist_1i) is
+	  * fillable through GDataLog rather than throwing at realize time. A row of the wrong
+	  * width, an out-of-range value for an int32 axis, and any other axis type are rejected.
 	  *
 	  * @param row One value per axis, in column order (size must equal the axis count)
 	  */
     void appendRow(std::span<const double> row) override {
-        if constexpr ((std::is_same_v<Ts, double> && ...)) {
+        if constexpr (((std::is_same_v<Ts, double> || std::is_same_v<Ts, std::int32_t>) && ...)) {
             if(row.size() != n_axes) {
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
@@ -531,7 +533,7 @@ public:
             }
             appendRowImpl_(row, std::make_index_sequence<n_axes>{});
         } else {
-            GBasePlotter::appendRow(row); // non-double collector: rejected with a clear message
+            GBasePlotter::appendRow(row); // unsupported axis type: rejected with a clear message
         }
     }
 
@@ -661,11 +663,23 @@ private:
 
     /***************************************************************************/
     /**
-	  * Pushes row[I] into column I for every axis (all-double collectors only).
+	  * Pushes row[I] into column I for every axis, checked-narrowing to the axis type
+	  * (identity for a double axis; range-and-integrality-checked for an int32 axis).
 	  */
     template <std::size_t... Is>
     void appendRowImpl_(std::span<const double> row, std::index_sequence<Is...>) {
-        (std::get<Is>(columns_).push_back(row[Is]), ...);
+        try {
+            (std::get<Is>(columns_).push_back(Gem::Common::narrow<axis_t<Is>>(row[Is])), ...);
+        }
+        catch(std::overflow_error &e) {
+            throw geneva_exception(
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+                << "In GDataCollectorT::appendRow(): Error!" << '\n'
+                << "Encountered invalid cast with Gem::Common::narrow," << '\n'
+                << "with the message " << '\n'
+                << e.what() << '\n'
+            );
+        }
     }
 
     /***************************************************************************/

@@ -997,14 +997,7 @@ void GConjugateGradientDescent::runFitnessCalculation_() {
     auto status = this->workOnPopulation(0, this->data_cnt_.size());
 
     // A conjugate-gradient method needs a complete set of evaluated solutions.
-    if(not status.is_complete || status.has_errors) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GConjugateGradientDescent::runFitnessCalculation(): Error!" << '\n'
-            << "No complete set of items received or errors found in some individuals"
-            << '\n'
-        );
-    }
+    this->requireCompleteEvaluation_(status, "GConjugateGradientDescent::runFitnessCalculation()");
 }
 
 /******************************************************************************/

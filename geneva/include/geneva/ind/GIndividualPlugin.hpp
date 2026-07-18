@@ -48,22 +48,9 @@
 namespace Gem::Geneva {
 
 /******************************************************************************/
-/**
- * @brief The (unmangled) names of the two entry points of the LEGACY individual-plugin convention.
- * The loader (GModuleLoader) still accepts a module built the old way, but new modules use the
- * unified manifest (geneva_module_manifest, built via individualManifest() below).
- */
-inline constexpr const char *GENEVA_INDIVIDUAL_ABI_SYMBOL = "geneva_individual_abi_version";
-inline constexpr const char *GENEVA_INDIVIDUAL_FACTORY_SYMBOL = "geneva_make_individual";
-
 /** @brief The factory type a plugin hands back: the same content-creator type Go2::registerContentCreator
  *  accepts, so a loaded problem is indistinguishable from a compiled-in one downstream. */
 using GIndividualFactoryPtr = std::shared_ptr<Gem::Common::GFactoryT<Genome::GOptimizableEntity>>;
-
-/** @brief The signatures of the two legacy plugin entry points (used by the loader's typed symbol lookup
- *  on the legacy fallback path). */
-using geneva_individual_abi_version_fn = std::uint32_t();
-using geneva_individual_factory_fn = GIndividualFactoryPtr();
 
 /** @brief The compile-time fixed string NTTP the manifest helpers use (shared, in common). */
 using Gem::Common::GFixedString;

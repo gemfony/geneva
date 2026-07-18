@@ -36,9 +36,8 @@
  * A module (an individual, an optimization algorithm, a monitor or a consumer) exports a single C entry
  * point, @c geneva_module_manifest(), returning a @c GenevaModuleManifest. The manifest carries the
  * toolchain-compatibility fingerprint (`GenevaCompat`, validated FIRST -- see GBuildFingerprint.hpp) plus a
- * list of typed contributions. This subsumes the earlier two-symbol individual convention
- * (`geneva_individual_abi_version` / `geneva_make_individual`), which the loader still accepts for one
- * release.
+ * list of typed contributions. It is the ONLY module convention the loader accepts (the earlier
+ * two-symbol individual convention has been retired).
  *
  * Everything crossing the module boundary here is **plain C** (fixed-width integers, `const char*`, and a
  * `void*(*)()` factory thunk): the loader must read @c compat before it can trust any C++ type, so the

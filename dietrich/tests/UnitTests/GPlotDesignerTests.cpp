@@ -40,6 +40,7 @@
 #include <catch2/catch_template_test_macros.hpp>
 
 #include <memory>
+#include <array>
 #include <span>
 #include <string>
 #include <tuple>
@@ -874,4 +875,57 @@ TEMPLATE_TEST_CASE(
     GDecoratorContainer_2D<double>
 ) {
     Gem::Dietrich::Tests::StandardTests_failures_expected<TestType>();
+}
+
+/******************************************************************************/
+// Regression (2026-07-18): GMarker's bounded decoratorData() had its clipping INVERTED -- it
+// emitted plotting code only for markers OUTSIDE the axis ranges and swallowed in-range markers.
+// The contract is the opposite: an in-range marker is drawn, an out-of-range one is clipped.
+
+TEST_CASE("GMarker clips to the plot boundaries (in-range drawn, out-of-range empty)",
+          "[plotting][decorators]") {
+    const GMarker<double> marker(
+        std::tuple<double, double>(0.5, 0.5), gMarker::closedCircle, gColor::black, 0.05
+    );
+
+    const std::tuple<double, double> x_range(0.0, 1.0);
+    const std::tuple<double, double> y_range(0.0, 1.0);
+
+    // In range -> the marker's plotting code is emitted
+    CHECK_FALSE(marker.decoratorData(x_range, y_range, "  ", 0).empty());
+
+    // Outside either axis range -> clipped away
+    const std::tuple<double, double> far_x(2.0, 3.0);
+    const std::tuple<double, double> far_y(-5.0, -4.0);
+    CHECK(marker.decoratorData(far_x, y_range, "  ", 0).empty());
+    CHECK(marker.decoratorData(x_range, far_y, "  ", 0).empty());
+}
+
+/******************************************************************************/
+// Regression (2026-07-18): the integer histogram was constructible through the generic plot
+// machinery (makePlotter / GPlotSpec "hist_1i") but NOT fillable through the generic
+// appendRow(span<const double>) path GDataLog::toDesigner() uses -- the all-double-only fast
+// path rejected any collector with an int32 axis, so a hist_1i data log threw at realize time.
+// appendRow now checked-narrows into int32 axes (range-checked, fraction truncated, matching
+// the tuple insertion operators).
+
+TEST_CASE("GHistogram1I is fillable through the generic appendRow path",
+          "[plotting][collectors]") {
+    GHistogram1I hist(10, 0., 10.);
+
+    // A representable value lands in the (int32) column
+    const std::array<double, 1> ok_row{3.0};
+    CHECK_NOTHROW(hist.appendRow(std::span<const double>(ok_row)));
+
+    // A fractional value is truncated (tuple-insertion semantics), not rejected
+    const std::array<double, 1> frac_row{4.7};
+    CHECK_NOTHROW(hist.appendRow(std::span<const double>(frac_row)));
+
+    // An out-of-int32-range value is rejected with a clear error
+    const std::array<double, 1> big_row{3.0e10};
+    CHECK_THROWS(hist.appendRow(std::span<const double>(big_row)));
+
+    // Both accepted rows are visible through the generic column view
+    const auto cols = hist.dataColumns();
+    REQUIRE(cols.size() == 1);
 }

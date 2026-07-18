@@ -33,7 +33,6 @@
 #include "common/GExpectationChecksT.hpp"
 #include "common/GLogger.hpp"
 #include "common/GParserBuilder.hpp"
-#include "courtier/GProcessingContainerT.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/GPersonalityTraits.hpp"
 #include "geneva/GenevaHelperFunctions.hpp"
@@ -1279,34 +1278,7 @@ void GSwarmAlgorithm::runFitnessCalculation_() {
 
     //--------------------------------------------------------------------------------
     // Take care of unprocessed items, if these exist
-    if(not status.is_complete) {
-        std::size_t n_erased =
-            std::erase_if(this->data_cnt_, [this](const std::unique_ptr<gen::GOptimizableEntity> &p) -> bool {
-                return (p->getProcessingStatus() == Gem::Courtier::processingStatus::DO_PROCESS);
-            });
-
-#ifdef DEBUG
-        glogger << "In GSwarmAlgorithm::runFitnessCalculation(): " << '\n'
-                << "Removed " << n_erased << " unprocessed work items in iteration "
-                << this->getIteration() << '\n'
-                << GLOGGING;
-#endif
-    }
-
-    // Remove items for which an error has occurred during processing
-    if(status.has_errors) {
-        std::size_t n_erased =
-            std::erase_if(this->data_cnt_, [this](const std::unique_ptr<gen::GOptimizableEntity> &p) -> bool {
-                return p->has_errors();
-            });
-
-#ifdef DEBUG
-        glogger << "In GSwarmAlgorithm::runFitnessCalculation(): " << '\n'
-                << "Removed " << n_erased << " erroneous work items in iteration "
-                << this->getIteration() << '\n'
-                << GLOGGING;
-#endif
-    }
+    this->discardUnusableItems_(status, "GSwarmAlgorithm::runFitnessCalculation()");
 
     //--------------------------------------------------------------------------------
     // Sort according to the individuals' neighborhoods

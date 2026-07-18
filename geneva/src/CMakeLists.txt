@@ -36,6 +36,7 @@ SET ( OPTIMIZATIONSOURCES
 	GIndividualMultiConstraint.cpp
 	GOptimizableEntityCommandContainerExport.cpp
 	Go2.cpp
+    oa/GBasePluggableOM.cpp
     oa/GOptimizationAlgorithmBase.cpp
     oa/GLineSearch.cpp
     oa/GHesseError.cpp

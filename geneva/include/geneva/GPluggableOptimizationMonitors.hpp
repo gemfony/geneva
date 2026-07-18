@@ -33,6 +33,7 @@
 #include "common/GGlobalDefines.hpp"
 
 // Standard header files go here
+#include <array>
 #include <algorithm>
 #include <chrono>
 #include <filesystem>
@@ -794,42 +795,10 @@ public:
 	  * @return A human-readable label string for the given variable
 	  */
     std::string getLabel(const gen::parPropSpec<fp_type> &s) const {
-        std::string result; // NOLINT(cppcoreguidelines-init-variables)
-
-        std::size_t var_mode = std::get<0>(s.var);
-        std::string var_name = std::get<1>(s.var);
-        std::size_t var_pos = std::get<2>(s.var);
-
-        switch(var_mode) {
-        //--------------------------------------------------------------------
-        case 0: // parameters are identified by id
-        {
-            result = std::string("variable id ") + Gem::Common::to_string(var_pos);
-        } break;
-
-            //--------------------------------------------------------------------
-        case 1: {
-            result = var_name + "[" + Gem::Common::to_string(var_pos) + "]";
-        } break;
-
-            //--------------------------------------------------------------------
-        case 2: {
-            result = var_name;
-        } break;
-
-            //--------------------------------------------------------------------
-        default: {
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GProgressPlotterT<fp_type>::getLabel(): Error" << '\n'
-                << "Invalid mode " << var_mode << " requested" << '\n'
-            );
-        }
-
-            //--------------------------------------------------------------------
-        };
-
-        return result;
+        // All monitored parameters are addressed positionally (the former by-name addressing
+        // modes have been removed).
+        const std::size_t var_pos = std::get<2>(s.var);
+        return std::string("variable id ") + Gem::Common::to_string(var_pos);
     }
 
 protected:
@@ -1045,206 +1014,14 @@ private:
         } break;
 
         case Gem::Geneva::infoMode::INFOPROCESSING: {
-            double primary_fitness = 0.;
-
-            if(monitor_best_only_) { // Monitor the best individuals only
+            if(monitor_best_only_) { // Monitor the best individual only
                 std::shared_ptr<gen::GOptimizableEntity> p =
                     goa->Interface::GOptimizerIT<oa::GOptimizationAlgorithmBase>::getBestGlobalIndividual<gen::GOptimizableEntity>();
-                if(oa::GBasePluggableOM::use_raw_evaluation_) {
-                    primary_fitness = p->raw_fitness(0);
-                }
-                else {
-                    primary_fitness = p->transformed_fitness(0);
-                }
-
-                if(not monitor_valid_only_ || p->isValid()) {
-                    switch(this->nProfileVars()) {
-                    case 1: {
-                        auto val0 = p->GOptimizableEntity::getVarVal<fp_type>(fp_prof_var_vec_[0].var);
-
-                        if(observe_boundaries_) {
-                            if(val0 >= fp_prof_var_vec_[0].lowerBoundary &&
-                               val0 <= fp_prof_var_vec_[0].upperBoundary) {
-                                data_log_->append(active_series_, double(val0), primary_fitness);
-                            }
-                        }
-                        else {
-                            data_log_->append(active_series_, double(val0), primary_fitness);
-                        }
-                    } break;
-
-                    case 2: {
-                        auto val0 = p->GOptimizableEntity::getVarVal<fp_type>(fp_prof_var_vec_[0].var);
-                        auto val1 = p->GOptimizableEntity::getVarVal<fp_type>(fp_prof_var_vec_[1].var);
-
-                        if(observe_boundaries_) {
-                            if(val0 >= fp_prof_var_vec_[0].lowerBoundary &&
-                               val0 <= fp_prof_var_vec_[0].upperBoundary &&
-                               val1 >= fp_prof_var_vec_[1].lowerBoundary &&
-                               val1 <= fp_prof_var_vec_[1].upperBoundary) {
-                                data_log_->append(active_series_, 
-                                    std::tuple<double, double, double>(
-                                        double(val0),
-                                        double(val1),
-                                        primary_fitness
-                                    )
-                                );
-                            }
-                        }
-                        else {
-                            data_log_->append(active_series_, 
-                                std::tuple<double, double, double>(
-                                    double(val0),
-                                    double(val1),
-                                    primary_fitness
-                                )
-                            );
-                        }
-                    } break;
-
-                    case 3: {
-                        auto val0 = p->GOptimizableEntity::getVarVal<fp_type>(fp_prof_var_vec_[0].var);
-                        auto val1 = p->GOptimizableEntity::getVarVal<fp_type>(fp_prof_var_vec_[1].var);
-                        auto val2 = p->GOptimizableEntity::getVarVal<fp_type>(fp_prof_var_vec_[2].var);
-
-                        if(observe_boundaries_) {
-                            if(val0 >= fp_prof_var_vec_[0].lowerBoundary &&
-                               val0 <= fp_prof_var_vec_[0].upperBoundary &&
-                               val1 >= fp_prof_var_vec_[1].lowerBoundary &&
-                               val1 <= fp_prof_var_vec_[1].upperBoundary &&
-                               val2 >= fp_prof_var_vec_[2].lowerBoundary &&
-                               val2 <= fp_prof_var_vec_[2].upperBoundary) {
-                                data_log_->append(active_series_, 
-                                    std::tuple<double, double, double, double>(
-                                        double(val0),
-                                        double(val1),
-                                        double(val2),
-                                        primary_fitness
-                                    )
-                                );
-                            }
-                        }
-                        else {
-                            data_log_->append(active_series_, 
-                                std::tuple<double, double, double, double>(
-                                    double(val0),
-                                    double(val1),
-                                    double(val2),
-                                    primary_fitness
-                                )
-                            );
-                        }
-                    } break;
-
-                    default: // Do nothing by default. The number of profiling dimensions is too large
-                        break;
-                    }
-                }
+                this->logIndividual_(*p);
             }
             else { // Monitor all individuals
                 for(const auto &ind_ptr : *goa) {
-                    if(oa::GBasePluggableOM::use_raw_evaluation_) {
-                        primary_fitness = ind_ptr->raw_fitness(0);
-                    }
-                    else {
-                        primary_fitness = ind_ptr->transformed_fitness(0);
-                    }
-
-                    if(not monitor_valid_only_ || ind_ptr->isValid()) {
-                        switch(this->nProfileVars()) {
-                        case 1: {
-                            auto val0 = ind_ptr->getVarVal<fp_type>(
-                                fp_prof_var_vec_[0].var
-                            );
-
-                            if(observe_boundaries_) {
-                                if(val0 >= fp_prof_var_vec_[0].lowerBoundary &&
-                                   val0 <= fp_prof_var_vec_[0].upperBoundary) {
-                                    data_log_->append(active_series_, double(val0), primary_fitness);
-                                }
-                            }
-                            else {
-                                data_log_->append(active_series_, double(val0), primary_fitness);
-                            }
-                        } break;
-
-                        case 2: {
-                            auto val0 = ind_ptr->getVarVal<fp_type>(
-                                fp_prof_var_vec_[0].var
-                            );
-                            auto val1 = ind_ptr->getVarVal<fp_type>(
-                                fp_prof_var_vec_[1].var
-                            );
-
-                            if(observe_boundaries_) {
-                                if(val0 >= fp_prof_var_vec_[0].lowerBoundary &&
-                                   val0 <= fp_prof_var_vec_[0].upperBoundary &&
-                                   val1 >= fp_prof_var_vec_[1].lowerBoundary &&
-                                   val1 <= fp_prof_var_vec_[1].upperBoundary) {
-                                    data_log_->append(active_series_, 
-                                        std::tuple<double, double, double>(
-                                            double(val0),
-                                            double(val1),
-                                            primary_fitness
-                                        )
-                                    );
-                                }
-                            }
-                            else {
-                                data_log_->append(active_series_, 
-                                    std::tuple<double, double, double>(
-                                        double(val0),
-                                        double(val1),
-                                        primary_fitness
-                                    )
-                                );
-                            }
-                        } break;
-
-                        case 3: {
-                            auto val0 = ind_ptr->getVarVal<fp_type>(
-                                fp_prof_var_vec_[0].var
-                            );
-                            auto val1 = ind_ptr->getVarVal<fp_type>(
-                                fp_prof_var_vec_[1].var
-                            );
-                            auto val2 = ind_ptr->getVarVal<fp_type>(
-                                fp_prof_var_vec_[2].var
-                            );
-
-                            if(observe_boundaries_) {
-                                if(val0 >= fp_prof_var_vec_[0].lowerBoundary &&
-                                   val0 <= fp_prof_var_vec_[0].upperBoundary &&
-                                   val1 >= fp_prof_var_vec_[1].lowerBoundary &&
-                                   val1 <= fp_prof_var_vec_[1].upperBoundary &&
-                                   val2 >= fp_prof_var_vec_[2].lowerBoundary &&
-                                   val2 <= fp_prof_var_vec_[2].upperBoundary) {
-                                    data_log_->append(active_series_, 
-                                        std::tuple<double, double, double, double>(
-                                            double(val0),
-                                            double(val1),
-                                            double(val2),
-                                            primary_fitness
-                                        )
-                                    );
-                                }
-                            }
-                            else {
-                                data_log_->append(active_series_, 
-                                    std::tuple<double, double, double, double>(
-                                        double(val0),
-                                        double(val1),
-                                        double(val2),
-                                        primary_fitness
-                                    )
-                                );
-                            }
-                        } break;
-
-                        default: // Do nothing by default. The number of profiling dimensions is too large
-                            break;
-                        }
-                    }
+                    this->logIndividual_(*ind_ptr);
                 }
             }
         } break;
@@ -1265,6 +1042,62 @@ private:
             data_log_.reset();
         } break;
         };
+    }
+
+    /************************************************************************/
+    /**
+     * @brief Logs one individual's profiled variables (plus its primary fitness) into the active
+     * series, applying the validity and boundary filters. Shared by the best-only and
+     * all-individuals monitoring paths (formerly two copies of a per-dimension switch, each
+     * duplicated for the boundary filter).
+     *
+     * @param ind The individual whose profiled variables are logged
+     */
+    void logIndividual_(gen::GOptimizableEntity &ind) {
+        const double primary_fitness = oa::GBasePluggableOM::use_raw_evaluation_
+            ? ind.raw_fitness(0)
+            : ind.transformed_fitness(0);
+
+        if(monitor_valid_only_ && not ind.isValid()) {
+            return;
+        }
+
+        const std::size_t n_vars = this->nProfileVars();
+        if(n_vars < 1 || n_vars > 3) {
+            return; // too many profiling dimensions: nothing is logged (no series was declared)
+        }
+
+        // Read the profiled values; with the boundary filter on, an individual outside any
+        // observed window is not logged at all.
+        std::array<double, 3> vals{};
+        for(std::size_t i = 0; i < n_vars; ++i) {
+            const auto v = ind.GOptimizableEntity::template getVarVal<fp_type>(fp_prof_var_vec_[i].var);
+            if(observe_boundaries_ &&
+               (v < fp_prof_var_vec_[i].lowerBoundary || v > fp_prof_var_vec_[i].upperBoundary)) {
+                return;
+            }
+            vals[i] = double(v);
+        }
+
+        switch(n_vars) {
+        case 1:
+            data_log_->append(active_series_, vals[0], primary_fitness);
+            break;
+        case 2:
+            data_log_->append(
+                active_series_,
+                std::tuple<double, double, double>(vals[0], vals[1], primary_fitness)
+            );
+            break;
+        case 3:
+            data_log_->append(
+                active_series_,
+                std::tuple<double, double, double, double>(vals[0], vals[1], vals[2], primary_fitness)
+            );
+            break;
+        default:
+            break;
+        }
     }
 
     /************************************************************************/

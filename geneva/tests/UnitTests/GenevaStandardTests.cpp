@@ -581,14 +581,12 @@ TEST_CASE(
         oa::GParameterScan a;
         // Non-default values for the localMembers()-tied plain members.
         a.setScanRandomly(false);    // default is true
-        a.setNMonitorInds(42);       // default is DEFAULTNMONITORINDS (10)
         a.setNSimpleScans(7);        // sets simple_scan_items_ (default 0)
         return a;
     };
 
     auto checkGetters = [](const oa::GParameterScan &restored) {
         CHECK(restored.getScanRandomly() == false);
-        CHECK(restored.getNMonitorInds() == 42);
         CHECK(restored.getNSimpleScans() == 7);
     };
 
@@ -597,7 +595,6 @@ TEST_CASE(
         oa::GParameterScan original = makeOriginal();
         oa::GParameterScan restored;
         restored.setScanRandomly(true);
-        restored.setNMonitorInds(1);
 
         REQUIRE_NOTHROW(restored.load(original));
         checkGetters(restored);
@@ -616,7 +613,6 @@ TEST_CASE(
         oa::GParameterScan original = makeOriginal();
         oa::GParameterScan restored;
         restored.setScanRandomly(true);
-        restored.setNMonitorInds(1);
 
         REQUIRE_NOTHROW(
             restored.fromString(original.toString(mode), mode)

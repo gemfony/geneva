@@ -34,7 +34,6 @@
 #include "common/GLogger.hpp"
 #include "common/GParserBuilder.hpp"
 #include "common/concurrency/GThreadPool.hpp"
-#include "courtier/GProcessingContainerT.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/GPersonalityTraits.hpp"
 #include "geneva/GenevaHelperFunctions.hpp"
@@ -306,35 +305,7 @@ void GSimulatedAnnealing::runFitnessCalculation_() {
 
     //--------------------------------------------------------------------------------
     // Take care of unprocessed items, if these exist. We simply remove them and continue.
-    if(not status.is_complete) {
-        std::size_t n_erased =
-            std::erase_if(this->data_cnt_, [this](const std::unique_ptr<gen::GOptimizableEntity> &p) -> bool {
-                return (p->getProcessingStatus() == Gem::Courtier::processingStatus::DO_PROCESS);
-            });
-
-#ifdef DEBUG
-        glogger << "In GSimulatedAnnealing::runFitnessCalculation(): " << '\n'
-                << "Removed " << n_erased << " unprocessed work items in iteration "
-                << this->getIteration() << '\n'
-                << GLOGGING;
-#endif
-    }
-
-    // Remove items for which an error has occurred during processing
-    // We simply remove them and continue.
-    if(status.has_errors) {
-        std::size_t n_erased =
-            std::erase_if(this->data_cnt_, [this](const std::unique_ptr<gen::GOptimizableEntity> &p) -> bool {
-                return p->has_errors();
-            });
-
-#ifdef DEBUG
-        glogger << "In GSimulatedAnnealing::runFitnessCalculation(): " << '\n'
-                << "Removed " << n_erased << " erroneous work items in iteration "
-                << this->getIteration() << '\n'
-                << GLOGGING;
-#endif
-    }
+    this->discardUnusableItems_(status, "GSimulatedAnnealing::runFitnessCalculation()");
 
     //--------------------------------------------------------------------------------
     // Now fix the population -- it may be smaller than its nominal size
@@ -386,15 +357,6 @@ void GSimulatedAnnealing::selectBest_() {
   *
   * @return A tuple holding the half-open [start, end) range of population positions to be evaluated
   */
-std::tuple<std::size_t, std::size_t> GSimulatedAnnealing::getEvaluationRange_() const {
-    // We evaluate all individuals in the first iteration This happens so pluggable
-    // optimization monitors do not need to distinguish between algorithms
-    return std::tuple<std::size_t, std::size_t>{
-        this->inFirstIteration() ? 0 : this->getNParents(),
-        this->size()
-    };
-}
-
 /******************************************************************************/
 /**
   * @brief Retrieve a GPersonalityTraits object belonging to this algorithm

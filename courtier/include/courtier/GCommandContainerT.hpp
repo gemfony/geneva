@@ -52,9 +52,6 @@
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/xml_iarchive.hpp>
 #include <boost/archive/xml_oarchive.hpp>
-#include <boost/beast/core.hpp>
-#include <boost/beast/websocket.hpp>
-#include <boost/beast/websocket/rfc6455.hpp>
 #include <boost/serialization/nvp.hpp>
 #include <boost/serialization/string.hpp>
 #include <boost/serialization/unique_ptr.hpp>
@@ -331,16 +328,7 @@ std::string container_to_string(
         } break;
         }
     }
-    catch(const boost::system::system_error &e) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In container_to_string(GCommandContainerT<>):" << '\n'
-            << "Caught boost::system::system_error exception with messages:" << '\n'
-            << e.what() << '\n'
-            << "with serializationMode == " << Gem::Common::serModeToString(serMode) << '\n'
-        );
-    }
-    catch(const std::exception &e) {
+    catch(const std::exception &e) { // boost::system::system_error derives from std::exception
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In container_to_string(GCommandContainerT<>):" << '\n'
@@ -404,16 +392,7 @@ void container_from_string(
         } break;
         }
     }
-    catch(const boost::system::system_error &e) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In container_from_string(GCommandContainerT<>):" << '\n'
-            << "Caught boost::system::system_error exception with messages:" << '\n'
-            << e.what() << '\n'
-            << "with serializationMode == " << Gem::Common::serModeToString(serMode) << '\n'
-        );
-    }
-    catch(const std::exception &e) {
+    catch(const std::exception &e) { // boost::system::system_error derives from std::exception
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In container_from_string(GCommandContainerT<>):" << '\n'

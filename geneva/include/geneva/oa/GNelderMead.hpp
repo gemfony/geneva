@@ -42,7 +42,6 @@
 
 // Geneva headers go here
 #include "common/GExceptions.hpp"
-#include "dietrich/GPlotDesigner.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/ind/GOptimizableEntity.hpp"
 #include "geneva/oa/GOptimizationAlgorithmBase.hpp"

@@ -179,7 +179,7 @@ public:
      *
      * Results-only late returns: a work item returned in the lightweight results-only form (only its
      * computed results travel; its input parameters are grafted back from the originally-submitted item
-     * -- see GProcessingContainerT::graftInputDataFrom) normally cannot be reconstructed once it arrives
+     * -- see GProcessable::graftInputDataFrom) normally cannot be reconstructed once it arrives
      * LATE, because its batch has been reconciled and the original it would graft from is gone. To make
      * such a slow-but-alive worker's result usable, enabling this buffer ALSO makes dispatch_ retain a
      * clone of every un-returned original (keyed by correlation id, bounded by the same cap + ttl_rounds).
@@ -336,9 +336,9 @@ protected:
         }
         BatchState &b = it->second;
         const std::size_t slot = decodeSlot(id);
-        if(slot >= b.items.size() ||
+        if(slot >= b.items.size() || not b.items[slot] ||
            b.items[slot]->getDispatchState() != Gem::Courtier::dispatchState::IN_FLIGHT) {
-            return; // out of range, or duplicate / not currently in flight
+            return; // out of range, a null (non-participating) slot, or duplicate / not in flight
         }
         // Feed the (shared) adaptive timeout: how long this item took from checkout to return.
         const auto now = clock::now();
@@ -632,8 +632,11 @@ private:
                 it = batches_.begin();
             }
             BatchState &b = it->second;
+            // Skip non-participating slots: null entries and anything not PENDING (see dispatch_'s
+            // selection comment -- the span may carry null / already-resolved slots).
             while(b.cursor < b.items.size() &&
-                  b.items[b.cursor]->getDispatchState() != Gem::Courtier::dispatchState::PENDING) {
+                  (not b.items[b.cursor] ||
+                   b.items[b.cursor]->getDispatchState() != Gem::Courtier::dispatchState::PENDING)) {
                 ++b.cursor;
             }
             if(b.cursor < b.items.size()) {
@@ -660,7 +663,7 @@ private:
      *  @param slot The slot index to flip back to PENDING
      *  @return true if the slot was flipped; false if it was out of range or not currently IN_FLIGHT */
     bool requeueSlot_locked(BatchState &b, std::size_t slot) {
-        if(slot >= b.items.size() ||
+        if(slot >= b.items.size() || not b.items[slot] ||
            b.items[slot]->getDispatchState() != Gem::Courtier::dispatchState::IN_FLIGHT) {
             return false;
         }
@@ -682,7 +685,8 @@ private:
         const auto lease = currentLease();
         bool any = false;
         for(std::size_t k = 0; k < b.items.size(); ++k) {
-            if(b.items[k]->getDispatchState() == Gem::Courtier::dispatchState::IN_FLIGHT &&
+            if(b.items[k] &&
+               b.items[k]->getDispatchState() == Gem::Courtier::dispatchState::IN_FLIGHT &&
                (now - b.checked_out_at[k]) > lease) {
                 any = requeueSlot_locked(b, k) || any;
             }

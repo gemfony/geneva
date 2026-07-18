@@ -83,11 +83,17 @@ using G_CPU_BASE_GENERATOR = xoshiro256pp;
  *         "mt19937_64", "mt19937" or "unknown")
  */
 inline const char *cpuEngineName() noexcept {
-    if constexpr (std::is_same_v<G_CPU_BASE_GENERATOR, std::mt19937_64>) { return "mt19937_64";
-    } else if constexpr (std::is_same_v<G_CPU_BASE_GENERATOR, std::mt19937>) { return "mt19937";
-    } else if constexpr (std::is_same_v<G_CPU_BASE_GENERATOR, xoshiro256pp>) { return "xoshiro256++";
-    } else { return "unknown";
-}
+    // The non-xoshiro branches exist so a substituted engine (see G_CPU_BASE_GENERATOR above)
+    // is still labelled correctly; only one branch is ever compiled in.
+    if constexpr (std::is_same_v<G_CPU_BASE_GENERATOR, xoshiro256pp>) {
+        return "xoshiro256++";
+    } else if constexpr (std::is_same_v<G_CPU_BASE_GENERATOR, std::mt19937_64>) {
+        return "mt19937_64";
+    } else if constexpr (std::is_same_v<G_CPU_BASE_GENERATOR, std::mt19937>) {
+        return "mt19937";
+    } else {
+        return "unknown";
+    }
 }
 
 class GRandomFactory; // Forward declaration, so we can make random_container constructor private
@@ -238,24 +244,9 @@ private:
 	  */
     template <typename RNG>
     explicit random_container(RNG &rng) {
-        try {
-            fill_from(rng, r_.size());
-        }
-        catch(const std::bad_alloc &e) {
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In random_container::random_container(T_RNG&): Error!" << '\n'
-                << "std::bad_alloc caught with message" << '\n'
-                << e.what() << '\n'
-            );
-        }
-        catch(...) {
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In random_container::random_container(T_RNG&): Error!" << '\n'
-                << "unknown exception caught" << '\n'
-            );
-        }
+        // fill_from writes into the in-object std::array -- it allocates nothing, so there is
+        // no bad_alloc to guard against here (the producer's `new` has its own catch-all).
+        fill_from(rng, r_.size());
     }
 
     /***************************************************************************/
@@ -362,6 +353,18 @@ public:
     void setNProducerThreads(const std::uint16_t &n_producer_threads);
 
     /**
+     * @brief Retrieves the current number of producer threads.
+     *
+     * Before the lazy thread start this is the count the first getNewRandomContainer() call
+     * will launch; afterwards it equals the size of the running producer pool.
+     *
+     * @return The number of threads simultaneously producing random number packages
+     */
+    [[nodiscard]] std::uint16_t getNProducerThreads() const noexcept {
+        return n_producer_threads_.load();
+    }
+
+    /**
      * @brief Allows to retrieve the size of the random number array held by each container.
      *
      * @return The number of random numbers in a full container
@@ -446,7 +449,7 @@ private:
     }; ///< The number of threads used to produce random numbers (hardware-derived by default)
 
     Gem::Common::Concurrency::GThreadGroup
-        producer_threads_; ///< A thread group that holds [0,1[ producer threads
+        producer_threads_; ///< A thread group that holds the raw-random-word producer threads
 
     /** @brief A bounded buffer holding the random number packages. The queue backend is selected at
      *  compile time by FACTORYQUEUEBACKEND (default: the std::deque-backed queue -- unchanged

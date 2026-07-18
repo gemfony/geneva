@@ -231,12 +231,11 @@ public:
             // Throw an exception
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GFixedSizePriorityQueueT<T>::best(): Error!" << '\n'
+                << "In GFixedSizePriorityQueueT<T>::worst(): Error!" << '\n'
                 << "Priority queue is empty." << '\n'
             );
         }
-                    return data_deq_.back();
-       
+        return data_deq_.back();
     }
 
     /***************************************************************************/

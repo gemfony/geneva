@@ -270,7 +270,6 @@ GParameterScan::GParameterScan(const GParameterScan &cp)
   : GOptimizationAlgorithmT<GParameterScan>(cp)
   , cycle_logic_halt_(cp.cycle_logic_halt_)
   , scan_randomly_(cp.scan_randomly_)
-  , n_monitor_inds_(cp.n_monitor_inds_)
   , simple_scan_items_(cp.simple_scan_items_)
   , scans_performed_(cp.scans_performed_) {
     // Copying / setting of the optimization algorithm id is done by the parent class. The same
@@ -351,28 +350,6 @@ void GParameterScan::resetToOptimizationStart_() {
     // There is no more work to be done here, so we simply call the
     // function of the parent class
     GOptimizationAlgorithmBase::resetToOptimizationStart_();
-}
-
-/******************************************************************************/
-/**
- * @brief Allows to set the number of "best" individuals to be monitored
- * over the course of the algorithm run.
- *
- * @param n_monitor_inds The number of best individuals to monitor
- */
-void GParameterScan::setNMonitorInds(std::size_t n_monitor_inds) {
-    n_monitor_inds_ = n_monitor_inds;
-}
-
-/******************************************************************************/
-/**
- * @brief Allows to retrieve the number of "best" individuals to be monitored
- * over the course of the algorithm run.
- *
- * @return The number of best individuals being monitored
- */
-std::size_t GParameterScan::getNMonitorInds() const {
-    return n_monitor_inds_;
 }
 
 /******************************************************************************/
@@ -462,13 +439,9 @@ void GParameterScan::updateSelectedParameters() {
 
     while(true) {
         //------------------------------------------------------------------------
-        // Retrieve a work item
-        std::size_t mode = 0;
-        std::shared_ptr<parSet> p_s = getParameterSet(mode);
+        // Retrieve a work item (all parameters are addressed positionally)
+        std::shared_ptr<parSet> p_s = getParameterSet();
 
-        switch(mode) {
-        //---------------------------------------------------------------------
-        case 0: // Parameters are referenced by index
         {
             std::vector<bool> b_data;
             std::vector<std::int32_t> i_data;
@@ -537,18 +510,6 @@ void GParameterScan::updateSelectedParameters() {
             ind.assignValueVector<std::int32_t>(i_data);
             ind.assignValueVector<float>(f_data);
             ind.assignValueVector<double>(d_data);
-        } break;
-
-        //---------------------------------------------------------------------
-        default: {
-            // By-name parameter addressing (modes 1/2) has been removed; the parameter-property
-            // parser only ever emits positional (mode-0) specifications now.
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GParameterScan::updateSelectedParameters(): Error!" << '\n'
-                << "Encountered unsupported (non-positional) mode " << mode << '\n'
-            );
-        } break;
         }
 
         //------------------------------------------------------------------------
@@ -651,118 +612,36 @@ void GParameterScan::resetParameterObjects() {
  * @brief Retrieves a parameter set by filling the current parameter combinations
  * into a parSet object.
  *
- * @param mode An output reference: on return it holds the addressing mode reported by the scan
- *             parameters (currently always positional/by-id); it is also cross-checked for
- *             consistency across all parameter objects
  * @return A shared pointer to a freshly filled parSet object holding the current parameter values
  */
-std::shared_ptr<parSet> GParameterScan::getParameterSet(std::size_t &mode) {
+std::shared_ptr<parSet> GParameterScan::getParameterSet() {
     // Create a new parSet object
     std::shared_ptr<parSet> result(new parSet());
 
-    bool mode_set = false;
-
-    // Extract the relevant data and store it in a parSet object
-    // 1) For boolean objects
-    for(const auto &b_scan_par : b_cnt_) {
-        gen::NAMEANDIDTYPE var = b_scan_par->getVarAddress();
-
-        if(mode_set) {
-            if(std::get<0>(var) != mode) {
+    // Every scan parameter is positional (the former by-name addressing modes have been removed);
+    // guard once per parameter against a corrupted specification.
+    auto append = [this](const auto &scan_par_cnt, auto &target_vec) {
+        using single_t = typename std::remove_reference_t<decltype(target_vec)>::value_type;
+        for(const auto &scan_par : scan_par_cnt) {
+            gen::NAMEANDIDTYPE var = scan_par->getVarAddress();
+            if(std::get<0>(var) != 0) {
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                     << "In GParameterScan::getParameterSet(): Error!" << '\n'
-                    << "Expected mode " << mode << " but got " << std::get<0>(var) << '\n'
+                    << "Encountered non-positional addressing mode " << std::get<0>(var)
+                    << " (by-name addressing has been removed)" << '\n'
                 );
             }
+            target_vec.push_back(single_t{
+                scan_par->getCurrentItem(gr_), // value
+                std::get<2>(var)               // position
+            });
         }
-        else {
-            mode = std::get<0>(var);
-            mode_set = true;
-        }
-
-        (result->bParVec).push_back(singleBPar{
-            b_scan_par->getCurrentItem(gr_), // value
-            std::get<0>(var),                // mode
-            std::get<1>(var),                // name
-            std::get<2>(var)                 // position
-        });
-    }
-    // 2) For std::int32_t objects
-    for(const auto &i_scan_par : int32_cnt_) {
-        gen::NAMEANDIDTYPE var = i_scan_par->getVarAddress();
-
-        if(mode_set) {
-            if(std::get<0>(var) != mode) {
-                throw geneva_exception(
-                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                    << "In GParameterScan::getParameterSet(): Error!" << '\n'
-                    << "Expected mode " << mode << " but got " << std::get<0>(var) << '\n'
-                );
-            }
-        }
-        else {
-            mode = std::get<0>(var);
-            mode_set = true;
-        }
-
-        (result->iParVec).push_back(singleInt32Par{
-            i_scan_par->getCurrentItem(gr_), // value
-            std::get<0>(var),                // mode
-            std::get<1>(var),                // name
-            std::get<2>(var)                 // position
-        });
-    }
-    // 3) For float objects
-    for(const auto &f_scan_par : f_cnt_) {
-        gen::NAMEANDIDTYPE var = f_scan_par->getVarAddress();
-
-        if(mode_set) {
-            if(std::get<0>(var) != mode) {
-                throw geneva_exception(
-                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                    << "In GParameterScan::getParameterSet(): Error!" << '\n'
-                    << "Expected mode " << mode << " but got " << std::get<0>(var) << '\n'
-                );
-            }
-        }
-        else {
-            mode = std::get<0>(var);
-            mode_set = true;
-        }
-
-        (result->fParVec).push_back(singleFPar{
-            f_scan_par->getCurrentItem(gr_), // value
-            std::get<0>(var),                // mode
-            std::get<1>(var),                // name
-            std::get<2>(var)                 // position
-        });
-    }
-    // 4) For double objects
-    for(const auto &d_scan_par : d_cnt_) {
-        gen::NAMEANDIDTYPE var = d_scan_par->getVarAddress();
-
-        if(mode_set) {
-            if(std::get<0>(var) != mode) {
-                throw geneva_exception(
-                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                    << "In GParameterScan::getParameterSet(): Error!" << '\n'
-                    << "Expected mode " << mode << " but got " << std::get<0>(var) << '\n'
-                );
-            }
-        }
-        else {
-            mode = std::get<0>(var);
-            mode_set = true;
-        }
-
-        (result->dParVec).push_back(singleDPar{
-            d_scan_par->getCurrentItem(gr_), // value
-            std::get<0>(var),                // mode
-            std::get<1>(var),                // name
-            std::get<2>(var)                 // position
-        });
-    }
+    };
+    append(b_cnt_, result->bParVec);
+    append(int32_cnt_, result->iParVec);
+    append(f_cnt_, result->fParVec);
+    append(d_cnt_, result->dParVec);
 
     return result;
 }
@@ -917,20 +796,8 @@ void GParameterScan::runFitnessCalculation_() {
 
     auto status = this->workOnPopulation(0, this->data_cnt_.size());
 
-    //--------------------------------------------------------------------------------
-    // Some error checks
-
-    // Check if all work items have returned or whether there were errors. Both cannot
-    // be accepted in a parameter scan.
-    if(not status.is_complete || status.has_errors) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GParameterScan::runFitnessCalculation(): Error!" << '\n'
-            << "No complete set of items received or erroneous items found" << '\n'
-        );
-    }
-
-    //--------------------------------------------------------------------------------
+    // An incomplete or errored return cannot be accepted in a parameter scan.
+    this->requireCompleteEvaluation_(status, "GParameterScan::runFitnessCalculation()");
 }
 
 /******************************************************************************/

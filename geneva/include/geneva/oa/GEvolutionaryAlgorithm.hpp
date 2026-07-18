@@ -261,6 +261,12 @@ public:
     /** @brief Retrieves the step-size-control strategy. @return The configured strategy. */
     stepControl getStepControl() const;
 
+    /** @brief The current global step size of the ONE_FIFTH / CSA controllers (run scratch;
+     *  seeded at init from the slots' representative sigma, updated once per generation).
+     *  Primarily an observability hook for monitors and tests.
+     *  @return The controllers' current global sigma (1.0 while no controller is active). */
+    double getGlobalSigma() const noexcept { return global_sigma_; }
+
     /** @brief Sets the learning-rate constant c for SELF_ADAPT_SCALED (tau = c/sqrt(2n)).
      *  @param c The constant (≈1 by convention). */
     void setLearningRateConstant(double c);
@@ -353,8 +359,6 @@ private:
 
     /** @brief Some error checks related to population sizes */
     void populationSanityChecks_() const override;
-    /** @brief Retrieves the evaluation range in a given iteration and sorting scheme. */
-    std::tuple<std::size_t, std::size_t> getEvaluationRange_() const override;
 
     /***************************************************************************/
     // Step-control machinery (the addition over GEvolutionaryAlgorithm).
@@ -409,7 +413,7 @@ private:
     double p_sigma_ = 0.;            ///< the CSA evolution-path accumulator (scalar proxy)
     double last_p_success_ = 0.;     ///< offspring success rate (fraction of children beating their own parent),
                                      ///< measured before selection reorders the population (see measureOffspringSuccess_)
-    bool   have_prev_best_ = false;  ///< whether at least one generation's success rate has been measured (warm-up guard)
+    bool   controller_warmed_up_ = false; ///< whether at least one generation's success rate has been measured (warm-up guard)
     std::size_t controller_dim_ = 0; ///< the adapted dimension n the controller reasons about
 
     /***************************************************************************/

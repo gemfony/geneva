@@ -87,34 +87,6 @@ using ENUMBASETYPE = std::uint16_t;
 
 /******************************************************************************/
 /**
- * Indicates the different sources for the GMultiSourceParamater
- */
-enum class parameter_source : Gem::Common::ENUMBASETYPE {
-    NETWORK = 1,
-    COMMAND_LINE = 2,
-    ENVIRONMENT_VARIABLE = 3,
-    CONFIGURATION_FILE = 4,
-    ASSIGNMENT = 5
-};
-
-/**
- * @brief Puts a Gem::Common::parameter_source into a stream. Needed for streaming / Gem::Common::fromString<>.
- * @param o The output stream to write to
- * @param x The parameter_source value to be streamed out
- * @return A reference to the output stream
- */
-std::ostream &operator<<(std::ostream &o, Gem::Common::parameter_source const &x);
-
-/**
- * @brief Reads a Gem::Common::parameter_source item from a stream. Needed for streaming / Gem::Common::fromString<>.
- * @param i The input stream to read from
- * @param x The parameter_source value to be filled from the stream
- * @return A reference to the input stream
- */
-std::istream &operator>>(std::istream &i, Gem::Common::parameter_source &x);
-
-/******************************************************************************/
-/**
  * This enum denotes different dimensions (used particularly by GDecoratorCollection
  */
 enum class dimensions : Gem::Common::ENUMBASETYPE {

@@ -416,3 +416,59 @@ TEST_CASE("GProblemStoreT: loads once and reads immutably", "[candidate][store]"
     CHECK(fillCount == 1);
     CHECK(store.get() == std::vector<double>{1.5, 2.5, 3.5});
 }
+
+/******************************************************************************/
+/**
+ * Regression (2026-07-18): an error flagged from INSIDE evaluate() (via GProcessable::force_set_error)
+ * must survive as ERROR_FLAGGED and abort process() with a processing exception. On the unfixed code an
+ * unconditional terminal `processing_status_ = PROCESSED` inside process() clobbered the flagged error,
+ * silently converting a failed evaluation into a successfully processed individual.
+ */
+namespace Gem::Tests {
+
+class ErrorFlaggingSphere : public GGenomeT<ErrorFlaggingSphere> {
+public:
+    ErrorFlaggingSphere() {
+        GGenomeBuilder b;
+        b.addDoubleGroup(2, -10., 10.).init(1.0);
+        this->setGenome(b.build());
+    }
+    ErrorFlaggingSphere(const ErrorFlaggingSphere &) = default;
+
+protected:
+    /** @brief Flags a user error mid-evaluation, as a real fitness function would on invalid input. */
+    std::vector<double> evaluate() override {
+        this->force_set_error("ErrorFlaggingSphere: user-flagged evaluation error\n");
+        return {0.};
+    }
+
+private:
+    friend class boost::serialization::access;
+    template <typename Archive>
+    void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
+        ar &boost::serialization::make_nvp(
+            "GGenomeT",
+            boost::serialization::base_object<GGenomeT<ErrorFlaggingSphere>>(*this)
+        );
+    }
+};
+
+} // namespace Gem::Tests
+
+TEST_CASE(
+    "GOptimizableEntity: an error flagged inside evaluate() survives as ERROR_FLAGGED",
+    "[candidate][status]"
+) {
+    using Gem::Courtier::processingStatus;
+
+    Gem::Tests::ErrorFlaggingSphere ind;
+    REQUIRE(ind.is_due_for_processing());
+
+    // The flagged error must abort processing with a processing exception ...
+    CHECK_THROWS_AS(ind.process(), Gem::Courtier::g_processing_exception);
+
+    // ... and must NOT be clobbered into PROCESSED by the terminal status assignment
+    CHECK(ind.has_errors());
+    CHECK(ind.getProcessingStatus() == processingStatus::ERROR_FLAGGED);
+    CHECK_FALSE(ind.is_processed());
+}

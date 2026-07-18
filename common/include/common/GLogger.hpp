@@ -480,15 +480,8 @@ public:
 		 * @param error The error message carried by the thrown geneva_exception
 		 */
     void throwException(std::string const &error) {
-        // The `error` argument has already been built by the caller; we don't
-        // touch any logger-protected state inside this function. The lock
-        // exists purely to serialise with other terminate/throw paths if any
-        // were ever added, so we take it briefly and release it before
-        // throwing.
-        {
-            std::scoped_lock lk(logger_mutex_);
-            // (no shared state to mutate here)
-        }
+        // The error message has already been built by the caller and no logger-protected
+        // state is touched here, so no lock is needed.
         throw(geneva_exception(error));
     }
 

@@ -362,8 +362,6 @@ identity<base_type> getBaseIdentity(
     std::string const &x_name_var,
     std::string const &y_name_var
 ) {
-    std::cout << "Creating base identity" << '\n';
-
     auto const &x_var_base = dynamic_cast<const base_type &>(x_var);
     auto const &y_var_base = dynamic_cast<const base_type &>(y_var);
 

@@ -40,7 +40,6 @@
 // Geneva headers go here
 #include "common/GCommonHelperFunctionsT.hpp"
 #include "common/GExceptions.hpp"
-#include "dietrich/GPlotDesigner.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/ind/GOptimizableEntity.hpp"
 #include "geneva/oa/GParChild.hpp"
@@ -213,11 +212,6 @@ private:
     /** @brief Choose new parents, based on the SA selection scheme. */
     void selectBest_() override;
 
-    /**
-     * @brief Retrieves the evaluation range in a given iteration and sorting scheme.
-     * @return A tuple holding the start and end positions of the range of individuals to be evaluated
-     */
-    std::tuple<std::size_t, std::size_t> getEvaluationRange_() const override;
     /** @brief Some error checks related to population sizes */
     void populationSanityChecks_() const override;
 
