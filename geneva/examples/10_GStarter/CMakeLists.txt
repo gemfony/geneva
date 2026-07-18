@@ -110,21 +110,15 @@ ADD_DEPENDENCIES(GStarterGenericOptimizer GStarterIndividual)
 INSTALL(TARGETS GStarterGenericOptimizer GStarterIndividual DESTINATION bin)
 
 ################################################################################
-# Copy the configuration files next to the build so the example can be run
-# directly from the build tree (GStarter expects ./config/*.json).
+# Materialize the configuration files from code defaults at build time, so the
+# example can be run directly from the build tree (GStarter expects
+# ./config/*.json). find_package(Geneva) above exported the same
+# GENEVA_MATERIALIZE_CONFIGS mechanism the in-tree examples use: after GStarter
+# is built it runs once with --update-configs, which (re)creates every config
+# file the example reads under <build>/config from the code's registered
+# defaults. No hand-maintained config files are shipped.
 
-SET(CONFIGFILES
-	config/Go2.json
-	config/GStarterIndividual.json
-	config/GEvolutionaryAlgorithm.json
-	config/GSimulatedAnnealing.json
-	config/GSwarmAlgorithm.json
-	config/GConjugateGradientDescent.json
-	config/GParameterScan.json
-)
-
-FILE(COPY ${CONFIGFILES} DESTINATION "${CMAKE_CURRENT_BINARY_DIR}/config")
-INSTALL(FILES ${CONFIGFILES} DESTINATION bin/config)
+GENEVA_MATERIALIZE_CONFIGS(GStarter bin/config)
 
 ################################################################################
 # Optional unit test.

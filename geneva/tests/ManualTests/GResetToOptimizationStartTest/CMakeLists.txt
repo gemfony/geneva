@@ -54,7 +54,9 @@ ENDIF()
 TARGET_LINK_LIBRARIES (${EXECUTABLENAME}
 		${LIBRARIES_TO_LINK})
 
-ADD_SUBDIRECTORY (config)
+# Materialize the configuration files from code defaults at build time (in
+# place of the former shipped-config ADD_SUBDIRECTORY(config)).
+GENEVA_MATERIALIZE_CONFIGS(${EXECUTABLENAME} ${INSTALL_PREFIX_DATA}/examples/${EXECUTABLENAME}/config)
 
 IF (GENEVA_RUN_EXAMPLES_AS_TESTS)
 	ADD_TEST(${EXECUTABLENAME} ${EXECUTABLENAME})
