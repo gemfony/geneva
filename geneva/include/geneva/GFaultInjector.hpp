@@ -52,7 +52,7 @@ namespace Gem::Geneva {
  * instead of every individual carrying a crash probability, a single injector is registered once (like a
  * pluggable optimization monitor) and consulted at evaluation time. It lets tests and diagnostics
  * deterministically -- or probabilistically, via the individual's own RNG -- simulate evaluation
- * failures, to exercise the broker's / optimization algorithm's error-handling and recovery paths.
+ * failures, to exercise the consumer's / optimization algorithm's error-handling and recovery paths.
  *
  * The facility is geneva-side and carries NO per-individual state and NO courtier dependency. When no
  * injector is registered (the default) the consultation is a single null-pointer check, so production

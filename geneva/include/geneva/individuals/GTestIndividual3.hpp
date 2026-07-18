@@ -57,8 +57,8 @@ namespace Gem::Geneva::Individuals {
 
 /******************************************************************************/
 /**
- * This individual tests different access methods for parameter objects inside
- * of the individual.
+ * This individual tests different access methods for the values of the flat genome
+ * held inside of the individual.
  */
 class GTestIndividual3 // NOLINT(cppcoreguidelines-special-member-functions)
   : public gen::GGenome {

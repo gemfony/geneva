@@ -494,7 +494,7 @@ dataFormat GDataEmitter::getDataFormat() const {
 /**
  * Exports each registered plotter's raw columnar series data (NOT a rendered plot). The
  * graph plotters (GGraph2D / GGraph2ED / GGraph3D / GGraph4D) and the histogram plotters
- * (GHistogram1D / GHistogram2D) export their axis columns; the function plotters
+ * (GHistogram1D / GHistogram1I / GHistogram2D) export their axis columns; the function plotters
  * (GFunctionPlotter1D / GFunctionPlotter2D) carry no sampled data and are skipped. The
  * result is either a human-inspectable CSV document or the raw bytes of a numpy .npz
  * archive (which numpy.load() reads back as a dict of float64 arrays).

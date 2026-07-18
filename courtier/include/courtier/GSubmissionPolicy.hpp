@@ -51,7 +51,7 @@ enum class on_unresolved : Gem::Common::ENUMBASETYPE {
 /**
  * A submission policy tells the consumer how to reconcile a batch (a std::span over the
  * population slice) when evaluations are missing or fail. Submission can NEVER be assumed to
- * succeed for every item (a fitnessCalculation() can throw, a client can die), so the consumer
+ * succeed for every item (an evaluate() can throw, a client can die), so the consumer
  * always reconciles the span against this policy and guarantees a valid, full-size population on
  * return -- or terminates fatally when the policy cannot be honoured.
  *
@@ -99,7 +99,7 @@ struct GSubmissionPolicy {
     /** @brief EA and other population-based algorithms: refill missing/failed slots with clones of
      *  successful items (never fatal except the zero-usable floor).
      *
-     *  Resubmission defaults to 0 here ON PURPOSE. A fitnessCalculation() is unbounded in time, so
+     *  Resubmission defaults to 0 here ON PURPOSE. An evaluate() is unbounded in time, so
      *  resubmitting a MISSING item means waiting out *another* full (possibly very long) evaluation;
      *  a tolerant algorithm gains nothing by that wait, because a clone of an already-evaluated
      *  sibling is immediately available and is an acceptable population member. So for these

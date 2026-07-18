@@ -64,20 +64,6 @@ std::atomic<bool> GRandomFactory::multiple_call_trap_{false};
  * multiple_call_trap_ flag: a second construction throws a geneva_exception.
  */
 GRandomFactory::GRandomFactory() {
-    /*
-	 * Apparently the entropy() call currently always returns 0 with g++ and clang,
-	 * as this call is not fully implemented.
-	 *
-	// Check whether enough entropy is available. Warn, if this is not the case
-	if (0. == multiple_call_trap_.entropy()) {
-		glogger
-		<< "In GSeedManager::GSeedManager(): Error!" << std::endl
-		<< "Source of non-deterministic random numbers" << std::endl
-		<< "has entropy 0." << std::endl
-		<< GWARNING;
-	}
-	*/
-
     if(multiple_call_trap_) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())

@@ -198,7 +198,7 @@ std::string mplPlotCall(
 /**
  * Emits a self-contained Python/matplotlib script for the graph plotters (GGraph2D /
  * GGraph2ED / GGraph3D / GGraph4D) and the histogram plotters (GHistogram1D /
- * GHistogram2D). Any other plotter type (e.g. a function plotter) triggers a clear
+ * GHistogram1I / GHistogram2D). Any other plotter type (e.g. a function plotter) triggers a clear
  * geneva_exception. The script selects the headless Agg backend, creates a `fig` and
  * one Axes per pad (a 3-d Axes for the 3-d graphs), sets each pad's axis labels and
  * title and plots the pad's primary-and-secondary plotters into it. It deliberately

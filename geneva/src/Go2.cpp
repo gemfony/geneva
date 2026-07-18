@@ -1200,8 +1200,8 @@ void Go2::parseCommandLine(
             oaFactoryStore()->size(), listMnemonics(oaFactoryStore()));
 
         std::string const consumer_help = std::format(
-            "The name of a consumer for brokered execution (an error will be flagged "
-            "if called with any other execution mode than (2) ). "
+            "The name of the process consumer used for work-item evaluation (see --help for "
+            "the registered consumer mnemonics). "
             "{} consumers are available: \n{}",
             Gem::Geneva::consumerCount(), Gem::Geneva::consumerListing());
 

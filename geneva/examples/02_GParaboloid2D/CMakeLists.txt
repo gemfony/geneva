@@ -31,7 +31,7 @@
 # side, so the two models can be compared directly:
 #
 #   GParaboloid2D-fixed  -- an executable with the individual compiled straight in: the classic, minimal
-#     model the Geneva manual introduces (subclass GGenome, override fitnessCalculation(), compile it in).
+#     model the Geneva manual introduces (subclass GGenome, override evaluate(), compile it in).
 #
 #   GParaboloid2D-module -- the individual built as a runtime-loadable module (libGParaboloid2D-module.so),
 #     optimized by the generic optimizer (example 19's GGenericOptimizer) via --individual, with no bespoke

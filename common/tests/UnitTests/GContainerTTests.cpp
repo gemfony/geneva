@@ -1675,10 +1675,9 @@ TEST_CASE("GContainerT: Boost.Serialization round-trips", "[GContainerT][seriali
     // template serialize() method which archives data_cnt_ via BOOST_SERIALIZATION_NVP.
     // These tests verify the full serialize/deserialize cycle for GPodContainerT.
     //
-    // GPtrContainerT serialization (with GObject-derived elements) is covered indirectly
-    // by GenevaStandardTests via GDoubleCollection, GConstrainedDoubleObjectCollection, etc.
-    // Those classes inherit GContainerT<T, SharedPtrStorage<T>>::serialize() and are
-    // exercised by the full serialization suite in GenevaStandardTests.
+    // GPtrContainerT serialization (with cloneable, pointer-held elements) is covered indirectly
+    // by GenevaStandardTests: the optimization algorithms hold their individuals through
+    // GUniquePtrContainerT and are exercised by the full serialization suite there.
 
     SECTION("GPodContainerT<int> — TEXT archive round-trip") {
         ConcretePodVec src(5, 42);

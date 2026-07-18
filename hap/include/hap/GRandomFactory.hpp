@@ -304,8 +304,8 @@ private:
  * and block-push it onto the fresh buffer; at shutdown the buffers close and the loop exits. A
  * producer never lets an exception escape (that would call @c std::terminate); it logs and the
  * remaining producers carry on. Consumers (@c getNewRandomContainer()) pop with a timeout and
- * retry, so the path is wait-free of the consumer's logic. The seed manager hands each producer
- * and each non-QUEUE source a distinct seed, so streams do not overlap. The raw engine is
+ * retry, so the path is wait-free of the consumer's logic. The factory's getSeed() hands each
+ * producer and each non-QUEUE source a distinct seed, so streams do not overlap. The raw engine is
  * xoshiro256++ (scalar in the header; SIMD / cuRAND inside @c GFillBackend) -- in an evolutionary
  * algorithm the geometry of the quality surface tolerates fast generators, so throughput is
  * favoured over cryptographic strength.

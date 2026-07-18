@@ -91,8 +91,10 @@ struct LoadedModule {
  *    module cannot shadow one);
  *  - the (at most one) @c INDIVIDUAL contribution's factory is returned in @c LoadedModule::individual for
  *    the caller to claim (the single content-creator slot lives in Go2, not here);
- *  - reserved kinds (monitor / consumer / marshaller) are not yet wired and are ignored.
- * A legacy two-symbol individual plugin (no manifest) is still accepted and returned as the individual.
+ *  - a @c MARSHALLER contribution is registered into the marshaller provider store;
+ *  - reserved kinds (monitor / consumer) are not yet wired and are ignored.
+ * A module without a manifest is rejected with a clear error (the former legacy two-symbol plugin
+ * fallback has been removed).
  *
  * @param module_path The filesystem path to the module shared object
  * @return The module's contributions (individual + OA count); throws on any load/compat/collision failure

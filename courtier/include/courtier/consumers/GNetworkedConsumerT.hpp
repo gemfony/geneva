@@ -169,7 +169,7 @@ public:
      * batch_id is no longer active). With this buffer enabled, such a late arrival -- a genuinely
      * distinct evaluation that simply came back too late to be used this round -- is parked instead
      * of discarded, so an optimization algorithm can reap it via getOldWorkItems() (the
-     * GOptimizerExecutionPolicy reaper enables it via enableLateReturns() and drains it through
+     * GOptimizationAlgorithmBase reaper enables it via enableLateReturns() and drains it through
      * getLateReturns()/getOldWorkItems()). The buffer is bounded two ways: @p cap (max items held; 0 DISABLES buffering, the
      * default) and @p ttl_rounds (a held item is evicted after this many dispatch rounds). Each entry
      * carries the dispatch-round "epoch" at which it was buffered, used only for TTL eviction; the batch
@@ -772,7 +772,7 @@ private:
     //     RETAINED (keyed by correlation id) so a late results-only return can still be grafted. Both live
     //     in one shared aging store (FIFO + keyed faces, one epoch + cap + TTL); the epoch advances once
     //     per retired batch. Disabled by default (cap == 0); when enabled, the OA-side reaper
-    //     (GOptimizerExecutionPolicy, via enableLateReturns() / getOldWorkItems()) drains the FIFO. The
+    //     (GOptimizationAlgorithmBase, via enableLateReturns() / getOldWorkItems()) drains the FIFO. The
     //     graft-or-drop policy and the drop accounting below are the consumer's; the store is invoked
     //     under mtx_, so its operations stay consistent with the batch bookkeeping. ---
     Gem::Common::Concurrency::GAgingStoreT<Gem::Courtier::CORRELATION_ID_TYPE, item_ptr> late_store_;

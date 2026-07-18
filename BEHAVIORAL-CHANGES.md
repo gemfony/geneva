@@ -117,6 +117,10 @@ are in `CHANGES` and `INSTALL`; this file is the practical upgrade guide.
   back on). Checkpoint/file serialization stays self-contained (full layout by value).
 - **Networked consumers' timeout / death-detection is now user-configurable** through a
   config file.
+- **The EA post-optimizer always refines inline.** `GEvolutionaryAlgorithmPostOptimizer`
+  is constructed from the inner-EA config file alone; the former `execMode` constructor
+  parameter and `setExecMode` / `getExecMode` have been **removed** (the nested
+  refinement never submits to the process consumer, so there was no mode to select).
 
 ## 6. Packaging: runtime-loadable modules
 
@@ -134,6 +138,18 @@ are in `CHANGES` and `INSTALL`; this file is the practical upgrade guide.
 
 - **The vestigial "Flat" qualifier was dropped from the genome layer** (source-breaking;
   update any references to the old `*Flat*` names).
+- **The standalone gradient descent ("gd") is gone.** Plain gradient descent survives as
+  the steepest-descent (β = 0) mode of the conjugate gradient descent (`cgd`);
+  `GGradientDescent_PersonalityTraits` was removed with it.
+
+## 8. Checkpointing
+
+- **The checkpoint directory is created lazily**, at the first actual checkpoint write;
+  merely configuring an algorithm (`setCheckpointBaseName`) no longer touches the
+  filesystem.
+- **A final checkpoint is written when a run halts** (file name tagged `final`) whenever
+  checkpointing is enabled (`cp_interval != 0`); with checkpointing disabled a run
+  performs no checkpoint I/O at all.
 
 ---
 

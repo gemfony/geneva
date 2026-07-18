@@ -80,7 +80,7 @@ enum class beast_ping_state : Gem::Common::ENUMBASETYPE {
 
 /******************************************************************************/
 /**
- * Specification of different consumer types of the broker
+ * Specification of the different consumer types held in the GConsumerRegistry
  */
 enum class consumerType : Gem::Common::ENUMBASETYPE {
     SERIAL = 0,
@@ -118,7 +118,7 @@ constexpr std::uint16_t DEFAULTNSTDTHREADS = 2;
 
 /******************************************************************************/
 /**
- * Needed by the executor to distinguish between successfully processed items,
+ * Needed by the submission machinery (workOn / processBatch) to distinguish successfully processed items,
  * items that have not returned (for unknown reasons, e.g. network failure)
  * and items for which an exception was thrown during processing.
  */

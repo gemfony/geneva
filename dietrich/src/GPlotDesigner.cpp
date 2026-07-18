@@ -928,7 +928,7 @@ void GPlotDesigner::writeToFile(const std::filesystem::path &file_name) {
  * Selects the backend the designer emits through, installing the standard emitter
  * for the requested backend. plot() then delegates to it.
  *
- * @param backend The plotting backend to use (ROOT, the default, or GNUPLOT)
+ * @param backend The plotting backend to use (ROOT, the default; GNUPLOT; MATPLOTLIB; OCTAVE; DATA)
  */
 void GPlotDesigner::setPlotBackend(plotBackend backend) {
     switch(backend) {

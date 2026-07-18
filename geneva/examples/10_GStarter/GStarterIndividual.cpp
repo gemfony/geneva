@@ -427,10 +427,9 @@ void GStarterIndividual::specificTestsFailuresExpected_GUnitTests_() {
 
     {
         /* Nothing. Add test cases here that are expected to fail.
-			Enclose with a BOOST_CHECK_THROW, using the expected
+			Enclose with a CHECK_THROWS_AS, using the expected
 			exception type as an additional argument. See the
-			documentation for the Boost.Test library for further
-			information */
+			Catch2 documentation for further information */
     }
 
     //------------------------------------------------------------------------------

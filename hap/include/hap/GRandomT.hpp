@@ -346,14 +346,14 @@ using GRandom = GRandomT<Gem::Hap::randomSource::QUEUE>;
  * @brief LOCAL proxy: a private per-proxy engine, no sharing at all.
  *
  * Each proxy owns one scalar xoshiro256++ engine (@c G_CPU_BASE_GENERATOR), seeded from the
- * factory's global seed manager. Every draw is produced inline by that engine; nothing is shared
+ * factory's getSeed(). Every draw is produced inline by that engine; nothing is shared
  * between proxies, so there is no queue, no pool, no background thread and no contention -- it is
  * embarrassingly parallel. The trade-off is that it cannot use the shared GPU/SIMD bulk fill the
  * other sources benefit from. GRandomBase layers the distributions on the raw stream.
  *
  * @par Data structure
  * @verbatim
-   factory seed manager --getSeed()--> [ rng_ : xoshiro256++ ]   (one per proxy, private)
+   random factory --getSeed()--> [ rng_ : xoshiro256++ ]   (one per proxy, private)
                                               |
                                   int_random() = rng_()           (no shared state)
    @endverbatim
@@ -371,7 +371,7 @@ class GRandomT<Gem::Hap::randomSource::LOCAL> : public Gem::Hap::GRandomBase {
 public:
     /***************************************************************************/
     /**
-	 * @brief The standard constructor; seeds the local engine from the global seed manager.
+	 * @brief The standard constructor; seeds the local engine from the factory's getSeed().
 	 */
     GRandomT() noexcept(false)
       : rng_(randomFactory()->getSeed()) { /* nothing */

@@ -772,7 +772,7 @@ private:
      *
      * A GMPIConsumerSessionT can be opened as soon as the master node has fully received a request from
      * a worker node. The opened GMPIConsumerSessionT will then take care of deserializing and processing
-     * the request as well as responding to it with a new work item (if there are items available in the brokers queue
+     * the request as well as responding to it with a new work item (if the injected payload source has items
      * at that point in time).
      *
      * @tparam processable_type the type of work item exchanged with the worker node
@@ -895,7 +895,7 @@ private:
     /**
          * @brief Deserializes and acts on the inbound request.
          *
-         * On a RESULT command the payload is delivered to the broker; a GETDATA command carries no
+         * On a RESULT command the payload is delivered to the payload sink; a GETDATA command carries no
          * payload. Unknown commands and deserialization failures are logged.
          *
          * @return true if the request was a valid RESULT or GETDATA, false otherwise
@@ -960,7 +960,7 @@ private:
     }
 
     /**
-         * @brief Releases the processed payload from the command container and hands it to the broker sink.
+         * @brief Releases the processed payload from the command container and hands it to the payload sink.
          *
          * If the container unexpectedly holds no payload, a warning is logged and the request is still
          * answered normally.
@@ -969,7 +969,7 @@ private:
         // Retrieve the payload from the command container
         auto payloadPtr = commandContainer_.release_payload();
 
-        // Submit the payload to the server (which will send it to the broker)
+        // Submit the payload to the server (which hands it to the injected payload sink)
         if(payloadPtr) {
             putPayloadItem_(std::move(payloadPtr));
             return;
@@ -985,7 +985,7 @@ private:
     /**
          * @brief Assigns a new command and payload (if any) to the commandContainer_ member.
          *
-         * Fetches a work item from the broker; on success stores it with a COMPUTE command, otherwise
+         * Fetches a work item from the injected payload source; on success stores it with a COMPUTE command, otherwise
          * stores a NODATA command.
          */
     void prepareDataResponse() {
@@ -1099,11 +1099,11 @@ private:
          */
     const bool stopRequested_;
     /**
-         * function to retrieve a work item from the broker
+         * function to retrieve a work item from the injected payload source
          */
     std::move_only_function<std::unique_ptr<processable_type>()> getPayloadItem_;
     /**
-         * function to deliver a processed work item to the broker
+         * function to deliver a processed work item to the injected payload sink
          */
     std::move_only_function<void(std::unique_ptr<processable_type>)> putPayloadItem_;
     /**
@@ -1155,7 +1155,7 @@ private:
      *
      * Then the handler thread works as follows (implemented in the class GMPIConsumerSessionT):\n
      *  (3.1) Deserialize received object\n
-     *  (3.2) If the message from the worker includes a processed item, put it into the processed items queue of the broker\n
+     *  (3.2) If the message from the worker includes a processed item, hand it to the injected payload sink\n
      *  (3.3) Take an item from the non-processed items queue (if currently there is one available)\n
      *  (3.4) Serialize the response container, which contains a new work item or the NODATA command.\n
      *  (3.5) Asynchronously send the item to the worker node which has requested it.\n
@@ -1452,7 +1452,7 @@ private:
          */
     std::unique_ptr<processable_type> getPayloadItem() {
         // If an external source has been injected (e.g. the courtier reconcile-the-span path),
-        // use it instead of the broker. Default (no functor set) is the original broker behaviour.
+        // use it as the sole work-item source; with no functor set there is nothing to fetch from.
         // The courtier consumer always injects a source via setPayloadFunctors(); the former broker
         // fallback was removed together with the legacy broker. An unset source yields no item.
         if(getPayloadItemFn_) {
@@ -1488,10 +1488,10 @@ private:
 public:
     //-------------------------------------------------------------------------
     /**
-         * Injects an external source/sink for work items, bypassing the broker. This is the seam the
+         * Injects the external source/sink for work items. This is the seam the
          * courtier networked-consumer path uses to drive the MPI master node from a span+policy
-         * batch instead of the broker's buffer ports. With no functors set the node behaves exactly
-         * as before (broker-backed), so this is behaviour-neutral for existing callers.
+         * batch. The consumer always injects both functors before starting the node; without them the node
+         * has no work-item source or sink (the former broker fallback was removed).
          *
          * @param getPayloadItemFn Source callback returning the next raw work item (or empty pointer)
          * @param putPayloadItemFn Sink callback receiving each processed work item

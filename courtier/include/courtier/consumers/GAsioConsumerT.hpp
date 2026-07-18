@@ -141,7 +141,7 @@ public:
     /***************************************************************************/
     /**
      * @brief Opens the acceptor and starts the io threads. Must be called once, after the consumer
-     * has been registered with the broker and before any batch is submitted.
+     * has been registered with the GConsumerRegistry and before any batch is submitted.
      *
      * @throws geneva_exception if the acceptor cannot be opened, bound or set to listen
      */

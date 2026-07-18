@@ -214,7 +214,7 @@ std::string octPlotCall(const GBasePlotter &p, octKind k) {
 /**
  * Emits a self-contained Octave / MATLAB (.m) script for the graph plotters (GGraph2D /
  * GGraph2ED / GGraph3D / GGraph4D) and the histogram plotters (GHistogram1D /
- * GHistogram2D). Any other plotter type (e.g. a function plotter) triggers a clear
+ * GHistogram1I / GHistogram2D). Any other plotter type (e.g. a function plotter) triggers a clear
  * geneva_exception. The script creates a figure and one `subplot` per pad, sets each
  * pad's axis labels and title and plots the pad's primary-and-secondary plotters into it
  * (with `hold on`). Only base Octave-and-MATLAB functions are used. It deliberately ends
