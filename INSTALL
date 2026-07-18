@@ -45,12 +45,12 @@ Prerequisites
 
  - CMake, version 3.27 or later (the build system).
 
- - A C++20 compiler: the GNU Compiler Collection (g++) version 13 or later, or
+ - A C++23 compiler: the GNU Compiler Collection (g++) version 14 or later, or
    Clang version 18 or later.
 
  - The Boost libraries (see http://www.boost.org), version 1.91 or newer. Boost
-   should be compiled from source and installed for the system, in the same
-   C++20 mode that Geneva uses (see "Compiling Boost on Linux" below). The
+   should be compiled from source and installed for the system, in
+   C++20 mode (see "Compiling Boost on Linux" below). The
    distribution's Boost packages are frequently older than required and/or not
    built in C++20 mode, and are therefore not recommended.
 
@@ -202,7 +202,7 @@ cd boost_1_91_0
 ./bootstrap.sh --prefix=/opt/boost
 
 Then compile and install with b2. The decisive flag is cxxflags="-std=c++20":
-Boost must be built in the same C++20 mode as Geneva. Installing into /opt
+Boost must be built in C++20 mode. Installing into /opt
 requires root:
 
 sudo ./b2 -j$(nproc) \
