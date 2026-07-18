@@ -81,10 +81,6 @@
 
 namespace Gem::Dietrich {
 
-// The plotting library builds on common's facilities (logging, serialization helpers,
-// exception types, make_member, EmitStream, ...); make them visible here without
-// per-name qualification. This affects lookup only within Gem::Dietrich.
-using namespace Gem::Common;
 
 // Re-export the shared numeric enum stream operators (see numeric_enum_io_v in
 // GCommonEnums.hpp) into Gem::Dietrich, so that argument-dependent lookup finds
@@ -92,6 +88,23 @@ using namespace Gem::Common;
 // these using-declarations are not).
 using Gem::Common::operator<<;
 using Gem::Common::operator>>;
+
+// dietrich builds on a small, explicit set of common's names that participate in its
+// own API surface (enum base type, comparison tokens, member reflection, dimension
+// tags). They are imported per-name here -- the public headers deliberately do NOT
+// re-export all of Gem::Common with a using-directive (that leaked every common name
+// to all consumers and has already caused a shadowing incident with to_string).
+using Gem::Common::compare_t;
+using Gem::Common::dimensions;
+using Gem::Common::ENUMBASETYPE;
+using Gem::Common::expectation;
+using Gem::Common::g_convert_and_compare;
+using Gem::Common::g_load_members;
+using Gem::Common::GCommonInterfaceT;
+using Gem::Common::GPtrContainerT;
+using Gem::Common::getMinMax;
+using Gem::Common::GToken;
+using Gem::Common::make_member;
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////

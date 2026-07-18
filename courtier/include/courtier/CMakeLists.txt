@@ -48,6 +48,7 @@ SET ( COMMUNICATIONINCLUDES
 SET ( CONSUMER_INCLUDES
     consumers/GAsioConsumerT.hpp
     consumers/GNetworkedConsumerT.hpp
+    consumers/GTcpAcceptingConsumerT.hpp
     consumers/GStdThreadConsumerT.hpp
     consumers/GWebsocketConsumerT.hpp
 )
@@ -57,6 +58,7 @@ SET ( CONSUMER_INCLUDES
 # longer collide with the consumer headers of the same mnemonic.
 SET ( TRANSPORT_INCLUDES
     transport/GAsioTransportT.hpp
+    transport/GPrefetchingClientT.hpp
     transport/GWebsocketTransportT.hpp
 )
 

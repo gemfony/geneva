@@ -95,14 +95,9 @@ std::string GRootEmitter::emitDocument(const GPlotDesigner &gpd) const {
     EmitStream result; // NOLINT(cppcoreguidelines-init-variables)
     std::size_t max_plots = gpd.c_x_div_ * gpd.c_y_div_;
 
-    if(gpd.plotters_cnt_.size() > max_plots) {
-        glogger << "In GPlotDesigner::plot() (Canvas label = \"" << gpd.getCanvasLabel()
-                << "\":" << '\n'
-                << "Warning! Found more plots than pads (" << gpd.plotters_cnt_.size() << " vs. "
-                << max_plots << ")" << '\n'
-                << "Some of the plots will be ignored" << '\n'
-                << GWARNING;
-    }
+    warnPadOverflow(
+        "GRootEmitter::emitDocument()", gpd.getCanvasLabel(), gpd.plotters_cnt_.size(), max_plots
+    );
 
     result << "{" << '\n' << gpd.staticHeader(gpd.indent()) << '\n';
 

@@ -651,22 +651,6 @@ std::string GBasePlotter::footerData(const std::string &indent) const {
     return footer_data.str();
 }
 
-/******************************************************************************/
-/**
- * Loads the data of another object
- *
- * @param cp A constant pointer to another object (as a GBasePlotter) whose data is loaded into this one
- */
-void GFunctionPlotter2D::load_(const GBasePlotter *cp) {
-    // Check that we are dealing with a GFunctionPlotter2D reference independent of this object and convert the pointer
-    const auto *p_load = g_convert_and_compare(cp, this);
-
-    // Load our parent class'es data ...
-    GBasePlotter::load_(cp);
-
-    // ... and then our local data, derived from the single localMembers() declaration
-    g_load_members(this->localMembers_(), p_load->localMembers_());
-}
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -843,5 +827,234 @@ std::size_t GDataLog::nSeries() const {
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
+
+/******************************************************************************/
+/**
+ * A default header for a ROOT file
+ *
+ * @param indent The indentation string prepended to every emitted line
+ * @return The ROOT macro source code setting up the canvas, title and graph pad
+ */
+std::string GPlotDesigner::staticHeader(const std::string &indent) const {
+    EmitStream result; // NOLINT(cppcoreguidelines-init-variables)
+
+    result << indent << "gROOT->Reset();" << '\n'
+           << indent << "gStyle->SetCanvasColor(0);" << '\n'
+           << indent << "gStyle->SetStatBorderSize(1);" << '\n'
+           << indent << "gStyle->SetOptStat(0);" << '\n'
+           << '\n'
+           << indent << R"(TCanvas *cc = new TCanvas("cc", "cc",0,0,)" << c_x_dim_ << ","
+           << c_y_dim_ << ");" << '\n'
+           << '\n'
+           << indent << "TPaveLabel* canvasTitle = new TPaveLabel(0.2,0.95,0.8,0.99, \""
+           << rootEscape(canvas_label_) << "\");" << '\n'
+           << indent << "canvasTitle->Draw();" << '\n'
+           << '\n'
+           << indent << R"(TPad* graphPad = new TPad("Graphs", "Graphs", 0.01, 0.01, 0.99, 0.94);)"
+           << '\n'
+           << indent << "graphPad->Draw();" << '\n'
+           << indent << "graphPad->Divide(" << c_x_div_ << "," << c_y_div_ << ");" << '\n'
+           << '\n';
+
+    return result.str();
+}
+
+/******************************************************************************/
+/**
+ * Allows to add a new plotter object
+ *
+ * @param plotter_ptr A pointer to a plotter
+ */
+void GPlotDesigner::registerPlotter(std::shared_ptr<GBasePlotter> plotter_ptr) {
+    if(plotter_ptr) {
+        plotter_ptr->setId(plotters_cnt_.size());
+        plotters_cnt_.push_back(plotter_ptr);
+    }
+    else {
+        throw geneva_exception(
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+            << "GPlotDesigner::registerPlotter(): Error!" << '\n'
+            << "Got empty plotter" << '\n'
+        );
+    }
+}
+
+/******************************************************************************/
+/**
+ * Set the dimensions of the output canvas
+ *
+ * @param c_x_dim The x-dimension of the output canvas
+ * @param c_y_dim The y-dimension of the output canvas
+ */
+void GPlotDesigner::setCanvasDimensions(
+    const std::uint32_t &c_x_dim,
+    const std::uint32_t &c_y_dim
+) {
+    c_x_dim_ = c_x_dim;
+    c_y_dim_ = c_y_dim;
+}
+
+/******************************************************************************/
+/**
+ * Set the dimensions of the output canvas
+ *
+ * @param c_dim A tuple holding the x-dimension (get<0>) and y-dimension (get<1>) of the output canvas
+ */
+void GPlotDesigner::setCanvasDimensions(const std::tuple<std::uint32_t, std::uint32_t> &c_dim) {
+    this->setCanvasDimensions(std::get<0>(c_dim), std::get<1>(c_dim));
+}
+
+/******************************************************************************/
+/**
+ * Allows to retrieve the canvas dimensions
+ *
+ * @return A std::tuple holding the canvas dimensions
+ */
+std::tuple<std::uint32_t, std::uint32_t> GPlotDesigner::getCanvasDimensions() const {
+    return std::tuple<std::uint32_t, std::uint32_t>{c_x_dim_, c_y_dim_};
+}
+
+/******************************************************************************/
+/**
+ * Allows to set the canvas label
+ *
+ * @param canvas_label The label to be assigned to the output canvas
+ */
+void GPlotDesigner::setCanvasLabel(const std::string &canvas_label) {
+    canvas_label_ = canvas_label;
+}
+
+/******************************************************************************/
+/**
+ * Allows to retrieve the canvas label
+ *
+ * @return The label currently assigned to the output canvas
+ */
+std::string GPlotDesigner::getCanvasLabel() const {
+    return canvas_label_;
+}
+
+/******************************************************************************/
+/**
+ * Allows to add a "Print" command to the end of the script so that picture files are created
+ *
+ * @param add_print_command If true, a print command writing a png file is appended to the emitted script
+ */
+void GPlotDesigner::setAddPrintCommand(bool add_print_command) {
+    add_print_command_ = add_print_command;
+}
+
+/******************************************************************************/
+/**
+ * Allows to retrieve the current value of the add_print_command_ variable
+ *
+ * @return true if a print command is appended to the emitted script, false otherwise
+ */
+bool GPlotDesigner::getAddPrintCommand() const {
+    return add_print_command_;
+}
+
+/******************************************************************************/
+/**
+ * Allows to set the number of spaces used for indention
+ *
+ * @param n_indention_spaces The number of space characters used for one level of indentation
+ */
+void GPlotDesigner::setNIndentionSpaces(const std::size_t &n_indention_spaces) {
+    n_indention_spaces_ = n_indention_spaces;
+}
+
+/******************************************************************************/
+/**
+ * Allows to retrieve the number spaces used for indention
+ *
+ * @return The number of space characters used for one level of indentation
+ */
+std::size_t GPlotDesigner::getNIndentionSpaces() const {
+    return n_indention_spaces_;
+}
+
+/******************************************************************************/
+/**
+ * Returns the current number of indention spaces as a string
+ *
+ * @return A string consisting of the configured number of space characters
+ */
+std::string GPlotDesigner::indent() const {
+    return std::string(n_indention_spaces_, ' ');
+}
+
+/******************************************************************************/
+/**
+ * Resets the plotters
+ */
+void GPlotDesigner::resetPlotters() {
+    plotters_cnt_.clear();
+}
+
+/******************************************************************************/
+/**
+ * Returns the name of this class
+ *
+ * @return The name of this class as a string
+ */
+std::string GPlotDesigner::name_() const {
+    return std::string("GPlotDesigner");
+}
+
+/******************************************************************************/
+/**
+ * Searches for compliance with expectations with respect to another object
+ * of the same type
+ *
+ * @param cp A constant reference to another GPlotDesigner object to compare against
+ * @param e The expectation (equality / inequality) the comparison should fulfil
+ * @param limit The acceptable tolerance for floating point comparisons (unused here)
+ */
+void GPlotDesigner::compare_(
+    const GPlotDesigner &cp,
+    const expectation &e,
+    [[maybe_unused]] const double & limit
+) const {
+    // Check that we are dealing with a GPlotDesigner reference independent of this object and convert the pointer
+    const auto *p_load = g_convert_and_compare(cp, this);
+
+    GToken token("GPlotDesigner", e);
+
+    // Compare our parent data ...
+    compare_base_t<GCommonInterfaceT<GPlotDesigner>>(*this, *p_load, token);
+
+    // ... and then the local data
+    g_compare_members(this->localMembers_(), p_load->localMembers_(), token);
+
+    // React on deviations from the expectation
+    token.evaluate();
+}
+
+/******************************************************************************/
+/**
+ * Creates a deep clone of this object
+ *
+ * @return A deep copy of this object, returned as a GPlotDesigner pointer
+ */
+GPlotDesigner *GPlotDesigner::clone_() const {
+    return new GPlotDesigner(*this);
+}
+
+/******************************************************************************/
+/**
+ * Loads the data of another object
+ *
+ * @param cp A constant pointer to another GPlotDesigner object whose data is loaded into this object
+ */
+void GPlotDesigner::load_(const GPlotDesigner *cp) {
+    // Check that we are dealing with a GPlotDesigner reference independent of this object and convert the pointer
+    const auto *p_load = g_convert_and_compare(cp, this);
+
+    // No "loadable" parent class
+
+    // Load local data
+    g_load_members(this->localMembers_(), p_load->localMembers_());
+}
 
 } /* namespace Gem::Dietrich */

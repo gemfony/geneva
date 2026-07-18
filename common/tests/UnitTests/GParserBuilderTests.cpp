@@ -387,19 +387,6 @@ TEST_CASE("GParserBuilder::parseCommandLine: --help returns GCL_HELP_REQUESTED",
     CHECK(gpb.parseCommandLine(2, argv, false));
 }
 
-TEST_CASE("GParserBuilder::cl_at finds and casts a registered CL parameter",
-          "[common][parser-builder]") {
-    GParserBuilder gpb;
-    int v = 0;
-    gpb.registerCLParameter<int>("hit", v, 5);
-
-    auto p = gpb.cl_at<GCLParsableI>("hit");
-    REQUIRE(p);
-    CHECK(p->GParsableI::optionName(0) == "hit");
-
-    CHECK_FALSE(gpb.cl_at<GCLParsableI>("missing"));
-}
-
 // ---------------------------------------------------------------------------
 // resetFileParameterDefaults (single + vector + array shapes).
 
@@ -488,35 +475,6 @@ TEST_CASE("GParserBuilder::writeConfigFile produces a parseable JSON",
     REQUIRE(gpb2.parseConfigFile(cfg));
     CHECK(a == 1);
     CHECK(b == 2.5);
-    std::filesystem::remove(cfg);
-}
-
-// ---------------------------------------------------------------------------
-// configureFromFile<T> helper.
-
-namespace {
-
-struct ConfigurableObject {
-    int    answer = 0;
-    double scale  = 0.0;
-
-    void addConfigurationOptions(GParserBuilder &gpb) {
-        gpb.registerFileParameter<int>   ("answer", answer, 42);
-        gpb.registerFileParameter<double>("scale",  scale,  3.14);
-    }
-};
-
-} // namespace
-
-TEST_CASE("GParserBuilder::configureFromFile populates a target object",
-          "[common][parser-builder]") {
-    auto cfg = scratch("configure_from_file");
-    std::filesystem::remove(cfg);
-
-    ConfigurableObject obj;
-    configureFromFile(obj, cfg);
-    CHECK(obj.answer == 42);
-    CHECK(obj.scale  == 3.14);
     std::filesystem::remove(cfg);
 }
 

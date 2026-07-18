@@ -193,13 +193,13 @@ TEST_CASE("GFileLogger::logWithSource: appends the source suffix to the file nam
 }
 
 // ---------------------------------------------------------------------------
-// GLogger<S>: target registration / dispatch
+// GLogger: target registration / dispatch
 
-TEST_CASE("GLogger<S>: addLogTarget+log routes to every registered target",
+TEST_CASE("GLogger: addLogTarget+log routes to every registered target",
           "[common][logger]") {
-    // We instantiate a private GLogger<std::string> (S=std::string) just so we
-    // get the GLogger<S> public API without entangling with the singleton.
-    GLogger<std::string> g;
+    // We instantiate a private GLogger just so we
+    // get its public API without entangling with the singleton.
+    GLogger g;
     auto t1 = std::make_shared<CapturingTarget>();
     auto t2 = std::make_shared<CapturingTarget>();
     g.addLogTarget(t1);
@@ -213,32 +213,32 @@ TEST_CASE("GLogger<S>: addLogTarget+log routes to every registered target",
     CHECK(t2->messages[0] == "hello\n");
 }
 
-TEST_CASE("GLogger<S>::resetLogTargets clears the registry",
+TEST_CASE("GLogger::resetLogTargets clears the registry",
           "[common][logger]") {
-    GLogger<std::string> g;
+    GLogger g;
     g.addLogTarget(std::make_shared<CapturingTarget>());
     REQUIRE(g.hasLogTargets());
     g.resetLogTargets();
     CHECK_FALSE(g.hasLogTargets());
 }
 
-TEST_CASE("GLogger<S>::addLogTarget(empty) throws",
+TEST_CASE("GLogger::addLogTarget(empty) throws",
           "[common][logger]") {
-    GLogger<std::string> g;
+    GLogger g;
     CHECK_THROWS_AS(g.addLogTarget(std::shared_ptr<GBaseLogTarget>{}),
                     geneva_exception);
 }
 
-TEST_CASE("GLogger<S>::setDefaultLogTarget(empty) throws",
+TEST_CASE("GLogger::setDefaultLogTarget(empty) throws",
           "[common][logger]") {
-    GLogger<std::string> g;
+    GLogger g;
     CHECK_THROWS_AS(g.setDefaultLogTarget(std::shared_ptr<GBaseLogTarget>{}),
                     geneva_exception);
 }
 
-TEST_CASE("GLogger<S>: with no custom targets, log() falls back to the default target",
+TEST_CASE("GLogger: with no custom targets, log() falls back to the default target",
           "[common][logger]") {
-    GLogger<std::string> g;
+    GLogger g;
     auto def = std::make_shared<CapturingTarget>();
     g.setDefaultLogTarget(def);
     CHECK_FALSE(g.hasLogTargets());
@@ -248,9 +248,9 @@ TEST_CASE("GLogger<S>: with no custom targets, log() falls back to the default t
     CHECK(def->messages[0] == "via-default\n");
 }
 
-TEST_CASE("GLogger<S>::logWithSource: forwards to logWithSource on each target",
+TEST_CASE("GLogger::logWithSource: forwards to logWithSource on each target",
           "[common][logger]") {
-    GLogger<std::string> g;
+    GLogger g;
     auto t1 = std::make_shared<CapturingTarget>();
     g.addLogTarget(t1);
 
@@ -259,9 +259,9 @@ TEST_CASE("GLogger<S>::logWithSource: forwards to logWithSource on each target",
     CHECK(t1->messages[0] == "[modX] payload\n");
 }
 
-TEST_CASE("GLogger<S>::throwException: throws geneva_exception with the supplied text",
+TEST_CASE("GLogger::throwException: throws geneva_exception with the supplied text",
           "[common][logger]") {
-    GLogger<std::string> g;
+    GLogger g;
     try {
         g.throwException("forwarded-error");
         FAIL("expected throw");
@@ -378,17 +378,17 @@ TEST_CASE("GLogStreamer << GLOGGING with extension forwards through logWithSourc
 }
 
 // ---------------------------------------------------------------------------
-// terminateApplication() through the GLogger<S> template surface: we do NOT
+// terminateApplication() through the GLogger template surface: we do NOT
 // call it on the real singleton (it would terminate the process). Instead we
-// instantiate a private GLogger<std::string> and just check that the lock /
+// instantiate a private GLogger and just check that the lock /
 // stderr write portion of the function compiles & accepts input.
 //
 // (The post-stderr std::terminate() call is intentionally unreachable in
 // tests; this is documented in COVERAGE.md as an excluded death path.)
 
-TEST_CASE("GLogger<S>::toStdOut / toStdErr emit the supplied message",
+TEST_CASE("GLogger::toStdOut / toStdErr emit the supplied message",
           "[common][logger][manipulator]") {
-    GLogger<std::string> g;
+    GLogger g;
     CHECK_NOTHROW(g.toStdOut("via toStdOut\n"));
     CHECK_NOTHROW(g.toStdErr("via toStdErr\n"));
 }
@@ -423,11 +423,11 @@ TEST_CASE("GFileLogger::logWithSource: header line appears on first write only",
 }
 
 // ---------------------------------------------------------------------------
-// GLogger<S>::setDefaultLogTarget: success path — verify the default is actually used
+// GLogger::setDefaultLogTarget: success path — verify the default is actually used
 
-TEST_CASE("GLogger<S>::setDefaultLogTarget routes log() through the new default",
+TEST_CASE("GLogger::setDefaultLogTarget routes log() through the new default",
           "[common][logger]") {
-    GLogger<std::string> g;
+    GLogger g;
     auto cap = std::make_shared<CapturingTarget>();
     g.setDefaultLogTarget(cap);
 
@@ -436,9 +436,9 @@ TEST_CASE("GLogger<S>::setDefaultLogTarget routes log() through the new default"
     CHECK(cap->messages[0] == "routed-via-default\n");
 }
 
-TEST_CASE("GLogger<S>::setDefaultLogTarget routes logWithSource() through the new default",
+TEST_CASE("GLogger::setDefaultLogTarget routes logWithSource() through the new default",
           "[common][logger]") {
-    GLogger<std::string> g;
+    GLogger g;
     auto cap = std::make_shared<CapturingTarget>();
     g.setDefaultLogTarget(cap);
 

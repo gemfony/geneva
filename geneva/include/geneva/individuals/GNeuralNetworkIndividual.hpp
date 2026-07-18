@@ -36,11 +36,14 @@
 #include <cmath>
 #include <filesystem>
 #include <fstream>
+#include <functional>
 #include <iostream>
 #include <limits>
 #include <mutex>
+#include <numbers>
 #include <optional>
 #include <sstream>
+#include <string_view>
 #include <tuple>
 #include <vector>
 
@@ -51,7 +54,6 @@
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/xml_iarchive.hpp>
 #include <boost/archive/xml_oarchive.hpp>
-#include <numbers>
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/export.hpp>
 #include <boost/serialization/nvp.hpp>
@@ -511,6 +513,102 @@ private:
     std::size_t total_weights_ = 0;        ///< total number of weights
 };
 
+
+namespace detail {
+/******************************************************************************/
+/**
+ * The shared driver of the four public dataset generators (hyper-cube, hyper-sphere,
+ * axis-centric, sin): validates the architecture, builds the networkData skeleton, then
+ * fills each training set through the shape-specific @p fillSet callback. Only the
+ * per-set data generation (and any extra input-dimension requirement) differs between
+ * the generators.
+ *
+ * @param architecture The desired architecture of the network
+ * @param n_data_sets The number of training sets to create
+ * @param where The generator name used in error messages (e.g. "createSinNetworkData")
+ * @param required_input_nodes If non-zero, the exact number of input nodes required
+ * @param fillSet Fills one training set (and may register an init range on the data object)
+ * @param init_range The initialization range to register; empty if fillSet registers it itself
+ * @return The created networkData object, wrapped in a shared_ptr
+ */
+inline std::shared_ptr<networkData> createNetworkData(
+    const std::vector<std::size_t> &architecture,
+    std::size_t n_data_sets,
+    std::string_view where,
+    std::size_t required_input_nodes,
+    const std::function<void(Gem::Hap::GRandom &, networkData &, trainingSet &)> &fillSet,
+    const std::vector<std::tuple<double, double>> &init_range
+) {
+    // Check the number of supplied layers
+    if(architecture.size() < 2) { // We need at least an input- and an output-layer
+        throw geneva_exception(
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+            << "In GNeuralNetworkIndividual::" << where << "(): Error!" << '\n'
+            << "Got invalid number of layers: " << architecture.size() << '\n'
+        );
+    }
+
+    // Check that the output layer has exactly one node
+    if(architecture.back() != 1) {
+        throw geneva_exception(
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+            << "In GNeuralNetworkIndividual::" << where << "(): Error!" << '\n'
+            << "The output layer must have exactly one node for this training data." << '\n'
+            << "Got " << architecture.back() << " instead." << '\n'
+        );
+    }
+
+    // Some generators require a fixed input dimension (e.g. the sin data needs 2)
+    if(required_input_nodes != 0 && architecture.front() != required_input_nodes) {
+        throw geneva_exception(
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+            << "In GNeuralNetworkIndividual::" << where << "(): Error!" << '\n'
+            << "The input layer must have exactly " << required_input_nodes
+            << " node(s) for this example." << '\n'
+            << "Got " << architecture.front() << " instead." << '\n'
+        );
+    }
+
+    // Create a local random number generator.
+    Gem::Hap::GRandom gr_l;
+
+    // Create the actual networkData object and attach the architecture,
+    // checking the layer sizes on the way
+    std::shared_ptr<networkData> n_d(new networkData(n_data_sets));
+    std::size_t layer_counter = 0;
+    for(auto layer_size : architecture) {
+        if(layer_size == 0) {
+            throw geneva_exception(
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+                << "In GNeuralNetworkIndividual::" << where << "(): Error!" << '\n'
+                << "Layer " << layer_counter << "has invalid size " << layer_size << '\n'
+            );
+        }
+        n_d->push_back(layer_size);
+        ++layer_counter;
+    }
+
+    // Create the required data through the shape-specific fill.
+    const std::size_t n_input_nodes = architecture.front();
+    const std::size_t n_output_nodes = architecture.back();
+    for(std::size_t dat_counter = 0; dat_counter < n_data_sets; dat_counter++) {
+        std::shared_ptr<trainingSet> t_s(new trainingSet(n_input_nodes, n_output_nodes));
+        fillSet(gr_l, *n_d, *t_s);
+        n_d->addTrainingSet(t_s, dat_counter);
+    }
+
+    // Make the initialization range known to nD_ (a generator that derives the range from
+    // its drawn data -- the hyper-sphere -- registers it inside fillSet instead).
+    if(not init_range.empty()) {
+        n_d->setInitRange(init_range);
+    }
+
+    return n_d;
+}
+
+/******************************************************************************/
+} // namespace detail
+
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
@@ -662,94 +760,33 @@ public:
         const std::size_t &n_data_sets,
         const double &edgelength
     ) {
-        using namespace Gem::Hap;
-
-        // Check the number of supplied layers
-        if(architecture.size() < 2) { // We need at least an input- and an output-layer
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GNeuralNetworkIndividual::createHyperCubeNetworkData(): Error!" << '\n'
-                << "Got invalid number of layers: " << architecture.size() << '\n'
-            );
-        }
-
-        // Check that the output layer has exactly one node
-        if(architecture.back() != 1) {
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GNeuralNetworkIndividual::createHyperCubeNetworkData(): Error!" << '\n'
-                << "The output layer must have exactly one node for this training data."
-                << '\n'
-                << "Got " << architecture.back() << " instead." << '\n'
-            );
-        }
-
-        // Create a local random number generator.
-        GRandom gr_l;
         std::uniform_real_distribution<double> uniform_real_distribution;
+        return detail::createNetworkData(
+            architecture,
+            n_data_sets,
+            "createHyperCubeNetworkData",
+            0,
+            [&](Gem::Hap::GRandom &gr_l, networkData &, trainingSet &t_s) {
+                bool outside = false;
+                for(std::size_t i = 0; i < t_s.Input.size(); i++) {
+                    double one_dim_rnd = uniform_real_distribution(
+                        gr_l,
+                        std::uniform_real_distribution<double>::param_type(-edgelength, edgelength)
+                    );
 
-        // Retrieve the number of input- and output nodes for easier reference
-        std::size_t n_input_nodes = architecture.front();
-        std::size_t n_output_nodes = architecture.back();
+                    // Need to find at least one dimension outside of the perimeter
+                    // in order to set the outside flag to true.
+                    if(one_dim_rnd < -edgelength / 2. || one_dim_rnd > edgelength / 2.) {
+                        outside = true;
+                    }
 
-        // The dimension of the hyper-cube is identical to the number of input nodes
-        std::size_t n_dim = n_input_nodes;
-
-        // Create the actual networkData object and attach the architecture
-        // Checks the architecture on the way
-        std::shared_ptr<networkData> n_d(new networkData(n_data_sets));
-        std::vector<std::size_t>::const_iterator it;
-        std::size_t layer_counter = 0;
-        for(it = architecture.begin(); it != architecture.end(); ++it, ++layer_counter) {
-            if(*it == 0) {
-                throw geneva_exception(
-                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                    << "In GNeuralNetworkIndividual::createHyperCubeNetworkData(): Error!" << '\n'
-                    << "Layer " << layer_counter << "has invalid size " << *it << '\n'
-                );
-            }
-
-            n_d->push_back(*it);
-        }
-
-        // Create the required data.
-        bool outside = false;
-        for(std::size_t dat_counter = 0; dat_counter < n_data_sets; dat_counter++) {
-            outside = false;
-            std::shared_ptr<trainingSet> t_s(new trainingSet(n_input_nodes, n_output_nodes));
-
-            for(std::size_t i = 0; i < n_dim; i++) {
-                double one_dim_rnd = uniform_real_distribution(
-                    gr_l,
-                    std::uniform_real_distribution<double>::param_type(-edgelength, edgelength)
-                );
-
-                // Need to find at least one dimension outside of the perimeter
-                // in order to set the outside flag to true.
-                if(one_dim_rnd < -edgelength / 2. || one_dim_rnd > edgelength / 2.) {
-                    outside = true;
+                    t_s.Input[i] = one_dim_rnd;
                 }
 
-                t_s->Input[i] = one_dim_rnd;
-            }
-
-            if(outside) {
-                t_s->Output[0] = 0.99;
-            }
-            else {
-                t_s->Output[0] = 0.01;
-            }
-
-            n_d->addTrainingSet(t_s, dat_counter);
-        }
-
-        // Make the initialization range known to nD_
-        std::vector<std::tuple<double, double>> init_range;
-        init_range.emplace_back(-edgelength, edgelength); // x
-        init_range.emplace_back(-edgelength, edgelength); // y
-        n_d->setInitRange(init_range);
-
-        return n_d;
+                t_s.Output[0] = outside ? 0.99 : 0.01;
+            },
+            {{-edgelength, edgelength}, {-edgelength, edgelength}} // x, y
+        );
     }
 
     /***************************************************************************/
@@ -770,159 +807,96 @@ public:
         const std::size_t &n_data_sets,
         const double &radius
     ) {
-        using namespace Gem::Hap;
-
-        // Check the number of supplied layers
-        if(architecture.size() < 2) { // We need at least an input- and an output-layer
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GNeuralNetworkIndividual::createHyperSphereNetworkData(): Error!"
-                << '\n'
-                << "Got invalid number of layers: " << architecture.size() << '\n'
-            );
-        }
-
-        // Check that the output layer has exactly one node
-        if(architecture.back() != 1) {
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GNeuralNetworkIndividual::createHyperSphereNetworkData(): Error!"
-                << '\n'
-                << "The output layer must have exactly one node for this training data."
-                << '\n'
-                << "Got " << architecture.back() << " instead." << '\n'
-            );
-        }
-
-        // Create a local random number generator.
-        GRandom gr_l;
         std::uniform_real_distribution<double> uniform_real_distribution;
+        return detail::createNetworkData(
+            architecture,
+            n_data_sets,
+            "createHyperSphereNetworkData",
+            0,
+            [&](Gem::Hap::GRandom &gr_l, networkData &n_d, trainingSet &t_s) {
+                const std::size_t n_dim = t_s.Input.size();
 
-        // Retrieve the number of input- and output nodes for easier reference
-        std::size_t n_input_nodes = architecture.front();
-        std::size_t n_output_nodes = architecture.back();
-
-        // The dimension of the hypersphere is identical to the number of input nodes
-        std::size_t n_dim = n_input_nodes;
-
-        // Create the actual networkData object and attach the architecture
-        // Checks the architecture on the way
-        std::shared_ptr<networkData> n_d(new networkData(n_data_sets));
-        std::vector<std::size_t>::const_iterator it;
-        std::size_t layer_counter = 0;
-        for(it = architecture.begin(); it != architecture.end(); ++it, ++layer_counter) {
-            if(*it == 0) {
-                throw geneva_exception(
-                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                    << "In GNeuralNetworkIndividual::createHyperSphereNetworkData(): Error!" << '\n'
-                    << "Layer " << layer_counter << "has invalid size " << *it << '\n'
-                );
-            }
-
-            n_d->push_back(*it);
-        }
-
-        for(std::size_t dat_counter = 0; dat_counter < n_data_sets; dat_counter++) {
-            std::shared_ptr<trainingSet> t_s(new trainingSet(n_input_nodes, n_output_nodes));
-
-            // Declared at first assignment (the former leading `= 1.` initializer was a dead store).
-            double local_radius = uniform_real_distribution(
-                gr_l,
-                std::uniform_real_distribution<double>::param_type(0., 3 * radius)
-            );
-            if(local_radius > radius) {
-                t_s->Output[0] = 0.99;
-            }
-            else {
-                t_s->Output[0] = 0.01;
-            }
-
-            //////////////////////////////////////////////////////////////////
-            // Calculate random Cartesian coordinates for hyper sphere
-
-            // Special cases
-            switch(n_dim) {
-            case 1:
-                t_s->Input[0] = local_radius;
-                break;
-
-            case 2: {
-                double phi = uniform_real_distribution(
+                // Declared at first assignment (the former leading `= 1.` initializer was a dead store).
+                double local_radius = uniform_real_distribution(
                     gr_l,
-                    std::uniform_real_distribution<double>::param_type(
-                        0.,
-                        2 * std::numbers::pi
-                    )
+                    std::uniform_real_distribution<double>::param_type(0., 3 * radius)
                 );
-                t_s->Input[0] = local_radius * sin(phi); // x
-                t_s->Input[1] = local_radius * cos(phi); // y
+                t_s.Output[0] = (local_radius > radius) ? 0.99 : 0.01;
 
-                // Make the initialization range known to nD_ . We only do this for 2D-data
-                std::vector<std::tuple<double, double>> init_range;
-                init_range.emplace_back(-local_radius, local_radius); // x
-                init_range.emplace_back(-local_radius, local_radius); // y
-                n_d->setInitRange(init_range);
-            } break;
-
-            default: // dimensions 3 ... inf
-            {
                 //////////////////////////////////////////////////////////////////
-                // Create the required random numbers in spherical coordinates.
-                // n_dim will be at least 3 here.
-                // n_dim will be at least 3 here.
-                std::size_t n_angles = n_dim - 1;
-                std::vector<double> angle_collection(n_angles);
-                for(std::size_t i = 0; i < (n_angles - 1); i++) { // Angles in range [0,Pi[
-                    angle_collection[i] = uniform_real_distribution(
+                // Calculate random Cartesian coordinates for hyper sphere
+
+                // Special cases
+                switch(n_dim) {
+                case 1:
+                    t_s.Input[0] = local_radius;
+                    break;
+
+                case 2: {
+                    double phi = uniform_real_distribution(
                         gr_l,
-                        std::uniform_real_distribution<double>::param_type(
-                            0.,
-                            std::numbers::pi
-                        )
+                        std::uniform_real_distribution<double>::param_type(0., 2 * std::numbers::pi)
                     );
-                }
-                angle_collection[n_angles - 1] = uniform_real_distribution(
-                    gr_l,
-                    std::uniform_real_distribution<double>::param_type(
-                        0.,
-                        2 * std::numbers::pi
-                    )
-                ); // Range of last angle is [0, 2.*Pi[
+                    t_s.Input[0] = local_radius * sin(phi); // x
+                    t_s.Input[1] = local_radius * cos(phi); // y
 
-                //////////////////////////////////////////////////////////////////
-                // Now we can fill the source-vector itself
-                std::vector<double> cart_coord(n_dim);
+                    // Make the initialization range known to nD_ . We only do this for 2D-data
+                    std::vector<std::tuple<double, double>> init_range;
+                    init_range.emplace_back(-local_radius, local_radius); // x
+                    init_range.emplace_back(-local_radius, local_radius); // y
+                    n_d.setInitRange(init_range);
+                } break;
 
-                for(std::size_t i = 0; i < n_dim; i++) {
-                    cart_coord[i] = local_radius; // They all have that
-                }
-
-                cart_coord[0] *= cos(angle_collection[0]); // x_1 / cart_coord[0]
-
-                for(std::size_t i = 1; i < n_dim - 1;
-                    i++) { // x_2 ... x_(n-1) / cart_coord[1] .... cart_coord[n-2]
-                    for(std::size_t j = 0; j < i; j++) {
-                        cart_coord[i] *= sin(angle_collection[j]);
+                default: // dimensions 3 ... inf
+                {
+                    //////////////////////////////////////////////////////////////////
+                    // Create the required random numbers in spherical coordinates.
+                    // n_dim will be at least 3 here.
+                    std::size_t n_angles = n_dim - 1;
+                    std::vector<double> angle_collection(n_angles);
+                    for(std::size_t i = 0; i < (n_angles - 1); i++) { // Angles in range [0,Pi[
+                        angle_collection[i] = uniform_real_distribution(
+                            gr_l,
+                            std::uniform_real_distribution<double>::param_type(0., std::numbers::pi)
+                        );
                     }
-                    cart_coord[i] *= cos(angle_collection[i]);
+                    angle_collection[n_angles - 1] = uniform_real_distribution(
+                        gr_l,
+                        std::uniform_real_distribution<double>::param_type(0., 2 * std::numbers::pi)
+                    ); // Range of last angle is [0, 2.*Pi[
+
+                    //////////////////////////////////////////////////////////////////
+                    // Now we can fill the source-vector itself
+                    std::vector<double> cart_coord(n_dim);
+
+                    for(std::size_t i = 0; i < n_dim; i++) {
+                        cart_coord[i] = local_radius; // They all have that
+                    }
+
+                    cart_coord[0] *= cos(angle_collection[0]); // x_1 / cart_coord[0]
+
+                    for(std::size_t i = 1; i < n_dim - 1;
+                        i++) { // x_2 ... x_(n-1) / cart_coord[1] .... cart_coord[n-2]
+                        for(std::size_t j = 0; j < i; j++) {
+                            cart_coord[i] *= sin(angle_collection[j]);
+                        }
+                        cart_coord[i] *= cos(angle_collection[i]);
+                    }
+
+                    for(std::size_t j = 0; j < n_angles; j++) { // x_n / cart_coord[n-1]
+                        cart_coord[n_dim - 1] *= sin(angle_collection[j]);
+                    }
+
+                    // Transfer the results
+                    for(std::size_t i = 0; i < n_dim; i++) {
+                        t_s.Input[i] = cart_coord[i];
+                    }
+
+                } break;
                 }
-
-                for(std::size_t j = 0; j < n_angles; j++) { // x_n / cart_coord[n-1]
-                    cart_coord[n_dim - 1] *= sin(angle_collection[j]);
-                }
-
-                // Transfer the results
-                for(std::size_t i = 0; i < n_dim; i++) {
-                    t_s->Input[i] = cart_coord[i];
-                }
-
-            } break;
-            }
-
-            n_d->addTrainingSet(t_s, dat_counter);
-        }
-
-        return n_d;
+            },
+            {} // the 2-D case registers its init range from the drawn radius above
+        );
     }
 
     /***************************************************************************/
@@ -941,107 +915,56 @@ public:
         const std::vector<std::size_t> &architecture,
         const std::size_t &n_data_sets
     ) {
-        using namespace Gem::Hap;
-
-        // Check the number of supplied layers
-        if(architecture.size() < 2) { // We need at least an input- and an output-layer
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GNeuralNetworkIndividual::createAxisCentricNetworkData(): Error!"
-                << '\n'
-                << "Got invalid number of layers: " << architecture.size() << '\n'
-            );
-        }
-
-        // Check that the output layer has exactly one node
-        if(architecture.back() != 1) {
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GNeuralNetworkIndividual::createAxisCentricNetworkData(): Error!"
-                << '\n'
-                << "The output layer must have exactly one node for this training data."
-                << '\n'
-                << "Got " << architecture.back() << " instead." << '\n'
-            );
-        }
-
-        // Create a local random number generator.
-        GRandom gr_l;
         std::uniform_real_distribution<double> uniform_real_distribution;
+        std::size_t data_counter = 0;
+        return detail::createNetworkData(
+            architecture,
+            n_data_sets,
+            "createAxisCentricNetworkData",
+            0,
+            [&](Gem::Hap::GRandom &gr_l, networkData &, trainingSet &t_s) {
+                const std::size_t n_dim = t_s.Input.size();
 
-        // Retrieve the number of input- and output nodes for easier reference
-        std::size_t n_input_nodes = architecture.front();
-        std::size_t n_output_nodes = architecture.back();
-
-        // The dimension of the data set is equal to the number of input nodes
-        std::size_t n_dim = n_input_nodes;
-
-        // Create the actual networkData object and attach the architecture
-        // Checks the architecture on the way
-        std::shared_ptr<networkData> n_d(new networkData(n_data_sets));
-        std::vector<std::size_t>::const_iterator it;
-        std::size_t layer_counter = 0;
-        for(it = architecture.begin(); it != architecture.end(); ++it, ++layer_counter) {
-            if(*it == 0) {
-                throw geneva_exception(
-                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                    << "In GNeuralNetworkIndividual::createAxisCentricNetworkData(): Error!" << '\n'
-                    << "Layer " << layer_counter << "has invalid size " << *it << '\n'
-                );
-            }
-
-            n_d->push_back(*it);
-        }
-
-        for(std::size_t data_counter = 0; data_counter < n_data_sets; data_counter++) {
-            std::shared_ptr<trainingSet> t_s(new trainingSet(n_input_nodes, n_output_nodes));
-
-            // Create even distribution across all dimensions
-            if(data_counter % 2 == 0) {
-                for(std::size_t dim_counter = 0; dim_counter < n_dim; dim_counter++) {
-                    t_s->Input[dim_counter] = uniform_real_distribution(gr_l);
-                }
-                t_s->Output[0] = 0.01;
-            }
-            // Create entries in a half-cylindrical "cloud" around one axis. The density of
-            // this cloud is decreasing with increasing distance from the axis.
-            else {
-                // Create a test value
-                double probe_value = 0.;
-                for(std::size_t dim_counter = 0; dim_counter < n_dim; dim_counter++) {
-                    probe_value += exp(-5. * uniform_real_distribution(gr_l));
-                }
-
-                double function_value = 0.;
-                std::vector<double> input_vector(n_dim);
-                do {
-                    function_value = 0.;
-
-                    // Create the input vector
+                // Create even distribution across all dimensions
+                if(data_counter % 2 == 0) {
                     for(std::size_t dim_counter = 0; dim_counter < n_dim; dim_counter++) {
-                        input_vector[dim_counter] = uniform_real_distribution(gr_l);
-                        function_value += exp(-5 * input_vector[dim_counter]);
+                        t_s.Input[dim_counter] = uniform_real_distribution(gr_l);
                     }
-                    function_value = pow(function_value, 4.);
+                    t_s.Output[0] = 0.01;
                 }
-                while(function_value < probe_value);
+                // Create entries in a half-cylindrical "cloud" around one axis. The density of
+                // this cloud is decreasing with increasing distance from the axis.
+                else {
+                    // Create a test value
+                    double probe_value = 0.;
+                    for(std::size_t dim_counter = 0; dim_counter < n_dim; dim_counter++) {
+                        probe_value += exp(-5. * uniform_real_distribution(gr_l));
+                    }
 
-                for(std::size_t i = 0; i < n_dim; i++) {
-                    t_s->Input[i] = input_vector[i];
+                    double function_value = 0.;
+                    std::vector<double> input_vector(n_dim);
+                    do {
+                        function_value = 0.;
+
+                        // Create the input vector
+                        for(std::size_t dim_counter = 0; dim_counter < n_dim; dim_counter++) {
+                            input_vector[dim_counter] = uniform_real_distribution(gr_l);
+                            function_value += exp(-5 * input_vector[dim_counter]);
+                        }
+                        function_value = pow(function_value, 4.);
+                    }
+                    while(function_value < probe_value);
+
+                    for(std::size_t i = 0; i < n_dim; i++) {
+                        t_s.Input[i] = input_vector[i];
+                    }
+                    t_s.Output[0] = 0.99;
                 }
-                t_s->Output[0] = 0.99;
-            }
 
-            n_d->addTrainingSet(t_s, data_counter);
-        }
-
-        // Make the initialization range known to nD_
-        std::vector<std::tuple<double, double>> init_range;
-        init_range.emplace_back(0, 1); // x
-        init_range.emplace_back(0, 1); // y
-        n_d->setInitRange(init_range);
-
-        return n_d;
+                ++data_counter;
+            },
+            {{0, 1}, {0, 1}} // x, y
+        );
     }
 
     /***************************************************************************/
@@ -1057,94 +980,28 @@ public:
         const std::vector<std::size_t> &architecture,
         const std::size_t &n_data_sets
     ) {
-        using namespace Gem::Hap;
-
-        // Check the number of supplied layers
-        if(architecture.size() < 2) { // We need at least an input- and an output-layer
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GNeuralNetworkIndividual::createSinNetworkData(): Error!" << '\n'
-                << "Got invalid number of layers: " << architecture.size() << '\n'
-            );
-        }
-
-        // Check that the output layer has exactly one node
-        if(architecture.back() != 1) {
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GNeuralNetworkIndividual::createSinNetworkData(): Error!" << '\n'
-                << "The output layer must have exactly one node for this training data."
-                << '\n'
-                << "Got " << architecture.back() << " instead." << '\n'
-            );
-        }
-
-        // We require the input dimension to be 2
-        if(architecture.front() != 2) {
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GNeuralNetworkIndividual::createSinNetworkData(): Error!" << '\n'
-                << "The input layer must have exactly two node for this example." << '\n'
-                << "Got " << architecture.front() << " instead." << '\n'
-            );
-        }
-
-        // Create a local random number generator.
-        GRandom gr_l;
         std::uniform_real_distribution<double> uniform_real_distribution;
+        return detail::createNetworkData(
+            architecture,
+            n_data_sets,
+            "createSinNetworkData",
+            2, // this example only accepts two input nodes
+            [&](Gem::Hap::GRandom &gr_l, networkData &, trainingSet &t_s) {
+                // create the two test values
+                t_s.Input[0] = uniform_real_distribution(
+                    gr_l,
+                    std::uniform_real_distribution<double>::param_type(-6., 6.)
+                ); // x
+                t_s.Input[1] = uniform_real_distribution(
+                    gr_l,
+                    std::uniform_real_distribution<double>::param_type(-6., 6.)
+                ); // y
 
-        // Retrieve the number of input- and output nodes for easier reference
-        std::size_t n_input_nodes = architecture.front();
-        std::size_t n_output_nodes = architecture.back();
-
-        // Create the actual networkData object and attach the architecture
-        // Checks the architecture on the way
-        std::shared_ptr<networkData> n_d(new networkData(n_data_sets));
-        std::vector<std::size_t>::const_iterator it;
-        std::size_t layer_counter = 0;
-        for(it = architecture.begin(); it != architecture.end(); ++it, ++layer_counter) {
-            if(*it == 0) {
-                throw geneva_exception(
-                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                    << "In GNeuralNetworkIndividual::createSinNetworkData(): Error!" << '\n'
-                    << "Layer " << layer_counter << "has invalid size " << *it << '\n'
-                );
-            }
-
-            n_d->push_back(*it);
-        }
-
-        for(std::size_t data_counter = 0; data_counter < n_data_sets; data_counter++) {
-            std::shared_ptr<trainingSet> t_s(new trainingSet(n_input_nodes, n_output_nodes));
-
-            // create the two test values
-            t_s->Input[0] = uniform_real_distribution(
-                gr_l,
-                std::uniform_real_distribution<double>::param_type(-6., 6.)
-            ); // x
-            t_s->Input[1] = uniform_real_distribution(
-                gr_l,
-                std::uniform_real_distribution<double>::param_type(-6., 6.)
-            ); // y
-
-            // Check whether we are below or above the sin function and assign the output value accordingly
-            if((t_s->Input)[1] > 4. * sin((t_s->Input)[0])) {
-                t_s->Output[0] = 0.99;
-            }
-            else {
-                t_s->Output[0] = 0.01;
-            }
-
-            n_d->addTrainingSet(t_s, data_counter);
-        }
-
-        // Make the initialization range known to nD_
-        std::vector<std::tuple<double, double>> init_range;
-        init_range.emplace_back(-6, 6); // x
-        init_range.emplace_back(-6, 6); // y
-        n_d->setInitRange(init_range);
-
-        return n_d;
+                // Check whether we are below or above the sin function and assign the output value accordingly
+                t_s.Output[0] = (t_s.Input[1] > 4. * sin(t_s.Input[0])) ? 0.99 : 0.01;
+            },
+            {{-6, 6}, {-6, 6}} // x, y
+        );
     }
 
     /***************************************************************************/

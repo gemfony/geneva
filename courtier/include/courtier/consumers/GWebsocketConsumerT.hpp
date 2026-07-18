@@ -33,23 +33,16 @@
 
 // Standard headers
 #include <atomic>
-#include <chrono>
 #include <cstddef>
 #include <memory>
-#include <thread>
-#include <tuple>
+#include <utility>
 
 // Boost headers
 #include <boost/asio.hpp>
 
 // Geneva headers
-#include "common/GErrorStreamer.hpp"
-#include "common/GExceptions.hpp"
-#include "common/GLogger.hpp"
-#include "common/concurrency/GThreadGroup.hpp"
 #include "courtier/transport/GWebsocketTransportT.hpp" // reuse the existing session + client + protocol
-#include "courtier/consumers/GNetworkedConsumerT.hpp"
-#include "courtier/GWireSerializationContext.hpp" // layout send-once: shared registry + peer ids
+#include "courtier/consumers/GTcpAcceptingConsumerT.hpp"
 
 namespace Gem::Courtier {
 
@@ -58,7 +51,10 @@ namespace Gem::Courtier {
  * The courtier websocket consumer. Functionally the websocket twin of GAsioConsumerT: a TCP server
  * whose accepted connections are upgraded to websocket sessions (with keep-alive ping/pong) that
  * hand out work from the current batch and collect results, reconciled via the inherited
- * GNetworkedConsumerT / GBaseConsumerT machinery.
+ * GTcpAcceptingConsumerT / GNetworkedConsumerT / GBaseConsumerT machinery. The whole server
+ * lifecycle (accept loop, io threads, shutdown) lives on the shared GTcpAcceptingConsumerT shell;
+ * this class contributes only the websocket session construction (with its liveness-driven
+ * CheckoutLease) and the websocket-specific knobs.
  *
  * As with the ASIO consumer it reuses the existing courtier session
  * (Gem::Courtier::Consumers::GWebsocketConsumerSessionT) and GCommandContainerT wire protocol, so an
@@ -67,9 +63,7 @@ namespace Gem::Courtier {
  * @tparam processable_type The work-item type handed to clients and reconciled back into the population
  */
 template <typename processable_type>
-class GWebsocketConsumerT final
-  : public GNetworkedConsumerT<processable_type>
-  , public std::enable_shared_from_this<GWebsocketConsumerT<processable_type>> {
+class GWebsocketConsumerT final : public GTcpAcceptingConsumerT<processable_type> {
 public:
     using session_type = Gem::Courtier::Consumers::GWebsocketConsumerSessionT<processable_type>;
 
@@ -88,115 +82,11 @@ public:
         std::size_t ping_interval = 5,
         bool verbose_control_frames = false
     )
-        : port_(port)
-        , n_threads_(n_threads == 0 ? default_threads() : n_threads)
+        : GTcpAcceptingConsumerT<processable_type>("Gem::Courtier::GWebsocketConsumerT", port, n_threads)
         , serialization_mode_(serialization_mode)
         , ping_interval_(ping_interval)
         , verbose_control_frames_(verbose_control_frames)
     { /* nothing */ }
-
-    /** @brief The destructor. Stops the server (idempotent). stopServer() posts to a strand and joins
-     *  the io threads, either of which may throw; a destructor must not propagate, so teardown is
-     *  best-effort and any exception is swallowed. */
-    ~GWebsocketConsumerT() override {
-        try {
-            this->stopServer();
-        } catch(...) { // NOLINT(bugprone-empty-catch) -- deliberate best-effort teardown
-            // never let an exception escape a destructor
-        }
-    }
-
-    GWebsocketConsumerT(const GWebsocketConsumerT &) = delete;
-    GWebsocketConsumerT(GWebsocketConsumerT &&) = delete;
-    GWebsocketConsumerT &operator=(const GWebsocketConsumerT &) = delete;
-    GWebsocketConsumerT &operator=(GWebsocketConsumerT &&) = delete;
-
-    /***************************************************************************/
-    /** @brief Returns the TCP port the server is bound to (the OS-chosen port after startServer()
-     *  when 0 was requested).
-     *  @return The active listening port */
-    [[nodiscard]] unsigned short getPort() const noexcept { return port_; }
-    /** @brief Returns the number of currently active client sessions.
-     *  @return The live session count */
-    [[nodiscard]] std::size_t getNActiveSessions() const noexcept { return n_active_sessions_.load(); }
-
-    /***************************************************************************/
-    /** @brief The number of distinct genome layouts the server has interned for transport (layout
-     *  send-once). One per distinct genome structure across all sessions -- so a whole population of
-     *  one problem type interns a single layout, however many work items and clients are involved.
-     *  @return The count of interned layouts. */
-    [[nodiscard]] std::size_t getInternedLayoutCount() const { return wire_registry_.size(); }
-
-    /** @brief Bounds the number of distinct genome layouts the server caches for transport (layout send-once);
-     *  0 (the default) keeps them all. Beyond the bound the least-recently-used layout is evicted and the
-     *  next work item that needs it re-sends it in full -- so this only trades a re-send for memory and
-     *  never affects correctness. Useful for a long run over many evolving genome structures.
-     *  @param max_layouts The maximum number of cached layouts (0 == unbounded). */
-    void setInternedLayoutCapacity(std::size_t max_layouts) { wire_registry_.setCapacity(max_layouts); }
-
-    /***************************************************************************/
-    /** @brief Opens, binds and listens on the acceptor, then starts accepting connections and spins
-     *  up the io threads. Throws a geneva_exception if the acceptor cannot be opened/bound. */
-    void startServer() {
-        boost::system::error_code ec;
-
-        boost::asio::ip::tcp::endpoint endpoint{boost::asio::ip::tcp::v4(), port_};
-        std::ignore = acceptor_.open(endpoint.protocol(), ec); // returned ec duplicates the checked out-param
-        if(ec || not acceptor_.is_open()) {
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In Gem::Courtier::GWebsocketConsumerT::startServer(): could not open the acceptor: "
-                << ec.message() << '\n'
-            );
-        }
-        acceptor_.set_option(boost::asio::socket_base::reuse_address(true));
-        std::ignore = acceptor_.bind(endpoint, ec); // returned ec duplicates the checked out-param
-        if(ec) {
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In Gem::Courtier::GWebsocketConsumerT::startServer(): could not bind to port "
-                << port_ << ": " << ec.message() << '\n'
-            );
-        }
-        port_ = acceptor_.local_endpoint().port();
-
-        std::ignore = acceptor_.listen(boost::asio::socket_base::max_listen_connections, ec); // returned ec duplicates the checked out-param
-        if(ec) {
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In Gem::Courtier::GWebsocketConsumerT::startServer(): could not listen: "
-                << ec.message() << '\n'
-            );
-        }
-
-        this->async_start_accept();
-
-        for(std::size_t t = 0; t < n_threads_; ++t) {
-            gtg_.create_thread([this] { io_context_.run(); });
-        }
-    }
-
-    /***************************************************************************/
-    /** @brief Stops the server (idempotent): requests a stop, closes the acceptor on the accept
-     *  strand, releases the work guard and joins the io threads. */
-    void stopServer() {
-        if(stopped_already_.exchange(true)) {
-            return;
-        }
-        this->requestStop();
-
-        // Close the acceptor and cancel the retry timer ON the accept strand, so this never runs
-        // concurrently with the accept handler (a tcp::acceptor is not thread-safe).
-        boost::asio::post(accept_strand_, [this]() {
-            boost::system::error_code ec;
-            std::ignore = acceptor_.close(ec); // best-effort teardown
-            accept_retry_timer_.cancel();
-        });
-
-        work_guard_.reset();
-        io_context_.stop();
-        gtg_.join_all();
-    }
 
 protected:
     /***************************************************************************/
@@ -207,141 +97,56 @@ protected:
 
 private:
     /***************************************************************************/
-    /** @brief Default io-thread count derived from the hardware concurrency (at least 1).
-     *  @return The number of io threads to use when none was requested */
-    static std::size_t default_threads() {
-        const unsigned int hc = std::thread::hardware_concurrency();
-        return hc == 0 ? 1u : hc;
-    }
-
-    /***************************************************************************/
-    /** @brief Arms one asynchronous accept, bound to the accept strand so all (non-thread-safe)
-     *  acceptor access is serialized across the io threads. */
-    void async_start_accept() {
-        // Connectionless async_accept overload (a fresh socket per accept -- no shared socket_ to
-        // race on), with the handler bound to accept_strand_ so all acceptor access is serialized
-        // across the io threads (the acceptor is not thread-safe).
-        auto self = this->shared_from_this();
-        acceptor_.async_accept(
-            boost::asio::bind_executor(
-                accept_strand_,
-                [self](boost::system::error_code ec, boost::asio::ip::tcp::socket socket) {
-                    self->when_accepted(ec, std::move(socket));
-                }
-            )
-        );
-    }
-
-    /***************************************************************************/
-    /** @brief Accept handler: starts a new persistent session for the connection (with a CheckoutLease
-     *  that requeues any in-flight items if the client dies), then re-arms the next accept. Backs off
-     *  briefly on a transient accept failure instead of busy-spinning.
-     *
-     *  @param ec The error code of a potential accept failure
+    /** @brief Starts one persistent websocket session for a freshly accepted connection, with a
+     *  CheckoutLease that requeues any in-flight items if the client dies.
      *  @param socket The freshly accepted TCP socket, moved into the new session */
-    void when_accepted(boost::system::error_code ec, boost::asio::ip::tcp::socket socket) {
-        if(this->stopped()) {
-            return; // shutting down: do not start a session and do not re-arm
-        }
-
-        if(ec) {
-            // A closed acceptor (operation_aborted / bad_descriptor) means we are stopping -- give up.
-            if(ec == boost::asio::error::operation_aborted
-               || ec == boost::asio::error::bad_descriptor) {
-                return;
-            }
-            // A transient accept failure (e.g. EMFILE -- too many open files) must NOT be retried in
-            // a tight loop: back off briefly so the io thread is not pinned and the listen backlog can
-            // drain as file descriptors free up.
-            glogger << "In Gem::Courtier::GWebsocketConsumerT::when_accepted(): " << ec.message()
-                    << " -- backing off before retrying accept" << '\n'
-                    << GWARNING;
-            accept_retry_timer_.expires_after(std::chrono::milliseconds(100));
-            auto self = this->shared_from_this();
-            accept_retry_timer_.async_wait(
-                boost::asio::bind_executor(accept_strand_, [self](boost::system::error_code tec) {
-                    if(not tec && not self->stopped()) {
-                        self->async_start_accept();
-                    }
-                })
-            );
-            return;
-        }
-
+    void start_session_(boost::asio::ip::tcp::socket socket) override {
         // The websocket session is persistent (the client keeps the connection open while it
         // evaluates), so a disconnect IS a real death signal. Give the session a CheckoutLease: if it
         // dies still holding items, the lease requeues all of them immediately for other clients --
         // liveness-driven put-back, no time lease needed (see usesTimeLease()). A prefetching client may
         // hold several items at once, so the lease tracks the whole in-flight set, not just the latest.
         auto lease = std::make_shared<typename GNetworkedConsumerT<processable_type>::CheckoutLease>();
-        lease->on_abandon = [w = this->weak_from_this()](Gem::Courtier::CORRELATION_ID_TYPE id) {
+        // The weak pointer is kept at the CONCRETE type: requeue() is protected on the networked
+        // base, so it is only accessible through a pointer of this class's own type.
+        std::weak_ptr<GWebsocketConsumerT<processable_type>> w =
+            std::static_pointer_cast<GWebsocketConsumerT<processable_type>>(this->shared_from_this());
+        lease->on_abandon = [w](Gem::Courtier::CORRELATION_ID_TYPE id) {
             if(auto s = w.lock()) {
                 s->requeue(id);
             }
         };
 
+        auto self = this->shared_from_this();
         std::make_shared<session_type>(
-            io_context_,
+            this->io_context_,
             std::move(socket),
-            [self = this->shared_from_this(), lease]() -> std::unique_ptr<processable_type> {
-                auto p = self->checkout();
+            [self, this, lease]() -> std::unique_ptr<processable_type> {
+                auto p = this->checkout();
                 lease->add(p); // no-op for a null item; records p's correlation id
                 return p;
             },
-            [self = this->shared_from_this(), lease](std::unique_ptr<processable_type> p) {
+            [self, this, lease](std::unique_ptr<processable_type> p) {
                 lease->remove(p); // returned normally -> nothing for the lease to reclaim
-                self->checkin(std::move(p));
+                this->checkin(std::move(p));
             },
-            [self = this->shared_from_this()]() -> bool { return self->stopped(); },
-            [self = this->shared_from_this()](bool sign_on) {
-                if(sign_on) {
-                    self->n_active_sessions_.fetch_add(1, std::memory_order_relaxed);
-                }
-                else {
-                    // Race-free decrement: sign-on/sign-off are balanced by the session
-                    // lifecycle, so the counter cannot underflow (the former load()-then-
-                    // decrement check-then-act could double-decrement under contention).
-                    self->n_active_sessions_.fetch_sub(1, std::memory_order_relaxed);
-                }
-            },
+            [self, this]() -> bool { return this->stopped(); },
+            [self, this](bool sign_on) { this->adjustSessionCount(sign_on); },
             serialization_mode_,
             ping_interval_,
             verbose_control_frames_,
-            &wire_registry_,
+            &this->wire_registry_,
             next_peer_id_.fetch_add(1) // a fresh peer id per session (connection)
         )
             ->async_start_run();
-
-        // Re-arm for the next connection.
-        this->async_start_accept();
     }
 
     /***************************************************************************/
-    unsigned short port_;
-    std::size_t n_threads_;
     Gem::Common::serializationMode serialization_mode_;
     std::size_t ping_interval_;
     bool verbose_control_frames_;
 
-    boost::asio::io_context io_context_;
-    boost::asio::executor_work_guard<boost::asio::io_context::executor_type> work_guard_ =
-        boost::asio::make_work_guard(io_context_);
-    boost::asio::ip::tcp::acceptor acceptor_{io_context_};
-    /// Serializes all acceptor access (async_accept re-arm, close, retry timer) across the io threads.
-    boost::asio::strand<boost::asio::io_context::executor_type> accept_strand_{
-        io_context_.get_executor()
-    };
-    /// Backoff timer used to retry accept after a transient failure (e.g. EMFILE) without busy-spinning.
-    boost::asio::steady_timer accept_retry_timer_{io_context_};
-
-    Gem::Common::Concurrency::GThreadGroup gtg_;
-    std::atomic<std::size_t> n_active_sessions_{0};
-    std::atomic<bool> stopped_already_{false};
-
-    /// The layout send-once registry shared by all of this consumer's sessions: a content-addressed
-    /// store of the genome layouts the server has sent, with per-peer (per-session) ack tracking, so a
-    /// given layout travels to a given client only once. next_peer_id_ hands each session a distinct id.
-    Gem::Courtier::GWireLayoutRegistry wire_registry_;
+    /// Hands each session a distinct peer id for the layout send-once registry's per-peer ack tracking.
     std::atomic<Gem::Courtier::GWirePeerId> next_peer_id_{1};
 };
 

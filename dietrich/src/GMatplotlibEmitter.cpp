@@ -84,56 +84,9 @@ std::string MatplotlibEmitter::fileExtension() const {
 namespace {
 
 /******************************************************************************/
-// Helpers backing the matplotlib backend. The plotters expose their columns via the
-// public const column<I>() accessor on GDataCollectorT; coordinates are emitted into
-// Python list literals at full (round-trippable) precision through an EmitStream.
-
-/** @brief The plotter kind the matplotlib backend understands. */
-enum class mplKind { g2d, g2ed, g3d, g4d, hist1d, hist1i, hist2d };
-
-/** @brief Classify a plotter for the matplotlib backend; throws for unsupported types
- *  (e.g. function plotters), directing the caller to the ROOT backend. */
-mplKind classifyMpl(const GBasePlotter &p) {
-    switch(p.plotSpec().kind) {
-        case plotKind::graph_2d:     return mplKind::g2d;
-        case plotKind::graph_2d_err: return mplKind::g2ed;
-        case plotKind::graph_3d:     return mplKind::g3d;
-        case plotKind::graph_4d:     return mplKind::g4d;
-        case plotKind::hist_2d:      return mplKind::hist2d;
-        case plotKind::hist_1d:      return mplKind::hist1d;
-        case plotKind::hist_1i:      return mplKind::hist1i;
-        default:                     break;
-    }
-    throw geneva_exception(
-        g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-        << "In MatplotlibEmitter::emitDocument(): Error!" << '\n'
-        << "the matplotlib backend does not support " << p.getPlotterName()
-        << "; use the ROOT backend for it" << '\n'
-    );
-}
-
-/** @brief Whether a plotter is drawn into a 3-d (mplot3d) Axes. */
-bool isThreeDimensionalMpl(mplKind k) {
-    return k == mplKind::g3d || k == mplKind::g4d;
-}
-
-/** @brief Emit one numeric column as a Python list literal `[v0, v1, ...]` at full precision.
- *  Works for both float64 and int32 element types (an int column emits integer literals). */
-template <typename T>
-std::string pyList(const std::vector<T> &col) {
-    EmitStream out; // NOLINT(cppcoreguidelines-init-variables)
-    out << '[';
-    for(std::size_t i = 0; i < col.size(); ++i) {
-        out << (i == 0 ? "" : ", ") << col[i];
-    }
-    out << ']';
-    return out.str();
-}
-
-/** @brief Emit a type-tagged column (float64 or int32) as a Python list literal. */
-std::string pyListCol(const GPlotColumn &c) {
-    return std::visit([](const auto *v) { return pyList(*v); }, c);
-}
+// Helpers backing the matplotlib backend. The classification / validation / column-literal
+// skeleton is the shared script-backend driver in detail/GPlotDetail.hpp; only the
+// matplotlib-specific plotting calls live here.
 
 /** @brief Emit the matplotlib plotting call(s) for ONE plotter into the named Axes `ax`. The data are
  *  written as inline Python list literals; `ax` is a 2-d Axes for g2d/g2ed/hist*, a 3-d Axes for
@@ -141,53 +94,53 @@ std::string pyListCol(const GPlotColumn &c) {
  *  column 0 -- Python is whitespace-sensitive, so no indentation is applied. */
 std::string mplPlotCall(
     const GBasePlotter &p,
-    mplKind k,
+    scriptKind k,
     const std::string &ax,
     const std::string &fig
 ) {
     EmitStream call; // NOLINT(cppcoreguidelines-init-variables)
-    const std::string label = pythonEscape(p.plotLabel());
+    const std::string label = backslashEscape(p.plotLabel());
     // Columns in storage order (see plotSpec().columns); histogram bin counts come
     // from the same spec. GGraph2ED's stored order is (x, ex, y, ey) -> errorbar wants
     // x, y with xerr/yerr.
     const auto cols = p.dataColumns();
     const GPlotSpec spec = p.plotSpec();
     switch(k) {
-        case mplKind::g2d: {
-            call << ax << ".plot(" << pyListCol(cols[0]) << ", "
-                 << pyListCol(cols[1]) << ", marker=\"o\", label=\"" << label << "\")" << '\n';
+        case scriptKind::g2d: {
+            call << ax << ".plot(" << bracketedRowCol(cols[0]) << ", "
+                 << bracketedRowCol(cols[1]) << ", marker=\"o\", label=\"" << label << "\")" << '\n';
         } break;
-        case mplKind::g2ed: {
-            call << ax << ".errorbar(" << pyListCol(cols[0]) << ", "
-                 << pyListCol(cols[2]) << ", xerr=" << pyListCol(cols[1])
-                 << ", yerr=" << pyListCol(cols[3]) << ", fmt=\"o\", label=\"" << label << "\")"
+        case scriptKind::g2ed: {
+            call << ax << ".errorbar(" << bracketedRowCol(cols[0]) << ", "
+                 << bracketedRowCol(cols[2]) << ", xerr=" << bracketedRowCol(cols[1])
+                 << ", yerr=" << bracketedRowCol(cols[3]) << ", fmt=\"o\", label=\"" << label << "\")"
                  << '\n';
         } break;
-        case mplKind::g3d: {
-            call << ax << ".plot(" << pyListCol(cols[0]) << ", "
-                 << pyListCol(cols[1]) << ", " << pyListCol(cols[2])
+        case scriptKind::g3d: {
+            call << ax << ".plot(" << bracketedRowCol(cols[0]) << ", "
+                 << bracketedRowCol(cols[1]) << ", " << bracketedRowCol(cols[2])
                  << ", label=\"" << label << "\")" << '\n';
         } break;
-        case mplKind::g4d: {
+        case scriptKind::g4d: {
             // 3-d scatter coloured by the w-component, with a colourbar.
-            call << "_sc = " << ax << ".scatter(" << pyListCol(cols[0]) << ", "
-                 << pyListCol(cols[1]) << ", " << pyListCol(cols[2])
-                 << ", c=" << pyListCol(cols[3]) << ", cmap=\"viridis\", label=\"" << label
+            call << "_sc = " << ax << ".scatter(" << bracketedRowCol(cols[0]) << ", "
+                 << bracketedRowCol(cols[1]) << ", " << bracketedRowCol(cols[2])
+                 << ", c=" << bracketedRowCol(cols[3]) << ", cmap=\"viridis\", label=\"" << label
                  << "\")" << '\n'
                  << fig << ".colorbar(_sc, ax=" << ax << ")" << '\n';
         } break;
-        case mplKind::hist1d:
-        case mplKind::hist1i: {
+        case scriptKind::hist1d:
+        case scriptKind::hist1i: {
             // A 1-d histogram of the raw samples (float64 or int32); same matplotlib call.
             // A histogram spec always carries its bin counts; the fallback is unreachable
-            call << ax << ".hist(" << pyListCol(cols[0]) << ", bins="
+            call << ax << ".hist(" << bracketedRowCol(cols[0]) << ", bins="
                  << spec.n_bins_x.value_or(Gem::Common::DEFAULTNBINSGPD) << ", label=\"" << label
                  << "\")" << '\n';
         } break;
-        case mplKind::hist2d: {
+        case scriptKind::hist2d: {
             // A histogram spec always carries its bin counts; the fallbacks are unreachable
-            call << "_h = " << ax << ".hist2d(" << pyListCol(cols[0]) << ", "
-                 << pyListCol(cols[1]) << ", bins=["
+            call << "_h = " << ax << ".hist2d(" << bracketedRowCol(cols[0]) << ", "
+                 << bracketedRowCol(cols[1]) << ", bins=["
                  << spec.n_bins_x.value_or(Gem::Common::DEFAULTNBINSGPD) << ", "
                  << spec.n_bins_y.value_or(Gem::Common::DEFAULTNBINSGPD) << "])" << '\n'
                  << fig << ".colorbar(_h[3], ax=" << ax << ")" << '\n';
@@ -220,31 +173,12 @@ std::string MatplotlibEmitter::emitDocument(const GPlotDesigner &gpd) const {
     EmitStream result; // NOLINT(cppcoreguidelines-init-variables)
 
     // Validate ALL plotters (and their secondaries) up front, so a partial script is
-    // never produced for an unsupported plotter type. A 2-d and a 3-d plotter cannot
+    // never produced for an unsupported plotter type; a 2-d and a 3-d plotter cannot
     // share one pad (one is a flat Axes, the other an mplot3d Axes).
-    for(const auto &p : gpd.plotters_cnt_) {
-        const mplKind k = classifyMpl(*p);
-        for(const auto &sp : p->secondaryPlotters()) {
-            const mplKind sk = classifyMpl(*sp);
-            if(isThreeDimensionalMpl(k) != isThreeDimensionalMpl(sk)) {
-                throw geneva_exception(
-                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                    << "In MatplotlibEmitter::emitDocument(): Error!" << '\n'
-                    << "a 2-d and a 3-d graph cannot share a single matplotlib pad ("
-                    << p->getPlotterName() << " vs. " << sp->getPlotterName() << ")" << '\n'
-                );
-            }
-        }
-    }
-
-    if(gpd.plotters_cnt_.size() > max_plots) {
-        glogger << "In MatplotlibEmitter::emitDocument() (Canvas label = \"" << gpd.getCanvasLabel()
-                << "\":" << '\n'
-                << "Warning! Found more plots than pads (" << gpd.plotters_cnt_.size() << " vs. "
-                << max_plots << ")" << '\n'
-                << "Some of the plots will be ignored" << '\n'
-                << GWARNING;
-    }
+    validateScriptPads(gpd.plotters_cnt_, true, "MatplotlibEmitter::emitDocument()", "matplotlib");
+    warnPadOverflow(
+        "MatplotlibEmitter::emitDocument()", gpd.getCanvasLabel(), gpd.plotters_cnt_.size(), max_plots
+    );
 
     // NOTE: Python is whitespace-sensitive, so every statement below is emitted at column 0 (the
     // GPlotDesigner indentation setting does not apply to a Python script).
@@ -260,7 +194,7 @@ std::string MatplotlibEmitter::emitDocument(const GPlotDesigner &gpd) const {
            << '\n' << '\n'
            << "fig = plt.figure(figsize=(" << (cols == 0 ? 1 : cols) * 5 << ", "
            << (rows == 0 ? 1 : rows) * 4 << "))" << '\n'
-           << "fig.suptitle(\"" << pythonEscape(gpd.getCanvasLabel()) << "\")" << '\n' << '\n';
+           << "fig.suptitle(\"" << backslashEscape(gpd.getCanvasLabel()) << "\")" << '\n' << '\n';
 
     // Per pad: create the Axes with the right projection, set labels/title, then plot the pad's
     // primary-and-secondary plotters into it (secondaries overlay on the same Axes).
@@ -268,24 +202,30 @@ std::string MatplotlibEmitter::emitDocument(const GPlotDesigner &gpd) const {
         gpd.plotters_cnt_ | std::views::enumerate | std::views::take(max_plots)) {
         const std::size_t pad_idx = static_cast<std::size_t>(idx) + 1; // matplotlib subplot indices start at 1
 
-        const mplKind k = classifyMpl(*p);
-        const bool three_d = isThreeDimensionalMpl(k);
+        const scriptKind k =
+            classifyForScript(*p, true, "MatplotlibEmitter::emitDocument()", "matplotlib");
+        const bool three_d = isThreeDimensionalScript(k);
 
         result << "ax = fig.add_subplot(" << rows << ", " << cols << ", " << pad_idx
                << (three_d ? ", projection=\"3d\"" : "") << ")" << '\n';
 
         // Per-pad axis labels and title.
-        result << "ax.set_xlabel(\"" << pythonEscape(p->xAxisLabel()) << "\")" << '\n'
-               << "ax.set_ylabel(\"" << pythonEscape(p->yAxisLabel()) << "\")" << '\n';
+        result << "ax.set_xlabel(\"" << backslashEscape(p->xAxisLabel()) << "\")" << '\n'
+               << "ax.set_ylabel(\"" << backslashEscape(p->yAxisLabel()) << "\")" << '\n';
         if(three_d) {
-            result << "ax.set_zlabel(\"" << pythonEscape(p->zAxisLabel()) << "\")" << '\n';
+            result << "ax.set_zlabel(\"" << backslashEscape(p->zAxisLabel()) << "\")" << '\n';
         }
-        result << "ax.set_title(\"" << pythonEscape(p->plotLabel()) << "\")" << '\n';
+        result << "ax.set_title(\"" << backslashEscape(p->plotLabel()) << "\")" << '\n';
 
         // The primary plotter, then any secondary plotters overlaid on the same Axes.
         result << mplPlotCall(*p, k, "ax", "fig");
         for(const auto &sp : p->secondaryPlotters()) {
-            result << mplPlotCall(*sp, classifyMpl(*sp), "ax", "fig");
+            result << mplPlotCall(
+                *sp,
+                classifyForScript(*sp, true, "MatplotlibEmitter::emitDocument()", "matplotlib"),
+                "ax",
+                "fig"
+            );
         }
         result << '\n';
     }

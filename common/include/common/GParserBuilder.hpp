@@ -736,140 +736,6 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * This class wraps a reference to individual parameters. Instead of
- * executing a stored call-back function, executeCallBackFunction will assign
- * the parsed value to the reference.
- *
- * @tparam parameter_type The type of the referenced single parameter
- */
-template <typename parameter_type>
-class GFileReferenceParsableParameterT : public GSingleParmT<parameter_type> {
-    // We want GParserBuilder to be able to call our load- and save functions
-    friend class GParserBuilder;
-
-public:
-    /***************************************************************************/
-    /**
-	  * Initializes the parameter and sets values in the parent class
-	  *
-	  * @param stored_reference The variable to which the parsed value will be assigned
-	  * @param option_name_var The option name of this parameter
-	  * @param comment_var The comment associated with this parameter
-	  * @param is_essential_var Whether this is an essential (true) or secondary (false) parameter
-	  * @param def_val The default value used when the option is absent from the configuration file
-	  */
-    GFileReferenceParsableParameterT(
-        parameter_type &stored_reference,
-        std::string const &option_name_var,
-        std::string const &comment_var,
-        bool is_essential_var,
-        parameter_type const &def_val
-    )
-      : GSingleParmT<parameter_type>(option_name_var, comment_var, is_essential_var, def_val)
-      , stored_reference_(stored_reference) { /* nothing */
-    }
-
-    /***************************************************************************/
-    /**
-	  * Initializes the parameter and sets values in the parent class, except
-	  * for comments.
-	  *
-	  * @param stored_reference The variable to which the parsed value will be assigned
-	  * @param option_name_var The option name of this parameter
-	  * @param def_val The default value used when the option is absent from the configuration file
-	  */
-    GFileReferenceParsableParameterT(
-        parameter_type &stored_reference,
-        std::string const &option_name_var,
-        parameter_type const &def_val
-    )
-      : GSingleParmT<parameter_type>(
-            option_name_var,
-            std::string(),
-            Gem::Common::VAR_IS_ESSENTIAL,
-            def_val
-        )
-      , stored_reference_(stored_reference) { /* nothing */
-    }
-
-    /***************************************************************************/
-    /**
-	  * The destructor
-	  */
-    ~GFileReferenceParsableParameterT() override = default;
-
-    /***************************************************************************/
-    // Prevent copying, moving and default construction
-    GFileReferenceParsableParameterT() = delete;
-    GFileReferenceParsableParameterT(GFileReferenceParsableParameterT<parameter_type> const &) =
-        delete;
-    GFileReferenceParsableParameterT(GFileReferenceParsableParameterT<parameter_type> &&) = delete;
-    GFileReferenceParsableParameterT<parameter_type> &
-    operator=(GFileReferenceParsableParameterT<parameter_type> const &) = delete;
-    GFileReferenceParsableParameterT<parameter_type> &
-    operator=(GFileReferenceParsableParameterT<parameter_type> &&) = delete;
-
-private:
-    /***************************************************************************/
-    /**
-	  * Loads this parameter's value from the parsed configuration document
-	  *
-	  * @param root The root JSON object of the parsed configuration
-	  */
-    void load_from(boost::json::object const &root) override {
-        if(auto const *entry = detail::cfgChildObject(root, GParsableI::optionName(0))) {
-            if(auto const *v = entry->if_contains("value")) {
-                GSingleParmT<parameter_type>::par_ =
-                    detail::cfgScalarFromString<parameter_type>(detail::cfgValueToString(*v));
-            }
-        }
-        // An absent key keeps the value seeded from the default in the constructor.
-    }
-
-    /***************************************************************************/
-    /**
-	  * Saves data to the configuration document, including comments.
-	  *
-	  * @param root The root JSON object to which this parameter is added
-	  */
-    void save_to(boost::json::object &root) const override {
-        boost::json::object entry;
-
-        // Check that we have the right number of comments
-        if(this->hasComments()) {
-            if(this->numberOfComments() != 1) {
-                throw geneva_exception(
-                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                    << "In GFileReferenceParsableParameterT<>::save_to(): Error!" << '\n'
-                    << "Expected 0 or 1 comment but got " << this->numberOfComments() << '\n'
-                );
-            }
-            detail::cfgWriteComments(entry, GParsableI::splitComment(this->comment(0)));
-        }
-
-        entry["default"] = detail::cfgScalarToJson(GSingleParmT<parameter_type>::def_val_);
-        entry["value"] = detail::cfgScalarToJson(GSingleParmT<parameter_type>::par_);
-        root[GParsableI::optionName(0)] = std::move(entry);
-    }
-
-    /***************************************************************************/
-    /**
-	  * Assigns the stored parameter to the reference
-	  */
-    void executeCallBackFunction_() override {
-        stored_reference_ = GSingleParmT<parameter_type>::par_;
-    }
-
-    /***************************************************************************/
-
-    parameter_type
-        &stored_reference_; ///< Holds the reference to which the parsed value will be assigned
-};
-
-/******************************************************************************/
-////////////////////////////////////////////////////////////////////////////////
-/******************************************************************************/
-/**
  * A base class for combined parameters. This class was introduced so we can
  * reset the default values in a central location rather than having to
  * convert to different target class. This makes user-code easier.
@@ -1466,172 +1332,6 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * This class wraps a reference std::vector of values (obviously of identical type).
- * The default vector may be empty -- that denotes a list-valued parameter which
- * is empty unless the user fills it in; it round-trips through a config file as "[]".
- *
- * @tparam parameter_type The element type of the referenced parameter vector
- */
-template <typename parameter_type>
-class GFileVectorReferenceParsableParameterT : public GVectorParT<parameter_type> {
-    // We want GParserBuilder to be able to call our load- and save functions
-    friend class GParserBuilder;
-
-public:
-    /***************************************************************************/
-    /**
-	  * Initializes the parameters
-	  *
-	  * @param stored_reference The vector to which the parsed values will be assigned
-	  * @param option_name_var The option name of this parameter
-	  * @param comment_var The comment associated with this parameter
-	  * @param def_val The default values used when the option is absent from the configuration file
-	  * @param is_essential_var Whether this is an essential (true) or secondary (false) parameter
-	  */
-    GFileVectorReferenceParsableParameterT(
-        std::vector<parameter_type> &stored_reference,
-        std::string const &option_name_var,
-        std::string const &comment_var,
-        std::vector<parameter_type> const &def_val,
-        bool is_essential_var
-    )
-      : GVectorParT<parameter_type>(option_name_var, comment_var, def_val, is_essential_var)
-      , stored_reference_(stored_reference) { /* nothing */
-    }
-
-    /***************************************************************************/
-    /**
-	  * Initializes the parameters, except for comments
-	  *
-	  * @param stored_reference The vector to which the parsed values will be assigned
-	  * @param option_name_var The option name of this parameter
-	  * @param def_val The default values used when the option is absent from the configuration file
-	  */
-    GFileVectorReferenceParsableParameterT(
-        std::vector<parameter_type> &stored_reference,
-        std::string const &option_name_var,
-        std::vector<parameter_type> const &def_val
-    )
-      : GVectorParT<parameter_type>(
-            option_name_var,
-            std::string(),
-            def_val,
-            Gem::Common::VAR_IS_ESSENTIAL
-        )
-      , stored_reference_(stored_reference) { /* nothing */
-    }
-
-    /***************************************************************************/
-    // Prevent copying, moving and default construction
-    GFileVectorReferenceParsableParameterT() = delete;
-    GFileVectorReferenceParsableParameterT(
-        GFileVectorReferenceParsableParameterT<parameter_type> const &
-    ) = delete;
-    GFileVectorReferenceParsableParameterT(
-        GFileVectorReferenceParsableParameterT<parameter_type> &&
-    ) = delete;
-    GFileVectorReferenceParsableParameterT<parameter_type> &
-    operator=(GFileVectorReferenceParsableParameterT<parameter_type> const &) = delete;
-    GFileVectorReferenceParsableParameterT<parameter_type> &
-    operator=(GFileVectorReferenceParsableParameterT<parameter_type> &&) = delete;
-
-    /***************************************************************************/
-    /**
-	  * The destructor
-	  */
-    ~GFileVectorReferenceParsableParameterT() override = default;
-
-private:
-    /***************************************************************************/
-    /**
-	  * Loads this parameter's value from the parsed configuration document
-	  *
-	  * @param root The root JSON object of the parsed configuration
-	  */
-    void load_from(boost::json::object const &root) override {
-        auto const *entry = detail::cfgChildObject(root, GParsableI::optionName(0));
-        if(entry == nullptr) {
-            // The key is absent from the file -- e.g. a newly-registered vector parameter, or an
-            // update-in-place pass over a config written before this parameter existed. Keep the
-            // defaults par_cnt_ was seeded with in the constructor.
-            return;
-        }
-        auto const *values = detail::cfgChildArray(*entry, "value");
-        if(values == nullptr) {
-            // The "value" key is absent (or, for a config in the historical dup-key object form,
-            // does not read back as an array). Keep the seeded defaults.
-            return;
-        }
-
-        // The values are present: replace the seeded defaults with the on-disk values.
-        GVectorParT<parameter_type>::par_cnt_.clear();
-        for(auto const &v : *values) {
-            GVectorParT<parameter_type>::par_cnt_.push_back(
-                detail::cfgScalarFromString<parameter_type>(detail::cfgValueToString(v))
-            );
-        }
-    }
-
-    /***************************************************************************/
-    /**
-	  * Saves data to a property tree object, including comments. Default
-	  * values are taken from the def_val_ vector, which may be empty (it is
-	  * then written out as an empty "default"/"value" array).
-	  *
-	  * @param pt The object to which data should be saved
-	  */
-    void save_to(boost::json::object &root) const override {
-        // Check that we have the right number of comments
-        if(this->hasComments() && this->numberOfComments() != 1) {
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GFileVectorReferenceParsableParameterT<>::save_to(): Error!" << '\n'
-                << "Expected 0 or 1 comment but got " << this->numberOfComments() << '\n'
-            );
-        }
-
-        // An empty default is valid: it denotes a list-valued parameter that is empty unless the user fills
-        // it in (e.g. a set of optional paths). save_to() and load_from() both round-trip it as "[]"; the
-        // two loops below iterate def_val_cnt_ / par_cnt_ independently, so an empty vector is harmless.
-        boost::json::object entry;
-        if(this->hasComments()) {
-            detail::cfgWriteComments(entry, GParsableI::splitComment(this->comment(0)));
-        }
-
-        boost::json::array default_arr;
-        default_arr.reserve(GVectorParT<parameter_type>::def_val_cnt_.size());
-        for(auto const &def_val : GVectorParT<parameter_type>::def_val_cnt_) {
-            default_arr.emplace_back(detail::cfgScalarToJson(def_val));
-        }
-
-        boost::json::array value_arr;
-        value_arr.reserve(GVectorParT<parameter_type>::par_cnt_.size());
-        for(auto const &value : GVectorParT<parameter_type>::par_cnt_) {
-            value_arr.emplace_back(detail::cfgScalarToJson(value));
-        }
-
-        entry["default"] = std::move(default_arr);
-        entry["value"] = std::move(value_arr);
-        root[GParsableI::optionName(0)] = std::move(entry);
-    }
-
-    /***************************************************************************/
-    /**
-	  * Assigns the parsed parameters to the reference vector
-	  */
-    void executeCallBackFunction_() override {
-        stored_reference_ = GVectorParT<parameter_type>::par_cnt_;
-    }
-
-    /***************************************************************************/
-
-    std::vector<parameter_type> &stored_reference_; ///< Holds a reference to the target vector
-};
-
-/******************************************************************************/
-////////////////////////////////////////////////////////////////////////////////
-/******************************************************************************/
-/**
  * A base class for array parameters. This class was introduced so we can
  * reset the default values in a central location rather than having to
  * convert to different target class. This makes user-code easier.
@@ -1895,171 +1595,6 @@ private:
 
     std::move_only_function<void(std::array<parameter_type, N>)>
         call_back_func_; ///< Holds the call-back function
-};
-
-/******************************************************************************/
-////////////////////////////////////////////////////////////////////////////////
-/******************************************************************************/
-/**
- * This class wraps a reference to a std::array of values (obviously of
- * identical type). This class enforces a fixed number of items in the array.
- *
- * @tparam parameter_type The element type of the referenced parameter array
- * @tparam N The fixed number of elements in the array
- */
-template <typename parameter_type, std::size_t N>
-class GFileArrayReferenceParsableParameterT : public GArrayParT<parameter_type, N> {
-    // We want GParserBuilder to be able to call our load- and save functions
-    friend class GParserBuilder;
-
-public:
-    /***************************************************************************/
-    /**
-	  * Initializes the parameters
-	  *
-	  * @param stored_reference The array to which the parsed values will be assigned
-	  * @param option_name_var The option name of this parameter
-	  * @param comment_var The comment associated with this parameter
-	  * @param def_val The default values used when the option is absent from the configuration file
-	  * @param is_essential_var Whether this is an essential (true) or secondary (false) parameter
-	  */
-    GFileArrayReferenceParsableParameterT(
-        std::array<parameter_type, N> &stored_reference,
-        std::string const &option_name_var,
-        std::string const &comment_var,
-        std::array<parameter_type, N> const &def_val,
-        bool is_essential_var
-    )
-      : GArrayParT<parameter_type, N>(option_name_var, comment_var, def_val, is_essential_var)
-      , stored_reference_(stored_reference) { /* nothing */
-    }
-
-    /***************************************************************************/
-    /**
-	  * Initializes the parameters, except for comments
-	  *
-	  * @param stored_reference The array to which the parsed values will be assigned
-	  * @param option_name_var The option name of this parameter
-	  * @param def_val The default values used when the option is absent from the configuration file
-	  */
-    GFileArrayReferenceParsableParameterT(
-        std::array<parameter_type, N> &stored_reference,
-        std::string const &option_name_var,
-        std::array<parameter_type, N> const &def_val
-    )
-      : GArrayParT<parameter_type, N>(
-            option_name_var,
-            std::string(),
-            def_val,
-            Gem::Common::VAR_IS_ESSENTIAL
-        )
-      , stored_reference_(stored_reference) { /* nothing */
-    }
-
-    /***************************************************************************/
-    /**
-	  * The destructor
-	  */
-    ~GFileArrayReferenceParsableParameterT() override = default;
-
-    /***************************************************************************/
-    // Prevent copying, moving and default construction
-    GFileArrayReferenceParsableParameterT() = delete;
-    GFileArrayReferenceParsableParameterT(
-        GFileArrayReferenceParsableParameterT<parameter_type, N> const &
-    ) = delete;
-    GFileArrayReferenceParsableParameterT(
-        GFileArrayReferenceParsableParameterT<parameter_type, N> &&
-    ) = delete;
-    GFileArrayReferenceParsableParameterT<parameter_type, N> &
-    operator=(GFileArrayReferenceParsableParameterT<parameter_type, N> const &) = delete;
-    GFileArrayReferenceParsableParameterT<parameter_type, N> &
-    operator=(GFileArrayReferenceParsableParameterT<parameter_type, N> &&) = delete;
-
-private:
-    /***************************************************************************/
-    /**
-	  * Loads this parameter's value from the parsed configuration document
-	  *
-	  * @param root The root JSON object of the parsed configuration
-	  */
-    void load_from(boost::json::object const &root) override {
-        auto const *entry = detail::cfgChildObject(root, GParsableI::optionName(0));
-        if(entry == nullptr) {
-            return; // absent key keeps the constructor-seeded defaults
-        }
-        auto const *values = detail::cfgChildArray(*entry, "value");
-        if(values == nullptr) {
-            return;
-        }
-        for(std::size_t i = 0;
-            i < GArrayParT<parameter_type, N>::par_arr_.size() && i < values->size();
-            ++i) {
-            GArrayParT<parameter_type, N>::par_arr_.at(i) =
-                detail::cfgScalarFromString<parameter_type>(detail::cfgValueToString((*values)[i]));
-        }
-        // Elements beyond the on-disk array length keep their defaults.
-    }
-
-    /***************************************************************************/
-    /**
-	  * Saves data to a property tree object, including comments. Default
-	  * values are taken from the def_val_ vector.
-	  *
-	  * @param pt The object to which data should be saved
-	  */
-    void save_to(boost::json::object &root) const override {
-        // Check that we have the right number of comments
-        if(this->hasComments() && this->numberOfComments() != 1) {
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GFileArrayReferenceParsableParameterT<>::save_to(): Error!" << '\n'
-                << "Expected 0 or 1 comment but got " << this->numberOfComments() << '\n'
-            );
-        }
-
-        // Do some error checking
-        if(GArrayParT<parameter_type, N>::def_val_arr_.empty()) {
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GFileArrayReferenceParsableParameterT::save_to(): Error!" << '\n'
-                << "You need to provide at least one default value" << '\n'
-            );
-        }
-
-        boost::json::object entry;
-        if(this->hasComments()) {
-            detail::cfgWriteComments(entry, GParsableI::splitComment(this->comment(0)));
-        }
-
-        boost::json::array default_arr;
-        default_arr.reserve(GArrayParT<parameter_type, N>::def_val_arr_.size());
-        for(auto const &def_val : GArrayParT<parameter_type, N>::def_val_arr_) {
-            default_arr.emplace_back(detail::cfgScalarToJson(def_val));
-        }
-
-        boost::json::array value_arr;
-        value_arr.reserve(GArrayParT<parameter_type, N>::par_arr_.size());
-        for(auto const &value : GArrayParT<parameter_type, N>::par_arr_) {
-            value_arr.emplace_back(detail::cfgScalarToJson(value));
-        }
-
-        entry["default"] = std::move(default_arr);
-        entry["value"] = std::move(value_arr);
-        root[GParsableI::optionName(0)] = std::move(entry);
-    }
-
-    /***************************************************************************/
-    /**
-	  * Assigns the parsed parameters to the reference vector
-	  */
-    void executeCallBackFunction_() override {
-        stored_reference_ = GArrayParT<parameter_type, N>::par_arr_;
-    }
-
-    /***************************************************************************/
-
-    std::array<parameter_type, N> &stored_reference_; ///< Holds a reference to the target array
 };
 
 /******************************************************************************/
@@ -2364,32 +1899,6 @@ public:
         return {};
     }
 
-    /***************************************************************************/
-    /**
-	  * Allows to retrieve a GCLParsableI-derivative by name and to convert it to
-	  * the derived type. This allows us to selectively change properties of these
-	  * objects.
-	  *
-	  * @tparam clParsableDerivative The concrete GCLParsableI-derived type to cast to
-	  * @param option_name The first option name identifying the desired command-line parameter
-	  * @return A shared pointer to the matching parameter cast to the requested type, or an empty pointer if none matches
-	  */
-    template <typename clParsableDerivative>
-    std::shared_ptr<clParsableDerivative>
-    cl_at(std::string const &option_name) { // NOLINT(misc-unused-parameters)
-        auto it = std::ranges::find_if(
-            cl_parameter_proxies_,
-            [&](std::shared_ptr<GCLParsableI> const &candidate_ptr) {
-                return (candidate_ptr->GParsableI::optionName(0) == option_name);
-            }
-        );
-        if(it != cl_parameter_proxies_.end()) {
-            return std::dynamic_pointer_cast<clParsableDerivative>(*it);
-        }
-
-        return {};
-    }
-
     /////////////////////////////////////////////////////////////////////////////
     /***************************************************************************/
     /**
@@ -2454,23 +1963,16 @@ public:
         bool is_essential = Gem::Common::VAR_IS_ESSENTIAL,
         std::string const &comment = std::string()
     ) {
-#ifdef DEBUG
-        assertNotRegistered_(option_name, file_parameter_proxies_, "registerFileParameter(ref_parm_ptr)");
-#endif /* DEBUG */
-
-        // Always route through the full constructor -- see registerFileParameter(single_parm_ptr):
-        // an empty comment must not drop the caller's is_essential choice.
-        auto ref_parm_ptr = std::make_shared<GFileReferenceParsableParameterT<parameter_type>>(
-            parameter,
+        // Assigning to the caller's reference is just a special case of the callback proxy (the former
+        // dedicated reference proxy byte-duplicated it apart from this one line). The reference must
+        // outlive this parser builder, as it always had to.
+        return registerFileParameter<parameter_type>(
             option_name,
-            comment,
+            def_val,
+            [&parameter](parameter_type v) { parameter = std::move(v); },
             is_essential,
-            def_val
+            comment
         );
-
-        // Add to the proxy store
-        file_parameter_proxies_.push_back(ref_parm_ptr);
-        return *ref_parm_ptr;
     }
 
     /***************************************************************************/
@@ -2660,24 +2162,15 @@ public:
         bool is_essential = Gem::Common::VAR_IS_ESSENTIAL,
         std::string const &comment = std::string()
     ) {
-#ifdef DEBUG
-        assertNotRegistered_(option_name, file_parameter_proxies_, "registerFileParameter(vec_ref_parm_ptr)");
-#endif /* DEBUG */
-
-        // Always route through the full constructor -- see registerFileParameter(single_parm_ptr):
-        // an empty comment must not drop the caller's is_essential choice.
-        auto vec_ref_parm_ptr =
-            std::make_shared<GFileVectorReferenceParsableParameterT<parameter_type>>(
-                stored_reference,
-                option_name,
-                comment,
-                def_val,
-                is_essential
-            );
-
-        // Add to the proxy store
-        file_parameter_proxies_.push_back(vec_ref_parm_ptr);
-        return *vec_ref_parm_ptr;
+        // Assigning to the caller's reference is just a special case of the callback proxy (the former
+        // dedicated reference proxy byte-duplicated it apart from this one line).
+        return registerFileParameter<parameter_type>(
+            option_name,
+            def_val,
+            [&stored_reference](std::vector<parameter_type> v) { stored_reference = std::move(v); },
+            is_essential,
+            comment
+        );
     }
 
     /***************************************************************************/
@@ -2783,26 +2276,15 @@ public:
         bool is_essential = Gem::Common::VAR_IS_ESSENTIAL,
         std::string const &comment = std::string()
     ) {
-#ifdef DEBUG
-        assertNotRegistered_(option_name, file_parameter_proxies_, "registerFileParameter(array_ref_parm_ptr)");
-#endif /* DEBUG */
-
-        std::shared_ptr<GFileArrayReferenceParsableParameterT<parameter_type, N>>
-            array_ref_parm_ptr;
-        // Always route through the full constructor -- see registerFileParameter(single_parm_ptr):
-        // an empty comment must not drop the caller's is_essential choice.
-        array_ref_parm_ptr =
-            std::make_shared<GFileArrayReferenceParsableParameterT<parameter_type, N>>(
-                stored_reference,
-                option_name,
-                comment,
-                def_val,
-                is_essential
-            );
-
-        // Add to the proxy store
-        file_parameter_proxies_.push_back(array_ref_parm_ptr);
-        return *array_ref_parm_ptr;
+        // Assigning to the caller's reference is just a special case of the callback proxy (the former
+        // dedicated reference proxy byte-duplicated it apart from this one line).
+        return registerFileParameter<parameter_type, N>(
+            option_name,
+            def_val,
+            [&stored_reference](std::array<parameter_type, N> v) { stored_reference = std::move(v); },
+            is_essential,
+            comment
+        );
     }
 
     /***************************************************************************/
@@ -2975,56 +2457,4 @@ private:
 };
 
 /******************************************************************************/
-/**
- * A helper function that lets users configure a given object from a file.
- * The function assumes that the target object has a suitable addConfigurationOptions
- * function. The function will automatically generate the configuration file using
- * the mechanisms implemented in GParserBuilder, should the file not exist.
- *
- * @tparam conf_object_type The type of the object to be configured; must provide addConfigurationOptions
- * @param target_object The object to be configured from the file
- * @param conf_file The path of the configuration file to read (created from defaults if absent)
- */
-template <typename conf_object_type>
-void configureFromFile(conf_object_type &target_object, std::filesystem::path const &conf_file) {
-    // Create a parser builder object. It will be destroyed at
-    // the end of this scope and thus cannot cause trouble
-    // due to registered call-backs and references
-    Gem::Common::GParserBuilder gpb;
-
-    // Add configuration options from the target object
-    target_object.addConfigurationOptions(gpb);
-
-    //----------------------------------------------------------------------------
-    // Some error checking
-
-    // Check whether path is a directory name rather than
-    // a file. It is a severe error if this is the case.
-    if(std::filesystem::is_directory(conf_file)) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In configureFromFile(" << conf_file.string() << "): Error!" << '\n'
-            << "Target is a directory rather than a file." << '\n'
-        );
-    }
-
-    // Check whether the target directory exists. It is a
-    // severe error if this is not the case.
-    if(not std::filesystem::exists(conf_file.parent_path())) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In configureFromFile(" << conf_file << "): Error!" << '\n'
-            << "Target has invalid parent path" << '\n'
-        );
-    }
-
-    //----------------------------------------------------------------------------
-    // Do the actual parsing
-    gpb.parseConfigFile(conf_file);
-
-    //----------------------------------------------------------------------------
-}
-
-/******************************************************************************/
-
 } /* namespace Gem::Common */

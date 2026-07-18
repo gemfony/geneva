@@ -29,6 +29,7 @@
 
 SET ( DIETRICHSOURCES
 	GPlotDesigner.cpp
+	GDataLog.cpp
 	GGraphPlots.cpp
 	GHistogramPlots.cpp
 	GRootEmitter.cpp

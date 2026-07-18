@@ -1811,6 +1811,23 @@ GBasePlotter *GFunctionPlotter2D::clone_() const {
     return new GFunctionPlotter2D(*this);
 }
 
+/******************************************************************************/
+/**
+ * Loads the data of another object
+ *
+ * @param cp A constant pointer to another object (as a GBasePlotter) whose data is loaded into this one
+ */
+void GFunctionPlotter2D::load_(const GBasePlotter *cp) {
+    // Check that we are dealing with a GFunctionPlotter2D reference independent of this object and convert the pointer
+    const auto *p_load = g_convert_and_compare(cp, this);
+
+    // Load our parent class'es data ...
+    GBasePlotter::load_(cp);
+
+    // ... and then our local data, derived from the single localMembers() declaration
+    g_load_members(this->localMembers_(), p_load->localMembers_());
+}
+
 
 /******************************************************************************/
 } /* namespace Gem::Dietrich */

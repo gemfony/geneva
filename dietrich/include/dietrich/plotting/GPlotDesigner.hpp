@@ -37,10 +37,6 @@
 
 namespace Gem::Dietrich {
 
-// The plotting library builds on common's facilities (logging, serialization helpers,
-// exception types, make_member, EmitStream, ...); make them visible here without
-// per-name qualification. This affects lookup only within Gem::Dietrich.
-using namespace Gem::Common;
 
 /******************************************************************************/
 /**
