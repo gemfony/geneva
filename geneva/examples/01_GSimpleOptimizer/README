@@ -32,5 +32,5 @@ you need to stop it with a ctrl-c, when the example has run through.
 
 As Geneva is a toolkit rather than a stand-alone application, we strongly
 recommend that you have a look at the source code of this example. Please find the code
-for the GFunctionIndividual class in the directories $GENEVAHOME/include/geneva-individuals
-and $GENEVAHOME/src/geneva-individuals
+for the GFunctionIndividual class in the directories $GENEVAHOME/geneva/include/geneva/individuals
+and $GENEVAHOME/geneva/src/individuals

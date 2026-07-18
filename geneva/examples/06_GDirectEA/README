@@ -1,6 +1,7 @@
 This directory contains a simple Geneva application that searches for
 the minimum of a function, using an evolutionary strategy. Parallelisation
-can happen at your choice in networked mode, via threads or in serial mode.
+can happen at your choice in networked mode, via threads, or serially (the local
+thread consumer with a single worker).
 
 The example demonstrates how the functionality of a given optimization
 algorithm can be accessed directly.

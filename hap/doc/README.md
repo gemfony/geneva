@@ -8,7 +8,7 @@ optional CUDA-based RNG `GCUDARng` under `USECUDARNG`).
 
 ```sh
 cd /your/build && make doc-hap         # this library only
-cd /your/build && make doc             # all four libraries (aggregator)
+cd /your/build && make doc             # all libraries (aggregator)
 ```
 
 `doc-hap` automatically depends on `doc-common` so the Common tag file

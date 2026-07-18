@@ -8,7 +8,7 @@ serialization helpers, bounded buffers, exception types).
 
 ```sh
 cd /your/build && make doc-common      # this library only
-cd /your/build && make doc             # all four libraries (aggregator)
+cd /your/build && make doc             # all libraries (aggregator)
 ```
 
 `make doc` depends on `doc-common`, `doc-hap`, `doc-courtier`, `doc-geneva`

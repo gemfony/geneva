@@ -22,5 +22,5 @@ Once the training has finished, the result is made available as a C++ function s
 for inclusion in your own code.
 
 Check out GNeuralNetworkIndividual::createHyperSphereNetworkData() in 
-include/geneva-individuals/GNeuralNetworkIndividual.hpp for information on how to create
+geneva/include/geneva/individuals/GNeuralNetworkIndividual.hpp for information on how to create
 your own training data.

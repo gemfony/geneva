@@ -14,18 +14,18 @@ For each configured algorithm entry and each repetition the benchmark:
 1. Creates a fresh algorithm instance from the appropriate Geneva factory and its JSON
    config file.
 2. Creates a `GFunctionIndividual` seeded with the chosen benchmark function.
-3. Calls `optimize()`. Every generation the broker dispatches the population to the unified
+3. Calls `optimize()`. Every generation the algorithm submits the population to the unified
    courtier GPU consumer (`Gem::Courtier::GPU::GGPUConsumerT`, the SAME one example 15 uses),
    which evaluates all individuals in one bulk, runtime-compiled kernel launch and returns the
-   fitness values to the algorithm without touching `fitnessCalculation()`.
+   fitness values to the algorithm without invoking the CPU-side `evaluate()`.
 4. A pluggable monitor (`GBenchmarkTerminationMonitor`) records the final fitness,
    iteration count, wall-clock time, and termination reason at the end of each run.
 5. After all repetitions of one algorithm tag, mean and standard deviation are computed
    with `Gem::Common::GStandardDeviation`.
 6. Results are written to CSV files (see [Output](#output)).
 
-The consumer, the `GenevaInitializer`, and the broker are set up once in `main()` and
-shared across all algorithm runs, avoiding the repeated broker-finalization problem that
+The consumer and the `GenevaInitializer` are set up once in `main()` and
+shared across all algorithm runs, avoiding the repeated consumer-teardown problem that
 would arise if each run used its own `Go2` instance.
 
 ---
@@ -34,10 +34,10 @@ would arise if each run used its own `Go2` instance.
 
 | Requirement | Version |
 |-------------|---------|
-| Geneva library (built) | ≥ 1.11 |
+| Geneva library (built) | ≥ 1.12 |
 | CMake | ≥ 3.27 |
-| GCC | ≥ 13 (C++20) |
-| Boost | ≥ 1.90 (program_options, json) |
+| GCC | ≥ 14 (C++23) |
+| Boost | ≥ 1.91 (program_options, json) |
 
 The benchmark itself builds with an ordinary C++ toolchain — it does **not** require the CUDA
 language at build time. The GPU backend lives in the optional GPU consumer folded into
@@ -219,7 +219,7 @@ A human-readable summary table is also printed to stdout at the end of the run.
 ## Architecture
 
 ```
-GCUDAOptBenchmarkMain.cpp   (C++20, compiled by GCC)
+GCUDAOptBenchmarkMain.cpp   (C++23, compiled by GCC)
   main() — parses config, creates GenevaInitializer, builds a
            Gem::Courtier::GPU::GGPUConsumerT<GOptimizableEntity> + GBenchmarkGPUMarshaller
            and registers it as the process consumer (GConsumerRegistry)
@@ -240,11 +240,11 @@ kernels/benchmark_eval.cu
            backend. One thread per individual; it mirrors the 15 functions
            of GBenchmarkFunctions.hpp (funcId 0..14). Edit the kernel + rerun — no rebuild needed.
 
-GAlgorithmBenchmarkRunner.hpp/.cpp   (C++20, CUDA-agnostic)
+GAlgorithmBenchmarkRunner.hpp/.cpp   (C++23, CUDA-agnostic)
   GBenchmarkTerminationMonitor — GBasePluggableOM subclass; captures
            termination reason, final fitness, and iteration count at INFOEND.
   GAlgorithmBenchmarkRunner — drives the nested run loop; creates algorithms
-           via Geneva factories (not Go2, to avoid repeated broker finalization);
+           via Geneva factories (not Go2, to avoid repeated consumer teardown);
            parses the benchmark-function name (or id) and calls GStandardDeviation
            for aggregation.
 
@@ -257,15 +257,15 @@ GBenchmarkRunResult.hpp
            terminationReasonToString().
 ```
 
-### Broker / consumer lifecycle
+### Consumer lifecycle
 
 `GenevaInitializer` is constructed once in `main()` and lives for the duration of
 the process. The `GGPUConsumerT` is registered as the single process consumer
 (`GConsumerRegistry`) once, before any optimization starts. Algorithm instances are
 created per-run via Geneva factories (`GEvolutionaryAlgorithmFactory`, etc.) and
 route all evaluations through that already-registered process consumer.
-This avoids the double-finalization problem that arises when multiple `Go2` instances
-each try to finalize the broker on destruction.
+This avoids the double-teardown problem that arises when multiple `Go2` instances
+each try to release the process consumer on destruction.
 
 ---
 

@@ -30,7 +30,7 @@ the binary in the cloud):
 
 1. **Write an ordinary Geneva flat individual** (`GLoadableParaboloid.hpp` here). Nothing about it is
    plugin-specific — the same class could be compiled in. It supplies the usual config-driven hooks
-   (`Config`, `describeConfig`, `buildGenome`, `buildAdaptionConfig`, `fitnessCalculation`, `serialize`).
+   (`Config`, `describeConfig`, `buildGenome`, `buildAdaptionConfig`, `evaluate`, `serialize`).
 
 2. **Add one translation unit** (`GLoadableParaboloidPlugin.cpp`) with exactly two registrations:
 

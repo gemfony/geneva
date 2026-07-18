@@ -1383,7 +1383,7 @@ void Go2::registerConsumer(
  * @brief Validates, initialises, configures and enrols the consumer chosen on the command line.
  *
  * Operates on the consumer_name_ member; assembles the transport-agnostic consumer spec, builds the
- * courtier consumer/broker (except on an MPI worker rank) and derives client_mode_ for the MPI consumer.
+ * courtier consumer (except on an MPI worker rank) and derives client_mode_ for the MPI consumer.
  *
  * @param vm The parsed program_options variables map (used to assemble the consumer spec)
  */

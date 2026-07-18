@@ -72,8 +72,8 @@ parameters are specified. There is a whole family of parameter objects.
 16_GMPIConsumer:
 ----------------
 
-This example shows how the MPI consumer can be used directly within the broker infrastructure without using Go2.
-Usually using Go2 is recommended, but this example serves as a demonstration of direct interaction with the broker and
+This example shows how the MPI consumer can be used directly without using Go2.
+Usually using Go2 is recommended, but this example serves as a demonstration of direct interaction with the consumer framework and
 is similar to the example 06_GDirectEA. If you would like to explore the MPI-Consumer with Go2, you can use the example
 10_GStarter and call the executable with --help --showAll to explore all options.
 
