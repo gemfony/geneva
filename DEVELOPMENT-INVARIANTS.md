@@ -306,6 +306,31 @@ clone; decorator and label conventions stated twice and disagreeing). Deleting t
 time is Invariants 11 + 13 applied when the knowledge is freshest and the diff is smallest; deferring it
 converts cheap deletions into an accumulated review-and-repair bill, paid with interest.
 
+## 21. Resources are owned by RAII; no naked owning pointers
+
+Every resource — heap memory, threads, locks, file handles, sockets, device handles — is owned by a value
+whose destructor releases it (RAII), never by a hand-managed `new`/`delete` pair or by a raw pointer that
+"owns":
+
+- **No owning raw pointers, no naked `new`/`delete`.** Express sole ownership with `std::unique_ptr` (the
+  default) and shared ownership with `std::shared_ptr` only where ownership is genuinely shared. A raw pointer
+  or reference is a **non-owning** observer, valid only for the duration of the call that receives it.
+- **Prefer the rule of zero.** A class that owns nothing beyond its members declares no destructor, copy, or
+  move — the members' own RAII composes. Declare special members only when the class manages a resource
+  directly, and then declare the whole set the rule of five requires, kept consistent with the serialized
+  member list (Invariant 4).
+- **Acquire in a handle, release in its destructor.** A resource taken for the span of an operation is held
+  by a scoped RAII object that releases it on **every** exit path, exceptions included (a lock guard, a lease
+  from `GRandomLeasePool`, a thread joined by `GThreadGroup` / `GThreadPool`). Cleanup is never open-coded on
+  the happy path alone.
+
+*Why:* automatic, exception-safe resource management is the property the whole codebase already relies on — the
+`shared_ptr`→`unique_ptr` migration, the RNG lease pool, the thread pool and thread group — but stating it as
+an invariant stops a naked `new`, an owning raw pointer, or a hand-rolled cleanup path from slipping back in,
+where it would leak or double-free on an error path far from its cause. This is the ownership-level complement
+of Invariant 2 (shared concurrency machinery comes from the shared facilities) and composes with Invariant 4 (a
+resource-owning class states its special members and its serialized members consistently).
+
 ---
 
 *Add new invariants below as the maintainer establishes them. Keep each rule short, mandatory, and
