@@ -68,13 +68,15 @@
 #define GENEVA_CONTRIBUTION_CONSUMER 4u
 #define GENEVA_CONTRIBUTION_MARSHALLER 5u
 
-/* Two-level stringization, and the Geneva version as a "MAJOR.MINOR.PATCH" string literal (a module's own
- * version string when it is a Geneva-shipped module). */
+/* Two-level stringization, and the Geneva version as a "MAJOR.MINOR.PATCH[-PRERELEASE]" string literal
+ * (a module's own version string when it is a Geneva-shipped module). GENEVA_VERSION_PRERELEASE
+ * (GGlobalDefines.hpp) carries its own leading dash and is empty for a final release. */
 #define GENEVA_MODULE_STRINGIZE_(x) #x
 #define GENEVA_MODULE_STRINGIZE(x) GENEVA_MODULE_STRINGIZE_(x)
 #define GENEVA_VERSION_STRING                                                                            \
     GENEVA_MODULE_STRINGIZE(GENEVA_VERSION_MAJOR)                                                         \
-    "." GENEVA_MODULE_STRINGIZE(GENEVA_VERSION_MINOR) "." GENEVA_MODULE_STRINGIZE(GENEVA_VERSION_PATCH)
+    "." GENEVA_MODULE_STRINGIZE(GENEVA_VERSION_MINOR) "." GENEVA_MODULE_STRINGIZE(GENEVA_VERSION_PATCH)   \
+    GENEVA_VERSION_PRERELEASE
 
 #ifdef __cplusplus
 extern "C" {

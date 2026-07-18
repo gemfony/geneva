@@ -78,14 +78,18 @@
  * was an octal literal (= 592) and would have become an invalid octal literal as
  * soon as a minor/patch digit reached 8 or 9.
  *
- * Keep in sync with VERSION_MAJOR / VERSION_MINOR / VERSION_PATCH in the
+ * Keep in sync with VERSION_MAJOR / VERSION_MINOR / VERSION_PATCH / VERSION_SUFFIX in the
  * top-level CMakeLists.txt.
  * Note: FindGeneva.cmake parses the three component macros below to determine the
  * installed version.
  */
 #define GENEVA_VERSION_MAJOR 1
-#define GENEVA_VERSION_MINOR 12
+#define GENEVA_VERSION_MINOR 99
 #define GENEVA_VERSION_PATCH 0
+/* The pre-release tag, INCLUDING its leading dash (e.g. "-beta1"); an empty string literal for a
+ * final release. Appended to the human-facing GENEVA_VERSION_STRING (GModuleManifest.hpp); the
+ * numeric GENEVA_VERSION below is unaffected. */
+#define GENEVA_VERSION_PRERELEASE "-beta1"
 #define GENEVA_VERSION (GENEVA_VERSION_MAJOR * 10000 + GENEVA_VERSION_MINOR * 100 + GENEVA_VERSION_PATCH)
 
 /**

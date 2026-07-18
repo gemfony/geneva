@@ -402,7 +402,7 @@ SET(GENEVA_RUN_BENCHMARKS_AS_TESTS FALSE)
 # conjunction with the prepareBuild.sh script.
 
 IF( NOT CMAKE_INSTALL_PREFIX )
-	SET( INSTALL_PREFIX_ROOT "/opt/geneva-${GENEVA_VERSION}" )
+	SET( INSTALL_PREFIX_ROOT "/opt/geneva-${GENEVA_VERSION_FULL}" )
 ENDIF()
 
 ################################################################################
@@ -479,14 +479,24 @@ ENDIF()
 # versions while even minor numbers stand for production releases.
 #
 # IMPORTANT: When bumping the version here, also update the two macros
-#   GENEVA_VERSION  and  MIN_BOOST_VERSION
+#   GENEVA_VERSION components (+ GENEVA_VERSION_PRERELEASE)  and  MIN_BOOST_VERSION
 # in common/include/common/GGlobalDefines.hpp accordingly.
 
 SET(VERSION_MAJOR "1")
-SET(VERSION_MINOR "12")
+SET(VERSION_MINOR "99")
 SET(VERSION_PATCH "0")
+# Pre-release tag (e.g. "beta1"); set to "" for a final release. It rides only in the
+# human-facing strings (full version, install prefix, Doxygen, CPack) -- the numeric
+# GENEVA_VERSION below stays pure x.y.z, as required by the library VERSION property and
+# WRITE_BASIC_PACKAGE_VERSION_FILE.
+SET(VERSION_SUFFIX "beta1")
 
 SET(GENEVA_VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH})
+IF(VERSION_SUFFIX STREQUAL "")
+	SET(GENEVA_VERSION_FULL ${GENEVA_VERSION})
+ELSE()
+	SET(GENEVA_VERSION_FULL ${GENEVA_VERSION}-${VERSION_SUFFIX})
+ENDIF()
 
 ################################################################################
 # Include directories, libraries
@@ -740,6 +750,7 @@ SET(CPACK_PACKAGE_CONTACT "Gemfony scientific <contact (AT) gemfony (DOT) eu>")
 SET(CPACK_PACKAGE_VERSION_MAJOR ${VERSION_MAJOR})
 SET(CPACK_PACKAGE_VERSION_MINOR ${VERSION_MINOR})
 SET(CPACK_PACKAGE_VERSION_PATCH ${VERSION_PATCH})
+SET(CPACK_PACKAGE_VERSION ${GENEVA_VERSION_FULL}) # carries the pre-release tag, if any
 SET(CPACK_PACKAGING_INSTALL_PREFIX "/opt/geneva")
 
 # DEB specific variables. Indentation is important in the description!
