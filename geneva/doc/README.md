@@ -1,17 +1,18 @@
 # geneva/doc
 
 Per-library documentation directory for the **Geneva** library
-(the largest of the four; core optimisation: `Go2` driver, `GParameterSet`
-workflow, the seven optimisation algorithms -- EA, SA, Swarm, GD, CGD,
-Nelder-Mead, ParameterScan -- per-category `GCommonInterfaceT<Root>` CRTP
-roots, individuals, pluggable monitors; absorbed the former
-geneva-individuals library in 1.12.0).
+(the largest of the five; core optimisation: `Go2` driver, the flat
+`GGenome` model with OA-owned adaption configs, the optimisation
+algorithms -- EA, SA, swarm, CGD, Nelder-Mead, parameter scan, ACO,
+PSO, generalized SA, sepCMA-ES, the meta-EA -- per-category
+`GCommonInterfaceT<Root>` CRTP roots, individuals, pluggable monitors;
+absorbed the former geneva-individuals library in 1.12.0).
 
 ## Building the docs
 
 ```sh
 cd /your/build && make doc-geneva      # this library only
-cd /your/build && make doc             # all four libraries (aggregator)
+cd /your/build && make doc             # all libraries (aggregator)
 ```
 
 `doc-geneva` automatically depends on `doc-common`, `doc-hap`, and

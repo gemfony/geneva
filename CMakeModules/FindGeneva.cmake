@@ -47,7 +47,7 @@
 #
 # Geneva::common      - utilities (logging, threads, serialization helpers)
 # Geneva::hap         - random number generation
-# Geneva::courtier    - broker/consumer parallelization framework
+# Geneva::courtier    - consumer-based parallelization framework
 # Geneva::geneva      - core optimization library (links the three above)
 #
 # Linking Geneva::geneva transitively brings in the other three targets and the

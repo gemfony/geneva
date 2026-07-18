@@ -9,7 +9,7 @@
 // parallelism already saturates the device.
 //
 // The math mirrors the host score() in GMonaLisaProblem.hpp exactly (double precision), so the GPU
-// result equals the CPU fitnessCalculation.
+// result equals the CPU evaluate().
 //
 // problem-constant blob (doubles): [W, H, target(W*H*3)].
 // per-item parameters (dim = 10*NT + 3): per triangle [cx cy radius a1 a2 a3 r g b alpha], then bg[3].

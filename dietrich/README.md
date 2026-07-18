@@ -22,6 +22,7 @@ result through any backend:
   <https://root.cern>).
 - **gnuplot** — emits a multiplot `.gp` script.
 - **matplotlib** — emits a headless (Agg) Python plotting script.
+- **Octave** — emits a GNU Octave plotting script.
 - **data** — exports the raw series as CSV and as a binary NumPy `.npz`, alongside a
   self-describing JSON manifest.
 - **external renderer** — `scripts/geneva_plot_render.py` consumes the data export +

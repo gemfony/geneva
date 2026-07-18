@@ -5,8 +5,8 @@ calculation and e.g. the load on client- and server-systems, this
 allows us to measure the theoretically possible speedup for a given
 amount of data exchange and length of the evaluation procedure, dependant
 on the local environment. Furthermore, we can measure the overhead that
-is jointly introduced by the broker infrastructure, serialization and
-network transfers.
+is jointly introduced by the consumer/submission infrastructure, serialization
+and network transfers.
 
 A serial measurement will be started in parallel to your measurement,
 as a reference point. The serial measurement will only calculate

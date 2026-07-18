@@ -8,7 +8,7 @@ the genome). This guide covers the current API after the "config-strip": the gen
 Canonical examples: `examples/10_GStarter` (minimal), `examples/03_GParameterObjectUsagePatterns`
 (parameter patterns), `examples/09_GNeuralNetwork` (an architecture-decoded flat genome).
 
-## 1. Subclass `GGenomeT` and override `fitnessCalculation()`
+## 1. Subclass `GGenomeT` and override `evaluate()`
 
 ```cpp
 #include "geneva/ind/GGenomeT.hpp"
@@ -22,12 +22,12 @@ public:
     MyProblem(const MyProblem &) = default;
 
 protected:
-    double fitnessCalculation() override {
+    std::vector<double> evaluate() override {
         std::vector<double> x;
         this->streamline<double>(x);                               // read the (range-folded) values
         double sum = 0.;
         for(double v : x) { sum += v * v; }
-        return sum;                                                // minimized by default
+        return {sum};                                              // one entry per criterion; minimized by default
     }
 
 private:
@@ -68,7 +68,7 @@ created.
 
 Geneva stores a floating-point parameter in a **normalized internal coordinate** (confined to the
 centered unit interval `[-0.5, 0.5)` for a bounded parameter) and presents the user-visible **external**
-value — the one your `fitnessCalculation()` sees via `streamline<T>()` — as its affine image. You never
+value — the one your `evaluate()` sees via `streamline<T>()` — as its affine image. You never
 deal with the internal coordinate directly; the model only changes how you think about two things:
 
 - **Bounded vs unbounded is a single choice at build time.** A bounded parameter (`addDouble(init, lo,
@@ -161,7 +161,7 @@ of `GIndividualFactory.hpp` and the `GFunctionIndividual` / `GLineFitIndividual`
 **External data is no obstacle.** A loaded `.so` runs in the host process with full, unsandboxed
 runtime access: name the resource (data file, URL, database, helper program) in `Config`, and open it
 in `buildGenome`/`applyConfig`. Data need not be resident — a large-data individual keeps a file
-handle or memory-map as a member and streams in `fitnessCalculation()`; `GLineFitIndividual` reads its
+handle or memory-map as a member and streams in `evaluate()`; `GLineFitIndividual` reads its
 `(x,y)` points from a config-named file, `GExternalEvaluatorIndividual` launches an external evaluator.
 
 ### The module "glue" translation unit

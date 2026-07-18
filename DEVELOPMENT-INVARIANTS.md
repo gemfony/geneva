@@ -58,8 +58,9 @@ forgotten in one list is silent data loss.
 ## 5. One consumer per process
 
 A process uses exactly one consumer, held in `GConsumerRegistry`. Optimization algorithms are
-transport-agnostic: they submit to that single process consumer and **never** build, select, or inject a
-consumer / broker / executor. The transport is chosen externally (via `Go2` or the command line).
+transport-agnostic: they submit to that single process consumer and **never** build, select, or inject
+one (the former per-algorithm broker / executor injection is gone). The transport is chosen externally
+(via `Go2` or the command line).
 
 ## 6. The genome is pure data; mutation strategy lives on the optimization algorithm
 

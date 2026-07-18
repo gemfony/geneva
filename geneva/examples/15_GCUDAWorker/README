@@ -27,7 +27,7 @@ the CPU (GImageIndividual::evaluate() and the shared host renderer in GMonaLisaP
 run cross-checks the GPU result (see the parity-check mode below).
 
 Because there is no network involved, this example doubles as a convenient stress-test harness for the
-courtier framework, the broker and Hap.
+courtier consumer framework and Hap.
 
 Structure: a loadable module + a thin launcher
 ----------------------------------------------
