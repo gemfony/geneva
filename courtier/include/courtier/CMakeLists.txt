@@ -34,7 +34,7 @@ SET ( COMMUNICATIONINCLUDES
     GCourtierEnums.hpp
     GCourtierHelperFunctions.hpp
     GDemoProcessingContainers.hpp
-    GExecutorStatusT.hpp
+    GSubmissionStatusT.hpp
     GProcessable.hpp
     GProcessingContainerT.hpp
     GServerSessionLogic.hpp

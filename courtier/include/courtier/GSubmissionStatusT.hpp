@@ -40,7 +40,7 @@ namespace Gem::Courtier {
  * helper functions: whether a complete set of current items was obtained and
  * whether any of them carried processing errors.
  */
-struct executor_status_t {
+struct submission_status_t {
     bool is_complete = false; ///< Indicates whether a complete set of current items was obtained
     bool has_errors =
         false; ///< Indicates whether there were errors during processing of current items

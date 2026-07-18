@@ -240,7 +240,7 @@ protected:
     ) const override;
 
     /** @brief Retrieves the evaluation range in a given iteration and sorting scheme. Protected so
-     *  the derived algorithms' runFitnessCalculation_() can call it.
+     *  the derived algorithms' evaluatePopulation_() can call it.
      *  @return A tuple holding the [start, end) index range of individuals to be evaluated */
     virtual std::tuple<std::size_t, std::size_t> getEvaluationRange_() const {
         // Default shared by the parent/child algorithms (EA / SA): evaluate everything in the
@@ -359,7 +359,7 @@ private:
      *  @return A tuple holding the best raw and transformed fitness achieved this iteration */
     std::tuple<double, double> cycleLogic_() override;
     /** @brief Calculates the fitness of all required individuals; to be re-implemented in derived classes */
-    void runFitnessCalculation_() override = 0;
+    void evaluatePopulation_() override = 0;
 
     /** @brief Returns the name of this optimization algorithm
      *  @return The human-readable name of the algorithm */

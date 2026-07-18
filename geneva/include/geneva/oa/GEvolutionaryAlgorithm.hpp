@@ -340,10 +340,10 @@ private:
     // Overloaded or virtual base functions (mirror GEvolutionaryAlgorithm).
 
     /** @brief We submit individuals to the broker connector and wait for processed items */
-    void runFitnessCalculation_() override;
+    void evaluatePopulation_() override;
 
     /** @brief Evaluates the population's [start, end) range and returns the executor status. */
-    virtual Gem::Courtier::executor_status_t
+    virtual Gem::Courtier::submission_status_t
     evaluatePopulationRange_(std::size_t start, std::size_t end);
 
     /** @brief Adds the iteration's individuals to the global-best priority queue. */

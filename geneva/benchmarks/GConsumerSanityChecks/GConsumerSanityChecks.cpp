@@ -1,5 +1,5 @@
 /**
- * @file GBrokerSanityChecks.cpp
+ * @file GConsumerSanityChecks.cpp
  */
 
 /********************************************************************************

@@ -146,7 +146,7 @@ std::tuple<double, double> GRandomSearch::cycleLogic_() {
     }
 
     // Evaluate the whole population through the process consumer.
-    this->runFitnessCalculation_();
+    this->evaluatePopulation_();
 
     // Report this iteration's best; the base class tracks the best-ever across iterations.
     std::tuple<double, double> best_fitness =
@@ -168,13 +168,13 @@ std::tuple<double, double> GRandomSearch::cycleLogic_() {
 /**
  * @brief Triggers fitness calculation of the whole population through the process consumer.
  */
-void GRandomSearch::runFitnessCalculation_() {
+void GRandomSearch::evaluatePopulation_() {
     const auto status = this->workOnPopulation(0, this->size());
 
     if(not status.is_complete || status.has_errors) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GRandomSearch::runFitnessCalculation_(): Error!" << '\n'
+            << "In GRandomSearch::evaluatePopulation_(): Error!" << '\n'
             << "The population could not be fully evaluated (is_complete=" << status.is_complete
             << ", has_errors=" << status.has_errors << ")." << '\n'
         );

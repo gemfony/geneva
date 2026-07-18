@@ -385,7 +385,7 @@ std::tuple<double, double> GParameterScan::cycleLogic_() {
     // Trigger value calculation for all individuals
     // This function is purely virtual and needs to be
     // re-implemented in derived classes
-    runFitnessCalculation_();
+    evaluatePopulation_();
 
     // Retrieve information about the best fitness found and disallow re-evaluation
     GParameterScan::iterator it;
@@ -763,7 +763,7 @@ void GParameterScan::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) 
  * evaluation with the first item in the vector. Throws if not every work item returned or if
  * any returned item carried errors.
  */
-void GParameterScan::runFitnessCalculation_() {
+void GParameterScan::evaluatePopulation_() {
     using namespace Gem::Courtier;
 
 #ifdef DEBUG
@@ -773,7 +773,7 @@ void GParameterScan::runFitnessCalculation_() {
         if(not(*it)->is_due_for_processing()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GParameterScan::runFitnessCalculation():" << '\n'
+                << "In GParameterScan::evaluatePopulation_():" << '\n'
                 << "Found individual in position " << std::distance(this->begin(), it)
                 << ", which has not been marked as due for processing" << '\n'
             );
@@ -787,7 +787,7 @@ void GParameterScan::runFitnessCalculation_() {
     auto status = this->workOnPopulation(0, this->data_cnt_.size());
 
     // An incomplete or errored return cannot be accepted in a parameter scan.
-    this->requireCompleteEvaluation_(status, "GParameterScan::runFitnessCalculation()");
+    this->requireCompleteEvaluation_(status, "GParameterScan::evaluatePopulation_()");
 }
 
 /******************************************************************************/

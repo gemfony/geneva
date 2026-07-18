@@ -273,7 +273,7 @@ private:
     /** @brief The actual business logic performed during each iteration */
     std::tuple<double, double> cycleLogic_() override;
     /** @brief Triggers fitness calculation of all individuals via the one process consumer */
-    void runFitnessCalculation_() override;
+    void evaluatePopulation_() override;
 
 
     /** @brief Retrieve a GPersonalityTraits object belonging to this algorithm */

@@ -894,7 +894,7 @@ private:
      *  @return A tuple holding the best raw and transformed fitness achieved this iteration */
     std::tuple<double, double> cycleLogic_() override;
     /** @brief Triggers fitness calculation of a number of individuals */
-    void runFitnessCalculation_() override;
+    void evaluatePopulation_() override;
 
 
     /** @brief A custom halt criterion for the optimization, allowing to stop the loop when no items are left to be scanned

@@ -521,12 +521,12 @@ void GAntColonyOptimization::updateArchive() {
  * newly constructed ants (population slots 0..m-1) are evaluated. Mirrors the stock EA's submission path
  * (workOnPopulation reconciles the contiguous range in place).
  */
-void GAntColonyOptimization::runFitnessCalculation_() {
+void GAntColonyOptimization::evaluatePopulation_() {
     const std::size_t n_eval = this->afterFirstIteration() ? n_ants_ : archive_size_;
 
     auto status = this->workOnPopulation(0, n_eval);
 
-    this->requireCompleteEvaluation_(status, "GAntColonyOptimization::runFitnessCalculation_()");
+    this->requireCompleteEvaluation_(status, "GAntColonyOptimization::evaluatePopulation_()");
 }
 
 /******************************************************************************/
@@ -548,12 +548,12 @@ std::tuple<double, double> GAntColonyOptimization::cycleLogic_() {
     if(this->afterFirstIteration()) {
         // Sample m new ants from the current (ranked) archive, then evaluate and merge.
         constructAnts();
-        runFitnessCalculation_();
+        evaluatePopulation_();
         updateArchive();
     }
     else {
         // Initial archive evaluation: slots 0..k-1 already hold the seeds.
-        runFitnessCalculation_();
+        evaluatePopulation_();
 
         for(std::size_t l = 0; l < archive_size_; ++l) {
             auto &ind = (*this->at(l));

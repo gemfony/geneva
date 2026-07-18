@@ -721,7 +721,7 @@ std::tuple<double, double> GSwarmAlgorithm::cycleLogic_() {
     updatePositions();
 
     // Now update each individual's fitness
-    runFitnessCalculation_();
+    evaluatePopulation_();
 
     // Search for the personal, neighborhood and globally best individuals and
     // update the lists of best solutions, if necessary.
@@ -1235,7 +1235,7 @@ void GSwarmAlgorithm::pruneVelocity(std::vector<double> &vel_vec) {
 /**
  * Triggers the fitness calculation of all individuals
  */
-void GSwarmAlgorithm::runFitnessCalculation_() {
+void GSwarmAlgorithm::evaluatePopulation_() {
     using namespace Gem::Courtier;
 
     //--------------------------------------------------------------------------------
@@ -1258,7 +1258,7 @@ void GSwarmAlgorithm::runFitnessCalculation_() {
 
     //--------------------------------------------------------------------------------
     // Take care of unprocessed items, if these exist
-    this->discardUnusableItems_(status, "GSwarmAlgorithm::runFitnessCalculation()");
+    this->discardUnusableItems_(status, "GSwarmAlgorithm::evaluatePopulation_()");
 
     //--------------------------------------------------------------------------------
     // Sort according to the individuals' neighborhoods

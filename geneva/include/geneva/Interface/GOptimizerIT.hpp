@@ -288,7 +288,7 @@ private:
     virtual optimizer_type const *optimize_(std::uint32_t offset) = 0;
 
     /** @brief Calculates the fitness of all required individuals; to be re-implemented in derived classes */
-    virtual void runFitnessCalculation_() = 0;
+    virtual void evaluatePopulation_() = 0;
 
     /** @brief Retrieves the best individual found globally */
     virtual std::shared_ptr<gen::GOptimizableEntity> getBestGlobalIndividual_() const = 0;

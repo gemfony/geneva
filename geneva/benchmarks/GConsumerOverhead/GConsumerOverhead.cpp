@@ -1,5 +1,5 @@
 /**
- * @file GBrokerOverhead.cpp
+ * @file GConsumerOverhead.cpp
  */
 
 /********************************************************************************
@@ -81,7 +81,7 @@ const bool DEFAULTUSECOMMONADAPTOR =
     false; // whether to use a common adaptor for all GParameterT objects
 const unsigned short DEFAULTPORT = 10000;
 const std::string DEFAULTIP = "localhost";
-const std::string DEFAULTCONFIGFILE = "./GBrokerOverhead.cfg";
+const std::string DEFAULTCONFIGFILE = "./GConsumerOverhead.cfg";
 const sortingMode DEFAULTSORTINGSCHEME = sortingMode::MUPLUSNU_SINGLEEVAL;
 const std::uint32_t DEFAULTSTARTITERATION = 0;
 const std::size_t DEFAULTNBTCONSUMERTHREADS = 2;

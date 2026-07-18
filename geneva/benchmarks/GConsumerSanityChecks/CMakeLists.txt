@@ -27,10 +27,10 @@
 #
 ################################################################################
 
-SET ( EXECUTABLENAME GBrokerOverhead )
+SET ( EXECUTABLENAME GConsumerSanityChecks )
 
 SET ( ${EXECUTABLENAME}_SRCS
-	GBrokerOverhead.cpp
+        GConsumerSanityChecks.cpp
 )
 
 ADD_EXECUTABLE(${EXECUTABLENAME}
@@ -38,11 +38,10 @@ ADD_EXECUTABLE(${EXECUTABLENAME}
 )
 
 SET(LIBRARIES_TO_LINK
-		# GFunctionIndividual is no longer in the geneva library; compiled in via its object library (before the
-		# Geneva/Boost libraries so its serialization objects resolve libboost_serialization).
-		GFunctionIndividual-obj
 		${GENEVA_LIBRARIES}
-		${Boost_LIBRARIES})
+		${Boost_LIBRARIES}
+		# GDelayIndividual is no longer in the geneva library; this benchmark compiles it in via its object library.
+		GDelayIndividual-obj)
 
 # Add MPI Libraries in case building with MPI-consumer
 IF(GENEVA_BUILD_WITH_MPI_CONSUMER)
@@ -60,3 +59,10 @@ ADD_TEST(${EXECUTABLENAME} ${EXECUTABLENAME})
 SET_TESTS_PROPERTIES(${EXECUTABLENAME} PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 
 INSTALL ( TARGETS ${EXECUTABLENAME} DESTINATION ${INSTALL_PREFIX_DATA}/benchmarks/geneva/PerformanceTests/${EXECUTABLENAME} )
+
+
+#
+# Take care of other particularities of this test
+#
+
+SET_TESTS_PROPERTIES(${EXECUTABLENAME} PROPERTIES TIMEOUT 2500)

@@ -489,11 +489,11 @@ void GSepCmaEvolutionStrategy::sampleOffspring() {
  * EA's submission path (workOnPopulation reconciles the range in place); unprocessed / errored items
  * are dropped.
  */
-void GSepCmaEvolutionStrategy::runFitnessCalculation_() {
+void GSepCmaEvolutionStrategy::evaluatePopulation_() {
     auto status = this->workOnPopulation(0, this->size());
 
     // Drop items a partial or errored return left unusable.
-    this->discardUnusableItems_(status, "GSepCmaEvolutionStrategy::runFitnessCalculation_()");
+    this->discardUnusableItems_(status, "GSepCmaEvolutionStrategy::evaluatePopulation_()");
 }
 
 /******************************************************************************/
@@ -639,7 +639,7 @@ std::tuple<double, double> GSepCmaEvolutionStrategy::cycleLogic_() {
     sampleOffspring();
 
     // 2) Evaluate them through the one process consumer.
-    runFitnessCalculation_();
+    evaluatePopulation_();
 
     if(this->empty()) {
         // All items got dropped (errors / incomplete); report a worst-case value.

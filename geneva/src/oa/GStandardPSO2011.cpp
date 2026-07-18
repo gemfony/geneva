@@ -313,10 +313,10 @@ std::shared_ptr<GPersonalityTraits> GStandardPSO2011::getPersonalityTraits_() co
  * Submits all particles to the one process consumer and waits for processed items. Mirrors the stock
  * EA's submission path (workOnPopulation reconciles the range in place).
  */
-void GStandardPSO2011::runFitnessCalculation_() {
+void GStandardPSO2011::evaluatePopulation_() {
     auto status = this->workOnPopulation(0, this->size());
 
-    this->requireCompleteEvaluation_(status, "GStandardPSO2011::runFitnessCalculation_()");
+    this->requireCompleteEvaluation_(status, "GStandardPSO2011::evaluatePopulation_()");
 }
 
 /******************************************************************************/
@@ -555,7 +555,7 @@ std::tuple<double, double> GStandardPSO2011::cycleLogic_() {
         updatePositions();
     }
 
-    runFitnessCalculation_();
+    evaluatePopulation_();
 
     return updateBests();
 }
