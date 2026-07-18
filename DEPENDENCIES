@@ -1,9 +1,0 @@
-###############################################################################
-# 
-# This file lists dependencies to be taken care of when updating individual files
-#
-###############################################################################
-
-- The folder <GENEVA_ROOT>/CMakeModules/ must be kept up to date in all
-  <GENEVA_ROOT>/example/ subfolders (i.e., <GENEVA_ROOT>/CMakeModules/
-  and <GENEVA_ROOT>/examples/*/CMakeModules/ must be identical).

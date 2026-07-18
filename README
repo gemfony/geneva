@@ -10,10 +10,10 @@ annealing, a simple form of gradient descents and an exhaustive parameter scan.
 Further algorithms will be added over time, and the existing algorithms will be
 further improved.
 
-All algorithms act on the same problem definitions, and different 
-optimization algorithms can interact and may be "chained", making it 
+All algorithms act on the same problem definitions, and different
+optimization algorithms can interact and may be "chained", making it
 easy to tackle even complicated problems. Parallelization (on the level
-of optimization algorithms) happens mostly transparently for the user. 
+of optimization algorithms) happens mostly transparently for the user.
 
 Geneva does not want to be the fastest library of optimization
 algorithms on small machines, but is instead targeted at
@@ -28,3 +28,38 @@ about bugs or suggest or even implement features they would want to
 see in Geneva.
 
 
+Building and installing
+=======================
+
+Geneva requires an out-of-source build with a C++23-capable compiler and
+Boost >= 1.91. See the INSTALL file for the prerequisites (compilers, Boost,
+CMake, optional CUDA / MPI / ROOT), the supported processors, and step-by-step
+build instructions using either the prepareBuild.sh convenience script or a
+direct cmake call.
+
+Note: version 1.12 is a ground-up redesign relative to 1.11. If you are
+upgrading existing problem definitions, configuration files or checkpoints,
+read BEHAVIORAL-CHANGES.md first -- it collects the source- and
+serialization-breaking changes and how to adapt to them.
+
+
+Documentation
+=============
+
+A reference manual can be generated from the Geneva sources with the command
+"make doc", once CMake has been set up. As with the normal compilation, run it
+from the chosen (out-of-source) build directory. Generating the reference
+documentation requires a full Doxygen installation (including its tools) and,
+for the typeset output, a LaTeX system.
+
+The examples shipped under each library's examples/ directory are the best
+practical starting point for writing your own problems; see in particular
+docs/writing-optimization-problems.md and examples/geneva/10_GStarter.
+
+
+Contributing
+============
+
+External contributions are very welcome. Please contact the authors on how to
+contribute to the Geneva library collection, and report bugs or issues through
+the Geneva GitHub project at https://github.com/gemfony/geneva/issues .
