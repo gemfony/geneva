@@ -63,8 +63,9 @@ Optional:
 
  - A CUDA toolkit, for the GPU consumer and/or the CUDA random-number backend.
  - An MPI implementation, for the MPI consumer.
- - ROOT (http://root.cern), for those examples that emit ROOT plotting scripts.
-   ROOT is not required to perform optimization with Geneva.
+ - A plotting viewer -- ROOT (http://root.cern), gnuplot, matplotlib or octave --
+   to render the plot scripts that some examples emit. None of these is required to
+   run Geneva or to produce the scripts, only to view them.
 
 
 Installation prerequisites on Debian/Ubuntu
@@ -184,10 +185,11 @@ requirement and the Boost dependency transitively.
 Recommended software
 ====================
 
-By default a Geneva optimization can emit information suitable for ROOT (see
-http://root.cern), a C++ analysis framework widely used in particle physics.
-Installing ROOT is recommended, as some of the examples emit figures in the ROOT
-format. ROOT is not required to perform optimization with Geneva.
+A Geneva optimization can emit ready-to-run plotting scripts for several backends
+-- ROOT (see http://root.cern, a C++ analysis framework widely used in particle
+physics), gnuplot, matplotlib or octave. Installing the viewer for whichever
+backend you prefer lets you render the figures the examples emit. None of these is
+required to run Geneva or to produce the scripts, only to view the results.
 
 
 Compiling Boost on Linux

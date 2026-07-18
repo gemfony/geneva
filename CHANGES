@@ -34,8 +34,9 @@ Preconditions (see INSTALL for the full details and build instructions):
 - CMake >= 3.27.
 - Catch2 v3, only when building the test code.
 - Optional: a CUDA toolkit >= 13.3 AND a matching GPU driver, for the GPU consumer and/or
-  the CUDA random-number backend; an MPI implementation, for the MPI consumer; ROOT, for the
-  examples that emit ROOT plotting scripts.
+  the CUDA random-number backend; an MPI implementation, for the MPI consumer; and a plotting
+  viewer (ROOT, gnuplot, matplotlib or octave) to render the plot scripts some examples emit
+  -- none is needed to run Geneva or to produce the scripts, only to view them.
 
 The complete, itemized development history of the redesign is preserved in the git log; this
 release note is deliberately kept to the redesign rationale, the preconditions, and the
