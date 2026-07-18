@@ -56,7 +56,7 @@
 #include "common/GSerializationHelperFunctionsT.hpp"
 #include "common/GStdFilesystemPathSerialization.hpp"
 #include "courtier/GCourtierEnums.hpp"     // SUBMISSION_UUID_TYPE (late-return lineage de-dup)
-#include "courtier/GExecutorStatusT.hpp" // executor_status_t (workOn's return type)
+#include "courtier/GSubmissionStatusT.hpp" // submission_status_t (workOn's return type)
 // --- Submission goes through the one process-wide consumer (GConsumerRegistry): the algorithm is
 //     transport-agnostic, it just reads that consumer and calls processBatch(), see workOn ---
 #include "courtier/GBaseConsumerT.hpp"
@@ -706,7 +706,7 @@ protected:
      * @param end The (exclusive) end index of the range to evaluate
      * @return The executor status describing the outcome of the submission
      */
-    Gem::Courtier::executor_status_t workOn(
+    Gem::Courtier::submission_status_t workOn(
         std::vector<std::unique_ptr<gen::GOptimizableEntity>> &work_items,
         std::size_t start,
         std::size_t end
@@ -721,7 +721,7 @@ protected:
      * @param end The (exclusive) end index of the population range to evaluate
      * @return The executor status describing the outcome of the submission
      */
-    Gem::Courtier::executor_status_t workOnPopulation(std::size_t start, std::size_t end);
+    Gem::Courtier::submission_status_t workOnPopulation(std::size_t start, std::size_t end);
 
     /**
      * @brief Enforces the "need-all" evaluation policy after a submission: throws if the returned
@@ -732,7 +732,7 @@ protected:
      * @param caller The calling function's name, used in the error message
      */
     void requireCompleteEvaluation_(
-        const Gem::Courtier::executor_status_t &status,
+        const Gem::Courtier::submission_status_t &status,
         const std::string &caller
     ) const;
 
@@ -745,7 +745,7 @@ protected:
      * @param caller The calling function's name, used in the DEBUG log lines
      */
     void discardUnusableItems_(
-        const Gem::Courtier::executor_status_t &status,
+        const Gem::Courtier::submission_status_t &status,
         const std::string &caller
     );
 
@@ -887,7 +887,7 @@ private:
     GOptimizationAlgorithmBase *clone_() const override = 0;
 
     /** @brief Calculates the fitness of all required individuals; to be re-implemented in derived classes */
-    void runFitnessCalculation_() override = 0;
+    void evaluatePopulation_() override = 0;
     /**
      * @brief The actual business logic to be performed during each iteration.
      * @return A tuple holding the best achieved fitness (raw, transformed) of this iteration
@@ -1143,7 +1143,7 @@ private:
      * @param end The (exclusive) end index of the range to evaluate
      * @return The executor status describing the outcome of the submission
      */
-    Gem::Courtier::executor_status_t workOnViaConsumer_(
+    Gem::Courtier::submission_status_t workOnViaConsumer_(
         std::vector<std::unique_ptr<gen::GOptimizableEntity>> &work_items,
         std::size_t start,
         std::size_t end

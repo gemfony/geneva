@@ -201,7 +201,7 @@ private:
     // Virtual or overridden private functions
 
     /** @brief We submit individuals to the process consumer and wait for processed items. */
-    void runFitnessCalculation_() override;
+    void evaluatePopulation_() override;
 
     /**
      * @brief Retrieve a GPersonalityTraits object belonging to this algorithm.

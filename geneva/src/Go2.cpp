@@ -1019,7 +1019,7 @@ std::vector<std::shared_ptr<gen::GOptimizableEntity>> Go2::getBestIterationIndiv
 /**
  * @brief Satisfies a requirement of GOptimizerIT (no-op for the algorithm combiner).
  */
-void Go2::runFitnessCalculation_() { /* nothing */
+void Go2::evaluatePopulation_() { /* nothing */
 }
 
 /******************************************************************************/

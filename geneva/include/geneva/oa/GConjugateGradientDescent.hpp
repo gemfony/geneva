@@ -481,7 +481,7 @@ private:
      */
     std::tuple<double, double> cycleLogic_() override;
     /** @brief Triggers fitness calculation of a number of individuals */
-    void runFitnessCalculation_() override;
+    void evaluatePopulation_() override;
 
 
     /**

@@ -437,7 +437,7 @@ private:
     std::string getAlgorithmName_() const final;
 
     /** @brief Satisfies a requirement of GOptimizerIT */
-    void runFitnessCalculation_() final;
+    void evaluatePopulation_() final;
 
     /**
      * @brief Retrieval of the current iteration.

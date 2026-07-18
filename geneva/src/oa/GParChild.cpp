@@ -815,7 +815,7 @@ std::tuple<double, double> GParChild::cycleLogic_() {
     adaptChildren_();
 
     // calculate the children's (and possibly their parents' values)
-    runFitnessCalculation_();
+    evaluatePopulation_();
 
     // find out the best individuals of the population
     selectBest_();

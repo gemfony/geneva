@@ -585,10 +585,10 @@ void GGeneralizedSimulatedAnnealing::applyAcceptance() {
  * Submits the whole population to the one process consumer and waits for processed items. Mirrors the
  * stock EA's submission path (workOnPopulation reconciles the contiguous range in place).
  */
-void GGeneralizedSimulatedAnnealing::runFitnessCalculation_() {
+void GGeneralizedSimulatedAnnealing::evaluatePopulation_() {
     auto status = this->workOnPopulation(0, this->size());
 
-    this->requireCompleteEvaluation_(status, "GGeneralizedSimulatedAnnealing::runFitnessCalculation_()");
+    this->requireCompleteEvaluation_(status, "GGeneralizedSimulatedAnnealing::evaluatePopulation_()");
 }
 
 /******************************************************************************/
@@ -614,7 +614,7 @@ std::tuple<double, double> GGeneralizedSimulatedAnnealing::cycleLogic_() {
 
     this->proposeMoves();
 
-    runFitnessCalculation_();
+    evaluatePopulation_();
 
     // Report the best (raw, transformed) fitness among all evaluated individuals this iteration, using
     // the standard EA/ES ranking helpers (isBetter / getMaxMode).

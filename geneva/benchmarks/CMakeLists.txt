@@ -27,8 +27,8 @@
 #
 ################################################################################
 
-ADD_SUBDIRECTORY ( GBrokerOverhead )
-ADD_SUBDIRECTORY ( GBrokerSanityChecks )
+ADD_SUBDIRECTORY ( GConsumerOverhead )
+ADD_SUBDIRECTORY ( GConsumerSanityChecks )
 ADD_SUBDIRECTORY ( GOptimizationBenchmark )
 ADD_SUBDIRECTORY ( GParallelisationOverhead )
 ADD_SUBDIRECTORY ( GSerializationOverhead )

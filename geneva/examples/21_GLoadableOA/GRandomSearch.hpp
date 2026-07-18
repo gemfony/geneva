@@ -139,7 +139,7 @@ private:
      *  @return A tuple holding the best raw and transformed fitness achieved this iteration */
     std::tuple<double, double> cycleLogic_() override;
     /** @brief Triggers fitness calculation of the whole population through the process consumer. */
-    void runFitnessCalculation_() override;
+    void evaluatePopulation_() override;
     /** @brief Retrieves the number of processable items for the current iteration (the whole population).
      *  @return The number of items that can be processed in the current iteration */
     std::size_t getNProcessableItems_() const override;

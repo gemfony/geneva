@@ -324,7 +324,7 @@ private:
     /** @brief The actual business logic performed during each iteration */
     std::tuple<double, double> cycleLogic_() override;
     /** @brief Submits offspring to the one process consumer and waits for processed items */
-    void runFitnessCalculation_() override;
+    void evaluatePopulation_() override;
 
 
     /** @brief Retrieve a GPersonalityTraits object belonging to this algorithm */

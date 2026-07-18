@@ -42,7 +42,7 @@
 #include "common/GParserBuilder.hpp"
 #include "common/GSerializationHelperFunctionsT.hpp"
 #include "courtier/GCourtierEnums.hpp"
-#include "courtier/GExecutorStatusT.hpp"
+#include "courtier/GSubmissionStatusT.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/oa/GPositionPersonalityTraits.hpp"
 #include "geneva/GPostProcessorT.hpp"
@@ -1518,7 +1518,7 @@ void GOptimizationAlgorithmBase::load_(const GOptimizationAlgorithmBase *cp) {
 	 * @param end The (exclusive) end index of the range to evaluate
 	 * @return A struct which indicates whether all items have returned ("is_complete") and whether there were errors ("has_errors")
 	 */
-Gem::Courtier::executor_status_t GOptimizationAlgorithmBase::workOn(
+Gem::Courtier::submission_status_t GOptimizationAlgorithmBase::workOn(
     std::vector<std::unique_ptr<gen::GOptimizableEntity>> &work_items,
     std::size_t start,
     std::size_t end
@@ -1536,7 +1536,7 @@ Gem::Courtier::executor_status_t GOptimizationAlgorithmBase::workOn(
  * @param caller The calling function's name, used in the error message
  */
 void GOptimizationAlgorithmBase::requireCompleteEvaluation_(
-    const Gem::Courtier::executor_status_t &status,
+    const Gem::Courtier::submission_status_t &status,
     const std::string &caller
 ) const {
     if(not status.is_complete || status.has_errors) {
@@ -1558,7 +1558,7 @@ void GOptimizationAlgorithmBase::requireCompleteEvaluation_(
  * @param status The executor status returned by the submission
  */
 void GOptimizationAlgorithmBase::discardUnusableItems_(
-    const Gem::Courtier::executor_status_t &status,
+    const Gem::Courtier::submission_status_t &status,
     [[maybe_unused]] const std::string &caller
 ) {
     if(not status.is_complete) {
@@ -1599,7 +1599,7 @@ void GOptimizationAlgorithmBase::discardUnusableItems_(
  * @param end One past the index of the last individual to be evaluated (range is [start, end))
  * @return A struct indicating whether all items returned ("is_complete") and whether there were errors ("has_errors")
  */
-Gem::Courtier::executor_status_t
+Gem::Courtier::submission_status_t
 GOptimizationAlgorithmBase::workOnPopulation(std::size_t start, std::size_t end) {
     return this->workOn(this->data_cnt_, start, end);
 }
@@ -1619,7 +1619,7 @@ GOptimizationAlgorithmBase::workOnPopulation(std::size_t start, std::size_t end)
  * @param end One past the index of the last work item to submit (range is [start, end), clamped to the vector size)
  * @return A struct indicating whether all items returned ("is_complete") and whether there were errors ("has_errors")
  */
-Gem::Courtier::executor_status_t GOptimizationAlgorithmBase::workOnViaConsumer_(
+Gem::Courtier::submission_status_t GOptimizationAlgorithmBase::workOnViaConsumer_(
     std::vector<std::unique_ptr<gen::GOptimizableEntity>> &work_items,
     std::size_t start,
     std::size_t end
@@ -1627,7 +1627,7 @@ Gem::Courtier::executor_status_t GOptimizationAlgorithmBase::workOnViaConsumer_(
     // Clamp the requested range to the population and bail out if it is empty.
     end = std::min(end, work_items.size());
     if(end <= start) {
-        return Gem::Courtier::executor_status_t{.is_complete=true, .has_errors=false};
+        return Gem::Courtier::submission_status_t{.is_complete=true, .has_errors=false};
     }
 
     // Submit a span over exactly [start, end); it aliases the population sub-range, so results + any
@@ -1641,7 +1641,7 @@ Gem::Courtier::executor_status_t GOptimizationAlgorithmBase::workOnViaConsumer_(
 
     const bool has_errors =
         std::ranges::any_of(sp, [](const auto &it) { return it && it->has_errors(); });
-    return Gem::Courtier::executor_status_t{.is_complete=true, .has_errors=has_errors};
+    return Gem::Courtier::submission_status_t{.is_complete=true, .has_errors=has_errors};
 }
 
 /******************************************************************************/

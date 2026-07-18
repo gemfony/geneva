@@ -180,7 +180,7 @@ void GType::extractCurrentParetoIndividuals(
 
 /******************************************************************************/
 
-Gem::Courtier::executor_status_t
+Gem::Courtier::submission_status_t
 GType::evaluatePopulationRange_(std::size_t start, std::size_t end) {
     if(inline_evaluation_) {
         end = std::min(end, this->size());
@@ -191,7 +191,7 @@ GType::evaluatePopulationRange_(std::size_t start, std::size_t end) {
                 has_errors = true;
             }
         }
-        return Gem::Courtier::executor_status_t{.is_complete=true, .has_errors=has_errors};
+        return Gem::Courtier::submission_status_t{.is_complete=true, .has_errors=has_errors};
     }
     return this->workOnPopulation(start, end);
 }
@@ -379,7 +379,7 @@ void GType::populationSanityChecks_() const {
 
 /******************************************************************************/
 
-void GType::runFitnessCalculation_() {
+void GType::evaluatePopulation_() {
     const std::tuple<std::size_t, std::size_t> range = getEvaluationRange_();
 
 #ifdef DEBUG
@@ -387,7 +387,7 @@ void GType::runFitnessCalculation_() {
         if(not this->at(i)->is_due_for_processing()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GEvolutionaryAlgorithm::runFitnessCalculation(): Error!" << '\n'
+                << "In GEvolutionaryAlgorithm::evaluatePopulation_(): Error!" << '\n'
                 << "Tried to evaluate children in range " << std::get<0>(range) << " - "
                 << std::get<1>(range) << '\n'
                 << "but found \"clean\" individual in position " << i << '\n'
@@ -398,7 +398,7 @@ void GType::runFitnessCalculation_() {
     if(this->size() != this->getDefaultPopulationSize()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GEvolutionaryAlgorithm::runFitnessCalculation(): Error!" << '\n'
+            << "In GEvolutionaryAlgorithm::evaluatePopulation_(): Error!" << '\n'
             << "Size of data vector (" << this->size() << ") should be "
             << this->getDefaultPopulationSize() << '\n'
         );
@@ -407,7 +407,7 @@ void GType::runFitnessCalculation_() {
 
     auto status = this->evaluatePopulationRange_(std::get<0>(range), std::get<1>(range));
 
-    this->discardUnusableItems_(status, "GEvolutionaryAlgorithm::runFitnessCalculation()");
+    this->discardUnusableItems_(status, "GEvolutionaryAlgorithm::evaluatePopulation_()");
 
     fixAfterJobSubmission();
 }

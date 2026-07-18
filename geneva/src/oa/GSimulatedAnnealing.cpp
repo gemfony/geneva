@@ -274,7 +274,7 @@ void GSimulatedAnnealing::populationSanityChecks_() const {
 /**
   * @brief We submit individuals to the broker connector and wait for processed items.
  */
-void GSimulatedAnnealing::runFitnessCalculation_() {
+void GSimulatedAnnealing::evaluatePopulation_() {
     //--------------------------------------------------------------------------------
     // Start by marking the work to be done in the individuals.
     // "range" will hold the start- and end-points of the range
@@ -289,7 +289,7 @@ void GSimulatedAnnealing::runFitnessCalculation_() {
         if(not this->at(i)->is_due_for_processing()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GSimulatedAnnealing::runFitnessCalculation(): Error!" << '\n'
+                << "In GSimulatedAnnealing::evaluatePopulation_(): Error!" << '\n'
                 << "Tried to evaluate children in range " << std::get<0>(range) << " - "
                 << std::get<1>(range) << '\n'
                 << "but found \"clean\" individual in position " << i << '\n'
@@ -305,7 +305,7 @@ void GSimulatedAnnealing::runFitnessCalculation_() {
 
     //--------------------------------------------------------------------------------
     // Take care of unprocessed items, if these exist. We simply remove them and continue.
-    this->discardUnusableItems_(status, "GSimulatedAnnealing::runFitnessCalculation()");
+    this->discardUnusableItems_(status, "GSimulatedAnnealing::evaluatePopulation_()");
 
     //--------------------------------------------------------------------------------
     // Now fix the population -- it may be smaller than its nominal size

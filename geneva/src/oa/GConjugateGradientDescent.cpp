@@ -409,7 +409,7 @@ std::tuple<double, double> GConjugateGradientDescent::cycleLogic_() {
     this->updateChildParameters();
 
     // Trigger value calculation for all individuals (parents + children)
-    runFitnessCalculation_();
+    evaluatePopulation_();
 
     std::tuple<double, double> best_fitness =
         std::make_tuple(this->at(0)->getWorstCase(), this->at(0)->getWorstCase());
@@ -989,7 +989,7 @@ void GConjugateGradientDescent::addConfigurationOptions_(Gem::Common::GParserBui
  *
  * Throws a geneva_exception if no complete set of evaluated items is received or if any individual reports errors.
  */
-void GConjugateGradientDescent::runFitnessCalculation_() {
+void GConjugateGradientDescent::evaluatePopulation_() {
     using namespace Gem::Courtier;
 
 #ifdef DEBUG
@@ -997,7 +997,7 @@ void GConjugateGradientDescent::runFitnessCalculation_() {
         if(this->afterFirstIteration() && !item_ptr->is_due_for_processing()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GConjugateGradientDescent::runFitnessCalculation():" << '\n'
+                << "In GConjugateGradientDescent::evaluatePopulation_():" << '\n'
                 << "Found individual on position " << pos
                 << " which is not due for processing" << '\n'
             );
@@ -1008,7 +1008,7 @@ void GConjugateGradientDescent::runFitnessCalculation_() {
     auto status = this->workOnPopulation(0, this->data_cnt_.size());
 
     // A conjugate-gradient method needs a complete set of evaluated solutions.
-    this->requireCompleteEvaluation_(status, "GConjugateGradientDescent::runFitnessCalculation()");
+    this->requireCompleteEvaluation_(status, "GConjugateGradientDescent::evaluatePopulation_()");
 }
 
 /******************************************************************************/

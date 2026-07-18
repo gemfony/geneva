@@ -161,6 +161,16 @@ are in `CHANGES` and `INSTALL`; this file is the practical upgrade guide.
 - **dietrich: `project<I>()`/`projectX..W()` on a non-all-double collector is now a
   compile-time error** (it used to compile and throw at run time), and the projections
   are available for every axis of every all-double collector arity.
+- **The optimization algorithms' population-sweep hook `runFitnessCalculation_()` was
+  renamed to `evaluatePopulation_()`** (a protected virtual on
+  `GOptimizationAlgorithmBase`; source-breaking for an out-of-tree algorithm that
+  overrides it). The old name referenced the removed `fitnessCalculation()` user hook.
+- **courtier: `executor_status_t` was renamed to `submission_status_t`** (and its header
+  `GExecutorStatusT.hpp` to `GSubmissionStatusT.hpp`) — the type is the return of the
+  submission entry point `workOn` and was named for the removed `GExecutorT` wrapper.
+- **Two benchmark directories were renamed** for the same reason: `GBrokerOverhead` →
+  `GConsumerOverhead` and `GBrokerSanityChecks` → `GConsumerSanityChecks` (the
+  executable names change accordingly).
 
 ## 8. Checkpointing
 

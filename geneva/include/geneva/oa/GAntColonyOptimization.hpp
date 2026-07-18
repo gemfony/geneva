@@ -314,7 +314,7 @@ private:
     /** @brief The actual business logic performed during each iteration */
     std::tuple<double, double> cycleLogic_() override;
     /** @brief Triggers fitness calculation of the relevant individuals via the one process consumer */
-    void runFitnessCalculation_() override;
+    void evaluatePopulation_() override;
 
     /** @brief Retrieves the number of processable items for the current iteration */
     std::size_t getNProcessableItems_() const override;

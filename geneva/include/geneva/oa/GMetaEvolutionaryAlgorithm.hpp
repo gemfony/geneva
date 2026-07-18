@@ -43,7 +43,7 @@
 // Geneva headers
 #include "common/GMemberReflectionT.hpp"
 #include "common/concurrency/GThreadPool.hpp"
-#include "courtier/GExecutorStatusT.hpp"
+#include "courtier/GSubmissionStatusT.hpp"
 #include "geneva/oa/GEvolutionaryAlgorithm.hpp"
 
 namespace Gem::Geneva::OptimizationAlgorithms {
@@ -175,7 +175,7 @@ protected:
      * @param end One past the last population index to evaluate
      * @return The executor status: always complete; error flag set if any umbrella-individual failed
      */
-    Gem::Courtier::executor_status_t
+    Gem::Courtier::submission_status_t
     evaluatePopulationRange_(std::size_t start, std::size_t end) override;
 
 private:

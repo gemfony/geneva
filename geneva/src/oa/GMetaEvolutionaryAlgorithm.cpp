@@ -42,7 +42,7 @@ namespace Gem::Geneva::OptimizationAlgorithms {
 
 /******************************************************************************/
 
-Gem::Courtier::executor_status_t
+Gem::Courtier::submission_status_t
 GMetaEvolutionaryAlgorithm::evaluatePopulationRange_(std::size_t start, std::size_t end) {
     // Build the orchestration pool on first use (transient run state, sized to hardware concurrency by
     // default). It is this meta-EA's OWN pool -- separate from the process-wide work consumer the
@@ -63,7 +63,7 @@ GMetaEvolutionaryAlgorithm::evaluatePopulationRange_(std::size_t start, std::siz
     orchestration_pool_->wait();
 
     // A local evaluation never goes MISSING: every slot is PROCESSED or carries a caught error. Report
-    // "complete", flagging errors so the base runFitnessCalculation_ removes any failed umbrella-individual.
+    // "complete", flagging errors so the base evaluatePopulation_ removes any failed umbrella-individual.
     bool has_errors = false;
     for(std::size_t i = start; i < end; ++i) {
         if(this->at(i)->has_errors()) {
@@ -71,7 +71,7 @@ GMetaEvolutionaryAlgorithm::evaluatePopulationRange_(std::size_t start, std::siz
             break;
         }
     }
-    return Gem::Courtier::executor_status_t{.is_complete=true, .has_errors=has_errors};
+    return Gem::Courtier::submission_status_t{.is_complete=true, .has_errors=has_errors};
 }
 
 /******************************************************************************/

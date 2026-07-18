@@ -389,7 +389,7 @@ std::tuple<double, double> GNelderMead::cycleLogic_() {
         trials_pending_ = true;
     }
 
-    runFitnessCalculation_();
+    evaluatePopulation_();
 
     std::tuple<double, double> best_fitness =
         std::make_tuple(this->at(0)->getWorstCase(), this->at(0)->getWorstCase());
@@ -439,7 +439,7 @@ void GNelderMead::proposeTrials() {
             // this same iteration has not been re-evaluated yet (its stored
             // result was invalidated). Parameters are always readable, but its
             // fitness is not; treat such a vertex as the worst so it becomes the
-            // reflected point. It is re-evaluated by runFitnessCalculation_()
+            // reflected point. It is re-evaluated by evaluatePopulation_()
             // later in this iteration, so proper ranking resumes next cycle.
             if(ind->is_due_for_processing() || ind->has_errors()) {
                 vfit[v] = std::numeric_limits<double>::max();
@@ -599,7 +599,7 @@ void GNelderMead::applyNelderMeadDecision() {
  * @brief Shrinks simplex s by moving every non-best vertex a fraction sigma_ of the way towards the best vertex.
  *
  * The shrunk vertices are left unevaluated (their stored fitness is now stale); they are re-evaluated by
- * runFitnessCalculation_() later in the same iteration.
+ * evaluatePopulation_() later in the same iteration.
  *
  * @param s The index of the simplex to shrink
  * @param b The index (within the simplex) of the best vertex, towards which the others are contracted
@@ -682,12 +682,12 @@ void GNelderMead::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) {
  *
  * Throws if the consumer does not return a complete set of results or reports errors in any individual.
  */
-void GNelderMead::runFitnessCalculation_() {
+void GNelderMead::evaluatePopulation_() {
     using namespace Gem::Courtier;
 
     auto status = this->workOnPopulation(0, this->data_cnt_.size());
 
-    this->requireCompleteEvaluation_(status, "GNelderMead::runFitnessCalculation()");
+    this->requireCompleteEvaluation_(status, "GNelderMead::evaluatePopulation_()");
 }
 
 /******************************************************************************/
