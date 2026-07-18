@@ -67,7 +67,7 @@ void GBaseParChildPersonalityTraits::compare_(
     GToken token("GBaseParChildPersonalityTraits", e);
 
     // Compare our parent data ...
-    Gem::Common::compare_base_t<GPersonalityTraits>(*this, *p_load, token);
+    Gem::Common::compare_base_t<GPositionPersonalityTraits>(*this, *p_load, token);
 
     // ... and then the local data, derived from the single localMembers() declaration
     g_compare_members(this->localMembers_(), p_load->localMembers_(), token);
@@ -127,7 +127,7 @@ void GBaseParChildPersonalityTraits::load_(const GPersonalityTraits *cp) {
         Gem::Common::g_convert_and_compare<GPersonalityTraits, GBaseParChildPersonalityTraits>(cp, this);
 
     // Load the parent class'es data
-    GPersonalityTraits::load_(cp);
+    GPositionPersonalityTraits::load_(cp);
 
     // Then load our local data, derived from the single localMembers() declaration
     Gem::Common::g_load_members(this->localMembers_(), p_load->localMembers_());
@@ -194,36 +194,6 @@ bool GBaseParChildPersonalityTraits::setIsChild() {
     bool previous = parent_counter_ > 0;
     parent_counter_ = 0;
     return previous;
-}
-
-/* ----------------------------------------------------------------------------------
- * Tested in GBaseParChildPersonalityTraits::specificTestsNoFailuresExpected_GUnitTests()
- * ----------------------------------------------------------------------------------
- */
-
-/******************************************************************************/
-/**
- * @brief Sets the position of the individual in the population
- *
- * @param pop_pos The new zero-based position of this individual in the population
- */
-void GBaseParChildPersonalityTraits::setPopulationPosition(const std::size_t &pop_pos) {
-    pop_pos_ = pop_pos;
-}
-
-/* ----------------------------------------------------------------------------------
- * Tested in GBaseParChildPersonalityTraits::specificTestsNoFailuresExpected_GUnitTests()
- * ----------------------------------------------------------------------------------
- */
-
-/******************************************************************************/
-/**
- * @brief Retrieves the position of the individual in the population
- *
- * @return The current zero-based position of this individual in the population
- */
-std::size_t GBaseParChildPersonalityTraits::getPopulationPosition() const {
-    return pop_pos_;
 }
 
 /* ----------------------------------------------------------------------------------
@@ -315,7 +285,7 @@ bool GBaseParChildPersonalityTraits::modify_GUnitTests_() {
     bool result = false;
 
     // Call the parent class'es function
-    if(GPersonalityTraits::modify_GUnitTests_()) {
+    if(GPositionPersonalityTraits::modify_GUnitTests_()) {
         result = true;
     }
 
@@ -339,7 +309,7 @@ void GBaseParChildPersonalityTraits::specificTestsNoFailureExpected_GUnitTests_(
 #ifdef GEM_TESTING
 
     // Call the parent class'es function
-    GPersonalityTraits::specificTestsNoFailureExpected_GUnitTests_();
+    GPositionPersonalityTraits::specificTestsNoFailureExpected_GUnitTests_();
 
     // --------------------------------------------------------------------------
 
@@ -428,7 +398,7 @@ void GBaseParChildPersonalityTraits::specificTestsFailuresExpected_GUnitTests_()
 #ifdef GEM_TESTING
 
     // Call the parent class'es function
-    GPersonalityTraits::specificTestsFailuresExpected_GUnitTests_();
+    GPositionPersonalityTraits::specificTestsFailuresExpected_GUnitTests_();
 
     // --------------------------------------------------------------------------
 

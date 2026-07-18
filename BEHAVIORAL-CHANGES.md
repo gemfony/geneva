@@ -150,6 +150,13 @@ are in `CHANGES` and `INSTALL`; this file is the practical upgrade guide.
 - **A final checkpoint is written when a run halts** (file name tagged `final`) whenever
   checkpointing is enabled (`cp_interval != 0`); with checkpointing disabled a run
   performs no checkpoint I/O at all.
+- **The personality-traits archive layout changed within the 1.99 development series**:
+  the position-only traits of CGD / Nelder-Mead / parameter scan / GSA / ACO / PSO2011 and
+  the parent-child traits now serialize their population position through the shared
+  `GPositionPersonalityTraits` base (one added nesting level; the GSA/ACO
+  `population_position_` and PSO `particle_` tags became `pop_pos_`). Checkpoints written
+  by earlier 1.99 development builds do not load; 1.11 checkpoints never loaded in 1.12+
+  anyway (see the top of this document).
 
 ---
 

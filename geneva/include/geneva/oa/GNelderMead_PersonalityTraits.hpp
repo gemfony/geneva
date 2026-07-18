@@ -32,25 +32,19 @@
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
-// Standard headers go here
-#include <tuple>
-
-// Boost headers go here
-
 // Geneva headers go here
-#include "geneva/GPersonalityTraits.hpp"
+#include "geneva/oa/GPositionPersonalityTraits.hpp"
 
 namespace Gem::Geneva::OptimizationAlgorithms {
 
 /******************************************************************************/
 /**
- * This class adds variables and functions to GPersonalityTraits that are
- * specific to the Nelder-Mead downhill simplex. As with the other local
- * optimizers, every individual only needs to know its position in the
- * population (the simplex-vertex / trial-slot layout).
+ * The Nelder-Mead downhill simplex's personality traits: every individual only needs to know its
+ * position in the population (its simplex-vertex / trial-slot index), which the
+ * GPositionPersonalityTraits base provides; this class contributes only the algorithm's identity.
  */
 class GNelderMead_PersonalityTraits // NOLINT(cppcoreguidelines-special-member-functions)
-  : public GPersonalityTraits {
+  : public GPositionPersonalityTraits {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
@@ -58,8 +52,7 @@ class GNelderMead_PersonalityTraits // NOLINT(cppcoreguidelines-special-member-f
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         using boost::serialization::make_nvp;
 
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GPersonalityTraits) &
-            BOOST_SERIALIZATION_NVP(pop_pos_);
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GPositionPersonalityTraits);
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -69,80 +62,17 @@ public:
 
     /** @brief The default constructor */
     GNelderMead_PersonalityTraits() = default;
-    /**
-     * @brief The copy contructor.
-     * @param cp Another GNelderMead_PersonalityTraits object whose state is copied
-     */
+    /** @brief The copy constructor
+     *  @param cp Another GNelderMead_PersonalityTraits object whose state is copied */
     GNelderMead_PersonalityTraits(const GNelderMead_PersonalityTraits &cp) = default;
-
     /** @brief The standard destructor */
     ~GNelderMead_PersonalityTraits() override = default;
-
-    /**
-     * @brief Sets the position of the individual in the population.
-     * @param pop_pos The individual's position in the population (its simplex-vertex / trial-slot index)
-     */
-    void setPopulationPosition(const std::size_t &pop_pos);
-    /**
-     * @brief Retrieves the position of the individual in the population.
-     * @return The individual's stored position in the population
-     */
-    std::size_t getPopulationPosition() const;
 
     /**
      * @brief Retrieves the mnemonic of the optimization algorithm.
      * @return The short mnemonic string identifying the Nelder-Mead algorithm
      */
     std::string getMnemonic() const override;
-
-protected:
-    /***************************************************************************/
-    // Virtual or overridden protected functions
-
-    /** @brief Single declaration of this class'es local data members */
-    template <typename Self>
-    auto localMembers_(this Self &self) {
-        return std::make_tuple(Gem::Common::make_member("pop_pos_", self.pop_pos_));
-    }
-
-    /**
-     * @brief Loads the data of another GNelderMead_PersonalityTraits object.
-     * @param cp A pointer to another GNelderMead_PersonalityTraits object (as a GPersonalityTraits) to load from
-     */
-    void load_(const GPersonalityTraits *cp) override;
-
-    /** @brief Allow access to this classes compare_ function */
-    friend void Gem::Common::compare_base_t<GNelderMead_PersonalityTraits>(
-        GNelderMead_PersonalityTraits const &,
-        GNelderMead_PersonalityTraits const &,
-        Gem::Common::GToken &
-    );
-
-    /**
-     * @brief Searches for compliance with expectations with respect to another object of the same type.
-     * @param cp The other object (a GPersonalityTraits) to compare against
-     * @param e The expectation for this comparison, e.g. equality
-     * @param limit The limit for allowed deviations of floating point types
-     */
-    void compare_(
-        const GPersonalityTraits &cp // the other object
-        ,
-        const Gem::Common::expectation &e // the expectation for this object, e.g. equality
-        ,
-        const double &limit // the limit for allowed deviations of floating point types
-    ) const override;
-
-    /**
-     * @brief Applies modifications to this object. This is needed for testing purposes.
-     * @return true if the object was modified, false otherwise
-     */
-    bool modify_GUnitTests_() override;
-    /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-    void specificTestsNoFailureExpected_GUnitTests_() override;
-    /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-    void specificTestsFailuresExpected_GUnitTests_() override;
-
-    /***************************************************************************/
 
 private:
     /**
@@ -155,9 +85,6 @@ private:
      * @return A newly allocated deep copy of this object, as a GPersonalityTraits pointer
      */
     GPersonalityTraits *clone_() const override;
-
-    /** @brief Stores the current position in the population */
-    std::size_t pop_pos_ = 0;
 };
 
 /******************************************************************************/

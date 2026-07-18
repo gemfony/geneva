@@ -62,6 +62,7 @@ SET ( OA_INCLUDES
     oa/GOAPlugin.hpp
     oa/GFactoryStore.hpp
     oa/GBaseParChildPersonalityTraits.hpp
+    oa/GPositionPersonalityTraits.hpp
     oa/GConjugateGradientDescent.hpp
     oa/GConjugateGradientDescentFactory.hpp
     oa/GConjugateGradientDescent_PersonalityTraits.hpp

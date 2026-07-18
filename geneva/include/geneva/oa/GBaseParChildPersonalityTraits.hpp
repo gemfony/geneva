@@ -38,7 +38,7 @@
 // Boost headers go here
 
 // Geneva headers go here
-#include "geneva/GPersonalityTraits.hpp"
+#include "geneva/oa/GPositionPersonalityTraits.hpp"
 
 namespace Gem::Geneva::OptimizationAlgorithms {
 
@@ -53,20 +53,20 @@ namespace Gem::Geneva::OptimizationAlgorithms {
  * and the id of the parent it descended from.
  */
 class GBaseParChildPersonalityTraits // NOLINT(cppcoreguidelines-special-member-functions)
-  : public GPersonalityTraits {
+  : public GPositionPersonalityTraits {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
     /**
      * @brief Single declaration of this class's local data members (mutable access, for serialization).
      *
-     * @return A tuple of named member bindings for parent_counter_, pop_pos_ and parent_id_
+     * @return A tuple of named member bindings for parent_counter_ and parent_id_ (the population
+     * position lives on the GPositionPersonalityTraits base)
      */
     template <typename Self>
     auto localMembers_(this Self &self) {
         return std::make_tuple(
             Gem::Common::make_member("parent_counter_", self.parent_counter_),
-            Gem::Common::make_member("pop_pos_", self.pop_pos_),
             Gem::Common::make_member("parent_id_", self.parent_id_)
         );
     }
@@ -81,7 +81,7 @@ class GBaseParChildPersonalityTraits // NOLINT(cppcoreguidelines-special-member-
     template <typename Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         using boost::serialization::make_nvp;
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GPersonalityTraits);
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GPositionPersonalityTraits);
         // ... and then our own data, derived from the single localMembers() declaration
         Gem::Common::serialize_members(ar, this->localMembers_());
     }
@@ -120,19 +120,6 @@ public:
      * @return The number of consecutive generations this individual has been re-elected as parent (0 if it is a child)
      */
     std::uint32_t getParentCounter() const;
-
-    /**
-     * @brief Sets the position of the individual in the population.
-     *
-     * @param pop_pos The zero-based position of the individual within the population
-     */
-    void setPopulationPosition(const std::size_t &pop_pos);
-    /**
-     * @brief Retrieves the position of the individual in the population.
-     *
-     * @return The individual's zero-based position within the population
-     */
-    std::size_t getPopulationPosition() const;
 
     /**
      * @brief Stores the parent's id with this object.
@@ -224,8 +211,6 @@ private:
 
     /** @brief Allows populations to record how often an individual has been reelected as parent (0 if it is a child) */
     std::uint32_t parent_counter_ = 0;
-    /** @brief Stores the current position in the population */
-    std::size_t pop_pos_ = 0;
     /** @brief The id of the old parent individual. This is intentionally a signed value. A negative value refers to an unset parent id */
     std::int16_t parent_id_ = -1;
 };
