@@ -37,6 +37,7 @@
 #include <memory>
 #include <thread>
 #include <vector>
+#include <tuple>
 
 // Boost headers
 #include <boost/asio.hpp>
@@ -96,8 +97,8 @@ public:
     ~GAsioConsumerT() override {
         try {
             this->stopServer();
-        } catch(...) {
-            // best-effort teardown: never let an exception escape a destructor
+        } catch(...) { // NOLINT(bugprone-empty-catch) -- deliberate best-effort teardown
+            // never let an exception escape a destructor
         }
     }
 
@@ -149,7 +150,7 @@ public:
         boost::system::error_code ec;
 
         boost::asio::ip::tcp::endpoint endpoint{boost::asio::ip::tcp::v4(), port_};
-        acceptor_.open(endpoint.protocol(), ec);
+        std::ignore = acceptor_.open(endpoint.protocol(), ec); // returned ec duplicates the checked out-param
         if(ec || not acceptor_.is_open()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
@@ -158,7 +159,7 @@ public:
             );
         }
         acceptor_.set_option(boost::asio::socket_base::reuse_address(true));
-        acceptor_.bind(endpoint, ec);
+        std::ignore = acceptor_.bind(endpoint, ec); // returned ec duplicates the checked out-param
         if(ec) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
@@ -169,7 +170,7 @@ public:
         // If port 0 was requested, learn the ephemeral port the OS assigned.
         port_ = acceptor_.local_endpoint().port();
 
-        acceptor_.listen(boost::asio::socket_base::max_listen_connections, ec);
+        std::ignore = acceptor_.listen(boost::asio::socket_base::max_listen_connections, ec); // returned ec duplicates the checked out-param
         if(ec) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
@@ -200,7 +201,7 @@ public:
         // acceptor access also happens on the strand.
         boost::asio::post(accept_strand_, [this]() {
             boost::system::error_code ec;
-            acceptor_.close(ec);
+            std::ignore = acceptor_.close(ec); // best-effort teardown
             accept_retry_timer_.cancel();
         });
 

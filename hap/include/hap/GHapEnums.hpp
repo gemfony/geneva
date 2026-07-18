@@ -67,23 +67,17 @@ enum class randomSource : Gem::Common::ENUMBASETYPE {
 };
 
 /******************************************************************************/
-
-/**
- * @brief Puts a Gem::Hap::randomSource into a stream. Needed for streaming / Gem::Common::fromString<>.
- *
- * @param o The output stream the source is written to
- * @param grts The randomSource value to serialize (written as its underlying integer)
- * @return A reference to the output stream (for chaining)
- */
-std::ostream &operator<<(std::ostream &o, const Gem::Hap::randomSource &grts);
-/**
- * @brief Reads a Gem::Hap::randomSource item from a stream. Needed for streaming / Gem::Common::fromString<>.
- *
- * @param i The input stream the source is read from
- * @param grts The randomSource variable that receives the parsed value
- * @return A reference to the input stream (for chaining)
- */
-std::istream &operator>>(std::istream &i, Gem::Hap::randomSource &grts);
+// Re-export the shared numeric enum stream operators (see numeric_enum_io_v in
+// GCommonEnums.hpp) into Gem::Hap, so that argument-dependent lookup finds them
+// for the enums above.
+using Gem::Common::operator<<;
+using Gem::Common::operator>>;
 
 /******************************************************************************/
 } /* namespace Gem::Hap */
+
+/******************************************************************************/
+/** @brief randomSource streams as its underlying numeric value (see numeric_enum_io_v) */
+namespace Gem::Common {
+template <> inline constexpr bool numeric_enum_io_v<Gem::Hap::randomSource> = true;
+} /* namespace Gem::Common */

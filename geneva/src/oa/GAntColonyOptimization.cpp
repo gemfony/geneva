@@ -338,15 +338,6 @@ void GAntColonyOptimization::finalize() {
 
 /******************************************************************************/
 /**
- * ACOR samples afresh from the archive each iteration and has no per-individual internal structures that
- * need updating on a stall.
- */
-void GAntColonyOptimization::actOnStalls_() {
-    /* nothing */
-}
-
-/******************************************************************************/
-/**
  * Retrieve the number of processable items in the current iteration. In the very first iteration the
  * whole seeded archive (k individuals) is evaluated; afterwards only the m newly constructed ants are
  * evaluated.
@@ -361,18 +352,6 @@ std::size_t GAntColonyOptimization::getNProcessableItems_() const {
  */
 std::shared_ptr<GPersonalityTraits> GAntColonyOptimization::getPersonalityTraits_() const {
     return std::make_shared<GAntColonyOptimization_PersonalityTraits>();
-}
-
-/******************************************************************************/
-/**
- * Lets all individuals know about their position in the population.
- */
-void GAntColonyOptimization::markIndividualPositions() {
-    for(auto const &[pos, individual] : *this | std::views::enumerate) {
-        individual
-            ->getPersonalityTraits<GAntColonyOptimization_PersonalityTraits>()
-            ->setPopulationPosition(static_cast<std::size_t>(pos));
-    }
 }
 
 /******************************************************************************/

@@ -26,7 +26,9 @@
  * collection for a list of contributors and copyright information.
  *
  ********************************************************************************/
+
 #include "geneva/oa/GParameterScan_PersonalityTraits.hpp"
+
 #include <string>
 
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::OptimizationAlgorithms::GParameterScan_PersonalityTraits) // NOLINT
@@ -35,36 +37,6 @@ namespace Gem::Geneva::OptimizationAlgorithms {
 /******************************************************************************/
 /** A short identifier suitable for storage in a std::map */
 const std::string GParameterScan_PersonalityTraits::nickname = "ps";
-
-/******************************************************************************/
-/**
- * @brief Retrieves the mnemonic of the optimization algorithm.
- *
- * @return The short identifier ("ps") of the parameter scan
- */
-std::string GParameterScan_PersonalityTraits::getMnemonic() const {
-    return GParameterScan_PersonalityTraits::nickname;
-}
-
-/******************************************************************************/
-/**
- * @brief Emits a name for this class / object.
- *
- * @return The string "GParameterScan_PersonalityTraits"
- */
-std::string GParameterScan_PersonalityTraits::name_() const {
-    return std::string("GParameterScan_PersonalityTraits");
-}
-
-/******************************************************************************/
-/**
- * @brief Creates a deep clone of this object.
- *
- * @return A pointer to a newly allocated, deep copy of this object (caller takes ownership)
- */
-GPersonalityTraits *GParameterScan_PersonalityTraits::clone_() const {
-    return new GParameterScan_PersonalityTraits(*this);
-}
 
 /******************************************************************************/
 

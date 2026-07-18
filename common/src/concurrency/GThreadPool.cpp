@@ -105,6 +105,9 @@ bool GThreadPool::enqueue(std::move_only_function<void()> task) {
         std::scoped_lock<std::mutex> cnt_lck(counter_mutex_);
         ++tasks_in_flight_;
     }
+    // task_queue_ is engaged from construction on; setNThreads() re-emplaces it under the
+    // exclusive submission lock this function holds shared, so the deref cannot race a gap.
+    // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
     if(task_queue_->push(std::move(task))) {
         return true;
     }
@@ -158,10 +161,12 @@ void GThreadPool::worker_loop(std::stop_token st) {
     // pending tasks' futures are still satisfied -- request_stop() is a graceful "drain and
     // stop", not an abrupt abandon. (A stop_token cannot by itself wake a blocked pop(); closing
     // the queue can, which is why we route the stop through close().)
+    // NOLINTNEXTLINE(bugprone-unchecked-optional-access) -- engaged for the workers' whole lifetime
     const std::stop_callback stop_cb(st, [this]() { task_queue_->close(); });
 
     t_in_worker_thread = true; // this thread spends its life running pool tasks
 
+    // NOLINTNEXTLINE(bugprone-unchecked-optional-access) -- engaged for the workers' whole lifetime
     while(auto task = task_queue_->pop()) {
         // The task wrapper fulfils its own promise and never lets an exception
         // escape, so the in-flight bookkeeping below always runs.

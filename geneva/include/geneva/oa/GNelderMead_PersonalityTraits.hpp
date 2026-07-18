@@ -32,8 +32,12 @@
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
+// Standard headers go here
+#include <string>
+#include <string_view>
+
 // Geneva headers go here
-#include "geneva/oa/GPositionPersonalityTraits.hpp"
+#include "geneva/oa/GAlgorithmPersonalityTraitsT.hpp"
 
 namespace Gem::Geneva::OptimizationAlgorithms {
 
@@ -41,50 +45,16 @@ namespace Gem::Geneva::OptimizationAlgorithms {
 /**
  * The Nelder-Mead downhill simplex's personality traits: every individual only needs to know its
  * position in the population (its simplex-vertex / trial-slot index), which the
- * GPositionPersonalityTraits base provides; this class contributes only the algorithm's identity.
+ * GPositionPersonalityTraits base provides; the GAlgorithmPersonalityTraitsT scaffold supplies the
+ * shared boilerplate, so this class contributes only the algorithm's identity.
  */
 class GNelderMead_PersonalityTraits // NOLINT(cppcoreguidelines-special-member-functions)
-  : public GPositionPersonalityTraits {
-    ///////////////////////////////////////////////////////////////////////
-    friend class boost::serialization::access;
-
-    template <typename Archive>
-    void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
-        using boost::serialization::make_nvp;
-
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GPositionPersonalityTraits);
-    }
-    ///////////////////////////////////////////////////////////////////////
-
+  : public GAlgorithmPersonalityTraitsT<GNelderMead_PersonalityTraits> {
 public:
     /** @brief An easy identifier for the class */
     static const std::string nickname; // Initialized in the .cpp definition file
-
-    /** @brief The default constructor */
-    GNelderMead_PersonalityTraits() = default;
-    /** @brief The copy constructor
-     *  @param cp Another GNelderMead_PersonalityTraits object whose state is copied */
-    GNelderMead_PersonalityTraits(const GNelderMead_PersonalityTraits &cp) = default;
-    /** @brief The standard destructor */
-    ~GNelderMead_PersonalityTraits() override = default;
-
-    /**
-     * @brief Retrieves the mnemonic of the optimization algorithm.
-     * @return The short mnemonic string identifying the Nelder-Mead algorithm
-     */
-    std::string getMnemonic() const override;
-
-private:
-    /**
-     * @brief Emits a name for this class / object.
-     * @return The class name of this personality-traits object
-     */
-    std::string name_() const override;
-    /**
-     * @brief Creates a deep clone of this object.
-     * @return A newly allocated deep copy of this object, as a GPersonalityTraits pointer
-     */
-    GPersonalityTraits *clone_() const override;
+    /** @brief The name emitted by name_() */
+    static constexpr std::string_view class_name{"GNelderMead_PersonalityTraits"};
 };
 
 /******************************************************************************/

@@ -32,33 +32,48 @@
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
-// Standard headers go here
-#include <string>
-#include <string_view>
-
-// Geneva headers go here
-#include "geneva/oa/GAlgorithmPersonalityTraitsT.hpp"
-
 namespace Gem::Geneva::OptimizationAlgorithms {
 
 /******************************************************************************/
 /**
- * The conjugate gradient descent's personality traits: every individual only needs to know its
- * position in the population (starting point or difference-quotient child slot), which the
- * GPositionPersonalityTraits base provides; the GAlgorithmPersonalityTraitsT scaffold supplies the
- * shared boilerplate, so this class contributes only the algorithm's identity.
+ * A small mixin carrying the pareto-front tag used by the pareto (NSGA-II style)
+ * selection modes. It is shared by personality-traits classes that sit on
+ * different serialization base chains (the EA traits derive from
+ * GBaseParChildPersonalityTraits, the sep-CMA traits directly from
+ * GPersonalityTraits), so it is inherited ALONGSIDE the polymorphic chain as a
+ * plain, non-polymorphic mixin rather than spliced into either hierarchy.
+ *
+ * Deliberately not serialized here: each deriving class serializes the
+ * inherited is_on_pareto_front_ member itself under its historical NVP name
+ * (via its localMembers_() declaration), so archive layouts are unchanged by
+ * this unification.
  */
-class GConjugateGradientDescent_PersonalityTraits // NOLINT(cppcoreguidelines-special-member-functions)
-  : public GAlgorithmPersonalityTraitsT<GConjugateGradientDescent_PersonalityTraits> {
+class GParetoTag {
 public:
-    /** @brief An easy identifier for the class */
-    static const std::string nickname; // Initialized in the .cpp definition file
-    /** @brief The name emitted by name_() */
-    static constexpr std::string_view class_name{"GConjugateGradientDescent_PersonalityTraits"};
+    /**
+     * @brief Allows to check whether this individual lies on the current pareto front
+     * (only yields useful results after pareto-sorting in the owning algorithm).
+     * @return true if the individual is currently tagged as lying on the pareto front, false otherwise
+     */
+    [[nodiscard]] bool isOnParetoFront() const {
+        return is_on_pareto_front_;
+    }
+
+    /** @brief Allows to reset the pareto tag to "true" */
+    void resetParetoTag() {
+        is_on_pareto_front_ = true;
+    }
+
+    /** @brief Allows to specify that this individual does not lie on the pareto front of the current iteration */
+    void setIsNotOnParetoFront() {
+        is_on_pareto_front_ = false;
+    }
+
+protected:
+    /** @brief Whether the individual lies on the current pareto front (serialized by each deriving class) */
+    bool is_on_pareto_front_ = true;
 };
 
 /******************************************************************************/
 
 } /* namespace Gem::Geneva::OptimizationAlgorithms */
-
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::OptimizationAlgorithms::GConjugateGradientDescent_PersonalityTraits) // NOLINT

@@ -288,9 +288,8 @@ std::optional<target_type> environmentVariableAs(std::string const &var) {
             return {};
         }
 #else
-        const char *env_ptr = std::getenv(
-            var.c_str()
-        ); // NOLINT(concurrency-mt-unsafe) — called under lock; Geneva never calls putenv/setenv from threads
+        // NOLINTNEXTLINE(concurrency-mt-unsafe) -- called under lock; Geneva never calls putenv/setenv from threads
+        const char *env_ptr = std::getenv(var.c_str());
         if(env_ptr) {
             result_str = std::string(env_ptr);
         }
@@ -301,36 +300,6 @@ std::optional<target_type> environmentVariableAs(std::string const &var) {
     } // releases the lock
 
     return {Gem::Common::from_string<target_type>(trimWhitespace(result_str))};
-}
-
-/******************************************************************************/
-/**
- * @brief Null-safe delete, then sets the pointer to nullptr.
- *
- * @tparam T The pointee type
- * @param p Reference to the pointer to be deleted and reset to nullptr (modified in place)
- */
-template <typename T>
-void g_delete(T *&p) {
-    if(p) {
-        delete p;
-        p = nullptr;
-    }
-}
-
-/******************************************************************************/
-/**
- * @brief Null-safe array delete, then sets the pointer to nullptr.
- *
- * @tparam T The element type of the array
- * @param p Reference to the array pointer to be deleted and reset to nullptr (modified in place)
- */
-template <typename T>
-void g_array_delete(T *&p) {
-    if(p) {
-        delete[] p;
-        p = nullptr;
-    }
 }
 
 /******************************************************************************/
@@ -748,128 +717,6 @@ void copyCloneableObjectsContainer(
             it_to->T::load(*it_from);
         }
         to.resize(size_from);
-    }
-}
-
-/******************************************************************************/
-/**
- * @brief Copies a raw array into another raw array, allocating or reallocating
- * the destination as needed.
- *
- * Both size parameters are kept consistent; a null source frees the destination.
- *
- * @tparam T The element type
- * @param from The source array (may be nullptr only if n_from is 0)
- * @param to Reference to the destination array pointer (allocated/reallocated/freed in place)
- * @param n_from The number of elements in the source array
- * @param n_to Reference to the destination element count (updated to match n_from)
- * @throws geneva_exception on inconsistent pointer/size combinations
- */
-template <typename T>
-void copyArrays(T const *const from, T *&to, const std::size_t &n_from, std::size_t &n_to) {
-    if(nullptr == from && 0 != n_from) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In copyArrays(): from is null but n_from=" << n_from << '\n'
-        );
-    }
-    if(nullptr != from && 0 == n_from) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In copyArrays(): from is non-null but n_from=0" << '\n'
-        );
-    }
-    if(nullptr == to && 0 != n_to) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In copyArrays(): to is null but nTo=" << n_to << '\n'
-        );
-    }
-    if(nullptr != to && 0 == n_to) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In copyArrays(): to is non-null but nTo=0" << '\n'
-        );
-    }
-
-    if(nullptr == from) {
-        n_to = 0;
-        if(to) {
-            g_array_delete(to);
-        }
-        return;
-    }
-
-    if(n_from != n_to) {
-        if(to) {
-            g_array_delete(to);
-        }
-        to = new T[n_from];
-        n_to = n_from;
-    }
-
-    for(std::size_t i = 0; i < n_from; i++) {
-        to[i] = from[i];
-    }
-}
-
-/******************************************************************************/
-/**
- * @brief Deep-copies a raw array of shared_ptrs into another, allocating or
- * reallocating the destination as needed.
- *
- * Each destination slot receives a freshly constructed copy of the source pointee.
- *
- * @tparam T The pointee type
- * @param from The source array of shared_ptrs (may be nullptr only if size_from is 0)
- * @param to Reference to the destination array pointer (allocated/reallocated in place)
- * @param size_from The number of elements in the source array
- * @param size_to Reference to the destination element count (updated to match size_from)
- * @throws geneva_exception on inconsistent pointer/size combinations
- */
-template <typename T>
-void copySmartPointerArrays(
-    std::shared_ptr<T> const *const from,
-    std::shared_ptr<T> *&to,
-    const std::size_t &size_from,
-    std::size_t &size_to
-) {
-    if(nullptr == from && 0 != size_from) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In copySmartPointerArrays(): from is null but size_from=" << size_from << '\n'
-        );
-    }
-    if(nullptr != from && 0 == size_from) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In copySmartPointerArrays(): from is non-null but size_from=0" << '\n'
-        );
-    }
-    if(nullptr == to && 0 != size_to) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In copySmartPointerArrays(): to is null but size_to=" << size_to << '\n'
-        );
-    }
-    if(nullptr != to && 0 == size_to) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In copySmartPointerArrays(): to is non-null but size_to=0" << '\n'
-        );
-    }
-
-    if(size_from != size_to) {
-        for(std::size_t i = 0; i < size_to; i++) {
-            to[i].reset();
-        }
-        g_array_delete(to);
-        to = new std::shared_ptr<T>[size_from];
-        size_to = size_from;
-    }
-
-    for(std::size_t i = 0; i < size_to; i++) {
-        to[i] = std::make_shared<T>(*(from[i]));
     }
 }
 

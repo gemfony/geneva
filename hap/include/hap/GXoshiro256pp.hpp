@@ -54,6 +54,25 @@
 
 namespace Gem::Hap {
 
+namespace detail {
+/**
+ * @brief splitmix64 — seed expansion only.
+ *
+ * The one shared definition for every xoshiro256++ flavour (the scalar engine
+ * below and the SIMD variants in GXoshiro256ppSIMD.hpp expand their seeds
+ * through it).
+ *
+ * @param x In/out reference to the splitmix64 running state; advanced on each call
+ * @return The next splitmix64 output value
+ */
+inline std::uint64_t splitmix64(std::uint64_t &x) noexcept {
+    std::uint64_t z = (x += 0x9e3779b97f4a7c15ULL);
+    z = (z ^ (z >> 30)) * 0xbf58476d1ce4e5b9ULL;
+    z = (z ^ (z >> 27)) * 0x94d049bb133111ebULL;
+    return z ^ (z >> 31);
+}
+} // namespace detail
+
 /******************************************************************************/
 /**
  * xoshiro256++ — a std::uniform_random_bit_generator producing 64-bit values.
@@ -97,7 +116,7 @@ public:
      */
     void seed(result_type s) noexcept {
         std::uint64_t sm = s;
-        for (auto &word : s_) word = splitmix64(sm);
+        for (auto &word : s_) word = detail::splitmix64(sm);
     }
 
     /**
@@ -136,18 +155,6 @@ private:
      */
     static std::uint64_t rotl(std::uint64_t x, int k) noexcept {
         return std::rotl(x, k);
-    }
-
-    /**
-     * @brief splitmix64 — used only to expand the seed into the 256-bit state.
-     * @param x In/out reference to the splitmix64 running state; advanced on each call
-     * @return The next splitmix64 output value
-     */
-    static std::uint64_t splitmix64(std::uint64_t &x) noexcept {
-        std::uint64_t z = (x += 0x9e3779b97f4a7c15ULL);
-        z = (z ^ (z >> 30)) * 0xbf58476d1ce4e5b9ULL;
-        z = (z ^ (z >> 27)) * 0x94d049bb133111ebULL;
-        return z ^ (z >> 31);
     }
 
     std::uint64_t s_[4]{};

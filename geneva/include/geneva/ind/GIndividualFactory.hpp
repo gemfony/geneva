@@ -193,7 +193,8 @@ public:
                 try {
                     Derived::finalize(config_);
                 }
-                catch(...) { /* a destructor must not propagate exceptions */
+                // NOLINTNEXTLINE(bugprone-empty-catch) -- deliberate: a destructor must not propagate
+                catch(...) { /* nothing */
                 }
             }
         }

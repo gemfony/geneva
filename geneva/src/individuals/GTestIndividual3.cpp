@@ -193,7 +193,7 @@ std::vector<double> GTestIndividual3::evaluate() {
  *
  * @return A shared pointer to a float array of size 10 * GTI_DEF_NITEMS holding all parameter values
  */
-std::shared_ptr<float> GTestIndividual3::getPlainData() const {
+std::shared_ptr<float[]> GTestIndividual3::getPlainData() const {
     using namespace Gem::Geneva;
 
     // The flat genome stores the 10 doubles of each record contiguously, in the order
@@ -213,10 +213,10 @@ std::shared_ptr<float> GTestIndividual3::getPlainData() const {
     }
 #endif /* DEBUG */
 
-    // Note that we need to provide a deleter as we are dealing with an array. See e.g. http://stackoverflow.com/questions/13061979/shared-ptr-to-an-array-should-it-be-used
-    std::shared_ptr<float> result(new float[10 * GTI_DEF_NITEMS], [](float *p) { delete[] p; });
+    // The array-aware shared_ptr<float[]> uses delete[] by itself -- no custom deleter needed
+    std::shared_ptr<float[]> result(new float[10 * GTI_DEF_NITEMS]);
     for(std::size_t m = 0; m < 10 * GTI_DEF_NITEMS; m++) {
-        (result.get())[m] = Gem::Common::narrow<float>(par_vec[m]);
+        result[m] = Gem::Common::narrow<float>(par_vec[m]);
     }
 
     // Let the audience know
@@ -267,8 +267,8 @@ void GTestIndividual3::specificTestsNoFailureExpected_GUnitTests_() {
 
     { // Test that repeated extraction of an object's data results in the same output
         std::shared_ptr<GTestIndividual3> p;
-        std::shared_ptr<float> result_old;
-        std::shared_ptr<float> result_new;
+        std::shared_ptr<float[]> result_old;
+        std::shared_ptr<float[]> result_new;
 
         CHECK_NOTHROW(p = std::make_shared<GTestIndividual3>());
         CHECK_NOTHROW(result_old = p->getPlainData());

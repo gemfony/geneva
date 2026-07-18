@@ -53,41 +53,6 @@ namespace Gem::Geneva {
 
 /******************************************************************************/
 /**
- * Puts a Gem::Geneva::targetFunction item into a stream
- *
- * @param o The ostream the item should be added to
- * @param tF the item to be added to the stream
- * @return The std::ostream object used to add the item to
- */
-std::ostream &operator<<(std::ostream &o, const Gem::Geneva::targetFunction &tF) {
-    Gem::Common::ENUMBASETYPE tmp = std::to_underlying(tF);
-    o << tmp;
-    return o;
-}
-
-/******************************************************************************/
-/**
- * Reads a Gem::Geneva::targetFunction item from a stream
- *
- * @param i The stream the item should be read from
- * @param tF The item read from the stream
- * @return The std::istream object used to read the item from
- */
-std::istream &operator>>(std::istream &i, Gem::Geneva::targetFunction &tF) {
-    Gem::Common::ENUMBASETYPE tmp;
-    i >> tmp;
-
-#ifdef DEBUG
-    tF = Gem::Common::narrow<Gem::Geneva::targetFunction>(tmp);
-#else
-    tF = static_cast<Gem::Geneva::targetFunction>(tmp);
-#endif /* DEBUG */
-
-    return i;
-}
-
-/******************************************************************************/
-/**
  * The default constructor. Note that some data members
  * may be initialized in the class body.
  */

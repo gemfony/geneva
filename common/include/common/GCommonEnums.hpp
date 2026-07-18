@@ -48,6 +48,8 @@
 #include <istream>
 #include <ostream>
 #include <string>
+#include <type_traits>
+#include <utility>
 
 // Boost headers go here
 
@@ -87,6 +89,61 @@ using ENUMBASETYPE = std::uint16_t;
 
 /******************************************************************************/
 /**
+ * Opt-in numeric stream insertion/extraction for Geneva's enum classes (needed
+ * for streaming / Gem::Common::fromString<>).
+ *
+ * Nearly every Geneva enum streams as its underlying numeric value; the
+ * operator bodies used to be copy-pasted per enum across all libraries. An enum
+ * now opts in by specializing the marker variable template below (in namespace
+ * Gem::Common, right next to the enum's definition), and the two constrained
+ * operator templates that follow supply the one shared implementation. A
+ * namespace other than Gem::Common additionally re-exports the operators once
+ * via using-declarations so that ADL finds them for its own enums (see e.g.
+ * GPlotEnums.hpp).
+ *
+ * Enums with textual (non-numeric) streaming -- Gem::Common::tribool,
+ * Gem::Courtier::processingStatus -- simply do not opt in and keep their
+ * hand-written operators.
+ */
+template <typename enum_type>
+inline constexpr bool numeric_enum_io_v = false;
+
+/** @brief Satisfied by enum types that opted into numeric streaming via numeric_enum_io_v */
+template <typename enum_type>
+concept numeric_io_enum = std::is_enum_v<enum_type> && numeric_enum_io_v<enum_type>;
+
+/**
+ * @brief Writes an opted-in enum to a stream as its underlying numeric value
+ * @param o The output stream to write to
+ * @param x The enum value to be streamed out
+ * @return A reference to the output stream
+ */
+template <numeric_io_enum enum_type>
+std::ostream &operator<<(std::ostream &o, enum_type const &x) {
+    // The wide intermediate keeps a std::uint8_t-based enum printing as a
+    // number rather than as a single character
+    o << static_cast<std::int64_t>(std::to_underlying(x));
+    return o;
+}
+
+/**
+ * @brief Reads an opted-in enum from a stream as its underlying numeric value
+ * @param i The input stream to read from
+ * @param x The enum value to be filled from the stream
+ * @return A reference to the input stream
+ */
+template <numeric_io_enum enum_type>
+std::istream &operator>>(std::istream &i, enum_type &x) {
+    // Wide intermediate for the same reason as in operator<< (a std::uint8_t
+    // would otherwise be read as a single character)
+    std::int64_t tmp = 0;
+    i >> tmp;
+    x = static_cast<enum_type>(tmp);
+    return i;
+}
+
+/******************************************************************************/
+/**
  * This enum denotes different dimensions (used particularly by GDecoratorCollection
  */
 enum class dimensions : Gem::Common::ENUMBASETYPE {
@@ -96,21 +153,8 @@ enum class dimensions : Gem::Common::ENUMBASETYPE {
     Dim4 = 4
 };
 
-/**
- * @brief Puts a Gem::Common::dimensions into a stream. Needed for streaming / Gem::Common::fromString<>.
- * @param o The output stream to write to
- * @param x The dimensions value to be streamed out
- * @return A reference to the output stream
- */
-std::ostream &operator<<(std::ostream &o, Gem::Common::dimensions const &x);
-
-/**
- * @brief Reads a Gem::Common::dimensions item from a stream. Needed for streaming / Gem::Common::fromString<>.
- * @param i The input stream to read from
- * @param x The dimensions value to be filled from the stream
- * @return A reference to the input stream
- */
-std::istream &operator>>(std::istream &i, Gem::Common::dimensions &x);
+/** @brief dimensions streams as its underlying numeric value (see numeric_enum_io_v) */
+template <> inline constexpr bool numeric_enum_io_v<dimensions> = true;
 
 /******************************************************************************/
 /**
@@ -128,21 +172,8 @@ enum class sortOrder : Gem::Common::ENUMBASETYPE {
     HIGHERISBETTER = 1
 };
 
-/**
- * @brief Puts a Gem::Common::sortOrder into a stream. Needed for streaming / Gem::Common::fromString<>.
- * @param o The output stream to write to
- * @param x The sortOrder value to be streamed out
- * @return A reference to the output stream
- */
-std::ostream &operator<<(std::ostream &o, Gem::Common::sortOrder const &x);
-
-/**
- * @brief Reads a Gem::Common::sortOrder item from a stream. Needed for streaming / Gem::Common::fromString<>.
- * @param i The input stream to read from
- * @param x The sortOrder value to be filled from the stream
- * @return A reference to the input stream
- */
-std::istream &operator>>(std::istream &i, Gem::Common::sortOrder &x);
+/** @brief sortOrder streams as its underlying numeric value (see numeric_enum_io_v) */
+template <> inline constexpr bool numeric_enum_io_v<sortOrder> = true;
 
 /******************************************************************************/
 /**
@@ -159,21 +190,8 @@ enum class logType : Gem::Common::ENUMBASETYPE {
     EXIT = 7 ///< A deliberate, clean program exit with a chosen return code (see LOGEXIT)
 };
 
-/**
- * @brief Puts a Gem::Common::logType into a stream. Needed for streaming / Gem::Common::fromString<>.
- * @param o The output stream to write to
- * @param x The logType value to be streamed out
- * @return A reference to the output stream
- */
-std::ostream &operator<<(std::ostream &o, Gem::Common::logType const &x);
-
-/**
- * @brief Reads a Gem::Common::logType item from a stream. Needed for streaming / Gem::Common::fromString<>.
- * @param i The input stream to read from
- * @param x The logType value to be filled from the stream
- * @return A reference to the input stream
- */
-std::istream &operator>>(std::istream &i, Gem::Common::logType &x);
+/** @brief logType streams as its underlying numeric value (see numeric_enum_io_v) */
+template <> inline constexpr bool numeric_enum_io_v<logType> = true;
 
 /******************************************************************************/
 /**
@@ -219,21 +237,8 @@ enum class triboolStates : Gem::Common::ENUMBASETYPE {
  */
 std::ostream &operator<<(std::ostream &o, Gem::Common::tribool const &x);
 
-/**
- * @brief Puts a Gem::Common::triboolStates into a stream. Needed for streaming / Gem::Common::fromString<>.
- * @param o The output stream to write to
- * @param x The triboolStates value to be streamed out
- * @return A reference to the output stream
- */
-std::ostream &operator<<(std::ostream &o, Gem::Common::triboolStates const &x);
-
-/**
- * @brief Reads a Gem::Common::triboolStates item from a stream. Needed for streaming / Gem::Common::fromString<>.
- * @param i The input stream to read from
- * @param x The triboolStates value to be filled from the stream
- * @return A reference to the input stream
- */
-std::istream &operator>>(std::istream &i, Gem::Common::triboolStates &x);
+/** @brief triboolStates streams as its underlying numeric value (see numeric_enum_io_v) */
+template <> inline constexpr bool numeric_enum_io_v<triboolStates> = true;
 
 /******************************************************************************/
 /**
@@ -245,21 +250,8 @@ enum class serializationMode : Gem::Common::ENUMBASETYPE {
     BINARY = 2
 };
 
-/**
- * @brief Puts a Gem::Common::serializationMode into a stream. Needed for streaming / Gem::Common::fromString<>.
- * @param o The output stream to write to
- * @param x The serializationMode value to be streamed out
- * @return A reference to the output stream
- */
-std::ostream &operator<<(std::ostream &o, Gem::Common::serializationMode const &x);
-
-/**
- * @brief Reads a Gem::Common::serializationMode item from a stream. Needed for streaming / Gem::Common::fromString<>.
- * @param i The input stream to read from
- * @param x The serializationMode value to be filled from the stream
- * @return A reference to the input stream
- */
-std::istream &operator>>(std::istream &i, Gem::Common::serializationMode &x);
+/** @brief serializationMode streams as its underlying numeric value (see numeric_enum_io_v) */
+template <> inline constexpr bool numeric_enum_io_v<serializationMode> = true;
 
 /**
  * @brief Converts a serializationMode to a string representation for debugging purposes.
@@ -287,21 +279,8 @@ enum class expectation : Gem::Common::ENUMBASETYPE {
     INEQUALITY = 2 // at least one checked component differs
 };
 
-/**
- * @brief Puts a Gem::Common::expectation into a stream. Needed for streaming / Gem::Common::fromString<>.
- * @param o The output stream to write to
- * @param x The expectation value to be streamed out
- * @return A reference to the output stream
- */
-std::ostream &operator<<(std::ostream &o, Gem::Common::expectation const &x);
-
-/**
- * @brief Reads a Gem::Common::expectation item from a stream. Needed for streaming / Gem::Common::fromString<>.
- * @param i The input stream to read from
- * @param x The expectation value to be filled from the stream
- * @return A reference to the input stream
- */
-std::istream &operator>>(std::istream &i, Gem::Common::expectation &x);
+/** @brief expectation streams as its underlying numeric value (see numeric_enum_io_v) */
+template <> inline constexpr bool numeric_enum_io_v<expectation> = true;
 
 /******************************************************************************/
 /**

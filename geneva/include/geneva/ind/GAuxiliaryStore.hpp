@@ -199,11 +199,13 @@ public:
     GAuxiliaryStore &operator=(GAuxiliaryStore &&) = default;
 
     /***************************************************************************/
-    // Personality (the per-individual OA object; part of the genome's serialized/compared identity).
+    // Personality (the per-individual OA object). Like the rest of the scratch it is serialized
+    // (checkpoints resume the evolved per-individual state) but deliberately NOT part of the
+    // compared identity -- see the class comment above.
 
     /**
      * @brief Direct access to the personality-traits slot. Returned by reference so the individual's
-     * serialization / load / compare machinery (make_cloneable_member) can drive it directly; the
+     * serialization / clone machinery can drive it directly; the
      * explicit object parameter lets its constness flow (a const store yields a const reference).
      *
      * @return A reference to the personality-traits shared pointer slot (const iff *this is const)

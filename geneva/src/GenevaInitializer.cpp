@@ -30,16 +30,22 @@
 #include "geneva/GenevaInitializer.hpp"
 #include "hap/GRandomFactory.hpp"
 
+#include <tuple>
+
 namespace Gem::Geneva {
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * @brief The default constructor; initializes the Hap random-number factory.
+ * @brief The default constructor; brings the Hap random-number factory singleton online.
+ *
+ * Touching the singleton is all that is needed -- the factory's producer
+ * threads start lazily on the first container request.
  */
 GenevaInitializer::GenevaInitializer() {
-    Gem::Hap::randomFactory()->init();
+    // Deliberately discard the handle: constructing the singleton is the point
+    std::ignore = Gem::Hap::randomFactory();
 }
 
 /******************************************************************************/

@@ -265,7 +265,8 @@ public:
                 try {
                     per_item(*elem);
                 }
-                catch(...) { /* the element records its own failure; swallow so the join never hangs */
+                // NOLINTNEXTLINE(bugprone-empty-catch) -- deliberate: the element records its own failure
+                catch(...) { /* swallow so the join never hangs */
                 }
                 latch->count_down();
             });

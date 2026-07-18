@@ -63,17 +63,8 @@ class GEvolutionaryAlgorithmFactory // NOLINT(cppcoreguidelines-special-member-f
 public:
     /** @brief The default constructor */
     GEvolutionaryAlgorithmFactory() = default;
-    /** @brief Initialization with the name of the config file. @param config_file Path to the JSON config */
-    explicit GEvolutionaryAlgorithmFactory(std::filesystem::path const &config_file)
-      : Base(config_file) { /* nothing */ }
-    /** @brief Initialization with the config file and a content creator.
-     *  @param config_file Name of the configuration file
-     *  @param content_creator_ptr A factory that produces the individuals populating the algorithm */
-    GEvolutionaryAlgorithmFactory(
-        const std::string &config_file,
-        std::shared_ptr<Gem::Common::GFactoryT<gen::GOptimizableEntity>> content_creator_ptr
-    )
-      : Base(config_file, content_creator_ptr) { /* nothing */ }
+    // Inherit the config-file / (config-file, content-creator) constructors from the scaffold
+    using Base::Base;
     /** @brief The copy constructor. @param The object to be copied */
     GEvolutionaryAlgorithmFactory(const GEvolutionaryAlgorithmFactory &) = default;
     /** @brief The destructor */

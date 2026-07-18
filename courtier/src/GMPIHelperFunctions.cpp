@@ -82,6 +82,8 @@ std::string mpiErrorString(int mpiError) {
     return std::string{errorMessage};
 }
 
+namespace {
+
 /**
  * Waits for the completion of an async MPI request by checking in a cyclic manner as long as a predicate returns true
  * @param request the request to wait on
@@ -118,6 +120,54 @@ MPICompletionStatus waitForRequestCompletionWhile(
     // return appropriate result
     return MPICompletionStatus{.statusCode=MPIStatusCode::STOPPED, .mpiStatus=status};
 }
+
+/**
+ * Starts an async symmetric collective (MPI_Iscatter or MPI_Igather -- their signatures are
+ * identical, with sendCount elements travelling per process in either direction) and blocks
+ * until the request has completed or a predicate returns false. The one shared implementation
+ * behind mpiScatterWhile() / mpiGatherWhile().
+ *
+ * @param collective The collective to start (MPI_Iscatter or MPI_Igather)
+ * @param sendBuf The buffer data is sent from (see the public wrappers for the per-direction meaning)
+ * @param sendCount The number of elements travelling per process
+ * @param recvBuf The buffer data is received into
+ * @param type The MPI datatype of the elements
+ * @param runWhile Predicate polled while waiting; waiting is aborted once it returns false
+ * @param root The rank of the root process of the collective
+ * @param comm The MPI communicator over which the collective is performed
+ * @param pollIntervalMSec The time in milliseconds between completion checks
+ * @return The completion status of the operation when it terminated
+ */
+MPICompletionStatus mpiCollectiveWhile(
+    decltype(&MPI_Iscatter) collective,
+    const void *sendBuf,
+    const std::uint32_t &sendCount,
+    void *recvBuf,
+    MPI_Datatype type,
+    const std::function<bool()> &runWhile,
+    const std::uint32_t &root,
+    MPI_Comm comm,
+    const std::uint64_t &pollIntervalMSec
+) {
+    MPI_Request requestHandle{};
+
+    collective(
+        sendBuf,
+        static_cast<int>(sendCount), // elements sent per process
+        type,
+        recvBuf,
+        static_cast<int>(sendCount), // elements received per process
+        type,
+        static_cast<int>(root), // root rank
+        comm,
+        &requestHandle
+    );
+
+    return waitForRequestCompletionWhile(requestHandle, pollIntervalMSec, runWhile);
+}
+
+} // anonymous namespace
+
 /**
  * Performs an async scatter and blocks until the request has completed or a predicate returns false
  *
@@ -141,21 +191,9 @@ MPICompletionStatus mpiScatterWhile(
     MPI_Comm comm = MPI_COMM_WORLD,
     const std::uint64_t &pollIntervalMSec = 1
 ) {
-    MPI_Request requestHandle{};
-
-    MPI_Iscatter(
-        sendBuf,                     // data to scatter (only meaningful on root)
-        static_cast<int>(sendCount), // elements sent to each process
-        type,
-        recvBuf,                     // buffer for this process's slice
-        static_cast<int>(sendCount), // elements received by this process
-        type,
-        static_cast<int>(root), // root rank
-        comm,
-        &requestHandle
+    return mpiCollectiveWhile(
+        &MPI_Iscatter, sendBuf, sendCount, recvBuf, type, runWhile, root, comm, pollIntervalMSec
     );
-
-    return waitForRequestCompletionWhile(requestHandle, pollIntervalMSec, runWhile);
 }
 
 /**
@@ -181,21 +219,9 @@ MPICompletionStatus mpiGatherWhile(
     MPI_Comm comm = MPI_COMM_WORLD,
     const std::uint64_t &pollIntervalMSec = 1
 ) {
-    MPI_Request requestHandle{};
-
-    MPI_Igather(
-        sendBuf,                     // this process's contribution to the gather
-        static_cast<int>(sendCount), // elements sent by each process
-        type,
-        recvBuf,                     // buffer to gather into (only meaningful on root)
-        static_cast<int>(sendCount), // elements received from each process
-        type,
-        static_cast<int>(root), // root rank
-        comm,
-        &requestHandle
+    return mpiCollectiveWhile(
+        &MPI_Igather, sendBuf, sendCount, recvBuf, type, runWhile, root, comm, pollIntervalMSec
     );
-
-    return waitForRequestCompletionWhile(requestHandle, pollIntervalMSec, runWhile);
 }
 
 } /* namespace Gem::Courtier */

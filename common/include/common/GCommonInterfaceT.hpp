@@ -450,17 +450,17 @@ public:
     template <typename clone_type>
         requires std::derived_from<clone_type, g_class_type>
     std::unique_ptr<clone_type> clone_unique() const {
-        g_class_type *raw = this->clone_();
-        auto *converted = dynamic_cast<clone_type *>(raw);
-        if(converted == nullptr) {
-            delete raw;
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GCommonInterfaceT<>::clone_unique<clone_type>():" << '\n'
-                << "Invalid conversion to type " << typeid(clone_type).name() << '\n'
-            );
+        // Take ownership immediately, so the clone is released on every exit path (Inv 21)
+        std::unique_ptr<g_class_type> raw(this->clone_());
+        if(auto *converted = dynamic_cast<clone_type *>(raw.get()); converted != nullptr) {
+            raw.release(); // ownership passes to the converted pointer
+            return std::unique_ptr<clone_type>(converted);
         }
-        return std::unique_ptr<clone_type>(converted);
+        throw geneva_exception(
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+            << "In GCommonInterfaceT<>::clone_unique<clone_type>():" << '\n'
+            << "Invalid conversion to type " << typeid(clone_type).name() << '\n'
+        );
     }
 
     /***************************************************************************/

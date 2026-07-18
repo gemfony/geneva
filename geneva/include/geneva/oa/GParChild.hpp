@@ -286,8 +286,6 @@ protected:
     void markParents();
     /** @brief This helper function marks children as children */
     void markChildren();
-    /** @brief This helper function lets all individuals know about their position in the population. */
-    void markIndividualPositions();
 
     /** @brief Reconciles the population after a job submission: admits late (asynchronous) returns,
      *  re-orders parents to the front, refills to the nominal size with clones, and re-marks

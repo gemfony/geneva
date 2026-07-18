@@ -233,13 +233,5 @@ std::shared_ptr<GPersonalityTraits> GRandomSearch::getPersonalityTraits_() const
 }
 
 /******************************************************************************/
-/**
- * @brief Gives individuals an opportunity to update their internal structures. A no-op for random search.
- */
-void GRandomSearch::actOnStalls_() {
-    /* nothing */
-}
-
-/******************************************************************************/
 
 } /* namespace Gem::Geneva::OptimizationAlgorithms */

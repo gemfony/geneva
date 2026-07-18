@@ -175,24 +175,27 @@ using CORRELATION_ID_TYPE = std::uint64_t;
 using SUBMISSION_UUID_TYPE = std::array<std::uint64_t, 2>;
 
 /******************************************************************************/
-
-/** @brief Puts a Gem::Courtier::networked_consumer_payload_command into a stream. Needed for streaming / Gem::Common::fromString<> */
-std::ostream &
-operator<<(std::ostream &o, const Gem::Courtier::networked_consumer_payload_command &ps);
-/** @brief Reads a Gem::Courtier::networked_consumer_payload_command item from a stream. Needed for streaming / Gem::Common::fromString<> */
-std::istream &
-operator>>(std::istream &i, Gem::Courtier::networked_consumer_payload_command &ps);
+// networked_consumer_payload_command and consumerType stream as their underlying
+// numeric values through the shared machinery in GCommonEnums.hpp (marker
+// specializations after the namespace end). Re-export the operators so ADL
+// finds them for this namespace's enums. processingStatus keeps a hand-written
+// pair: its insertion operator deliberately prints the enumerator NAME for
+// diagnostics.
+using Gem::Common::operator<<;
+using Gem::Common::operator>>;
 
 /** @brief Puts a Gem::Courtier::processingStatus into a stream. Needed for streaming / Gem::Common::fromString<> */
 std::ostream &operator<<(std::ostream &o, const Gem::Courtier::processingStatus &srm);
 /** @brief Reads a Gem::Courtier::processingStatus item from a stream. Needed for streaming / Gem::Common::fromString<> */
 std::istream &operator>>(std::istream &i, Gem::Courtier::processingStatus &srm);
 
-/** @brief Puts a Gem::Courtier::consumerType into a stream. Needed for streaming / Gem::Common::fromString<> */
-std::ostream &operator<<(std::ostream &o, const Gem::Courtier::consumerType &bm);
-/** @brief Reads a Gem::Courtier::consumerType item from a stream. Needed for streaming / Gem::Common::fromString<> */
-std::istream &operator>>(std::istream &i, Gem::Courtier::consumerType &bm);
-
 /******************************************************************************/
 
 } /* namespace Gem::Courtier */
+
+/******************************************************************************/
+// Numeric streaming opt-in (see numeric_enum_io_v in GCommonEnums.hpp)
+namespace Gem::Common {
+template <> inline constexpr bool numeric_enum_io_v<Gem::Courtier::networked_consumer_payload_command> = true;
+template <> inline constexpr bool numeric_enum_io_v<Gem::Courtier::consumerType> = true;
+} /* namespace Gem::Common */

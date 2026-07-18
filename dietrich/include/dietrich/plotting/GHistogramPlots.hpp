@@ -47,6 +47,21 @@ class GHistogram1D : public GDataCollector1T<double> {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
+    // Defined ahead of serialize(): a deduced-return-type member must be
+    // defined before its first use in this class (serialize_members below).
+    /**
+	 * @brief Single declaration of this class'es local data members, used by load_() and compare_()
+	 * @return A tuple of named local members of this object
+	 */
+    template <typename Self>
+    auto localMembers_(this Self &self) {
+        return std::make_tuple(
+            make_member("n_bins_x_", self.n_bins_x_),
+            make_member("min_x_", self.min_x_),
+            make_member("max_x_", self.max_x_)
+        );
+    }
+
     template <typename Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         using boost::serialization::make_nvp;
@@ -54,8 +69,9 @@ class GHistogram1D : public GDataCollector1T<double> {
         ar &make_nvp(
             "GDataCollector1T_double",
             boost::serialization::base_object<GDataCollector1T<double>>(*this)
-        ) & BOOST_SERIALIZATION_NVP(n_bins_x_) &
-            BOOST_SERIALIZATION_NVP(min_x_) & BOOST_SERIALIZATION_NVP(max_x_);
+        );
+        // ... and then our own data, derived from the single localMembers_() declaration
+        Gem::Common::serialize_members(ar, this->localMembers_());
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -159,19 +175,6 @@ protected:
     std::string drawingArguments(bool is_secondary) const override;
 
     /**
-	 * @brief Single declaration of this class'es local data members, used by load_() and compare_()
-	 * @return A tuple of named local members of this object
-	 */
-    template <typename Self>
-    auto localMembers_(this Self &self) {
-        return std::make_tuple(
-            make_member("n_bins_x_", self.n_bins_x_),
-            make_member("min_x_", self.min_x_),
-            make_member("max_x_", self.max_x_)
-        );
-    }
-
-    /**
 	 * @brief Loads the data of another object
 	 * @param cp A pointer to another GHistogram1D object, camouflaged as a GBasePlotter
 	 */
@@ -233,6 +236,21 @@ class GHistogram1I : public GDataCollector1T<std::int32_t> {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
+    // Defined ahead of serialize(): a deduced-return-type member must be
+    // defined before its first use in this class (serialize_members below).
+    /**
+	 * @brief Single declaration of this class'es local data members, used by load_() and compare_()
+	 * @return A tuple of named local members of this object
+	 */
+    template <typename Self>
+    auto localMembers_(this Self &self) {
+        return std::make_tuple(
+            make_member("n_bins_x_", self.n_bins_x_),
+            make_member("min_x_", self.min_x_),
+            make_member("max_x_", self.max_x_)
+        );
+    }
+
     template <typename Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         using boost::serialization::make_nvp;
@@ -240,8 +258,9 @@ class GHistogram1I : public GDataCollector1T<std::int32_t> {
         ar &make_nvp(
             "GDataCollector1T_int32_t",
             boost::serialization::base_object<GDataCollector1T<std::int32_t>>(*this)
-        ) & BOOST_SERIALIZATION_NVP(n_bins_x_) &
-            BOOST_SERIALIZATION_NVP(min_x_) & BOOST_SERIALIZATION_NVP(max_x_);
+        );
+        // ... and then our own data, derived from the single localMembers_() declaration
+        Gem::Common::serialize_members(ar, this->localMembers_());
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -305,18 +324,6 @@ public:
     [[nodiscard]] GPlotSpec plotSpec() const override;
 
 protected:
-    /**
-	 * @brief Single declaration of this class'es local data members, used by load_() and compare_()
-	 * @return A tuple of named local members of this object
-	 */
-    template <typename Self>
-    auto localMembers_(this Self &self) {
-        return std::make_tuple(
-            make_member("n_bins_x_", self.n_bins_x_),
-            make_member("min_x_", self.min_x_),
-            make_member("max_x_", self.max_x_)
-        );
-    }
 
     /**
 	 * @brief Loads the data of another object
@@ -407,98 +414,31 @@ private:
 
 /******************************************************************************/
 /**
- * Specialization of projectX for <x_type, y_type> = <double, double>, that will return a
- * GHistogram1D object, wrapped into a std::shared_ptr<GHistogram1D>. In case of a
- * default-constructed range, the function will attempt to determine suitable parameters
- * for the range settings.
- *
- * @param n_bins_x The number of bins of the histogram
- * @param range_x The minimum and maximum boundaries of the histogram
- * @return A shared pointer to a GHistogram1D holding the x-projection of the data
- */
-template <>
-template <>
-inline std::shared_ptr<GDataCollectorT<double>> GDataCollectorT<double, double>::project<0>(
-    std::size_t n_bins_x,
-    std::tuple<double, double> range_x
-) const {
-    std::tuple<double, double> my_range_x;
-    std::tuple<double, double> default_range;
-    if(range_x == default_range) {
-        // Find out about the minimum and maximum values in the data
-        std::tuple<double, double, double, double> extremes = getMinMax(this->asTuples());
-        my_range_x = std::tuple<double, double>(std::get<0>(extremes), std::get<1>(extremes));
-    }
-    else {
-        my_range_x = range_x;
-    }
-
-    // Construct the result object
-    std::shared_ptr<GHistogram1D> result(new GHistogram1D(n_bins_x, my_range_x));
-    result->setXAxisLabel(this->xAxisLabel());
-    result->setYAxisLabel("Number of entries");
-    result->setPlotLabel(this->plotLabel() + " / x-projection");
-
-    // Add data to the object
-    for(auto const &v : this->template column<0>()) {
-        (*result) & v;
-    }
-
-    // Return the data
-    return result;
-}
-
-/******************************************************************************/
-/**
- * Specialization of projectY for <x_type, y_type> = <double, double>, that will return a
- * GHistogram1D object, wrapped into a std::shared_ptr<GHistogram1D>. In case of a
- * default-constructed range, the function will attempt to determine suitable parameters
- * for the range settings.
- *
- * @param n_bins_y The number of bins of the histogram
- * @param range_y The minimum and maximum boundaries of the histogram
- * @return A shared pointer to a GHistogram1D holding the y-projection of the data
- */
-template <>
-template <>
-inline std::shared_ptr<GDataCollectorT<double>> GDataCollectorT<double, double>::project<1>(
-    std::size_t n_bins_y,
-    std::tuple<double, double> range_y
-) const {
-    std::tuple<double, double> my_range_y;
-    std::tuple<double, double> default_range;
-    if(range_y == default_range) {
-        // Find out about the minimum and maximum values in the data
-        std::tuple<double, double, double, double> extremes = getMinMax(this->asTuples());
-        my_range_y = std::tuple<double, double>(std::get<2>(extremes), std::get<3>(extremes));
-    }
-    else {
-        my_range_y = range_y;
-    }
-
-    // Construct the result object
-    std::shared_ptr<GHistogram1D> result(new GHistogram1D(n_bins_y, my_range_y));
-    result->setXAxisLabel(this->yAxisLabel());
-    result->setYAxisLabel("Number of entries");
-    result->setPlotLabel(this->plotLabel() + " / y-projection");
-
-    // Add data to the object
-    for(auto const &v : this->template column<1>()) {
-        (*result) & v;
-    }
-
-    // Return the data
-    return result;
-}
-
-/******************************************************************************/
-/**
  * A wrapper for ROOT's TH2D class (2-d double data). This will result in a
  * 3D plot.
  */
 class GHistogram2D : public GDataCollector2T<double, double> {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
+
+    // Defined ahead of serialize(): a deduced-return-type member must be
+    // defined before its first use in this class (serialize_members below).
+    /**
+	 * @brief Single declaration of this class'es local data members, used by load_() and compare_()
+	 * @return A tuple of named local members of this object
+	 */
+    template <typename Self>
+    auto localMembers_(this Self &self) {
+        return std::make_tuple(
+            make_member("n_bins_x_", self.n_bins_x_),
+            make_member("n_bins_y_", self.n_bins_y_),
+            make_member("min_x_", self.min_x_),
+            make_member("max_x_", self.max_x_),
+            make_member("min_y_", self.min_y_),
+            make_member("max_y_", self.max_y_),
+            make_member("dropt_", self.dropt_)
+        );
+    }
 
     template <typename Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
@@ -507,10 +447,9 @@ class GHistogram2D : public GDataCollector2T<double, double> {
         ar &make_nvp(
             "GDataCollector2T_double_double",
             boost::serialization::base_object<GDataCollector2T<double, double>>(*this)
-        ) & BOOST_SERIALIZATION_NVP(n_bins_x_) &
-            BOOST_SERIALIZATION_NVP(n_bins_y_) & BOOST_SERIALIZATION_NVP(min_x_) &
-            BOOST_SERIALIZATION_NVP(max_x_) & BOOST_SERIALIZATION_NVP(min_y_) &
-            BOOST_SERIALIZATION_NVP(max_y_) & BOOST_SERIALIZATION_NVP(dropt_);
+        );
+        // ... and then our own data, derived from the single localMembers_() declaration
+        Gem::Common::serialize_members(ar, this->localMembers_());
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -655,23 +594,6 @@ protected:
 	 * @return The drawing arguments to be passed to ROOT's Draw() call
 	 */
     std::string drawingArguments(bool is_secondary) const override;
-
-    /**
-	 * @brief Single declaration of this class'es local data members, used by load_() and compare_()
-	 * @return A tuple of named local members of this object
-	 */
-    template <typename Self>
-    auto localMembers_(this Self &self) {
-        return std::make_tuple(
-            make_member("n_bins_x_", self.n_bins_x_),
-            make_member("n_bins_y_", self.n_bins_y_),
-            make_member("min_x_", self.min_x_),
-            make_member("max_x_", self.max_x_),
-            make_member("min_y_", self.min_y_),
-            make_member("max_y_", self.max_y_),
-            make_member("dropt_", self.dropt_)
-        );
-    }
 
     /**
 	 * @brief Loads the data of another object

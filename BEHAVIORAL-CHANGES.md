@@ -134,13 +134,33 @@ are in `CHANGES` and `INSTALL`; this file is the practical upgrade guide.
   toolchain-compatibility fingerprint; an incompatible module is rejected at load with a
   clear diagnostic.
 
-## 7. Renames
+## 7. Renames and small API removals
 
 - **The vestigial "Flat" qualifier was dropped from the genome layer** (source-breaking;
   update any references to the old `*Flat*` names).
 - **The standalone gradient descent ("gd") is gone.** Plain gradient descent survives as
   the steepest-descent (β = 0) mode of the conjugate gradient descent (`cgd`);
   `GGradientDescent_PersonalityTraits` was removed with it.
+- **`GRandomFactory::init()` was removed.** It had been an empty formality for a long
+  time: constructing the factory singleton (`Gem::Hap::randomFactory()`) is all that is
+  needed, and the producer threads start lazily on the first container request. Drop the
+  call; `finalize()` is unchanged.
+- **The `execMode` enum is gone.** It was the selector of the removed per-algorithm
+  broker parallelization model; under the one-consumer model the choice is simply which
+  consumer the process registers. The direct-mode examples/benchmark keep their numeric
+  `--parallelizationMode 0|1|2` command-line option (now a plain integer).
+- **A custom optimization algorithm no longer has to override `actOnStalls_()`.** The
+  hook now has an empty default on `GOptimizationAlgorithmBase`; override it only when
+  the algorithm actually reacts to a stall (as the parent-child EA base does).
+- **Geneva's enums stream through one shared, opt-in operator template**
+  (`Gem::Common::numeric_enum_io_v` in `GCommonEnums.hpp`) instead of per-enum
+  hand-written `operator<<`/`operator>>` pairs. The textual form (the underlying
+  number) is unchanged, so configuration files and archives are unaffected; only code
+  that took the address of one of the old operator functions needs adjusting. A
+  user-defined enum can opt into the same machinery by specializing the marker.
+- **dietrich: `project<I>()`/`projectX..W()` on a non-all-double collector is now a
+  compile-time error** (it used to compile and throw at run time), and the projections
+  are available for every axis of every all-double collector arity.
 
 ## 8. Checkpointing
 

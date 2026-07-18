@@ -80,37 +80,6 @@ enum class SmallEnum : std::uint8_t {
 
 } // namespace
 
-// --- g_delete ------------------------------------------------------------
-
-TEST_CASE("g_delete: deletes and nullifies a non-null pointer", "[common][helper][g_delete]") {
-    int *p = new int(42);
-    Gem::Common::g_delete(p);
-    REQUIRE(p == nullptr);
-}
-
-TEST_CASE("g_delete: null pointer is a no-op", "[common][helper][g_delete]") {
-    int *p = nullptr;
-    REQUIRE_NOTHROW(Gem::Common::g_delete(p));
-    REQUIRE(p == nullptr);
-}
-
-// --- g_array_delete ------------------------------------------------------
-
-TEST_CASE(
-    "g_array_delete: deletes and nullifies a non-null array pointer",
-    "[common][helper][g_array_delete]"
-) {
-    int *p = new int[5]{1, 2, 3, 4, 5};
-    Gem::Common::g_array_delete(p);
-    REQUIRE(p == nullptr);
-}
-
-TEST_CASE("g_array_delete: null pointer is a no-op", "[common][helper][g_array_delete]") {
-    int *p = nullptr;
-    REQUIRE_NOTHROW(Gem::Common::g_array_delete(p));
-    REQUIRE(p == nullptr);
-}
-
 // --- ptrDifferenceCheck --------------------------------------------------
 
 TEST_CASE(
@@ -254,64 +223,6 @@ TEST_CASE("vecToString: integer vector formats correctly", "[common][helper][vec
 
 TEST_CASE("vecToString: single-element vector", "[common][helper][vecToString]") {
     REQUIRE(Gem::Common::vecToString(std::vector<int>{42}) == "42 ");
-}
-
-// --- copyArrays ----------------------------------------------------------
-
-TEST_CASE("copyArrays: copies values correctly", "[common][helper][copyArrays]") {
-    const int from_arr[] = {10, 20, 30};
-    const int *from = from_arr;
-    const std::size_t nFrom = 3;
-    int *to = nullptr;
-    std::size_t nTo = 0;
-
-    Gem::Common::copyArrays(from, to, nFrom, nTo);
-
-    REQUIRE(nTo == 3);
-    REQUIRE(to[0] == 10);
-    REQUIRE(to[1] == 20);
-    REQUIRE(to[2] == 30);
-
-    Gem::Common::g_array_delete(to);
-}
-
-TEST_CASE("copyArrays: null source clears destination", "[common][helper][copyArrays]") {
-    int *to = new int[3]{1, 2, 3};
-    std::size_t nTo = 3;
-
-    Gem::Common::copyArrays<int>(nullptr, to, 0, nTo);
-
-    REQUIRE(nTo == 0);
-    REQUIRE(to == nullptr);
-}
-
-TEST_CASE("copyArrays: reallocates when sizes differ", "[common][helper][copyArrays]") {
-    const int from_arr[] = {7, 8};
-    const int *from = from_arr;
-    const std::size_t nFrom = 2;
-    int *to = new int[5]{1, 2, 3, 4, 5};
-    std::size_t nTo = 5;
-
-    Gem::Common::copyArrays(from, to, nFrom, nTo);
-
-    REQUIRE(nTo == 2);
-    REQUIRE(to[0] == 7);
-    REQUIRE(to[1] == 8);
-
-    Gem::Common::g_array_delete(to);
-}
-
-TEST_CASE("copyArrays: null from with nFrom>0 throws", "[common][helper][copyArrays]") {
-    int *to = nullptr;
-    std::size_t nTo = 0;
-    REQUIRE_THROWS_AS((Gem::Common::copyArrays<int>(nullptr, to, 1, nTo)), geneva_exception);
-}
-
-TEST_CASE("copyArrays: non-null from with nFrom=0 throws", "[common][helper][copyArrays]") {
-    const int x = 1;
-    int *to = nullptr;
-    std::size_t nTo = 0;
-    REQUIRE_THROWS_AS((Gem::Common::copyArrays(&x, to, 0, nTo)), geneva_exception);
 }
 
 // --- splitStringT (single separator) -------------------------------------

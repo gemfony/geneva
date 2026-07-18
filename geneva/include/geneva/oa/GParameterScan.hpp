@@ -906,8 +906,6 @@ private:
     /** @brief Retrieve a GPersonalityTraits object belonging to this algorithm
      *  @return A shared_ptr to a personality-traits object for the parameter scan */
     std::shared_ptr<GPersonalityTraits> getPersonalityTraits_() const override;
-    /** @brief Gives individuals an opportunity to update their internal structures */
-    void actOnStalls_() override;
 
     /***************************************************************************/
     /**

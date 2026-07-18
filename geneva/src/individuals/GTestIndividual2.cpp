@@ -51,41 +51,6 @@ namespace Gem::Geneva::Individuals {
 
 /******************************************************************************/
 /**
- * @brief Puts a Gem::Geneva::Individuals::PERFOBJECTTYPE item into a stream
- *
- * @param o The ostream the item should be added to
- * @param lt the item to be added to the stream
- * @return The std::ostream object used to add the item to
- */
-std::ostream &operator<<(std::ostream &o, const Gem::Geneva::Individuals::PERFOBJECTTYPE &lt) {
-    auto tmp = std::to_underlying(lt);
-    o << tmp;
-    return o;
-}
-
-/******************************************************************************/
-/**
- * @brief Reads a Gem::Geneva::Individuals::PERFOBJECTTYPE item from a stream
- *
- * @param i The stream the item should be read from
- * @param lt The item read from the stream
- * @return The std::istream object used to read the item from
- */
-std::istream &operator>>(std::istream &i, Gem::Geneva::Individuals::PERFOBJECTTYPE &lt) {
-    Gem::Common::ENUMBASETYPE tmp = 0;
-    i >> tmp;
-
-#ifdef DEBUG
-    lt = Gem::Common::narrow<Gem::Geneva::Individuals::PERFOBJECTTYPE>(tmp);
-#else
-    lt = static_cast<Gem::Geneva::Individuals::PERFOBJECTTYPE>(tmp);
-#endif /* DEBUG */
-
-    return i;
-}
-
-/******************************************************************************/
-/**
  * @brief The default constructor -- private, as it is only needed for (de-)serialization purposes
  */
 GTestIndividual2::GTestIndividual2() { /* nothing */

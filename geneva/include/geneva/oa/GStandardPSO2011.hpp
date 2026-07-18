@@ -282,8 +282,6 @@ private:
     /** @brief Resizes the population to the desired level and does some error checks */
     void adjustPopulation_() override;
 
-    /** @brief Gives individuals an opportunity to update their internal structures */
-    void actOnStalls_() override;
 
     /***************************************************************************/
     // Algorithm-internal helpers

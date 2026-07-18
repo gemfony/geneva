@@ -71,12 +71,20 @@ enum class targetFunction : Gem::Common::ENUMBASETYPE {
     NOISYPARABOLA = 1
 };
 
-// Make sure targetFunction can be streamed
-/** @brief Puts a Gem::Geneva::targetFunction into a stream. Needed for streaming / Gem::Common::fromString<> */
-std::ostream &operator<<(std::ostream &, const Gem::Geneva::targetFunction &);
+// Numeric streaming opt-in for targetFunction; must precede its first streaming
+// use (see numeric_enum_io_v in GCommonEnums.hpp).
+} /* namespace Geneva */
+} /* namespace Gem */
+namespace Gem::Common {
+template <> inline constexpr bool numeric_enum_io_v<Gem::Geneva::targetFunction> = true;
+} /* namespace Gem::Common */
+namespace Gem {
+namespace Geneva {
 
-/** @brief Reads a Gem::Geneva::targetFunction from a stream. Needed for streaming / Gem::Common::fromString<> */
-std::istream &operator>>(std::istream &, Gem::Geneva::targetFunction &);
+// targetFunction streams as its underlying numeric value through the shared
+// machinery in GCommonEnums.hpp (marker specialization at the end of this
+// header); the operators are already re-exported into Gem::Geneva by
+// GOptimizationEnums.hpp.
 
 /******************************************************************************/
 // A number of default settings for the factory

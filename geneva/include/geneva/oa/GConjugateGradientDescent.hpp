@@ -36,6 +36,7 @@
 #include <cstdint>
 #include <iosfwd>
 #include <memory>
+#include <span>
 #include <tuple>
 #include <vector>
 
@@ -76,23 +77,6 @@ enum class gradientMethod : std::uint8_t {
 };
 
 /**
- * @brief Streams a gradientMethod (as its underlying integer); required by the comparison framework.
- *
- * @param std::ostream & The output stream to write to
- * @param gradientMethod The search-direction rule to serialize
- * @return A reference to the output stream after writing
- */
-std::ostream &operator<<(std::ostream &o, gradientMethod gm);
-/**
- * @brief Reads a gradientMethod from a stream.
- *
- * @param std::istream & The input stream to read from
- * @param gradientMethod & The search-direction rule to populate from the stream
- * @return A reference to the input stream after reading
- */
-std::istream &operator>>(std::istream &i, gradientMethod &gm);
-
-/**
  * Selects whether (and how thoroughly) a MINUIT-style parameter-error estimate is computed at the
  * minimum once the descent has converged. Opt-in (off by default).
  */
@@ -103,22 +87,17 @@ enum class errorEstimationMode : std::uint8_t {
     MINOS = 3     ///< MINOS asymmetric errors: profiled (re-minimised) UP-contour bounds, low dimension only
 };
 
-/**
- * @brief Streams an errorEstimationMode (as its underlying integer); required by the comparison framework.
- *
- * @param std::ostream & The output stream to write to
- * @param errorEstimationMode The error-estimation mode to serialize
- * @return A reference to the output stream after writing
- */
-std::ostream &operator<<(std::ostream &o, errorEstimationMode em);
-/**
- * @brief Reads an errorEstimationMode from a stream.
- *
- * @param std::istream & The input stream to read from
- * @param errorEstimationMode & The error-estimation mode to populate from the stream
- * @return A reference to the input stream after reading
- */
-std::istream &operator>>(std::istream &i, errorEstimationMode &em);
+// Numeric streaming opt-in for the two enums above; must precede their first
+// streaming use (see numeric_enum_io_v in GCommonEnums.hpp).
+} /* namespace Gem::Geneva::OptimizationAlgorithms */
+namespace Gem::Common {
+template <> inline constexpr bool numeric_enum_io_v<Gem::Geneva::OptimizationAlgorithms::gradientMethod> = true;
+template <> inline constexpr bool numeric_enum_io_v<Gem::Geneva::OptimizationAlgorithms::errorEstimationMode> = true;
+} /* namespace Gem::Common */
+namespace Gem::Geneva::OptimizationAlgorithms {
+
+// The operator re-export for Gem::Geneva::OptimizationAlgorithms lives in
+// GOptimizationAlgorithmBase.hpp (included above).
 
 /**
  * Default values for the conjugate gradient descent. They mirror the plain
@@ -438,8 +417,53 @@ protected:
     /** @brief Updates the difference-quotient children of every starting point */
     void updateChildParameters();
 
-    /** @brief Performs a conjugate-gradient step for every starting point */
+    /** @brief Performs a gradient step for every starting point (driver; see the phase helpers below) */
     void updateParentIndividuals();
+
+    /** @brief Installs any missing conjugate-gradient / L-BFGS scratch blocks on a central slot's store */
+    void ensureGradientScratch_(Genome::GAuxiliaryStore &cg_scratch) const;
+
+    /**
+     * @brief Computes the normalised finite-difference (proxy) gradient of one starting point
+     * @param starting_point The index of the starting point whose gradient is computed
+     * @param parent_fitness The (minimization-oriented) fitness of that starting point
+     * @return The proxy gradient, one component per floating-point parameter
+     */
+    std::vector<double> computeProxyGradient_(std::size_t starting_point, double parent_fitness) const;
+
+    /**
+     * @brief Builds the L-BFGS quasi-Newton direction -H_k g_k, updating the curvature history
+     * @param cg_scratch The central slot's scratch store holding the (s, y) history
+     * @param parm_vec The starting point's current parameter vector
+     * @param gradient The current proxy gradient
+     * @param history_valid Whether the stored previous gradient/parameters are valid
+     * @param periodic_restart Whether this iteration performs the classical periodic restart
+     * @return The search direction
+     */
+    std::vector<double> lbfgsDirection_(
+        Genome::GAuxiliaryStore &cg_scratch,
+        const std::vector<double> &parm_vec,
+        const std::vector<double> &gradient,
+        bool history_valid,
+        bool periodic_restart
+    ) const;
+
+    /**
+     * @brief Builds the steepest-descent / conjugate-gradient-family search direction
+     * @param gradient The current proxy gradient
+     * @param prev_gradient The previous iteration's gradient (scratch-backed)
+     * @param prev_direction The previous iteration's search direction (scratch-backed)
+     * @param history_valid Whether the previous gradient/direction are valid
+     * @param periodic_restart Whether this iteration performs the classical periodic restart
+     * @return The search direction
+     */
+    std::vector<double> conjugateDirection_(
+        const std::vector<double> &gradient,
+        std::span<const double> prev_gradient,
+        std::span<const double> prev_direction,
+        bool history_valid,
+        bool periodic_restart
+    ) const;
 
     // name_(), clone_(), getAlgorithmName_(), getAlgorithmPersonalityType_() and the GUnitTests
     // stubs are generated by the GOptimizationAlgorithmT scaffold from the oa_* identifiers above.
@@ -469,11 +493,6 @@ private:
     /** @brief Resizes the population to the desired level and does some error checks */
     void adjustPopulation_() override;
 
-    /** @brief Gives individuals an opportunity to update their internal structures */
-    void actOnStalls_() override;
-
-    /** @brief Lets individuals know about their position in the population */
-    void markIndividualPositions();
     /** @brief Recomputes the dimensionless adjusted_finite_step_ (finite_step_/1000) */
     void updateDerivedQuantities();
     /** @brief (Re-)initialises the per-starting-point conjugate-gradient state */

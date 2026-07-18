@@ -30,8 +30,10 @@
 #pragma once
 
 #include <memory>
+#include <tuple>
 #include <type_traits>
 
+#include "common/GCommonMathHelperFunctionsT.hpp" // getMinMax, used by project<I>()
 #include "dietrich/plotting/GBasePlotter.hpp"
 
 namespace Gem::Dietrich {
@@ -40,6 +42,12 @@ namespace Gem::Dietrich {
 // exception types, make_member, EmitStream, ...); make them visible here without
 // per-name qualification. This affects lookup only within Gem::Dietrich.
 using namespace Gem::Common;
+
+// Only forward-declared here: project<I>() returns freshly filled 1-d histograms,
+// and GHistogram1D (GHistogramPlots.hpp) itself derives from a collector defined
+// in this header. The complete type is available wherever project<I>() is
+// instantiated (every user of the histogram header).
+class GHistogram1D;
 
 /******************************************************************************/
 /**
@@ -150,7 +158,8 @@ public:
 	  *
 	  * @param items One value per axis, to be combined into a single data item
 	  */
-    template <typename... Args, std::size_t M = n_axes, std::enable_if_t<(M > 1) && sizeof...(Args) == M, int> = 0>
+    template <typename... Args>
+        requires((n_axes > 1) && sizeof...(Args) == n_axes)
     void add(const Args &...items) {
         *this &std::make_tuple(items...);
     }
@@ -177,7 +186,8 @@ public:
 	  * @tparam Us The source component type(s), narrowed to the target type(s)
 	  * @param item_undet The data item to be added to the collection
 	  */
-    template <typename... Us, std::enable_if_t<sizeof...(Us) == sizeof...(Ts), int> = 0>
+    template <typename... Us>
+        requires(sizeof...(Us) == sizeof...(Ts))
     void operator&(const std::tuple<Us...> &item_undet) {
         pushItem(narrowItem(item_undet), std::make_index_sequence<n_axes>{});
     }
@@ -189,7 +199,8 @@ public:
 	  * @tparam U The source type of the data item, narrowed to the target type
 	  * @param x_undet The data item to be added to the collection
 	  */
-    template <typename U, std::size_t M = n_axes, std::enable_if_t<M == 1, int> = 0>
+    template <typename U>
+        requires(n_axes == 1)
     void operator&(const U &x_undet) {
         axis_t<0> x = axis_t<0>(0);
 
@@ -246,7 +257,8 @@ public:
 	  * @tparam Us The source component type(s), narrowed to the target type(s)
 	  * @param cnt_undet A vector of data items of undetermined type, to be added
 	  */
-    template <typename... Us, std::enable_if_t<sizeof...(Us) == sizeof...(Ts), int> = 0>
+    template <typename... Us>
+        requires(sizeof...(Us) == sizeof...(Ts))
     void operator&(const std::vector<std::tuple<Us...>> &cnt_undet) {
         this->reserve(this->currentSize() + cnt_undet.size());
         for(auto const &item_undet : cnt_undet) {
@@ -262,7 +274,8 @@ public:
 	  * @tparam Us The source component type(s), narrowed to the target type(s)
 	  * @param cnt_undet A span of data items of undetermined type, to be added
 	  */
-    template <typename... Us, std::enable_if_t<sizeof...(Us) == sizeof...(Ts), int> = 0>
+    template <typename... Us>
+        requires(sizeof...(Us) == sizeof...(Ts))
     void operator&(std::span<const std::tuple<Us...>> cnt_undet) {
         this->reserve(this->currentSize() + cnt_undet.size());
         for(auto const &item_undet : cnt_undet) {
@@ -277,7 +290,8 @@ public:
 	  * @tparam U The source element type of the vector, narrowed to the target type
 	  * @param x_cnt_undet A collection of data items of undetermined type, to be added
 	  */
-    template <typename U, std::size_t M = n_axes, std::enable_if_t<M == 1, int> = 0>
+    template <typename U>
+        requires(n_axes == 1)
     void operator&(const std::vector<U> &x_cnt_undet) {
         axis_t<0> x = axis_t<0>(0);
 
@@ -310,7 +324,8 @@ public:
 	  * @tparam U The source element type of the span, narrowed to the target type
 	  * @param x_cnt_undet A span of data items of undetermined type, to be added
 	  */
-    template <typename U, std::size_t M = n_axes, std::enable_if_t<M == 1, int> = 0>
+    template <typename U>
+        requires(n_axes == 1)
     void operator&(std::span<const U> x_cnt_undet) {
         axis_t<0> x = axis_t<0>(0);
 
@@ -372,27 +387,66 @@ public:
 
     /***************************************************************************/
     /**
-	  * Projects the data onto axis I, returning a 1-d histogram. This generic
-	  * version is a trap to catch calls with un-implemented types -- it is only
-	  * meaningfully specialized for all-double collectors (see project<I>()
-	  * below and the named projectX/Y/Z/W wrappers).
+	  * Projects the data onto axis I, returning a 1-d histogram of that axis'es
+	  * values. Only available for all-double collectors (any other element type
+	  * is rejected at compile time). This one generic implementation replaces
+	  * the nine per-arity/per-axis specializations that used to be copy-pasted
+	  * across the histogram / graph headers.
+	  *
+	  * In case of a default-constructed range, suitable histogram boundaries are
+	  * derived from the minimum and maximum values of the projected data.
+	  *
+	  * The hist_type parameter exists purely to defer the use of GHistogram1D
+	  * (only forward-declared here; complete at every call site, which includes
+	  * the histogram header) to instantiation time -- do not pass it explicitly.
 	  *
 	  * @tparam I The axis to project onto
 	  * @param nBins The desired number of bins of the resulting histogram
 	  * @param range The lower and upper boundary of the resulting histogram
-	  * @return A 1-d histogram of the data projected onto axis I (only in specializations)
+	  * @return A 1-d histogram of the data projected onto axis I
 	  */
-    template <std::size_t I>
+    template <std::size_t I, typename hist_type = GHistogram1D>
     std::shared_ptr<GDataCollectorT<axis_t<I>>>
-    project([[maybe_unused]] std::size_t nBins, [[maybe_unused]] std::tuple<axis_t<I>, axis_t<I>> range) const {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GDataCollectorT<>::project<I>(range, nBins): Error!" << '\n'
-            << "Function was called for class with un-implemented types" << '\n'
+    project(std::size_t nBins, std::tuple<axis_t<I>, axis_t<I>> range) const {
+        static_assert(
+            I < n_axes,
+            "GDataCollectorT<>::project<I>(): axis index I exceeds this collector's arity"
+        );
+        static_assert(
+            (std::is_same_v<Ts, double> && ...),
+            "GDataCollectorT<>::project<I>() is only implemented for all-double collectors"
         );
 
-        // Make the compiler happy
-        return std::shared_ptr<GDataCollectorT<axis_t<I>>>();
+        // Derive the histogram boundaries from the data unless a range was given
+        std::tuple<double, double> my_range = range;
+        if(range == std::tuple<axis_t<I>, axis_t<I>>{}) {
+            const auto extremes = Gem::Common::getMinMax(this->asTuples());
+            my_range = std::tuple<double, double>(
+                std::get<2 * I>(extremes), std::get<2 * I + 1>(extremes)
+            );
+        }
+
+        // Construct the result object
+        std::shared_ptr<hist_type> result(new hist_type(nBins, my_range));
+        if constexpr(I == 0) {
+            result->setXAxisLabel(this->xAxisLabel());
+        } else if constexpr(I == 1) {
+            result->setXAxisLabel(this->yAxisLabel());
+        } else if constexpr(I == 2) {
+            result->setXAxisLabel(this->zAxisLabel());
+        } else {
+            result->setXAxisLabel("w"); // GBasePlotter labels only three axes
+        }
+        result->setYAxisLabel("Number of entries");
+        constexpr char axis_letters[] = "xyzw";
+        result->setPlotLabel(this->plotLabel() + " / " + axis_letters[I] + "-projection");
+
+        // Add data to the object
+        for(auto const &v : this->template column<I>()) {
+            (*result) & v;
+        }
+
+        return result;
     }
 
     /***************************************************************************/
@@ -403,29 +457,33 @@ public:
     // that the axis_t<I> appearing in their signature is a dependent type, only
     // instantiated when the wrapper is actually called -- otherwise a low-arity
     // collector (e.g. the single-axis histogram base) would hard-error merely by
-    // forming projectY/Z/W's parameter type. enable_if then keeps each wrapper
-    // available only for collectors that actually have the requested axis.
+    // forming projectY/Z/W's parameter type. The requires-clause then keeps each
+    // wrapper available only for collectors that actually have the requested axis.
 
     /** @brief Projects the data onto the x-axis (see project<0>()) */
-    template <std::size_t I = 0, std::enable_if_t<(I == 0) && (n_axes >= 1), int> = 0>
+    template <std::size_t I = 0>
+        requires((I == 0) && (n_axes >= 1))
     auto projectX(std::size_t nBins, std::tuple<axis_t<I>, axis_t<I>> range) const {
         return this->template project<I>(nBins, range);
     }
 
     /** @brief Projects the data onto the y-axis (see project<1>()) */
-    template <std::size_t I = 1, std::enable_if_t<(I == 1) && (n_axes >= 2), int> = 0>
+    template <std::size_t I = 1>
+        requires((I == 1) && (n_axes >= 2))
     auto projectY(std::size_t nBins, std::tuple<axis_t<I>, axis_t<I>> range) const {
         return this->template project<I>(nBins, range);
     }
 
     /** @brief Projects the data onto the z-axis (see project<2>()) */
-    template <std::size_t I = 2, std::enable_if_t<(I == 2) && (n_axes >= 3), int> = 0>
+    template <std::size_t I = 2>
+        requires((I == 2) && (n_axes >= 3))
     auto projectZ(std::size_t nBins, std::tuple<axis_t<I>, axis_t<I>> range) const {
         return this->template project<I>(nBins, range);
     }
 
     /** @brief Projects the data onto the w-axis (see project<3>()) */
-    template <std::size_t I = 3, std::enable_if_t<(I == 3) && (n_axes >= 4), int> = 0>
+    template <std::size_t I = 3>
+        requires((I == 3) && (n_axes >= 4))
     auto projectW(std::size_t nBins, std::tuple<axis_t<I>, axis_t<I>> range) const {
         return this->template project<I>(nBins, range);
     }

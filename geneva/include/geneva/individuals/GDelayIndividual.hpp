@@ -87,12 +87,28 @@ class GDelayIndividual
     /////////////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
+    // Defined ahead of serialize(): a deduced-return-type member must be
+    // defined before its first use in this class (serialize_members below).
+    /**
+     * @brief Single declaration of this class'es local data members
+     * @return A tuple of named member references driving serialize(), load_() and compare_()
+     */
+    template <typename Self>
+    auto localMembers_(this Self &self) {
+        return std::make_tuple(
+            Gem::Common::make_member("fixed_sleep_time_", self.fixed_sleep_time_),
+            Gem::Common::make_member("may_crash_", self.may_crash_),
+            Gem::Common::make_member("throw_likelihood_", self.throw_likelihood_),
+            Gem::Common::make_member("sleep_randomly_", self.sleep_randomly_),
+            Gem::Common::make_member("rand_sleep_boundaries_", self.rand_sleep_boundaries_)
+        );
+    }
+
     template <class Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gen::GGenome) &
-            BOOST_SERIALIZATION_NVP(fixed_sleep_time_) & BOOST_SERIALIZATION_NVP(may_crash_) &
-            BOOST_SERIALIZATION_NVP(throw_likelihood_) & BOOST_SERIALIZATION_NVP(sleep_randomly_) &
-            BOOST_SERIALIZATION_NVP(rand_sleep_boundaries_);
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gen::GGenome);
+        // ... and then our own data, derived from the single localMembers_() declaration
+        Gem::Common::serialize_members(ar, this->localMembers_());
     }
 
     /////////////////////////////////////////////////////////////////////////////
@@ -209,20 +225,6 @@ public:
     create(const Config &c, const std::chrono::duration<double> &sleepTime);
 
 protected:
-    /**
-     * @brief Single declaration of this class'es local data members
-     * @return A tuple of named member references driving serialize(), load_() and compare_()
-     */
-    template <typename Self>
-    auto localMembers_(this Self &self) {
-        return std::make_tuple(
-            Gem::Common::make_member("fixed_sleep_time_", self.fixed_sleep_time_),
-            Gem::Common::make_member("may_crash_", self.may_crash_),
-            Gem::Common::make_member("throw_likelihood_", self.throw_likelihood_),
-            Gem::Common::make_member("sleep_randomly_", self.sleep_randomly_),
-            Gem::Common::make_member("rand_sleep_boundaries_", self.rand_sleep_boundaries_)
-        );
-    }
 
     /**
      * @brief Loads the data of another GDelayIndividual, camouflaged as a GOptimizableEntity

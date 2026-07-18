@@ -522,6 +522,7 @@ public:
             std::scoped_lock lk(logger_mutex_);
             std::cerr << message << std::flush;
         }
+        // NOLINTNEXTLINE(concurrency-mt-unsafe) -- deliberate: terminating the process is this function's purpose
         std::exit(return_code);
     }
 

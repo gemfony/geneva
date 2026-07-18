@@ -93,6 +93,7 @@ struct LineageId {
     LineageId() = default;
     LineageId(const LineageId & /* cp */) : value(mint_submission_uuid()) { /* a copy is a new individual */ }
     LineageId(LineageId &&) noexcept = default;
+    // NOLINTNEXTLINE(bugprone-unhandled-self-assignment,cert-oop54-cpp) -- deliberate: assignment keeps our own lineage (see block comment above)
     LineageId &operator=(const LineageId & /* cp */) { return *this; /* keep our own lineage on load */ }
     LineageId &operator=(LineageId &&) noexcept = default;
     ~LineageId() = default;

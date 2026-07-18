@@ -245,12 +245,12 @@ enum class solverFunction : Gem::Common::ENUMBASETYPE {
 
 const solverFunction MAXDEMOFUNCTION = solverFunction::ZAKHAROV;
 
-// Make sure solverFunction can be streamed
-/** @brief Puts a Gem::Geneva::Individuals::solverFunction into a stream. Needed for streaming / Gem::Common::fromString<> */
-std::ostream &operator<<(std::ostream &o, const Gem::Geneva::Individuals::solverFunction &ur);
-
-/** @brief Reads a Gem::Geneva::Individuals::solverFunction from a stream. Needed for streaming / Gem::Common::fromString<> */
-std::istream &operator>>(std::istream &i, Gem::Geneva::Individuals::solverFunction &ur);
+// solverFunction and parameterType stream as their underlying numeric values
+// through the shared machinery in GCommonEnums.hpp (marker specializations at
+// the end of this header). Re-export the operators so ADL finds them for this
+// namespace's enums.
+using Gem::Common::operator<<;
+using Gem::Common::operator>>;
 
 /**
  * @brief Selects the flat-genome structure a GFunctionIndividual is built with, along two orthogonal
@@ -265,12 +265,14 @@ enum class parameterType : Gem::Common::ENUMBASETYPE {
     BOUNDED_PER_PARAMETER = 3    ///< bounded parameters, one adaptor group per parameter
 };
 
-// Make sure parameterType can be streamed
-/** @brief Puts a Gem::Geneva::Individuals::parameterType into a stream. Needed for streaming / Gem::Common::fromString<> */
-std::ostream &operator<<(std::ostream &o, const Gem::Geneva::Individuals::parameterType &ur);
-
-/** @brief Reads a Gem::Geneva::Individuals::parameterType from a stream. Needed for streaming / Gem::Common::fromString<> */
-std::istream &operator>>(std::istream &i, Gem::Geneva::Individuals::parameterType &ur);
+// Numeric streaming opt-in for the two enums above; must precede their first
+// streaming use (see numeric_enum_io_v in GCommonEnums.hpp).
+} /* namespace Gem::Geneva::Individuals */
+namespace Gem::Common {
+template <> inline constexpr bool numeric_enum_io_v<Gem::Geneva::Individuals::solverFunction> = true;
+template <> inline constexpr bool numeric_enum_io_v<Gem::Geneva::Individuals::parameterType> = true;
+} /* namespace Gem::Common */
+namespace Gem::Geneva::Individuals {
 
 /******************************************************************************/
 // A number of default settings for the factory

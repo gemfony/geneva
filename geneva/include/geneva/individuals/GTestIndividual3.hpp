@@ -91,7 +91,7 @@ public:
      * @return A shared pointer to a freshly allocated float array (with array deleter) holding all of this
      *  individual's double parameters, narrowed to float in flat streamline order
      */
-    std::shared_ptr<float> getPlainData() const;
+    std::shared_ptr<float[]> getPlainData() const;
 
 protected:
     /**

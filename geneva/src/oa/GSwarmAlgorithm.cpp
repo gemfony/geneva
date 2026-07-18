@@ -707,16 +707,6 @@ std::shared_ptr<GPersonalityTraits> GSwarmAlgorithm::getPersonalityTraits_() con
 
 /******************************************************************************/
 /**
- * Gives individuals an opportunity to update their internal structures. Currently
- * nothing -- might search in the vicinity of the best known solution or run a small
- * EA.
- */
-void GSwarmAlgorithm::actOnStalls_() {
-    /* nothing */
-}
-
-/******************************************************************************/
-/**
  * This function implements the logic that constitutes each cycle of a swarm algorithm. The
  * function is called by GOptimizationAlgorithmBase::optimize() for each iteration of
  * the optimization,

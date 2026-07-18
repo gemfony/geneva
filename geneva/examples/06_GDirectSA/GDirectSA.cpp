@@ -70,7 +70,12 @@ namespace po = boost::program_options;
 
 /******************************************************************************/
 // Default settings
-const execMode DEFAULTPARALLELIZATIONMODEAP = execMode::MULTITHREADED;
+// The parallelization mode selected on the command line (the former execMode enum, retired
+// with the per-algorithm broker model): 0 = serial, 1 = multi-threaded, 2 = networked
+constexpr std::uint16_t PM_SERIAL = 0;
+constexpr std::uint16_t PM_MULTITHREADED = 1;
+constexpr std::uint16_t PM_NETWORKED = 2;
+const std::uint16_t DEFAULTPARALLELIZATIONMODEAP = PM_MULTITHREADED;
 const unsigned short DEFAULTPORT = 10000;
 const std::string DEFAULTIP = "localhost";
 const std::uint16_t DEFAULTNPRODUCERTHREADS = 10;
@@ -93,7 +98,7 @@ const std::size_t DEFAULTMAXRECONNECTS = 10;
 bool parseCommandLine(
     int argc,
     char **argv,
-    execMode &parallelizationMode,
+    std::uint16_t &parallelizationMode,
     bool &serverMode,
     std::string &ip,
     unsigned short &port,
@@ -112,7 +117,7 @@ bool parseCommandLine(
     // Create the parser builder
     Gem::Common::GParserBuilder gpb;
 
-    gpb.registerCLParameter<execMode>(
+    gpb.registerCLParameter<std::uint16_t>(
         "parallelizationMode,p",
         parallelizationMode,
         DEFAULTPARALLELIZATIONMODEAP,
@@ -233,7 +238,7 @@ bool parseCommandLine(
  * The main function.
  */
 int main(int argc, char **argv) {
-    execMode parallelizationMode;
+    std::uint16_t parallelizationMode{};
     bool serverMode;
     std::string ip;
     unsigned short port;
@@ -296,7 +301,7 @@ int main(int argc, char **argv) {
     /****************************************************************************/
     // If this is a client in networked mode, we can just start the listener and
     // return when it has finished
-    if(execMode::BROKER == parallelizationMode && !serverMode) {
+    if(PM_NETWORKED == parallelizationMode && !serverMode) {
         // Build the networked client through the courtier setup layer. The single mnemonic below
         // drives both this client and the server below -- change it (e.g. to "beast") in both places to
         // switch transport, with no other code change.
@@ -355,19 +360,19 @@ int main(int argc, char **argv) {
         Gem::Geneva::ConsumerSpec spec;
         switch(parallelizationMode) {
         //----------------------------------------------------------------------------
-        case execMode::SERIAL: // Serial (single-threaded) execution
+        case PM_SERIAL: // Serial (single-threaded) execution
             spec.mnemonic  = "stc";
             spec.n_threads = 1;
             break;
 
             //----------------------------------------------------------------------------
-        case execMode::MULTITHREADED: // Multi-threaded local execution
+        case PM_MULTITHREADED: // Multi-threaded local execution
             spec.mnemonic  = "stc";
             spec.n_threads = static_cast<unsigned int>(nEvaluationThreads);
             break;
 
             //----------------------------------------------------------------------------
-        case execMode::BROKER: // Networked execution (or a purely local consumer for testing)
+        case PM_NETWORKED: // Networked execution (or a purely local consumer for testing)
             if(addLocalConsumer) {
                 // "Broker mode" with only a local multi-threaded consumer (testing / benchmarking).
                 spec.mnemonic  = "stc";

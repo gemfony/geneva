@@ -44,6 +44,7 @@
 #include <string>
 #include <thread>
 #include <vector>
+#include <tuple>
 
 // Boost headers go here
 #include <boost/archive/xml_iarchive.hpp>
@@ -362,7 +363,7 @@ private:
         // Disable Nagle's algorithm on the underlying TCP socket: the request/response messages
         // are small and latency-sensitive.
         boost::system::error_code nd_ec;
-        ws_.next_layer().set_option(boost::asio::ip::tcp::no_delay(true), nd_ec);
+        std::ignore = ws_.next_layer().set_option(boost::asio::ip::tcp::no_delay(true), nd_ec); // failure deliberately tolerated
 
         // Perform the handshake
         auto self = this->shared_from_this();
@@ -693,8 +694,8 @@ private:
         if(ws_.next_layer().is_open()) {
             boost::system::error_code ec;
 
-            ws_.next_layer().shutdown(socket::shutdown_both, ec);
-            ws_.next_layer().close(ec);
+            std::ignore = ws_.next_layer().shutdown(socket::shutdown_both, ec); // best-effort teardown
+            std::ignore = ws_.next_layer().close(ec); // best-effort teardown
 
             // A failed shutdown/close (commonly the peer already went away) must NOT throw out of
             // this async-handler context -- that would unwind the io thread. Log and move on.
@@ -972,7 +973,7 @@ public:
         // Disable Nagle's algorithm on the underlying TCP socket (already connected at this
         // point): the request/response messages are small and latency-sensitive.
         boost::system::error_code nd_ec;
-        ws_.next_layer().set_option(boost::asio::ip::tcp::no_delay(true), nd_ec);
+        std::ignore = ws_.next_layer().set_option(boost::asio::ip::tcp::no_delay(true), nd_ec); // failure deliberately tolerated
 
         // Wait for a new websocket connection. Note that the
         // ASIO connection should already be active at this place.
@@ -1262,8 +1263,8 @@ private:
 
             // Closing the socket cancels all outstanding operations. They
             // will complete with boost::asio::error::operation_aborted
-            ws_.next_layer().shutdown(boost::asio::ip::tcp::socket::shutdown_both, ec);
-            ws_.next_layer().close(ec);
+            std::ignore = ws_.next_layer().shutdown(boost::asio::ip::tcp::socket::shutdown_both, ec); // best-effort teardown
+            std::ignore = ws_.next_layer().close(ec); // best-effort teardown
 
             // A failed shutdown/close (commonly the peer already vanished) must NOT throw out of this
             // async-handler context -- that would unwind an io thread. Log and move on.

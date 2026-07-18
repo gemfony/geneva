@@ -72,6 +72,12 @@
 
 namespace Gem::Geneva::OptimizationAlgorithms {
 
+// Re-export the shared numeric enum stream operators (see numeric_enum_io_v in
+// GCommonEnums.hpp) into this namespace, so that argument-dependent lookup
+// finds them for the algorithm-specific enums (e.g. the CGD gradientMethod).
+using Gem::Common::operator<<;
+using Gem::Common::operator>>;
+
 /******************************************************************************/
 // GBasePluggableOM -- the CRTP category root of all pluggable optimization monitors -- now lives in
 // its own header (geneva/oa/GBasePluggableOM.hpp, included at the top of this file) so that
@@ -615,6 +621,15 @@ protected:
     // Overridden or virtual protected functions
 
     /**
+     * @brief Lets all individuals know about their position in the population.
+     *
+     * The position is stamped into the shared GPositionPersonalityTraits base of the
+     * algorithm's personality traits, so one implementation serves every algorithm
+     * (the per-algorithm copies this replaces differed only in the concrete traits type).
+     */
+    void markIndividualPositions();
+
+    /**
      * @brief The shared population precondition of the floating-point-only algorithms (CGD, Nelder-
      * Mead): requires a non-empty population whose first individual carries at least one active
      * floating-point parameter (throws otherwise), and logs a note when integer/boolean parameters
@@ -935,8 +950,15 @@ private:
     /** @brief Resizes the population to the desired level and does some error checks */
     virtual void adjustPopulation_() = 0;
 
-    /** @brief Gives derived classes an opportunity to update their internal structures. */
-    virtual void actOnStalls_() = 0;
+    /**
+     * @brief Gives derived classes an opportunity to update their internal structures
+     * when the optimization has stalled for the configured number of iterations.
+     *
+     * The default does nothing -- most algorithms have no per-individual state to
+     * refresh on a stall. An algorithm that does reacts by overriding this hook
+     * (e.g. GParChild resets the adaption state of all but the best parent).
+     */
+    virtual void actOnStalls_() { /* nothing */ }
 
     /***************************************************************************/
 

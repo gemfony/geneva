@@ -330,8 +330,6 @@ private:
     /** @brief Retrieve a GPersonalityTraits object belonging to this algorithm */
     std::shared_ptr<GPersonalityTraits> getPersonalityTraits_() const override;
 
-    /** @brief Gives derived classes an opportunity to update their internal structures */
-    void actOnStalls_() override;
 
     /** @brief Sizes the population to lambda offspring (and derives n / constants) and does error checks */
     void adjustPopulation_() override;

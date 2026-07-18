@@ -49,8 +49,9 @@ SET ( GENEVADIETRICHPLOTTINGINCLUDES
 )
 
 # Library-private plotting headers: shared across the dietrich implementation TUs but NOT part of the
-# installed public API, so they live under plotting/detail/ and are deliberately absent from the
-# INSTALL lists below. Listed here only so IDEs surface them.
+# documented public API. NOTE that the wholesale INSTALL(DIRECTORY ... *.hpp) rule below (Inv 19)
+# still ships them -- the detail/ path only marks them as off-limits; do not include them from
+# outside the dietrich sources. Listed here so IDEs surface them.
 SET ( GENEVADIETRICHPLOTTINGDETAILINCLUDES
 	plotting/detail/GPlotDetail.hpp
 )

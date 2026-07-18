@@ -387,31 +387,10 @@ void GGeneralizedSimulatedAnnealing::finalize() {
 
 /******************************************************************************/
 /**
- * GSA has no per-individual internal structures that need updating on a global stall; reannealing is
- * handled per chain inside applyAcceptance().
- */
-void GGeneralizedSimulatedAnnealing::actOnStalls_() {
-    /* nothing */
-}
-
-/******************************************************************************/
-/**
  * Retrieve a GPersonalityTraits object belonging to this algorithm.
  */
 std::shared_ptr<GPersonalityTraits> GGeneralizedSimulatedAnnealing::getPersonalityTraits_() const {
     return std::make_shared<GGeneralizedSimulatedAnnealing_PersonalityTraits>();
-}
-
-/******************************************************************************/
-/**
- * Lets all individuals know about their position in the population.
- */
-void GGeneralizedSimulatedAnnealing::markIndividualPositions() {
-    for(auto const &[pos, individual] : *this | std::views::enumerate) {
-        individual
-            ->getPersonalityTraits<GGeneralizedSimulatedAnnealing_PersonalityTraits>()
-            ->setPopulationPosition(static_cast<std::size_t>(pos));
-    }
 }
 
 /******************************************************************************/

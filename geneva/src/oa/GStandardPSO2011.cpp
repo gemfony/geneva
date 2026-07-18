@@ -302,15 +302,6 @@ void GStandardPSO2011::finalize() {
 
 /******************************************************************************/
 /**
- * The Standard PSO 2011 algorithm has no per-individual structures to update on a stall; the adaptive
- * random topology already reshuffles when the global best stops improving.
- */
-void GStandardPSO2011::actOnStalls_() {
-    /* nothing */
-}
-
-/******************************************************************************/
-/**
  * Retrieve a GPersonalityTraits object belonging to this algorithm.
  */
 std::shared_ptr<GPersonalityTraits> GStandardPSO2011::getPersonalityTraits_() const {

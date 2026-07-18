@@ -143,31 +143,14 @@ enum class distType : Gem::Common::ENUMBASETYPE {
 };
 
 /************************************************************************************************/
-/**
- * Puts a distType item into a stream
- */
-std::ostream &operator<<(std::ostream &o, const distType &x) {
-    Gem::Common::ENUMBASETYPE tmp = std::to_underlying(x);
-    o << tmp;
-    return o;
+// distType streams as its underlying numeric value through the shared machinery
+// in GCommonEnums.hpp; the using-declarations make the operators reachable for
+// this global-namespace enum.
+namespace Gem::Common {
+template <> inline constexpr bool numeric_enum_io_v<distType> = true;
 }
-
-/************************************************************************************************/
-/**
- * Reads a distType item from a stream
- */
-std::istream &operator>>(std::istream &i, distType &x) {
-    Gem::Common::ENUMBASETYPE tmp;
-    i >> tmp;
-
-#ifdef DEBUG
-    x = Gem::Common::narrow<distType>(tmp);
-#else
-    x = static_cast<distType>(tmp);
-#endif /* DEBUG */
-
-    return i;
-}
+using Gem::Common::operator<<;
+using Gem::Common::operator>>;
 
 /************************************************************************************************/
 

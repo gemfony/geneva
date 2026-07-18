@@ -67,6 +67,7 @@ bool configEmissionRequested(int argc, char **argv) {
  */
 void beginConfigEmission() {
     GParserBuilder::setUpdateInPlace(true);
+    // NOLINTNEXTLINE(concurrency-mt-unsafe) -- read-only getenv during single-threaded startup
     if(std::getenv(CONFIG_REFERENCE_ENV.data()) != nullptr) {
         GParserBuilder::setEmitTimestamp(false);
     }
@@ -79,6 +80,7 @@ void beginConfigEmission() {
 void finishConfigEmission() {
     glogger << "Configuration emission complete; configuration files were refreshed in place." << '\n'
             << GLOGGING;
+    // NOLINTNEXTLINE(concurrency-mt-unsafe) -- deliberate: a config-emission run ends the process here
     std::exit(0);
 }
 

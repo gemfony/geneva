@@ -345,19 +345,6 @@ enum class evaluationPolicy : Gem::Common::ENUMBASETYPE {
 
 /******************************************************************************/
 /**
- * Specification of different parallelization modes used by optimization algorithms.
- * Some algorithms, in particular evolutionary algorithms, may perform multithreaded
- * and serial execution without the broker.
- */
-enum class execMode : Gem::Common::ENUMBASETYPE {
-    SERIAL = 0,
-    MULTITHREADED = 1,
-    BROKER = 2,
-    LAST = execMode::BROKER
-};
-
-/******************************************************************************/
-/**
  * Currently three types of duplication schemes are supported:
  * - DEFAULTDUPLICATIONSCHEME defaults to RANDOMDUPLICATIONSCHEME
  * - RANDOMDUPLICATIONSCHEME chooses the parents to be replicated randomly from all parents
@@ -454,167 +441,29 @@ const updateRule DEFAULTUPDATERULE =
 
 /******************************************************************************/
 
-/**
- * @brief Puts a Gem::Geneva::maxMode into a stream. Needed for streaming / Gem::Common::fromString<>
- *
- * The first argument is the output stream to write to; the second is the maxMode value to emit.
- * @return A reference to the same output stream, to allow chaining
- */
-std::ostream &operator<<(std::ostream &o, const Gem::Geneva::maxMode &am);
-
-/**
- * @brief Reads a Gem::Geneva::maxMode from a stream. Needed for streaming / Gem::Common::fromString<>
- *
- * The first argument is the input stream to read from; the second receives the parsed maxMode value.
- * @return A reference to the same input stream, to allow chaining
- */
-std::istream &operator>>(std::istream &i, Gem::Geneva::maxMode &am);
-
-/**
- * @brief Puts a Gem::Geneva::activityMode into a stream. Needed for streaming / Gem::Common::fromString<>
- *
- * The first argument is the output stream to write to; the second is the activityMode value to emit.
- * @return A reference to the same output stream, to allow chaining
- */
-std::ostream &operator<<(std::ostream &o, const Gem::Geneva::activityMode &am);
-
-/**
- * @brief Reads a Gem::Geneva::activityMode item from a stream. Needed for streaming / Gem::Common::fromString<>
- *
- * The first argument is the input stream to read from; the second receives the parsed activityMode value.
- * @return A reference to the same input stream, to allow chaining
- */
-std::istream &operator>>(std::istream &i, Gem::Geneva::activityMode &am);
-
-/**
- * @brief Puts a Gem::Geneva::evaluationPolicy into a stream. Needed for streaming / Gem::Common::fromString<>
- *
- * The first argument is the output stream to write to; the second is the evaluationPolicy value to emit.
- * @return A reference to the same output stream, to allow chaining
- */
-std::ostream &operator<<(std::ostream &o, const Gem::Geneva::evaluationPolicy &iip);
-
-/**
- * @brief Reads a Gem::Geneva::evaluationPolicy item from a stream. Needed for streaming / Gem::Common::fromString<>
- *
- * The first argument is the input stream to read from; the second receives the parsed evaluationPolicy value.
- * @return A reference to the same input stream, to allow chaining
- */
-std::istream &operator>>(std::istream &i, Gem::Geneva::evaluationPolicy &iip);
-
-/**
- * @brief Puts a Gem::Geneva::validityCheckCombinerPolicy into a stream. Needed for streaming / Gem::Common::fromString<>
- *
- * The first argument is the output stream to write to; the second is the validityCheckCombinerPolicy value to emit.
- * @return A reference to the same output stream, to allow chaining
- */
-std::ostream &
-operator<<(std::ostream &o, const Gem::Geneva::validityCheckCombinerPolicy &vccp);
-
-/**
- * @brief Reads a Gem::Geneva::validityCheckCombinerPolicy item from a stream. Needed for streaming / Gem::Common::fromString<>
- *
- * The first argument is the input stream to read from; the second receives the parsed validityCheckCombinerPolicy value.
- * @return A reference to the same input stream, to allow chaining
- */
-std::istream &operator>>(std::istream &i, Gem::Geneva::validityCheckCombinerPolicy &vccp);
-
-/**
- * @brief Puts a Gem::Geneva::execMode into a stream. Needed for streaming / Gem::Common::fromString<>
- *
- * The first argument is the output stream to write to; the second is the execMode value to emit.
- * @return A reference to the same output stream, to allow chaining
- */
-std::ostream &operator<<(std::ostream &o, const Gem::Geneva::execMode &pm);
-
-/**
- * @brief Reads a Gem::Geneva::execMode item from a stream. Needed for streaming / Gem::Common::fromString<>
- *
- * The first argument is the input stream to read from; the second receives the parsed execMode value.
- * @return A reference to the same input stream, to allow chaining
- */
-std::istream &operator>>(std::istream &i, Gem::Geneva::execMode &pm);
-
-/**
- * @brief Puts a Gem::Geneva::duplicationScheme into a stream. Needed for streaming / Gem::Common::fromString<>
- *
- * The first argument is the output stream to write to; the second is the duplicationScheme value to emit.
- * @return A reference to the same output stream, to allow chaining
- */
-std::ostream &operator<<(std::ostream &o, const Gem::Geneva::duplicationScheme &rc);
-
-/**
- * @brief Reads a Gem::Geneva::duplicationScheme item from a stream. Needed for streaming / Gem::Common::fromString<>
- *
- * The first argument is the input stream to read from; the second receives the parsed duplicationScheme value.
- * @return A reference to the same input stream, to allow chaining
- */
-std::istream &operator>>(std::istream &i, Gem::Geneva::duplicationScheme &rc);
-
-/**
- * @brief Puts a Gem::Geneva::infoMode into a stream. Needed for streaming / Gem::Common::fromString<>
- *
- * The first argument is the output stream to write to; the second is the infoMode value to emit.
- * @return A reference to the same output stream, to allow chaining
- */
-std::ostream &operator<<(std::ostream &o, const Gem::Geneva::infoMode &im);
-
-/**
- * @brief Reads a Gem::Geneva::infoMode item from a stream. Needed for streaming / Gem::Common::fromString<>
- *
- * The first argument is the input stream to read from; the second receives the parsed infoMode value.
- * @return A reference to the same input stream, to allow chaining
- */
-std::istream &operator>>(std::istream &i, Gem::Geneva::infoMode &im);
-
-/**
- * @brief Puts a Gem::Geneva::sortingMode into a stream. Needed for streaming / Gem::Common::fromString<>
- *
- * The first argument is the output stream to write to; the second is the sortingMode value to emit.
- * @return A reference to the same output stream, to allow chaining
- */
-std::ostream &operator<<(std::ostream &o, const Gem::Geneva::sortingMode &smode);
-
-/**
- * @brief Reads a Gem::Geneva::sortingMode from a stream. Needed for streaming / Gem::Common::fromString<>
- *
- * The first argument is the input stream to read from; the second receives the parsed sortingMode value.
- * @return A reference to the same input stream, to allow chaining
- */
-std::istream &operator>>(std::istream &i, Gem::Geneva::sortingMode &smode);
-
-/**
- * @brief Puts a Gem::Geneva::updateRule into a stream. Needed for streaming / Gem::Common::fromString<>
- *
- * The first argument is the output stream to write to; the second is the updateRule value to emit.
- * @return A reference to the same output stream, to allow chaining
- */
-std::ostream &operator<<(std::ostream &o, const Gem::Geneva::updateRule &ur);
-
-/**
- * @brief Reads a Gem::Geneva::updateRule from a stream. Needed for streaming / Gem::Common::fromString<>
- *
- * The first argument is the input stream to read from; the second receives the parsed updateRule value.
- * @return A reference to the same input stream, to allow chaining
- */
-std::istream &operator>>(std::istream &i, Gem::Geneva::updateRule &ur);
-
-/**
- * @brief Puts a Gem::Geneva::adaptionMode into a stream. Needed for streaming / Gem::Common::fromString<>
- *
- * The first argument is the output stream to write to; the second is the adaptionMode value to emit.
- * @return A reference to the same output stream, to allow chaining
- */
-std::ostream &operator<<(std::ostream &o, const Gem::Geneva::adaptionMode &am);
-
-/**
- * @brief Reads a Gem::Geneva::adaptionMode from a stream. Needed for streaming / Gem::Common::fromString<>
- *
- * The first argument is the input stream to read from; the second receives the parsed adaptionMode value.
- * @return A reference to the same input stream, to allow chaining
- */
-std::istream &operator>>(std::istream &i, Gem::Geneva::adaptionMode &am);
+// Re-export the shared numeric enum stream operators (see numeric_enum_io_v in
+// GCommonEnums.hpp) into Gem::Geneva, so that argument-dependent lookup finds
+// them for the optimization enums above (and for enums of individuals living in
+// this namespace). The opt-in marker specializations follow the namespace end.
+using Gem::Common::operator<<;
+using Gem::Common::operator>>;
 
 /******************************************************************************/
 
 } /* namespace Gem::Geneva */
+
+/******************************************************************************/
+// All optimization enums stream as their underlying numeric value through the
+// shared machinery in GCommonEnums.hpp.
+namespace Gem::Common {
+template <> inline constexpr bool numeric_enum_io_v<Gem::Geneva::maxMode> = true;
+template <> inline constexpr bool numeric_enum_io_v<Gem::Geneva::activityMode> = true;
+template <> inline constexpr bool numeric_enum_io_v<Gem::Geneva::validityCheckCombinerPolicy> = true;
+template <> inline constexpr bool numeric_enum_io_v<Gem::Geneva::evaluationPolicy> = true;
+template <> inline constexpr bool numeric_enum_io_v<Gem::Geneva::duplicationScheme> = true;
+template <> inline constexpr bool numeric_enum_io_v<Gem::Geneva::infoMode> = true;
+template <> inline constexpr bool numeric_enum_io_v<Gem::Geneva::sortingMode> = true;
+template <> inline constexpr bool numeric_enum_io_v<Gem::Geneva::updateRule> = true;
+template <> inline constexpr bool numeric_enum_io_v<Gem::Geneva::adaptionMode> = true;
+} /* namespace Gem::Common */
+

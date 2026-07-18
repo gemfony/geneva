@@ -169,15 +169,16 @@ public:
 	  */
     GProcessingContainerT<processable_type, processing_result_type> &
     operator=(GProcessingContainerT<processable_type, processing_result_type> const &cp) {
-        GProcessable::operator=(cp); // the non-generic lifecycle state
-        pre_processing_disabled_ = cp.pre_processing_disabled_;
-        post_processing_disabled_ = cp.post_processing_disabled_;
-        stored_results_cnt_ =
-            cp.stored_results_cnt_; // Note: processing_result_type must be copyable (e.g. it should not contain pointers)
+        if(this != &cp) { // skip the (pre-/post-processor) re-cloning on self-assignment
+            GProcessable::operator=(cp); // the non-generic lifecycle state
+            pre_processing_disabled_ = cp.pre_processing_disabled_;
+            post_processing_disabled_ = cp.post_processing_disabled_;
+            stored_results_cnt_ =
+                cp.stored_results_cnt_; // Note: processing_result_type must be copyable (e.g. it should not contain pointers)
 
-        Gem::Common::copyCloneableSmartPointer(cp.pre_processor_ptr_, pre_processor_ptr_);
-        Gem::Common::copyCloneableSmartPointer(cp.post_processor_ptr_, post_processor_ptr_);
-
+            Gem::Common::copyCloneableSmartPointer(cp.pre_processor_ptr_, pre_processor_ptr_);
+            Gem::Common::copyCloneableSmartPointer(cp.post_processor_ptr_, post_processor_ptr_);
+        }
         return *this;
     }
 

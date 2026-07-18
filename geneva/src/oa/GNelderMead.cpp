@@ -842,17 +842,6 @@ std::shared_ptr<GPersonalityTraits> GNelderMead::getPersonalityTraits_() const {
 
 /******************************************************************************/
 /**
- * @brief Reacts to a stalled optimization run; a no-op for Nelder-Mead.
- *
- * The Nelder-Mead simplex is derivative free and has no internal structures
- * that need updating on a stall.
- */
-void GNelderMead::actOnStalls_() {
-    /* nothing */
-}
-
-/******************************************************************************/
-/**
  * @brief Resizes the population to the desired level and does some error checks.
  *
  * The layout is n_simplices_ blocks of (n_fp_parms_first_ + 1) vertices plus NM_NTRIALS speculative trial
@@ -911,20 +900,6 @@ void GNelderMead::adjustPopulation_() {
         );
     }
 #endif /* DEBUG */
-}
-
-/******************************************************************************/
-/**
- * @brief Lets all individuals know about their position in the population.
- *
- * Stamps each individual's GNelderMead_PersonalityTraits with its flat population index.
- */
-void GNelderMead::markIndividualPositions() {
-    for(auto const &[pos, individual] : *this | std::views::enumerate) {
-        individual
-            ->getPersonalityTraits<GNelderMead_PersonalityTraits>()
-            ->setPopulationPosition(static_cast<std::size_t>(pos));
-    }
 }
 
 /******************************************************************************/

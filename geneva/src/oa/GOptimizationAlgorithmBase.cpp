@@ -44,6 +44,7 @@
 #include "courtier/GCourtierEnums.hpp"
 #include "courtier/GExecutorStatusT.hpp"
 #include "geneva/GOptimizationEnums.hpp"
+#include "geneva/oa/GPositionPersonalityTraits.hpp"
 #include "geneva/GPostProcessorT.hpp"
 #include "geneva/GenevaHelperFunctions.hpp"
 #include <algorithm>
@@ -2023,6 +2024,21 @@ std::uint16_t GOptimizationAlgorithmBase::getNThreads() const {
 void GOptimizationAlgorithmBase::markIteration() {
     for(auto const &ind_ptr : *this) {
         ind_ptr->setAssignedIteration(iteration_);
+    }
+}
+
+/******************************************************************************/
+/**
+ * @brief Lets all individuals know about their position in the population.
+ *
+ * The position is stamped into the shared GPositionPersonalityTraits base of the algorithm's
+ * personality traits, so this one implementation serves every algorithm.
+ */
+void GOptimizationAlgorithmBase::markIndividualPositions() {
+    for(auto const &[pos, individual] : data_cnt_ | std::views::enumerate) {
+        individual->getPersonalityTraits<GPositionPersonalityTraits>()->setPopulationPosition(
+            static_cast<std::size_t>(pos)
+        );
     }
 }
 
