@@ -68,7 +68,8 @@
 #include "courtier/GCourtierHelperFunctions.hpp"
 #include "courtier/GServerSessionLogic.hpp"       // shared synchronous server dispatch (GETDATA/RESULT/...)
 #include "courtier/GWireCodec.hpp"                // shared scope-wrapped (de)serialization + layout fetch
-#include "courtier/GWireSerializationContext.hpp" // layout send-once: registry + wire scope
+#include "courtier/GWireSerializationContext.hpp"
+#include "courtier/transport/GPrefetchingClientT.hpp" // layout send-once: registry + wire scope
 
 namespace Gem::Courtier::Consumers {
 
@@ -89,14 +90,36 @@ namespace Gem::Courtier::Consumers {
  */
 template <typename processable_type>
 class GAsioConsumerClientT final
-  : public Gem::Courtier::GBaseClientT<processable_type>
+  : public GPrefetchingClientT<GAsioConsumerClientT<processable_type>, processable_type>
   , public std::enable_shared_from_this<GAsioConsumerClientT<processable_type>> {
+    // The pipeline base drives the compute dispatch / refill / halt machinery and calls our
+    // private transport hooks (refill_ / sendResultAndRefill_ / haltShutdown_).
+    friend class GPrefetchingClientT<GAsioConsumerClientT<processable_type>, processable_type>;
+
+    using pipeline_base = GPrefetchingClientT<GAsioConsumerClientT<processable_type>, processable_type>;
+
     //-------------------------------------------------------------------------
     // Make the code easier to read
 
     using error_code = boost::system::error_code;
     using resolver = boost::asio::ip::tcp::resolver;
     using socket = boost::asio::ip::tcp::socket;
+
+    // Members and helpers of the dependent pipeline base, pulled into scope
+    using pipeline_base::io_context_;
+    using pipeline_base::pending_pulls_;
+    using pipeline_base::computing_;
+    using pipeline_base::prefetch_depth_;
+    using pipeline_base::n_nodata_;
+    using pipeline_base::command_container_;
+    using pipeline_base::wire_registry_;
+    using pipeline_base::wire_ctx_;
+    using pipeline_base::halt_timer_;
+    using pipeline_base::nodata_timer_;
+    using pipeline_base::rng_engine_;
+    using pipeline_base::schedule_refill_;
+    using pipeline_base::dispatch_compute_;
+    using pipeline_base::start_halt_timer;
 
 public:
     //-------------------------------------------------------------------------
@@ -116,12 +139,11 @@ public:
         std::size_t max_reconnects,
         std::size_t prefetch_depth = 1
     )
-      : address_(std::move(address))
+      : pipeline_base("GAsioConsumerClientT<processable_type>", prefetch_depth)
+      , address_(std::move(address))
       , port_(port)
       , serialization_mode_(serialization_mode)
-      , max_reconnects_(max_reconnects)
-      , prefetch_depth_(prefetch_depth == 0 ? 1 : prefetch_depth)
-      , compute_pool_(prefetch_depth_) {
+      , max_reconnects_(max_reconnects) {
         // layout send-once. ASIO uses a fresh one-shot connection per exchange, so there is no
         // persistent per-connection peer identity for the server to key its per-peer "already holds this
         // layout" tracking on. The client therefore mints ONE stable, process-unique peer id at startup
@@ -151,20 +173,6 @@ public:
             [this](const Gem::Courtier::GWireLayoutId &id) -> std::expected<std::string, std::string> {
             return this->fetch_layout_blob_(id);
         };
-    }
-
-    //-------------------------------------------------------------------------
-    /**
-	  * @brief The destructor. Logs a short summary of the work done by this client.
-	  */
-    ~GAsioConsumerClientT() override {
-        glogger << '\n'
-                << "GAsioConsumerClientT<> is shutting down. Processed " << this->getNProcessed()
-                << " items in total" << '\n'
-                << "\"no data\" was received " << n_nodata_ << " times" << '\n'
-                << "prefetch depth was " << prefetch_depth_ << '\n'
-                << '\n'
-                << GLOGGING;
     }
 
     //-------------------------------------------------------------------------
@@ -236,6 +244,15 @@ private:
         }
         kick_exchange_();
     }
+
+    //-------------------------------------------------------------------------
+    // The transport hooks the pipeline base drives (see GPrefetchingClientT)
+
+    /** @brief Pipeline-refill hook: enqueues GETDATA pulls up to the prefetch depth (see maintain_()). */
+    void refill_() { maintain_(); }
+
+    /** @brief Halt hook: shuts the client down when a halt condition is reached. */
+    void haltShutdown_() { this->shutdown(); }
 
     //-------------------------------------------------------------------------
     /** @brief Starts the next queued exchange if no connection is currently in progress (only one
@@ -541,60 +558,14 @@ private:
     }
 
     //-------------------------------------------------------------------------
-    /** @brief Hands a work item to the compute pool, keeping the io thread free to run further
-		 *  exchanges while it evaluates. Each evaluation owns its OWN container (moved into the worker),
-		 *  so several items compute concurrently. A work guard pins io_context::run() open until the
-		 *  result has been posted back, so it is never dropped.
-		 *
-		 *  @param container The command container holding the work item to be evaluated (moved into the worker) */
-    void dispatch_compute_(
-        GCommandContainerT<processable_type, networked_consumer_payload_command> container
-    ) {
-        auto self = this->shared_from_this();
-        auto guard = boost::asio::make_work_guard(io_context_);
-        boost::asio::post(
-            compute_pool_,
-            [self, container = std::move(container), guard = std::move(guard)]() mutable {
-                // A failure in the user's processing code surfaces as a g_processing_exception, with the
-                // work item already flagged (EXCEPTION_CAUGHT). We must NOT let that kill the client:
-                // catch it and return the flagged item like any other result, so it is accounted for.
-                try {
-                    container.process();
-                }
-                catch(const g_processing_exception &e) {
-                    glogger << "In GAsioConsumerClientT<processable_type>::dispatch_compute_():" << '\n'
-                            << "The work item flagged a processing exception:" << '\n'
-                            << e.what() << '\n'
-                            << "It is returned to the server flagged; the client keeps running."
-                            << '\n'
-                            << GWARNING;
-                }
-                // Hop back onto the io thread to enqueue the result -- all connection state lives there.
-                boost::asio::post(
-                    self->io_context_,
-                    [self, container = std::move(container), guard = std::move(guard)]() mutable {
-                        self->on_compute_done_(std::move(container));
-                    }
-                );
-            }
-        );
-    }
-
-    //-------------------------------------------------------------------------
-    /** @brief Runs on the io thread once an evaluation has finished: queues a RESULT exchange that
+    /** @brief Result-transmission hook driven by the pipeline base: queues a RESULT exchange that
 		 *  returns the item AND fetches a replacement in one connection, then tops the pipeline up.
 		 *
-		 *  @param container The command container holding the evaluated work item to be returned to the server */
-    void on_compute_done_(
+		 *  @param container The evaluated work item, already marked as a RESULT by the base */
+    void sendResultAndRefill_(
         GCommandContainerT<processable_type, networked_consumer_payload_command> container
     ) {
-        this->incrementProcessingCounter();
-        if(computing_ > 0) {
-            --computing_;
-        }
-        container.set_command(networked_consumer_payload_command::RESULT);
         container.set_peer_id(peer_id_); // announce our stable peer id (layout send-once)
-        ++pending_pulls_; // the RESULT exchange is a pull (the server replies with the next item)
         try {
             // Serialize the returned item under the wire scope so its (unchanged) layout is sent in full
             // to the server only the first time, by id thereafter (layout send-once).
@@ -604,7 +575,7 @@ private:
         }
         catch(const std::exception &e) {
             --pending_pulls_;
-            glogger << "In GAsioConsumerClientT<processable_type>::on_compute_done_(): " << e.what()
+            glogger << "In GAsioConsumerClientT<processable_type>::sendResultAndRefill_(): " << e.what()
                     << '\n'
                     << "The client will shut down." << '\n'
                     << GWARNING;
@@ -613,49 +584,6 @@ private:
         }
         kick_exchange_();
         maintain_(); // cover any deficit left by an earlier NODATA (a no-op when already at full depth)
-    }
-
-    //-------------------------------------------------------------------------
-    /** @brief After a NODATA reply, waits a short randomized backoff and then tops the pipeline back
-		 *  up. A single timer suffices: maintain_() refills the whole deficit at once. */
-    void schedule_refill_() {
-        std::uniform_int_distribution<> dist(50, 200);
-        nodata_timer_.expires_after(std::chrono::milliseconds(dist(rng_engine_)));
-        auto self = this->shared_from_this();
-        nodata_timer_.async_wait([self](boost::system::error_code ec) {
-            if(ec) { // cancelled during teardown
-                return;
-            }
-            if(not self->halt()) {
-                self->maintain_();
-            }
-        });
-    }
-
-    //-------------------------------------------------------------------------
-    /** @brief Arms a periodic timer that polls halt(). Unlike the classic serial loop (which observed
-		 *  halt at the top of every cycle), a prefetching client can sit idle with all items computing
-		 *  and no exchange active, so a timer is needed to notice a stop request promptly. */
-    void start_halt_timer() {
-        halt_timer_.expires_after(std::chrono::seconds(1));
-        auto self = this->shared_from_this();
-        halt_timer_.async_wait([self](boost::system::error_code ec) { self->on_halt_timer(ec); });
-    }
-
-    //-------------------------------------------------------------------------
-    /** @brief Timer callback: shuts the client down once a halt condition is reached, otherwise
-		 *  re-arms the poll.
-		 *
-		 *  @param ec A possible error code; a non-empty code means the timer was cancelled by shutdown() */
-    void on_halt_timer(boost::system::error_code ec) {
-        if(ec) { // cancelled by shutdown()
-            return;
-        }
-        if(this->halt()) {
-            this->shutdown();
-            return;
-        }
-        start_halt_timer(); // keep polling
     }
 
     //-------------------------------------------------------------------------
@@ -734,8 +662,6 @@ private:
     //-------------------------------------------------------------------------
     // Data
 
-    boost::asio::io_context
-        io_context_; ///< The io-service object handling the asynchronous processing
     std::unique_ptr<boost::asio::ip::tcp::socket> socket_ptr_; ///< Holds the current socket
     boost::asio::executor_work_guard<boost::asio::io_context::executor_type> work_ =
         boost::asio::make_work_guard(io_context_); ///< Keeps io_context.run() running
@@ -749,42 +675,14 @@ private:
     std::size_t n_reconnects_ = 0;
     std::size_t max_reconnects_ = 0;
 
-    std::uint64_t n_nodata_ = 0;
-
     std::string incoming_message_str_; ///< Receives the current exchange's response
     std::string outgoing_message_str_; ///< Holds the current exchange's request (one exchange at a time)
-
-    std::random_device nondet_rng_; ///< Source of non-deterministic random numbers
-    std::mt19937 rng_engine_{
-        nondet_rng_()
-    }; ///< The actual random number engine, seeded my nondet_rng_
-
-    GCommandContainerT<processable_type, networked_consumer_payload_command> command_container_{
-        networked_consumer_payload_command::NONE
-    }; ///< Parse target for the current exchange's response (one exchange at a time)
-
-    /// Maximum number of work items the client keeps in flight at once (queued/in-progress exchanges +
-    /// items currently being evaluated). 1 == serial (one item at a time, the classic behaviour); a
-    /// larger depth keeps spare items so evaluation overlaps the fetch/return connections.
-    std::size_t prefetch_depth_ = 1;
-
-    /// In-flight bookkeeping, touched on the io thread only (no locking needed): pulls (GETDATA/RESULT
-    /// exchanges) queued or in progress, and items currently being evaluated on the compute pool. The
-    /// client keeps pending_pulls_ + computing_ == prefetch_depth_ whenever work is available.
-    std::size_t pending_pulls_ = 0;
-    std::size_t computing_ = 0;
 
     /// Serialized requests waiting for a connection (only one connection runs at a time, so completed
     /// evaluations and GETDATA top-ups queue here and are sent one after another).
     std::deque<std::string> exchange_queue_;
     bool exchanging_ = false; ///< Whether a connection cycle is currently in progress
 
-    boost::asio::steady_timer halt_timer_{
-        io_context_
-    }; ///< Periodically polls halt() so a stop is noticed even while all items are computing
-    boost::asio::steady_timer nodata_timer_{
-        io_context_
-    }; ///< Backoff timer that retries a GETDATA top-up after a NODATA reply (async, never blocks)
     boost::asio::steady_timer reconnect_timer_{
         io_context_
     }; ///< Backoff timer for connection retries (async, never blocks the io thread)
@@ -794,15 +692,8 @@ private:
     /// request. The context's fetch_blob resolves a cache miss via a synchronous side connection (see
     /// fetch_layout_blob_). Declared before compute_pool_ so the pool (and its threads) are destroyed
     /// first -- a compute thread never touches these, but keep teardown order unsurprising.
-    Gem::Courtier::GWireLayoutRegistry wire_registry_;
-    Gem::Courtier::GWireSerializationContext wire_ctx_;
     Gem::Courtier::GWirePeerId peer_id_ = 0;
 
-    /// A thread pool that runs the (possibly long, unbounded) work-item evaluations OFF the io thread,
-    /// so the io thread stays free to run connection exchanges while items are computed. Sized to the
-    /// prefetch depth so all in-flight items can compute concurrently. Declared last so it is destroyed
-    /// (and its threads joined) before io_context_.
-    boost::asio::thread_pool compute_pool_;
 };
 
 /******************************************************************************/

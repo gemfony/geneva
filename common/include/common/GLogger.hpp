@@ -206,16 +206,16 @@ private:
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
+// The streamer type produced by GLogger's streaming operators; defined further down in this header.
+class GLogStreamer;
+
 /**
  * This class serves as the front end of the logging infrastructure. An object of
  * this type is accessible through a singleton to all entities in the program.
- * Upon invocation of the streaming operator it produces an object which is supposed
- * to handle the rest of the work, either using the log targets stored in the
- * GLogger object or letting manipulators output the work.
- *
- * @tparam S The streamer type ("S") instantiated on each streaming operation (typically GLogStreamer)
+ * Upon invocation of the streaming operator it produces a GLogStreamer object
+ * which is supposed to handle the rest of the work, either using the log targets
+ * stored in the GLogger object or letting manipulators output the work.
  */
-template <class S> // "S" means "streamer"
 class GLogger {
 public:
     /***************************************************************************/
@@ -223,108 +223,55 @@ public:
     // Rule of five
 
     GLogger() = default;
-    GLogger(GLogger<S> const &) = delete;
-    GLogger(GLogger<S> &&) noexcept(false) = default;
+    GLogger(GLogger const &) = delete;
+    // The mutex member makes the class immovable; say so explicitly (a defaulted move would be
+    // implicitly deleted anyway -- the former class template only hid that diagnostic).
+    GLogger(GLogger &&) = delete;
     ~GLogger() = default;
 
-    GLogger<S> &operator=(GLogger<S> const &) = delete;
-    GLogger<S> &operator=(GLogger<S> &&) noexcept(false) = default;
+    GLogger &operator=(GLogger const &) = delete;
+    GLogger &operator=(GLogger &&) = delete;
 
     /***************************************************************************/
     /**
 		 * @brief Forwards a streamed value to a newly created streamer object
 		 *
-		 * This function will forward all arguments to a newly created object
-		 * of type S. Note that the function returns the S object by value. It
+		 * This function will forward all arguments to a newly created
+		 * GLogStreamer. Note that the function returns the streamer by value. It
 		 * will not survive beyond the end of the stream-chain.
 		 *
 		 * @tparam T The type of the value being streamed
-		 * @param t The value to be streamed into the new S object
-		 * @return A freshly created S object holding the streamed value
+		 * @param t The value to be streamed into the new streamer object
+		 * @return A freshly created GLogStreamer holding the streamed value
 		 */
     template <typename T>
-    S operator<<(T const &t) {
-        S s;
-        s << t;
-        return s;
-    }
+    GLogStreamer operator<<(T const &t);
 
-    /******************************************************************************/
-    /**
-	  * @brief Forwards a std::ostream manipulator (e.g. std::endl) to a new streamer
-	  *
-	  * Needed for ostringstream
-	  *
-	  * @param val A std::ostream manipulator function pointer
-	  * @return A freshly created S object with the manipulator applied
-	  */
-    S operator<<(std::ostream &(*val)(std::ostream &)) {
-        S s;
-        s << val;
-        return s;
-    }
+    /** @brief Forwards a std::ostream manipulator (e.g. std::endl) to a new streamer
+     *  @param val A std::ostream manipulator function pointer
+     *  @return A freshly created GLogStreamer with the manipulator applied */
+    GLogStreamer operator<<(std::ostream &(*val)(std::ostream &));
 
-    /******************************************************************************/
-    /**
-	  * @brief Forwards a std::ios manipulator to a new streamer
-	  *
-	  * Needed for ostringstream
-	  *
-	  * @param val A std::ios manipulator function pointer
-	  * @return A freshly created S object with the manipulator applied
-	  */
-    S operator<<(std::ios &(*val)(std::ios &)) {
-        S s;
-        s << val;
-        return s;
-    }
+    /** @brief Forwards a std::ios manipulator to a new streamer
+     *  @param val A std::ios manipulator function pointer
+     *  @return A freshly created GLogStreamer with the manipulator applied */
+    GLogStreamer operator<<(std::ios &(*val)(std::ios &));
 
-    /******************************************************************************/
-    /**
-	  * @brief Forwards a std::ios_base manipulator to a new streamer
-	  *
-	  *  Needed for ostringstream
-	  *
-	  * @param val A std::ios_base manipulator function pointer
-	  * @return A freshly created S object with the manipulator applied
-	  */
-    S operator<<(std::ios_base &(*val)(std::ios_base &)) {
-        S s;
-        s << val;
-        return s;
-    }
+    /** @brief Forwards a std::ios_base manipulator to a new streamer
+     *  @param val A std::ios_base manipulator function pointer
+     *  @return A freshly created GLogStreamer with the manipulator applied */
+    GLogStreamer operator<<(std::ios_base &(*val)(std::ios_base &));
 
-    /***************************************************************************/
-    /**
-      * @brief Creates a streamer carrying a source-extension specifier
-      *
-      * This function instructs the logger architecture to emit additional
-      * specifications for the data being logged. When writing to the console,
-      * a corresponding text will be emitted. When writing to a file, the
-      * modifier will be appended with an underscore to the filename.
-      *
-      * @param extension The source-extension specifier to attach to the streamer
-      * @return A freshly created S object carrying the extension
-      */
-    S operator()(std::string const &extension) {
-        S s(extension);
-        return s;
-    }
+    /** @brief Creates a streamer carrying a source-extension specifier (emitted
+     *  alongside console output / appended to a log-file name with an underscore)
+     *  @param extension The source-extension specifier to attach to the streamer
+     *  @return A freshly created GLogStreamer carrying the extension */
+    GLogStreamer operator()(std::string const &extension);
 
-    /***************************************************************************/
-    /**
-      * @brief Creates a streamer that logs to a specific one-time log file
-      *
-      * This function instructs the logger architecture to emit data to the file
-      * specified by the std::filesystem::path object
-      *
-      * @param p The path of the one-time log file to write to
-      * @return A freshly created S object bound to the given log file
-      */
-    S operator()(std::filesystem::path p) {
-        S s(p);
-        return s;
-    }
+    /** @brief Creates a streamer that logs to a specific one-time log file
+     *  @param p The path of the one-time log file to write to
+     *  @return A freshly created GLogStreamer bound to the given log file */
+    GLogStreamer operator()(std::filesystem::path p);
 
     /***************************************************************************/
     /**
@@ -806,6 +753,45 @@ private:
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
+// GLogger's streamer-producing operators. They construct a GLogStreamer by
+// value, so their definitions must follow the streamer's class definition.
+
+template <typename T>
+GLogStreamer GLogger::operator<<(T const &t) {
+    GLogStreamer s;
+    s << t;
+    return s;
+}
+
+inline GLogStreamer GLogger::operator<<(std::ostream &(*val)(std::ostream &)) {
+    GLogStreamer s;
+    s << val;
+    return s;
+}
+
+inline GLogStreamer GLogger::operator<<(std::ios &(*val)(std::ios &)) {
+    GLogStreamer s;
+    s << val;
+    return s;
+}
+
+inline GLogStreamer GLogger::operator<<(std::ios_base &(*val)(std::ios_base &)) {
+    GLogStreamer s;
+    s << val;
+    return s;
+}
+
+inline GLogStreamer GLogger::operator()(std::string const &extension) {
+    return GLogStreamer(extension);
+}
+
+inline GLogStreamer GLogger::operator()(std::filesystem::path p) {
+    return GLogStreamer(std::move(p));
+}
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
 
 /******************************************************************************/
 /**
@@ -816,7 +802,7 @@ private:
  * use-after-free hazard structurally.
  */
 template <>
-struct gsingleton_never_destroy<GLogger<GLogStreamer>> : std::true_type {};
+struct gsingleton_never_destroy<GLogger> : std::true_type {};
 
 /******************************************************************************/
 
@@ -826,7 +812,7 @@ struct gsingleton_never_destroy<GLogger<GLogStreamer>> : std::true_type {};
 /**
 * We currently require the global GLogStreamer object to be a singleton
 */
-using log_singleton = Gem::Common::GSingletonT<Gem::Common::GLogger<Gem::Common::GLogStreamer>>;
+using log_singleton = Gem::Common::GSingletonT<Gem::Common::GLogger>;
 #define glogger_ptr log_singleton::instance()
 #define glogger     (*(log_singleton::instance()))
 

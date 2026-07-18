@@ -171,6 +171,25 @@ are in `CHANGES` and `INSTALL`; this file is the practical upgrade guide.
 - **Two benchmark directories were renamed** for the same reason: `GBrokerOverhead` →
   `GConsumerOverhead` and `GBrokerSanityChecks` → `GConsumerSanityChecks` (the
   executable names change accordingly).
+- **common: `GLogger` is no longer a class template.** The single streamer type it ever
+  produced (`GLogStreamer`) is now fixed; code naming `GLogger<GLogStreamer>` drops the
+  template arguments. The `glogger` singleton and all streaming behavior are unchanged.
+- **common: the parser's reference-parameter proxy classes were removed**
+  (`GFileReferenceParsableParameterT` and its vector/array siblings). The
+  `registerFileParameter(name, reference, default, ...)` overloads are **unchanged** —
+  they now assign through the callback proxy internally; the on-disk config format is
+  identical. The test-only helpers `configureFromFile()` and `GParserBuilder::cl_at()`
+  were removed as well.
+- **dietrich: the public headers no longer re-export all of `Gem::Common`** (the former
+  `using namespace Gem::Common;` in every header). The specific common names dietrich's
+  own API uses are still imported per-name; a consumer that relied on the blanket
+  re-export for its *own* unqualified use of common names must now qualify or import
+  them itself.
+- **courtier: the socket consumers/clients gained shared bases** — `GAsioConsumerT` /
+  `GWebsocketConsumerT` now derive from `GTcpAcceptingConsumerT` (the common TCP server
+  shell) and `GAsioConsumerClientT` / `GWebsocketClientT` from `GPrefetchingClientT`
+  (the common prefetch/compute pipeline). Public construction, options and the wire
+  protocol are unchanged; only code naming the old direct base classes is affected.
 
 ## 8. Checkpointing
 

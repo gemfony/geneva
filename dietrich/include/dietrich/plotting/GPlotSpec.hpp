@@ -38,10 +38,6 @@
 
 namespace Gem::Dietrich {
 
-// The plotting library builds on common's facilities (logging, serialization helpers,
-// exception types, make_member, EmitStream, ...); make them visible here without
-// per-name qualification. This affects lookup only within Gem::Dietrich.
-using namespace Gem::Common;
 
 /******************************************************************************/
 /**
@@ -165,17 +161,17 @@ struct GPlotSpec {
      */
     [[nodiscard]] std::string toJson() const {
         std::string out = "{";
-        out += "\"kind\": \"" + jsonEscape_(to_string(kind)) + "\"";
-        out += ", \"role\": \"" + jsonEscape_(role) + "\"";
-        out += ", \"name\": \"" + jsonEscape_(name) + "\"";
-        out += ", \"x_label\": \"" + jsonEscape_(x_label) + "\"";
-        out += ", \"y_label\": \"" + jsonEscape_(y_label) + "\"";
-        out += ", \"z_label\": \"" + jsonEscape_(z_label) + "\"";
-        out += ", \"drawing_args\": \"" + jsonEscape_(drawing_args) + "\"";
+        out += "\"kind\": \"" + jsonEscape(to_string(kind)) + "\"";
+        out += ", \"role\": \"" + jsonEscape(role) + "\"";
+        out += ", \"name\": \"" + jsonEscape(name) + "\"";
+        out += ", \"x_label\": \"" + jsonEscape(x_label) + "\"";
+        out += ", \"y_label\": \"" + jsonEscape(y_label) + "\"";
+        out += ", \"z_label\": \"" + jsonEscape(z_label) + "\"";
+        out += ", \"drawing_args\": \"" + jsonEscape(drawing_args) + "\"";
         out += ", \"columns\": [";
         for(std::size_t c = 0; c < columns.size(); ++c) {
             out += (c == 0 ? "" : ", ");
-            out += "\"" + jsonEscape_(columns[c]) + "\"";
+            out += "\"" + jsonEscape(columns[c]) + "\"";
         }
         out += "]";
         if(n_bins_x.has_value()) {
@@ -201,10 +197,10 @@ struct GPlotSpec {
         return out;
     }
 
-private:
     /***************************************************************************/
-    /** @brief Minimal JSON string escaping (quotes, backslashes, control chars). */
-    static std::string jsonEscape_(const std::string &in) {
+    /** @brief Minimal JSON string escaping (quotes, backslashes, control chars). Public and
+     *  static so the DATA backend's hand-assembled manifest fields escape identically. */
+    static std::string jsonEscape(const std::string &in) {
         std::string out;
         out.reserve(in.size() + 2);
         for(char c : in) {

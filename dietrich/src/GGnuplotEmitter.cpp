@@ -104,50 +104,26 @@ const std::vector<double> &asDoubleColumn(const GPlotColumn &c) {
 // command. The graph plotters expose their columns via the public const
 // column<I>() accessor added to GDataCollectorT.
 
-/** @brief The graph-plotter kind, used to group compatible plotters into one (s)plot. */
-enum class graphKind { g2d, g2ed, g3d, g4d };
-
-/** @brief Classify a plotter by its reported plotSpec().kind; throws if it is not one of
- *  the four graph plotters. */
-graphKind classifyGraph(const GBasePlotter &p) {
-    switch(p.plotSpec().kind) {
-        case plotKind::graph_2d:     return graphKind::g2d;
-        case plotKind::graph_2d_err: return graphKind::g2ed;
-        case plotKind::graph_3d:     return graphKind::g3d;
-        case plotKind::graph_4d:     return graphKind::g4d;
-        default:                     break;
-    }
-    throw geneva_exception(
-        g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-        << "In GnuplotEmitter::emitDocument(): Error!" << '\n'
-        << "the gnuplot backend supports only graph plotters; use the ROOT backend for "
-        << p.getPlotterName() << '\n'
-    );
-}
-
-/** @brief Whether a (s)plot groups 2-d (plot) or 3-d (splot) datasets. */
-bool isThreeDimensional(graphKind k) {
-    return k == graphKind::g3d || k == graphKind::g4d;
-}
-
 /** @brief The `with <style> ...` spec for a plotter's dataset (the dataset source -- a named
  *  datablock -- is prepended by the caller). gnuplot cannot read inline `'-'` data inside a
  *  `set multiplot` block, so each dataset is emitted as a `$Dn` datablock and referenced here. */
-std::string datasetSpec(const GBasePlotter &p, graphKind k) {
+std::string datasetSpec(const GBasePlotter &p, scriptKind k) {
     EmitStream spec; // NOLINT(cppcoreguidelines-init-variables)
-    const std::string title = gnuplotEscape(p.plotLabel());
+    const std::string title = backslashEscape(p.plotLabel());
     switch(k) {
-        case graphKind::g2d:
+        case scriptKind::g2d:
             spec << "with linespoints title \"" << title << "\"";
             break;
-        case graphKind::g2ed:
+        case scriptKind::g2ed:
             spec << "with xyerrorbars title \"" << title << "\"";
             break;
-        case graphKind::g3d:
+        case scriptKind::g3d:
             spec << "with linespoints title \"" << title << "\"";
             break;
-        case graphKind::g4d:
+        case scriptKind::g4d:
             spec << "using 1:2:3:4 with points palette pointtype 7 title \"" << title << "\"";
+            break;
+        default: // unreachable: validateScriptPads rejected the histogram kinds up front
             break;
     }
     return spec.str();
@@ -155,7 +131,7 @@ std::string datasetSpec(const GBasePlotter &p, graphKind k) {
 
 /** @brief A plotter's data rows (one point per line). Used as the body of a gnuplot `$Dn << EOD`
  *  datablock, so it carries no `e`/`EOD` terminator -- the caller adds it. */
-std::string datasetRows(const GBasePlotter &p, graphKind k, const std::string &indent) {
+std::string datasetRows(const GBasePlotter &p, scriptKind k, const std::string &indent) {
     EmitStream rows; // NOLINT(cppcoreguidelines-init-variables)
     // Columns come back in storage order (see plotSpec().columns); the gnuplot row
     // layout is the same EXCEPT GGraph2ED, whose stored (x, ex, y, ey) is re-ordered
@@ -163,14 +139,14 @@ std::string datasetRows(const GBasePlotter &p, graphKind k, const std::string &i
     // Graph plotters are always float64, so each column is read as a double vector.
     const auto cols = p.dataColumns();
     switch(k) {
-        case graphKind::g2d: {
+        case scriptKind::g2d: {
             const auto &x = asDoubleColumn(cols[0]);
             const auto &y = asDoubleColumn(cols[1]);
             for(std::size_t i = 0; i < x.size(); ++i) {
                 rows << indent << x[i] << ' ' << y[i] << '\n';
             }
         } break;
-        case graphKind::g2ed: {
+        case scriptKind::g2ed: {
             const auto &x  = asDoubleColumn(cols[0]);
             const auto &ex = asDoubleColumn(cols[1]);
             const auto &y  = asDoubleColumn(cols[2]);
@@ -179,7 +155,7 @@ std::string datasetRows(const GBasePlotter &p, graphKind k, const std::string &i
                 rows << indent << x[i] << ' ' << y[i] << ' ' << ex[i] << ' ' << ey[i] << '\n';
             }
         } break;
-        case graphKind::g3d: {
+        case scriptKind::g3d: {
             const auto &x = asDoubleColumn(cols[0]);
             const auto &y = asDoubleColumn(cols[1]);
             const auto &z = asDoubleColumn(cols[2]);
@@ -187,7 +163,7 @@ std::string datasetRows(const GBasePlotter &p, graphKind k, const std::string &i
                 rows << indent << x[i] << ' ' << y[i] << ' ' << z[i] << '\n';
             }
         } break;
-        case graphKind::g4d: {
+        case scriptKind::g4d: {
             const auto &x = asDoubleColumn(cols[0]);
             const auto &y = asDoubleColumn(cols[1]);
             const auto &z = asDoubleColumn(cols[2]);
@@ -196,6 +172,8 @@ std::string datasetRows(const GBasePlotter &p, graphKind k, const std::string &i
                 rows << indent << x[i] << ' ' << y[i] << ' ' << z[i] << ' ' << w[i] << '\n';
             }
         } break;
+        default: // unreachable: validateScriptPads rejected the histogram kinds up front
+            break;
     }
     return rows.str();
 }
@@ -222,30 +200,12 @@ std::string GnuplotEmitter::emitDocument(const GPlotDesigner &gpd) const {
     EmitStream result; // NOLINT(cppcoreguidelines-init-variables)
 
     // Validate ALL plotters (and their secondaries) up front, so a partial script is
-    // never produced for an unsupported plotter type.
-    for(const auto &p : gpd.plotters_cnt_) {
-        const graphKind k = classifyGraph(*p);
-        for(const auto &sp : p->secondaryPlotters()) {
-            const graphKind sk = classifyGraph(*sp);
-            if(isThreeDimensional(k) != isThreeDimensional(sk)) {
-                throw geneva_exception(
-                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                    << "In GnuplotEmitter::emitDocument(): Error!" << '\n'
-                    << "a 2-d and a 3-d graph cannot share a single gnuplot pad ("
-                    << p->getPlotterName() << " vs. " << sp->getPlotterName() << ")" << '\n'
-                );
-            }
-        }
-    }
-
-    if(gpd.plotters_cnt_.size() > max_plots) {
-        glogger << "In GnuplotEmitter::emitDocument() (Canvas label = \"" << gpd.getCanvasLabel()
-                << "\":" << '\n'
-                << "Warning! Found more plots than pads (" << gpd.plotters_cnt_.size() << " vs. "
-                << max_plots << ")" << '\n'
-                << "Some of the plots will be ignored" << '\n'
-                << GWARNING;
-    }
+    // never produced for an unsupported plotter type (the gnuplot backend supports only
+    // the graph plotters); a 2-d and a 3-d graph cannot share one pad.
+    validateScriptPads(gpd.plotters_cnt_, false, "GnuplotEmitter::emitDocument()", "gnuplot");
+    warnPadOverflow(
+        "GnuplotEmitter::emitDocument()", gpd.getCanvasLabel(), gpd.plotters_cnt_.size(), max_plots
+    );
 
     const std::string &indent = gpd.indent();
 
@@ -268,7 +228,7 @@ std::string GnuplotEmitter::emitDocument(const GPlotDesigner &gpd) const {
             }
             for(const auto *dp : pad) {
                 result << "$D" << db_idx << " << EOD" << '\n'
-                       << datasetRows(*dp, classifyGraph(*dp), "") << "EOD" << '\n';
+                       << datasetRows(*dp, classifyForScript(*dp, false, "GnuplotEmitter::emitDocument()", "gnuplot"), "") << "EOD" << '\n';
                 ++db_idx;
             }
         }
@@ -277,7 +237,7 @@ std::string GnuplotEmitter::emitDocument(const GPlotDesigner &gpd) const {
 
     // The multiplot grid (rows = c_y_div, cols = c_x_div).
     result << "set multiplot layout " << rows << "," << cols << " title \""
-           << gnuplotEscape(gpd.getCanvasLabel()) << "\"" << '\n' << '\n';
+           << backslashEscape(gpd.getCanvasLabel()) << "\"" << '\n' << '\n';
 
     // Pass 2 -- per pad: axis labels / title, then a plot/splot referencing the datablocks. The
     // datablock counter advances in the SAME order as pass 1, so $Dn lines up with its data.
@@ -288,19 +248,20 @@ std::string GnuplotEmitter::emitDocument(const GPlotDesigner &gpd) const {
             break;
         }
 
-        const graphKind k = classifyGraph(*p);
-        const bool three_d = isThreeDimensional(k);
+        const scriptKind k =
+            classifyForScript(*p, false, "GnuplotEmitter::emitDocument()", "gnuplot");
+        const bool three_d = isThreeDimensionalScript(k);
 
         // Per-pad axis labels and title.
-        result << indent << "set xlabel \"" << gnuplotEscape(p->xAxisLabel()) << "\"" << '\n'
-               << indent << "set ylabel \"" << gnuplotEscape(p->yAxisLabel()) << "\"" << '\n';
+        result << indent << "set xlabel \"" << backslashEscape(p->xAxisLabel()) << "\"" << '\n'
+               << indent << "set ylabel \"" << backslashEscape(p->yAxisLabel()) << "\"" << '\n';
         if(three_d) {
-            result << indent << "set zlabel \"" << gnuplotEscape(p->zAxisLabel()) << "\"" << '\n';
+            result << indent << "set zlabel \"" << backslashEscape(p->zAxisLabel()) << "\"" << '\n';
         }
-        result << indent << "set title \"" << gnuplotEscape(p->plotLabel()) << "\"" << '\n';
+        result << indent << "set title \"" << backslashEscape(p->plotLabel()) << "\"" << '\n';
 
         // GGraph4D maps its w-component to a colour palette.
-        if(k == graphKind::g4d) {
+        if(k == scriptKind::g4d) {
             result << indent << "set palette" << '\n';
         }
 
@@ -315,7 +276,7 @@ std::string GnuplotEmitter::emitDocument(const GPlotDesigner &gpd) const {
         result << indent << (three_d ? "splot " : "plot ");
         for(std::size_t i = 0; i < pad.size(); ++i) {
             result << (i == 0 ? "" : ", ") << "$D" << db_ref << ' '
-                   << datasetSpec(*pad[i], classifyGraph(*pad[i]));
+                   << datasetSpec(*pad[i], classifyForScript(*pad[i], false, "GnuplotEmitter::emitDocument()", "gnuplot"));
             ++db_ref;
         }
         result << '\n' << '\n';

@@ -84,40 +84,11 @@ std::string OctaveEmitter::fileExtension() const {
 namespace {
 
 /******************************************************************************/
-// Helpers backing the Octave / MATLAB backend. The plotters expose their columns via
-// the public const column<I>() accessor on GDataCollectorT; coordinates are emitted
-// into Octave row-vector literals at full (round-trippable) precision through an
-// EmitStream. Everything emitted stays inside the Octave-and-MATLAB COMMON CORE (base
-// functions only -- no toolboxes / packages), so a plain `octave` can run the script.
-
-/** @brief The plotter kind the Octave backend understands. */
-enum class octKind { g2d, g2ed, g3d, g4d, hist1d, hist1i, hist2d };
-
-/** @brief Classify a plotter for the Octave backend; throws for unsupported types
- *  (e.g. function plotters), directing the caller to the ROOT backend. */
-octKind classifyOct(const GBasePlotter &p) {
-    switch(p.plotSpec().kind) {
-        case plotKind::graph_2d:     return octKind::g2d;
-        case plotKind::graph_2d_err: return octKind::g2ed;
-        case plotKind::graph_3d:     return octKind::g3d;
-        case plotKind::graph_4d:     return octKind::g4d;
-        case plotKind::hist_2d:      return octKind::hist2d;
-        case plotKind::hist_1d:      return octKind::hist1d;
-        case plotKind::hist_1i:      return octKind::hist1i;
-        default:                     break;
-    }
-    throw geneva_exception(
-        g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-        << "In OctaveEmitter::emitDocument(): Error!" << '\n'
-        << "the Octave backend does not support " << p.getPlotterName()
-        << "; use the ROOT backend for it" << '\n'
-    );
-}
-
-/** @brief Whether a plotter is drawn into a 3-d Axes (plot3 / scatter3). */
-bool isThreeDimensionalOct(octKind k) {
-    return k == octKind::g3d || k == octKind::g4d;
-}
+// Helpers backing the Octave / MATLAB backend. The classification / validation /
+// column-literal skeleton is the shared script-backend driver in detail/GPlotDetail.hpp;
+// only the Octave-specific escaping and plotting calls live here. Everything emitted
+// stays inside the Octave-and-MATLAB COMMON CORE (base functions only -- no toolboxes /
+// packages), so a plain `octave` can run the script.
 
 /** @brief Escape a user string for a single-quoted Octave / MATLAB string literal: a
  *  literal apostrophe doubles to '', and embedded newlines (which cannot appear inside a
@@ -135,28 +106,10 @@ std::string octaveEscape(const std::string &in) {
     return out;
 }
 
-/** @brief Emit one numeric column as an Octave row-vector literal `[v0, v1, ...]` at full
- *  precision. Works for both float64 and int32 element types. */
-template <typename T>
-std::string octRow(const std::vector<T> &col) {
-    EmitStream out; // NOLINT(cppcoreguidelines-init-variables)
-    out << '[';
-    for(std::size_t i = 0; i < col.size(); ++i) {
-        out << (i == 0 ? "" : ", ") << col[i];
-    }
-    out << ']';
-    return out.str();
-}
-
-/** @brief Emit a type-tagged column (float64 or int32) as an Octave row-vector literal. */
-std::string octRowCol(const GPlotColumn &c) {
-    return std::visit([](const auto *v) { return octRow(*v); }, c);
-}
-
 /** @brief Emit the Octave plotting call(s) for ONE plotter into the current subplot (a
  *  `hold on` is already in effect, so secondaries overlay). Data are written as inline
  *  row-vector literals; bin counts come from the plot spec. */
-std::string octPlotCall(const GBasePlotter &p, octKind k) {
+std::string octPlotCall(const GBasePlotter &p, scriptKind k) {
     EmitStream call; // NOLINT(cppcoreguidelines-init-variables)
     const std::string label = octaveEscape(p.plotLabel());
     // Columns in storage order (see plotSpec().columns). GGraph2ED's stored order is
@@ -164,38 +117,38 @@ std::string octPlotCall(const GBasePlotter &p, octKind k) {
     const auto cols = p.dataColumns();
     const GPlotSpec spec = p.plotSpec();
     switch(k) {
-        case octKind::g2d: {
-            call << "plot(" << octRowCol(cols[0]) << ", " << octRowCol(cols[1])
+        case scriptKind::g2d: {
+            call << "plot(" << bracketedRowCol(cols[0]) << ", " << bracketedRowCol(cols[1])
                  << ", '-o', 'DisplayName', '" << label << "');" << '\n';
         } break;
-        case octKind::g2ed: {
+        case scriptKind::g2ed: {
             // Y-error bars only: a single errorbar() carrying BOTH x- and y-error is not
             // portable across base Octave and MATLAB, so the x-error column is omitted here.
-            call << "errorbar(" << octRowCol(cols[0]) << ", " << octRowCol(cols[2]) << ", "
-                 << octRowCol(cols[3]) << ", 'o', 'DisplayName', '" << label << "');" << '\n';
+            call << "errorbar(" << bracketedRowCol(cols[0]) << ", " << bracketedRowCol(cols[2]) << ", "
+                 << bracketedRowCol(cols[3]) << ", 'o', 'DisplayName', '" << label << "');" << '\n';
         } break;
-        case octKind::g3d: {
-            call << "plot3(" << octRowCol(cols[0]) << ", " << octRowCol(cols[1]) << ", "
-                 << octRowCol(cols[2]) << ", 'DisplayName', '" << label << "');" << '\n';
+        case scriptKind::g3d: {
+            call << "plot3(" << bracketedRowCol(cols[0]) << ", " << bracketedRowCol(cols[1]) << ", "
+                 << bracketedRowCol(cols[2]) << ", 'DisplayName', '" << label << "');" << '\n';
         } break;
-        case octKind::g4d: {
+        case scriptKind::g4d: {
             // 3-d scatter coloured by the w-component, with a colourbar.
-            call << "scatter3(" << octRowCol(cols[0]) << ", " << octRowCol(cols[1]) << ", "
-                 << octRowCol(cols[2]) << ", 36, " << octRowCol(cols[3]) << ", 'filled');" << '\n'
+            call << "scatter3(" << bracketedRowCol(cols[0]) << ", " << bracketedRowCol(cols[1]) << ", "
+                 << bracketedRowCol(cols[2]) << ", 36, " << bracketedRowCol(cols[3]) << ", 'filled');" << '\n'
                  << "colorbar;" << '\n';
         } break;
-        case octKind::hist1d:
-        case octKind::hist1i: {
+        case scriptKind::hist1d:
+        case scriptKind::hist1i: {
             // A 1-d histogram of the raw samples (float64 or int32); same base call.
             // A histogram spec always carries its bin counts; the fallback is unreachable
-            call << "hist(" << octRowCol(cols[0]) << ", "
+            call << "hist(" << bracketedRowCol(cols[0]) << ", "
                  << spec.n_bins_x.value_or(Gem::Common::DEFAULTNBINSGPD) << ");" << '\n';
         } break;
-        case octKind::hist2d: {
+        case scriptKind::hist2d: {
             // A base-only 2-d histogram: bin x and y with histc over linspace edges, sum
             // the counts with accumarray, and draw the grid with imagesc (hist3 is avoided
             // -- it needs the statistics toolbox / package).
-            call << "_x = " << octRowCol(cols[0]) << "; _y = " << octRowCol(cols[1]) << ";"
+            call << "_x = " << bracketedRowCol(cols[0]) << "; _y = " << bracketedRowCol(cols[1]) << ";"
                  << '\n'
                  << "_nbx = " << spec.n_bins_x.value_or(Gem::Common::DEFAULTNBINSGPD)
                  << "; _nby = " << spec.n_bins_y.value_or(Gem::Common::DEFAULTNBINSGPD) << ";" << '\n'
@@ -235,31 +188,12 @@ std::string OctaveEmitter::emitDocument(const GPlotDesigner &gpd) const {
     EmitStream result; // NOLINT(cppcoreguidelines-init-variables)
 
     // Validate ALL plotters (and their secondaries) up front, so a partial script is
-    // never produced for an unsupported plotter type. A 2-d and a 3-d plotter cannot
+    // never produced for an unsupported plotter type; a 2-d and a 3-d plotter cannot
     // share one pad.
-    for(const auto &p : gpd.plotters_cnt_) {
-        const octKind k = classifyOct(*p);
-        for(const auto &sp : p->secondaryPlotters()) {
-            const octKind sk = classifyOct(*sp);
-            if(isThreeDimensionalOct(k) != isThreeDimensionalOct(sk)) {
-                throw geneva_exception(
-                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                    << "In OctaveEmitter::emitDocument(): Error!" << '\n'
-                    << "a 2-d and a 3-d graph cannot share a single Octave pad ("
-                    << p->getPlotterName() << " vs. " << sp->getPlotterName() << ")" << '\n'
-                );
-            }
-        }
-    }
-
-    if(gpd.plotters_cnt_.size() > max_plots) {
-        glogger << "In OctaveEmitter::emitDocument() (Canvas label = \"" << gpd.getCanvasLabel()
-                << "\":" << '\n'
-                << "Warning! Found more plots than pads (" << gpd.plotters_cnt_.size() << " vs. "
-                << max_plots << ")" << '\n'
-                << "Some of the plots will be ignored" << '\n'
-                << GWARNING;
-    }
+    validateScriptPads(gpd.plotters_cnt_, true, "OctaveEmitter::emitDocument()", "Octave");
+    warnPadOverflow(
+        "OctaveEmitter::emitDocument()", gpd.getCanvasLabel(), gpd.plotters_cnt_.size(), max_plots
+    );
 
     // Preamble: the canvas title as a leading comment (sgtitle is version-fragile, so it is
     // not emitted as a call), then the figure.
@@ -272,8 +206,9 @@ std::string OctaveEmitter::emitDocument(const GPlotDesigner &gpd) const {
         gpd.plotters_cnt_ | std::views::enumerate | std::views::take(max_plots)) {
         const std::size_t pad_idx = static_cast<std::size_t>(idx) + 1; // subplot indices start at 1
 
-        const octKind k = classifyOct(*p);
-        const bool three_d = isThreeDimensionalOct(k);
+        const scriptKind k =
+            classifyForScript(*p, true, "OctaveEmitter::emitDocument()", "Octave");
+        const bool three_d = isThreeDimensionalScript(k);
 
         result << "subplot(" << rows << ", " << cols << ", " << pad_idx << "); hold on;" << '\n';
 
@@ -288,7 +223,9 @@ std::string OctaveEmitter::emitDocument(const GPlotDesigner &gpd) const {
         // The primary plotter, then any secondary plotters overlaid in the same pad.
         result << octPlotCall(*p, k);
         for(const auto &sp : p->secondaryPlotters()) {
-            result << octPlotCall(*sp, classifyOct(*sp));
+            result << octPlotCall(
+                *sp, classifyForScript(*sp, true, "OctaveEmitter::emitDocument()", "Octave")
+            );
         }
         result << '\n';
     }

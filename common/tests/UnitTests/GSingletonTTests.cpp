@@ -39,7 +39,7 @@
 #include <string>
 
 #include "common/GGlobalOptionsT.hpp" // real never-destroy singleton (GGlobalOptionsT<T>)
-#include "common/GLogger.hpp"         // real never-destroy singleton (GLogger<GLogStreamer>)
+#include "common/GLogger.hpp"         // real never-destroy singleton (GLogger)
 #include "common/GSingletonT.hpp"
 
 using namespace Gem::Common;
@@ -213,7 +213,7 @@ TEST_CASE("GSingletonT: gsingleton_never_destroy trait wiring is correct",
     static_assert(not gsingleton_never_destroy<Payload_LeakyOff>::value);
 
     // The real singletons we enrolled.
-    static_assert(gsingleton_never_destroy<GLogger<GLogStreamer>>::value);
+    static_assert(gsingleton_never_destroy<GLogger>::value);
     static_assert(gsingleton_never_destroy<GGlobalOptionsT<std::string>>::value);
     static_assert(gsingleton_never_destroy<GGlobalOptionsT<int>>::value); // partial spec covers any T
 
@@ -229,7 +229,7 @@ TEST_CASE("GSingletonT::reset() is disabled for never-destroy singletons",
     static_assert(not resettable_singleton<Payload_Leaky>);
 
     // The real never-destroy singletons must likewise reject reset().
-    static_assert(not resettable_singleton<GLogger<GLogStreamer>>);
+    static_assert(not resettable_singleton<GLogger>);
     static_assert(not resettable_singleton<GGlobalOptionsT<std::string>>);
 
     SUCCEED("compile-time reset() availability checks passed");
