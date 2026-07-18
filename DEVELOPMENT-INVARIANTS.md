@@ -274,6 +274,38 @@ standing latent bug: it compiles in-tree (all headers present in the source tree
 moment a shipped header includes an un-shipped one, and the failure is invisible until someone builds against
 the install. Shipping the complete tree removes the drift and keeps every install self-contained.
 
+## 20. Replacing a mechanism replaces its periphery — the old design leaves whole, in the same change
+
+When a mechanism is redesigned or replaced, the change is **not complete** while any part of the old
+mechanism's periphery is still standing. The periphery is everything that existed only to serve the old
+design: its enums and enum values, constants, typedefs, serialized fields, virtual hooks, delivery/
+registration scaffolding, config keys and command-line options, factory entries, build-system options and
+install rules, tests and demos that exercised only the old path (Invariant 13), and every piece of
+documentation vocabulary that presents the old design as current (Invariant 12).
+
+- **The deleting sweep ships in the same change, or in an immediately-following one.** "Clean it up later"
+  is how a replaced design's edges become permanent: later never has a trigger, and the next redesign
+  stacks a second abandoned periphery on top of the first.
+- **A whole-tree usage search is the gate** (Invariant 11). For every identifier, serialized field name,
+  config key, option, and doc term of the replaced mechanism, search every library — headers AND sources,
+  examples, tests, benchmarks, docs, scripts, CMake. Each hit is either migrated to the new mechanism or
+  deleted with the old one; a change is reviewable as complete when that search comes back empty.
+- **Never keep a hand-synced duplicate of the old mechanism "for compatibility" or "just in case".** A
+  parallel copy maintained by hand next to the live one is worse than dead weight: the copies WILL drift,
+  and the drift is a latent bug that surfaces far from its cause. If genuine compatibility is required,
+  it is a designed, tested adapter over the new mechanism — not a retained copy of the old one.
+- **State each surviving fact once.** If the replacement leaves the same fact (a member list, a default, a
+  contract rule, a label/suffix convention) expressed in two places, fold them in the same change
+  (cf. Invariant 4 for serialization). Two statements of one fact are a drift waiting for a trigger.
+
+*Why:* a full-tree review found the same signature across half a dozen redesigns — each completed at its
+core and abandoned at its edges — and the second-order cost dominated: hand-synced leftovers had already
+drifted into real bugs (a status-machine rule duplicated into two classes where one copy silently lost an
+error flag; a copy constructor that drifted from the serialized member list and dropped fields on every
+clone; decorator and label conventions stated twice and disagreeing). Deleting the periphery at redesign
+time is Invariants 11 + 13 applied when the knowledge is freshest and the diff is smallest; deferring it
+converts cheap deletions into an accumulated review-and-repair bill, paid with interest.
+
 ---
 
 *Add new invariants below as the maintainer establishes them. Keep each rule short, mandatory, and
