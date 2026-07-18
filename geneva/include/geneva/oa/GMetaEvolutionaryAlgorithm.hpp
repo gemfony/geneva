@@ -41,6 +41,7 @@
 #include <boost/serialization/nvp.hpp>
 
 // Geneva headers
+#include "common/GMemberReflectionT.hpp"
 #include "common/concurrency/GThreadPool.hpp"
 #include "courtier/GExecutorStatusT.hpp"
 #include "geneva/oa/GEvolutionaryAlgorithm.hpp"
@@ -83,6 +84,22 @@ namespace Gem::Geneva::OptimizationAlgorithms {
  * it overrides only the per-generation evaluation seam (evaluatePopulationRange_) and clone_().
  */
 class GMetaEvolutionaryAlgorithm : public GEvolutionaryAlgorithm {
+protected:
+    /***************************************************************************/
+    /**
+     * @brief Single declaration of this class'es local data members (mutable access). The transient
+     * orchestration_pool_ is deliberately NOT part of this tuple. Defined before its inline callers
+     * (serialize(), the copy constructor) so the deduced return type is available to them.
+     *
+     * @return A tuple of named, comparable/serializable references to this object's local data members
+     */
+    template <typename Self>
+    auto localMembers_(this Self &self) {
+        return std::make_tuple(
+            Gem::Common::make_member("n_orchestration_threads_", self.n_orchestration_threads_)
+        );
+    }
+
 private:
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
@@ -92,8 +109,10 @@ private:
         ar &boost::serialization::make_nvp(
             "GEvolutionaryAlgorithm",
             boost::serialization::base_object<GEvolutionaryAlgorithm>(*this));
-        // orchestration_pool_ / n_orchestration_threads_ are transient run state: not serialized,
-        // not compared (a clone or a resumed algorithm re-establishes the pool on first use).
+        // The plain local config members (the orchestration-pool size). orchestration_pool_ itself is
+        // transient run state: not serialized, not compared, not copied -- it is re-established on
+        // first use.
+        Gem::Common::serialize_members(ar, this->localMembers_());
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -107,12 +126,14 @@ public:
     /** @brief The default constructor */
     GMetaEvolutionaryAlgorithm() = default;
     /** @brief The copy constructor. The orchestration pool is transient run state, so a copy starts
-     *  without one (it is re-established on first use); only the evolved EA state is copied.
+     *  without one (it is re-established on first use); the local config members are copied through
+     *  localMembers_(), the same single source serialize()/load_()/compare_() use.
      *  @param cp The meta-EA to copy */
     GMetaEvolutionaryAlgorithm(const GMetaEvolutionaryAlgorithm &cp)
-      : GEvolutionaryAlgorithm(cp)
-      , n_orchestration_threads_(cp.n_orchestration_threads_)
-    { /* orchestration_pool_ deliberately left null -- rebuilt on first use */ }
+      : GEvolutionaryAlgorithm(cp) {
+        Gem::Common::g_load_members(this->localMembers_(), cp.localMembers_());
+        /* orchestration_pool_ deliberately left null -- rebuilt on first use */
+    }
     /** @brief The standard destructor */
     ~GMetaEvolutionaryAlgorithm() override = default;
 
@@ -124,6 +145,24 @@ public:
     [[nodiscard]] unsigned int getNOrchestrationThreads() const { return n_orchestration_threads_; }
 
 protected:
+    /***************************************************************************/
+    /** @brief Loads the data of another GMetaEvolutionaryAlgorithm. @param cp The other object */
+    void load_(const GOptimizationAlgorithmBase *cp) override;
+
+    /** @brief Allow access to this classes compare_ function */
+    friend void Gem::Common::compare_base_t<GMetaEvolutionaryAlgorithm>(
+        GMetaEvolutionaryAlgorithm const &,
+        GMetaEvolutionaryAlgorithm const &,
+        Gem::Common::GToken &
+    );
+
+    /** @brief Searches for compliance with expectations. @param cp other @param e expectation @param limit fp limit */
+    void compare_(
+        const GOptimizationAlgorithmBase &cp,
+        const Gem::Common::expectation &e,
+        const double &limit
+    ) const override;
+
     /***************************************************************************/
     /**
      * @brief Evaluates the population's [start, end) range on this meta-EA's OWN orchestration thread

@@ -66,6 +66,7 @@
 #include "geneva/oa/GAdaptionConfig.hpp"
 #include "geneva/oa/GConjugateGradientDescent.hpp"
 #include "geneva/oa/GEvolutionaryAlgorithm.hpp"
+#include "geneva/oa/GMetaEvolutionaryAlgorithm.hpp"
 #include "geneva/oa/GNelderMead.hpp"
 #include "geneva/oa/GParameterScan.hpp"
 #include "geneva/oa/GSepCmaEvolutionStrategy.hpp"
@@ -530,6 +531,60 @@ TEST_CASE("EA checkpoint round-trip preserves the per-individual adaption scratc
     CHECK(std::abs(b - 1.) < 0.3);
 
     std::filesystem::remove(cp);
+}
+
+/******************************************************************************/
+
+TEST_CASE("checkpoint directory is created lazily, and a final checkpoint is actually written", "[flat][oa]") {
+    namespace fs = std::filesystem;
+    namespace gind = Gem::Geneva::Individuals;
+    const std::vector<std::tuple<double, double>> data_points{{0., 0.}, {1., 1.}, {2., 2.}};
+
+    const fs::path cp_dir = fs::temp_directory_path() / "geneva-lazy-checkpoint-dir-test";
+    fs::remove_all(cp_dir);
+
+    auto makeRun = [&](std::int32_t cp_interval) {
+        auto pop = std::make_shared<oa::GEvolutionaryAlgorithm>();
+        pop->push_back(gind::GLineFitIndividual(data_points).clone_unique());
+        pop->setPopulationSizes(18, 6);
+        pop->setMaxIteration(5);
+        pop->setReportIteration(100000);
+        pop->setAdaptionConfig(
+            dynamic_cast<gind::GLineFitIndividual &>((*pop->at(0))).getAdaptionConfig());
+        pop->setCheckpointInterval(cp_interval);
+        pop->setCheckpointBaseName(cp_dir.string(), "lazy.cp");
+        return pop;
+    };
+
+    // Regression (2026-07-18): setCheckpointBaseName() eagerly created the directory (with a
+    // GLogger warning) for EVERY configured algorithm, checkpointing enabled or not -- e.g. once per
+    // default-constructed algorithm during build-time config materialization. Configuring must have
+    // no filesystem side effects.
+    auto idle = makeRun(0);
+    CHECK(not fs::exists(cp_dir)); // configuring created nothing
+
+    // With checkpointing disabled (cp_interval == 0) a full run must still create nothing --
+    // including no "final" checkpoint (checkpoint()'s halted() branch is gated on cp_interval != 0).
+    idle->optimize();
+    CHECK(not fs::exists(cp_dir));
+
+    // With checkpointing enabled the directory appears lazily at the first write, and the run ends
+    // with a "final" checkpoint. Regression (2026-07-18): halted_ is only set in the optimize loop's
+    // while-condition AFTER the in-loop checkpoint() call, so without the post-loop checkpoint()
+    // call no "final"-tagged file was ever written.
+    auto active = makeRun(2);
+    CHECK(not fs::exists(cp_dir)); // still lazy
+    active->optimize();
+    REQUIRE(fs::is_directory(cp_dir)); // created at the first actual write
+    bool have_final = false;
+    for(const auto &entry : fs::directory_iterator(cp_dir)) {
+        if(entry.path().filename().string().find("-final-") != std::string::npos) {
+            have_final = true;
+        }
+    }
+    CHECK(have_final); // the run's final state was checkpointed
+
+    fs::remove_all(cp_dir);
 }
 
 /******************************************************************************/
@@ -1588,6 +1643,58 @@ TEST_CASE("OA base copy preserves every configuration knob (copy ctor vs localMe
 
     // ... and the copy compares EQUAL on the full localMembers_-driven state.
     CHECK_NOTHROW(pop->compare(*copy, expectation::EQUALITY, 0.));
+}
+
+/******************************************************************************/
+
+TEST_CASE("individual copy runs through localMembers_ (copy ctor vs single source)", "[flat][oa]") {
+    using Gem::Common::expectation;
+
+    // Companion to the OA-base test above, one level down (2026-07-18): GOptimizableEntity's copy
+    // constructor also hand-enumerated its local members outside localMembers_(), so the next member
+    // added to the single source would silently not be cloned. The ctor now copies THROUGH
+    // localMembers_() like load_(); pin a perturbed, non-default state across a copy.
+    SphereOA src;
+    src.vetoPostProcessing(true);           // pre-/post-veto flags are localMembers_ state
+    src.process();                          // sets results / validity-related lifecycle state
+
+    auto copy = src.clone_unique();
+
+    // The copy compares EQUAL on the full localMembers_-driven state (a member missing from the
+    // copy path would surface as an inequality here).
+    CHECK_NOTHROW(src.compare(*copy, expectation::EQUALITY, 0.));
+    CHECK(copy->mayBePostProcessed() == src.mayBePostProcessed());
+    CHECK(copy->is_processed());
+}
+
+/******************************************************************************/
+
+TEST_CASE("meta-EA orchestration-thread count is real config: copied, serialized AND compared", "[flat][oa]") {
+    using Gem::Common::expectation;
+    using Gem::Common::serializationMode;
+
+    // Regression (2026-07-18): n_orchestration_threads_ was copied by the hand-written copy ctor but
+    // deliberately excluded from serialize()/load_()/compare_() as "transient" -- half config, half
+    // run state. A configured meta-EA lost the knob across a serialization round-trip, and two metas
+    // differing only in it compared EQUAL. It is now full config state routed through localMembers_()
+    // on all four paths (only the orchestration pool itself stays transient).
+    auto meta = std::make_shared<oa::GMetaEvolutionaryAlgorithm>();
+    meta->setNOrchestrationThreads(5);
+
+    // Copy path
+    auto copy = std::make_shared<oa::GMetaEvolutionaryAlgorithm>(*meta);
+    CHECK(copy->getNOrchestrationThreads() == 5);
+    CHECK_NOTHROW(meta->compare(*copy, expectation::EQUALITY, 0.));
+
+    // Serialization round-trip
+    auto restored = std::make_shared<oa::GMetaEvolutionaryAlgorithm>();
+    restored->fromString(meta->toString(serializationMode::XML), serializationMode::XML);
+    CHECK(restored->getNOrchestrationThreads() == 5);
+
+    // compare_ detects a difference in the knob
+    auto other = std::make_shared<oa::GMetaEvolutionaryAlgorithm>();
+    other->setNOrchestrationThreads(9);
+    CHECK_THROWS(meta->compare(*other, expectation::EQUALITY, 0.));
 }
 
 /******************************************************************************/

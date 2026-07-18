@@ -112,7 +112,7 @@ class GProcessingContainerT : public GProcessable {
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         using boost::serialization::make_nvp;
 
-        // The non-generic lifecycle state (status, errors, routing counters, timing) is serialised by
+        // The non-generic lifecycle state (status, errors, routing ids, timing) is serialised by
         // the GProcessable base; this class adds only the result store and the (typed) pre-/post-
         // processors plus their veto flags.
         ar &make_nvp("GProcessable", boost::serialization::base_object<GProcessable>(*this)) &
@@ -189,7 +189,7 @@ public:
     // here. The heavy members (stored_results_cnt_, stored_error_descriptions_,
     // pre_/post_processor_ptr_) have their ownership transferred rather than
     // being deep-copied as the copy operations do -- this is the point of being
-    // movable on the work-transport (broker / MPI / websocket) path. The
+    // movable on the work-transport (thread-pool / MPI / websocket) path. The
     // remaining scalar/enum/time-point members are moved trivially.
     GProcessingContainerT(
         GProcessingContainerT<processable_type, processing_result_type> &&
@@ -252,95 +252,16 @@ public:
     processing_result_type process(
         const std::vector<processing_result_type> &res_vec = std::vector<processing_result_type>()
     ) {
-        // We only accept items that are due for processing
-        if(processingStatus::DO_PROCESS != processing_status_) {
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GProcessingContainerT::process(): Function called while processing_status_ "
-                   "was set to "
-                << processing_status_ << '\n'
-                << "Expected " << processingStatus::DO_PROCESS << '\n'
-            );
-        }
+        // The full lifecycle (precondition, reset, timed pre -> core -> guarded post, exception
+        // funneling, error epilogue) is stated ONCE, on GProcessable::runProcessingLifecycle_.
+        this->runProcessingLifecycle_(
+            "GProcessingContainerT<processable_type>::process()",
+            [this] { this->preProcess_(); },
+            [this, &res_vec] { this->process_(res_vec); },
+            [this] { this->postProcess_(); }
+        );
 
-        // Assign a new evaluation id
-        // evaluation_id_ = std::string("eval_") + Gem::Common::to_string(boost::uuids::random_generator()());
-
-        // Clear the error descriptions
-        stored_error_descriptions_.clear();
-
-        // "Nullify the result list.
-        this->clear_stored_results_vec();
-
-        std::ostringstream error_description_stream; // NOLINT(cppcoreguidelines-init-variables)
-        processing_result_type main_result;
-
-        try {
-            // Perform the actual processing
-            const auto start_time = std::chrono::high_resolution_clock::now();
-            this->preProcess_();
-            const auto after_pre_processing = std::chrono::high_resolution_clock::now();
-
-            // Do the actual processing
-            this->process_(res_vec);
-
-            // The fitness has now been computed, so the work item is processed. Mark it PROCESSED
-            // BEFORE post-processing: a post-processor refines an ALREADY-EVALUATED item (e.g. by running
-            // a short sub-optimization) and rejects a dirty one. If processing flagged an error
-            // (ERROR_FLAGGED), the error status is left intact and post-processing is skipped.
-            const auto after_processing = std::chrono::high_resolution_clock::now();
-            if(not this->has_errors()) {
-                processing_status_ = processingStatus::PROCESSED;
-                this->postProcess_();
-            }
-            const auto after_post_processing = std::chrono::high_resolution_clock::now();
-
-            // Make a note of the time needed for each step
-            pre_processing_time_ =
-                std::chrono::duration<double>(after_pre_processing - start_time).count();
-            processing_time_ =
-                std::chrono::duration<double>(after_processing - after_pre_processing).count();
-            post_processing_time_ =
-                std::chrono::duration<double>(after_post_processing - after_processing).count();
-        }
-        catch(std::exception &e) {
-            // Let the audience know we had an error
-            processing_status_ = processingStatus::EXCEPTION_CAUGHT;
-            error_description_stream
-                << "In GProcessingContainerT<processable_type>::process():" << '\n'
-                << "Processing has thrown an exception with message" << '\n'
-                << e.what() << '\n'
-                << "We will rethrow this exception" << '\n';
-        }
-        catch(...) {
-            // Let the audience know we had an error
-            processing_status_ = processingStatus::EXCEPTION_CAUGHT;
-            error_description_stream
-                << "In GProcessingContainerT<processable_type>::process():" << '\n'
-                << "Processing has thrown an unknown exception." << '\n';
-        }
-
-        if(this->has_errors()) { // Either an exception was caught or the user has flagged an error
-            // Do some cleanup
-            pre_processing_time_ = 0.;
-            processing_time_ = 0.;
-            post_processing_time_ = 0.;
-
-            // "Nullify the result list.
-            this->clear_stored_results_vec();
-
-            // Store the exceptions for later reference
-            if(processingStatus::EXCEPTION_CAUGHT == processing_status_) {
-                // Error information added by the user might already be stored in this variable. Hence we use +=
-                stored_error_descriptions_ += error_description_stream.str();
-            }
-
-            throw g_processing_exception( // Note: this is a specific exception to flag errors during processing
-					g_error_streamer(DO_LOG, Gem::Common::timeAndPlace()) << stored_error_descriptions_
-				);
-        }
-
-        // This part of the code should never be reached if an exception was thrown
+        // This part of the code is only reached on success (the lifecycle throws on any error)
         return this->stored_results_cnt_.at(0);
     }
 
@@ -433,7 +354,7 @@ public:
     /**
 	  * @brief Allows to check whether any user-defined post-processing after the process()-
 	  * step may occur. This may be important if e.g. an optimization algorithm wants
-	  * to submit evaluation work items to the broker which may then start an optimization
+	  * to submit evaluation work items to the process consumer, which may then start an optimization
 	  * run on the individual. This may alter the individual's data.
 	  *
 	  * @return true if post-processing is currently allowed, false if it has been vetoed
@@ -638,7 +559,7 @@ private:
 
     /***************************************************************************/
     // Data -- the result store and the (typed) pre-/post-processors. The non-generic lifecycle state
-    // (status, errors, routing counters, dispatch-scheduling, timing) lives on the GProcessable base.
+    // (status, errors, routing ids, dispatch-scheduling, timing) lives on the GProcessable base.
 
     bool pre_processing_disabled_ = false; ///< Indicates whether pre-processing was disabled entirely
     bool post_processing_disabled_ =

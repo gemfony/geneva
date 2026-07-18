@@ -71,18 +71,26 @@ GOptimizableEntity::GOptimizableEntity(const std::size_t n_fitness_criteria)
 GOptimizableEntity::GOptimizableEntity(GOptimizableEntity const &cp)
   : Gem::Courtier::GProcessable(cp)
   , Gem::Common::GCommonInterfaceT<GOptimizableEntity>(cp)
-  , Interface::GRateableI(cp)
-  , pre_processing_disabled_(cp.pre_processing_disabled_)
-  , post_processing_disabled_(cp.post_processing_disabled_)
-  , stored_results_cnt_(cp.stored_results_cnt_)
-  , policy_(cp.policy_) // shared 1:N -- the clone references the same policy
-  , assigned_iteration_(cp.assigned_iteration_)
-  , validity_level_(cp.validity_level_)
-  // The OA-owned scratch is deep-copied (a clone mid-optimization keeps the live personality + adaption
-  // state, e.g. an EA child inheriting its parent's sigma).
-  , scratch_(cp.scratch_ ? std::make_unique<GAuxiliaryStore>(*cp.scratch_) : nullptr) {
+  , Interface::GRateableI(cp) {
+    // Copy the local state through the same single sources load_() uses, so a new localMembers_()
+    // entry is copied automatically and the two paths cannot drift (the same rework the
+    // GOptimizationAlgorithmBase copy constructor received when its hand-written member list had
+    // silently dropped fields).
+    Gem::Common::g_load_members(this->localMembers_(), cp.localMembers_());
+
+    // The result store is copied directly (serialized/loaded but not among the compared members).
+    stored_results_cnt_ = cp.stored_results_cnt_;
+
+    // The cloneable pre-/post-processors are deep-cloned; the shared policy is referenced (1:N).
     Gem::Common::copyCloneableSmartPointer(cp.pre_processor_ptr_, pre_processor_ptr_);
     Gem::Common::copyCloneableSmartPointer(cp.post_processor_ptr_, post_processor_ptr_);
+    policy_ = cp.policy_;
+
+    // The OA-owned scratch is deep-copied (a clone mid-optimization keeps the live personality +
+    // adaption state, e.g. an EA child inheriting its parent's sigma).
+    if(cp.scratch_) {
+        scratch_ = std::make_unique<GAuxiliaryStore>(*cp.scratch_);
+    }
 }
 
 /******************************************************************************/
@@ -164,99 +172,42 @@ individual_processing_result GOptimizableEntity::getStoredResult(const std::size
  */
 individual_processing_result
 GOptimizableEntity::process(const std::vector<individual_processing_result> &res_vec) {
-    using Gem::Courtier::processingStatus;
+    // The full lifecycle (precondition, reset, timed pre -> core -> guarded post, exception funneling,
+    // error epilogue) is stated ONCE, on GProcessable::runProcessingLifecycle_. Only the evaluation
+    // core is geneva-specific: it consults the process-global fault injector (no-op unless a
+    // GFaultInjector is registered -- a single null-pointer check on the default path), raises a THROW
+    // fault so it surfaces as EXCEPTION_CAUGHT, runs the actual evaluation, and applies a FLAG_ERROR
+    // fault after it, like a user flagging an error from within evaluate() (-> ERROR_FLAGGED).
+    this->runProcessingLifecycle_(
+        "GOptimizableEntity::process()",
+        [this] { this->preProcess_(); },
+        [this, &res_vec] {
+            GFaultInjector::Fault injected_fault = GFaultInjector::Fault::NONE;
+            if(GFaultInjector *injector = GFaultInjectorRegistry::get(); injector != nullptr) {
+                // Rare (test-only) path: lease a proxy for the fault injector; the candidate holds no RNG.
+                auto lease = Gem::Hap::randomLeasePool().acquire();
+                injected_fault = injector->evaluate(*this, *lease);
+            }
 
-    if(processingStatus::DO_PROCESS != processing_status_) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GOptimizableEntity::process(): Function called while processing_status_ was set to "
-            << processing_status_ << '\n'
-            << "Expected " << processingStatus::DO_PROCESS << '\n'
-        );
-    }
+            if(injected_fault == GFaultInjector::Fault::THROW) {
+                throw geneva_exception(
+                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+                    << "Fault injected during GOptimizableEntity::process() (THROW)" << '\n'
+                );
+            }
 
-    stored_error_descriptions_.clear();
-    this->clear_stored_results_vec();
+            this->runEvaluation_(res_vec);
 
-    std::ostringstream error_description_stream; // NOLINT(cppcoreguidelines-init-variables)
+            // An injected FLAG_ERROR fault mimics a user flagging an error from within evaluate()
+            if(injected_fault == GFaultInjector::Fault::FLAG_ERROR && not this->has_errors()) {
+                this->force_set_error(
+                    "Fault injected during GOptimizableEntity::process() (FLAG_ERROR)\n");
+            }
+        },
+        [this] { this->postProcess_(); }
+    );
 
-    // Consult the process-global fault injector once (no-op unless a GFaultInjector is registered -- a
-    // single null-pointer check on the default path). A THROW fault is raised inside the try below so it
-    // surfaces as EXCEPTION_CAUGHT; a FLAG_ERROR fault is applied after the evaluation, like a user
-    // flagging an error from within evaluate(), and surfaces as ERROR_FLAGGED.
-    GFaultInjector::Fault injected_fault = GFaultInjector::Fault::NONE;
-    if(GFaultInjector *injector = GFaultInjectorRegistry::get(); injector != nullptr) {
-        // Rare (test-only) path: lease a proxy for the fault injector; the candidate holds no RNG.
-        auto lease = Gem::Hap::randomLeasePool().acquire();
-        injected_fault = injector->evaluate(*this, *lease);
-    }
-
-    try {
-        if(injected_fault == GFaultInjector::Fault::THROW) {
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "Fault injected during GOptimizableEntity::process() (THROW)" << '\n'
-            );
-        }
-
-        const auto start_time = std::chrono::high_resolution_clock::now();
-        this->preProcess_();
-        const auto after_pre_processing = std::chrono::high_resolution_clock::now();
-
-        this->runEvaluation_(res_vec);
-
-        // An injected FLAG_ERROR fault mimics a user flagging an error from within evaluate()
-        if(injected_fault == GFaultInjector::Fault::FLAG_ERROR && not this->has_errors()) {
-            this->force_set_error("Fault injected during GOptimizableEntity::process() (FLAG_ERROR)\n");
-        }
-
-        // The fitness has now been computed, so the work item is processed. Mark it PROCESSED before
-        // post-processing: a post-processor refines an ALREADY-EVALUATED item and rejects a dirty one.
-        // If processing flagged an error (ERROR_FLAGGED), the error status is left intact and
-        // post-processing is skipped.
-        const auto after_processing = std::chrono::high_resolution_clock::now();
-        if(not this->has_errors()) {
-            processing_status_ = processingStatus::PROCESSED;
-            this->postProcess_();
-        }
-        const auto after_post_processing = std::chrono::high_resolution_clock::now();
-
-        pre_processing_time_ =
-            std::chrono::duration<double>(after_pre_processing - start_time).count();
-        processing_time_ =
-            std::chrono::duration<double>(after_processing - after_pre_processing).count();
-        post_processing_time_ =
-            std::chrono::duration<double>(after_post_processing - after_processing).count();
-    }
-    catch(std::exception &e) {
-        processing_status_ = processingStatus::EXCEPTION_CAUGHT;
-        error_description_stream << "In GOptimizableEntity::process():" << '\n'
-                                 << "Processing has thrown an exception with message" << '\n'
-                                 << e.what() << '\n'
-                                 << "We will rethrow this exception" << '\n';
-    }
-    catch(...) {
-        processing_status_ = processingStatus::EXCEPTION_CAUGHT;
-        error_description_stream << "In GOptimizableEntity::process():" << '\n'
-                                 << "Processing has thrown an unknown exception." << '\n';
-    }
-
-    if(this->has_errors()) { // Either an exception was caught or the user flagged an error
-        pre_processing_time_ = 0.;
-        processing_time_ = 0.;
-        post_processing_time_ = 0.;
-
-        this->clear_stored_results_vec();
-
-        if(processingStatus::EXCEPTION_CAUGHT == processing_status_) {
-            stored_error_descriptions_ += error_description_stream.str();
-        }
-
-        throw Gem::Courtier::g_processing_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace()) << stored_error_descriptions_
-        );
-    }
-
+    // This part of the code is only reached on success (the lifecycle throws on any error)
     return this->stored_results_cnt_.at(0);
 }
 

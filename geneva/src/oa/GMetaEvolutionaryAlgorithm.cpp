@@ -33,6 +33,7 @@
 #include <algorithm>
 #include <thread>
 
+#include "common/GExpectationChecksT.hpp"
 #include "geneva/ind/GOptimizableEntity.hpp"
 
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::OptimizationAlgorithms::GMetaEvolutionaryAlgorithm) // NOLINT
@@ -71,6 +72,49 @@ GMetaEvolutionaryAlgorithm::evaluatePopulationRange_(std::size_t start, std::siz
         }
     }
     return Gem::Courtier::executor_status_t{.is_complete=true, .has_errors=has_errors};
+}
+
+/******************************************************************************/
+/**
+ * @brief Loads the data of another GMetaEvolutionaryAlgorithm, camouflaged as a
+ * GOptimizationAlgorithmBase. The local config members travel through localMembers_() -- the same
+ * single source serialize()/compare_()/the copy constructor use; the transient orchestration pool is
+ * not copied (it is re-established on first use).
+ *
+ * @param cp A pointer to another GMetaEvolutionaryAlgorithm, camouflaged as a GOptimizationAlgorithmBase
+ */
+void GMetaEvolutionaryAlgorithm::load_(const GOptimizationAlgorithmBase *cp) {
+    const GMetaEvolutionaryAlgorithm *p_load = Gem::Common::g_convert_and_compare<
+        GOptimizationAlgorithmBase, GMetaEvolutionaryAlgorithm>(cp, this);
+
+    GEvolutionaryAlgorithm::load_(cp);
+    Gem::Common::g_load_members(this->localMembers_(), p_load->localMembers_());
+}
+
+/******************************************************************************/
+/**
+ * @brief Searches for compliance with expectations with respect to another object of the same type.
+ *
+ * @param cp A constant reference to another object, camouflaged as a GOptimizationAlgorithmBase
+ * @param e The expected outcome of the comparison (equality, inequality, ...)
+ * @param limit The maximum acceptable deviation for floating-point comparisons (unused here)
+ */
+void GMetaEvolutionaryAlgorithm::compare_(
+    const GOptimizationAlgorithmBase &cp,
+    const Gem::Common::expectation &e,
+    const double & /*limit*/
+) const {
+    using namespace Gem::Common;
+
+    const GMetaEvolutionaryAlgorithm *p_load = Gem::Common::g_convert_and_compare<
+        GOptimizationAlgorithmBase, GMetaEvolutionaryAlgorithm>(cp, this);
+
+    GToken token("GMetaEvolutionaryAlgorithm", e);
+
+    Gem::Common::compare_base_t<GEvolutionaryAlgorithm>(*this, *p_load, token);
+    g_compare_members(this->localMembers_(), p_load->localMembers_(), token);
+
+    token.evaluate();
 }
 
 /******************************************************************************/

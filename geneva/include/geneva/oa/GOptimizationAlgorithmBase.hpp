@@ -259,6 +259,8 @@ public:
 
     /**
      * @brief Allows to set the base name of the checkpoint file and the directory where it should be stored.
+     * A missing directory is created lazily when the first checkpoint is written; configuring has no
+     * filesystem side effects (an existing path must be a directory, though).
      * @param cp_directory The directory in which checkpoint files are stored
      * @param cp_base_name The base name of the checkpoint files
      */
@@ -444,7 +446,7 @@ public:
 
     /**
      * @brief Returns the current offset used to calculate the current iteration.
-     * @return The starting iteration offset (non-zero when resuming from a checkpoint)
+     * @return The starting iteration offset (non-zero when chaining algorithms, e.g. in a Go2 chain)
      */
     std::uint32_t getStartIteration() const;
 
@@ -844,7 +846,7 @@ private:
 
     /**
      * @brief This function encapsulates some common functionality of iteration-based optimization algorithms.
-     * @param offset An iteration offset to start from (non-zero when resuming from a checkpoint)
+     * @param offset An iteration offset to start from (non-zero when chaining algorithms, e.g. in a Go2 chain)
      * @return A pointer to this algorithm after the optimization run has completed
      */
     GOptimizationAlgorithmBase const *optimize_(std::uint32_t offset) final;

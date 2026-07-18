@@ -37,7 +37,9 @@
 #include <chrono>
 #include <cstdint>
 #include <random>
+#include <sstream>
 #include <string>
+#include <string_view>
 #include <tuple>
 
 // Boost headers
@@ -408,7 +410,7 @@ public:
      * original object and change its address), a networked consumer keeps the originally-submitted object
      * and absorbs only what the worker computed. Address stability lets other parts of the system (e.g. a
      * per-individual prefetch overlapping evaluation) hold a snapshot of population addresses across a
-     * submission. The lifecycle (status / errors / timing / routing counters / correlation id) is copied
+     * submission. The lifecycle (status / errors / timing / correlation id) is copied
      * while THIS item keeps its own stable lineage id; a result-bearing derived class additionally copies
      * its result store, and -- as documented on the geneva override -- deliberately keeps its own input
      * data (results-only return) and OA scratch.
@@ -450,6 +452,111 @@ public:
 protected:
     /***************************************************************************/
     /**
+     * @brief The shared processing lifecycle, stated ONCE for every processable item. This is the
+     * template method the typed process() entry points (GProcessingContainerT::process and geneva's
+     * GOptimizableEntity::process) wrap: DO_PROCESS precondition, error/result reset, the timed
+     * pre -> core -> (guarded) post sequence, exception funneling into EXCEPTION_CAUGHT, and the
+     * error epilogue that zeroes the timings, clears the results and raises g_processing_exception.
+     * The three class-specific steps arrive as callables (no virtual indirection): @p pre runs the
+     * pre-processing step, @p core the actual evaluation/processing, @p post the post-processing
+     * step. The item is marked PROCESSED BEFORE post-processing runs -- a post-processor refines an
+     * ALREADY-EVALUATED item (e.g. by a short sub-optimization) and rejects a dirty one -- and an
+     * item that flagged an error (ERROR_FLAGGED) keeps its error status: PROCESSED is never assigned
+     * and post-processing is skipped. (This orchestration used to exist as two hand-synced copies in
+     * courtier and geneva; the double-PROCESSED status bug lived in exactly that duplication.)
+     *
+     * @param context The calling function's identity, used in the error texts (e.g. "GOptimizableEntity::process()")
+     * @param pre A callable running the class-specific pre-processing step
+     * @param core A callable running the class-specific evaluation/processing
+     * @param post A callable running the class-specific post-processing step
+     */
+    template <typename PreFn, typename CoreFn, typename PostFn>
+    void runProcessingLifecycle_(
+        std::string_view context,
+        PreFn &&pre,
+        CoreFn &&core,
+        PostFn &&post
+    ) {
+        // We only accept items that are due for processing
+        if(processingStatus::DO_PROCESS != processing_status_) {
+            throw geneva_exception(
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+                << "In " << context << ": Function called while processing_status_ was set to "
+                << processing_status_ << '\n'
+                << "Expected " << processingStatus::DO_PROCESS << '\n'
+            );
+        }
+
+        // Clear the error descriptions and nullify the result list
+        stored_error_descriptions_.clear();
+        this->clearStoredResults_();
+
+        std::ostringstream error_description_stream; // NOLINT(cppcoreguidelines-init-variables)
+
+        try {
+            const auto start_time = std::chrono::high_resolution_clock::now();
+            pre();
+            const auto after_pre_processing = std::chrono::high_resolution_clock::now();
+
+            core();
+
+            // The fitness has now been computed, so the work item is processed. Mark it PROCESSED
+            // BEFORE post-processing: a post-processor refines an ALREADY-EVALUATED item and rejects
+            // a dirty one. If processing flagged an error (ERROR_FLAGGED), the error status is left
+            // intact and post-processing is skipped.
+            const auto after_processing = std::chrono::high_resolution_clock::now();
+            if(not this->has_errors()) {
+                processing_status_ = processingStatus::PROCESSED;
+                post();
+            }
+            const auto after_post_processing = std::chrono::high_resolution_clock::now();
+
+            // Make a note of the time needed for each step
+            pre_processing_time_ =
+                std::chrono::duration<double>(after_pre_processing - start_time).count();
+            processing_time_ =
+                std::chrono::duration<double>(after_processing - after_pre_processing).count();
+            post_processing_time_ =
+                std::chrono::duration<double>(after_post_processing - after_processing).count();
+        }
+        catch(std::exception &e) {
+            // Let the audience know we had an error
+            processing_status_ = processingStatus::EXCEPTION_CAUGHT;
+            error_description_stream << "In " << context << ":" << '\n'
+                                     << "Processing has thrown an exception with message" << '\n'
+                                     << e.what() << '\n'
+                                     << "We will rethrow this exception" << '\n';
+        }
+        catch(...) {
+            // Let the audience know we had an error
+            processing_status_ = processingStatus::EXCEPTION_CAUGHT;
+            error_description_stream << "In " << context << ":" << '\n'
+                                     << "Processing has thrown an unknown exception." << '\n';
+        }
+
+        if(this->has_errors()) { // Either an exception was caught or the user flagged an error
+            // Do some cleanup
+            pre_processing_time_ = 0.;
+            processing_time_ = 0.;
+            post_processing_time_ = 0.;
+
+            // Nullify the result list
+            this->clearStoredResults_();
+
+            // Store the exceptions for later reference
+            if(processingStatus::EXCEPTION_CAUGHT == processing_status_) {
+                // Error information added by the user might already be stored in this variable; hence +=
+                stored_error_descriptions_ += error_description_stream.str();
+            }
+
+            throw g_processing_exception( // A specific exception type flagging errors during processing
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace()) << stored_error_descriptions_
+            );
+        }
+    }
+
+    /***************************************************************************/
+    /**
      * @brief Hook: clears the (result-bearing derived class's) stored results when the processing
      * status is reset. The base has no result store, so the default is a no-op; GProcessingContainerT
      * overrides it to clear its result vector.
@@ -468,7 +575,7 @@ protected:
 
     /**
      * @brief Hook behind absorbResultsFrom(): copies the non-generic processing lifecycle (status,
-     * errors, timing, routing counters, correlation id) from @p src into this item while keeping this
+     * errors, timing, correlation id) from @p src into this item while keeping this
      * item's own lineage id (LineageId's copy-assignment keeps the target's value). A result-bearing
      * derived class overrides this to additionally copy its result store (and to keep genome / scratch).
      * @param src The returned item whose lifecycle state is absorbed

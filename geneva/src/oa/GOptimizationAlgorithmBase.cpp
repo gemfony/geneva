@@ -90,7 +90,7 @@ GOptimizationAlgorithmBase::GOptimizationAlgorithmBase(const GOptimizationAlgori
     best_iteration_individuals_pq_ = cp.best_iteration_individuals_pq_;
 
     // A copied algorithm starts a NEW run: its iteration offset reverts to the default
-    // instead of inheriting a checkpoint-resume offset from the source.
+    // instead of inheriting a chaining offset from the source.
     offset_ = DEFAULTOFFSET;
 }
 
@@ -123,11 +123,26 @@ void GOptimizationAlgorithmBase::checkpoint(bool is_better) const {
     else if(cp_interval_ > 0 && iteration_ % cp_interval_ == 0) {
         do_save = true;
     } // Save in regular intervals
-    else if(this->halted()) {
+    else if(cp_interval_ != 0 && this->halted()) {
         do_save = true;
-    } // Save the final result
+    } // Save the final result -- only when the user enabled checkpointing at all
 
     if(do_save) {
+        // Create the checkpoint directory lazily, at the first actual write (configuring an
+        // algorithm must not touch the filesystem -- see setCheckpointBaseName()).
+        const auto &cp_dir = getCheckpointDirectoryPath();
+        if(not std::filesystem::exists(cp_dir)) {
+            std::error_code ec;
+            if(not std::filesystem::create_directories(cp_dir, ec) || ec) {
+                throw geneva_exception(
+                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+                    << "In GOptimizationAlgorithmBase::checkpoint(): Error!" << '\n'
+                    << "Could not create checkpoint directory " << cp_dir.string()
+                    << (ec ? (": " + ec.message()) : std::string()) << '\n'
+                );
+            }
+        }
+
         saveCheckpoint(output_file);
 
         // Remove the last checkoint file if requested by the user
@@ -230,7 +245,10 @@ std::int32_t GOptimizationAlgorithmBase::getCheckpointInterval() const {
 /******************************************************************************/
 /**
  * Allows to set the base name of the checkpoint file and the directory where it
- * should be stored.
+ * should be stored. The directory is only validated here (an existing path must
+ * be a directory); a missing directory is created lazily when the first
+ * checkpoint is actually written, so merely configuring an algorithm has no
+ * filesystem side effects.
  *
  * @param cp_directory The directory where checkpoint files should be stored
  * @param cp_base_name The base name used for the checkpoint files
@@ -265,22 +283,12 @@ void GOptimizationAlgorithmBase::setCheckpointBaseName(
     // Transform the directory into a path
     cp_directory_path_ = std::filesystem::path(cp_directory);
 
-    // Check that the provided directory exists
-    if(not std::filesystem::exists(cp_directory_path_)) {
-        glogger << "In GOptimizationAlgorithmBase::setCheckpointBaseName(): Warning!" << '\n'
-                << "Directory " << cp_directory_path_.string()
-                << " does not exist and will be created automatically." << '\n'
-                << GWARNING;
-
-        if(not std::filesystem::create_directory(cp_directory_path_)) {
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GOptimizationAlgorithmBase::setCheckpointBaseName(): Error!" << '\n'
-                << "Could not create directory " << cp_directory_path_.string() << '\n'
-            );
-        }
-    }
-    else if(not std::filesystem::is_directory(cp_directory_path_)) {
+    // Validate only -- a missing directory is created lazily by checkpoint() when the first
+    // checkpoint is written, so that a default-constructed / merely-configured algorithm has no
+    // filesystem side effects (previously an eager create_directory here fired for every
+    // default-constructed algorithm, checkpointing enabled or not).
+    if(std::filesystem::exists(cp_directory_path_) &&
+       not std::filesystem::is_directory(cp_directory_path_)) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GOptimizationAlgorithmBase::setCheckpointBaseName(): Error!" << '\n'
@@ -555,6 +563,13 @@ GOptimizationAlgorithmBase const *GOptimizationAlgorithmBase::optimize_(std::uin
         iteration_++;
     }
     while(not(halted_ = halt()));
+
+    // Write the final checkpoint. halted_ is only set in the loop condition ABOVE the in-loop
+    // checkpoint() call, so the in-loop calls never see halted() == true -- without this post-loop
+    // call the "final" checkpoint (see checkpoint()'s halted() branch and the "final" file-name tag)
+    // would never be written at all. checkpoint() itself gates on the user having enabled
+    // checkpointing (cp_interval_ != 0).
+    checkpoint(progress());
 
     // Give derived classes the opportunity to perform any remaining clean-up work
     finalize();
