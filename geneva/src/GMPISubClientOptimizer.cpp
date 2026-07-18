@@ -99,8 +99,11 @@ GMPISubClientOptimizer::GMPISubClientOptimizer(
 
     // If the base communicator is already a sub communicator, this means MPI must already have been initialized by the user
     if(baseCommunicator == MPI_COMM_WORLD) {
-        // initialize MPI in the way this is required by the MPI consumer
-        Gem::Courtier::Consumers::initializeMPI();
+        // Initialize MPI in the way required by the MPI consumer, and remember whether WE performed
+        // the initialization: that ownership carries the duty to call the matching MPI_Finalize in
+        // the destructor (a rank that exits without finalizing makes mpirun treat the whole job as
+        // abnormally terminated and kill the remaining ranks).
+        i_initialized_mpi_ = Gem::Courtier::Consumers::initializeMPI();
     }
 
     // initialize position in MPI world e.g. in the outermost communicator
@@ -168,6 +171,29 @@ GMPISubClientOptimizer::GMPISubClientOptimizer(
     if(!isServer) {
         // create the status communicator as a copy of the local group communicator
         MPI_Comm_dup(subClientComm_, &subClientStatusComm_);
+    }
+}
+
+/**
+ * @brief The destructor: releases the consumer, then finalizes MPI if this object initialized it.
+ *
+ * Ordering matters twice over. The consumer must be torn down BEFORE MPI_Finalize (the master node's
+ * shutdown still sends the stop signal to the worker ranks over MPI), but the base-class destructor
+ * would only release it after this body has run -- hence the explicit releaseConsumer_() here (the
+ * base destructor's own call then finds nothing left to do). And every rank must actually reach
+ * MPI_Finalize: a rank that simply exits makes mpirun/hydra declare the job abnormally terminated
+ * and SIGKILL the remaining ranks -- which used to hit the sub-clients, still waiting for their
+ * group's shutdown barrier, on every run of the sub-client example.
+ */
+GMPISubClientOptimizer::~GMPISubClientOptimizer() {
+    this->releaseConsumer_();
+
+    if(i_initialized_mpi_) {
+        int finalized{0};
+        MPI_Finalized(&finalized);
+        if(not finalized) {
+            MPI_Finalize();
+        }
     }
 }
 
@@ -242,11 +268,15 @@ int GMPISubClientOptimizer::clientRun_() {
             GMPISubClientIndividual::setClientMode(ClientMode::CLIENT);
         // run the client until optimization finished
         int returnValue{Go2::clientRun_()};
-        // tell sub-clients that the optimization has finished
-        startAsyncBarrier();
+        // Tell the sub-clients that the optimization has finished, and wait for the barrier to
+        // complete (every sub-client entered it at startup, so this returns promptly) -- the wait
+        // both frees the request and guarantees no communication is pending on this rank when the
+        // destructor finalizes MPI.
+        MPI_Request stopRequest{startAsyncBarrier()};
+        MPI_Wait(&stopRequest, MPI_STATUS_IGNORE);
         // return value
         return returnValue;
-   
+
 }
 
 } /* namespace Gem::Geneva */

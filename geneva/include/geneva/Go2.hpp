@@ -359,6 +359,14 @@ public:
 protected:
     /***************************************************************************/
     /**
+     * @brief Releases the process consumer this Go2 established (clearing it from GConsumerRegistry
+     * and dropping the own reference). Idempotent. The destructor calls this; a derived class whose
+     * own teardown must run AFTER the consumer is gone (e.g. finalizing MPI) calls it from its own
+     * destructor body first.
+     */
+    void releaseConsumer_();
+
+    /**
      * @brief Triggers execution of the client loop.
      * @return An integer return value (suitable for the main function) indicating the execution status
      */

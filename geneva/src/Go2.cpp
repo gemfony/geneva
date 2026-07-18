@@ -147,6 +147,18 @@ Go2::Go2(
  * Go2 / registerConsumer may have replaced it), and only if the registry still holds it.
  */
 Go2::~Go2() {
+    this->releaseConsumer_();
+}
+
+/******************************************************************************/
+/**
+ * @brief Releases the process consumer this Go2 established: cleared from the registry (only if the
+ * registry still holds it -- a later Go2 / registerConsumer may have replaced it) and the own
+ * reference dropped, so a networked consumer's server threads are torn down by RAII. Idempotent;
+ * called by the destructor and by derived classes that must sequence their own teardown (e.g.
+ * MPI finalization) after the consumer is gone.
+ */
+void Go2::releaseConsumer_() {
     if(consumer_) {
         auto &registry = Gem::Courtier::GConsumerRegistryT<gen::GOptimizableEntity>::instance();
         if(registry.consumer() == consumer_) {
