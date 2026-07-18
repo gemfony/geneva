@@ -1283,9 +1283,18 @@ Recommended Versions:
 - A rare seed flake in the NSGA-II Pareto-selection test was root-caused (one run
   in ~40 never produces an extreme-corner individual within the iteration budget,
   so the survivors' f1-spread fell just short of its bar while the hypervolume
-  showed a converged, well-spread front) and fixed with the house best-of-3
-  early-out idiom: a single run must still clear both bars, only seed luck is
-  retried. The thresholds are unchanged.
+  showed a converged, well-spread front) and eliminated: the two undominatable
+  corner points of the front are now seeded into the starting population, so a
+  correct elitist NSGA-II must retain them and the spread assertion is
+  deterministic (bar tightened from 16.0 to 19.9); corner discovery no longer
+  depends on mutation luck. The genuinely stochastic hypervolume floor keeps a
+  best-of-3 early-out (a single run must still clear both bars).
+
+- GSwarmAlgorithm::getFirstNIPosVec() -- a static helper -- referenced the
+  non-static n_neighborhoods_ member inside its DEBUG-only precondition block,
+  so every Debug build of the library failed to compile (Release never compiles
+  the block and was blind to it). The precondition is now expressed through the
+  function's own size-vector argument, which subsumes both former checks.
 
 - The build-time config materialization (GENEVA_MATERIALIZE_CONFIGS and example
   04's inline variant) no longer interleaves the run binaries' console output

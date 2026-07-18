@@ -402,26 +402,17 @@ std::size_t GSwarmAlgorithm::getFirstNIPosVec(
     const std::vector<std::size_t> &vec
 ) {
 #ifdef DEBUG
-    if(neighborhood >= n_neighborhoods_) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GSwarmAlgorithm::getFirstNIPosVec():" << '\n'
-            << "Received id " << neighborhood << " of a neighborhood which does not exist."
-            << '\n'
-            << "The number of neighborhoods is " << n_neighborhoods_ << "," << '\n'
-            << "hence the maximum allowed value of the id is " << n_neighborhoods_ - 1 << "."
-            << '\n'
-        );
-    }
-
     // The summation below reads vec[0 .. neighborhood-1], so the size vector must cover every
-    // neighborhood up to (and including) the requested one.
-    if(vec.size() < n_neighborhoods_) {
+    // neighborhood up to (and including) the requested one. The callers pass one entry per
+    // neighborhood, so this also catches the id of a non-existing neighborhood. (This is a static
+    // function, so the check is expressed through the argument, not the n_neighborhoods_ member.)
+    if(neighborhood >= vec.size()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GSwarmAlgorithm::getFirstNIPosVec():" << '\n'
-            << "The neighborhood-size vector is too small: size " << vec.size() << '\n'
-            << "but " << n_neighborhoods_ << " neighborhoods are expected." << '\n'
+            << "Received id " << neighborhood << " of a neighborhood which does not exist:" << '\n'
+            << "the neighborhood-size vector has " << vec.size() << " entries," << '\n'
+            << "hence the maximum allowed id is " << vec.size() - 1 << "." << '\n'
         );
     }
 #endif
@@ -430,13 +421,12 @@ std::size_t GSwarmAlgorithm::getFirstNIPosVec(
         return 0;
     }
     // Sum up the number of members in each neighborhood
-        std::size_t n_previous_members = 0;
-        for(std::size_t n = 0; n < neighborhood; n++) {
-            n_previous_members += vec[n];
-        }
+    std::size_t n_previous_members = 0;
+    for(std::size_t n = 0; n < neighborhood; n++) {
+        n_previous_members += vec[n];
+    }
 
-        return n_previous_members;
-   
+    return n_previous_members;
 }
 
 /******************************************************************************/

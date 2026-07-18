@@ -1505,6 +1505,18 @@ TEST_CASE("ea NSGA-II Pareto selection spreads the survivors across the front", 
         pop->setSortingScheme(Gem::Geneva::sortingMode::MUPLUSNU_PARETO);
         BiObjective src;
         pop->push_back(src.clone_unique());
+        // Seed the two UNDOMINATABLE corner points of the front, (0,20) at x==0 and (20,0) at x==2:
+        // no attainable point can dominate either (f1=0 resp. f2=0 is only reached at that exact x), so
+        // a correct elitist NSGA-II (rank-1 membership + infinite crowding distance on the boundary)
+        // MUST retain both among the mu survivors -- which makes the spread assertion deterministic
+        // instead of hinging on whether a run's mutations happen to discover a corner (adjustPopulation_
+        // keeps pre-added individuals as-is; only fill-up clones are randomly initialized).
+        BiObjective corner_f1; // x == 0 everywhere -> (f1, f2) = (0, 20)
+        corner_f1.assignValueVector<double>(std::vector<double>(N_DIM, 0.0));
+        pop->push_back(corner_f1.clone_unique());
+        BiObjective corner_f2; // x == 2 everywhere -> (f1, f2) = (20, 0)
+        corner_f2.assignValueVector<double>(std::vector<double>(N_DIM, 2.0));
+        pop->push_back(corner_f2.clone_unique());
         pop->setAdaptionConfig(src.buildAdaptionConfig());
         pop->optimize();
 
@@ -1527,26 +1539,26 @@ TEST_CASE("ea NSGA-II Pareto selection spreads the survivors across the front", 
         return std::make_pair(max_f1 - min_f1, hypervolume(pts, 20.0, 20.0));
     };
 
-    // Crowding always retains the current front's two boundary points (infinite crowding distance), so
-    // the survivors cover essentially the whole f1-extent of the front; a clustering selection would not.
-    // The SPREAD is the assertion that pins NSGA-II's boundary retention (typically ~20-26 across seeds,
-    // but the population occasionally never produces an extreme-corner individual within the iteration
-    // budget -- one observed run: spread 14.4 at hypervolume 305, i.e. a converged, well-spread front
-    // whose f1 boundary just fell short). The hypervolume is a secondary convergence-AND-spread check:
-    // with the default per-parameter step controller (SELF_ADAPT_SCALED -- the appropriate choice for a
-    // multi-objective problem, whose single-objective global-sigma controllers do not apply) the
-    // surviving front converges to ~250-320 of the 400 reference box. Both bars are generous floors a
-    // healthy run clears together with high probability; a rare unlucky seed is retried best-of-3 with
-    // early-out (per the Inv-18 house rule: stochastic bars get best-of-N, never a looser threshold) --
-    // a SINGLE run must still clear BOTH bars, so a selection that clusters or fails to converge would
-    // fail all three attempts.
+    // The SPREAD assertion pins NSGA-II's boundary retention and is DETERMINISTIC by construction:
+    // both undominatable corners are seeded into the starting population, so a correct elitist
+    // Pareto selection retains them through every generation and the survivors' f1-range is the full
+    // front extent of 20 (up to normalization round-off); a clustering or non-elitist selection loses
+    // them and falls far below the bar. (Before the seeding, corner DISCOVERY was left to mutation
+    // luck and about one run in forty fell just short of a 16.0 bar -- at hypervolume 305, i.e. a
+    // converged front whose boundary simply had not been visited.) The hypervolume remains a genuinely
+    // stochastic convergence-AND-spread check: with the default per-parameter step controller
+    // (SELF_ADAPT_SCALED -- the appropriate choice for a multi-objective problem, whose
+    // single-objective global-sigma controllers do not apply) the surviving front converges to
+    // ~250-320 of the 400 reference box, and 200.0 is a generous floor. A rare unlucky seed is
+    // retried best-of-3 with early-out (per the Inv-18 house rule: stochastic bars get best-of-N,
+    // never a looser threshold) -- a SINGLE run must still clear BOTH bars.
     auto [spread, hv] = run();
-    for(int rerun = 1; rerun < 3 && (spread <= 16.0 || hv <= 200.0); ++rerun) {
+    for(int rerun = 1; rerun < 3 && (spread <= 19.9 || hv <= 200.0); ++rerun) {
         std::tie(spread, hv) = run();
     }
     INFO("ea NSGA-II survivors (best attempt): spread(f1 range)=" << spread << "  hypervolume=" << hv
          << "  (front f1-extent=20, ref=(20,20))");
-    CHECK(spread > 16.0); // near-full coverage of the 20-wide front (boundary retention), not a cluster
+    CHECK(spread > 19.9); // the seeded corners survive: full coverage of the 20-wide front
     CHECK(hv > 200.0);    // converged AND spread (a clustered/unconverged front falls well below this)
 }
 
