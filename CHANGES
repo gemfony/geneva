@@ -30,7 +30,7 @@ Preconditions (see INSTALL for the full details and build instructions):
   when present but are never required.
 - Compiler: a C++23 compiler -- GCC >= 14 or Clang >= 18. Earlier compilers are rejected at
   configure time, and downstream consumers of the Geneva:: CMake targets are built as C++23.
-- Boost >= 1.91, compiled from source in C++20 mode.
+- Boost >= 1.91, compiled from source in C++23 mode.
 - CMake >= 3.27.
 - Catch2 v3, only when building the test code.
 - Optional: a CUDA toolkit >= 13.3 AND a matching GPU driver, for the GPU consumer and/or

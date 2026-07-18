@@ -50,9 +50,9 @@ Prerequisites
 
  - The Boost libraries (see http://www.boost.org), version 1.91 or newer. Boost
    should be compiled from source and installed for the system, in
-   C++20 mode (see "Compiling Boost on Linux" below). The
+   C++23 mode (see "Compiling Boost on Linux" below). The
    distribution's Boost packages are frequently older than required and/or not
-   built in C++20 mode, and are therefore not recommended.
+   built in C++23 mode, and are therefore not recommended.
 
  - Catch2, version 3, but only when building the test code.
 
@@ -177,7 +177,7 @@ An installed Geneva is best consumed through its CMake package:
   target_link_libraries(myTarget PRIVATE Geneva::geneva)
 
 The imported targets are Geneva::common, Geneva::hap, Geneva::courtier and
-Geneva::geneva; linking Geneva::geneva pulls in the layers beneath it, the C++20
+Geneva::geneva; linking Geneva::geneva pulls in the layers beneath it, the C++23
 requirement and the Boost dependency transitively.
 
 
@@ -201,12 +201,12 @@ tar xjf boost_1_91_0.tar.bz2
 cd boost_1_91_0
 ./bootstrap.sh --prefix=/opt/boost
 
-Then compile and install with b2. The decisive flag is cxxflags="-std=c++20":
-Boost must be built in C++20 mode. Installing into /opt
+Then compile and install with b2. The decisive flag is cxxflags="-std=c++23":
+Boost must be built in the same C++23 mode as Geneva. Installing into /opt
 requires root:
 
 sudo ./b2 -j$(nproc) \
-   cxxflags="-std=c++20" \
+   cxxflags="-std=c++23" \
    variant=release \
    link=shared \
    threading=multi \
