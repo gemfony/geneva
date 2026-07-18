@@ -42,8 +42,8 @@ namespace Gem::Common {
  * @brief The uniform "emit my configuration files" entry point for every config-owning binary.
  *
  * A Geneva binary's registered parameters and their defaults are the single source of truth for its
- * configuration; the shipped `config/*.json` files are just a materialized cache of what the code
- * already knows. To materialize them at build/install time, a binary is run with the
+ * configuration; the shipped JSON files under `config/` are just a materialized cache of what the
+ * code already knows. To materialize them at build/install time, a binary is run with the
  * @c --update-configs command-line switch: it puts GParserBuilder into update-in-place mode (so every
  * config it subsequently parses is created-if-absent and rewritten in canonical form), constructs
  * each of its config owners so their parse fires, and exits without optimizing.
