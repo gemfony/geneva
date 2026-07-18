@@ -81,7 +81,7 @@ Checks: >-
 WarningsAsErrors: ''
 # Restrict header warnings to Geneva's own headers; this avoids noise from
 # Boost, system, and third-party headers that appear in the same TU.
-HeaderFilterRegex: '.*/include/(common|hap|courtier|geneva|geneva-individuals)/.*'
+HeaderFilterRegex: '.*/include/(common|hap|dietrich|courtier|geneva)/.*'
 FormatStyle: file
 UseColor: true
 

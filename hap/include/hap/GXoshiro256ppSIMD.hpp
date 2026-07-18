@@ -62,6 +62,9 @@
 #include <cstdint>
 #include <limits>
 
+// The SIMD variants share the scalar header's detail::splitmix64 seed expansion
+#include "hap/GXoshiro256pp.hpp"
+
 #if defined(HAP_AVX2_BACKEND)
 #include <immintrin.h>
 #elif defined(HAP_NEON_BACKEND)
@@ -69,24 +72,6 @@
 #endif
 
 namespace Gem::Hap {
-
-#if defined(HAP_AVX2_BACKEND) || defined(HAP_NEON_BACKEND)
-
-namespace detail {
-/**
- * @brief splitmix64 — seed expansion only.
- * @param x In/out reference to the splitmix64 running state; advanced on each call
- * @return The next splitmix64 output value
- */
-inline std::uint64_t splitmix64(std::uint64_t &x) noexcept {
-    std::uint64_t z = (x += 0x9e3779b97f4a7c15ULL);
-    z = (z ^ (z >> 30)) * 0xbf58476d1ce4e5b9ULL;
-    z = (z ^ (z >> 27)) * 0x94d049bb133111ebULL;
-    return z ^ (z >> 31);
-}
-} // namespace detail
-
-#endif
 
 /******************************************************************************/
 #if defined(HAP_AVX2_BACKEND)

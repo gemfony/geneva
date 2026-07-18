@@ -64,18 +64,8 @@ class GSimulatedAnnealingFactory // NOLINT(cppcoreguidelines-special-member-func
 public:
     /** @brief The default constructor */
     GSimulatedAnnealingFactory() = default;
-    /** @brief Initialization with the name of the config file
-     *  @param config_file The path to the configuration file driving the produced algorithm */
-    explicit GSimulatedAnnealingFactory(std::filesystem::path const &config_file)
-      : Base(config_file) { /* nothing */ }
-    /** @brief Initialization with the name of the config file and a content creator
-     *  @param config_file The path to the configuration file driving the produced algorithm
-     *  @param content_creator_ptr A factory used to create the individuals the algorithm operates on */
-    GSimulatedAnnealingFactory(
-        const std::string &config_file,
-        std::shared_ptr<Gem::Common::GFactoryT<gen::GOptimizableEntity>> content_creator_ptr
-    )
-      : Base(config_file, content_creator_ptr) { /* nothing */ }
+    // Inherit the config-file / (config-file, content-creator) constructors from the scaffold
+    using Base::Base;
     /** @brief The copy constructor */
     GSimulatedAnnealingFactory(const GSimulatedAnnealingFactory &) = default;
     /** @brief The destructor */

@@ -69,79 +69,19 @@ namespace Gem::Geneva::Individuals {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * The (private) default constructor. It is only needed for (de-)serialization
- * purposes.
- */
-trainingSet::trainingSet()
-  : nInputNodes(0)
-  , nOutputNodes(0)
-  , Input(nullptr)
-  , Output(nullptr) { /* nothing */
-}
-
-/******************************************************************************/
-/**
  * @brief Initialization with the number of nodes
  *
- * Allocates the Input / Output arrays for the given dimensions and zero-initializes them.
+ * Sizes the Input / Output vectors for the given dimensions and zero-initializes them.
+ * All other special member functions are compiler-generated (see the class definition).
  *
- * @param n_input The number of input nodes (size of the allocated Input array)
- * @param n_output The number of output nodes (size of the allocated Output array)
+ * @param n_input The number of input nodes (size of the Input vector)
+ * @param n_output The number of output nodes (size of the Output vector)
  */
 trainingSet::trainingSet(const std::size_t &n_input, const std::size_t &n_output)
   : nInputNodes(n_input)
   , nOutputNodes(n_output)
-  , Input(new double[n_input])
-  , Output(new double[n_output]) {
-    // Make sure the arrays are properly initialized
-    for(std::size_t i = 0; i < n_input; i++) {
-        Input[i] = 0.;
-    }
-    for(std::size_t o = 0; o < n_output; o++) {
-        Output[o] = 0.;
-    }
-}
-
-/******************************************************************************/
-/**
- * @brief A copy constructor
- *
- * @param cp A constant reference to another trainingSet object whose data is deep-copied
- */
-trainingSet::trainingSet(const trainingSet &cp)
-  : nInputNodes(0)
-  , nOutputNodes(0)
-  , Input(nullptr)
-  , Output(nullptr) {
-    Gem::Common::copyArrays(cp.Input, Input, cp.nInputNodes, nInputNodes);
-    Gem::Common::copyArrays(cp.Output, Output, cp.nOutputNodes, nOutputNodes);
-}
-
-/******************************************************************************/
-/**
- * The destructor.
- */
-trainingSet::~trainingSet() {
-    if(Input) {
-        Gem::Common::g_array_delete(Input);
-    }
-    if(Output) {
-        Gem::Common::g_array_delete(Output);
-    }
-}
-
-/******************************************************************************/
-/**
- * @brief Assigns another trainingSet's data to this object
- *
- * @param cp A constant reference to another trainingSet object whose data is deep-copied
- * @return A reference to this object
- */
-trainingSet &trainingSet::operator=(const trainingSet &cp) {
-    Gem::Common::copyArrays(cp.Input, Input, cp.nInputNodes, nInputNodes);
-    Gem::Common::copyArrays(cp.Output, Output, cp.nOutputNodes, nOutputNodes);
-
-    return *this;
+  , Input(n_input, 0.)
+  , Output(n_output, 0.) { /* nothing */
 }
 
 /******************************************************************************/
@@ -185,20 +125,17 @@ void trainingSet::compare(
  * The default constructor. Private, as it is only needed for (de-)serialization
  * purposes.
  */
-networkData::networkData()
-  : array_size_(0)
-  , data_(nullptr) { /* nothing */
+networkData::networkData() { /* nothing */
 }
 
 /******************************************************************************/
 /**
  * @brief Initialization with the amount of entries
  *
- * @param array_size The desired size of the internal array of training-set pointers
+ * @param array_size The desired number of training-set slots (initially empty pointers)
  */
 networkData::networkData(const std::size_t &array_size)
-  : array_size_(array_size)
-  , data_(new std::shared_ptr<trainingSet>[array_size_]) { /* nothing */
+  : data_(array_size) { /* nothing */
 }
 
 /******************************************************************************/
@@ -207,10 +144,25 @@ networkData::networkData(const std::size_t &array_size)
  *
  * @param network_data_file The name of a file holding the (serialized) training data to load
  */
-networkData::networkData(const std::string &network_data_file)
-  : array_size_(0)
-  , data_(nullptr) {
+networkData::networkData(const std::string &network_data_file) {
     this->loadFromDisk(network_data_file);
+}
+
+/******************************************************************************/
+/**
+ * @brief Deep-copies the training sets of another networkData object (an empty slot stays empty).
+ *
+ * @param cp The source object
+ * @return The deep copy of cp's training-set slots
+ */
+std::vector<std::shared_ptr<trainingSet>>
+networkData::deepCopyOfTrainingSets(const networkData &cp) {
+    std::vector<std::shared_ptr<trainingSet>> copy;
+    copy.reserve(cp.data_.size());
+    for(const auto &t_s : cp.data_) {
+        copy.push_back(t_s ? std::make_shared<trainingSet>(*t_s) : std::shared_ptr<trainingSet>{});
+    }
+    return copy;
 }
 
 /******************************************************************************/
@@ -221,38 +173,32 @@ networkData::networkData(const std::string &network_data_file)
  */
 networkData::networkData(const networkData &cp)
   : Gem::Common::GPodContainerT<std::size_t>(cp)
-  , array_size_(0)
-  , data_(nullptr) {
-    // Make sure the local data is copied
-    Gem::Common::copySmartPointerArrays(cp.data_, data_, cp.array_size_, array_size_);
+  , data_(deepCopyOfTrainingSets(cp))
+  , init_range_(cp.init_range_) { /* nothing */
 }
 
 /******************************************************************************/
 /**
  * A standard destructor.
  */
-networkData::~networkData() {
-    // Make sure the data vector is empty
-    if(data_) {
-        for(std::size_t i = 0; i < array_size_; i++) {
-            data_[i].reset();
-        }
-    }
-    Gem::Common::g_array_delete(data_);
-}
+networkData::~networkData() = default;
 
 /******************************************************************************/
 /**
- * @brief Copies the data of another networkData object into this object, using one of Gemfony's
- * utility functions.
+ * @brief Copies the data of another networkData object into this object.
+ *
+ * The former hand-written assignment silently dropped init_range_ (which IS serialized and copied by
+ * the copy constructor) -- a copy-path drift now healed by assigning every member.
  *
  * @param cp A constant reference to another networkData object whose data is deep-copied
  * @return A reference to this object
  */
 networkData &networkData::operator=(const networkData &cp) {
-    // Make sure the local data is copied
-    Gem::Common::copySmartPointerArrays(cp.data_, data_, cp.array_size_, array_size_);
-    Gem::Common::GPodContainerT<std::size_t>::operator=(cp);
+    if(this != &cp) {
+        Gem::Common::GPodContainerT<std::size_t>::operator=(cp);
+        data_ = deepCopyOfTrainingSets(cp);
+        init_range_ = cp.init_range_;
+    }
     return *this;
 }
 
@@ -273,7 +219,7 @@ void networkData::compare(
     Gem::Common::GToken token("networkData", e);
 
     // Compare our local data
-    Gem::Common::compare_t(Gem::Common::getIdentity(array_size_, cp.array_size_, "array_size_", "cp.array_size_"), token);
+    Gem::Common::compare_t(Gem::Common::getIdentity(data_.size(), cp.data_.size(), "data_.size()", "cp.data_.size()"), token);
     Gem::Common::compare_t(Gem::Common::getIdentity(this->data_cnt_, cp.data_cnt_, "this->data_cnt_", "cp.data_cnt_"), token);
 
     // React on deviations from the expectation
@@ -372,11 +318,11 @@ void networkData::loadFromDisk(const std::string &network_data_file) {
  * @param pos The position in the internal array in which the data set should be stored (must be < array size)
  */
 void networkData::addTrainingSet(std::shared_ptr<trainingSet> t_s, const std::size_t &pos) {
-    if(pos >= array_size_) {
+    if(pos >= data_.size()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In networkData::addTrainingSet(): Error!" << '\n'
-            << "pos = " << pos << " exceeds end of array (size = " << array_size_ << ")" << '\n'
+            << "pos = " << pos << " exceeds end of array (size = " << data_.size() << ")" << '\n'
         );
     }
     data_[pos] = t_s;
@@ -392,7 +338,7 @@ void networkData::addTrainingSet(std::shared_ptr<trainingSet> t_s, const std::si
  */
 std::optional<std::shared_ptr<trainingSet>>
 networkData::getTrainingSet(const std::size_t &pos) const {
-    if(pos >= array_size_) {
+    if(pos >= data_.size()) {
         return std::nullopt;
     }
             return data_[pos];
@@ -440,6 +386,7 @@ void networkData::toROOT(const std::string &output_file, const double &min, cons
         return;
     }
 
+    const std::size_t n_sets = data_.size();
     std::size_t entries1 = 0;
     std::size_t entries2 = 0;
     std::ofstream of(output_file);
@@ -462,12 +409,12 @@ void networkData::toROOT(const std::string &output_file, const double &min, cons
        << "  graphPad->Draw();" << '\n'
        << "  graphPad->Divide(1,1);" << '\n'
        << '\n'
-       << "  double xarr1[" << array_size_ << "], yarr1[" << array_size_ << "], xarr2[" << array_size_
-       << "], yarr2[" << array_size_ << "];" << '\n'
+       << "  double xarr1[" << n_sets << "], yarr1[" << n_sets << "], xarr2[" << n_sets
+       << "], yarr2[" << n_sets << "];" << '\n'
        << '\n'
        << "  // Filling the data sets" << '\n';
 
-    for(std::size_t i = 0; i < array_size_; i++) {
+    for(std::size_t i = 0; i < n_sets; i++) {
         if(data_[i]->Output[0] < 0.5) {
             of << "  xarr1[" << entries1 << "] = " << data_[i]->Input[0] << ";" << '\n'
                << "  yarr1[" << entries1 << "] = " << data_[i]->Input[1] << ";" << '\n';
@@ -482,11 +429,11 @@ void networkData::toROOT(const std::string &output_file, const double &min, cons
 
     of << '\n'
        << "  // Setting remaining entries to 0" << '\n'
-       << "  for(std::size_t i=" << entries1 << "; i<" << array_size_ << "; i++) {" << '\n'
+       << "  for(std::size_t i=" << entries1 << "; i<" << n_sets << "; i++) {" << '\n'
        << "    xarr1[i] = 0.;" << '\n'
        << "    yarr1[i] = 0.;" << '\n'
        << "  }" << '\n'
-       << "  for(std::size_t i=" << entries2 << "; i<" << array_size_ << "; i++) {" << '\n'
+       << "  for(std::size_t i=" << entries2 << "; i<" << n_sets << "; i++) {" << '\n'
        << "    xarr2[i] = 0.;" << '\n'
        << "    yarr2[i] = 0.;" << '\n'
        << "  }" << '\n'
@@ -577,80 +524,6 @@ std::shared_ptr<networkData> networkData::clone() const {
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
-/******************************************************************************/
-/**
- * @brief Reads a Gem::Geneva::Individuals::trainingDataType item from a stream. Needed so we
- * can use boost::program_options to read trainingDataType data.
- *
- * @param i The stream the item should be read from
- * @param tdt The trainingDataType item read from the stream (output parameter)
- * @return The std::istream object used to read the item from
- */
-std::istream &operator>>(std::istream &i, Gem::Geneva::Individuals::trainingDataType &tdt) {
-    Gem::Common::ENUMBASETYPE tmp = 0;
-    i >> tmp;
-
-#ifdef DEBUG
-    tdt = Gem::Common::narrow<Gem::Geneva::Individuals::trainingDataType>(tmp);
-#else
-    tdt = static_cast<Gem::Geneva::Individuals::trainingDataType>(tmp);
-#endif /* DEBUG */
-
-    return i;
-}
-
-/******************************************************************************/
-/**
- * @brief Puts a Gem::Geneva::Individuals::trainingDataType item into a stream. Needed so we
- * can use boost::program_options to output trainingDataType data.
- *
- * @param o The ostream the item should be added to
- * @param tdt The trainingDataType item to be added to the stream
- * @return The std::ostream object used to add the item to
- */
-std::ostream &operator<<(std::ostream &o, const Gem::Geneva::Individuals::trainingDataType &tdt) {
-    auto tmp = std::to_underlying(tdt);
-    o << tmp;
-    return o;
-}
-
-/******************************************************************************/
-/**
- * @brief Reads a Gem::Geneva::Individuals::transferFunction item from a stream. Needed so we
- * can use boost::program_options to read transferFunction data.
- *
- * @param i The stream the item should be read from
- * @param t_f The transferFunction item read from the stream (output parameter)
- * @return The std::istream object used to read the item from
- */
-std::istream &operator>>(std::istream &i, Gem::Geneva::Individuals::transferFunction &t_f) {
-    Gem::Common::ENUMBASETYPE tmp = 0;
-    i >> tmp;
-
-#ifdef DEBUG
-    t_f = Gem::Common::narrow<Gem::Geneva::Individuals::transferFunction>(tmp);
-#else
-    t_f = static_cast<Gem::Geneva::Individuals::transferFunction>(tmp);
-#endif /* DEBUG */
-
-    return i;
-}
-
-/******************************************************************************/
-/**
- * @brief Puts a Gem::Geneva::Individuals::transferFunction item into a stream. Needed so we
- * can use boost::program_options to output transferFunction data.
- *
- * @param o The ostream the item should be added to
- * @param t_f The transferFunction item to be added to the stream
- * @return The std::ostream object used to add the item to
- */
-std::ostream &operator<<(std::ostream &o, const Gem::Geneva::Individuals::transferFunction &t_f) {
-    auto tmp = std::to_underlying(t_f);
-    o << tmp;
-    return o;
-}
-
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/

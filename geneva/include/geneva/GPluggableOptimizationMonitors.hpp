@@ -1079,18 +1079,23 @@ private:
             vals[i] = double(v);
         }
 
+        // The data log is created in INFOINIT, which the monitor contract runs before any
+        // per-iteration call arrives here.
+        // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
+        auto &data_log = *data_log_;
+
         switch(n_vars) {
         case 1:
-            data_log_->append(active_series_, vals[0], primary_fitness);
+            data_log.append(active_series_, vals[0], primary_fitness);
             break;
         case 2:
-            data_log_->append(
+            data_log.append(
                 active_series_,
                 std::tuple<double, double, double>(vals[0], vals[1], primary_fitness)
             );
             break;
         case 3:
-            data_log_->append(
+            data_log.append(
                 active_series_,
                 std::tuple<double, double, double, double>(vals[0], vals[1], vals[2], primary_fitness)
             );

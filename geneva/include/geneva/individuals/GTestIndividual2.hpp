@@ -68,25 +68,24 @@ enum class PERFOBJECTTYPE : Gem::Common::ENUMBASETYPE {
     PERFGCONSTRAINEDDOUBLECOLLECTION = 4
 };
 
+// Numeric streaming opt-in for PERFOBJECTTYPE; must precede its first streaming
+// use (see numeric_enum_io_v in GCommonEnums.hpp).
+} /* namespace Gem::Geneva::Individuals */
+namespace Gem::Common {
+template <> inline constexpr bool numeric_enum_io_v<Gem::Geneva::Individuals::PERFOBJECTTYPE> = true;
+} /* namespace Gem::Common */
+namespace Gem::Geneva::Individuals {
+
 const PERFOBJECTTYPE POTMIN = PERFOBJECTTYPE::PERFGDOUBLEOBJECT;
 const PERFOBJECTTYPE POTMAX = PERFOBJECTTYPE::PERFGCONSTRAINEDDOUBLEOBJECTCOLLECTION;
 constexpr std::size_t NPERFOBJECTTYPES = 5;
 
 /******************************************************************************/
-/**
- * @brief Puts a Gem::Geneva::Individuals::PERFOBJECTTYPE into a stream. Needed for streaming / Gem::Common::fromString<>
- * @param o The output stream the value is written to
- * @param lt The PERFOBJECTTYPE value to be streamed out
- * @return A reference to the output stream, to allow chaining of stream operations
- */
-std::ostream &operator<<(std::ostream &o, const Gem::Geneva::Individuals::PERFOBJECTTYPE &lt);
-/**
- * @brief Reads a Gem::Geneva::Individuals::PERFOBJECTTYPE from a stream. Needed for streaming / Gem::Common::fromString<>
- * @param i The input stream the value is read from
- * @param lt The PERFOBJECTTYPE variable the read-in value is assigned to
- * @return A reference to the input stream, to allow chaining of stream operations
- */
-std::istream &operator>>(std::istream &i, Gem::Geneva::Individuals::PERFOBJECTTYPE &lt);
+// PERFOBJECTTYPE streams as its underlying numeric value through the shared
+// machinery in GCommonEnums.hpp (marker specialization at the end of this
+// header). Re-export the operators so ADL finds them in this namespace.
+using Gem::Common::operator<<;
+using Gem::Common::operator>>;
 
 /******************************************************************************/
 /**

@@ -35,35 +35,11 @@
 
 namespace Gem::Courtier {
 
-/******************************************************************************************/
-/**
- * Puts a Gem::Courtier::networked_consumer_payload_command item into a stream
- *
- * @param o The ostream the item should be added to
- * @param ps the item to be added to the stream
- * @return The std::ostream object used to add the item to
- */
-std::ostream &
-operator<<(std::ostream &o, const Gem::Courtier::networked_consumer_payload_command &ps) {
-    auto tmp = std::to_underlying(ps);
-    o << tmp;
-    return o;
-}
-
-/******************************************************************************************/
-/**
- * Reads a Gem::Courtier::networked_consumer_payload_command item from a stream
- *
- * @param i The stream the item should be read from
- * @param ps The item read from the stream
- * @return The std::istream object used to read the item from
- */
-std::istream &operator>>(std::istream &i, Gem::Courtier::networked_consumer_payload_command &ps) {
-    Gem::Common::ENUMBASETYPE tmp = 0;
-    i >> tmp;
-    ps = static_cast<Gem::Courtier::networked_consumer_payload_command>(tmp);
-    return i;
-}
+/******************************************************************************/
+// The numeric enum stream operators (networked_consumer_payload_command,
+// consumerType) are supplied by the shared numeric_enum_io_v machinery in
+// GCommonEnums.hpp. Only processingStatus needs hand-written operators (its
+// insertion operator prints the enumerator name for diagnostics).
 
 /******************************************************************************/
 /**
@@ -115,34 +91,6 @@ std::istream &operator>>(std::istream &i, Gem::Courtier::processingStatus &srm) 
 }
 
 /******************************************************************************/
-/**
- * Puts a Gem::Courtier::consumerType into a stream. Needed for streaming / Gem::Common::fromString<>
- *
- * @param o The ostream the item should be added to
- * @param bm The consumerType item to be added to the stream
- * @return The std::ostream object used to add the item to
- */
-std::ostream &operator<<(std::ostream &o, const Gem::Courtier::consumerType &bm) {
-    auto tmp = std::to_underlying(bm);
-    o << tmp;
-    return o;
-}
-
-/******************************************************************************/
-/**
- * Reads a Gem::Courtier::consumerType item from a stream. Needed for streaming / Gem::Common::fromString<>
- *
- * @param i The stream the item should be read from
- * @param bm The consumerType item read from the stream
- * @return The std::istream object used to read the item from
- */
-std::istream &operator>>(std::istream &i, Gem::Courtier::consumerType &bm) {
-    Gem::Common::ENUMBASETYPE tmp = 0;
-    i >> tmp;
-    bm = static_cast<Gem::Courtier::consumerType>(tmp);
-    return i;
-}
-
 /******************************************************************************/
 
 } /* namespace Gem::Courtier */

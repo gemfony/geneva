@@ -372,14 +372,9 @@ private:
     /** @brief Resizes the population to the desired level and does some error checks */
     void adjustPopulation_() override;
 
-    /** @brief Gives individuals an opportunity to update their internal structures */
-    void actOnStalls_() override;
 
     /***************************************************************************/
     // Algorithm-internal helpers
-
-    /** @brief Lets individuals know about their position in the population */
-    void markIndividualPositions();
 
     /** @brief Maps a raw step counter to the cooling-timescale-stretched effective time */
     double effectiveTime(std::uint32_t t) const;

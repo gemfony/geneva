@@ -516,8 +516,6 @@ private:
      * @return A shared_ptr to a freshly created GSwarmAlgorithm_PersonalityTraits object
      */
     std::shared_ptr<GPersonalityTraits> getPersonalityTraits_() const override;
-    /** @brief Gives individuals an opportunity to update their internal structures */
-    void actOnStalls_() override;
 
     /** @brief Resizes the population to the desired level and does some error checks */
     void adjustPopulation_() override;

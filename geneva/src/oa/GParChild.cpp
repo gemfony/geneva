@@ -797,19 +797,6 @@ void GParChild::markChildren() {
 
 /******************************************************************************/
 /**
- * @brief This helper function lets all individuals know about their position in the
- * population.
- */
-void GParChild::markIndividualPositions() {
-    for(auto const &[pos, individual] : GOptimizationAlgorithmBase::data_cnt_ | std::views::enumerate) {
-        individual
-            ->template getPersonalityTraits<GBaseParChildPersonalityTraits>()
-            ->setPopulationPosition(static_cast<std::size_t>(pos));
-    }
-}
-
-/******************************************************************************/
-/**
  * @brief This function implements the logic that constitutes evolutionary algorithms. The
  * function is called by GOptimizationAlgorithmBase for each cycle of the optimization,
  *

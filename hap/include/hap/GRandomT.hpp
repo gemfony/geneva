@@ -194,6 +194,7 @@ public:
 	 * @return A reference to this object
 	 */
     GRandomT<Gem::Hap::randomSource::QUEUE> &
+    // NOLINTNEXTLINE(bugprone-unhandled-self-assignment,cert-oop54-cpp) -- intentionally trivial: each instance owns independent state
     operator=([[maybe_unused]] GRandomT<Gem::Hap::randomSource::QUEUE> const & cp) noexcept(false) {
         return *this;
     }
@@ -417,10 +418,10 @@ public:
 	 * @return A reference to this object
 	 */
     GRandomT<Gem::Hap::randomSource::LOCAL> &
+    // NOLINTNEXTLINE(bugprone-unhandled-self-assignment,cert-oop54-cpp) -- intentionally trivial: each instance owns independent state
     operator=([[maybe_unused]] GRandomT<Gem::Hap::randomSource::LOCAL> const & cp) noexcept(
         false
-    ) // NOLINT(cert-oop54-cpp) — intentionally trivial: each instance owns independent state
-    {
+    ) {
         return *this;
     }
 
@@ -544,10 +545,10 @@ public:
 	 * @return A reference to this object
 	 */
     GRandomT<Gem::Hap::randomSource::STAGED> &
+    // NOLINTNEXTLINE(bugprone-unhandled-self-assignment,cert-oop54-cpp) -- intentionally trivial: each instance owns independent state
     operator=([[maybe_unused]] GRandomT<Gem::Hap::randomSource::STAGED> const & cp) noexcept(
         false
-    ) // NOLINT(cert-oop54-cpp) — intentionally trivial: each instance owns independent state
-    {
+    ) {
         return *this;
     }
 
@@ -677,10 +678,10 @@ public:
 	 * @return A reference to this object
 	 */
     GRandomT<Gem::Hap::randomSource::QUARANTINE> &
+    // NOLINTNEXTLINE(bugprone-unhandled-self-assignment,cert-oop54-cpp) -- intentionally trivial: each instance owns independent state
     operator=([[maybe_unused]] GRandomT<Gem::Hap::randomSource::QUARANTINE> const & cp) noexcept(
         false
-    ) // NOLINT(cert-oop54-cpp) — intentionally trivial: each instance owns independent state
-    {
+    ) {
         return *this;
     }
 

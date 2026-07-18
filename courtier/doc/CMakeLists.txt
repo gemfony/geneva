@@ -35,9 +35,10 @@ IF (NOT DOXYGEN_FOUND)
 ENDIF ()
 
 SET (GENEVA_DOC_LIB_NAME "courtier")
-SET (GENEVA_DOC_LIB_DESC "Broker / consumer parallelisation framework: "
-		"GBrokerT, serial / multi-threaded / Asio / Beast-websocket / MPI "
-		"consumers, command-container protocol, processing-container CRTP")
+SET (GENEVA_DOC_LIB_DESC "Consumer-based parallelisation framework: "
+		"the process-global GConsumerRegistry, thread-pool / Asio / "
+		"Beast-websocket / MPI consumers, command-container protocol, "
+		"processing-container CRTP")
 # Upstream: common, hap. Single space-separated string (multi-arg SET would
 # create a semicolon-separated CMake list, which Doxygen does NOT parse as a
 # TAGFILES separator).

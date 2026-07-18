@@ -359,11 +359,6 @@ private:
     /** @brief Resizes the population to the desired level and does some error checks */
     void adjustPopulation_() override;
 
-    /** @brief Gives individuals an opportunity to update their internal structures */
-    void actOnStalls_() override;
-
-    /** @brief Lets individuals know about their position in the population */
-    void markIndividualPositions();
     /** @brief Builds the initial (non-degenerate) simplices around the seed vertices */
     void buildInitialSimplices();
     /**

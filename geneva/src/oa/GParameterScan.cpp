@@ -977,15 +977,6 @@ std::shared_ptr<GPersonalityTraits> GParameterScan::getPersonalityTraits_() cons
 
 /******************************************************************************/
 /**
- * @brief Gives individuals an opportunity to update their internal structures. This
- * function has no deeper meaning for a parameter scan and is hence empty.
- */
-void GParameterScan::actOnStalls_() {
-    /* nothing */
-}
-
-/******************************************************************************/
-/**
  * @brief Resizes the population to the desired level and does some error checks.
  */
 void GParameterScan::adjustPopulation_() {

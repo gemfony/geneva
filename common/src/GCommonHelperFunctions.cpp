@@ -311,6 +311,7 @@ int runExternalCommand(
     full_command = local_command;
 
     // Run the actual command.
+    // NOLINTNEXTLINE(concurrency-mt-unsafe,cert-env33-c) -- deliberate: this IS the external-command runner, invoked from single-threaded orchestration
     int error_code = system(local_command.c_str());
 
 #ifdef GEM_COMMON_PRINT_COMMANDLINE

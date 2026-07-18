@@ -127,33 +127,6 @@ void GEvolutionaryAlgorithm_PersonalityTraits::load_(const GPersonalityTraits *c
 
 /******************************************************************************/
 /**
- * @brief Allows to check whether this individual lies on the pareto front
- *
- * @return A boolean indicating whether this object lies on the current pareto front
- */
-bool GEvolutionaryAlgorithm_PersonalityTraits::isOnParetoFront() const {
-    return is_on_pareto_front_;
-}
-
-/******************************************************************************/
-/**
- * @brief Allows to reset the pareto tag to "true"
- */
-void GEvolutionaryAlgorithm_PersonalityTraits::resetParetoTag() {
-    is_on_pareto_front_ = true;
-}
-
-/******************************************************************************/
-/**
- * @brief Allows to specify that this individual does not lie on the pareto front
- * of the current iteration
- */
-void GEvolutionaryAlgorithm_PersonalityTraits::setIsNotOnParetoFront() {
-    is_on_pareto_front_ = false;
-}
-
-/******************************************************************************/
-/**
  * @brief Applies modifications to this object. This is needed for testing purposes
  *
  * @return A boolean which indicates whether modifications were made

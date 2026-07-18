@@ -69,12 +69,21 @@ class GLineFitIndividual // NOLINT(cppcoreguidelines-special-member-functions)
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
+    // Defined ahead of serialize(): a deduced-return-type member must be
+    // defined before its first use in this class (serialize_members below).
+    /** @brief Single declaration of this class'es local data members */
+    template <typename Self>
+    auto localMembers_(this Self &self) {
+        return std::make_tuple(Gem::Common::make_member("data_points_", self.data_points_));
+    }
+
     template <typename Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         using boost::serialization::make_nvp;
 
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gen::GGenome) &
-            BOOST_SERIALIZATION_NVP(data_points_);
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gen::GGenome);
+        // ... and then our own data, derived from the single localMembers_() declaration
+        Gem::Common::serialize_members(ar, this->localMembers_());
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -157,11 +166,6 @@ public:
     static void applyConfig(GLineFitIndividual & ind, const Config & c);
 
 protected:
-    /** @brief Single declaration of this class'es local data members */
-    template <typename Self>
-    auto localMembers_(this Self &self) {
-        return std::make_tuple(Gem::Common::make_member("data_points_", self.data_points_));
-    }
 
     /**
      * @brief Loads the data of another GLineFitIndividual.

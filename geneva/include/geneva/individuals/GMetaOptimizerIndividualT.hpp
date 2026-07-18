@@ -70,15 +70,20 @@ enum class metaOptimizationTarget : Gem::Common::ENUMBASETYPE {
         2 // Multi-criterion optimization with least number of solver calls and best average fitness as targets
 };
 
+// Numeric streaming opt-in for metaOptimizationTarget; must precede its first
+// streaming use (see numeric_enum_io_v in GCommonEnums.hpp).
+} /* namespace Gem::Geneva::Individuals */
+namespace Gem::Common {
+template <> inline constexpr bool numeric_enum_io_v<Gem::Geneva::Individuals::metaOptimizationTarget> = true;
+} /* namespace Gem::Common */
+namespace Gem::Geneva::Individuals {
+
 /******************************************************************************/
-// Input and output of metaOptimizationTarget, so we can serialize this data
-
-/** @brief Puts a Gem::Geneva::Individuals::metaOptimizationTarget into a stream. Needed for streaming / Gem::Common::fromString<> */
-std::ostream &
-operator<<(std::ostream &o, const Gem::Geneva::Individuals::metaOptimizationTarget &mot);
-
-/** @brief Reads a Gem::Geneva::Individuals::metaOptimizationTarget from a stream. Needed for streaming / Gem::Common::fromString<> */
-std::istream &operator>>(std::istream &i, Gem::Geneva::Individuals::metaOptimizationTarget &mot);
+// metaOptimizationTarget streams as its underlying numeric value through the
+// shared machinery in GCommonEnums.hpp (marker specialization at the end of
+// this header). Re-export the operators so ADL finds them in this namespace.
+using Gem::Common::operator<<;
+using Gem::Common::operator>>;
 
 /******************************************************************************/
 // A number of default settings for the factory and individual
@@ -160,9 +165,6 @@ const std::string GMETAOPT_DEF_INDCONFIG =
 const std::string GMETAOPT_DEF_SUBEACONFIG =
     "./config/GSubEvolutionaryAlgorithm.json"; ///< The default configuration file for the (sub-)evolutionary algorithms
 
-constexpr bool GMETAOPT_SUBEXEC_SERIAL = false;
-constexpr bool GMETAOPT_SUBEXEC_MULTITHREADED = true;
-const bool GMETAOPT_DEF_SUBEXECMODE = GMETAOPT_SUBEXEC_MULTITHREADED;
 
 /******************************************************************************/
 /**
@@ -1917,8 +1919,11 @@ private:
                 sigma_range,
                 p->getSigmaSigma()
             };
+            // The data log is created in INFOINIT, which precedes every per-iteration call.
+            // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
+            auto &data_log = *data_log_;
             for(std::size_t s = 0; s < ids_.size(); ++s) {
-                data_log_->append(ids_[s], iteration, values[s]);
+                data_log.append(ids_[s], iteration, values[s]);
             }
         } break;
 

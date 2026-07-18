@@ -86,6 +86,13 @@ namespace Gem::Dietrich {
 // per-name qualification. This affects lookup only within Gem::Dietrich.
 using namespace Gem::Common;
 
+// Re-export the shared numeric enum stream operators (see numeric_enum_io_v in
+// GCommonEnums.hpp) into Gem::Dietrich, so that argument-dependent lookup finds
+// them for the plotting enums below (a using-DIRECTIVE is invisible to ADL;
+// these using-declarations are not).
+using Gem::Common::operator<<;
+using Gem::Common::operator>>;
+
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
@@ -100,24 +107,6 @@ enum class gColor : ENUMBASETYPE {
     blue = 4,
     grey = 14 // note the id of this color, compared to preceding values
 };
-
-/**
- * @brief Puts a gColor into a stream. Needed for streaming / Gem::Common::fromString<>
- *
- * @param os The output stream the color is written to
- * @param c The gColor item to be streamed out
- * @return A reference to the output stream
- */
-std::ostream &operator<<(std::ostream &o, const gColor &x);
-
-/**
- * @brief Reads a gColor item from a stream. Needed for streaming / Gem::Common::fromString<>
- *
- * @param is The input stream the color is read from
- * @param c The gColor item that receives the value read from the stream
- * @return A reference to the input stream
- */
-std::istream &operator>>(std::istream &i, gColor &x);
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -134,24 +123,6 @@ enum class gMarker : ENUMBASETYPE {
     closedStar = 29,
     openStar = 30
 };
-
-/**
- * @brief Puts a gMarker into a stream. Needed for streaming / Gem::Common::fromString<>
- *
- * @param os The output stream the marker is written to
- * @param m The gMarker item to be streamed out
- * @return A reference to the output stream
- */
-std::ostream &operator<<(std::ostream &o, const gMarker &x);
-
-/**
- * @brief Reads a gMarker item from a stream. Needed for streaming / Gem::Common::fromString<>
- *
- * @param is The input stream the marker is read from
- * @param m The gMarker item that receives the value read from the stream
- * @return A reference to the input stream
- */
-std::istream &operator>>(std::istream &i, gMarker &x);
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -174,24 +145,6 @@ enum class gLineStyle : ENUMBASETYPE {
     longdashed = 7
 };
 
-/**
- * @brief Puts a gLineStyle into a stream. Needed for streaming / Gem::Common::fromString<>
- *
- * @param os The output stream the line style is written to
- * @param ls The gLineStyle item to be streamed out
- * @return A reference to the output stream
- */
-std::ostream &operator<<(std::ostream &o, gLineStyle const &x);
-
-/**
- * @brief Reads a gLineStyle item from a stream. Needed for streaming / Gem::Common::fromString<>
- *
- * @param is The input stream the line style is read from
- * @param ls The gLineStyle item that receives the value read from the stream
- * @return A reference to the input stream
- */
-std::istream &operator>>(std::istream &i, gLineStyle &x);
-
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
@@ -202,24 +155,6 @@ enum class graphPlotMode : ENUMBASETYPE {
     SCATTER = 0,
     CURVE = 1
 };
-
-/**
- * @brief Puts a graphPlotMode into a stream. Needed for streaming / Gem::Common::fromString<>
- *
- * @param os The output stream the plot mode is written to
- * @param gpm The graphPlotMode item to be streamed out
- * @return A reference to the output stream
- */
-std::ostream &operator<<(std::ostream &o, graphPlotMode const &x);
-
-/**
- * @brief Reads a graphPlotMode item from a stream. Needed for streaming / Gem::Common::fromString<>
- *
- * @param is The input stream the plot mode is read from
- * @param gpm The graphPlotMode item that receives the value read from the stream
- * @return A reference to the input stream
- */
-std::istream &operator>>(std::istream &i, graphPlotMode &x);
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -248,24 +183,6 @@ enum class tddropt : ENUMBASETYPE {
     SURFONECYL = 17
 };
 
-/**
- * @brief Puts a tddropt into a stream. Needed for streaming / Gem::Common::fromString<>
- *
- * @param os The output stream the 2D-drawing option is written to
- * @param tdo The tddropt item to be streamed out
- * @return A reference to the output stream
- */
-std::ostream &operator<<(std::ostream &o, tddropt const &x);
-
-/**
- * @brief Reads a tddropt item from a stream. Needed for streaming / Gem::Common::fromString<>
- *
- * @param is The input stream the 2D-drawing option is read from
- * @param tdo The tddropt item that receives the value read from the stream
- * @return A reference to the input stream
- */
-std::istream &operator>>(std::istream &i, tddropt &x);
-
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
@@ -291,3 +208,16 @@ class GPlotDesigner;
 ////////////////////////////////////////////////////////////////////////////////
 
 } /* namespace Gem::Dietrich */
+
+/******************************************************************************/
+// All plotting enums stream as their underlying numeric value through the shared
+// machinery in GCommonEnums.hpp (the marker specializations live in the trait's
+// own namespace; the operators themselves are re-exported into Gem::Dietrich
+// above).
+namespace Gem::Common {
+template <> inline constexpr bool numeric_enum_io_v<Gem::Dietrich::gColor> = true;
+template <> inline constexpr bool numeric_enum_io_v<Gem::Dietrich::gMarker> = true;
+template <> inline constexpr bool numeric_enum_io_v<Gem::Dietrich::gLineStyle> = true;
+template <> inline constexpr bool numeric_enum_io_v<Gem::Dietrich::graphPlotMode> = true;
+template <> inline constexpr bool numeric_enum_io_v<Gem::Dietrich::tddropt> = true;
+} /* namespace Gem::Common */

@@ -325,14 +325,9 @@ private:
     /** @brief Resizes the population to the desired level and does some error checks */
     void adjustPopulation_() override;
 
-    /** @brief Gives individuals an opportunity to update their internal structures */
-    void actOnStalls_() override;
 
     /***************************************************************************/
     // Algorithm-internal helpers
-
-    /** @brief Lets individuals know about their position in the population */
-    void markIndividualPositions();
     /** @brief Computes the ranked selection probabilities p_l from the weights w_l */
     void computeSelectionProbabilities();
     /** @brief Seeds (and randomizes) the initial archive into the first k population slots */

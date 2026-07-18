@@ -82,63 +82,6 @@ constexpr Gem::Geneva::Genome::AuxKey AUXKEY_CGD_LBFGS_COUNT = 15;  // 1 (number
 
 /******************************************************************************/
 /**
- * @brief Streams a gradientMethod as its underlying integer (cast to int so it is written as a number, not a
- * character). Needed by the comparison / expectation framework and by configuration serialization.
- *
- * @param o The output stream to write to
- * @param gm The gradientMethod enumerator to be streamed
- * @return A reference to the output stream, for chaining
- */
-std::ostream &operator<<(std::ostream &o, gradientMethod gm) {
-    o << static_cast<int>(gm);
-    return o;
-}
-
-/******************************************************************************/
-/**
- * @brief Reads a gradientMethod from a stream.
- *
- * @param i The input stream to read from
- * @param gm The gradientMethod reference to be filled from the stream's integer value
- * @return A reference to the input stream, for chaining
- */
-std::istream &operator>>(std::istream &i, gradientMethod &gm) {
-    int tmp = 0;
-    i >> tmp;
-    gm = static_cast<gradientMethod>(tmp);
-    return i;
-}
-
-/******************************************************************************/
-/**
- * @brief Streams an errorEstimationMode as its underlying integer.
- *
- * @param o The output stream to write to
- * @param em The errorEstimationMode enumerator to be streamed
- * @return A reference to the output stream, for chaining
- */
-std::ostream &operator<<(std::ostream &o, errorEstimationMode em) {
-    o << static_cast<int>(em);
-    return o;
-}
-
-/******************************************************************************/
-/**
- * @brief Reads an errorEstimationMode from a stream.
- *
- * @param i The input stream to read from
- * @param em The errorEstimationMode reference to be filled from the stream's integer value
- * @return A reference to the input stream, for chaining
- */
-std::istream &operator>>(std::istream &i, errorEstimationMode &em) {
-    int tmp = 0;
-    i >> tmp;
-    em = static_cast<errorEstimationMode>(tmp);
-    return i;
-}
-
-/******************************************************************************/
-/**
  * @brief The default constructor
  *
  * Delegates to the parameterized constructor using the compiled-in default number of starting points,
@@ -594,215 +537,26 @@ void GConjugateGradientDescent::updateParentIndividuals() {
         const double parent_fitness = minOnly_transformed_fitness((*this->at(i)));
 
         // The conjugate-gradient memory for this starting point lives on its central individual's slot
-        // scratch (position i). Robustness: a central slot spliced in after a lost return has no CG
-        // block -- install it (history invalid) so it restarts cleanly with steepest descent.
+        // scratch (position i); ensureGradientScratch_() installs any blocks a freshly spliced-in slot
+        // is missing, so it restarts cleanly with steepest descent.
         auto &cg_scratch = this->at(i)->scratch();
-        if(not cg_scratch.hasAux(AUXKEY_CGD_HISTORY_VALID)) {
-            cg_scratch.installAuxBlock<double>(AUXKEY_CGD_PREV_GRADIENT, n_fp_parms_first_, gen::AuxScope::PerIndividual);
-            cg_scratch.installAuxBlock<double>(AUXKEY_CGD_PREV_DIRECTION, n_fp_parms_first_, gen::AuxScope::PerIndividual);
-            cg_scratch.installAuxBlock<std::uint8_t>(AUXKEY_CGD_HISTORY_VALID, 1, gen::AuxScope::PerIndividual);
-        }
-        // In L-BFGS mode each starting point also keeps the last m (s, y) curvature pairs, the previous
-        // parameter vector and a live pair count. Installed lazily here as well, so a slot spliced in
-        // after a lost return picks up a clean (empty) history and restarts with steepest descent.
-        if(gradient_method_ == gradientMethod::LBFGS && not cg_scratch.hasAux(AUXKEY_CGD_LBFGS_COUNT)) {
-            cg_scratch.installAuxBlock<double>(AUXKEY_CGD_LBFGS_S, lbfgs_memory_ * n_fp_parms_first_, gen::AuxScope::PerIndividual);
-            cg_scratch.installAuxBlock<double>(AUXKEY_CGD_LBFGS_Y, lbfgs_memory_ * n_fp_parms_first_, gen::AuxScope::PerIndividual);
-            cg_scratch.installAuxBlock<double>(AUXKEY_CGD_LBFGS_PREV_X, n_fp_parms_first_, gen::AuxScope::PerIndividual);
-            cg_scratch.installAuxBlock<std::uint32_t>(AUXKEY_CGD_LBFGS_COUNT, 1, gen::AuxScope::PerIndividual);
-        }
+        this->ensureGradientScratch_(cg_scratch);
         std::span<double> prev_gradient = cg_scratch.metaRecords<double>(AUXKEY_CGD_PREV_GRADIENT);
         std::span<double> prev_direction = cg_scratch.metaRecords<double>(AUXKEY_CGD_PREV_DIRECTION);
         auto &cg_valid = cg_scratch.metaScalar<std::uint8_t>(AUXKEY_CGD_HISTORY_VALID);
 
-        // 1) Normalised finite-difference gradient. FORWARD: g_j = (f(x+h_j e_j) - f(x)) / h_j (O(h), one
-        //    probe). CENTRAL: g_j = (f(x+h_j e_j) - f(x-h_j e_j)) / (2 h_j) (O(h^2), two probes). Both are
-        //    proper gradients (normalised by the step), so the line search's Armijo test and the
-        //    conjugate-gradient beta are correctly scaled either way.
-        const std::size_t n_probes = central_differences_ ? 2 : 1;
-        const std::size_t children_per_sp = n_fp_parms_first_ * n_probes;
-        std::vector<double> gradient(n_fp_parms_first_, 0.);
-        const double h = adjusted_finite_step_; // uniform across parameters (normalized coordinate)
-        for(std::size_t j = 0; j < n_fp_parms_first_; j++) {
-            if(h <= 0.) {
-                continue;
-            }
-            const std::size_t fwd = n_starting_points_ + (i * children_per_sp) + (j * n_probes);
-            const double f_fwd = minOnly_transformed_fitness((*this->at(fwd)));
-            if(central_differences_) {
-                const double f_bwd = minOnly_transformed_fitness((*this->at(fwd + 1)));
-                gradient[j] = (f_fwd - f_bwd) / (2. * h);
-            }
-            else {
-                gradient[j] = (f_fwd - parent_fitness) / h;
-            }
-        }
+        // 1) Normalised finite-difference (proxy) gradient of this starting point.
+        const std::vector<double> gradient = this->computeProxyGradient_(i, parent_fitness);
 
-        // 2) Build the search direction: plain steepest descent, the Polak-Ribiere+ (or FR/HS/DY)
-        //    conjugate direction, or the L-BFGS quasi-Newton direction.
-        std::vector<double> direction(n_fp_parms_first_, 0.);
-        if(gradient_method_ == gradientMethod::LBFGS) {
-            // L-BFGS (Nocedal & Wright, "Numerical Optimization", 2nd ed., Algorithm 7.4/7.5). The last
-            // m (s, y) pairs implicitly define an inverse-Hessian approximation H_k; the direction is
-            // -H_k g_k, recovered by the two-loop recursion without ever forming H_k.
-            std::span<double> s_hist = cg_scratch.metaRecords<double>(AUXKEY_CGD_LBFGS_S);
-            std::span<double> y_hist = cg_scratch.metaRecords<double>(AUXKEY_CGD_LBFGS_Y);
-            std::span<double> prev_x = cg_scratch.metaRecords<double>(AUXKEY_CGD_LBFGS_PREV_X);
-            auto &count = cg_scratch.metaScalar<std::uint32_t>(AUXKEY_CGD_LBFGS_COUNT);
-            const std::size_t n = n_fp_parms_first_;
-
-            // 2a) Curvature update from the previous step (skipped on the first iteration / after a
-            //     restart, where there is no valid previous gradient or x). s = x_k - x_{k-1},
-            //     y = g_k - g_{k-1}; accept the pair only when s.y > 0 (the curvature condition that keeps
-            //     H_k positive definite), otherwise drop it. Newest pair is stored at slot count-1.
-            if(cg_valid && not periodic_restart) {
-                long double s_dot_y = 0.L;
-                for(std::size_t j = 0; j < n; j++) {
-                    s_dot_y += static_cast<long double>(parm_vec[j] - prev_x[j]) *
-                               static_cast<long double>(gradient[j] - prev_gradient[j]);
-                }
-                if(s_dot_y > std::numeric_limits<long double>::min()) {
-                    if(count == lbfgs_memory_) { // ring is full: drop the oldest pair (shift down by one)
-                        std::copy(s_hist.begin() + n, s_hist.end(), s_hist.begin());
-                        std::copy(y_hist.begin() + n, y_hist.end(), y_hist.begin());
-                        count = static_cast<std::uint32_t>(lbfgs_memory_ - 1);
-                    }
-                    const std::size_t slot = count * n;
-                    for(std::size_t j = 0; j < n; j++) {
-                        s_hist[slot + j] = parm_vec[j] - prev_x[j];
-                        y_hist[slot + j] = gradient[j] - prev_gradient[j];
-                    }
-                    count++;
-                }
-            }
-            else {
-                count = 0; // a (re)start clears the curvature history
-            }
-
-            // 2b) Two-loop recursion. With no pairs yet this yields plain steepest descent.
-            std::vector<double> q(gradient.begin(), gradient.end());
-            std::vector<double> rho(count, 0.);
-            std::vector<double> alpha(count, 0.);
-            for(std::size_t k = count; k-- > 0;) {
-                const std::size_t slot = k * n;
-                long double y_dot_s = 0.L, s_dot_q = 0.L;
-                for(std::size_t j = 0; j < n; j++) {
-                    y_dot_s += static_cast<long double>(y_hist[slot + j]) * s_hist[slot + j];
-                    s_dot_q += static_cast<long double>(s_hist[slot + j]) * q[j];
-                }
-                rho[k] = (y_dot_s > std::numeric_limits<long double>::min()) ? Gem::Common::narrow<double>(1.L / y_dot_s) : 0.;
-                alpha[k] = Gem::Common::narrow<double>(rho[k] * s_dot_q);
-                for(std::size_t j = 0; j < n; j++) {
-                    q[j] -= alpha[k] * y_hist[slot + j];
-                }
-            }
-            // Initial inverse-Hessian scaling gamma = (s_newest . y_newest) / (y_newest . y_newest);
-            // 1 when no pair is available, which makes the direction plain steepest descent.
-            double gamma = 1.;
-            if(count > 0) {
-                const std::size_t slot = (count - 1) * n;
-                long double s_dot_y = 0.L, y_dot_y = 0.L;
-                for(std::size_t j = 0; j < n; j++) {
-                    s_dot_y += static_cast<long double>(s_hist[slot + j]) * y_hist[slot + j];
-                    y_dot_y += static_cast<long double>(y_hist[slot + j]) * y_hist[slot + j];
-                }
-                if(y_dot_y > std::numeric_limits<long double>::min()) {
-                    gamma = Gem::Common::narrow<double>(s_dot_y / y_dot_y);
-                }
-            }
-            std::vector<double> r(n, 0.);
-            for(std::size_t j = 0; j < n; j++) {
-                r[j] = gamma * q[j];
-            }
-            for(std::size_t k = 0; k < count; k++) {
-                const std::size_t slot = k * n;
-                long double y_dot_r = 0.L;
-                for(std::size_t j = 0; j < n; j++) {
-                    y_dot_r += static_cast<long double>(y_hist[slot + j]) * r[j];
-                }
-                const auto beta_k = Gem::Common::narrow<double>(rho[k] * y_dot_r);
-                for(std::size_t j = 0; j < n; j++) {
-                    r[j] += (alpha[k] - beta_k) * s_hist[slot + j];
-                }
-            }
-            for(std::size_t j = 0; j < n; j++) {
-                direction[j] = -r[j]; // -H_k g_k
-            }
-            // Remember x_k for the next curvature pair (prev_gradient is stored in step 6 as for CG).
-            std::copy(parm_vec.begin(), parm_vec.end(), prev_x.begin());
-        }
-        else {
-        double beta = 0.;
-        const bool want_conjugate = (gradient_method_ != gradientMethod::STEEPEST_DESCENT) &&
-                                    cg_valid && not periodic_restart;
-        if(want_conjugate) {
-            long double g_dot_g = 0.L;         // g_k . g_k
-            long double g_dot_gprev = 0.L;     // g_k . g_{k-1}
-            long double gprev_dot_gprev = 0.L; // g_{k-1} . g_{k-1}
-            long double g_dot_y = 0.L;         // g_k . (g_k - g_{k-1})   (Polak-Ribiere / Hestenes-Stiefel num)
-            long double d_dot_y = 0.L;         // d_{k-1} . (g_k - g_{k-1}) (Hestenes-Stiefel / Dai-Yuan den)
-            for(std::size_t j = 0; j < n_fp_parms_first_; j++) {
-                const long double g = gradient[j];
-                const long double gp = prev_gradient[j];
-                const long double y = g - gp;
-                g_dot_g += g * g;
-                g_dot_gprev += g * gp;
-                gprev_dot_gprev += gp * gp;
-                g_dot_y += g * y;
-                d_dot_y += static_cast<long double>(prev_direction[j]) * y;
-            }
-
-            // Powell restart (Powell, "Restart procedures for the conjugate gradient method", Math.
-            // Prog. 12, 1977): restart to steepest descent when successive gradients are insufficiently
-            // orthogonal, i.e. |g_k . g_{k-1}| / ||g_k||^2 >= 0.1.
-            const long double abs_overlap = (g_dot_gprev >= 0.L) ? g_dot_gprev : -g_dot_gprev;
-            const bool powell_restart = (g_dot_g > 0.L) && (abs_overlap / g_dot_g >= 0.1L);
-
-            // Per-formula numerator / denominator (the conjugate-gradient family differs only here):
-            //   PR+ : g.(g-g_prev) / g_prev.g_prev    FR : g.g / g_prev.g_prev
-            //   HS+ : g.(g-g_prev) / d_prev.(g-g_prev) DY : g.g / d_prev.(g-g_prev)
-            long double num = 0.L;
-            long double den = 0.L;
-            switch(gradient_method_) {
-            case gradientMethod::CONJUGATE_FR:
-                num = g_dot_g;
-                den = gprev_dot_gprev;
-                break;
-            case gradientMethod::CONJUGATE_HS:
-                num = g_dot_y;
-                den = d_dot_y;
-                break;
-            case gradientMethod::CONJUGATE_DY:
-                num = g_dot_g;
-                den = d_dot_y;
-                break;
-            case gradientMethod::CONJUGATE_PR_PLUS:
-            default:
-                num = g_dot_y;
-                den = gprev_dot_gprev;
-                break;
-            }
-
-            // Numerical-stability guard: the denominator vanishes near convergence (and d.(g-g_prev) can
-            // change sign), so divide only when |den| is above the representable floor and large enough
-            // relative to the numerator that |beta| stays below a finite cap. The "+" clamp (beta >= 0,
-            // i.e. an automatic restart when beta would be negative) keeps every variant globally
-            // convergent and matches PR+/HS+.
-            constexpr long double beta_max = 1.0e4L;
-            const long double abs_num = (num >= 0.L) ? num : -num;
-            const long double abs_den = (den >= 0.L) ? den : -den;
-            if(not powell_restart && abs_den > std::numeric_limits<long double>::min() &&
-               abs_den * beta_max > abs_num) {
-                const long double beta_cg = num / den;
-                beta = (beta_cg > 0.L) ? Gem::Common::narrow<double>(beta_cg) : 0.;
-            }
-        }
-
-        for(std::size_t j = 0; j < n_fp_parms_first_; j++) {
-            direction[j] =
-                -gradient[j] + (cg_valid ? beta * prev_direction[j] : 0.);
-        }
-        } // end of the non-L-BFGS (steepest / conjugate-gradient) direction branch
+        // 2) Build the search direction: the L-BFGS quasi-Newton direction, or the plain
+        //    steepest-descent / conjugate-gradient-family direction.
+        const bool history_valid = (cg_valid != 0);
+        std::vector<double> direction =
+            (gradient_method_ == gradientMethod::LBFGS)
+                ? this->lbfgsDirection_(cg_scratch, parm_vec, gradient, history_valid, periodic_restart)
+                : this->conjugateDirection_(
+                      gradient, prev_gradient, prev_direction, history_valid, periodic_restart
+                  );
 
         // 3) The directional derivative grad f . d must be negative for a descent direction. A stale
         //    conjugate direction occasionally fails this; fall back to steepest descent so the line
@@ -852,6 +606,273 @@ void GConjugateGradientDescent::updateParentIndividuals() {
         std::copy(direction.begin(), direction.end(), prev_direction.begin());
         cg_valid = 1;
     }
+}
+
+/******************************************************************************/
+/**
+ * @brief Installs any missing conjugate-gradient / L-BFGS scratch blocks on a central slot's store.
+ *
+ * Robustness: a central slot spliced in after a lost return has no CG block -- install it (history
+ * invalid) so it restarts cleanly with steepest descent. In L-BFGS mode each starting point also
+ * keeps the last m (s, y) curvature pairs, the previous parameter vector and a live pair count,
+ * installed just as lazily so a spliced-in slot picks up a clean (empty) history.
+ *
+ * @param cg_scratch The central slot's scratch store the blocks are installed on
+ */
+void GConjugateGradientDescent::ensureGradientScratch_(gen::GAuxiliaryStore &cg_scratch) const {
+    if(not cg_scratch.hasAux(AUXKEY_CGD_HISTORY_VALID)) {
+        cg_scratch.installAuxBlock<double>(AUXKEY_CGD_PREV_GRADIENT, n_fp_parms_first_, gen::AuxScope::PerIndividual);
+        cg_scratch.installAuxBlock<double>(AUXKEY_CGD_PREV_DIRECTION, n_fp_parms_first_, gen::AuxScope::PerIndividual);
+        cg_scratch.installAuxBlock<std::uint8_t>(AUXKEY_CGD_HISTORY_VALID, 1, gen::AuxScope::PerIndividual);
+    }
+    if(gradient_method_ == gradientMethod::LBFGS && not cg_scratch.hasAux(AUXKEY_CGD_LBFGS_COUNT)) {
+        cg_scratch.installAuxBlock<double>(AUXKEY_CGD_LBFGS_S, lbfgs_memory_ * n_fp_parms_first_, gen::AuxScope::PerIndividual);
+        cg_scratch.installAuxBlock<double>(AUXKEY_CGD_LBFGS_Y, lbfgs_memory_ * n_fp_parms_first_, gen::AuxScope::PerIndividual);
+        cg_scratch.installAuxBlock<double>(AUXKEY_CGD_LBFGS_PREV_X, n_fp_parms_first_, gen::AuxScope::PerIndividual);
+        cg_scratch.installAuxBlock<std::uint32_t>(AUXKEY_CGD_LBFGS_COUNT, 1, gen::AuxScope::PerIndividual);
+    }
+}
+
+/******************************************************************************/
+/**
+ * @brief Computes the normalised finite-difference (proxy) gradient of one starting point.
+ *
+ * FORWARD: g_j = (f(x+h_j e_j) - f(x)) / h_j (O(h), one probe). CENTRAL:
+ * g_j = (f(x+h_j e_j) - f(x-h_j e_j)) / (2 h_j) (O(h^2), two probes). Both are proper gradients
+ * (normalised by the step), so the line search's Armijo test and the conjugate-gradient beta are
+ * correctly scaled either way.
+ *
+ * @param starting_point The index of the starting point whose gradient is computed
+ * @param parent_fitness The (minimization-oriented) fitness of that starting point
+ * @return The proxy gradient, one component per floating-point parameter
+ */
+std::vector<double> GConjugateGradientDescent::computeProxyGradient_(
+    std::size_t starting_point,
+    double parent_fitness
+) const {
+    const std::size_t n_probes = central_differences_ ? 2 : 1;
+    const std::size_t children_per_sp = n_fp_parms_first_ * n_probes;
+    std::vector<double> gradient(n_fp_parms_first_, 0.);
+    const double h = adjusted_finite_step_; // uniform across parameters (normalized coordinate)
+    for(std::size_t j = 0; j < n_fp_parms_first_; j++) {
+        if(h <= 0.) {
+            continue;
+        }
+        const std::size_t fwd = n_starting_points_ + (starting_point * children_per_sp) + (j * n_probes);
+        const double f_fwd = minOnly_transformed_fitness((*this->at(fwd)));
+        if(central_differences_) {
+            const double f_bwd = minOnly_transformed_fitness((*this->at(fwd + 1)));
+            gradient[j] = (f_fwd - f_bwd) / (2. * h);
+        }
+        else {
+            gradient[j] = (f_fwd - parent_fitness) / h;
+        }
+    }
+    return gradient;
+}
+
+/******************************************************************************/
+/**
+ * @brief Builds the L-BFGS quasi-Newton direction -H_k g_k, updating the curvature history.
+ *
+ * L-BFGS (Nocedal & Wright, "Numerical Optimization", 2nd ed., Algorithm 7.4/7.5). The last
+ * m (s, y) pairs implicitly define an inverse-Hessian approximation H_k; the direction is
+ * -H_k g_k, recovered by the two-loop recursion without ever forming H_k.
+ *
+ * @param cg_scratch The central slot's scratch store holding the (s, y) history
+ * @param parm_vec The starting point's current parameter vector
+ * @param gradient The current proxy gradient
+ * @param history_valid Whether the stored previous gradient/parameters are valid
+ * @param periodic_restart Whether this iteration performs the classical periodic restart
+ * @return The search direction
+ */
+std::vector<double> GConjugateGradientDescent::lbfgsDirection_(
+    gen::GAuxiliaryStore &cg_scratch,
+    const std::vector<double> &parm_vec,
+    const std::vector<double> &gradient,
+    bool history_valid,
+    bool periodic_restart
+) const {
+    std::span<double> s_hist = cg_scratch.metaRecords<double>(AUXKEY_CGD_LBFGS_S);
+    std::span<double> y_hist = cg_scratch.metaRecords<double>(AUXKEY_CGD_LBFGS_Y);
+    std::span<double> prev_x = cg_scratch.metaRecords<double>(AUXKEY_CGD_LBFGS_PREV_X);
+    std::span<double> prev_gradient = cg_scratch.metaRecords<double>(AUXKEY_CGD_PREV_GRADIENT);
+    auto &count = cg_scratch.metaScalar<std::uint32_t>(AUXKEY_CGD_LBFGS_COUNT);
+    const std::size_t n = n_fp_parms_first_;
+
+    // 2a) Curvature update from the previous step (skipped on the first iteration / after a
+    //     restart, where there is no valid previous gradient or x). s = x_k - x_{k-1},
+    //     y = g_k - g_{k-1}; accept the pair only when s.y > 0 (the curvature condition that keeps
+    //     H_k positive definite), otherwise drop it. Newest pair is stored at slot count-1.
+    if(history_valid && not periodic_restart) {
+        long double s_dot_y = 0.L;
+        for(std::size_t j = 0; j < n; j++) {
+            s_dot_y += static_cast<long double>(parm_vec[j] - prev_x[j]) *
+                       static_cast<long double>(gradient[j] - prev_gradient[j]);
+        }
+        if(s_dot_y > std::numeric_limits<long double>::min()) {
+            if(count == lbfgs_memory_) { // ring is full: drop the oldest pair (shift down by one)
+                std::copy(s_hist.begin() + n, s_hist.end(), s_hist.begin());
+                std::copy(y_hist.begin() + n, y_hist.end(), y_hist.begin());
+                count = static_cast<std::uint32_t>(lbfgs_memory_ - 1);
+            }
+            const std::size_t slot = count * n;
+            for(std::size_t j = 0; j < n; j++) {
+                s_hist[slot + j] = parm_vec[j] - prev_x[j];
+                y_hist[slot + j] = gradient[j] - prev_gradient[j];
+            }
+            count++;
+        }
+    }
+    else {
+        count = 0; // a (re)start clears the curvature history
+    }
+
+    // 2b) Two-loop recursion. With no pairs yet this yields plain steepest descent.
+    std::vector<double> q(gradient.begin(), gradient.end());
+    std::vector<double> rho(count, 0.);
+    std::vector<double> alpha(count, 0.);
+    for(std::size_t k = count; k-- > 0;) {
+        const std::size_t slot = k * n;
+        long double y_dot_s = 0.L, s_dot_q = 0.L;
+        for(std::size_t j = 0; j < n; j++) {
+            y_dot_s += static_cast<long double>(y_hist[slot + j]) * s_hist[slot + j];
+            s_dot_q += static_cast<long double>(s_hist[slot + j]) * q[j];
+        }
+        rho[k] = (y_dot_s > std::numeric_limits<long double>::min()) ? Gem::Common::narrow<double>(1.L / y_dot_s) : 0.;
+        alpha[k] = Gem::Common::narrow<double>(rho[k] * s_dot_q);
+        for(std::size_t j = 0; j < n; j++) {
+            q[j] -= alpha[k] * y_hist[slot + j];
+        }
+    }
+    // Initial inverse-Hessian scaling gamma = (s_newest . y_newest) / (y_newest . y_newest);
+    // 1 when no pair is available, which makes the direction plain steepest descent.
+    double gamma = 1.;
+    if(count > 0) {
+        const std::size_t slot = (count - 1) * n;
+        long double s_dot_y = 0.L, y_dot_y = 0.L;
+        for(std::size_t j = 0; j < n; j++) {
+            s_dot_y += static_cast<long double>(s_hist[slot + j]) * y_hist[slot + j];
+            y_dot_y += static_cast<long double>(y_hist[slot + j]) * y_hist[slot + j];
+        }
+        if(y_dot_y > std::numeric_limits<long double>::min()) {
+            gamma = Gem::Common::narrow<double>(s_dot_y / y_dot_y);
+        }
+    }
+    std::vector<double> r(n, 0.);
+    for(std::size_t j = 0; j < n; j++) {
+        r[j] = gamma * q[j];
+    }
+    for(std::size_t k = 0; k < count; k++) {
+        const std::size_t slot = k * n;
+        long double y_dot_r = 0.L;
+        for(std::size_t j = 0; j < n; j++) {
+            y_dot_r += static_cast<long double>(y_hist[slot + j]) * r[j];
+        }
+        const auto beta_k = Gem::Common::narrow<double>(rho[k] * y_dot_r);
+        for(std::size_t j = 0; j < n; j++) {
+            r[j] += (alpha[k] - beta_k) * s_hist[slot + j];
+        }
+    }
+    std::vector<double> direction(n, 0.);
+    for(std::size_t j = 0; j < n; j++) {
+        direction[j] = -r[j]; // -H_k g_k
+    }
+    // Remember x_k for the next curvature pair (prev_gradient is stored in step 6 as for CG).
+    std::copy(parm_vec.begin(), parm_vec.end(), prev_x.begin());
+    return direction;
+}
+
+/******************************************************************************/
+/**
+ * @brief Builds the steepest-descent / conjugate-gradient-family search direction.
+ *
+ * @param gradient The current proxy gradient
+ * @param prev_gradient The previous iteration's gradient (scratch-backed)
+ * @param prev_direction The previous iteration's search direction (scratch-backed)
+ * @param history_valid Whether the previous gradient/direction are valid
+ * @param periodic_restart Whether this iteration performs the classical periodic restart
+ * @return The search direction
+ */
+std::vector<double> GConjugateGradientDescent::conjugateDirection_(
+    const std::vector<double> &gradient,
+    std::span<const double> prev_gradient,
+    std::span<const double> prev_direction,
+    bool history_valid,
+    bool periodic_restart
+) const {
+    double beta = 0.;
+    const bool want_conjugate = (gradient_method_ != gradientMethod::STEEPEST_DESCENT) &&
+                                history_valid && not periodic_restart;
+    if(want_conjugate) {
+        long double g_dot_g = 0.L;         // g_k . g_k
+        long double g_dot_gprev = 0.L;     // g_k . g_{k-1}
+        long double gprev_dot_gprev = 0.L; // g_{k-1} . g_{k-1}
+        long double g_dot_y = 0.L;         // g_k . (g_k - g_{k-1})   (Polak-Ribiere / Hestenes-Stiefel num)
+        long double d_dot_y = 0.L;         // d_{k-1} . (g_k - g_{k-1}) (Hestenes-Stiefel / Dai-Yuan den)
+        for(std::size_t j = 0; j < n_fp_parms_first_; j++) {
+            const long double g = gradient[j];
+            const long double gp = prev_gradient[j];
+            const long double y = g - gp;
+            g_dot_g += g * g;
+            g_dot_gprev += g * gp;
+            gprev_dot_gprev += gp * gp;
+            g_dot_y += g * y;
+            d_dot_y += static_cast<long double>(prev_direction[j]) * y;
+        }
+
+        // Powell restart (Powell, "Restart procedures for the conjugate gradient method", Math.
+        // Prog. 12, 1977): restart to steepest descent when successive gradients are insufficiently
+        // orthogonal, i.e. |g_k . g_{k-1}| / ||g_k||^2 >= 0.1.
+        const long double abs_overlap = (g_dot_gprev >= 0.L) ? g_dot_gprev : -g_dot_gprev;
+        const bool powell_restart = (g_dot_g > 0.L) && (abs_overlap / g_dot_g >= 0.1L);
+
+        // Per-formula numerator / denominator (the conjugate-gradient family differs only here):
+        //   PR+ : g.(g-g_prev) / g_prev.g_prev    FR : g.g / g_prev.g_prev
+        //   HS+ : g.(g-g_prev) / d_prev.(g-g_prev) DY : g.g / d_prev.(g-g_prev)
+        long double num = 0.L;
+        long double den = 0.L;
+        switch(gradient_method_) {
+        case gradientMethod::CONJUGATE_FR:
+            num = g_dot_g;
+            den = gprev_dot_gprev;
+            break;
+        case gradientMethod::CONJUGATE_HS:
+            num = g_dot_y;
+            den = d_dot_y;
+            break;
+        case gradientMethod::CONJUGATE_DY:
+            num = g_dot_g;
+            den = d_dot_y;
+            break;
+        case gradientMethod::CONJUGATE_PR_PLUS:
+        default:
+            num = g_dot_y;
+            den = gprev_dot_gprev;
+            break;
+        }
+
+        // Numerical-stability guard: the denominator vanishes near convergence (and d.(g-g_prev) can
+        // change sign), so divide only when |den| is above the representable floor and large enough
+        // relative to the numerator that |beta| stays below a finite cap. The "+" clamp (beta >= 0,
+        // i.e. an automatic restart when beta would be negative) keeps every variant globally
+        // convergent and matches PR+/HS+.
+        constexpr long double beta_max = 1.0e4L;
+        const long double abs_num = (num >= 0.L) ? num : -num;
+        const long double abs_den = (den >= 0.L) ? den : -den;
+        if(not powell_restart && abs_den > std::numeric_limits<long double>::min() &&
+           abs_den * beta_max > abs_num) {
+            const long double beta_cg = num / den;
+            beta = (beta_cg > 0.L) ? Gem::Common::narrow<double>(beta_cg) : 0.;
+        }
+    }
+
+    std::vector<double> direction(n_fp_parms_first_, 0.);
+    for(std::size_t j = 0; j < n_fp_parms_first_; j++) {
+        direction[j] =
+            -gradient[j] + (history_valid ? beta * prev_direction[j] : 0.);
+    }
+    return direction;
 }
 
 /******************************************************************************/
@@ -1158,15 +1179,6 @@ std::shared_ptr<GPersonalityTraits> GConjugateGradientDescent::getPersonalityTra
 
 /******************************************************************************/
 /**
- * @brief Gives individuals an opportunity to update their internal structures. A
- * conjugate gradient descent is largely deterministic; nothing to do here.
- */
-void GConjugateGradientDescent::actOnStalls_() {
-    /* nothing */
-}
-
-/******************************************************************************/
-/**
  * @brief Resizes the population to the desired level and does some error checks. The population is
  * n_starting_points_ * (n_fp_parms_first_ * n_probes + 1) individuals, where n_probes is 1 (forward
  * difference) or 2 (central difference): each starting point plus its perturbed difference-quotient
@@ -1228,18 +1240,6 @@ void GConjugateGradientDescent::adjustPopulation_() {
         );
     }
 #endif /* DEBUG */
-}
-
-/******************************************************************************/
-/**
- * @brief Lets all individuals know about their position in the population.
- */
-void GConjugateGradientDescent::markIndividualPositions() {
-    for(auto const &[pos, individual] : *this | std::views::enumerate) {
-        individual
-            ->getPersonalityTraits<GConjugateGradientDescent_PersonalityTraits>()
-            ->setPopulationPosition(static_cast<std::size_t>(pos));
-    }
 }
 
 /******************************************************************************/

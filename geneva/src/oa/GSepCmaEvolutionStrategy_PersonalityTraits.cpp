@@ -65,32 +65,6 @@ std::size_t GSepCmaEvolutionStrategy_PersonalityTraits::getRank() const {
 
 /******************************************************************************/
 /**
- * @brief Allows to check whether this individual lies on the current pareto front
- *
- * @return A boolean indicating whether this object lies on the current pareto front
- */
-bool GSepCmaEvolutionStrategy_PersonalityTraits::isOnParetoFront() const {
-    return is_on_pareto_front_;
-}
-
-/******************************************************************************/
-/**
- * @brief Allows to reset the pareto tag to "true"
- */
-void GSepCmaEvolutionStrategy_PersonalityTraits::resetParetoTag() {
-    is_on_pareto_front_ = true;
-}
-
-/******************************************************************************/
-/**
- * @brief Allows to specify that this individual does not lie on the pareto front
- */
-void GSepCmaEvolutionStrategy_PersonalityTraits::setIsNotOnParetoFront() {
-    is_on_pareto_front_ = false;
-}
-
-/******************************************************************************/
-/**
  * @brief Retrieves the mnemonic of the optimization algorithm
  *
  * @return The mnemonic ("sepcma") associated with this personality

@@ -89,16 +89,6 @@ GRandomFactory::~GRandomFactory() {
 
 /******************************************************************************/
 /**
- * @brief Initializes the factory.
- *
- * This function does nothing at this time. Its only purpose is to control
- * initialization of the factory in the singleton.
- */
-void GRandomFactory::init() { /* nothing */
-}
-
-/******************************************************************************/
-/**
  * @brief Finalization code for the GRandomFactory.
  *
  * All producer threads are flagged to stop and the fresh/return buffers are
@@ -405,9 +395,9 @@ struct GRandomFactoryLifecycleGuard {
     // Acquire and HOLD a strong reference to the factory. This is what makes the destructor safe against
     // static-destruction ORDER: the factory object cannot be torn down while this guard is alive, so the
     // finalize() below always runs against a live factory (and we never re-enter the GSingletonT storage
-    // at teardown, where it may already be gone). init() is a formality; constructing factory_ is what
-    // brings the singleton online before main().
-    GRandomFactoryLifecycleGuard() : factory_(randomFactory()) { factory_->init(); }
+    // at teardown, where it may already be gone). Constructing factory_ is what brings the singleton
+    // online before main(); no further initialization call is needed (producer threads start lazily).
+    GRandomFactoryLifecycleGuard() : factory_(randomFactory()) { /* see above */ }
     ~GRandomFactoryLifecycleGuard() { factory_->finalize(); }
 
     std::shared_ptr<GRandomFactory> factory_;

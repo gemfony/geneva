@@ -668,14 +668,6 @@ std::tuple<double, double> GSepCmaEvolutionStrategy::cycleLogic_() {
 
 /******************************************************************************/
 /**
- * Gives derived classes an opportunity to update their internal structures.
- */
-void GSepCmaEvolutionStrategy::actOnStalls_() {
-    /* nothing */
-}
-
-/******************************************************************************/
-/**
  * Retrieve a GPersonalityTraits object belonging to this algorithm.
  */
 std::shared_ptr<GPersonalityTraits> GSepCmaEvolutionStrategy::getPersonalityTraits_() const {

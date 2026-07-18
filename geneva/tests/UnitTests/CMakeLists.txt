@@ -50,6 +50,7 @@ SET ( ${EXECUTABLENAME}_SRCS
 	GMultiConstraintTests.cpp
 	GLateReturnIntegrationTests.cpp
 	GFaultInjectorTests.cpp
+	GNeuralNetworkDataTests.cpp
 )
 
 ADD_EXECUTABLE(${EXECUTABLENAME}

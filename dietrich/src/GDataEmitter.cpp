@@ -908,8 +908,8 @@ GPlotDesigner GDataLog::toDesigner() const {
 
     // Attach overlays to their primary.
     for(std::size_t i = 0; i < series_.size(); ++i) {
-        if(series_[i].primary.has_value()) {
-            built[*series_[i].primary]->registerSecondaryPlotter(built[i]);
+        if(const auto &primary = series_[i].primary; primary.has_value()) {
+            built[*primary]->registerSecondaryPlotter(built[i]);
         }
     }
 

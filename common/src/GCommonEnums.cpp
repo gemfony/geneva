@@ -28,7 +28,6 @@
  ********************************************************************************/
 
 #include "common/GCommonEnums.hpp"
-#include <istream>
 #include <ostream>
 #include <string>
 #include <utility>
@@ -36,88 +35,10 @@
 namespace Gem::Common {
 
 /******************************************************************************/
-/**
- * Puts a Gem::Common::sortOrder into a stream. Needed for streaming / Gem::Common::fromString<>
- *
- * @param o The output stream to write to
- * @param x The sortOrder value to write
- * @return The output stream, to allow chaining
- */
-std::ostream &operator<<(std::ostream &o, Gem::Common::sortOrder const &x) {
-    o << std::to_underlying(x);
-    return o;
-}
-
-/******************************************************************************/
-/**
- * Reads a Gem::Common::sortOrder item from a stream. Needed for streaming / Gem::Common::fromString<>
- *
- * @param i The input stream to read from
- * @param x Output parameter: receives the sortOrder value read from the stream
- * @return The input stream, to allow chaining
- */
-std::istream &operator>>(std::istream &i, Gem::Common::sortOrder &x) {
-    Gem::Common::ENUMBASETYPE tmp = 0;
-    i >> tmp;
-    x = static_cast<Gem::Common::sortOrder>(tmp);
-    return i;
-}
-
-/******************************************************************************/
-/**
- * Puts a Gem::Common::dimensions into a stream. Needed for streaming / Gem::Common::fromString<>
- *
- * @param o The output stream to write to
- * @param x The dimensions value to write
- * @return The output stream, to allow chaining
- */
-std::ostream &operator<<(std::ostream &o, Gem::Common::dimensions const &x) {
-    o << std::to_underlying(x);
-    return o;
-}
-
-/******************************************************************************/
-/**
- * Reads a Gem::Common::dimensions item from a stream. Needed for streaming / Gem::Common::fromString<>
- *
- * @param i The input stream to read from
- * @param x Output parameter: receives the dimensions value read from the stream
- * @return The input stream, to allow chaining
- */
-std::istream &operator>>(std::istream &i, Gem::Common::dimensions &x) {
-    Gem::Common::ENUMBASETYPE tmp = 0;
-    i >> tmp;
-    x = static_cast<Gem::Common::dimensions>(tmp);
-    return i;
-}
-
-/******************************************************************************/
-/**
- * Puts a Gem::Common::logType into a stream. Needed for streaming / Gem::Common::fromString<>
- *
- * @param o The output stream to write to
- * @param x The logType value to write
- * @return The output stream, to allow chaining
- */
-std::ostream &operator<<(std::ostream &o, Gem::Common::logType const &x) {
-    o << std::to_underlying(x);
-    return o;
-}
-
-/******************************************************************************/
-/**
- * Reads a Gem::Common::logType item from a stream. Needed for streaming / Gem::Common::fromString<>
- *
- * @param i The input stream to read from
- * @param x Output parameter: receives the logType value read from the stream
- * @return The input stream, to allow chaining
- */
-std::istream &operator>>(std::istream &i, Gem::Common::logType &x) {
-    Gem::Common::ENUMBASETYPE tmp = 0;
-    i >> tmp;
-    x = static_cast<Gem::Common::logType>(tmp);
-    return i;
-}
+// The numeric enum stream operators (sortOrder, dimensions, logType,
+// triboolStates, serializationMode, expectation) are supplied by the shared
+// numeric_enum_io_v machinery in GCommonEnums.hpp. Only tribool's textual
+// insertion operator needs a hand-written implementation.
 
 /******************************************************************************/
 /**
@@ -145,62 +66,6 @@ std::ostream &operator<<(std::ostream &o, Gem::Common::tribool const &x) {
 
 /******************************************************************************/
 /**
- * Puts a Gem::Common::triboolStates into a stream. Needed for streaming / Gem::Common::fromString<>
- *
- * @param o The output stream to write to
- * @param x The triboolStates value to write
- * @return The output stream, to allow chaining
- */
-std::ostream &operator<<(std::ostream &o, Gem::Common::triboolStates const &x) {
-    o << std::to_underlying(x);
-    return o;
-}
-
-/******************************************************************************/
-/**
- * Reads a Gem::Common::triboolStates item from a stream. Needed for streaming / Gem::Common::fromString<>
- *
- * @param i The input stream to read from
- * @param x Output parameter: receives the triboolStates value read from the stream
- * @return The input stream, to allow chaining
- */
-std::istream &operator>>(std::istream &i, Gem::Common::triboolStates &x) {
-    Gem::Common::ENUMBASETYPE tmp = 0;
-    i >> tmp;
-    x = static_cast<Gem::Common::triboolStates>(tmp);
-    return i;
-}
-
-/******************************************************************************/
-/**
- * Puts a Gem::Common::serializationMode into a stream. Needed for streaming / Gem::Common::fromString<>
- *
- * @param o The output stream to write to
- * @param x The serializationMode value to write
- * @return The output stream, to allow chaining
- */
-std::ostream &operator<<(std::ostream &o, Gem::Common::serializationMode const &x) {
-    o << std::to_underlying(x);
-    return o;
-}
-
-/******************************************************************************/
-/**
- * Reads a Gem::Common::serializationMode item from a stream. Needed for streaming / Gem::Common::fromString<>
- *
- * @param i The input stream to read from
- * @param x Output parameter: receives the serializationMode value read from the stream
- * @return The input stream, to allow chaining
- */
-std::istream &operator>>(std::istream &i, Gem::Common::serializationMode &x) {
-    Gem::Common::ENUMBASETYPE tmp = 0;
-    i >> tmp;
-    x = static_cast<Gem::Common::serializationMode>(tmp);
-    return i;
-}
-
-/******************************************************************************/
-/**
  * Converts a serializationMode to a string representation for debugging purposes
  *
  * @param ser_mod The serialization mode to convert
@@ -217,34 +82,6 @@ std::string serModeToString(Gem::Common::serializationMode ser_mod) {
     default:
         return "unknown";
     }
-}
-
-/******************************************************************************/
-/**
- * Puts a Gem::Common::expectation into a stream. Needed for streaming / Gem::Common::fromString<>
- *
- * @param o The output stream to write to
- * @param x The expectation value to write
- * @return The output stream, to allow chaining
- */
-std::ostream &operator<<(std::ostream &o, Gem::Common::expectation const &x) {
-    o << std::to_underlying(x);
-    return o;
-}
-
-/******************************************************************************/
-/**
- * Reads a Gem::Common::expectation item from a stream. Needed for streaming / Gem::Common::fromString<>
- *
- * @param i The input stream to read from
- * @param x Output parameter: receives the expectation value read from the stream
- * @return The input stream, to allow chaining
- */
-std::istream &operator>>(std::istream &i, Gem::Common::expectation &x) {
-    Gem::Common::ENUMBASETYPE tmp = 0;
-    i >> tmp;
-    x = static_cast<Gem::Common::expectation>(tmp);
-    return i;
 }
 
 /******************************************************************************/

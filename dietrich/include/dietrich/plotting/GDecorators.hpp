@@ -247,9 +247,9 @@ class GMarker : public GDecorator<dimensions::Dim2, coordinate_type> {
             // XML name: no angle brackets, commas or spaces (the former tag broke XML round-trips).
             "GDecorator2_Dim2",
             boost::serialization::base_object<GDecorator<dimensions::Dim2, coordinate_type>>(*this)
-        ) & BOOST_SERIALIZATION_NVP(coordinates_) &
-            BOOST_SERIALIZATION_NVP(marker_) & BOOST_SERIALIZATION_NVP(color_) &
-            BOOST_SERIALIZATION_NVP(size_);
+        );
+        // ... and then our own data, derived from the single localMembers_() declaration
+        Gem::Common::serialize_members(ar, this->localMembers_());
     }
     ///////////////////////////////////////////////////////////////////////
 

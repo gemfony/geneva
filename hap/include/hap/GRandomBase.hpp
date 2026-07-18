@@ -66,18 +66,23 @@ public:
 
     /***************************************************************************/
     /** @brief The standard constructor */
-    GRandomBase();
+    GRandomBase() = default;
     /** @brief A standard (virtual) destructor */
-    virtual ~GRandomBase();
+    virtual ~GRandomBase() = default;
     /**
      * @brief Retrieves a single "raw" uniformly distributed random item.
      *
      * Acts as the call operator required by the C++11 UniformRandomBitGenerator
      * interface, forwarding to the derived class' int_random() implementation.
+     * Defined inline: this is the hot draw path of every distribution built on
+     * a Geneva random proxy, so the former out-of-line forwarder hop is spared
+     * (the virtual int_random() dispatch remains, by design).
      *
      * @return One raw random value drawn from the underlying generator
      */
-    GRandomBase::result_type operator()();
+    result_type operator()() {
+        return this->int_random();
+    }
 
     /***************************************************************************/
     // Prevent copying

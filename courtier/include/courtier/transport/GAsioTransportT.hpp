@@ -48,6 +48,7 @@
 #include <string>
 #include <thread>
 #include <vector>
+#include <tuple>
 
 // Boost headers go here
 #include <boost/archive/xml_iarchive.hpp>
@@ -366,7 +367,7 @@ private:
         // (there is no second small write to coalesce with). We therefore disable it. Best-effort:
         // a failure to set the option is not fatal.
         boost::system::error_code nd_ec;
-        socket_ptr_->set_option(boost::asio::ip::tcp::no_delay(true), nd_ec);
+        std::ignore = socket_ptr_->set_option(boost::asio::ip::tcp::no_delay(true), nd_ec); // failure deliberately tolerated
 
         // Send the command container off to the remote side
         auto self = this->shared_from_this();
@@ -408,7 +409,7 @@ private:
         // the peer may already have closed, and a throw out of this completion handler would
         // unwind the io thread.
         boost::system::error_code sd_ec;
-        socket_ptr_->shutdown(boost::asio::socket_base::shutdown_send, sd_ec);
+        std::ignore = socket_ptr_->shutdown(boost::asio::socket_base::shutdown_send, sd_ec); // best-effort
 
         // Clear the outgoing message -- no longer needed
         outgoing_message_str_.clear();
@@ -686,13 +687,13 @@ private:
             boost::asio::ip::tcp::socket fetch_socket(fetch_ctx);
             boost::asio::connect(fetch_socket, endpoints);
             boost::system::error_code nd_ec;
-            fetch_socket.set_option(boost::asio::ip::tcp::no_delay(true), nd_ec);
+            std::ignore = fetch_socket.set_option(boost::asio::ip::tcp::no_delay(true), nd_ec); // failure deliberately tolerated
 
             // Write the request, then half-close so the server sees end-of-request (eof), mirroring the
             // normal one-shot protocol.
             boost::asio::write(fetch_socket, boost::asio::buffer(request_str));
             boost::system::error_code sd_ec;
-            fetch_socket.shutdown(boost::asio::socket_base::shutdown_send, sd_ec);
+            std::ignore = fetch_socket.shutdown(boost::asio::socket_base::shutdown_send, sd_ec); // best-effort
 
             // Read the whole response (the server closes its send side at the end -> eof).
             std::string response_str;
@@ -892,7 +893,7 @@ public:
         // Disable Nagle's algorithm on the accepted connection: the request/response messages
         // are small and latency-sensitive.
         boost::system::error_code nd_ec;
-        socket_.set_option(boost::asio::ip::tcp::no_delay(true), nd_ec);
+        std::ignore = socket_.set_option(boost::asio::ip::tcp::no_delay(true), nd_ec); // failure deliberately tolerated
 
         // Arm the deadline so a client that connects but never completes its request cannot pin the
         // socket/fd forever, then initiate the read session -- we expect an incoming message.
@@ -943,7 +944,7 @@ private:
                     << GLOGGING;
         }
         boost::system::error_code ignore;
-        socket_.close(ignore); // aborts the outstanding read/write -> the session ends
+        std::ignore = socket_.close(ignore); // aborts the outstanding read/write -> the session ends (best-effort)
     }
 
     //-------------------------------------------------------------------------
@@ -1059,7 +1060,7 @@ private:
         // on the client-side indicating that all data was written. Non-throwing overload: a throw
         // out of this completion handler would unwind the io thread.
         boost::system::error_code sd_ec;
-        socket_.shutdown(boost::asio::socket_base::shutdown_send, sd_ec);
+        std::ignore = socket_.shutdown(boost::asio::socket_base::shutdown_send, sd_ec); // best-effort
 
         // Clear the outgoing message string, no longer needed
         outgoing_message_str_.clear();

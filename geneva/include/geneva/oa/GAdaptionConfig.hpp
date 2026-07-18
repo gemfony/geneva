@@ -98,20 +98,20 @@ enum class stepControl : std::uint8_t {
     CSA = 3
 };
 
-/** @brief Streams a stepControl value as its integer code (needed by the comparison / logging helpers).
- *  @param o The output stream @param sc The value @return The stream */
-inline std::ostream &operator<<(std::ostream &o, const stepControl &sc) {
-    o << static_cast<std::uint32_t>(static_cast<std::uint8_t>(sc));
-    return o;
-}
-/** @brief Reads a stepControl value from its integer code.
- *  @param i The input stream @param sc The value to fill @return The stream */
-inline std::istream &operator>>(std::istream &i, stepControl &sc) {
-    std::uint32_t tmp = 0;
-    i >> tmp;
-    sc = static_cast<stepControl>(static_cast<std::uint8_t>(tmp));
-    return i;
-}
+// Numeric streaming opt-in for stepControl; must precede its first streaming
+// use (see numeric_enum_io_v in GCommonEnums.hpp).
+} /* namespace Gem::Geneva::OptimizationAlgorithms */
+namespace Gem::Common {
+template <> inline constexpr bool numeric_enum_io_v<Gem::Geneva::OptimizationAlgorithms::stepControl> = true;
+} /* namespace Gem::Common */
+namespace Gem::Geneva::OptimizationAlgorithms {
+
+// stepControl streams as its integer code through the shared numeric_enum_io_v
+// machinery of GCommonEnums.hpp (marker specialization at the end of this
+// header). Re-export the operators so ADL finds them in this namespace even
+// when this header is included on its own.
+using Gem::Common::operator<<;
+using Gem::Common::operator>>;
 
 /******************************************************************************/
 /**

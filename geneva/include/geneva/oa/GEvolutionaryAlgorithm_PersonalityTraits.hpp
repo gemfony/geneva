@@ -39,6 +39,7 @@
 
 // Geneva headers go here
 #include "geneva/oa/GBaseParChildPersonalityTraits.hpp"
+#include "geneva/oa/GParetoTag.hpp"
 
 namespace Gem::Geneva::OptimizationAlgorithms {
 
@@ -51,7 +52,8 @@ namespace Gem::Geneva::OptimizationAlgorithms {
  * (same pareto-front tag) but carries its own nickname so it self-registers a distinct mnemonic.
  */
 class GEvolutionaryAlgorithm_PersonalityTraits // NOLINT(cppcoreguidelines-special-member-functions)
-  : public GBaseParChildPersonalityTraits {
+  : public GBaseParChildPersonalityTraits
+  , public GParetoTag {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
@@ -86,15 +88,9 @@ public:
     /** @brief The standard destructor */
     ~GEvolutionaryAlgorithm_PersonalityTraits() override = default;
 
-    /**
-     * @brief Allows to check whether this individual lies on the pareto front (only yields useful results after pareto-sorting in EA).
-     * @return true if the individual is currently tagged as lying on the pareto front, false otherwise
-     */
-    bool isOnParetoFront() const;
-    /** @brief Allows to reset the pareto tag to "true" */
-    void resetParetoTag();
-    /** @brief Allows to specify that this individual does not lie on the pareto front of the current iteration */
-    void setIsNotOnParetoFront();
+    // The pareto-front tag (isOnParetoFront / resetParetoTag / setIsNotOnParetoFront)
+    // is inherited from the GParetoTag mixin; the member is serialized below under
+    // its historical NVP name.
 
     /**
      * @brief Retrieves the mnemonic of the optimization algorithm.
@@ -147,9 +143,6 @@ private:
     std::string name_() const override;
     /** @brief Creates a deep clone of this object */
     GPersonalityTraits *clone_() const override;
-
-    /** @brief Determines whether the individual lies on the pareto front */
-    bool is_on_pareto_front_ = true;
 };
 
 /******************************************************************************/

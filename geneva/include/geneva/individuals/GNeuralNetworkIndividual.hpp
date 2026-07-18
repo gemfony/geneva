@@ -100,18 +100,14 @@ struct trainingSet {
 
         ar &BOOST_SERIALIZATION_NVP(nInputNodes) & BOOST_SERIALIZATION_NVP(nOutputNodes);
 
-        if(Input) {
-            Gem::Common::g_array_delete(Input);
-        }
-        Input = new double[nInputNodes];
+        // The element-wise make_array form (rather than serializing the vectors
+        // directly) preserves the historical archive layout of the raw arrays
+        // these vectors replaced.
+        Input.assign(nInputNodes, 0.);
+        Output.assign(nOutputNodes, 0.);
 
-        if(Output) {
-            Gem::Common::g_array_delete(Output);
-        }
-        Output = new double[nOutputNodes];
-
-        ar &boost::serialization::make_array(Input, nInputNodes);
-        ar &boost::serialization::make_array(Output, nOutputNodes);
+        ar &boost::serialization::make_array(Input.data(), nInputNodes);
+        ar &boost::serialization::make_array(Output.data(), nOutputNodes);
     }
 
     template <typename Archive>
@@ -120,8 +116,8 @@ struct trainingSet {
 
         ar &BOOST_SERIALIZATION_NVP(nInputNodes) & BOOST_SERIALIZATION_NVP(nOutputNodes);
 
-        ar &boost::serialization::make_array(Input, nInputNodes);
-        ar &boost::serialization::make_array(Output, nOutputNodes);
+        ar &boost::serialization::make_array(Input.data(), nInputNodes);
+        ar &boost::serialization::make_array(Output.data(), nOutputNodes);
     }
 
     BOOST_SERIALIZATION_SPLIT_MEMBER()
@@ -130,25 +126,21 @@ struct trainingSet {
 
     /**
      * @brief The constructor.
-     * @param nInputNodes The number of input nodes (size of the Input array)
-     * @param nOutputNodes The number of output nodes (size of the Output array)
+     * @param nInputNodes The number of input nodes (size of the Input vector)
+     * @param nOutputNodes The number of output nodes (size of the Output vector)
      */
     trainingSet(const std::size_t & n_input, const std::size_t & n_output);
-    /**
-     * @brief A copy constructor.
-     * @param cp A constant reference to another trainingSet object
-     */
-    trainingSet(const trainingSet & cp);
+
+    // Rule of zero: with std::vector data members the compiler-generated
+    // copy/move/assignment operations are deep, self-assignment-safe and
+    // exception-safe (the former hand-written array management was neither).
+    trainingSet(const trainingSet &) = default;
+    trainingSet(trainingSet &&) = default;
+    trainingSet &operator=(const trainingSet &) = default;
+    trainingSet &operator=(trainingSet &&) = default;
 
     /** @brief The destructor */
-    virtual ~trainingSet();
-
-    /**
-     * @brief Assigns another trainingSet's data to this object.
-     * @param cp A constant reference to the trainingSet to copy from
-     * @return A reference to this object
-     */
-    trainingSet &operator=(const trainingSet & cp);
+    virtual ~trainingSet() = default;
 
     /**
      * @brief Searches for compliance with expectations with respect to another object of the same type.
@@ -167,15 +159,15 @@ struct trainingSet {
     /***************************************************************************/
     // Local data
 
-    std::size_t nInputNodes;  ///< The number of input nodes
-    std::size_t nOutputNodes; ///< The number of output nodes
+    std::size_t nInputNodes = 0;  ///< The number of input nodes (== Input.size(); kept for the archive layout)
+    std::size_t nOutputNodes = 0; ///< The number of output nodes (== Output.size(); kept for the archive layout)
 
-    double *Input;  ///< Holds the input data
-    double *Output; ///< Holds the output data
+    std::vector<double> Input;  ///< Holds the input data
+    std::vector<double> Output; ///< Holds the output data
 
 private:
-    /** @brief The default constructor -- intentionally private */
-    trainingSet();
+    /** @brief The default constructor -- intentionally private, needed only for (de-)serialization */
+    trainingSet() = default;
 };
 
 /******************************************************************************/
@@ -202,19 +194,14 @@ class networkData : public Gem::Common::GPodContainerT<std::size_t> {
             boost::serialization::base_object<Gem::Common::GPodContainerT<std::size_t>>(*this)
         ) & BOOST_SERIALIZATION_NVP(init_range_);
 
-        // Make sure the data vector is empty
-        if(data_) {
-            for(std::size_t i = 0; i < array_size_; i++) {
-                data_[i].reset();
-            }
-        }
-        Gem::Common::g_array_delete(data_);
-
+        // The historical archive layout stored an explicit element count followed by a raw array of
+        // shared_ptrs; keep both (the local variable's name yields the same NVP tag the former
+        // array_size_ member produced).
+        std::size_t array_size_{0};
         ar &BOOST_SERIALIZATION_NVP(array_size_);
 
         // array_size_ has just been read from the (possibly untrusted) archive. Reject a value that
-        // would overflow the array allocation before handing it to new[]. This also bounds the size
-        // for the compiler, silencing g++'s -Walloc-size-larger-than for the allocation below.
+        // would overflow the allocation before handing it to the vector.
         if(array_size_ > std::numeric_limits<std::ptrdiff_t>::max() /
                               static_cast<std::ptrdiff_t>(sizeof(std::shared_ptr<trainingSet>))) {
             throw geneva_exception(
@@ -224,21 +211,23 @@ class networkData : public Gem::Common::GPodContainerT<std::size_t> {
             );
         }
 
-        data_ = new std::shared_ptr<trainingSet>[array_size_];
+        data_.assign(array_size_, std::shared_ptr<trainingSet>{});
 
-        ar &boost::serialization::make_array(data_, array_size_);
+        ar &boost::serialization::make_array(data_.data(), array_size_);
     }
 
     template <typename Archive>
     void save(Archive &ar, [[maybe_unused]] const unsigned int version) const {
         using boost::serialization::make_nvp;
 
+        // See load(): the local variable keeps the former array_size_ member's NVP tag.
+        const std::size_t array_size_{data_.size()};
         ar &make_nvp(
             "GStdSimpleVectorInterfaceT_size_t",
             boost::serialization::base_object<Gem::Common::GPodContainerT<std::size_t>>(*this)
         ) & BOOST_SERIALIZATION_NVP(init_range_) &
             BOOST_SERIALIZATION_NVP(array_size_) &
-            boost::serialization::make_array(data_, array_size_);
+            boost::serialization::make_array(data_.data(), array_size_);
     }
 
     BOOST_SERIALIZATION_SPLIT_MEMBER()
@@ -366,11 +355,16 @@ private:
     /** @brief Default constructor, intentionally private */
     networkData();
 
+    /**
+     * @brief Deep-copies the training sets of another networkData object (empty slots stay empty).
+     * @param cp The source object
+     * @return The deep copy of cp's training-set slots
+     */
+    static std::vector<std::shared_ptr<trainingSet>> deepCopyOfTrainingSets(const networkData &cp);
+
     /***************************************************************************/
-    /** @brief The size of the training set */
-    std::size_t array_size_;
     /** @brief Holds the individual data items */
-    std::shared_ptr<trainingSet> *data_;
+    std::vector<std::shared_ptr<trainingSet>> data_;
 
     /** @brief Holds the initialization range in each direction */
     std::vector<std::tuple<double, double>> init_range_;
@@ -397,15 +391,21 @@ enum class transferFunction : Gem::Common::ENUMBASETYPE {
 };
 
 /******************************************************************************/
-/** @brief  Reads a Gem::Geneva::Individuals::trainingDataType item from a stream */
-std::istream &operator>>(std::istream &i, Gem::Geneva::Individuals::trainingDataType &tdt);
-/** @brief Puts a Gem::Geneva::Individuals::trainingDataType item into a stream */
-std::ostream &
-operator<<(std::ostream &o, const Gem::Geneva::Individuals::trainingDataType &tdt);
-/** @brief Reads a Gem::Geneva::Individuals::transferFunction item from a stream. */
-std::istream &operator>>(std::istream &i, Gem::Geneva::Individuals::transferFunction &t_f);
-/** @brief Puts a Gem::Geneva::Individuals::transferFunction item into a stream. */
-std::ostream &operator<<(std::ostream &o, const Gem::Geneva::Individuals::transferFunction &t_f);
+// trainingDataType and transferFunction stream as their underlying numeric
+// values through the shared machinery in GCommonEnums.hpp. The marker
+// specializations must precede the first in-header streaming use, hence the
+// namespace round-trip right here; the using-declarations re-export the
+// operators so ADL finds them in this namespace.
+
+} /* namespace Gem::Geneva::Individuals */
+namespace Gem::Common {
+template <> inline constexpr bool numeric_enum_io_v<Gem::Geneva::Individuals::trainingDataType> = true;
+template <> inline constexpr bool numeric_enum_io_v<Gem::Geneva::Individuals::transferFunction> = true;
+} /* namespace Gem::Common */
+namespace Gem::Geneva::Individuals {
+
+using Gem::Common::operator<<;
+using Gem::Common::operator>>;
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////

@@ -593,8 +593,9 @@ class GCheckCombinerT : public GValidityCheckContainerT<ind_type> {
         ar &boost::serialization::make_nvp(
             "GValidityCheckContainerT_ind_type",
             boost::serialization::base_object<GValidityCheckContainerT<ind_type>>(*this)
-        ) &
-            BOOST_SERIALIZATION_NVP(combiner_policy_);
+        );
+        // ... and then our own data, derived from the single localMembers_() declaration
+        Gem::Common::serialize_members(ar, this->localMembers_());
     }
     ///////////////////////////////////////////////////////////////////////
 

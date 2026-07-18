@@ -78,19 +78,14 @@ using G_CPU_BASE_GENERATOR = xoshiro256pp;
  * @brief Name of the compiled-in public CPU engine (G_CPU_BASE_GENERATOR).
  *
  * For diagnostics / benchmark labelling; reflects exactly what consumers get.
+ * A substituted engine (see G_CPU_BASE_GENERATOR above) is labelled "unknown"
+ * rather than guessed at -- whoever substitutes an engine extends this label.
  *
- * @return A static string literal naming the engine ("xoshiro256++",
- *         "mt19937_64", "mt19937" or "unknown")
+ * @return A static string literal naming the engine ("xoshiro256++" or "unknown")
  */
 inline const char *cpuEngineName() noexcept {
-    // The non-xoshiro branches exist so a substituted engine (see G_CPU_BASE_GENERATOR above)
-    // is still labelled correctly; only one branch is ever compiled in.
     if constexpr (std::is_same_v<G_CPU_BASE_GENERATOR, xoshiro256pp>) {
         return "xoshiro256++";
-    } else if constexpr (std::is_same_v<G_CPU_BASE_GENERATOR, std::mt19937_64>) {
-        return "mt19937_64";
-    } else if constexpr (std::is_same_v<G_CPU_BASE_GENERATOR, std::mt19937>) {
-        return "mt19937";
     } else {
         return "unknown";
     }
@@ -327,8 +322,6 @@ public:
 
     /***************************************************************************/
 
-    /** @brief Initialization code for the GRandomFactory (starts producer threads / seeding) */
-    void init();
     /** @brief Finalization code for the GRandomFactory (stops producer threads and cleans up) */
     void finalize();
 

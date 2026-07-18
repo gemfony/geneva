@@ -41,6 +41,7 @@
 // Geneva headers go here
 #include "geneva/ind/GOptimizableEntity.hpp"
 #include "geneva/GPersonalityTraits.hpp"
+#include "geneva/oa/GParetoTag.hpp"
 
 namespace Gem::Geneva::OptimizationAlgorithms {
 
@@ -52,7 +53,8 @@ namespace Gem::Geneva::OptimizationAlgorithms {
  * mirroring the informational tags the other algorithms' personalities carry.
  */
 class GSepCmaEvolutionStrategy_PersonalityTraits // NOLINT(cppcoreguidelines-special-member-functions)
-  : public GPersonalityTraits {
+  : public GPersonalityTraits
+  , public GParetoTag {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
@@ -100,15 +102,9 @@ public:
      */
     std::size_t getRank() const;
 
-    /**
-     * @brief Allows to check whether this individual lies on the current pareto front.
-     * @return true if the individual is tagged as lying on the pareto front, false otherwise
-     */
-    bool isOnParetoFront() const;
-    /** @brief Allows to reset the pareto tag to "true" */
-    void resetParetoTag();
-    /** @brief Allows to specify that this individual does not lie on the pareto front of the current iteration */
-    void setIsNotOnParetoFront();
+    // The pareto-front tag (isOnParetoFront / resetParetoTag / setIsNotOnParetoFront)
+    // is inherited from the GParetoTag mixin; the member is serialized below under
+    // its historical NVP name.
 
     /**
      * @brief Retrieves the mnemonic of the optimization algorithm.
@@ -164,8 +160,6 @@ private:
 
     /** @brief The offspring's selection rank in the current generation (0 == best) */
     std::size_t rank_ = 0;
-    /** @brief Whether the individual lies on the current pareto front (NSGA-II selection) */
-    bool is_on_pareto_front_ = true;
 };
 
 /******************************************************************************/

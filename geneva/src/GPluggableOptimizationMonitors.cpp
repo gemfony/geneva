@@ -2320,13 +2320,18 @@ void GProcessingTimesLogger::informationFunction_(
             const double times_1d[] = {
                 pre_processing_time, main_processing_time, post_processing_time, all_processing_time
             };
+            // Both logs are created in INFOINIT, which precedes every per-iteration call.
+            // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
+            auto &log_pth = *log_pth_;
+            // NOLINTNEXTLINE(bugprone-unchecked-optional-access)
+            auto &log_pth2 = *log_pth2_;
             for(std::size_t s = 0; s < pth_ids_.size(); ++s) {
-                log_pth_->append(pth_ids_[s], std::span<const double>(&times_1d[s], 1));
+                log_pth.append(pth_ids_[s], std::span<const double>(&times_1d[s], 1));
             }
 
             // Fill the timings into the 2-d (iteration, time) histograms, same order.
             for(std::size_t s = 0; s < pth2_ids_.size(); ++s) {
-                log_pth2_->append(pth2_ids_[s], iteration, times_1d[s]);
+                log_pth2.append(pth2_ids_[s], iteration, times_1d[s]);
             }
 
             data_txt << Gem::Common::narrow<std::uint32_t>(iteration) << ", " << std::showpoint

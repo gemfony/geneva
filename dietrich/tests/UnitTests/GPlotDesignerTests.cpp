@@ -142,6 +142,48 @@ TEST_CASE("auto-ranged histogram with no data throws instead of UB", "[plotting]
 }
 
 /******************************************************************************/
+// The generic project<I>() implementation (which replaced nine copy-pasted
+// per-arity/per-axis specializations) must produce correctly labelled, fully
+// filled projections for every axis, on both the explicit-range and the
+// auto-range (boundaries derived via getMinMax) path.
+TEST_CASE("project<I> yields labelled 1-d projections for every axis", "[plotting]") {
+    GGraph4D g;
+    g.setPlotLabel("traj");
+    g.setXAxisLabel("a");
+    g.setYAxisLabel("b");
+    g.setZAxisLabel("c");
+    g.add(1., 10., 100., 1000.);
+    g.add(2., 20., 200., 2000.);
+    g.add(3., 30., 300., 3000.);
+
+    auto px = g.projectX(10, {0., 4.});
+    auto py = g.projectY(10, {}); // default range -> auto-ranged from the data
+    auto pz = g.projectZ(10, {});
+    auto pw = g.projectW(10, {});
+
+    CHECK(px->currentSize() == 3);
+    CHECK(pw->currentSize() == 3);
+    CHECK(px->xAxisLabel() == "a");
+    CHECK(py->xAxisLabel() == "b");
+    CHECK(pz->xAxisLabel() == "c");
+    CHECK(pw->xAxisLabel() == "w"); // no fourth GBasePlotter axis label
+    CHECK(px->yAxisLabel() == "Number of entries");
+    CHECK(px->plotLabel() == "traj / x-projection");
+    CHECK(pw->plotLabel() == "traj / w-projection");
+
+    // The two-axis collectors (histogram header) share the same implementation
+    GGraph2D g2;
+    g2.setPlotLabel("xy");
+    g2.setYAxisLabel("y");
+    g2.add(1., 5.);
+    g2.add(2., 6.);
+    auto p2y = g2.projectY(4, {});
+    CHECK(p2y->currentSize() == 2);
+    CHECK(p2y->xAxisLabel() == "y");
+    CHECK(p2y->plotLabel() == "xy / y-projection");
+}
+
+/******************************************************************************/
 // The gnuplot backend emits a valid gnuplot script for graph plotters.
 TEST_CASE("gnuplot backend emits a multiplot script for a GGraph2D", "[plotting]") {
     auto g = std::make_shared<GGraph2D>();

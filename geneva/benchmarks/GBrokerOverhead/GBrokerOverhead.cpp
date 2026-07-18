@@ -71,7 +71,12 @@ const long DEFAULTMAXMINUTES = 10;
 const std::uint32_t DEFAULTREPORTITERATION = 1;
 const duplicationScheme DEFAULTRSCHEME = duplicationScheme::VALUEDUPLICATIONSCHEME;
 const bool DEFAULTVERBOSE = true;
-const execMode DEFAULTPARALLELIZATIONMODE = execMode::MULTITHREADED;
+// The parallelization mode selected on the command line (the former execMode enum, retired
+// with the per-algorithm broker model): 0 = serial, 1 = multi-threaded, 2 = networked
+constexpr std::uint16_t PM_SERIAL = 0;
+constexpr std::uint16_t PM_MULTITHREADED = 1;
+constexpr std::uint16_t PM_NETWORKED = 2;
+const std::uint16_t DEFAULTPARALLELIZATIONMODE = PM_MULTITHREADED;
 const bool DEFAULTUSECOMMONADAPTOR =
     false; // whether to use a common adaptor for all GParameterT objects
 const unsigned short DEFAULTPORT = 10000;
@@ -94,7 +99,7 @@ const double DEFAULTGDAADPROB = 1.0;
 bool parseCommandLine(
     int argc,
     char **argv,
-    execMode &parallelizationMode,
+    std::uint16_t &parallelizationMode,
     std::uint16_t &nProducerThreads,
     std::uint16_t &nEvaluationThreads,
     std::size_t &populationSize,
@@ -121,7 +126,7 @@ bool parseCommandLine(
     // Create the parser builder
     Gem::Common::GParserBuilder gpb;
 
-    gpb.registerCLParameter<execMode>(
+    gpb.registerCLParameter<std::uint16_t>(
         "parallelizationMode,p",
         parallelizationMode,
         DEFAULTPARALLELIZATIONMODE,
@@ -312,7 +317,7 @@ int main(int argc, char **argv) {
     }
 
     std::string configFile;
-    execMode parallelizationMode;
+    std::uint16_t parallelizationMode{};
     std::string ip;
     std::uint16_t nProducerThreads;
     std::uint16_t nEvaluationThreads;
@@ -397,19 +402,19 @@ int main(int argc, char **argv) {
     {
         Gem::Geneva::ConsumerSpec spec;
         switch(parallelizationMode) {
-        case execMode::SERIAL: // Serial (single-threaded) execution
+        case PM_SERIAL: // Serial (single-threaded) execution
             std::cout << "Using serial execution." << std::endl;
             spec.mnemonic  = "stc";
             spec.n_threads = 1;
             break;
 
-        case execMode::MULTITHREADED: // Multi-threaded local execution
+        case PM_MULTITHREADED: // Multi-threaded local execution
             std::cout << "Using plain multi-threaded execution." << std::endl;
             spec.mnemonic  = "stc";
             spec.n_threads = static_cast<unsigned int>(nEvaluationThreads);
             break;
 
-        case execMode::BROKER: // Historically a local thread consumer behind the broker -- still local.
+        case PM_NETWORKED: // Historically a local thread consumer behind the broker -- still local.
             std::cout << "Using a local multi-threaded courtier consumer." << std::endl;
             spec.mnemonic  = "stc";
             spec.n_threads = static_cast<unsigned int>(nEvaluationThreads);

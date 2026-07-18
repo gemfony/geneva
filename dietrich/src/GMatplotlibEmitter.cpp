@@ -179,13 +179,17 @@ std::string mplPlotCall(
         case mplKind::hist1d:
         case mplKind::hist1i: {
             // A 1-d histogram of the raw samples (float64 or int32); same matplotlib call.
+            // A histogram spec always carries its bin counts; the fallback is unreachable
             call << ax << ".hist(" << pyListCol(cols[0]) << ", bins="
-                 << *spec.n_bins_x << ", label=\"" << label << "\")" << '\n';
+                 << spec.n_bins_x.value_or(Gem::Common::DEFAULTNBINSGPD) << ", label=\"" << label
+                 << "\")" << '\n';
         } break;
         case mplKind::hist2d: {
+            // A histogram spec always carries its bin counts; the fallbacks are unreachable
             call << "_h = " << ax << ".hist2d(" << pyListCol(cols[0]) << ", "
-                 << pyListCol(cols[1]) << ", bins=[" << *spec.n_bins_x << ", " << *spec.n_bins_y
-                 << "])" << '\n'
+                 << pyListCol(cols[1]) << ", bins=["
+                 << spec.n_bins_x.value_or(Gem::Common::DEFAULTNBINSGPD) << ", "
+                 << spec.n_bins_y.value_or(Gem::Common::DEFAULTNBINSGPD) << "])" << '\n'
                  << fig << ".colorbar(_h[3], ax=" << ax << ")" << '\n';
         } break;
     }

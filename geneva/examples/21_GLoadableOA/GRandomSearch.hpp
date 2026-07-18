@@ -148,8 +148,6 @@ private:
     /** @brief Retrieves a fresh personality-traits object for this algorithm.
      *  @return A shared pointer to a new GRandomSearch_PersonalityTraits object */
     std::shared_ptr<GPersonalityTraits> getPersonalityTraits_() const override;
-    /** @brief Gives individuals an opportunity to update their internal structures (a no-op here). */
-    void actOnStalls_() override;
 };
 
 /******************************************************************************/

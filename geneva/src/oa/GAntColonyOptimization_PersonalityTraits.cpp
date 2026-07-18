@@ -26,7 +26,9 @@
  * collection for a list of contributors and copyright information.
  *
  ********************************************************************************/
+
 #include "geneva/oa/GAntColonyOptimization_PersonalityTraits.hpp"
+
 #include <string>
 
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::OptimizationAlgorithms::GAntColonyOptimization_PersonalityTraits) // NOLINT
@@ -35,36 +37,6 @@ namespace Gem::Geneva::OptimizationAlgorithms {
 /******************************************************************************/
 /** A short identifier suitable for storage in a std::map */
 const std::string GAntColonyOptimization_PersonalityTraits::nickname = "acor";
-
-/******************************************************************************/
-/**
- * @brief Retrieves the mnemonic of the optimization algorithm.
- *
- * @return The short identifier ("acor") of the ant colony optimization
- */
-std::string GAntColonyOptimization_PersonalityTraits::getMnemonic() const {
-    return GAntColonyOptimization_PersonalityTraits::nickname;
-}
-
-/******************************************************************************/
-/**
- * @brief Emits a name for this class / object.
- *
- * @return The string "GAntColonyOptimization_PersonalityTraits"
- */
-std::string GAntColonyOptimization_PersonalityTraits::name_() const {
-    return std::string("GAntColonyOptimization_PersonalityTraits");
-}
-
-/******************************************************************************/
-/**
- * @brief Creates a deep clone of this object.
- *
- * @return A pointer to a newly allocated, deep copy of this object (caller takes ownership)
- */
-GPersonalityTraits *GAntColonyOptimization_PersonalityTraits::clone_() const {
-    return new GAntColonyOptimization_PersonalityTraits(*this);
-}
 
 /******************************************************************************/
 

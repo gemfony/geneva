@@ -47,41 +47,6 @@ namespace Gem::Geneva::Individuals {
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
-/**
- * @brief Puts a Gem::Geneva::Individuals::metaOptimizationTarget item into a stream.
- *
- * @param o The ostream the item should be added to
- * @param mot The metaOptimizationTarget item to be added to the stream
- * @return The std::ostream object used to add the item to
- */
-std::ostream &operator<<(std::ostream &o, const Gem::Geneva::Individuals::metaOptimizationTarget &mot) {
-    auto tmp = std::to_underlying(mot);
-    o << tmp;
-    return o;
-}
-
-/******************************************************************************/
-/**
- * @brief Reads a Gem::Geneva::Individuals::metaOptimizationTarget item from a stream.
- *
- * @param i The istream the item should be read from
- * @param mot The metaOptimizationTarget item read from the stream (output parameter)
- * @return The std::istream object used to read the item from
- */
-std::istream &operator>>(std::istream &i, Gem::Geneva::Individuals::metaOptimizationTarget &mot) {
-    Gem::Common::ENUMBASETYPE tmp = 0;
-    i >> tmp;
-
-#ifdef DEBUG
-    mot = Gem::Common::narrow<Gem::Geneva::Individuals::metaOptimizationTarget>(tmp);
-#else
-    mot = static_cast<Gem::Geneva::Individuals::metaOptimizationTarget>(tmp);
-#endif /* DEBUG */
-
-    return i;
-}
-
-/******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
