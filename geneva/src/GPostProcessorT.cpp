@@ -54,37 +54,17 @@ namespace Gem::Geneva {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * @brief Initialization with the execution mode and configuration files
+ * @brief Initialization with the configuration file of the inner evolutionary algorithm. The nested
+ * refinement always runs inline on the submitting thread (raw_processing_() enables
+ * setInlineEvaluation on the inner EA) -- there is no execution-mode selection.
  *
- * @param execution_mode The desired execution mode; only SERIAL and MULTITHREADED are accepted (BROKER throws)
  * @param oa_config_file The path to the JSON configuration file for the inner evolutionary algorithm
  */
 GEvolutionaryAlgorithmPostOptimizer::GEvolutionaryAlgorithmPostOptimizer(
-    execMode execution_mode,
     const std::string &oa_config_file
 )
-  : oa_config_file_(oa_config_file)
-  , execution_mode_(
-        (execution_mode == execMode::SERIAL || execution_mode == execMode::MULTITHREADED)
-            ? execution_mode
-            : execMode::SERIAL
-    ) {
-    switch(execution_mode) {
-    case execMode::SERIAL:
-    case execMode::MULTITHREADED:
-        /* nothing */
-        break;
-
-    case execMode::BROKER: {
-        // Consistent with setExecMode(), which also throws for BROKER. The
-        // constructor previously only warned and silently fell back to SERIAL.
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GEvolutionaryAlgorithmPostOptimizer::GEvolutionaryAlgorithmPostOptimizer(execMode): Error!" << '\n'
-            << "Got invalid execution mode " << execution_mode << '\n'
-        );
-    } break;
-    }
+  : oa_config_file_(oa_config_file) {
+    /* nothing */
 }
 
 /******************************************************************************/
@@ -129,39 +109,6 @@ using namespace Gem::Common::Concurrency;
 
     // React on deviations from the expectation
     token.evaluate();
-}
-
-/******************************************************************************/
-/**
- * @brief Allows to set the execution mode for this post-processor (serial vs. multi-threaded)
- *
- * @param execution_mode The desired execution mode; only SERIAL and MULTITHREADED are accepted (BROKER throws)
- */
-void GEvolutionaryAlgorithmPostOptimizer::setExecMode(execMode execution_mode) {
-    switch(execution_mode) {
-    case execMode::SERIAL:
-    case execMode::MULTITHREADED: {
-        execution_mode_ = execution_mode;
-    } break;
-
-    case execMode::BROKER: {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GEvolutionaryAlgorithmPostOptimizer::setExecMode(): Error!" << '\n'
-            << "Got invalid execution mode " << execution_mode << '\n'
-        );
-    } break;
-    }
-}
-
-/******************************************************************************/
-/**
- * @brief Allows to retrieve the current execution mode
- *
- * @return The currently configured execution mode (SERIAL or MULTITHREADED)
- */
-execMode GEvolutionaryAlgorithmPostOptimizer::getExecMode() const {
-    return execution_mode_;
 }
 
 /******************************************************************************/
@@ -233,14 +180,6 @@ bool GEvolutionaryAlgorithmPostOptimizer::raw_processing_(gen::GOptimizableEntit
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GEvolutionaryAlgorithmPostOptimizer::raw_processing_: Error!" << '\n'
             << "Provided base_type has dirty flag set." << '\n'
-        );
-    }
-
-    if(execution_mode_ == execMode::BROKER) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GEvolutionaryAlgorithmPostOptimizer::raw_processing_: Error!" << '\n'
-            << "Got invalid execution mode " << execution_mode_ << '\n'
         );
     }
 

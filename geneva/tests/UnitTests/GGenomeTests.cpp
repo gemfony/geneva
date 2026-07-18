@@ -2106,7 +2106,7 @@ TEST_CASE("Go2 two-phase configuration: programmatic setters and CLI precedence"
         Go2 go(argc, argv, base / "Go2.json");
 
         go.setConsumerName("stc");
-        go.setAlgorithmChain({"sa", "gd"});      // a two-element programmatic chain, to be overridden
+        go.setAlgorithmChain({"sa", "cgd"});     // a two-element programmatic chain, to be overridden
 
         CHECK_THROWS(go.optimize());             // finalizes: the CLI's single "ea" wins over the two above
         CHECK(go.getNAlgorithms() == 1);

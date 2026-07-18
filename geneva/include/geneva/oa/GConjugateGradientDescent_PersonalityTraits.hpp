@@ -45,8 +45,7 @@ namespace Gem::Geneva::OptimizationAlgorithms {
 /******************************************************************************/
 /**
  * This class adds variables and functions to GPersonalityTraits that are specific
- * to conjugate gradient descents. Structurally it mirrors
- * GGradientDescent_PersonalityTraits: every individual needs to know its
+ * to conjugate gradient descents: every individual needs to know its
  * position in the (parent + difference-quotient children) population layout.
  */
 class GConjugateGradientDescent_PersonalityTraits // NOLINT(cppcoreguidelines-special-member-functions)

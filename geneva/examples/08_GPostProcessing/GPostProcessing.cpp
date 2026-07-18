@@ -59,7 +59,6 @@ int main(int argc, char **argv) {
 
     std::string monitorTimings = "empty";
     bool usePostProcessor = false;
-    execMode execModePP = execMode::SERIAL;
 
     // Assemble command line options
     boost::program_options::options_description user_options;
@@ -71,10 +70,6 @@ int main(int argc, char **argv) {
 		"usePostProcessor"
 		, po::value<bool>(&usePostProcessor)->implicit_value(true)->default_value(false)
 		, "Whether or not to post-process individuals (using evolutionary algorithms in this example)"
-	)(
-		"execModePostProcessing"
-		, po::value<execMode>(&execModePP)->default_value(execMode::SERIAL)
-		, "The execution mode for post-optimization (0: serial; 1: multithreaded)"
 	);
 
     Go2 go(argc, argv, "./config/Go2.json", user_options);
@@ -108,7 +103,6 @@ int main(int argc, char **argv) {
     if(usePostProcessor) {
         std::shared_ptr<GEvolutionaryAlgorithmPostOptimizer> eaPostOptimizer_ptr(
             new GEvolutionaryAlgorithmPostOptimizer(
-                execModePP,
                 "./config/GPostEvolutionaryAlgorithm.json"
             )
         );

@@ -122,7 +122,7 @@ std::istream &operator>>(std::istream &i, errorEstimationMode &em);
 
 /**
  * Default values for the conjugate gradient descent. They mirror the plain
- * gradient descent so a user can swap "gd" for "cgd" without re-tuning.
+ * gradient descent so a user coming from a plain gradient descent can switch to "cgd" without re-tuning.
  */
 constexpr std::size_t DEFAULTCGDSTARTINGPOINTS = 1;
 constexpr double DEFAULTCGDFINITESTEP = 0.001;

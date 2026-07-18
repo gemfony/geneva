@@ -368,7 +368,7 @@ void GNelderMead::load_(const GOptimizationAlgorithmBase *cp) {
 /**
  * @brief The actual business logic to be performed during each iteration.
  *
- * Ordering (mirrors the GGradientDescent decision/propose/evaluate pattern):
+ * Ordering (mirrors the gradient-descent-style decision/propose/evaluate pattern):
  *   1. apply the Nelder-Mead acceptance rules using the trials proposed and
  *      evaluated in the previous iteration (skipped until real trials exist),
  *   2. propose new reflection / expansion / contraction trial points,

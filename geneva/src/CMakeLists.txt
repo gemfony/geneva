@@ -189,7 +189,6 @@ ENDIF()
 
 OPTION(GENEVA_ALGO_SA    "Build the Simulated Annealing algorithm"         ON)
 OPTION(GENEVA_ALGO_SWARM "Build the Swarm algorithm"                       ON)
-OPTION(GENEVA_ALGO_GD    "Build the Gradient Descent algorithm"            ON)
 OPTION(GENEVA_ALGO_CGD   "Build the Conjugate Gradient Descent algorithm"  ON)
 OPTION(GENEVA_ALGO_NM    "Build the Nelder-Mead algorithm"                 ON)
 OPTION(GENEVA_ALGO_PS    "Build the Parameter Scan algorithm"              ON)
@@ -202,7 +201,7 @@ OPTION(GENEVA_ALGO_PS    "Build the Parameter Scan algorithm"              ON)
 # with a cryptic undefined-reference error; catch it here with a clear message.
 # (Production slim-core builds run with GENEVA_BUILD_TESTS=OFF anyway.)
 IF (GENEVA_BUILD_TESTS AND NOT (GENEVA_ALGO_SA AND GENEVA_ALGO_SWARM
-		AND GENEVA_ALGO_GD AND GENEVA_ALGO_CGD AND GENEVA_ALGO_NM
+		AND GENEVA_ALGO_CGD AND GENEVA_ALGO_NM
 		AND GENEVA_ALGO_PS))
 	MESSAGE(FATAL_ERROR
 		"GENEVA_BUILD_TESTS=ON requires all GENEVA_ALGO_* options to be ON: the "
@@ -225,19 +224,6 @@ IF(GENEVA_ALGO_SWARM)
 			oa/GSwarmAlgorithm.cpp
 			oa/GSwarmAlgorithmFactory.cpp
 			oa/GSwarmAlgorithm_PersonalityTraits.cpp)
-ENDIF()
-
-# The "gd" (gradient descent) algorithm has been folded into conjugate gradient descent as its
-# steepest-descent mode; the "gd" mnemonic survives as a backward-compatible alias (the factory
-# produces a CGD forced into steepest descent), so this block keeps only the alias factory and the
-# personality-traits marker, and requires the CGD algorithm to be built.
-IF(GENEVA_ALGO_GD)
-	IF(NOT GENEVA_ALGO_CGD)
-		MESSAGE(FATAL_ERROR "GENEVA_ALGO_GD requires GENEVA_ALGO_CGD: 'gd' is now an alias for conjugate gradient descent in steepest-descent mode.")
-	ENDIF()
-	SET(OPTIMIZATIONSOURCES
-			${OPTIMIZATIONSOURCES}
-			oa/GGradientDescent_PersonalityTraits.cpp)
 ENDIF()
 
 IF(GENEVA_ALGO_CGD)

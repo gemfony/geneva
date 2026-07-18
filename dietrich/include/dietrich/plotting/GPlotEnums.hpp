@@ -275,9 +275,6 @@ std::istream &operator>>(std::istream &i, tddropt &x);
 constexpr std::uint32_t DEFCXDIM = 1024;
 constexpr std::uint32_t DEFCYDIM = 768;
 
-constexpr std::uint32_t DEFCXDIV = 1;
-constexpr std::uint32_t DEFCYDIV = 1;
-
 constexpr std::size_t DEFNINDENTIONSPACES = 3;
 
 constexpr std::size_t DEFNSAMPLES = 100;
@@ -286,13 +283,6 @@ const graphPlotMode DEFPLOTMODE = graphPlotMode::CURVE;
 
 constexpr double DEFMINMARKERSIZE = 0.001;
 constexpr double DEFMAXMARKERSIZE = 1.;
-
-// Easier access to the header-, body- and footer-data
-using plotData = std::tuple<std::string, std::string, std::string>;
-
-// Easier acces to lines
-using pointData = std::tuple<double, double, double>;
-using line = std::tuple<pointData, pointData>;
 
 // Forward declaration in order to allow a friend statement in GBasePlotter
 class GPlotDesigner;

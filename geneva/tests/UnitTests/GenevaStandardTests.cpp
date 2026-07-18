@@ -45,7 +45,7 @@
 #include "geneva/individuals/GTestIndividual3.hpp"
 #include "geneva/individuals/GTestIndividual1.hpp"
 #include "geneva/oa/GEvolutionaryAlgorithm_PersonalityTraits.hpp"
-#include "geneva/oa/GGradientDescent_PersonalityTraits.hpp"
+#include "geneva/oa/GConjugateGradientDescent_PersonalityTraits.hpp"
 #include "geneva/oa/GParameterScan_PersonalityTraits.hpp"
 #include "geneva/oa/GSimulatedAnnealing_PersonalityTraits.hpp"
 #include "geneva/oa/GSwarmAlgorithm_PersonalityTraits.hpp"
@@ -118,7 +118,7 @@ TEMPLATE_TEST_CASE(
     "StandardTests_no_failure_expected — trait types",
     "[geneva][standard]",
     oa::GEvolutionaryAlgorithm_PersonalityTraits,
-    oa::GGradientDescent_PersonalityTraits,
+    oa::GConjugateGradientDescent_PersonalityTraits,
     oa::GSwarmAlgorithm_PersonalityTraits,
     oa::GSimulatedAnnealing_PersonalityTraits,
     oa::GParameterScan_PersonalityTraits
@@ -194,7 +194,7 @@ TEMPLATE_TEST_CASE(
     "StandardTests_failures_expected — trait types",
     "[geneva][standard][failures-expected]",
     oa::GEvolutionaryAlgorithm_PersonalityTraits,
-    oa::GGradientDescent_PersonalityTraits,
+    oa::GConjugateGradientDescent_PersonalityTraits,
     oa::GSwarmAlgorithm_PersonalityTraits,
     oa::GSimulatedAnnealing_PersonalityTraits,
     oa::GParameterScan_PersonalityTraits

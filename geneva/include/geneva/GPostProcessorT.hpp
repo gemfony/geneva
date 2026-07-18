@@ -331,8 +331,7 @@ class GEvolutionaryAlgorithmPostOptimizer // NOLINT(cppcoreguidelines-special-me
         ar &make_nvp(
             "GPostProcessorBaseT_GOptimizableEntity",
             boost::serialization::base_object<GPostProcessorBaseT<gen::GOptimizableEntity>>(*this)
-        ) & BOOST_SERIALIZATION_NVP(oa_config_file_) &
-            BOOST_SERIALIZATION_NVP(execution_mode_);
+        ) & BOOST_SERIALIZATION_NVP(oa_config_file_);
 
         // The inner EA factory is deliberately not serialized: raw_processing_() rebuilds it from
         // oa_config_file_ (serialized above) on every run, so a resumed post-optimizer reconstructs
@@ -344,15 +343,13 @@ class GEvolutionaryAlgorithmPostOptimizer // NOLINT(cppcoreguidelines-special-me
 public:
     /**************************************************************************/
     /**
-     * @brief Initialization with the execution mode and the inner-EA configuration file
+     * @brief Initialization with the inner-EA configuration file. The nested refinement always runs
+     * inline on the submitting thread (setInlineEvaluation on the inner EA) -- the former
+     * serial/multi-threaded/broker execution-mode selection no longer exists.
      *
-     * @param execution_mode Whether to run the post-optimizer in serial or multi-threaded mode
      * @param oa_config_file The name of the configuration file for the evolutionary algorithm
      */
-    GEvolutionaryAlgorithmPostOptimizer(
-        execMode execution_mode,
-        const std::string &oa_config_file
-    );
+    explicit GEvolutionaryAlgorithmPostOptimizer(const std::string &oa_config_file);
     /**
      * @brief The copy constructor
      *
@@ -361,19 +358,6 @@ public:
     GEvolutionaryAlgorithmPostOptimizer(const GEvolutionaryAlgorithmPostOptimizer &cp) = default;
     /** @brief The destructor */
     ~GEvolutionaryAlgorithmPostOptimizer() override = default;
-
-    /**
-     * @brief Allows to set the execution mode for this post-processor (serial vs. multi-threaded)
-     *
-     * @param execution_mode The desired execution mode
-     */
-    void setExecMode(execMode execution_mode);
-    /**
-     * @brief Allows to retrieve the current execution mode
-     *
-     * @return The currently configured execution mode
-     */
-    execMode getExecMode() const;
 
     /**
      * @brief Allows to specify the name of a configuration file for the optimization algorithm
@@ -398,8 +382,7 @@ protected:
     template <typename Self>
     auto localMembers_(this Self &self) {
         return std::make_tuple(
-            Gem::Common::make_member("oa_config_file_", self.oa_config_file_),
-            Gem::Common::make_member("execution_mode_", self.execution_mode_)
+            Gem::Common::make_member("oa_config_file_", self.oa_config_file_)
         );
     }
 
@@ -471,8 +454,6 @@ private:
     // Data
     std::string
         oa_config_file_; ///< The name of the configuration file for this evolutionary algorithm
-    execMode execution_mode_ =
-        execMode::SERIAL; ///< Whether to run the post-optimizer in serial or multi-threaded mode
 };
 
 /******************************************************************************/

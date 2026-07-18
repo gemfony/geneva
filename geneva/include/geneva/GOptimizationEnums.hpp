@@ -109,13 +109,6 @@ constexpr std::size_t DEFMAXUNSUCCESSFULADAPTIONS = 1000;
 
 /******************************************************************************/
 /**
- * Helps top better identify whether the object was marked as invalid
- */
-constexpr bool OE_NOT_MARKED_AS_INVALID = false;
-constexpr bool OE_MARKED_AS_INVALID = true;
-
-/******************************************************************************/
-/**
  * Helps to better identify raw and transformed fitness
  */
 constexpr std::size_t G_RAW_FITNESS = 0;
@@ -164,23 +157,12 @@ constexpr std::size_t DEFAULTEANPARENTS = 2;
  */
 constexpr double DEFAULTAMALGAMATIONLIKELIHOOD = 0.;
 
-/**
- * The default likelihood for two items of a flat genome to be exchanged
- */
-constexpr double DEFAULTPERITEMEXCHANGELIKELIHOOD = 0.5;
-
 /******************************************************************************/
 /**
  * The default name of the output file of the optimization monitor base class
  * for output in ROOT format
  */
 const std::string DEFAULTROOTRESULTFILEOM = "./result.C";
-
-/**
- * The default name of the output file of the optimization monitor base class
- * for output in CSV format
- */
-const std::string DEFAULTCSVRESULTFILEOM = "./result.csv";
 
 /**
  * The default dimension of the canvas in x-direction
@@ -374,11 +356,6 @@ enum class execMode : Gem::Common::ENUMBASETYPE {
     LAST = execMode::BROKER
 };
 
-/**
- * The default parallelization mode of optimization algorithms
- */
-const execMode DEFAULT_EXEC_MODE = execMode::MULTITHREADED;
-
 /******************************************************************************/
 /**
  * Currently three types of duplication schemes are supported:
@@ -431,26 +408,12 @@ constexpr double SA_ALPHA = 0.95; ///< The degradation strength in simulated ann
 /******************************************************************************/
 
 constexpr double DEFAULTSIGMA = 0.025;    ///< Default start value for sigma_
-constexpr double DEFAULTINT32SIGMA = 0.1; ///< Default sigma start value for GInt32GaussAdaptor
 constexpr double DEFAULTSIGMASIGMA = 0.2; ///< Default width of the gaussian used for sigma adaption
 constexpr double DEFAULTMINSIGMA = 0.001; ///< Default minimum allowed value for sigma_
 constexpr double DEFAULTMAXSIGMA = 1;     ///< Default maximum allowed value for sigma_
-constexpr double DEFAULTDELTA =
-    0.05; ///< Default value of distance between two gaussians in GNumBiGaussAdaptorT
-constexpr double DEFAULTSIGMADELTA =
-    0.2; ///< Default width of the gaussian used for delta adaption in GNumBiGaussAdaptorT
-constexpr double DEFAULTMINDELTA =
-    0.; ///< Default minimum value of distance between two gaussians in GNumBiGaussAdaptorT
-constexpr double DEFAULTMAXDELTA =
-    0.5; ///< Default maximum value of distance between two gaussians in GNumBiGaussAdaptorT
-constexpr double DEFAULTBITADPROB = 0.05;  ///< 5 percent adaption probability for bits
-constexpr double DEFAULTADPROB = 1.0;      ///< 100 percent adaption probability for all other cases
-constexpr double DEFMINADPROB = 0.001;     ///< The lower boundary for variations of adProb_
-constexpr double DEFMAXADPROB = 1.0;       ///< The upper boundary for variations of adProb_
+constexpr double DEFAULTADPROB = 1.0;     ///< 100 percent adaption probability for all other cases
 constexpr std::uint32_t DEFAULTADAPTIONTHRESHOLD =
     1; // Adaption parameters should be adapted whenever an adaption takes place
-constexpr double DEFAULTADAPTADAPTIONPROB =
-    0.1; // 10 percent probability for the adaption of adaption parameters
 
 /******************************************************************************/
 // Adaption modes

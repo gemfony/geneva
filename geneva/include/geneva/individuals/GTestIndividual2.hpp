@@ -49,7 +49,6 @@
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/ind/GGenome.hpp"
 #include "geneva/ind/GGenomeBuilder.hpp"
-#include "geneva/oa/GGradientDescent_PersonalityTraits.hpp"
 #include "geneva/oa/GSwarmAlgorithm_PersonalityTraits.hpp"
 
 namespace Gem::Geneva::OptimizationAlgorithms {

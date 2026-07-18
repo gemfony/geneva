@@ -35,7 +35,7 @@
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/GPersonalityTraits.hpp"
 #include "geneva/oa/GEvolutionaryAlgorithm_PersonalityTraits.hpp"
-#include "geneva/oa/GGradientDescent_PersonalityTraits.hpp"
+#include "geneva/oa/GConjugateGradientDescent_PersonalityTraits.hpp"
 #include "geneva/oa/GSwarmAlgorithm_PersonalityTraits.hpp"
 #include "geneva/ind/GGenome.hpp"
 #include "geneva/ind/GOptimizableEntity.hpp"
@@ -495,24 +495,24 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
         CHECK(p_pt);
         p_pt.reset();
 
-        // Set the personality type to GD
+        // Set the personality type to CGD
         CHECK_NOTHROW(ind->setPersonality(
-            std::make_shared<oa::GGradientDescent_PersonalityTraits>()
+            std::make_shared<oa::GConjugateGradientDescent_PersonalityTraits>()
         ));
         INFO(
             "\n"
             << "ind->getPersonality() = " << ind->getPersonality() << "\n"
-            << "expected GGradientDescent_PersonalityTraits\n"
+            << "expected GConjugateGradientDescent_PersonalityTraits\n"
         );
-        CHECK(ind->getPersonality() == "GGradientDescent_PersonalityTraits");
+        CHECK(ind->getPersonality() == "GConjugateGradientDescent_PersonalityTraits");
 
-        // Try to retrieve a GGradientDescent_PersonalityTraits object and check that the smart pointer actually points somewhere
-        std::shared_ptr<oa::GGradientDescent_PersonalityTraits> p_pt_gd;
-        CHECK_NOTHROW(p_pt_gd = ind->getPersonalityTraits<oa::GGradientDescent_PersonalityTraits>());
-        CHECK(p_pt_gd);
-        p_pt_gd.reset();
+        // Try to retrieve a GConjugateGradientDescent_PersonalityTraits object and check that the smart pointer actually points somewhere
+        std::shared_ptr<oa::GConjugateGradientDescent_PersonalityTraits> p_pt_cgd;
+        CHECK_NOTHROW(p_pt_cgd = ind->getPersonalityTraits<oa::GConjugateGradientDescent_PersonalityTraits>());
+        CHECK(p_pt_cgd);
+        p_pt_cgd.reset();
 
-        // Retrieve a base pointer to the GD object and check that it points somewhere
+        // Retrieve a base pointer to the CGD object and check that it points somewhere
         CHECK_NOTHROW(p_pt = ind->getPersonalityTraits());
         CHECK(p_pt);
         p_pt.reset();
