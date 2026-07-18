@@ -40,9 +40,11 @@
 #include <catch2/catch_template_test_macros.hpp>
 
 #include <memory>
+#include <array>
 #include <span>
 #include <string>
 #include <tuple>
+#include <vector>
 
 #include "dietrich/GPlotDesigner.hpp"
 
@@ -69,10 +71,10 @@ TEST_CASE("GPlotDesigner escapes user strings in emitted ROOT literals", "[plott
     const std::string s = emit(g);
 
     // The quote is backslash-escaped (a\"b), never a bare a"b that closes the literal early.
-    CHECK(s.find("a\\\"b") != std::string::npos);
+    CHECK(s.contains("a\\\"b"));
     // The newline is emitted as the two characters backslash-n, not a raw line break.
-    CHECK(s.find("line1\\nline2") != std::string::npos);
-    CHECK(s.find("line1\nline2") == std::string::npos);
+    CHECK(s.contains("line1\\nline2"));
+    CHECK(!s.contains("line1\nline2"));
 }
 
 /******************************************************************************/
@@ -85,9 +87,9 @@ TEST_CASE("GPlotDesigner emits full-precision coordinates", "[plotting]") {
     const std::string s = emit(g);
 
     // 6-significant-digit default would render 0.333333; full precision keeps many more digits.
-    CHECK(s.find("3333333333") != std::string::npos);
+    CHECK(s.contains("3333333333"));
     // Locale-independent: the decimal separator is a dot, never a comma.
-    CHECK(s.find("0,33333") == std::string::npos);
+    CHECK(!s.contains("0,33333"));
 }
 
 /******************************************************************************/
@@ -125,11 +127,11 @@ TEST_CASE("function plotters emit a quoted, honoured draw option", "[plotting]")
 
     GFunctionPlotter2D f2("x*y", rx, ry);
     f2.setDrawingArguments("surf1");
-    CHECK(f2.footerData("").find("->Draw(\"surf1\")") != std::string::npos);
+    CHECK(f2.footerData("").contains("->Draw(\"surf1\")"));
 
     GFunctionPlotter1D f1("sin(x)", rx);
     f1.setDrawingArguments("L");
-    CHECK(f1.footerData("").find("->Draw(\"L\")") != std::string::npos);
+    CHECK(f1.footerData("").contains("->Draw(\"L\")"));
 }
 
 /******************************************************************************/
@@ -156,17 +158,17 @@ TEST_CASE("gnuplot backend emits a multiplot script for a GGraph2D", "[plotting]
 
     // The multiplot grid is present; the data is a named datablock (NOT an inline '-' inside multiplot,
     // which gnuplot cannot read) referenced by a 2-d plot command.
-    CHECK(s.find("set multiplot") != std::string::npos);
-    CHECK(s.find("$D0 << EOD") != std::string::npos);
-    CHECK(s.find("plot $D0 ") != std::string::npos);
-    CHECK(s.find("plot '-'") == std::string::npos);
-    CHECK(s.find("unset multiplot") != std::string::npos);
+    CHECK(s.contains("set multiplot"));
+    CHECK(s.contains("$D0 << EOD"));
+    CHECK(s.contains("plot $D0 "));
+    CHECK(!s.contains("plot '-'"));
+    CHECK(s.contains("unset multiplot"));
     // The data rows are present (in the datablock).
-    CHECK(s.find("1 2") != std::string::npos);
-    CHECK(s.find("3 4") != std::string::npos);
+    CHECK(s.contains("1 2"));
+    CHECK(s.contains("3 4"));
     // Labels are gnuplot-escaped (a\"b), never a bare a"b that closes the literal early.
-    CHECK(s.find("a\\\"b") != std::string::npos);
-    CHECK(s.find("the x axis") != std::string::npos);
+    CHECK(s.contains("a\\\"b"));
+    CHECK(s.contains("the x axis"));
 }
 
 /******************************************************************************/
@@ -180,9 +182,9 @@ TEST_CASE("gnuplot backend uses splot for a GGraph3D", "[plotting]") {
     gpd.registerPlotter(g);
 
     const std::string s = gpd.plot();
-    CHECK(s.find("$D0 << EOD") != std::string::npos);
-    CHECK(s.find("splot $D0 ") != std::string::npos);
-    CHECK(s.find("1 2 3") != std::string::npos);
+    CHECK(s.contains("$D0 << EOD"));
+    CHECK(s.contains("splot $D0 "));
+    CHECK(s.contains("1 2 3"));
 }
 
 /******************************************************************************/
@@ -224,15 +226,15 @@ TEST_CASE("matplotlib backend emits a headless plot script for a GGraph2D", "[pl
 
     // The script selects the headless Agg backend BEFORE importing pyplot, builds a figure with a
     // subplot, and plots into the axes -- but never calls savefig (terminal-agnostic).
-    CHECK(s.find("matplotlib.use(\"Agg\")") != std::string::npos);
-    CHECK(s.find("add_subplot(") != std::string::npos);
-    CHECK(s.find(".plot(") != std::string::npos);
-    CHECK(s.find("savefig") == std::string::npos);
+    CHECK(s.contains("matplotlib.use(\"Agg\")"));
+    CHECK(s.contains("add_subplot("));
+    CHECK(s.contains(".plot("));
+    CHECK(!s.contains("savefig"));
     // The data values are present in the emitted list literals.
-    CHECK(s.find("1") != std::string::npos);
+    CHECK(s.contains("1"));
     // Labels are python-escaped (a\"b), never a bare a"b that closes the literal early.
-    CHECK(s.find("a\\\"b") != std::string::npos);
-    CHECK(s.find("the x axis") != std::string::npos);
+    CHECK(s.contains("a\\\"b"));
+    CHECK(s.contains("the x axis"));
 }
 
 /******************************************************************************/
@@ -246,8 +248,8 @@ TEST_CASE("matplotlib backend uses a 3d projection for a GGraph3D", "[plotting]"
     gpd.registerPlotter(g);
 
     const std::string s = gpd.plot();
-    CHECK(s.find("projection=\"3d\"") != std::string::npos);
-    CHECK(s.find("set_zlabel(") != std::string::npos);
+    CHECK(s.contains("projection=\"3d\""));
+    CHECK(s.contains("set_zlabel("));
 }
 
 /******************************************************************************/
@@ -263,9 +265,9 @@ TEST_CASE("matplotlib backend emits hist calls for histograms", "[plotting]") {
 
         const std::string s = gpd.plot();
         // A 1-d histogram is a flat (non-3d) Axes with an ax.hist(...) call honouring the bin count.
-        CHECK(s.find(".hist(") != std::string::npos);
-        CHECK(s.find("bins=7") != std::string::npos);
-        CHECK(s.find("projection=\"3d\"") == std::string::npos);
+        CHECK(s.contains(".hist("));
+        CHECK(s.contains("bins=7"));
+        CHECK(!s.contains("projection=\"3d\""));
     }
     {
         auto h = std::make_shared<GHistogram2D>(5, 3, 0.0, 1.0, 0.0, 1.0);
@@ -276,9 +278,9 @@ TEST_CASE("matplotlib backend emits hist calls for histograms", "[plotting]") {
 
         const std::string s = gpd.plot();
         // A 2-d histogram uses ax.hist2d(...) with the per-axis bin counts and a colourbar.
-        CHECK(s.find(".hist2d(") != std::string::npos);
-        CHECK(s.find("bins=[5, 3]") != std::string::npos);
-        CHECK(s.find("colorbar(") != std::string::npos);
+        CHECK(s.contains(".hist2d("));
+        CHECK(s.contains("bins=[5, 3]"));
+        CHECK(s.contains("colorbar("));
     }
 }
 
@@ -310,16 +312,16 @@ TEST_CASE("octave backend emits a .m script for a GGraph2D", "[plotting]") {
     const std::string s = gpd.plot();
 
     // A figure with a subplot and a plot() call, but never a print/saveas (terminal-agnostic).
-    CHECK(s.find("figure();") != std::string::npos);
-    CHECK(s.find("subplot(") != std::string::npos);
-    CHECK(s.find("plot(") != std::string::npos);
-    CHECK(s.find("print(") == std::string::npos);
-    CHECK(s.find("saveas(") == std::string::npos);
+    CHECK(s.contains("figure();"));
+    CHECK(s.contains("subplot("));
+    CHECK(s.contains("plot("));
+    CHECK(!s.contains("print("));
+    CHECK(!s.contains("saveas("));
     // The x values land in an inline row-vector literal.
-    CHECK(s.find("[1, 3]") != std::string::npos);
+    CHECK(s.contains("[1, 3]"));
     // Labels are octave-escaped (a''b), never a bare a'b that would close the literal early.
-    CHECK(s.find("a''b") != std::string::npos);
-    CHECK(s.find("the x axis") != std::string::npos);
+    CHECK(s.contains("a''b"));
+    CHECK(s.contains("the x axis"));
     // The emitter advertises the .m extension.
     CHECK(OctaveEmitter{}.fileExtension() == std::string(".m"));
 }
@@ -335,8 +337,8 @@ TEST_CASE("octave backend uses plot3 for a GGraph3D", "[plotting]") {
     gpd.registerPlotter(g);
 
     const std::string s = gpd.plot();
-    CHECK(s.find("plot3(") != std::string::npos);
-    CHECK(s.find("zlabel(") != std::string::npos);
+    CHECK(s.contains("plot3("));
+    CHECK(s.contains("zlabel("));
 }
 
 /******************************************************************************/
@@ -353,8 +355,8 @@ TEST_CASE("octave backend emits histogram calls for histograms", "[plotting]") {
 
         const std::string s = gpd.plot();
         // A 1-d histogram uses hist(samples, nbins) honouring the bin count.
-        CHECK(s.find("hist(") != std::string::npos);
-        CHECK(s.find(", 7);") != std::string::npos);
+        CHECK(s.contains("hist("));
+        CHECK(s.contains(", 7);"));
     }
     {
         auto h = std::make_shared<GHistogram2D>(5, 3, 0.0, 1.0, 0.0, 1.0);
@@ -366,10 +368,10 @@ TEST_CASE("octave backend emits histogram calls for histograms", "[plotting]") {
         const std::string s = gpd.plot();
         // A 2-d histogram is binned with histc + accumarray (base only, no hist3) and drawn
         // with imagesc + a colourbar; the per-axis bin counts come from the spec.
-        CHECK(s.find("accumarray(") != std::string::npos);
-        CHECK(s.find("imagesc(") != std::string::npos);
-        CHECK(s.find("colorbar;") != std::string::npos);
-        CHECK(s.find("_nbx = 5; _nby = 3;") != std::string::npos);
+        CHECK(s.contains("accumarray("));
+        CHECK(s.contains("imagesc("));
+        CHECK(s.contains("colorbar;"));
+        CHECK(s.contains("_nbx = 5; _nby = 3;"));
     }
 }
 
@@ -400,19 +402,19 @@ TEST_CASE("data backend (CSV) emits the raw series data for a GGraph2D", "[plott
     const std::string s = gpd.plot();
 
     // A leading canvas comment records the title and the pad grid for an external renderer.
-    CHECK(s.find("# canvas: \"data csv\" c_x_div=1 c_y_div=1") != std::string::npos);
+    CHECK(s.contains("# canvas: \"data csv\" c_x_div=1 c_y_div=1"));
     // The section header comment names the series, its class name, canonical plot kind,
     // (spec) role, columns and its pad / overlay placement.
     CHECK(s.find("# series 0: \"my series\" kind=GGraph2D plotkind=graph_2d role=xy "
                  "columns=x,y pad=0 secondary=0") != std::string::npos);
     // The column-name header row.
-    CHECK(s.find("x,y") != std::string::npos);
+    CHECK(s.contains("x,y"));
     // The data rows, full precision, dot decimal separator.
-    CHECK(s.find("1,2") != std::string::npos);
-    CHECK(s.find("3,4") != std::string::npos);
+    CHECK(s.contains("1,2"));
+    CHECK(s.contains("3,4"));
     // No rendering / script content leaks into the data export.
-    CHECK(s.find("import") == std::string::npos);
-    CHECK(s.find("TCanvas") == std::string::npos);
+    CHECK(!s.contains("import"));
+    CHECK(!s.contains("TCanvas"));
 }
 
 /******************************************************************************/
@@ -433,12 +435,12 @@ TEST_CASE("GGraph2D reports a graph_2d GPlotSpec", "[plotting]") {
 
     const std::string j = spec.toJson();
     // The kind string is present.
-    CHECK(j.find("graph_2d") != std::string::npos);
+    CHECK(j.contains("graph_2d"));
     // The embedded quote is JSON-escaped (a\"b), never a bare a"b closing the string early.
-    CHECK(j.find("a\\\"b") != std::string::npos);
+    CHECK(j.contains("a\\\"b"));
     // The column names appear in the JSON.
-    CHECK(j.find("\"x\"") != std::string::npos);
-    CHECK(j.find("\"y\"") != std::string::npos);
+    CHECK(j.contains("\"x\""));
+    CHECK(j.contains("\"y\""));
 }
 
 /******************************************************************************/
@@ -453,8 +455,8 @@ TEST_CASE("GHistogram1D reports a hist_1d GPlotSpec with n_bins_x", "[plotting]"
     CHECK(*spec.n_bins_x == 7);
 
     const std::string j = spec.toJson();
-    CHECK(j.find("hist_1d") != std::string::npos);
-    CHECK(j.find("\"n_bins_x\": 7") != std::string::npos);
+    CHECK(j.contains("hist_1d"));
+    CHECK(j.contains("\"n_bins_x\": 7"));
 }
 
 /******************************************************************************/
@@ -475,10 +477,10 @@ TEST_CASE("data backend (NPZ) emits a non-empty ZIP/.npz archive", "[plotting]")
     // The .npz is an uncompressed ZIP: it begins with the local file header signature.
     CHECK(s.compare(0, 4, std::string("PK\x03\x04", 4)) == 0);
     // It is a real archive: an end-of-central-directory record ("PK\x05\x06") is present.
-    CHECK(s.find(std::string("PK\x05\x06", 4)) != std::string::npos);
+    CHECK(s.contains(std::string("PK\x05\x06", 4)));
     // The .npy member magic and the manifest member name are embedded.
-    CHECK(s.find(std::string("\x93NUMPY", 6)) != std::string::npos);
-    CHECK(s.find("manifest.json") != std::string::npos);
+    CHECK(s.contains(std::string("\x93NUMPY", 6)));
+    CHECK(s.contains("manifest.json"));
 }
 
 /******************************************************************************/
@@ -681,17 +683,23 @@ TEST_CASE("GDataLog reproduces the legacy plotter-object output byte-for-byte", 
         auto h = std::make_shared<GHistogram1D>(12);
         h->setPlotLabel("a distribution");
         h->setXAxisLabel("value");
-        for(int i = 0; i < 20; ++i) {
-            (*h) & (0.1 * static_cast<double>(i) - 1.0);
-        }
+        // Compute the sample data ONCE and feed both paths from it, so both receive bit-identical
+        // doubles. Recomputing 0.1*i-1.0 separately per path is NOT reproducible across compilers:
+        // clang FMA-contracts the `const double v = ...` statement but not the `& (...)` argument
+        // expression, so the two paths would otherwise Fill() values differing in the last ULP and
+        // the byte-identity check would (correctly) fail on that incidental difference, not on any
+        // real divergence between the plotting paths.
+        std::vector<double> data;
+        data.reserve(20);
+        for(int i = 0; i < 20; ++i) { data.push_back(0.1 * static_cast<double>(i) - 1.0); }
+        for(const double v : data) { (*h) & v; }
         GPlotDesigner gpd_legacy("Dist", 1, 1);
         gpd_legacy.registerPlotter(h);
         const std::string legacy = gpd_legacy.plot();
 
         GDataLog log("Dist", 1, 1);
         const auto id = log.declareSeries(h->plotSpec());
-        for(int i = 0; i < 20; ++i) {
-            const double v = 0.1 * static_cast<double>(i) - 1.0;
+        for(const double v : data) {
             log.append(id, std::span<const double>(&v, 1));
         }
         CHECK(log.toDesigner().plot() == legacy);
@@ -703,17 +711,19 @@ TEST_CASE("GDataLog reproduces the legacy plotter-object output byte-for-byte", 
         auto h = std::make_shared<GHistogram1D>(15, -1.0, 2.0);
         h->setPlotLabel("a fixed distribution");
         h->setXAxisLabel("value");
-        for(int i = 0; i < 20; ++i) {
-            (*h) & (0.1 * static_cast<double>(i) - 1.0);
-        }
+        // Compute the data once and feed both paths from it (see the auto-ranged section above for
+        // why per-path recomputation is not bit-reproducible across compilers).
+        std::vector<double> data;
+        data.reserve(20);
+        for(int i = 0; i < 20; ++i) { data.push_back(0.1 * static_cast<double>(i) - 1.0); }
+        for(const double v : data) { (*h) & v; }
         GPlotDesigner gpd_legacy("Dist", 1, 1);
         gpd_legacy.registerPlotter(h);
         const std::string legacy = gpd_legacy.plot();
 
         GDataLog log("Dist", 1, 1);
         const auto id = log.declareSeries(h->plotSpec());
-        for(int i = 0; i < 20; ++i) {
-            const double v = 0.1 * static_cast<double>(i) - 1.0;
+        for(const double v : data) {
             log.append(id, std::span<const double>(&v, 1));
         }
         CHECK(log.toDesigner().plot() == legacy);
@@ -724,22 +734,21 @@ TEST_CASE("GDataLog reproduces the legacy plotter-object output byte-for-byte", 
         h->setPlotLabel("a 2-d fixed distribution");
         h->setXAxisLabel("x");
         h->setYAxisLabel("y");
+        // Compute the (x, y) samples once and feed both paths from them (see the 1-d auto-ranged
+        // section for why per-path recomputation is not bit-reproducible across compilers).
+        std::vector<std::pair<double, double>> data;
+        data.reserve(12);
         for(int i = 0; i < 12; ++i) {
-            const double x = 0.5 * static_cast<double>(i) - 3.0;
-            const double y = 3.0 - 0.4 * static_cast<double>(i);
-            h->add(x, y);
+            data.emplace_back(0.5 * static_cast<double>(i) - 3.0, 3.0 - 0.4 * static_cast<double>(i));
         }
+        for(const auto &[x, y] : data) { h->add(x, y); }
         GPlotDesigner gpd_legacy("Dist2D", 1, 1);
         gpd_legacy.registerPlotter(h);
         const std::string legacy = gpd_legacy.plot();
 
         GDataLog log("Dist2D", 1, 1);
         const auto id = log.declareSeries(h->plotSpec());
-        for(int i = 0; i < 12; ++i) {
-            const double x = 0.5 * static_cast<double>(i) - 3.0;
-            const double y = 3.0 - 0.4 * static_cast<double>(i);
-            log.append(id, x, y);
-        }
+        for(const auto &[x, y] : data) { log.append(id, x, y); }
         CHECK(log.toDesigner().plot() == legacy);
     }
 
@@ -866,4 +875,57 @@ TEMPLATE_TEST_CASE(
     GDecoratorContainer_2D<double>
 ) {
     Gem::Dietrich::Tests::StandardTests_failures_expected<TestType>();
+}
+
+/******************************************************************************/
+// Regression (2026-07-18): GMarker's bounded decoratorData() had its clipping INVERTED -- it
+// emitted plotting code only for markers OUTSIDE the axis ranges and swallowed in-range markers.
+// The contract is the opposite: an in-range marker is drawn, an out-of-range one is clipped.
+
+TEST_CASE("GMarker clips to the plot boundaries (in-range drawn, out-of-range empty)",
+          "[plotting][decorators]") {
+    const GMarker<double> marker(
+        std::tuple<double, double>(0.5, 0.5), gMarker::closedCircle, gColor::black, 0.05
+    );
+
+    const std::tuple<double, double> x_range(0.0, 1.0);
+    const std::tuple<double, double> y_range(0.0, 1.0);
+
+    // In range -> the marker's plotting code is emitted
+    CHECK_FALSE(marker.decoratorData(x_range, y_range, "  ", 0).empty());
+
+    // Outside either axis range -> clipped away
+    const std::tuple<double, double> far_x(2.0, 3.0);
+    const std::tuple<double, double> far_y(-5.0, -4.0);
+    CHECK(marker.decoratorData(far_x, y_range, "  ", 0).empty());
+    CHECK(marker.decoratorData(x_range, far_y, "  ", 0).empty());
+}
+
+/******************************************************************************/
+// Regression (2026-07-18): the integer histogram was constructible through the generic plot
+// machinery (makePlotter / GPlotSpec "hist_1i") but NOT fillable through the generic
+// appendRow(span<const double>) path GDataLog::toDesigner() uses -- the all-double-only fast
+// path rejected any collector with an int32 axis, so a hist_1i data log threw at realize time.
+// appendRow now checked-narrows into int32 axes (range-checked, fraction truncated, matching
+// the tuple insertion operators).
+
+TEST_CASE("GHistogram1I is fillable through the generic appendRow path",
+          "[plotting][collectors]") {
+    GHistogram1I hist(10, 0., 10.);
+
+    // A representable value lands in the (int32) column
+    const std::array<double, 1> ok_row{3.0};
+    CHECK_NOTHROW(hist.appendRow(std::span<const double>(ok_row)));
+
+    // A fractional value is truncated (tuple-insertion semantics), not rejected
+    const std::array<double, 1> frac_row{4.7};
+    CHECK_NOTHROW(hist.appendRow(std::span<const double>(frac_row)));
+
+    // An out-of-int32-range value is rejected with a clear error
+    const std::array<double, 1> big_row{3.0e10};
+    CHECK_THROWS(hist.appendRow(std::span<const double>(big_row)));
+
+    // Both accepted rows are visible through the generic column view
+    const auto cols = hist.dataColumns();
+    REQUIRE(cols.size() == 1);
 }

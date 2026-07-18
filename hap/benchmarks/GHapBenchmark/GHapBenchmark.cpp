@@ -53,6 +53,7 @@
 #include <random>
 #include <string>
 #include <thread>
+#include <utility>
 #include <vector>
 
 #include "hap/GRandomT.hpp"
@@ -73,7 +74,7 @@ const char *mode_name(Mode m) {
         case Mode::Normal: return "normal";
         case Mode::BiNormal: return "bi_normal";
     }
-    return "?";
+    std::unreachable();
 }
 
 // Sustained throughput: nProxies threads, each with its own proxy, draw

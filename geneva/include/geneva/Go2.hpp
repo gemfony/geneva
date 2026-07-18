@@ -37,7 +37,10 @@
 #include <map>
 #include <memory>
 #include <mutex>
+#include <optional>
+#include <set>
 #include <string>
+#include <vector>
 
 // Boost header files go here
 #include <boost/program_options.hpp>
@@ -51,6 +54,7 @@
 #include "courtier/GConsumerRegistry.hpp"
 #include "geneva/GConsumerSetup.hpp"
 #include "geneva/GOptimizationEnums.hpp"
+#include "geneva/GFaultInjector.hpp"
 #include "geneva/GSigHupHandler.hpp"
 #include "geneva/ind/GOptimizableEntity.hpp"
 #include "geneva/Interface/GOptimizerIT.hpp"
@@ -66,11 +70,9 @@ namespace Gem::Geneva {
 // Default values for the variables used by the optimizer
 const std::string GO2_DEF_DEFAULTCONFIGFILE{"config/Go2.json"}; // NOLINT
 constexpr bool GO2_DEF_CLIENTMODE = false;
-constexpr execMode GO2_DEF_DEFAULPARALLELIZATIONMODE = execMode::MULTITHREADED;
-constexpr bool GO2_DEF_COPYBESTONLY = true;
 constexpr std::uint16_t GO2_DEF_NPRODUCERTHREADS = 0;
-const std::string GO2_DEF_OPTALGS{""};        // NOLINT
 const std::string GO2_DEF_NOCONSUMER{"none"}; // NOLINT
+const std::string GO2_DEF_CONSUMER{"stc"};    // NOLINT: default consumer mnemonic when none is chosen
 constexpr bool GO2_DEF_COPYBESTINDIVIDUALSONLY = true;
 
 /******************************************************************************/
@@ -173,18 +175,34 @@ public:
     void registerConsumer(
         std::shared_ptr<Gem::Courtier::GBaseConsumerT<gen::GOptimizableEntity>> consumer);
 
-    /** @brief Registers a builder closure for the GPU consumer, making "--consumer gpu" (or gpu in
-     *  Go2.json) a first-class, mnemonic-selectable consumer. The GPU consumer needs problem-specific
-     *  pieces Go2 cannot supply (a device marshaller, the scalar type, the kernel/backend config), so the
-     *  problem contributes a closure that constructs the ready-to-use consumer (clone function set); Go2
-     *  owns the rest (mnemonic, selection, lifecycle). The closure is type-erased to the courtier-core
-     *  base type, so geneva gains no GPU library dependency. It is invoked LAZILY at the start of
-     *  optimize() -- after construction, so the problem's marshaller / data are already available -- and
-     *  only when the gpu mnemonic is selected. Selecting gpu with no builder registered is a fatal,
-     *  early error. Call after construction and before optimize().
-     *  @param builder A closure returning the ready-to-use GPU consumer (as the courtier base pointer). */
-    void registerGPUConsumerBuilder(
-        std::function<std::shared_ptr<Gem::Courtier::GBaseConsumerT<gen::GOptimizableEntity>>()> builder);
+    /** @brief Selects the consumer (parallelization backend) by mnemonic (e.g. "stc", "asio", "beast",
+     *  "mpi", "gpu") -- the programmatic equivalent of the --consumer command-line option / the "consumer"
+     *  config key. It takes effect when the run is configured (at the first of optimize() / clientRun() /
+     *  clientMode()); a --consumer value on the command line overrides this. For a fully custom consumer
+     *  object (that Go2 cannot build from a mnemonic) use registerConsumer() instead.
+     *  @param mnemonic The consumer mnemonic to use */
+    void setConsumerName(std::string const &mnemonic);
+
+    /** @brief Appends a runtime Geneva module (.so) path to load at startup -- the programmatic equivalent
+     *  of a --module command-line option / a module_paths config entry. A module may contribute optimization
+     *  algorithms (usable by their mnemonic) and/or the optimization individual. The module is loaded when
+     *  the run is configured (a mnemonic it contributes is then available to setAlgorithmChain()).
+     *  @param path Filesystem path to the module to load */
+    void addModulePath(std::string const &path);
+    /** @brief Replaces the list of runtime module (.so) paths to load at startup (see addModulePath()).
+     *  @param paths The module paths to load */
+    void setModulePaths(std::vector<std::string> paths);
+    /** @brief @return The runtime module (.so) paths configured for loading (config + --module + programmatic). */
+    std::vector<std::string> getModulePaths() const;
+
+    /** @brief Sets the chain of optimization algorithms by mnemonic (e.g. {"ea", "sa"}) -- the programmatic
+     *  equivalent of --optimizationAlgorithms. Resolution is deferred until the run is configured, so a
+     *  mnemonic contributed by a runtime module (addModulePath()) is available by then. A
+     *  --optimizationAlgorithms list on the command line overrides this.
+     *  @param mnemonics The ordered algorithm mnemonics forming the chain */
+    void setAlgorithmChain(std::vector<std::string> const &mnemonics);
+    /** @brief @return The programmatic algorithm-chain mnemonics set via setAlgorithmChain() (empty if none). */
+    std::vector<std::string> getAlgorithmChain() const;
 
     /**
      * @brief Retrieves the currently registered number of algorithms.
@@ -198,6 +216,15 @@ public:
      */
     void
         registerContentCreator(const std::shared_ptr<Gem::Common::GFactoryT<gen::GOptimizableEntity>> &cc_ptr);
+
+    /**
+     * @brief @return The registered content-creator factory (compiled-in or loaded from a plugin), or an
+     *  empty pointer if none. A generic launcher uses this to pull e.g. the OA-owned adaption config from a
+     *  runtime-loaded individual it does not know the concrete type of.
+     */
+    std::shared_ptr<Gem::Common::GFactoryT<gen::GOptimizableEntity>> getContentCreator() const {
+        return content_creator_ptr_;
+    }
 
     /***************************************************************************/
     // The following is a trivial list of getters and setters
@@ -256,6 +283,21 @@ public:
     void registerPluggableOM(const std::shared_ptr<oa::GBasePluggableOM> &pluggable_om);
     /** @brief Allows to reset the local pluggable optimization monitors */
     void resetPluggableOM();
+
+    /**
+     * @brief Registers a process-global evaluation fault injector (for testing broker / algorithm
+     * error-handling and recovery paths). Registered like a pluggable monitor; pass nullptr to clear.
+     * Carries no per-individual state and is a no-op on production runs where none is registered.
+     * @param injector The fault injector to consult during each individual's process() (nullptr clears)
+     */
+    void registerFaultInjector(std::shared_ptr<GFaultInjector> injector) {
+        if(injector) {
+            GFaultInjectorRegistry::set(std::move(injector));
+        }
+        else {
+            GFaultInjectorRegistry::clear();
+        }
+    }
     /**
      * @brief Allows to check whether pluggable optimization monitors were registered.
      * @return True if at least one pluggable optimization monitor is registered
@@ -284,6 +326,20 @@ public:
      * @return The name of the consumer requested by the user
      */
     std::string getConsumerName();
+
+    /**
+     * @brief Reports whether this Go2 was started in --update-configs mode.
+     *
+     * In that mode Go2 only refreshes the configuration files it owns and then exits without optimizing;
+     * it also forces the local thread-pool consumer so no networked / GPU / MPI consumer is built. A
+     * subclass that would otherwise insist on a particular consumer (e.g. GMPISubClientOptimizer requiring
+     * the MPI consumer) uses this to relax that requirement during a pure config-refresh run.
+     *
+     * @return true if the binary was invoked with --update-configs, false otherwise
+     */
+    bool updateConfigsMode() const {
+        return update_configs_mode_;
+    }
 
     /**
      * @brief Registers an OA-owned adaption configuration for an algorithm type. When an
@@ -316,6 +372,25 @@ protected:
 
 private:
     /***************************************************************************/
+
+    /** @brief Where the single optimization problem (individual) came from, so the one-individual-per-
+     *  process rule can name the incumbent when a second registration is refused. */
+    enum class individualSource {
+        NONE,        ///< no individual provided yet
+        COMPILED_IN, ///< registered by user code via registerContentCreator()
+        LOADED       ///< loaded at runtime from an individual plugin (--individual)
+    };
+
+    /** @brief Claims the single content-creator slot for the optimization problem, enforcing "exactly one
+     *  individual per process": a second claim (a compiled-in registration when a plugin was loaded, or a
+     *  second plugin) throws, naming both the incumbent and the newcomer. Shared by
+     *  registerContentCreator() (COMPILED_IN) and the plugin load (LOADED).
+     *  @param cc_ptr The content-creator factory to install (must not be empty)
+     *  @param source Where this content creator came from (for the diagnostic on a double claim) */
+    void claimContentCreator_(
+        const std::shared_ptr<Gem::Common::GFactoryT<gen::GOptimizableEntity>> &cc_ptr,
+        individualSource source
+    );
 
     // GOptimizerIT NVI hooks: keep these overrides private (do not
     // widen access -- matches oa::GOptimizationAlgorithmBase and the base's NVI contract).
@@ -376,6 +451,12 @@ private:
      */
     Go2 const *optimize_(std::uint32_t offset) final;
 
+    /** @brief --update-configs pass: with GParserBuilder in update-in-place mode, produce one object from
+     *  each registered algorithm factory and one individual from the content creator, so every algorithm
+     *  config and the individual config is parsed and rewritten in canonical form (Go2.json was already
+     *  refreshed by the constructor's parse). Runs no optimization. */
+    void refreshAllConfigs_();
+
     // --- optimize_ sub-steps (decomposition) ---
     /** @brief Adds the Geneva default algorithm if none have been registered */
     void ensureAlgorithmPresent();
@@ -416,20 +497,32 @@ private:
      * @param vm The parsed command line variables map from which the consumer choice is read
      */
     void setupChosenConsumer(boost::program_options::variables_map const &vm);
-    /** @brief Lazily builds + registers the GPU consumer from the registered builder when the gpu
-     *  mnemonic is selected (a no-op otherwise). Called at the start of optimize_(), after construction,
-     *  so the problem's marshaller / data are available. Throws if gpu is selected but no builder was
-     *  registered. */
-    void ensureGPUConsumerBuilt();
     /**
-     * @brief Turns the comma-separated --optimizationAlgorithms list into algorithm objects.
-     * @param vm The parsed command line variables map (source of further per-algorithm options)
-     * @param optimization_algorithms The comma-separated list of algorithm mnemonics to instantiate
+     * @brief Resolves a list of algorithm mnemonics against oaFactoryStore() and appends the produced
+     * algorithms to the chain. An unknown mnemonic throws.
+     * @param mnemonics The ordered algorithm mnemonics to instantiate and append
      */
-    void parseRequestedAlgorithms(
-        boost::program_options::variables_map const &vm,
-        std::string const &optimization_algorithms
-    );
+    void resolveAlgorithmChain_(std::vector<std::string> const &mnemonics);
+    /** @brief Loads every not-yet-loaded module in module_paths_ (plus the individual plugin path): registers
+     *  each module's optimization algorithms into oaFactoryStore() and claims a contributed individual.
+     *  Idempotent across calls via loaded_module_paths_ (a re-load would collide on already-registered OA
+     *  mnemonics), so it is safe to call once during parsing (for command-line/config modules) and again from
+     *  ensureConfigured_() (for programmatically-added modules). */
+    void loadRequestedModules_();
+    /** @brief Extracts --module / --individual paths from the raw command line via a permissive pre-parse
+     *  (ignoring every other, not-yet-declared option), merging them into module_paths_ /
+     *  individual_plugin_path_. Run before the help text and per-algorithm option surface are built, so a
+     *  module's optimization algorithms are registered in oaFactoryStore() first and thus appear in --help
+     *  and contribute their own command-line options.
+     *  @param argc The number of command line arguments
+     *  @param argv The array of command line argument strings */
+    void extractEarlyModulePaths_(int argc, char **argv);
+    /** @brief Idempotently finalizes configuration: loads any not-yet-loaded runtime modules, resolves the
+     *  chosen consumer and resolves the algorithm chain -- honouring programmatic setters called after
+     *  construction, with a command-line value overriding a programmatic one (D4). The constructor only
+     *  PARSES the command line / config into members; nothing is built until this runs, at the first of
+     *  optimize_() / clientRun() / clientMode(). */
+    void ensureConfigured_();
 
     /***************************************************************************/
     // Initialization code for the Geneva library
@@ -439,6 +532,8 @@ private:
     // These parameters can enter the object through the constructor
     bool client_mode_ =
         GO2_DEF_CLIENTMODE; ///< Specifies whether this object represents a network client
+    bool update_configs_mode_ =
+        false; ///< --update-configs: refresh every config this binary owns (GParserBuilder update-in-place), then exit without optimizing
     std::string config_filename_ =
         GO2_DEF_DEFAULTCONFIGFILE; ///< Indicates where the configuration file is stored
     std::string consumer_name_ =
@@ -449,20 +544,17 @@ private:
     // chosen mnemonic through the shared factory buildConsumerSetup(), which registers it as the
     // process's single consumer (GConsumerRegistry); every algorithm reads it from there -- no per-OA
     // injection. A fully custom consumer can be supplied directly via registerConsumer(); the GPU
-    // consumer is selected by the "gpu" mnemonic and built from a registerGPUConsumerBuilder() closure.
+    // consumer is selected by the "gpu" mnemonic and built by buildConsumerSetup() from the problem's
+    // marshaller (registered into marshallerProviderStore()) like every other consumer.
     /** @brief The single server-backed/local courtier consumer, shared across all algorithms. Held here
      *  so it (and any listening server) outlives the run and is torn down by RAII at Go2 destruction.
-     *  Null when no courtier routing was built (an MPI worker rank). */
+     *  Null when this process is not a submitter (a role-at-runtime consumer placed it in the worker role). */
     std::shared_ptr<Gem::Courtier::GBaseConsumerT<gen::GOptimizableEntity>> consumer_;
-    /** @brief Builder for the GPU consumer, contributed by the problem via registerGPUConsumerBuilder().
-     *  Type-erased to the courtier-core base type so geneva carries no GPU dependency; invoked lazily by
-     *  ensureGPUConsumerBuilt() when the gpu mnemonic is selected. Empty unless a GPU program set it. */
-    std::function<std::shared_ptr<Gem::Courtier::GBaseConsumerT<gen::GOptimizableEntity>>()>
-        gpu_consumer_builder_;
-    /** @brief Set on a courtier MPI WORKER rank: runs the courtier worker loop (clientRun_ invokes
-     *  it instead of the legacy client). Type-erased so Go2.hpp needs no MPI headers; the captured
-     *  consumer shared_ptr keeps the worker node alive. Empty on master / non-MPI / legacy paths. */
-    std::function<void()> mpi_run_worker_;
+    /** @brief Set when a role-at-runtime consumer (see GConsumerProviderT::determinesRoleAtRuntime, e.g.
+     *  the MPI worker rank) placed this process in the worker role: the worker loop clientRun_ runs instead
+     *  of building a networked client. Type-erased so Go2.hpp needs no transport headers; the captured
+     *  consumer shared_ptr keeps the worker node alive. Empty on a submitter / role-from-flag path. */
+    std::move_only_function<void()> run_worker_;
     /** @brief The transport-agnostic spec for the chosen consumer, assembled from the command line in
      *  setupChosenConsumer(). Held so clientRun_() can build the matching networked client through the
      *  courtier setup layer (buildConsumerClient) without re-touching the command line or the
@@ -504,8 +596,42 @@ private:
     const std::string default_algorithm_str_ = DEFAULTOPTALG; ///< This is the last fall-back
     // Holds an object capable of producing objects of the desired type
     std::shared_ptr<Gem::Common::GFactoryT<gen::GOptimizableEntity>> content_creator_ptr_;
+    // Where content_creator_ptr_ came from (enforces one-individual-per-process, see claimContentCreator_)
+    individualSource content_creator_source_ = individualSource::NONE;
+    // Filesystem path to a runtime individual plugin (.so) to load; settable via config or --individual.
+    // Empty (the default) means no plugin is loaded -- the individual is expected to be compiled in.
+    std::string individual_plugin_path_;
+    // Filesystem paths to runtime Geneva modules (.so) to load at startup; settable via the module_paths
+    // config key and repeated --module options. Each may contribute optimization algorithms (usable by
+    // mnemonic) and/or the optimization individual. Loaded before the algorithm mnemonics are resolved.
+    std::vector<std::string> module_paths_;
     // A user-defined means for information retrieval
     std::vector<std::shared_ptr<oa::GBasePluggableOM>> pluggable_monitors_cnt_;
+
+    //---------------------------------------------------------------------------
+    // Two-phase configuration (D3/D4): the constructor only parses the command line / config into the
+    // members above; ensureConfigured_() then builds the consumer, loads programmatically-added modules and
+    // resolves the algorithm chain once -- so a setter called after construction is honoured, and a value
+    // given on the command line overrides a programmatic one.
+    /** @brief Guard: ensureConfigured_() runs its work exactly once. */
+    bool configured_ = false;
+    /** @brief The parsed command line, retained so the consumer can be built later (ensureConfigured_) from
+     *  the same options rather than re-touching argv. */
+    boost::program_options::variables_map cl_vm_;
+    /** @brief The consumer mnemonic explicitly given via --consumer, if any; it wins over a programmatic
+     *  setConsumerName() when the run is configured. */
+    std::optional<std::string> cli_consumer_name_;
+    /** @brief The --optimizationAlgorithms list (comma-separated), captured if the option was given. */
+    std::string cli_optimization_algorithms_;
+    /** @brief Whether --optimizationAlgorithms was given on the command line; it then wins over
+     *  setAlgorithmChain(). */
+    bool cli_algorithms_explicit_ = false;
+    /** @brief The algorithm-chain mnemonics set programmatically via setAlgorithmChain(), resolved in
+     *  ensureConfigured_() unless a command-line list overrides them. */
+    std::vector<std::string> programmatic_algorithm_mnemonics_;
+    /** @brief Module paths already loaded, so ensureConfigured_() does not re-load a module already loaded
+     *  during parsing (a re-load would collide on its registered OA mnemonics). */
+    std::set<std::string> loaded_module_paths_;
 };
 
 /******************************************************************************/

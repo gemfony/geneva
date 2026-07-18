@@ -42,12 +42,14 @@
 #include "common/GCommonEnums.hpp"
 #include "common/GExceptions.hpp"
 #include <filesystem>
+#include <format>
 #include <fstream>
 #include <ios>
 #include <iostream>
 #include <ostream>
 #include <sstream>
 #include <string>
+#include <string_view>
 #include <utility>
 
 namespace Gem::Common {
@@ -310,6 +312,56 @@ GLogStreamer &GLogStreamer::operator<<(std::ios_base &(*val)(std::ios_base &)) {
     return *this;
 }
 
+namespace {
+
+/******************************************************************************/
+/**
+ * @brief Assembles the boxed banner shared by the EXCEPTION, TERMINATION and WARNING log types.
+ *
+ * The three severities historically duplicated the same ostringstream layout, differing only in the
+ * heading and the two-line advisory. This single builder reproduces that layout byte-for-byte.
+ *
+ * @param severity The banner heading ("ERROR" or "WARNING")
+ * @param when The recording timestamp (GLogStreamer::currentTimeAsString())
+ * @param accompInfo Accompanying context recorded by the manipulator
+ * @param body The accumulated log message
+ * @param advice The two-line "if you suspect ..." advisory (differs between errors and warnings)
+ * @return The fully formatted banner string
+ */
+std::string assembleBanner(
+    std::string_view severity,
+    std::string_view when,
+    std::string_view accompInfo,
+    std::string_view body,
+    std::string_view advice
+) {
+    return std::format(
+        "\n"
+        "================================================\n"
+        "{} ( recorded on {} )\n"
+        "{}\n"
+        "\n"
+        "{}\n"
+        "{}\n"
+        "\n"
+        "We appreciate your help!\n"
+        "The Geneva team\n"
+        "================================================\n",
+        severity, when, accompInfo, body, advice
+    );
+}
+
+/// The advisory shown for hard errors (EXCEPTION / TERMINATION).
+constexpr std::string_view ERROR_ADVICE =
+    "If you suspect that this error is due to Geneva,\n"
+    "then please consider filing a bug.";
+/// The advisory shown for warnings.
+constexpr std::string_view WARNING_ADVICE =
+    "If you suspect that there is an underlying problem with Geneva,\n"
+    "then please consider filing a bug.";
+
+} // anonymous namespace
+
 /******************************************************************************/
 /**
  * @brief Interface to the actual logging mechanism
@@ -325,85 +377,48 @@ void GLogStreamer::operator<<(GManipulator const &gm) {
     switch(gm.getLogType()) {
     //------------------------------------------------------------------------
     case Gem::Common::logType::EXCEPTION: {
-        // Assemble the output string
-        std::ostringstream error; // NOLINT(cppcoreguidelines-init-variables)
-        error << '\n'
-              << "================================================" << '\n'
-              << "ERROR ( recorded on " << GLogStreamer::currentTimeAsString() << " )" << '\n'
-              << gm.getAccompInfo() << '\n'
-              << '\n'
-              << oss_.str() << '\n'
-              << "If you suspect that this error is due to Geneva," << '\n'
-              << "then please consider filing a bug." << '\n'
-              << '\n'
-              << "We appreciate your help!" << '\n'
-              << "The Geneva team" << '\n'
-              << "================================================" << '\n';
+        const std::string error =
+            assembleBanner("ERROR", GLogStreamer::currentTimeAsString(), gm.getAccompInfo(), oss_.str(), ERROR_ADVICE);
 
         // Do all necessary logging. We use a central exception file for this purpose.
         // The logger's routines will in addition try to print on the console. Note
         // that we ignore any "source" information, as this is already contained
         // in the logged message.
         GFileLogger gfl("GENEVA-EXCEPTION.log");
-        gfl.log(error.str());
+        gfl.log(error);
 
         // Send the exception out. This done globally, so an exception
         // thrown from within a thread doesn't get lost.
-        glogger_ptr->throwException(error.str());
+        glogger_ptr->throwException(error);
     } break;
 
     //------------------------------------------------------------------------
     case Gem::Common::logType::TERMINATION: {
-        // Assemble the output string
-        std::ostringstream error; // NOLINT(cppcoreguidelines-init-variables)
-        error << '\n'
-              << "================================================" << '\n'
-              << "ERROR ( recorded on " << GLogStreamer::currentTimeAsString() << " )" << '\n'
-              << gm.getAccompInfo() << '\n'
-              << '\n'
-              << oss_.str() << '\n'
-              << "If you suspect that this error is due to Geneva," << '\n'
-              << "then please consider filing a bug." << '\n'
-              << '\n'
-              << "We appreciate your help!" << '\n'
-              << "The Geneva team" << '\n'
-              << "================================================" << '\n';
+        const std::string error =
+            assembleBanner("ERROR", GLogStreamer::currentTimeAsString(), gm.getAccompInfo(), oss_.str(), ERROR_ADVICE);
 
         // Do all necessary logging. We use a central exception file for this purpose.
         // The logger's routines will in addition try to print on the console. Note
         // that we ignore any "source" information, as this is already contained
         // in the logged message.
         GFileLogger gfl("GENEVA-TERMINATION.log");
-        gfl.log(error.str());
+        gfl.log(error);
 
         // Initiate the termination sequence.
-        glogger_ptr->terminateApplication(error.str());
+        glogger_ptr->terminateApplication(error);
     } break;
 
     //------------------------------------------------------------------------
     case Gem::Common::logType::WARNING: {
-        // Assemble warning output
-        std::ostringstream warning; // NOLINT(cppcoreguidelines-init-variables)
-        warning << '\n'
-                << "================================================" << '\n'
-                << "WARNING ( recorded on " << GLogStreamer::currentTimeAsString() << " )"
-                << '\n'
-                << gm.getAccompInfo() << '\n'
-                << '\n'
-                << oss_.str() << '\n'
-                << "If you suspect that there is an underlying problem with Geneva," << '\n'
-                << "then please consider filing a bug." << '\n'
-                << '\n'
-                << "We appreciate your help!" << '\n'
-                << "The Geneva team" << '\n'
-                << "================================================" << '\n';
+        const std::string warning =
+            assembleBanner("WARNING", GLogStreamer::currentTimeAsString(), gm.getAccompInfo(), oss_.str(), WARNING_ADVICE);
 
         // Do all necessary logging.
         if(this->hasExtension()) {
-            glogger_ptr->logWithSource(warning.str(), this->getExtension());
+            glogger_ptr->logWithSource(warning, this->getExtension());
         }
         else {
-            glogger_ptr->log(warning.str());
+            glogger_ptr->log(warning);
         }
     } break;
 

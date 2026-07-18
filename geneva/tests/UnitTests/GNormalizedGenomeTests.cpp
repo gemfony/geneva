@@ -65,8 +65,8 @@
 
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/ind/GGenomeLayout.hpp"
-#include "geneva/ind/GFlatGenome.hpp"
-#include "geneva/ind/GFlatIndividualT.hpp"
+#include "geneva/ind/GGenome.hpp"
+#include "geneva/ind/GGenomeT.hpp"
 #include "geneva/ind/GGenomeBuilder.hpp"
 #include "geneva/oa/GAdaption.hpp"
 #include "geneva/oa/GAdaptionConfig.hpp"
@@ -80,7 +80,7 @@ namespace Gem::Tests {
 /******************************************************************************/
 /** A flat individual: n constrained doubles in [lo, hi). Used to exercise the genome
  *  read/write/round-trip contract under offset / narrow boxes. */
-class NgBoxIndividual : public GFlatIndividualT<NgBoxIndividual> {
+class NgBoxIndividual : public GGenomeT<NgBoxIndividual> {
 public:
     NgBoxIndividual() { build(3, -10., 10.); }
     NgBoxIndividual(std::size_t n, double lo, double hi) { build(n, lo, hi); }
@@ -95,14 +95,14 @@ public:
     }
 
 protected:
-    double fitnessCalculation() override {
+    std::vector<double> evaluate() override {
         std::vector<double> v;
         this->streamline<double>(v);
         double s = 0.;
         for(double x : v) {
             s += x * x;
         }
-        return s;
+        return {s};
     }
 
 private:
@@ -116,8 +116,8 @@ private:
     template <typename Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         ar &boost::serialization::make_nvp(
-            "GFlatIndividualT",
-            boost::serialization::base_object<GFlatIndividualT<NgBoxIndividual>>(*this)
+            "GGenomeT",
+            boost::serialization::base_object<GGenomeT<NgBoxIndividual>>(*this)
         );
     }
 };
@@ -125,7 +125,7 @@ private:
 /******************************************************************************/
 /** A flat individual mixing a constrained group and an unbounded (plain) group on ONE
  *  genome -- exercising bounded/unbounded coexistence (§2.5). */
-class NgMixedIndividual : public GFlatIndividualT<NgMixedIndividual> {
+class NgMixedIndividual : public GGenomeT<NgMixedIndividual> {
 public:
     NgMixedIndividual() { build(); }
     NgMixedIndividual(const NgMixedIndividual &) = default;
@@ -139,14 +139,14 @@ public:
     }
 
 protected:
-    double fitnessCalculation() override {
+    std::vector<double> evaluate() override {
         std::vector<double> v;
         this->streamline<double>(v);
         double s = 0.;
         for(double x : v) {
             s += x * x;
         }
-        return s;
+        return {s};
     }
 
 private:
@@ -161,8 +161,8 @@ private:
     template <typename Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         ar &boost::serialization::make_nvp(
-            "GFlatIndividualT",
-            boost::serialization::base_object<GFlatIndividualT<NgMixedIndividual>>(*this)
+            "GGenomeT",
+            boost::serialization::base_object<GGenomeT<NgMixedIndividual>>(*this)
         );
     }
 };
@@ -170,21 +170,21 @@ private:
 /******************************************************************************/
 /** A flat individual fed an externally-built genome, for exercising the GGenomeBuilder ergonomics
  *  (vector-of-starts groups, random-init helpers). */
-class NgErgoIndividual : public GFlatIndividualT<NgErgoIndividual> {
+class NgErgoIndividual : public GGenomeT<NgErgoIndividual> {
 public:
     NgErgoIndividual() = default;
     explicit NgErgoIndividual(const GenomeData &g) { this->setGenome(g); }
     NgErgoIndividual(const NgErgoIndividual &) = default;
 
 protected:
-    double fitnessCalculation() override {
+    std::vector<double> evaluate() override {
         std::vector<double> v;
         this->streamline<double>(v);
         double s = 0.;
         for(double x : v) {
             s += x * x;
         }
-        return s;
+        return {s};
     }
 
 private:
@@ -192,8 +192,8 @@ private:
     template <typename Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         ar &boost::serialization::make_nvp(
-            "GFlatIndividualT",
-            boost::serialization::base_object<GFlatIndividualT<NgErgoIndividual>>(*this)
+            "GGenomeT",
+            boost::serialization::base_object<GGenomeT<NgErgoIndividual>>(*this)
         );
     }
 };
@@ -417,7 +417,7 @@ TEST_CASE(
     "[normalized-genome]"
 ) {
     // After an external write of in-range values, the raw internal store must lie in the canonical
-    // interval; after randomInit it must too. GFlatGenome exposes the raw internal span directly.
+    // interval; after randomInit it must too. GGenome exposes the raw internal span directly.
     NgBoxIndividual ind(32, -3., 7.);
     ind.assignValueVector<double>(std::vector<double>(32, 4.5)); // an interior value
     for(double u : ind.internalDoubleValues()) {

@@ -39,23 +39,28 @@ SET ( GENEVADIETRICHPLOTTINGINCLUDES
 	plotting/GDecorators.hpp
 	plotting/GPlotSpec.hpp
 	plotting/GBasePlotter.hpp
+	plotting/GDataCollectors.hpp
+	plotting/GHistogramPlots.hpp
+	plotting/GGraphPlots.hpp
 	plotting/GPlots.hpp
 	plotting/GPlotEmitter.hpp
 	plotting/GDataLog.hpp
 	plotting/GPlotDesigner.hpp
 )
 
-# This is a workaround for a CLion-problem -- see CPP270 in the JetBrains issue tracker
-ADD_CUSTOM_TARGET(CLION_ALL_DIETRICH_HEADERS SOURCES
-	${GENEVADIETRICHINCLUDES} ${GENEVADIETRICHPLOTTINGINCLUDES})
-
-SET_TARGET_PROPERTIES(
-	CLION_ALL_DIETRICH_HEADERS
-	PROPERTIES
-	CXX_STANDARD 20
-	CXX_STANDARD_REQUIRED ON
-	CXX_EXTENSIONS OFF
+# Library-private plotting headers: shared across the dietrich implementation TUs but NOT part of the
+# installed public API, so they live under plotting/detail/ and are deliberately absent from the
+# INSTALL lists below. Listed here only so IDEs surface them.
+SET ( GENEVADIETRICHPLOTTINGDETAILINCLUDES
+	plotting/detail/GPlotDetail.hpp
 )
 
-INSTALL ( FILES ${GENEVADIETRICHINCLUDES} DESTINATION ${INSTALL_PREFIX_INCLUDES}/dietrich )
-INSTALL ( FILES ${GENEVADIETRICHPLOTTINGINCLUDES} DESTINATION ${INSTALL_PREFIX_INCLUDES}/dietrich/plotting )
+# This is a workaround for a CLion-problem -- see CPP270 in the JetBrains issue tracker
+ADD_CUSTOM_TARGET(CLION_ALL_DIETRICH_HEADERS SOURCES
+	${GENEVADIETRICHINCLUDES} ${GENEVADIETRICHPLOTTINGINCLUDES}
+	${GENEVADIETRICHPLOTTINGDETAILINCLUDES})
+
+# Directory install: ship the whole header tree (Inv 19), so the installed interface is self-contained and
+# cannot drift. (The SET lists above are retained only for the CLion header target / IDE indexing.)
+INSTALL ( DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/ DESTINATION ${INSTALL_PREFIX_INCLUDES}/dietrich
+	FILES_MATCHING PATTERN "*.hpp" )

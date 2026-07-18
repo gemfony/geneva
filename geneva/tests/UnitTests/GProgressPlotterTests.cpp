@@ -50,7 +50,7 @@
 #include <vector>
 
 #include "geneva/GPluggableOptimizationMonitors.hpp"
-#include "geneva/ind/GFlatIndividualT.hpp"
+#include "geneva/ind/GGenomeT.hpp"
 #include "geneva/ind/GGenomeBuilder.hpp"
 #include "geneva/oa/GAdaptionConfig.hpp"
 #include "geneva/oa/GEvolutionaryAlgorithm.hpp"
@@ -65,7 +65,7 @@ namespace {
  * A tiny flat-genome sphere: three constrained doubles in [-5, 5), sharing one Gauss group, started at
  * 2.0. Enough to give the monitor a profileable parameter (index 0) and a real, evaluated fitness.
  */
-class Sphere3 : public gen::GFlatIndividualT<Sphere3> {
+class Sphere3 : public gen::GGenomeT<Sphere3> {
 public:
     Sphere3() {
         gen::GGenomeBuilder b;
@@ -81,14 +81,14 @@ public:
     }
 
 protected:
-    double fitnessCalculation() override {
+    std::vector<double> evaluate() override {
         std::vector<double> v;
         this->template streamline<double>(v);
         double s = 0.;
         for(double x : v) {
             s += x * x;
         }
-        return s;
+        return {s};
     }
 };
 
@@ -131,8 +131,8 @@ TEST_CASE("GProgressPlotterT writes a valid ROOT macro when driven by a real EA"
 
     const std::string content = readFile(out);
     // The 1-variable case sets this canvas/plot title, and the curve is emitted as a ROOT TGraph.
-    CHECK(content.find("Fitness as a function of a parameter value") != std::string::npos);
-    CHECK(content.find("TGraph") != std::string::npos);
+    CHECK(content.contains("Fitness as a function of a parameter value"));
+    CHECK(content.contains("TGraph"));
 
     std::filesystem::remove(out);
 }
@@ -234,9 +234,9 @@ TEST_CASE("GNAdpationsLogger writes a histogram + fitness ROOT macro (all indivi
     REQUIRE(std::filesystem::exists(out));
     REQUIRE(std::filesystem::file_size(out) > 0);
     const std::string content = readFile(out);
-    CHECK(content.find("Number of parameter adaptions") != std::string::npos);
-    CHECK(content.find("TH2D") != std::string::npos);   // the fixed-range 2-d histogram
-    CHECK(content.find("TGraph") != std::string::npos); // the fitness curve
+    CHECK(content.contains("Number of parameter adaptions"));
+    CHECK(content.contains("TH2D"));   // the fixed-range 2-d histogram
+    CHECK(content.contains("TGraph")); // the fitness curve
 
     std::filesystem::remove(out);
 }
@@ -266,9 +266,9 @@ TEST_CASE("GNAdpationsLogger writes a curve + fitness ROOT macro (best only)", "
     REQUIRE(std::filesystem::file_size(out) > 0);
     const std::string content = readFile(out);
     // Best-only -> the n-adaptions plot is a curve (no histogram).
-    CHECK(content.find("Number of parameter adaptions") != std::string::npos);
-    CHECK(content.find("TGraph") != std::string::npos);
-    CHECK(content.find("TH2D") == std::string::npos);
+    CHECK(content.contains("Number of parameter adaptions"));
+    CHECK(content.contains("TGraph"));
+    CHECK(!content.contains("TH2D"));
 
     std::filesystem::remove(out);
 }
@@ -299,9 +299,9 @@ TEST_CASE("GAdaptorPropertyLoggerT writes a property histogram + fitness ROOT ma
     REQUIRE(std::filesystem::exists(out));
     REQUIRE(std::filesystem::file_size(out) > 0);
     const std::string content = readFile(out);
-    CHECK(content.find("Property: sigma") != std::string::npos); // the dynamic y-axis label
-    CHECK(content.find("TH2D") != std::string::npos);            // the fixed-range property histogram
-    CHECK(content.find("TGraph") != std::string::npos);          // the fitness curve
+    CHECK(content.contains("Property: sigma")); // the dynamic y-axis label
+    CHECK(content.contains("TH2D"));            // the fixed-range property histogram
+    CHECK(content.contains("TGraph"));          // the fitness curve
 
     std::filesystem::remove(out);
 }
@@ -341,11 +341,11 @@ TEST_CASE("GProcessingTimesLogger writes 1-d and 2-d timing ROOT macros + a text
     REQUIRE(std::filesystem::file_size(pth2) > 0);
 
     const std::string c1 = readFile(pth);
-    CHECK(c1.find("TH1D") != std::string::npos);
-    CHECK(c1.find("Pre-processing time [s]") != std::string::npos);
+    CHECK(c1.contains("TH1D"));
+    CHECK(c1.contains("Pre-processing time [s]"));
     const std::string c2 = readFile(pth2);
-    CHECK(c2.find("TH2D") != std::string::npos);
-    CHECK(c2.find("Iteration") != std::string::npos);
+    CHECK(c2.contains("TH2D"));
+    CHECK(c2.contains("Iteration"));
 
     for(const auto &f : {pth, pth2, txt}) {
         std::filesystem::remove(f);

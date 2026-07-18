@@ -38,6 +38,8 @@
 #include <cstdint>
 #include <iostream>
 #include <memory>
+#include <print>
+#include <ranges>
 #include <string>
 #include <thread>
 #include <vector>
@@ -103,12 +105,9 @@ bool demo_thread_safe_keyed_store() {
     // Snapshots come back in key order.
     const auto keys = store.keys();
     ok = ok && keys.size() == 2 && keys[0] == "retries" && keys[1] == "threads";
-    std::cout << "  keys (in order): ";
-    for(const auto &k : keys) {
-        std::cout << k << " ";
-    }
-    std::cout << "\n  threads=" << store.get("threads").value_or(-1)
-              << ", retries=" << retries << "\n";
+    std::println("  keys (in order): {}",
+                 keys | std::views::join_with(' ') | std::ranges::to<std::string>());
+    std::println("  threads={}, retries={}", store.get("threads").value_or(-1), retries);
 
     std::cout << "  -> " << (ok ? "OK" : "FAILED") << "\n";
     return ok;

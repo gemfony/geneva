@@ -42,15 +42,14 @@
 #include <vector>
 
 // Boost header files go here
-#include <boost/property_tree/ptree.hpp>
-#include <boost/property_tree/xml_parser.hpp>
+#include <boost/json.hpp>
 
 // Geneva header files go here
 #include "common/GCommonEnums.hpp"
 #include "common/GCommonHelperFunctions.hpp"
 #include "common/GParserBuilder.hpp"
-#include "geneva/ind/GFlatGenome.hpp"
-#include "geneva/ind/GFlatIndividualFactory.hpp"
+#include "geneva/ind/GGenome.hpp"
+#include "geneva/ind/GIndividualFactory.hpp"
 #include "geneva/ind/GGenomeBuilder.hpp"
 #include "geneva/par/GOptimizableEntityMultiConstraint.hpp"
 #include "hap/GRandomT.hpp"
@@ -93,7 +92,7 @@ constexpr std::size_t GEEI_DEF_NRESULTS = 1;
 const std::string GEEI_DEF_STARTMODE = "random";
 const std::string GEEI_DEF_DATATYPE = "setup_data";
 const std::string GEEI_DEF_RUNID = "empty";
-const bool GEEI_DEF_REMOVETEMPORARIES = "true";
+constexpr bool GEEI_DEF_REMOVETEMPORARIES = true;
 
 
 /******************************************************************************/
@@ -107,16 +106,17 @@ const bool GEEI_DEF_REMOVETEMPORARIES = "true";
  * arguments with obvious meanings
  *
  * --init
- * --setup --init_values=[min/max/random] --output="setupFile.xml"
- * --evaluate --input="paramsFile.xml"   --output="result_file.xml"
- * --archive  --input="archiveFile.xml"
+ * --setup --init_values=[min/max/random] --output="setupFile.json"
+ * --evaluate --input="paramsFile.json"   --output="result_file.json"
+ * --archive  --input="archiveFile.json"
  * --finalize
  *
- * The xml parameter files are created using boost::property_tree and its write_xml
- * utility. Hence the external program needs to understand the XML format.
+ * The parameter / result / setup files exchanged with the external program are JSON documents
+ * (see the shipped evaluator.py reference implementation for the schema). Hence the external
+ * program needs to read and write this JSON format.
  */
 class GExternalEvaluatorIndividual
-  : public gen::GFlatGenome { // NOLINT(cppcoreguidelines-special-member-functions)
+  : public gen::GGenome { // NOLINT(cppcoreguidelines-special-member-functions)
     ///////////////////////////////////////////////////////////////////////
 
     friend class boost::serialization::access;
@@ -126,7 +126,7 @@ class GExternalEvaluatorIndividual
      * @return A tuple of named member references driving serialize(), load_() and compare_()
      */
     template <typename Self>
-    static auto localMembers_(Self &self) {
+    auto localMembers_(this Self &self) {
         return std::make_tuple(
             Gem::Common::make_member("program_name_", self.program_name_),
             Gem::Common::make_member("custom_options_", self.custom_options_),
@@ -149,8 +149,8 @@ class GExternalEvaluatorIndividual
         // run_id_ was previously omitted here and silently lost on
         // (de)serialization; derive the member list from the single
         // localMembers() declaration so it stays in sync.
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gen::GFlatGenome);
-        Gem::Common::serialize_members(ar, localMembers_(*this));
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gen::GGenome);
+        Gem::Common::serialize_members(ar, this->localMembers_());
     }
 
     ///////////////////////////////////////////////////////////////////////
@@ -158,7 +158,7 @@ class GExternalEvaluatorIndividual
 public:
     /***************************************************************************/
     using FACTORYTYPE =
-        Gem::Geneva::Genome::GFlatIndividualFactory<GExternalEvaluatorIndividual>;
+        Gem::Geneva::Genome::GIndividualFactory<GExternalEvaluatorIndividual>;
 
     /** @brief The default constructor */
     GExternalEvaluatorIndividual();
@@ -250,7 +250,7 @@ public:
 
     /***************************************************************************/
     /**
-     * The configuration read from the config file by GFlatIndividualFactory<GExternalEvaluatorIndividual>.
+     * The configuration read from the config file by GIndividualFactory<GExternalEvaluatorIndividual>.
      * Besides the Gauss / bi-Gauss adaptor settings and the external-program parameters, two fields
      * (run_id, n_results_expected) are not parsed from the file but DISCOVERED by buildGenome() when it
      * queries the external evaluator; buildGenome writes them back so applyConfig() can hand them to each
@@ -306,7 +306,7 @@ public:
      * @return A shared pointer to the constructed adaption config
      */
     static std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase>
-    buildAdaptionConfig(const gen::GFlatGenome &sample, const Config &c);
+    buildAdaptionConfig(const gen::GGenome &sample, const Config &c);
     /**
      * @brief Per-object post-config hook: applies the external-program parameters + discovered metadata
      * @param ind The individual that the configuration is applied to
@@ -357,10 +357,10 @@ protected:
     ) const final;
 
     /**
-     * @brief The actual fitness calculation takes place here
-     * @return The fitness value obtained from the external evaluation program
+     * @brief The evaluation hook: runs the external evaluation program and returns its per-criterion results.
+     * @return The full per-criterion raw result vector obtained from the external evaluation program
      */
-    double fitnessCalculation() final;
+    std::vector<double> evaluate() final;
 
 private:
     /***************************************************************************/
@@ -369,7 +369,7 @@ private:
      * @brief Creates a deep clone of this object
      * @return A pointer to a newly allocated deep copy of this object
      */
-    gen::GFlatGenome *clone_() const final;
+    gen::GGenome *clone_() const final;
 
     /***************************************************************************/
 
@@ -387,12 +387,12 @@ private:
 /******************************************************************************/
 /**
  * A factory for GExternalEvaluatorIndividual objects: an alias for the generic, config-driven
- * GFlatIndividualFactory, for which GExternalEvaluatorIndividual supplies the static describeConfig /
+ * GIndividualFactory, for which GExternalEvaluatorIndividual supplies the static describeConfig /
  * buildGenome / buildAdaptionConfig / applyConfig / finalize hooks (plus the static archive() helper).
  * Call sites use ctor(path), get_as<>(), getAdaptionConfig() and registerContentCreator().
  */
 using GExternalEvaluatorIndividualFactory =
-    Gem::Geneva::Genome::GFlatIndividualFactory<GExternalEvaluatorIndividual>;
+    Gem::Geneva::Genome::GIndividualFactory<GExternalEvaluatorIndividual>;
 
 /******************************************************************************/
 

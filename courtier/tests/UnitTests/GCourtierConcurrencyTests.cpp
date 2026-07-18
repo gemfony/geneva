@@ -48,6 +48,7 @@
 #include <chrono>
 #include <cstddef>
 #include <memory>
+#include <ranges>
 #include <span>
 #include <thread>
 #include <vector>
@@ -76,7 +77,7 @@ std::vector<item_ptr> make_tagged_batch(std::size_t batch, std::size_t n,
     std::vector<item_ptr> v;
     v.reserve(n);
     for(std::size_t i = 0; i < n; ++i) {
-        const bool f = std::find(faulty.begin(), faulty.end(), i) != faulty.end();
+        const bool f = std::ranges::contains(faulty, i);
         v.push_back(std::make_unique<GFaultyContainer>(
             tag(batch, i), f ? fault_mode::THROW_PROCESSING : fault_mode::NONE));
     }
@@ -166,11 +167,11 @@ TEST_CASE("courtier(fanin): concurrent submitters to one networked consumer, res
 
     // Every batch fully evaluated, and every slot still holds ITS OWN item (correct (batch,slot)
     // routing -- a broken router would land batch B's result in batch A's slot, changing its tag).
-    for(std::size_t b = 0; b < M; ++b) {
-        CHECK(count_processed(batches[b]) == N);
-        for(std::size_t i = 0; i < N; ++i) {
-            CHECK(batches[b][i]->get_stored_number() == tag(b, i));
-            CHECK(batches[b][i]->is_processed());
+    for(auto const& [b, batch] : batches | std::views::enumerate) {
+        CHECK(count_processed(batch) == N);
+        for(auto const& [i, item] : batch | std::views::enumerate) {
+            CHECK(item->get_stored_number() == tag(b, i));
+            CHECK(item->is_processed());
         }
     }
 }
@@ -265,10 +266,10 @@ TEST_CASE("courtier(fanin): concurrent submitters to one local thread consumer",
         s.join();
     }
 
-    for(std::size_t b = 0; b < M; ++b) {
-        CHECK(count_processed(batches[b]) == N);
-        for(std::size_t i = 0; i < N; ++i) {
-            CHECK(batches[b][i]->get_stored_number() == tag(b, i));
+    for(auto const& [b, batch] : batches | std::views::enumerate) {
+        CHECK(count_processed(batch) == N);
+        for(auto const& [i, item] : batch | std::views::enumerate) {
+            CHECK(item->get_stored_number() == tag(b, i));
         }
     }
 }

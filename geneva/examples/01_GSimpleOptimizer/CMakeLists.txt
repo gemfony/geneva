@@ -38,6 +38,9 @@ ADD_EXECUTABLE(${EXECUTABLENAME}
 )
 
 SET(LIBRARIES_TO_LINK
+		# GFunctionIndividual is no longer in the geneva library; compiled in via its object library (before the
+		# Geneva/Boost libraries so its serialization objects resolve libboost_serialization).
+		GFunctionIndividual-obj
 		${GENEVA_LIBRARIES}
 		${Boost_LIBRARIES})
 
@@ -52,7 +55,9 @@ TARGET_LINK_LIBRARIES (${EXECUTABLENAME}
 		${LIBRARIES_TO_LINK}
 		)
 
-ADD_SUBDIRECTORY (config)
+# Materialize this example's configuration from the code defaults at build time (and overlay any
+# config/config-overrides.json), instead of copying a hand-maintained set of shipped config files.
+GENEVA_MATERIALIZE_CONFIGS ( ${EXECUTABLENAME} ${INSTALL_PREFIX_DATA}/examples/${EXECUTABLENAME}/config )
 
 IF (GENEVA_RUN_EXAMPLES_AS_TESTS)
 	ADD_TEST(${EXECUTABLENAME} ${EXECUTABLENAME})

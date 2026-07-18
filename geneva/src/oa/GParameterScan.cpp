@@ -270,7 +270,6 @@ GParameterScan::GParameterScan(const GParameterScan &cp)
   : GOptimizationAlgorithmT<GParameterScan>(cp)
   , cycle_logic_halt_(cp.cycle_logic_halt_)
   , scan_randomly_(cp.scan_randomly_)
-  , n_monitor_inds_(cp.n_monitor_inds_)
   , simple_scan_items_(cp.simple_scan_items_)
   , scans_performed_(cp.scans_performed_) {
     // Copying / setting of the optimization algorithm id is done by the parent class. The same
@@ -281,16 +280,6 @@ GParameterScan::GParameterScan(const GParameterScan &cp)
     Gem::Common::copyCloneableSmartPointerContainer(cp.int32_cnt_, int32_cnt_);
     Gem::Common::copyCloneableSmartPointerContainer(cp.d_cnt_, d_cnt_);
     Gem::Common::copyCloneableSmartPointerContainer(cp.f_cnt_, f_cnt_);
-}
-
-/******************************************************************************/
-/**
- * @brief Retrieve the number of processable items in the current iteration.
- *
- * @return The number of processable items in the current iteration (the whole population size)
- */
-std::size_t GParameterScan::getNProcessableItems_() const {
-    return this->size(); // Evaluation always needs to be done for the entire population
 }
 
 /******************************************************************************/
@@ -324,7 +313,7 @@ void GParameterScan::compare_(
     // Gemfony common interface, so g_compare_members() compares them element-by-element through each scan
     // parameter's compare_() (which feeds the full scan state -- including the pre-computed grid -- to the
     // token).
-    g_compare_members(localMembers_(*this), localMembers_(*p_load), token);
+    g_compare_members(this->localMembers_(), p_load->localMembers_(), token);
 
     // React on deviations from the expectation
     token.evaluate();
@@ -355,28 +344,6 @@ void GParameterScan::resetToOptimizationStart_() {
 
 /******************************************************************************/
 /**
- * @brief Allows to set the number of "best" individuals to be monitored
- * over the course of the algorithm run.
- *
- * @param n_monitor_inds The number of best individuals to monitor
- */
-void GParameterScan::setNMonitorInds(std::size_t n_monitor_inds) {
-    n_monitor_inds_ = n_monitor_inds;
-}
-
-/******************************************************************************/
-/**
- * @brief Allows to retrieve the number of "best" individuals to be monitored
- * over the course of the algorithm run.
- *
- * @return The number of best individuals being monitored
- */
-std::size_t GParameterScan::getNMonitorInds() const {
-    return n_monitor_inds_;
-}
-
-/******************************************************************************/
-/**
  * @brief Loads the data of another population.
  *
  * @param cp A pointer to another GOptimizationAlgorithmBase object (must actually be a
@@ -394,7 +361,7 @@ void GParameterScan::load_(const GOptimizationAlgorithmBase *cp) {
     // ... and then ALL of our own data, derived from the single localMembers() declaration. This now also
     // deep-copies the scan-parameter vectors (cycle_logic_halt_ included): their element types carry the
     // Gemfony common interface, so make_cloneable_container_member() clones each element via clone_()/load_().
-    Gem::Common::g_load_members(localMembers_(*this), localMembers_(*p_load));
+    Gem::Common::g_load_members(this->localMembers_(), p_load->localMembers_());
 }
 
 /******************************************************************************/
@@ -405,7 +372,7 @@ void GParameterScan::load_(const GOptimizationAlgorithmBase *cp) {
  */
 std::tuple<double, double> GParameterScan::cycleLogic_() {
     std::tuple<double, double> best_fitness =
-        std::make_tuple(this->at(0)->individual().getWorstCase(), this->at(0)->individual().getWorstCase());
+        std::make_tuple(this->at(0)->getWorstCase(), this->at(0)->getWorstCase());
 
     // Apply all necessary modifications to individuals
     if(0 == simple_scan_items_) { // We have been asked to deal with specific parameters
@@ -424,10 +391,10 @@ std::tuple<double, double> GParameterScan::cycleLogic_() {
     GParameterScan::iterator it;
     std::tuple<double, double> new_eval = std::make_tuple(0., 0.);
     auto m =
-        this->at(0)->individual().getMaxMode(); // We assume that the maxMode is the same for all individuals
+        this->at(0)->getMaxMode(); // We assume that the maxMode is the same for all individuals
     for(it = this->begin(); it != this->end(); ++it) {
 #ifdef DEBUG
-        if(not(*it)->individual().is_processed()) {
+        if(not(*it)->is_processed()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GParameterScan::cycleLogic(): Error!" << '\n'
@@ -437,7 +404,7 @@ std::tuple<double, double> GParameterScan::cycleLogic_() {
         }
 #endif
 
-        new_eval = (*it)->individual().getFitnessTuple();
+        new_eval = (*it)->getFitnessTuple();
         if(isBetter(
                std::get<G_TRANSFORMED_FITNESS>(new_eval),
                std::get<G_TRANSFORMED_FITNESS>(best_fitness),
@@ -462,13 +429,9 @@ void GParameterScan::updateSelectedParameters() {
 
     while(true) {
         //------------------------------------------------------------------------
-        // Retrieve a work item
-        std::size_t mode = 0;
-        std::shared_ptr<parSet> p_s = getParameterSet(mode);
+        // Retrieve a work item (all parameters are addressed positionally)
+        std::shared_ptr<parSet> p_s = getParameterSet();
 
-        switch(mode) {
-        //---------------------------------------------------------------------
-        case 0: // Parameters are referenced by index
         {
             std::vector<bool> b_data;
             std::vector<std::int32_t> i_data;
@@ -477,7 +440,7 @@ void GParameterScan::updateSelectedParameters() {
 
             // Fill the parameter set data into the current individual.
             // Read/write the parameter values through the genome-agnostic value channels.
-            auto &ind = this->at(ind_pos)->individual();
+            auto &ind = (*this->at(ind_pos));
 
             // Retrieve the parameter vectors
             ind.streamline<bool>(b_data);
@@ -537,24 +500,12 @@ void GParameterScan::updateSelectedParameters() {
             ind.assignValueVector<std::int32_t>(i_data);
             ind.assignValueVector<float>(f_data);
             ind.assignValueVector<double>(d_data);
-        } break;
-
-        //---------------------------------------------------------------------
-        default: {
-            // By-name parameter addressing (modes 1/2) has been removed; the parameter-property
-            // parser only ever emits positional (mode-0) specifications now.
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GParameterScan::updateSelectedParameters(): Error!" << '\n'
-                << "Encountered unsupported (non-positional) mode " << mode << '\n'
-            );
-        } break;
         }
 
         //------------------------------------------------------------------------
         // Mark the individual as "dirty", so it gets re-evaluated the
         // next time the fitness() function is called
-        this->at(ind_pos)->individual().mark_as_due_for_processing();
+        this->at(ind_pos)->mark_as_due_for_processing();
 
         // We were successful
         cycle_logic_halt_ = false;
@@ -598,8 +549,8 @@ void GParameterScan::randomInitPopulation() {
 
     while(true) {
         // Randomly (re-)initialize the current individual and mark it for re-evaluation.
-        this->at(ind_pos)->individual().randomInit(activityMode::ACTIVEONLY);
-        this->at(ind_pos)->individual().mark_as_due_for_processing();
+        this->at(ind_pos)->randomInit(activityMode::ACTIVEONLY);
+        this->at(ind_pos)->mark_as_due_for_processing();
 
         // Count this initialized work item.
         ++scans_performed_;
@@ -651,118 +602,36 @@ void GParameterScan::resetParameterObjects() {
  * @brief Retrieves a parameter set by filling the current parameter combinations
  * into a parSet object.
  *
- * @param mode An output reference: on return it holds the addressing mode reported by the scan
- *             parameters (currently always positional/by-id); it is also cross-checked for
- *             consistency across all parameter objects
  * @return A shared pointer to a freshly filled parSet object holding the current parameter values
  */
-std::shared_ptr<parSet> GParameterScan::getParameterSet(std::size_t &mode) {
+std::shared_ptr<parSet> GParameterScan::getParameterSet() {
     // Create a new parSet object
     std::shared_ptr<parSet> result(new parSet());
 
-    bool mode_set = false;
-
-    // Extract the relevant data and store it in a parSet object
-    // 1) For boolean objects
-    for(const auto &b_scan_par : b_cnt_) {
-        gen::NAMEANDIDTYPE var = b_scan_par->getVarAddress();
-
-        if(mode_set) {
-            if(std::get<0>(var) != mode) {
+    // Every scan parameter is positional (the former by-name addressing modes have been removed);
+    // guard once per parameter against a corrupted specification.
+    auto append = [this](const auto &scan_par_cnt, auto &target_vec) {
+        using single_t = typename std::remove_reference_t<decltype(target_vec)>::value_type;
+        for(const auto &scan_par : scan_par_cnt) {
+            gen::NAMEANDIDTYPE var = scan_par->getVarAddress();
+            if(std::get<0>(var) != 0) {
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                     << "In GParameterScan::getParameterSet(): Error!" << '\n'
-                    << "Expected mode " << mode << " but got " << std::get<0>(var) << '\n'
+                    << "Encountered non-positional addressing mode " << std::get<0>(var)
+                    << " (by-name addressing has been removed)" << '\n'
                 );
             }
+            target_vec.push_back(single_t{
+                scan_par->getCurrentItem(gr_), // value
+                std::get<2>(var)               // position
+            });
         }
-        else {
-            mode = std::get<0>(var);
-            mode_set = true;
-        }
-
-        (result->bParVec).push_back(singleBPar{
-            b_scan_par->getCurrentItem(gr_), // value
-            std::get<0>(var),                // mode
-            std::get<1>(var),                // name
-            std::get<2>(var)                 // position
-        });
-    }
-    // 2) For std::int32_t objects
-    for(const auto &i_scan_par : int32_cnt_) {
-        gen::NAMEANDIDTYPE var = i_scan_par->getVarAddress();
-
-        if(mode_set) {
-            if(std::get<0>(var) != mode) {
-                throw geneva_exception(
-                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                    << "In GParameterScan::getParameterSet(): Error!" << '\n'
-                    << "Expected mode " << mode << " but got " << std::get<0>(var) << '\n'
-                );
-            }
-        }
-        else {
-            mode = std::get<0>(var);
-            mode_set = true;
-        }
-
-        (result->iParVec).push_back(singleInt32Par{
-            i_scan_par->getCurrentItem(gr_), // value
-            std::get<0>(var),                // mode
-            std::get<1>(var),                // name
-            std::get<2>(var)                 // position
-        });
-    }
-    // 3) For float objects
-    for(const auto &f_scan_par : f_cnt_) {
-        gen::NAMEANDIDTYPE var = f_scan_par->getVarAddress();
-
-        if(mode_set) {
-            if(std::get<0>(var) != mode) {
-                throw geneva_exception(
-                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                    << "In GParameterScan::getParameterSet(): Error!" << '\n'
-                    << "Expected mode " << mode << " but got " << std::get<0>(var) << '\n'
-                );
-            }
-        }
-        else {
-            mode = std::get<0>(var);
-            mode_set = true;
-        }
-
-        (result->fParVec).push_back(singleFPar{
-            f_scan_par->getCurrentItem(gr_), // value
-            std::get<0>(var),                // mode
-            std::get<1>(var),                // name
-            std::get<2>(var)                 // position
-        });
-    }
-    // 4) For double objects
-    for(const auto &d_scan_par : d_cnt_) {
-        gen::NAMEANDIDTYPE var = d_scan_par->getVarAddress();
-
-        if(mode_set) {
-            if(std::get<0>(var) != mode) {
-                throw geneva_exception(
-                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                    << "In GParameterScan::getParameterSet(): Error!" << '\n'
-                    << "Expected mode " << mode << " but got " << std::get<0>(var) << '\n'
-                );
-            }
-        }
-        else {
-            mode = std::get<0>(var);
-            mode_set = true;
-        }
-
-        (result->dParVec).push_back(singleDPar{
-            d_scan_par->getCurrentItem(gr_), // value
-            std::get<0>(var),                // mode
-            std::get<1>(var),                // name
-            std::get<2>(var)                 // position
-        });
-    }
+    };
+    append(b_cnt_, result->bParVec);
+    append(int32_cnt_, result->iParVec);
+    append(f_cnt_, result->fParVec);
+    append(d_cnt_, result->dParVec);
 
     return result;
 }
@@ -901,7 +770,7 @@ void GParameterScan::runFitnessCalculation_() {
     GParameterScan::iterator it;
     for(it = this->begin(); it != this->end(); ++it) {
         // Make sure the evaluated individuals have the dirty flag set
-        if(not(*it)->individual().is_due_for_processing()) {
+        if(not(*it)->is_due_for_processing()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GParameterScan::runFitnessCalculation():" << '\n'
@@ -917,20 +786,8 @@ void GParameterScan::runFitnessCalculation_() {
 
     auto status = this->workOnPopulation(0, this->data_cnt_.size());
 
-    //--------------------------------------------------------------------------------
-    // Some error checks
-
-    // Check if all work items have returned or whether there were errors. Both cannot
-    // be accepted in a parameter scan.
-    if(not status.is_complete || status.has_errors) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GParameterScan::runFitnessCalculation(): Error!" << '\n'
-            << "No complete set of items received or erroneous items found" << '\n'
-        );
-    }
-
-    //--------------------------------------------------------------------------------
+    // An incomplete or errored return cannot be accepted in a parameter scan.
+    this->requireCompleteEvaluation_(status, "GParameterScan::runFitnessCalculation()");
 }
 
 /******************************************************************************/

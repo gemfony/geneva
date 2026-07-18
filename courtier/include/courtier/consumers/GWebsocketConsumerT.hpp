@@ -294,10 +294,13 @@ private:
             [self = this->shared_from_this()]() -> bool { return self->stopped(); },
             [self = this->shared_from_this()](bool sign_on) {
                 if(sign_on) {
-                    ++self->n_active_sessions_;
+                    self->n_active_sessions_.fetch_add(1, std::memory_order_relaxed);
                 }
-                else if(self->n_active_sessions_.load() > 0) {
-                    --self->n_active_sessions_;
+                else {
+                    // Race-free decrement: sign-on/sign-off are balanced by the session
+                    // lifecycle, so the counter cannot underflow (the former load()-then-
+                    // decrement check-then-act could double-decrement under contention).
+                    self->n_active_sessions_.fetch_sub(1, std::memory_order_relaxed);
                 }
             },
             serialization_mode_,

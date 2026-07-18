@@ -32,6 +32,7 @@
 #include <chrono>
 #include <cstdint>
 #include <future>
+#include <span>
 #include <stdexcept>
 #include <thread>
 #include <type_traits>
@@ -304,4 +305,39 @@ TEST_CASE("GThreadPool post() is fire-and-forget and survives throwing tasks",
     // The pool remains usable after a thrown-and-logged task.
     auto f = pool.async_schedule([]() { return 7; });
     REQUIRE(f.get() == 7);
+}
+
+// ---------------------------------------------------------------------------
+// Bulk fork/join: blocking_for_each
+
+TEST_CASE("GThreadPool::blocking_for_each runs the whole batch and blocks until done",
+          "[common][thread-pool]") {
+    GThreadPool pool(4);
+    constexpr std::size_t N = 200;
+    std::vector<int> data(N, 0);
+
+    pool.blocking_for_each(std::span<int>(data), [](int &x) { x += 1; });
+    // Every element was visited exactly once, and the call blocked until all tasks completed.
+    bool all_one = true;
+    for(int v : data) {
+        if(v != 1) { all_one = false; }
+    }
+    CHECK(all_one);
+
+    // A per-item exception is swallowed: every task still runs, the join does not hang, and the pool
+    // stays usable afterwards.
+    std::atomic<int> ran{0};
+    pool.blocking_for_each(std::span<int>(data), [&ran](int &) {
+        ran.fetch_add(1, std::memory_order_relaxed);
+        throw std::runtime_error("boom");
+    });
+    CHECK(ran.load() == static_cast<int>(N));
+
+    auto f = pool.async_schedule([]() { return 5; });
+    CHECK(f.get() == 5);
+
+    // An empty span is a no-op.
+    std::vector<int> empty;
+    pool.blocking_for_each(std::span<int>(empty), [](int &x) { x += 1; });
+    CHECK(empty.empty());
 }

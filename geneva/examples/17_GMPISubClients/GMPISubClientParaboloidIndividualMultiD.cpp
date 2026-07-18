@@ -36,6 +36,10 @@
 #include "geneva/oa/GAdaption.hpp"
 #include "geneva/oa/GAdaptionConfig.hpp"
 
+#include <algorithm>
+#include <functional>
+#include <ranges>
+
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GMPISubClientParaboloidIndividualMultiD) // NOLINT
 namespace Gem::Geneva {
 
@@ -103,9 +107,9 @@ void GMPISubClientParaboloidIndividualMultiD::load_(const gen::GOptimizableEntit
 /**
  * Creates a deep clone of this object
  *
- * @return A deep clone of this object, camouflaged as a GFlatGenome
+ * @return A deep clone of this object, camouflaged as a GGenome
  */
-gen::GFlatGenome *GMPISubClientParaboloidIndividualMultiD::clone_() const {
+gen::GGenome *GMPISubClientParaboloidIndividualMultiD::clone_() const {
     return new GMPISubClientParaboloidIndividualMultiD(*this);
 }
 
@@ -119,7 +123,7 @@ gen::GFlatGenome *GMPISubClientParaboloidIndividualMultiD::clone_() const {
  * @return A shared pointer to the populated OA-owned adaption config
  */
 std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase>
-GMPISubClientParaboloidIndividualMultiD::buildAdaptionConfig(const gen::GFlatGenome &sample) {
+GMPISubClientParaboloidIndividualMultiD::buildAdaptionConfig(const gen::GGenome &sample) {
     auto cfg = OptimizationAlgorithms::makeAdaptionConfig<OptimizationAlgorithms::GAdaptionConfigBase>(sample);
     for(std::size_t npar = 0; npar < cfg->doubleGroups().size(); npar++) {
         cfg->groupDouble(npar).gauss(DEFAULTSIGMA, DEFAULTSIGMASIGMA, DEFAULTMINSIGMA, DEFAULTMAXSIGMA, DEFAULTADPROB);
@@ -133,7 +137,7 @@ GMPISubClientParaboloidIndividualMultiD::buildAdaptionConfig(const gen::GFlatGen
  *
  * @return The value of this object
  */
-double GMPISubClientParaboloidIndividualMultiD::fitnessCalculation() {
+std::vector<double> GMPISubClientParaboloidIndividualMultiD::evaluate() {
     const uint32_t size{mpiSize(getCommunicator())}; // number of processes in the communicator
     double result{0.0};                              // Will hold the result
     std::vector<double> parVec;                      // Will hold the parameters
@@ -153,26 +157,27 @@ double GMPISubClientParaboloidIndividualMultiD::fitnessCalculation() {
         []() { return true; }
     );
 
+    // Qualify the case labels below: MPIStatusCode and the (unscoped) ClientStatus both export an
+    // ERROR enumerator, so a bare `case ERROR:` binds to ClientStatus::ERROR and mismatches the
+    // MPIStatusCode switch condition (clang -Wenum-compare-switch).
     switch(status.statusCode) {
-    case ERROR:
+    case MPIStatusCode::ERROR:
         std::cerr << "MPI error occurred: " << '\n'
                   << mpiErrorString(status.mpiStatus.MPI_ERROR) << '\n';
         break;
-    case STOPPED:
+    case MPIStatusCode::STOPPED:
         std::cerr
-            << "Client executed fitnessCalculation while being stopped. This is an internal error. "
-               "Client should only be stopped after the fitnessCalculation has been finished."
+            << "Client executed evaluate() while being stopped. This is an internal error. "
+               "Client should only be stopped after evaluate() has been finished."
             << '\n';
         break;
-    case SUCCESS: {
+    case MPIStatusCode::SUCCESS: {
         // Calculate the sum of all individual results as the fitness value
-        for(auto const &d : recvVecOpt.value()) {
-            result += d;
-        }
+        result = std::ranges::fold_left(recvVecOpt.value(), 0., std::plus{});
     } break;
     }
 
-    return result;
+    return {result};
 }
 
 int GMPISubClientParaboloidIndividualMultiD::subClientJob(MPI_Comm _communicator) {

@@ -107,6 +107,16 @@ public:
     GAsioConsumerT &operator=(GAsioConsumerT &&) = delete;
 
     /***************************************************************************/
+    /** @brief Applies the timeout configuration, additionally taking the ASIO-only per-exchange session
+     *  deadline (session_timeout_ms; a non-positive value disables it) on top of the base treatment/knobs.
+     *  The deadline is captured for sessions created after this call (i.e. before the server starts accepting).
+     *  @param cfg The parsed timeout configuration to apply */
+    void applyTimeoutConfig(const GNetworkedTimeoutConfig &cfg) override {
+        GNetworkedConsumerT<processable_type>::applyTimeoutConfig(cfg);
+        session_timeout_ = std::chrono::milliseconds(cfg.session_timeout_ms);
+    }
+
+    /***************************************************************************/
     /** @brief The port the server listens on (useful when 0 was passed to pick an ephemeral port).
      *  @return The actual TCP port the acceptor is bound to. */
     [[nodiscard]] unsigned short getPort() const noexcept { return port_; }
@@ -131,7 +141,7 @@ public:
     /***************************************************************************/
     /**
      * @brief Opens the acceptor and starts the io threads. Must be called once, after the consumer
-     * has been registered with the broker and before any batch is submitted.
+     * has been registered with the GConsumerRegistry and before any batch is submitted.
      *
      * @throws geneva_exception if the acceptor cannot be opened, bound or set to listen
      */
@@ -277,13 +287,17 @@ private:
             serialization_mode_,
             [self = this->shared_from_this()](bool sign_on) {
                 if(sign_on) {
-                    ++self->n_active_sessions_;
+                    self->n_active_sessions_.fetch_add(1, std::memory_order_relaxed);
                 }
-                else if(self->n_active_sessions_.load() > 0) {
-                    --self->n_active_sessions_;
+                else {
+                    // Race-free decrement: sign-on/sign-off are balanced by the session
+                    // lifecycle, so the counter cannot underflow (the former load()-then-
+                    // decrement check-then-act could double-decrement under contention).
+                    self->n_active_sessions_.fetch_sub(1, std::memory_order_relaxed);
                 }
             },
-            &wire_registry_ // layout send-once: the registry shared by all of this server's sessions
+            &wire_registry_, // layout send-once: the registry shared by all of this server's sessions
+            session_timeout_ // per-exchange connection deadline (configurable; 0 disables it)
         )
             ->async_start_run();
 
@@ -294,6 +308,9 @@ private:
     /***************************************************************************/
     unsigned short port_;
     std::size_t n_threads_;
+    /// The per-exchange connection deadline handed to each new session (0 disables it). Defaulted to the
+    /// same 300s the session used before it became configurable; overwritten by applyTimeoutConfig().
+    std::chrono::milliseconds session_timeout_{300'000};
     Gem::Common::serializationMode serialization_mode_;
 
     boost::asio::io_context io_context_;

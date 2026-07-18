@@ -50,6 +50,7 @@
 // Boost header files go here
 
 // Geneva header files go here
+#include "common/GConfigEmission.hpp"
 #include "common/GParserBuilder.hpp"
 #include "geneva/oa/GEvolutionaryAlgorithm.hpp"
 #include "courtier/GBaseClientT.hpp"
@@ -264,6 +265,17 @@ int main(int argc, char **argv) {
     GenevaInitializer gi;
 
     /****************************************************************************/
+    // --update-configs: materialize the configuration files this binary owns, then exit. This
+    // direct-OA example drives the algorithm programmatically and never reads an OA config; the only
+    // config it owns is the GFunctionIndividual factory's, so constructing that factory and drawing
+    // one individual (with GParserBuilder in update-in-place mode) creates/rewrites it canonically.
+    if(Gem::Common::configEmissionRequested(argc, argv)) {
+        Gem::Common::beginConfigEmission();
+        gind::GFunctionIndividualFactory("./config/GFunctionIndividual.json").get();
+        Gem::Common::finishConfigEmission();
+    }
+
+    /****************************************************************************/
     // Retrieve all necessary configuration data from the command line
 
     if(!parseCommandLine(
@@ -356,8 +368,9 @@ int main(int argc, char **argv) {
         Gem::Geneva::ConsumerSpec spec;
         switch(parallelizationMode) {
         //----------------------------------------------------------------------------
-        case execMode::SERIAL: // Serial (inline) execution
-            spec.mnemonic = "sc";
+        case execMode::SERIAL: // Serial (single-threaded) execution
+            spec.mnemonic  = "stc";
+            spec.n_threads = 1;
             break;
 
             //----------------------------------------------------------------------------

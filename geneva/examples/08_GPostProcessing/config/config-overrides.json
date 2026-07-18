@@ -1,0 +1,9 @@
+{
+    "GPostEvolutionaryAlgorithm.json": {
+        "max_iteration": 10,
+        "max_stall_iteration": 0,
+        "report_iteration": 0,
+        "emit_termination_reason": false,
+        "sorting_method": 0
+    }
+}

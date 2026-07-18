@@ -41,10 +41,12 @@ TARGET_LINK_LIBRARIES(${EXECUTABLENAME}
         ${GENEVA_LIBRARIES}
         ${Boost_LIBRARIES}
         ${MPI_LIBRARIES}
+        # GFunctionIndividual is no longer in the geneva library; compiled in via its object library.
+        GFunctionIndividual-obj
         )
 
 
-ADD_SUBDIRECTORY(config)
+GENEVA_MATERIALIZE_CONFIGS ( ${EXECUTABLENAME} ${INSTALL_PREFIX_DATA}/examples/${EXECUTABLENAME}/config )
 
 IF (GENEVA_RUN_EXAMPLES_AS_TESTS)
     ADD_TEST(${EXECUTABLENAME} ${EXECUTABLENAME})

@@ -33,6 +33,7 @@
 
 // Standard header files go here
 #include <iostream>
+#include <print>
 
 // Boost header files go here
 
@@ -87,9 +88,10 @@ int main(int argc, char **argv) {
 
     auto timeElapsed{std::chrono::system_clock::now() - timeStart};
 
-    std::cout << "Optimization finished in "
-              << std::chrono::duration_cast<std::chrono::milliseconds>(timeElapsed).count()
-              << " milliseconds" << '\n';
+    std::println(
+        "Optimization finished in {} milliseconds",
+        std::chrono::duration_cast<std::chrono::milliseconds>(timeElapsed).count()
+    );
 
     // Do something with the best result
 }

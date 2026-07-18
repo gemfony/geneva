@@ -48,10 +48,11 @@
 
 // Geneva headers go here
 #include "geneva/GPluggableOptimizationMonitors.hpp"
+#include "geneva/ind/GGenome.hpp"
 
 // Example-local headers
 #include "GImageHelperFunctions.hpp"
-#include "GImageIndividual.hpp"
+#include "GImageScalar.hpp"
 #include "GMonaLisaProblem.hpp"
 
 namespace Gem::Geneva {
@@ -117,10 +118,14 @@ private:
 /******************************************************************************/
 /**
  * A pluggable optimization monitor that saves the iteration's best candidate image to disk. The best
- * GImageIndividual's genome is rasterised with the shared CPU renderer (the same alpha-blend math the
+ * candidate's flat genome is rasterised with the shared CPU renderer (the same alpha-blend math the
  * GPU kernel uses, see GMonaLisaProblem.hpp) and written as a PNG -- so the evolving superimposition
  * of triangles can be watched as it converges towards the target. No GPU read-back is needed: the
  * picture is reconstructed purely from the candidate's parameters.
+ *
+ * It reads the best candidate through the flat-genome base (Genome::GGenome): only streamline() and
+ * raw_fitness() are needed, so the monitor is problem-type-agnostic and can be registered by a launcher
+ * that loads the concrete image individual from a runtime module (it never names GImageIndividual).
  */
 class GImagePOM final : public oa::GBasePluggableOM {
     ///////////////////////////////////////////////////////////////////////
@@ -131,7 +136,7 @@ class GImagePOM final : public oa::GBasePluggableOM {
      * @return A tuple of named member references driving serialize(), load_() and compare_()
      */
     template <typename Self>
-    static auto localMembers_(Self &self) {
+    auto localMembers_(this Self &self) {
         return std::make_tuple(
             Gem::Common::make_member("resultImageDirectory_", self.resultImageDirectory_),
             Gem::Common::make_member("emitBestOnly_", self.emitBestOnly_)
@@ -147,7 +152,7 @@ class GImagePOM final : public oa::GBasePluggableOM {
             "GBasePluggableOM",
             boost::serialization::base_object<oa::GBasePluggableOM>(*this)
         );
-        Gem::Common::serialize_members(ar, localMembers_(*this));
+        Gem::Common::serialize_members(ar, this->localMembers_());
     }
 
     ///////////////////////////////////////////////////////////////////////
@@ -204,7 +209,7 @@ protected:
         oa::GBasePluggableOM::load_(cp);
 
         // ... and then our local data
-        Gem::Common::g_load_members(localMembers_(*this), localMembers_(*p_load));
+        Gem::Common::g_load_members(this->localMembers_(), p_load->localMembers_());
     }
 
     /** @brief Allow access to this classes compare_ function */
@@ -231,7 +236,7 @@ protected:
         Gem::Common::compare_base_t<oa::GBasePluggableOM>(*this, *p_load, token);
 
         // ... and then our local data
-        g_compare_members(localMembers_(*this), localMembers_(*p_load), token);
+        g_compare_members(this->localMembers_(), p_load->localMembers_(), token);
 
         // React on deviations from the expectation
         token.evaluate();
@@ -322,7 +327,7 @@ private:
             }
 
             auto best_ptr =
-                goa->Interface::GOptimizerIT<oa::GOptimizationAlgorithmBase>::getBestIterationIndividual<GImageIndividual>();
+                goa->Interface::GOptimizerIT<oa::GOptimizationAlgorithmBase>::getBestIterationIndividual<Genome::GGenome>();
 
             // Snapshot everything the output needs into by-value data (cheap), so the actual work --
             // the CPU rasterise (renderToRGB) and the PNG encode/write -- can run off the optimization

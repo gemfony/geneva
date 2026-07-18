@@ -36,12 +36,16 @@
 #include "geneva/oa/GAdaption.hpp"
 #include "geneva/oa/GAdaptionConfig.hpp"
 
+#include <algorithm>
 #include <any>
+#include <functional>
+#include <ranges>
 
 #ifdef GEM_TESTING
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers.hpp>
 #include <catch2/matchers/catch_matchers_floating_point.hpp>
+#include <utility>
 #endif /* GEM_TESTING */
 
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GStarterIndividual) // NOLINT
@@ -56,7 +60,7 @@ namespace Gem::Geneva {
  * @return The std::ostream object used to add the item to
  */
 std::ostream &operator<<(std::ostream &o, const Gem::Geneva::targetFunction &tF) {
-    Gem::Common::ENUMBASETYPE tmp = static_cast<Gem::Common::ENUMBASETYPE>(tF);
+    Gem::Common::ENUMBASETYPE tmp = std::to_underlying(tF);
     o << tmp;
     return o;
 }
@@ -129,7 +133,7 @@ GStarterIndividual::GStarterIndividual(
  * @param cp A copy of another GStarterIndividual
  */
 GStarterIndividual::GStarterIndividual(const GStarterIndividual &cp)
-  : gen::GFlatGenome(cp)
+  : gen::GGenome(cp)
   , targetFunction_(cp.targetFunction_) { /* nothing */
 }
 
@@ -163,10 +167,10 @@ void GStarterIndividual::compare_(
     Gem::Common::GToken token("GStarterIndividual", e);
 
     // Compare our parent data ...
-    Gem::Common::compare_base_t<gen::GFlatGenome>(*this, *p_load, token);
+    Gem::Common::compare_base_t<gen::GGenome>(*this, *p_load, token);
 
     // ... and then the local data
-    Gem::Common::g_compare_members(localMembers_(*this), localMembers_(*p_load), token);
+    Gem::Common::g_compare_members(this->localMembers_(), p_load->localMembers_(), token);
 
     // React on deviations from the expectation
     token.evaluate();
@@ -203,7 +207,7 @@ targetFunction GStarterIndividual::getTargetFunction() const {
  * @return A shared pointer to the populated OA-owned adaption config
  */
 std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase>
-GStarterIndividual::buildAdaptionConfig(const gen::GFlatGenome &sample, const Config &c) {
+GStarterIndividual::buildAdaptionConfig(const gen::GGenome &sample, const Config &c) {
     auto cfg = oa::makeAdaptionConfig<oa::GAdaptionConfigBase>(sample);
     for(std::size_t i = 0; i < cfg->doubleGroups().size(); i++) {
         cfg->groupDouble(i).gauss(c.sigma, c.sigma_sigma, c.min_sigma, c.max_sigma, c.ad_prob);
@@ -228,8 +232,8 @@ std::string GStarterIndividual::print() {
            << "and raw fitness " << this->raw_fitness(0)
            << " has the following parameter values:" << '\n';
 
-    for(std::size_t i = 0; i < parVec.size(); i++) {
-        result << i << ": " << parVec.at(i) << '\n';
+    for(auto const& [i, x] : std::views::enumerate(parVec)) {
+        result << i << ": " << x << '\n';
     }
 
     return result.str();
@@ -237,9 +241,9 @@ std::string GStarterIndividual::print() {
 
 /******************************************************************************/
 /**
- * Loads the data of another GStarterIndividual, camouflaged as a GFlatGenome
+ * Loads the data of another GStarterIndividual, camouflaged as a GGenome
  *
- * @param cp A copy of another GStarterIndividual, camouflaged as a GFlatGenome
+ * @param cp A copy of another GStarterIndividual, camouflaged as a GGenome
  */
 void GStarterIndividual::load_(const gen::GOptimizableEntity *cp) {
     // Check that we are dealing with a GStarterIndividual reference independent of this object and convert the pointer
@@ -247,19 +251,19 @@ void GStarterIndividual::load_(const gen::GOptimizableEntity *cp) {
         Gem::Common::g_convert_and_compare<gen::GOptimizableEntity, GStarterIndividual>(cp, this);
 
     // Load our parent class'es data ...
-    gen::GFlatGenome::load_(cp);
+    gen::GGenome::load_(cp);
 
     // ... and then our local data
-    Gem::Common::g_load_members(localMembers_(*this), localMembers_(*p_load));
+    Gem::Common::g_load_members(this->localMembers_(), p_load->localMembers_());
 }
 
 /******************************************************************************/
 /**
  * Creates a deep clone of this object
  *
- * @return A deep clone of this object, camouflaged as a GFlatGenome
+ * @return A deep clone of this object, camouflaged as a GGenome
  */
-gen::GFlatGenome *GStarterIndividual::clone_() const {
+gen::GGenome *GStarterIndividual::clone_() const {
     return new GStarterIndividual(*this);
 }
 
@@ -269,7 +273,7 @@ gen::GFlatGenome *GStarterIndividual::clone_() const {
  *
  * @return The value of this object, as calculated with the evaluation function
  */
-double GStarterIndividual::fitnessCalculation() {
+std::vector<double> GStarterIndividual::evaluate() {
     // Retrieve the parameters
     std::vector<double> parVec;
     this->streamline(parVec);
@@ -279,20 +283,18 @@ double GStarterIndividual::fitnessCalculation() {
     //-----------------------------------------------------------
     // A simple, multi-dimensional parabola
     case targetFunction::PARABOLA:
-        return parabola(parVec);
-        break;
+        return {parabola(parVec)};
 
     //-----------------------------------------------------------
     // A "noisy" parabola, i.e. a parabola with a very large
     // number of overlaid local optima
     case targetFunction::NOISYPARABOLA:
-        return noisyParabola(parVec);
-        break;
+        return {noisyParabola(parVec)};
         //-----------------------------------------------------------
     };
 
     // Make the compiler happy
-    return 0.;
+    return {0.};
 }
 
 /******************************************************************************/
@@ -300,14 +302,8 @@ double GStarterIndividual::fitnessCalculation() {
  * A simple n-dimensional parabola
  */
 double GStarterIndividual::parabola(const std::vector<double> &parVec) const {
-    double result = 0.;
-
-    std::vector<double>::const_iterator cit;
-    for(cit = parVec.begin(); cit != parVec.end(); ++cit) {
-        result += (*cit) * (*cit);
-    }
-
-    return result;
+    return std::ranges::fold_left(
+        parVec | std::views::transform([](double x) { return x * x; }), 0., std::plus{});
 }
 
 /******************************************************************************/
@@ -315,12 +311,8 @@ double GStarterIndividual::parabola(const std::vector<double> &parVec) const {
  * A "noisy" parabola
  */
 double GStarterIndividual::noisyParabola(const std::vector<double> &parVec) const {
-    double xsquared = 0.;
-
-    std::vector<double>::const_iterator cit;
-    for(cit = parVec.begin(); cit != parVec.end(); ++cit) {
-        xsquared += (*cit) * (*cit);
-    }
+    const double xsquared = std::ranges::fold_left(
+        parVec | std::views::transform([](double x) { return x * x; }), 0., std::plus{});
 
     return (cos(xsquared) + 2.) * xsquared;
 }
@@ -337,7 +329,7 @@ bool GStarterIndividual::modify_GUnitTests_() {
     bool result = false;
 
     // Call the parent classes' functions
-    if(gen::GFlatGenome::modify_GUnitTests_()) {
+    if(gen::GGenome::modify_GUnitTests_()) {
         result = true;
     }
 
@@ -365,7 +357,7 @@ void GStarterIndividual::specificTestsNoFailureExpected_GUnitTests_() {
     using namespace Gem::Geneva;
 
     // Call the parent classes' functions
-    gen::GFlatGenome::specificTestsNoFailureExpected_GUnitTests_();
+    gen::GGenome::specificTestsNoFailureExpected_GUnitTests_();
 
     //------------------------------------------------------------------------------
 
@@ -429,16 +421,15 @@ void GStarterIndividual::specificTestsFailuresExpected_GUnitTests_() {
     using namespace Gem::Geneva;
 
     // Call the parent classes' functions
-    gen::GFlatGenome::specificTestsFailuresExpected_GUnitTests_();
+    gen::GGenome::specificTestsFailuresExpected_GUnitTests_();
 
     //------------------------------------------------------------------------------
 
     {
         /* Nothing. Add test cases here that are expected to fail.
-			Enclose with a BOOST_CHECK_THROW, using the expected
+			Enclose with a CHECK_THROWS_AS, using the expected
 			exception type as an additional argument. See the
-			documentation for the Boost.Test library for further
-			information */
+			Catch2 documentation for further information */
     }
 
     //------------------------------------------------------------------------------

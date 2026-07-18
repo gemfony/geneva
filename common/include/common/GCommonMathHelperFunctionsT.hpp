@@ -40,9 +40,11 @@
 #include <fstream>
 #include <iostream>
 #include <limits>
+#include <ranges>
 #include <sstream>
 #include <string>
 #include <tuple>
+#include <utility>
 #include <typeinfo>
 #include <vector>
 
@@ -399,7 +401,7 @@ int_type checkValueRange(
  */
 template <typename x_type_undet>
 auto getMinMax(const std::vector<x_type_undet> &ext_dat) {
-    if(ext_dat.size() < static_cast<std::size_t>(2)) {
+    if(ext_dat.size() < 2uz) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GBasePlotter::getMinMax(1D): Error!" << '\n'
@@ -413,194 +415,56 @@ auto getMinMax(const std::vector<x_type_undet> &ext_dat) {
 
 /******************************************************************************/
 /**
- * @brief Find the minimum and maximum component in a vector of 2d-tuples of undefined types.
+ * @brief Find the per-component minimum and maximum in a vector of tuples of undefined types.
  *
- * This function requires that x_type_undet and y_type_undet can be compared using the
- * usual operators.
+ * One variadic implementation serves every tuple arity (the former separate 2D/3D/4D overloads
+ * were scaled copy-paste of the same per-component min/max loop). Each component type must be
+ * comparable with the usual operators; the comparison shape (a plain `<`/`>` pair seeded from the
+ * first entry) is preserved exactly, so NaN handling is unchanged.
  *
- * @tparam x_type_undet The type of the first (x) tuple component
- * @tparam y_type_undet The type of the second (y) tuple component
+ * @tparam tuple_types The tuple's component types (any arity >= 1)
  * @param ext_dat The vector holding the data, for which extreme values should be calculated
- * @return A std::tuple {min_x, max_x, min_y, max_y} holding the per-component extreme values
+ * @return A std::tuple {min_0, max_0, min_1, max_1, ...} holding the per-component extreme values
  */
-template <typename x_type_undet, typename y_type_undet>
-auto getMinMax(const std::vector<std::tuple<x_type_undet, y_type_undet>> &ext_dat) {
+template <typename... tuple_types>
+auto getMinMax(const std::vector<std::tuple<tuple_types...>> &ext_dat) {
     // Do some error checking
-    if(ext_dat.size() < static_cast<std::size_t>(2)) {
+    if(ext_dat.size() < 2uz) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GBasePlotter::getMinMax(2D): Error!" << '\n'
+            << "In GBasePlotter::getMinMax(" << sizeof...(tuple_types) << "D): Error!" << '\n'
             << "Got vector of invalid size " << ext_dat.size() << '\n'
         );
     }
 
-    x_type_undet min_x = std::get<0>(ext_dat.at(0));
-    x_type_undet max_x = min_x;
-    y_type_undet min_y = std::get<1>(ext_dat.at(0));
-    y_type_undet max_y = min_y;
+    // Seed every {min, max} pair from the first entry: {min_0, max_0, min_1, max_1, ...}
+    auto result = [&]<std::size_t... Is>(std::index_sequence<Is...>) {
+        return std::tuple_cat([&] {
+            const auto &v = std::get<Is>(ext_dat.at(0));
+            return std::tuple<tuple_types, tuple_types>{v, v};
+        }()...);
+    }(std::index_sequence_for<tuple_types...>{});
 
     for(std::size_t i = 1; i < ext_dat.size(); i++) {
-        if(std::get<0>(ext_dat.at(i)) < min_x) {
-            min_x = std::get<0>(ext_dat.at(i));
-        }
-        if(std::get<0>(ext_dat.at(i)) > max_x) {
-            max_x = std::get<0>(ext_dat.at(i));
-        }
-        if(std::get<1>(ext_dat.at(i)) < min_y) {
-            min_y = std::get<1>(ext_dat.at(i));
-        }
-        if(std::get<1>(ext_dat.at(i)) > max_y) {
-            max_y = std::get<1>(ext_dat.at(i));
-        }
+        [&]<std::size_t... Is>(std::index_sequence<Is...>) {
+            (
+                [&] {
+                    const auto &v = std::get<Is>(ext_dat.at(i));
+                    auto &mn = std::get<2 * Is>(result);
+                    auto &mx = std::get<2 * Is + 1>(result);
+                    if(v < mn) {
+                        mn = v;
+                    }
+                    if(v > mx) {
+                        mx = v;
+                    }
+                }(),
+                ...
+            );
+        }(std::index_sequence_for<tuple_types...>{});
     }
 
-    return std::tuple<x_type_undet, x_type_undet, y_type_undet, y_type_undet>{
-        min_x,
-        max_x,
-        min_y,
-        max_y
-    };
-}
-
-/******************************************************************************/
-/**
- * @brief Find the minimum and maximum component in a vector of 3d-tuples of undefined types.
- *
- * This function requires that x_type_undet, y_type_undet and z_type_undet can be compared
- * using the usual operators.
- *
- * @tparam x_type_undet The type of the first (x) tuple component
- * @tparam y_type_undet The type of the second (y) tuple component
- * @tparam z_type_undet The type of the third (z) tuple component
- * @param ext_dat The vector holding the data, for which extreme values should be calculated
- * @return A std::tuple {min_x, max_x, min_y, max_y, min_z, max_z} holding the per-component extreme values
- */
-template <typename x_type_undet, typename y_type_undet, typename z_type_undet>
-auto getMinMax(const std::vector<std::tuple<x_type_undet, y_type_undet, z_type_undet>> &ext_dat) {
-    // Do some error checking
-    if(ext_dat.size() < static_cast<std::size_t>(2)) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GBasePlotter::getMinMax(3D): Error!" << '\n'
-            << "Got vector of invalid size " << ext_dat.size() << '\n'
-        );
-    }
-
-    x_type_undet min_x = std::get<0>(ext_dat.at(0));
-    x_type_undet max_x = min_x;
-    y_type_undet min_y = std::get<1>(ext_dat.at(0));
-    y_type_undet max_y = min_y;
-    z_type_undet min_z = std::get<2>(ext_dat.at(0));
-    z_type_undet max_z = min_z;
-
-    for(std::size_t i = 1; i < ext_dat.size(); i++) {
-        if(std::get<0>(ext_dat.at(i)) < min_x) {
-            min_x = std::get<0>(ext_dat.at(i));
-        }
-        if(std::get<0>(ext_dat.at(i)) > max_x) {
-            max_x = std::get<0>(ext_dat.at(i));
-        }
-        if(std::get<1>(ext_dat.at(i)) < min_y) {
-            min_y = std::get<1>(ext_dat.at(i));
-        }
-        if(std::get<1>(ext_dat.at(i)) > max_y) {
-            max_y = std::get<1>(ext_dat.at(i));
-        }
-        if(std::get<2>(ext_dat.at(i)) < min_z) {
-            min_z = std::get<2>(ext_dat.at(i));
-        }
-        if(std::get<2>(ext_dat.at(i)) > max_z) {
-            max_z = std::get<2>(ext_dat.at(i));
-        }
-    }
-
-    return std::
-        tuple<x_type_undet, x_type_undet, y_type_undet, y_type_undet, z_type_undet, z_type_undet>{
-            min_x,
-            max_x,
-            min_y,
-            max_y,
-            min_z,
-            max_z
-        };
-}
-
-/******************************************************************************/
-/**
- * @brief Find the minimum and maximum component in a vector of 4d-tuples of undefined types.
- *
- * This function requires that x_type_undet, y_type_undet, z_type_undet and w_type_undet
- * can be compared using the usual operators.
- *
- * @tparam x_type_undet The type of the first (x) tuple component
- * @tparam y_type_undet The type of the second (y) tuple component
- * @tparam z_type_undet The type of the third (z) tuple component
- * @tparam w_type_undet The type of the fourth (w) tuple component
- * @param ext_dat The vector holding the data, for which extreme values should be calculated
- * @return A std::tuple {min_x, max_x, min_y, max_y, min_z, max_z, min_w, max_w} holding the per-component extreme values
- */
-template <
-    typename x_type_undet,
-    typename y_type_undet,
-    typename z_type_undet,
-    typename w_type_undet>
-auto getMinMax(
-    const std::vector<std::tuple<x_type_undet, y_type_undet, z_type_undet, w_type_undet>> &ext_dat
-) {
-    // Do some error checking
-    if(ext_dat.size() < static_cast<std::size_t>(2)) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GBasePlotter::getMinMax(4D): Error!" << '\n'
-            << "Got vector of invalid size " << ext_dat.size() << '\n'
-        );
-    }
-
-    x_type_undet min_x = std::get<0>(ext_dat.at(0));
-    x_type_undet max_x = min_x;
-    y_type_undet min_y = std::get<1>(ext_dat.at(0));
-    y_type_undet max_y = min_y;
-    z_type_undet min_z = std::get<2>(ext_dat.at(0));
-    z_type_undet max_z = min_z;
-    w_type_undet min_w = std::get<3>(ext_dat.at(0));
-    w_type_undet max_w = min_w;
-
-    for(std::size_t i = 1; i < ext_dat.size(); i++) {
-        if(std::get<0>(ext_dat.at(i)) < min_x) {
-            min_x = std::get<0>(ext_dat.at(i));
-        }
-        if(std::get<0>(ext_dat.at(i)) > max_x) {
-            max_x = std::get<0>(ext_dat.at(i));
-        }
-        if(std::get<1>(ext_dat.at(i)) < min_y) {
-            min_y = std::get<1>(ext_dat.at(i));
-        }
-        if(std::get<1>(ext_dat.at(i)) > max_y) {
-            max_y = std::get<1>(ext_dat.at(i));
-        }
-        if(std::get<2>(ext_dat.at(i)) < min_z) {
-            min_z = std::get<2>(ext_dat.at(i));
-        }
-        if(std::get<2>(ext_dat.at(i)) > max_z) {
-            max_z = std::get<2>(ext_dat.at(i));
-        }
-        if(std::get<3>(ext_dat.at(i)) < min_w) {
-            min_w = std::get<3>(ext_dat.at(i));
-        }
-        if(std::get<3>(ext_dat.at(i)) > max_w) {
-            max_w = std::get<3>(ext_dat.at(i));
-        }
-    }
-
-    return std::tuple<
-        x_type_undet,
-        x_type_undet,
-        y_type_undet,
-        y_type_undet,
-        z_type_undet,
-        z_type_undet,
-        w_type_undet,
-        w_type_undet>{min_x, max_x, min_y, max_y, min_z, max_z, min_w, max_w};
+    return result;
 }
 
 /******************************************************************************/
@@ -675,7 +539,7 @@ auto GStandardDeviation(const std::vector<T> &par_vec) {
 template <std::size_t B, std::size_t E>
 constexpr std::size_t PowSmallPosInt() {
     if constexpr(E == 0) {
-        return static_cast<std::size_t>(1);
+        return 1uz;
     }
     else if constexpr(E == 1) {
         return B;
@@ -980,8 +844,8 @@ std::vector<std::tuple<fp_type, fp_type, fp_type, fp_type>> getRatioErrors(
 
     std::vector<std::tuple<fp_type, fp_type, fp_type, fp_type>> spn;
     spn.reserve(sn.size());
-    for(std::size_t i = 0; i < sn.size(); ++i) {
-        spn.push_back(getRatioError(sn[i], pn[i]));
+    for(auto const &[s, p] : std::views::zip(sn, pn)) {
+        spn.push_back(getRatioError(s, p));
     }
 
     return spn;

@@ -46,6 +46,15 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # system CUDA installation is broken or incompatible (e.g. CUDA 13.1 + glibc 2.39).
 option(GENEVA_SKIP_CUDA "Disable all CUDA compilation" OFF)
 
+# By default Geneva only enables CUDA-dependent code when the build host's GPU driver actually
+# supports the required CUDA version (see GENEVA_MIN_CUDA_VERSION below) -- a 13.3 toolkit paired with
+# an older driver compiles but fails at runtime in the NVRTC/PTX JIT, so that combination is
+# auto-disabled. Set GENEVA_FORCE_CUDA=ON to bypass the DEVICE check and build CUDA code whenever a
+# sufficiently new toolkit is present, regardless of the build host's driver -- intended for build
+# farms / CI where the machine that builds Geneva is not the machine that runs it. The toolkit-version
+# requirement is NOT bypassed. (gcfg: FORCECUDA.)
+option(GENEVA_FORCE_CUDA "Enable CUDA code on a new-enough toolkit even if the build host's driver cannot be confirmed to support it" OFF)
+
 # Tri-state opt-in for the Hap CUDA RNG backend: auto|on|off (legacy 0/1 still accepted).
 #   auto -> use CUDA when a toolkit is present (and GENEVA_SKIP_CUDA is OFF), else the SIMD/CPU engine
 #   on   -> require CUDA (FATAL_ERROR if no toolkit / SKIPALLCUDA)
@@ -94,6 +103,53 @@ option(GENEVA_BUILD_WITH_COVERAGE "Instrument Common library + tests for code co
 # flag (see genevaConfig.gcfg) because enabling it makes the Hap library
 # depend on the CUDA runtime, reducing portability of programs linked with it.
 
+# Detect the maximum CUDA version supported by the build host's installed GPU DRIVER (NOT the toolkit).
+# Sets <out_var> to "MAJOR.MINOR" (e.g. 13.3) in the parent scope, or "" if it cannot be determined
+# (no driver / no GPU / query failed). Tries nvidia-smi first (fast, no compile); if that yields
+# nothing, falls back to a cuDriverGetVersion() probe via try_run (authoritative, and the durable path
+# once nvidia-smi's deprecated "CUDA Version" field is removed in CUDA 14). Must be called AFTER
+# find_package(CUDAToolkit) so the CUDA::cuda_driver target exists for the fallback.
+function(_geneva_detect_driver_cuda_version out_var)
+    set(_ver "")
+
+    find_program(_geneva_nvidia_smi nvidia-smi)
+    if(_geneva_nvidia_smi)
+        execute_process(
+            COMMAND "${_geneva_nvidia_smi}" -q
+            OUTPUT_VARIABLE _smi_out
+            ERROR_QUIET
+            RESULT_VARIABLE _smi_res)
+        if(_smi_res EQUAL 0)
+            string(REGEX MATCH "CUDA Version[ \t]*:[ \t]*([0-9]+\\.[0-9]+)" _m "${_smi_out}")
+            if(CMAKE_MATCH_1)
+                set(_ver "${CMAKE_MATCH_1}")
+            endif()
+        endif()
+    endif()
+
+    if((NOT _ver) AND TARGET CUDA::cuda_driver)
+        set(_probe "${CMAKE_BINARY_DIR}/CMakeFiles/geneva_cuda_driver_probe.cpp")
+        file(WRITE "${_probe}"
+            "#include <cuda.h>\n#include <cstdio>\n"
+            "int main(){int v=0; if(cuInit(0)!=CUDA_SUCCESS) return 2;"
+            " if(cuDriverGetVersion(&v)!=CUDA_SUCCESS) return 3;"
+            " std::printf(\"%d.%d\\n\", v/1000, (v%1000)/10); return 0;}\n")
+        try_run(_run_res _comp_res
+            "${CMAKE_BINARY_DIR}/CMakeFiles/geneva_cuda_driver_probe"
+            "${_probe}"
+            LINK_LIBRARIES CUDA::cuda_driver
+            RUN_OUTPUT_VARIABLE _run_out)
+        if(_comp_res AND (_run_res EQUAL 0))
+            string(STRIP "${_run_out}" _run_out)
+            if(_run_out MATCHES "^[0-9]+\\.[0-9]+$")
+                set(_ver "${_run_out}")
+            endif()
+        endif()
+    endif()
+
+    set(${out_var} "${_ver}" PARENT_SCOPE)
+endfunction()
+
 if(NOT GENEVA_SKIP_CUDA)
     # If only CMAKE_CUDA_COMPILER was supplied (e.g. by prepareBuild.sh), derive
     # CUDAToolkit_ROOT from it so find_package(CUDAToolkit) locates the matching
@@ -107,45 +163,107 @@ if(NOT GENEVA_SKIP_CUDA)
         unset(_geneva_cuda_root)
     endif()
 
+    # The minimum supported CUDA version (toolkit AND device driver). 13.3 is the first CUDA Geneva
+    # targets: its host front end consumes the C++23 code base, and earlier versions are no longer
+    # validated against. Bump this in lock-step with the documented requirement (README, docs,
+    # scripts/genevaConfig.gcfg). Overridable via -DGENEVA_MIN_CUDA_VERSION for advanced users/tests.
+    if(NOT DEFINED GENEVA_MIN_CUDA_VERSION)
+        set(GENEVA_MIN_CUDA_VERSION 13.3)
+    endif()
+
     include(CheckLanguage)
     check_language(CUDA)
     if(CMAKE_CUDA_COMPILER)
-        enable_language(CUDA)
+        # A CUDA toolkit is present. Before enabling the language, decide whether CUDA-dependent code is
+        # actually BUILDABLE and RUNNABLE on this host: (1) the toolkit must be >= GENEVA_MIN_CUDA_VERSION,
+        # and (2) unless GENEVA_FORCE_CUDA is set, the build host's GPU driver must support that CUDA
+        # version too (a new toolkit on an older driver compiles fine but fails at runtime in the
+        # NVRTC/PTX JIT with CUDA_ERROR_UNSUPPORTED_PTX_VERSION). If either check fails we AUTO-DISABLE
+        # CUDA -- the rest of Geneva still builds -- and say so loudly, so the outcome is never silent.
         find_package(CUDAToolkit REQUIRED)
-        message(STATUS "CUDA ${CMAKE_CUDA_COMPILER_VERSION} detected — CUDA examples and benchmarks will be built")
-        message(STATUS "  Toolkit root: ${CUDAToolkit_ROOT}")
 
-        # Suppress known Boost-internal false positives from NVCC.
-        # NVCC does not honour -isystem suppression the way GCC does, so these
-        # diagnostics fire on every Boost TU that pulls in mpl, mp11, fusion,
-        # or the Boost.Archive serialization headers:
-        #   68    – integer conversion sign change   (boost/mpl/print.hpp)
-        #   186   – unsigned comparison with zero    (boost/mp11/detail/mp_count.hpp)
-        #   191   – meaningless cast qualifier       (boost/archive/detail/iserializer.hpp)
-        #   20012 – __host__/__device__ annotation ignored on defaulted function
-        #           (boost/fusion/container/vector/vector.hpp, boost/fusion/tuple/tuple.hpp,
-        #            boost/fusion/support/unused.hpp)
-        add_compile_options($<$<COMPILE_LANGUAGE:CUDA>:-diag-suppress=68>
-                            $<$<COMPILE_LANGUAGE:CUDA>:-diag-suppress=186>
-                            $<$<COMPILE_LANGUAGE:CUDA>:-diag-suppress=191>
-                            $<$<COMPILE_LANGUAGE:CUDA>:-diag-suppress=20012>)
+        set(_geneva_cuda_ok TRUE)
+        set(_geneva_cuda_disable_reason "")
 
-        # Detect the CXX compiler's libstdc++.so location and cache it.
-        # CUDA targets link it by full path to prevent the CUDA toolkit's bundled
-        # (older) GCC from injecting an incompatible libstdc++ into the link step,
-        # which would cause "undefined reference to __cxa_*@CXXABI_X.Y" failures.
-        if(CMAKE_CXX_COMPILER)
-            execute_process(
-                COMMAND "${CMAKE_CXX_COMPILER}" -print-file-name=libstdc++.so
-                OUTPUT_VARIABLE _cxx_libstdcxx_path
-                OUTPUT_STRIP_TRAILING_WHITESPACE
-            )
-            if(_cxx_libstdcxx_path AND NOT _cxx_libstdcxx_path STREQUAL "libstdc++.so")
-                get_filename_component(_cxx_lib_dir "${_cxx_libstdcxx_path}" DIRECTORY)
-                set(GENEVA_CXX_RUNTIME_LIB_DIR "${_cxx_lib_dir}" CACHE INTERNAL "CXX runtime lib dir for CUDA link fix")
+        # (1) Toolkit-version gate.
+        if(CUDAToolkit_VERSION VERSION_LESS GENEVA_MIN_CUDA_VERSION)
+            set(_geneva_cuda_ok FALSE)
+            set(_geneva_cuda_disable_reason
+                "the CUDA toolkit is ${CUDAToolkit_VERSION} (< required ${GENEVA_MIN_CUDA_VERSION})")
+        endif()
+
+        # (2) Device/driver-capability gate (bypassed by GENEVA_FORCE_CUDA).
+        set(_geneva_driver_cuda "")
+        if(_geneva_cuda_ok AND NOT GENEVA_FORCE_CUDA)
+            _geneva_detect_driver_cuda_version(_geneva_driver_cuda)
+            if(NOT _geneva_driver_cuda)
+                set(_geneva_cuda_ok FALSE)
+                set(_geneva_cuda_disable_reason
+                    "no CUDA-capable GPU/driver could be detected on the build host")
+            elseif(_geneva_driver_cuda VERSION_LESS GENEVA_MIN_CUDA_VERSION)
+                set(_geneva_cuda_ok FALSE)
+                set(_geneva_cuda_disable_reason
+                    "the GPU driver supports only CUDA ${_geneva_driver_cuda} (< required ${GENEVA_MIN_CUDA_VERSION})")
             endif()
-            unset(_cxx_libstdcxx_path)
-            unset(_cxx_lib_dir)
+        endif()
+
+        if(_geneva_cuda_ok)
+            enable_language(CUDA)
+            if(GENEVA_FORCE_CUDA)
+                message(STATUS "CUDA ${CUDAToolkit_VERSION} enabled (GENEVA_FORCE_CUDA=ON — build-host driver check bypassed)")
+            else()
+                message(STATUS "CUDA ${CUDAToolkit_VERSION} enabled — toolkit and GPU driver (supports CUDA ${_geneva_driver_cuda}) are both >= ${GENEVA_MIN_CUDA_VERSION}")
+            endif()
+            message(STATUS "  Toolkit root: ${CUDAToolkit_ROOT}")
+
+            # Suppress known Boost-internal false positives from NVCC.
+            # NVCC does not honour -isystem suppression the way GCC does, so these
+            # diagnostics fire on every Boost TU that pulls in mpl, mp11, fusion,
+            # or the Boost.Archive serialization headers:
+            #   68    – integer conversion sign change   (boost/mpl/print.hpp)
+            #   186   – unsigned comparison with zero    (boost/mp11/detail/mp_count.hpp)
+            #   191   – meaningless cast qualifier       (boost/archive/detail/iserializer.hpp)
+            #   20012 – __host__/__device__ annotation ignored on defaulted function
+            #           (boost/fusion/container/vector/vector.hpp, boost/fusion/tuple/tuple.hpp,
+            #            boost/fusion/support/unused.hpp)
+            add_compile_options($<$<COMPILE_LANGUAGE:CUDA>:-diag-suppress=68>
+                                $<$<COMPILE_LANGUAGE:CUDA>:-diag-suppress=186>
+                                $<$<COMPILE_LANGUAGE:CUDA>:-diag-suppress=191>
+                                $<$<COMPILE_LANGUAGE:CUDA>:-diag-suppress=20012>)
+
+            # Detect the CXX compiler's libstdc++.so location and cache it.
+            # CUDA targets link it by full path to prevent the CUDA toolkit's bundled
+            # (older) GCC from injecting an incompatible libstdc++ into the link step,
+            # which would cause "undefined reference to __cxa_*@CXXABI_X.Y" failures.
+            if(CMAKE_CXX_COMPILER)
+                execute_process(
+                    COMMAND "${CMAKE_CXX_COMPILER}" -print-file-name=libstdc++.so
+                    OUTPUT_VARIABLE _cxx_libstdcxx_path
+                    OUTPUT_STRIP_TRAILING_WHITESPACE
+                )
+                if(_cxx_libstdcxx_path AND NOT _cxx_libstdcxx_path STREQUAL "libstdc++.so")
+                    get_filename_component(_cxx_lib_dir "${_cxx_libstdcxx_path}" DIRECTORY)
+                    set(GENEVA_CXX_RUNTIME_LIB_DIR "${_cxx_lib_dir}" CACHE INTERNAL "CXX runtime lib dir for CUDA link fix")
+                endif()
+                unset(_cxx_libstdcxx_path)
+                unset(_cxx_lib_dir)
+            endif()
+        else()
+            # AUTO-DISABLE: behave exactly as if no CUDA toolkit were present, so every downstream gate
+            # (CUDA RNG, GPU consumer, CUDA examples/benchmark) uniformly turns off. We deliberately do
+            # NOT enable_language(CUDA); clearing CMAKE_CUDA_COMPILER makes _geneva_cuda_available FALSE.
+            set(GENEVA_CUDA_AUTODISABLED TRUE)
+            set(GENEVA_CUDA_DISABLE_REASON "${_geneva_cuda_disable_reason}")
+            unset(CMAKE_CUDA_COMPILER)
+            unset(CMAKE_CUDA_COMPILER CACHE)
+            message(WARNING
+                "CUDA-dependent code DISABLED: ${_geneva_cuda_disable_reason}.\n"
+                "  All non-CUDA parts of Geneva still build; the CUDA examples/benchmark, the CUDA RNG "
+                "backend and the GPU consumer ('gpu' mnemonic) are skipped.\n"
+                "  To enable CUDA, install a toolkit AND GPU driver that both support CUDA "
+                ">= ${GENEVA_MIN_CUDA_VERSION}. If the build host's driver differs from the deploy "
+                "machine (build farm / CI), set -DGENEVA_FORCE_CUDA=ON (gcfg FORCECUDA=1) to build CUDA "
+                "code anyway.")
         endif()
     else()
         message(STATUS "CUDA not found — building without CUDA examples and benchmarks")
@@ -188,6 +306,11 @@ function(_geneva_resolve_cuda_tristate in_var out_var label fallback)
     elseif(_v STREQUAL "ON")
         if(_geneva_cuda_available)
             set(${out_var} TRUE PARENT_SCOPE)
+        elseif(GENEVA_CUDA_AUTODISABLED)
+            message(FATAL_ERROR
+                "${label}=on, but CUDA was auto-disabled: ${GENEVA_CUDA_DISABLE_REASON}. "
+                "Fix the toolkit/driver to CUDA >= ${GENEVA_MIN_CUDA_VERSION}, set GENEVA_FORCE_CUDA=ON, "
+                "or set ${label}=auto|off.")
         else()
             message(FATAL_ERROR "${label}=on but no CUDA toolkit found (or SKIPALLCUDA on)")
         endif()
@@ -213,6 +336,8 @@ if(_geneva_cuda_available)
     set(_geneva_cuda_summary "found ${CMAKE_CUDA_COMPILER_VERSION}")
 elseif(GENEVA_SKIP_CUDA)
     set(_geneva_cuda_summary "skipped (SKIPALLCUDA)")
+elseif(GENEVA_CUDA_AUTODISABLED)
+    set(_geneva_cuda_summary "auto-disabled (${GENEVA_CUDA_DISABLE_REASON})")
 else()
     set(_geneva_cuda_summary "not found")
 endif()
@@ -277,7 +402,7 @@ SET(GENEVA_RUN_BENCHMARKS_AS_TESTS FALSE)
 # conjunction with the prepareBuild.sh script.
 
 IF( NOT CMAKE_INSTALL_PREFIX )
-	SET( INSTALL_PREFIX_ROOT "/opt/geneva-${GENEVA_VERSION}" )
+	SET( INSTALL_PREFIX_ROOT "/opt/geneva-${GENEVA_VERSION_FULL}" )
 ENDIF()
 
 ################################################################################
@@ -338,6 +463,12 @@ IF(NOT GENEVA_SANITIZER STREQUAL "none")
     STRING(APPEND CMAKE_EXE_LINKER_FLAGS    " -fsanitize=${GENEVA_SANITIZER}")
     STRING(APPEND CMAKE_SHARED_LINKER_FLAGS " -fsanitize=${GENEVA_SANITIZER}")
     STRING(APPEND CMAKE_MODULE_LINKER_FLAGS " -fsanitize=${GENEVA_SANITIZER}")
+    # UBSan has no predefined compiler macro, so the GenevaCompat build fingerprint
+    # (common/GBuildFingerprint.hpp) cannot detect it on its own; feed it the bit here so a UBSan module
+    # and an uninstrumented host are told apart. Conservative -- plain UBSan stays link-compatible.
+    IF(GENEVA_SANITIZER STREQUAL "undefined")
+        ADD_COMPILE_DEFINITIONS(GENEVA_ABI_UBSAN_ACTIVE=1)
+    ENDIF()
     MESSAGE(STATUS "Sanitizer ENABLED: -fsanitize=${GENEVA_SANITIZER} (CUDA + MPI excluded)")
 ELSE()
     MESSAGE(STATUS "Sanitizer: none (default)")
@@ -348,14 +479,24 @@ ENDIF()
 # versions while even minor numbers stand for production releases.
 #
 # IMPORTANT: When bumping the version here, also update the two macros
-#   GENEVA_VERSION  and  MIN_BOOST_VERSION
+#   GENEVA_VERSION components (+ GENEVA_VERSION_PRERELEASE)  and  MIN_BOOST_VERSION
 # in common/include/common/GGlobalDefines.hpp accordingly.
 
 SET(VERSION_MAJOR "1")
-SET(VERSION_MINOR "12")
+SET(VERSION_MINOR "99")
 SET(VERSION_PATCH "0")
+# Pre-release tag (e.g. "beta1"); set to "" for a final release. It rides only in the
+# human-facing strings (full version, install prefix, Doxygen, CPack) -- the numeric
+# GENEVA_VERSION below stays pure x.y.z, as required by the library VERSION property and
+# WRITE_BASIC_PACKAGE_VERSION_FILE.
+SET(VERSION_SUFFIX "beta1")
 
 SET(GENEVA_VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH})
+IF(VERSION_SUFFIX STREQUAL "")
+	SET(GENEVA_VERSION_FULL ${GENEVA_VERSION})
+ELSE()
+	SET(GENEVA_VERSION_FULL ${GENEVA_VERSION}-${VERSION_SUFFIX})
+ENDIF()
 
 ################################################################################
 # Include directories, libraries
@@ -470,7 +611,7 @@ ADD_SUBDIRECTORY (geneva)
 #
 # The exported targets carry their include directories ($<INSTALL_INTERFACE>),
 # their inter-library link dependencies (geneva -> courtier -> hap -> common),
-# the C++20 requirement and the Boost dependency transitively. The config file
+# the C++23 requirement and the Boost dependency transitively. The config file
 # re-finds Boost so consumers do not have to.
 #
 # The cmake-config directory is placed next to the installed libraries
@@ -521,6 +662,9 @@ INSTALL(
 	FILES
 	${CMAKE_CURRENT_BINARY_DIR}/GenevaConfig.cmake
 	${CMAKE_CURRENT_BINARY_DIR}/GenevaConfigVersion.cmake
+	# The individual-packaging helpers, so an out-of-tree consumer's find_package(Geneva) exposes
+	# GENEVA_ADD_INDIVIDUAL_MODULE / GENEVA_DECLARE_INDIVIDUAL (GenevaConfig.cmake includes this file).
+	${PROJECT_SOURCE_DIR}/CMakeModules/GenevaIndividualModule.cmake
 	DESTINATION ${GENEVA_INSTALL_CMAKEDIR}
 )
 
@@ -556,13 +700,12 @@ ADD_CUSTOM_TARGET(
 # Additional information files to be copied
 
 SET ( INFORMATIONFILES
+	BEHAVIORAL-CHANGES.md
 	CHANGES
-	FAQ
 	INSTALL
 	LICENSE
 	NOTICE
 	README
-	README.documentation
 )
 
 INSTALL ( FILES ${INFORMATIONFILES} DESTINATION ${INSTALL_PREFIX_DOCS} )
@@ -607,6 +750,7 @@ SET(CPACK_PACKAGE_CONTACT "Gemfony scientific <contact (AT) gemfony (DOT) eu>")
 SET(CPACK_PACKAGE_VERSION_MAJOR ${VERSION_MAJOR})
 SET(CPACK_PACKAGE_VERSION_MINOR ${VERSION_MINOR})
 SET(CPACK_PACKAGE_VERSION_PATCH ${VERSION_PATCH})
+SET(CPACK_PACKAGE_VERSION ${GENEVA_VERSION_FULL}) # carries the pre-release tag, if any
 SET(CPACK_PACKAGING_INSTALL_PREFIX "/opt/geneva")
 
 # DEB specific variables. Indentation is important in the description!

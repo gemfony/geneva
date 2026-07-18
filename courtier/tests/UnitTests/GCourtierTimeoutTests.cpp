@@ -43,6 +43,7 @@
 #include <atomic>
 #include <chrono>
 #include <cstddef>
+#include <filesystem>
 #include <memory>
 #include <set>
 #include <thread>
@@ -68,7 +69,7 @@ std::vector<item_ptr> make_batch(std::size_t n, const std::vector<std::size_t> &
     std::vector<item_ptr> v;
     v.reserve(n);
     for(std::size_t i = 0; i < n; ++i) {
-        const bool f = std::find(faulty.begin(), faulty.end(), i) != faulty.end();
+        const bool f = std::ranges::contains(faulty, i);
         v.push_back(std::make_unique<GFaultyContainer>(i, f ? fm : fault_mode::NONE));
     }
     return v;
@@ -91,6 +92,9 @@ public:
     using c2::GNetworkedConsumerT<GFaultyContainer>::checkout;
     using c2::GNetworkedConsumerT<GFaultyContainer>::checkin;
     using c2::GNetworkedConsumerT<GFaultyContainer>::requeue;
+    // Expose the treatment-driven give-up window / reclaim lease so the timeout-treatment test can read them.
+    using c2::GNetworkedConsumerT<GFaultyContainer>::currentStallWindow;
+    using c2::GNetworkedConsumerT<GFaultyContainer>::currentLease;
 };
 
 /** @brief How the driver mistreats a chosen item the first time it sees it. */
@@ -416,4 +420,79 @@ TEST_CASE("courtier(late): a retained original ages out of the retention store p
     }
     CHECK(consumer.retainedOriginalCount() == 0); // aged out, not retained forever
     CHECK(consumer.lateReturnBufferSize() == 0);   // no result ever arrived, so nothing was buffered
+}
+
+/******************************************************************************/
+// Configurable timeout treatment (adaptive / fixed / wait_indefinitely), read from a config file. The
+// treatment is a SERVER-side transport concern -- WHEN an unreturned item is declared MISSING -- orthogonal
+// to the algorithm's GSubmissionPolicy. Because a Geneva evaluation may run from microseconds to days, the
+// default is scale-free (adaptive); this pins the config round-trip and the treatment -> window/lease mapping.
+TEST_CASE("courtier(timeout): the treatment is config-file selectable", "[courtier][timeout][config]") {
+    SECTION("treatment string <-> enum") {
+        CHECK(c2::timeoutTreatmentFromString("adaptive") == c2::timeoutTreatment::adaptive);
+        CHECK(c2::timeoutTreatmentFromString("fixed") == c2::timeoutTreatment::fixed);
+        CHECK(c2::timeoutTreatmentFromString("wait_indefinitely") == c2::timeoutTreatment::wait_indefinitely);
+        CHECK(c2::timeoutTreatmentFromString("bogus") == c2::timeoutTreatment::adaptive); // unknown -> default
+        CHECK(c2::to_string(c2::timeoutTreatment::fixed) == "fixed");
+        CHECK(c2::to_string(c2::timeoutTreatment::wait_indefinitely) == "wait_indefinitely");
+    }
+
+    SECTION("an absent config file materializes the scale-free adaptive defaults") {
+        const auto path = std::filesystem::temp_directory_path() / "geneva_nettimeout_defaults.json";
+        std::filesystem::remove(path);
+        c2::GNetworkedTimeoutConfig cfg;
+        cfg.load(path.string()); // absent -> written with defaults, then read back
+        CHECK(cfg.treatment == "adaptive");
+        CHECK(cfg.treatmentEnum() == c2::timeoutTreatment::adaptive);
+        CHECK(cfg.lease_factor == 4.0);
+        CHECK(cfg.stall_factor == 8.0);
+        std::filesystem::remove(path);
+    }
+
+    SECTION("non-default values round-trip through the JSON config file") {
+        const auto path = std::filesystem::temp_directory_path() / "geneva_nettimeout_roundtrip.json";
+        std::filesystem::remove(path);
+        c2::GNetworkedTimeoutConfig w;
+        w.treatment = "fixed";
+        w.fixed_lease_ms = 1234;
+        w.stall_factor = 3.5;
+        w.session_timeout_ms = 0;
+        w.load(path.string()); // absent -> writes THESE values, reads them back
+
+        c2::GNetworkedTimeoutConfig r;
+        r.load(path.string()); // file now present -> reads the written values into a fresh struct
+        CHECK(r.treatment == "fixed");
+        CHECK(r.treatmentEnum() == c2::timeoutTreatment::fixed);
+        CHECK(r.fixed_lease_ms == 1234);
+        CHECK(r.stall_factor == 3.5);
+        CHECK(r.session_timeout_ms == 0);
+        std::filesystem::remove(path);
+    }
+
+    SECTION("the treatment drives the give-up window and reclaim lease") {
+        SimNetConsumer consumer; // fresh: adaptive, no return samples observed yet
+
+        // adaptive default, before any sample: the lease is the bootstrap value (10s default), and the
+        // give-up window is the lower stall clamp (mean == 0 -> clamped up to min_stall == 2s).
+        CHECK(consumer.currentLease() == 10s);
+        CHECK(consumer.currentStallWindow() == 2s);
+
+        // fixed: the two configured constants are returned verbatim, regardless of observed timings.
+        c2::GNetworkedTimeoutConfig fixed_cfg;
+        fixed_cfg.treatment = "fixed";
+        fixed_cfg.fixed_stall_window_ms = 7'000;
+        fixed_cfg.fixed_lease_ms = 9'000;
+        consumer.applyTimeoutConfig(fixed_cfg);
+        CHECK(consumer.currentStallWindow() == 7s);
+        CHECK(consumer.currentLease() == 9s);
+
+        // wait_indefinitely: an "effectively never" window/lease (>> any real run) so nothing is ever
+        // declared MISSING on time. It must stay comfortably below the overflow boundary of a nanosecond
+        // clock comparison, but far above any plausible run length.
+        c2::GNetworkedTimeoutConfig wait_cfg;
+        wait_cfg.treatment = "wait_indefinitely";
+        consumer.applyTimeoutConfig(wait_cfg);
+        CHECK(consumer.currentStallWindow() > std::chrono::hours(24 * 365 * 50)); // > 50 years
+        CHECK(consumer.currentLease() > std::chrono::hours(24 * 365 * 50));
+    }
 }

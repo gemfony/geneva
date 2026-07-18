@@ -34,6 +34,7 @@
 
 // Standard headers go here
 #include <concepts>
+#include <cstdint>
 #include <memory>
 #include <tuple>
 #include <type_traits>
@@ -49,7 +50,7 @@
 #include "geneva/oa/GBaseParChildPersonalityTraits.hpp"
 
 namespace Gem::Geneva::Genome {
-class GFlatGenome;
+class GGenome;
 } // namespace Gem::Geneva::Genome
 
 namespace Gem::Geneva::OptimizationAlgorithms {
@@ -88,7 +89,7 @@ class GParChild // NOLINT(cppcoreguidelines-special-member-functions)
     // The member list is written ONCE, in the static template helper below; the two localMembers()
     // overloads are trivial forwarders. Self is deduced as the (const) class type.
     template <typename Self>
-    static auto localMembers_(Self &self) {
+    auto localMembers_(this Self &self) {
         return std::make_tuple(
             Gem::Common::make_member("n_parents_", self.n_parents_),
             Gem::Common::make_member("recombination_method_", self.recombination_method_),
@@ -110,7 +111,7 @@ class GParChild // NOLINT(cppcoreguidelines-special-member-functions)
         ar &make_nvp("GOptimizationAlgorithmBase", boost::serialization::base_object<GOptimizationAlgorithmBase>(*this));
         // The member list is derived from the single localMembers() declaration,
         // emitting the same NVP names in the same order as the previous explicit list.
-        Gem::Common::serialize_members(ar, localMembers_(*this));
+        Gem::Common::serialize_members(ar, this->localMembers_());
     }
     /////////////////////////////////////////////////////////////////////////////
 
@@ -238,6 +239,19 @@ protected:
         const double &limit
     ) const override;
 
+    /** @brief Retrieves the evaluation range in a given iteration and sorting scheme. Protected so
+     *  the derived algorithms' runFitnessCalculation_() can call it.
+     *  @return A tuple holding the [start, end) index range of individuals to be evaluated */
+    virtual std::tuple<std::size_t, std::size_t> getEvaluationRange_() const {
+        // Default shared by the parent/child algorithms (EA / SA): evaluate everything in the
+        // first iteration (so pluggable optimization monitors need not distinguish between
+        // algorithms), and only the children afterwards.
+        return std::tuple<std::size_t, std::size_t>{
+            this->inFirstIteration() ? 0 : this->getNParents(),
+            this->size()
+        };
+    }
+
 private:
     /** @brief The function checks that the population size meets the requirements and resizes the population to the appropriate size, if required. */
     void adjustPopulation_() override;
@@ -281,17 +295,27 @@ protected:
      *  scheme runs afterwards in selectBest_(). */
     void fixAfterJobSubmission();
 
+    /** @brief EA/SA reuse late returns: an asynchronously-returned child is admitted as an extra
+     *  candidate and kept only if the subsequent selection finds it competitive.
+     *  @return true (mu/lambda algorithms reap late returns) */
+    bool reapsLateReturns() const override { return true; }
+    /** @brief EA/SA admit a late return only from the current or immediately-preceding iteration: a child
+     *  evaluated in iteration N typically returns during N+1, so a one-generation window catches exactly
+     *  those late returns and drops staler ones.
+     *  @return 1 (a one-generation age window) */
+    std::uint32_t lateReturnMaxAge() const override { return 1; }
+
     /** @brief Increases the population size if requested by the user */
     void performScheduledPopulationGrowth();
 
     /** @brief This function implements the RANDOMDUPLICATIONSCHEME scheme
      *  @param child The child slot whose value is replaced by a randomly chosen parent's */
-    void randomRecombine(const std::unique_ptr<gen::GIndividualSlot> &child);
+    void randomRecombine(const std::unique_ptr<gen::GOptimizableEntity> &child);
     /** @brief This function implements the VALUEDUPLICATIONSCHEME scheme
      *  @param child The child slot whose value is replaced by a fitness-weighted chosen parent's
      *  @param threshold The cumulative-probability thresholds used to pick the source parent */
     void
-    valueRecombine(const std::unique_ptr<gen::GIndividualSlot> &child, const std::vector<double> &threshold);
+    valueRecombine(const std::unique_ptr<gen::GOptimizableEntity> &child, const std::vector<double> &threshold);
 
     /***************************************************************************/
 
@@ -360,10 +384,6 @@ private:
     /** @brief Choose new parents, based on the selection scheme set by the user */
     virtual void selectBest_() = 0;
 
-    /** @brief Retrieves the evaluation range in a given iteration and sorting scheme
-     *  @return A tuple holding the [start, end) index range of individuals to be evaluated */
-    virtual std::tuple<std::size_t, std::size_t>
-    getEvaluationRange_() const = 0; // Depends on selection scheme
     /** @brief Some error checks related to population sizes (implemented per algorithm, e.g.
      *  GEvolutionaryAlgorithm / GSimulatedAnnealing; invoked from GParChild::init). */
     virtual void populationSanityChecks_() const = 0;

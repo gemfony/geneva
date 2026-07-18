@@ -30,6 +30,7 @@
 #include <catch2/catch_test_macros.hpp>
 
 #include <cmath>
+#include <ranges>
 #include <vector>
 
 #include "geneva/oa/GHesseError.hpp"
@@ -41,12 +42,7 @@ namespace {
 template <typename F>
 GHesseError::eval_fn_t batchOf(F f) {
     return [f](std::vector<std::vector<double>> const &points) {
-        std::vector<double> values;
-        values.reserve(points.size());
-        for(auto const &p : points) {
-            values.push_back(f(p));
-        }
-        return values;
+        return points | std::views::transform(f) | std::ranges::to<std::vector<double>>();
     };
 }
 

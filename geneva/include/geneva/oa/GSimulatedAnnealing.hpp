@@ -40,7 +40,6 @@
 // Geneva headers go here
 #include "common/GCommonHelperFunctionsT.hpp"
 #include "common/GExceptions.hpp"
-#include "dietrich/GPlotDesigner.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/ind/GOptimizableEntity.hpp"
 #include "geneva/oa/GParChild.hpp"
@@ -97,7 +96,7 @@ private:
     // The member list is written ONCE, in the static template helper below; the two localMembers()
     // overloads are trivial forwarders. Self is deduced as the (const) class type.
     template <typename Self>
-    static auto localMembers_(Self &self) {
+    auto localMembers_(this Self &self) {
         return std::make_tuple(
             Gem::Common::make_member("t0_", self.t0_),
             Gem::Common::make_member("t_", self.t_),
@@ -112,7 +111,7 @@ private:
         ar &make_nvp("GParChild", boost::serialization::base_object<GParChild>(*this));
         // Member list derived from the single localMembers() declaration (same NVP
         // names/order as the previous explicit list).
-        Gem::Common::serialize_members(ar, localMembers_(*this));
+        Gem::Common::serialize_members(ar, this->localMembers_());
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -213,11 +212,6 @@ private:
     /** @brief Choose new parents, based on the SA selection scheme. */
     void selectBest_() override;
 
-    /**
-     * @brief Retrieves the evaluation range in a given iteration and sorting scheme.
-     * @return A tuple holding the start and end positions of the range of individuals to be evaluated
-     */
-    std::tuple<std::size_t, std::size_t> getEvaluationRange_() const override;
     /** @brief Some error checks related to population sizes */
     void populationSanityChecks_() const override;
 

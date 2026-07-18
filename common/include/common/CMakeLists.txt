@@ -37,11 +37,13 @@
 #
 
 SET ( GENEVACOMMONINCLUDES
+	GBuildFingerprint.hpp
 	GCommonEnums.hpp
 	GCommonHelperFunctions.hpp
 	GCommonHelperFunctionsT.hpp
 	GCommonInterfaceT.hpp
 	GCommonMathHelperFunctionsT.hpp
+	GConfigEmission.hpp
 	GContainerT.hpp
 	GDefaultValueT.hpp
 	GErrorStreamer.hpp
@@ -53,6 +55,7 @@ SET ( GENEVACOMMONINCLUDES
 	GGlobalOptionsT.hpp
 	GLogger.hpp
 	GMemberReflectionT.hpp
+	GModuleManifest.hpp
 	GParserBuilder.hpp
 	GProviderT.hpp
 	GSerializableFunctionObjectT.hpp
@@ -87,17 +90,11 @@ SET ( GENEVACOMMONCONCURRENCYINCLUDES
 # This is a workaround for a CLion-problem -- see CPP270 in the JetBrains issue tracker
 ADD_CUSTOM_TARGET(CLION_ALL_COMMON_HEADERS SOURCES ${GENEVACOMMONINCLUDES} ${GENEVACOMMONCONCURRENCYINCLUDES})
 
-SET_TARGET_PROPERTIES(
-	CLION_ALL_COMMON_HEADERS
-	PROPERTIES
-	CXX_STANDARD 20
-	CXX_STANDARD_REQUIRED ON
-	CXX_EXTENSIONS OFF
-)
 
-
-INSTALL ( FILES ${GENEVACOMMONINCLUDES} DESTINATION ${INSTALL_PREFIX_INCLUDES}/common )
-INSTALL ( FILES ${GENEVACOMMONCONCURRENCYINCLUDES} DESTINATION ${INSTALL_PREFIX_INCLUDES}/common/concurrency )
+# Directory install: ship the whole header tree (Inv 19), so the installed interface is self-contained and
+# cannot drift. (The SET lists above are retained only for the CLion header target / IDE indexing.)
+INSTALL ( DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/ DESTINATION ${INSTALL_PREFIX_INCLUDES}/common
+	FILES_MATCHING PATTERN "*.hpp" )
 
 # The plotting subsystem was extracted into its own first-class library, "dietrich"
 # (dietrich/include/dietrich/...). common no longer ships any plotting headers.

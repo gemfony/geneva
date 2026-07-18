@@ -44,7 +44,7 @@
 #include "common/GCommonEnums.hpp"
 #include "common/GLogger.hpp"
 #include "geneva/GenevaInitializer.hpp"
-#include "geneva/ind/GFlatGenome.hpp"
+#include "geneva/ind/GGenome.hpp"
 #include "geneva/oa/GOptimizationAlgorithmBase.hpp"
 #include "geneva/oa/GEvolutionaryAlgorithmFactory.hpp"
 #include "geneva/oa/GConjugateGradientDescentFactory.hpp"
@@ -184,6 +184,16 @@ public:
      * Prints per-run progress to stdout.
      */
     std::vector<GAlgorithmBenchmarkResult> run();
+
+    /**
+     * @brief Materializes every configuration this benchmark owns without running it.
+     *
+     * Touches the individual configuration and each configured algorithm's configuration exactly as
+     * run() would (via GFunctionIndividual::readConfig and makeAlgorithm), so that with GParserBuilder
+     * in update-in-place mode they are created-if-absent and rewritten in canonical form. Used by the
+     * --update-configs path; no consumer / device is required.
+     */
+    void emitConfigs();
 
 private:
     GBenchmarkRunResult runOne(

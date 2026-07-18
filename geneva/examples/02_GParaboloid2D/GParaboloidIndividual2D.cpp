@@ -36,6 +36,10 @@
 #include "geneva/oa/GAdaption.hpp"
 #include "geneva/oa/GAdaptionConfig.hpp"
 
+#include <algorithm>
+#include <functional>
+#include <ranges>
+
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GParaboloidIndividual2D) // NOLINT
 namespace Gem::Geneva {
 
@@ -69,7 +73,7 @@ GParaboloidIndividual2D::GParaboloidIndividual2D()
  * @return A shared pointer to the populated OA-owned adaption config
  */
 std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase>
-GParaboloidIndividual2D::buildAdaptionConfig(const gen::GFlatGenome &sample) {
+GParaboloidIndividual2D::buildAdaptionConfig(const gen::GGenome &sample) {
     auto cfg = OptimizationAlgorithms::makeAdaptionConfig<OptimizationAlgorithms::GAdaptionConfigBase>(sample);
     for(std::size_t npar = 0; npar < 2; npar++) {
         cfg->groupDouble(npar).gauss(
@@ -81,12 +85,60 @@ GParaboloidIndividual2D::buildAdaptionConfig(const gen::GFlatGenome &sample) {
 
 /********************************************************************************************/
 /**
+ * Registers the config-file options -- the lower and upper bound of each parameter's value range.
+ *
+ * @param gpb The parser builder the configuration options are registered on
+ * @param c The Config instance the options are bound to (written on parse)
+ */
+void GParaboloidIndividual2D::describeConfig(Gem::Common::GParserBuilder &gpb, Config &c) {
+    gpb.registerFileParameter<double>(
+        "par_min", c.par_min, -10., Gem::Common::VAR_IS_ESSENTIAL,
+        "The lower boundary of each parameter's value range;"
+    );
+    gpb.registerFileParameter<double>(
+        "par_max", c.par_max, 10., Gem::Common::VAR_IS_ESSENTIAL,
+        "The upper boundary of each parameter's value range;"
+    );
+}
+
+/********************************************************************************************/
+/**
+ * Builds the flat genome structure: two constrained doubles in [par_min, par_max[, each its own Gauss group
+ * (the same structure the constructor builds; the adaptor settings live on the OA-owned adaption config).
+ *
+ * @param c The configuration providing the parameter bounds
+ * @return The structure-only genome data
+ */
+gen::GenomeData GParaboloidIndividual2D::buildGenome(const Config &c) {
+    gen::GGenomeBuilder b;
+    for(std::size_t npar = 0; npar < 2; npar++) {
+        b.addDouble(c.par_min, c.par_min, c.par_max); // structure only; the adaptor lives on the OA config
+    }
+    return b.build();
+}
+
+/********************************************************************************************/
+/**
+ * The factory's adaption-config hook. The Config carries no adaptor settings, so this delegates to the
+ * one-argument form (single-sourcing the Gauss configuration).
+ *
+ * @param sample A sample flat genome whose group structure the config mirrors
+ * @param c The configuration (unused; the Gauss settings are the individual's fixed defaults)
+ * @return A shared pointer to the populated OA-owned adaption config
+ */
+std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase>
+GParaboloidIndividual2D::buildAdaptionConfig(const gen::GGenome &sample, [[maybe_unused]] const Config &c) {
+    return buildAdaptionConfig(sample);
+}
+
+/********************************************************************************************/
+/**
  * A standard copy constructor. All real work is done by the parent class.
  *
  * @param cp A copy of another GParaboloidIndividual2D
  */
 GParaboloidIndividual2D::GParaboloidIndividual2D(const GParaboloidIndividual2D &cp)
-  : gen::GFlatGenome(cp)
+  : gen::GGenome(cp)
   , M_PAR_MIN(-10.)
   , M_PAR_MAX(10) { /* nothing */
 }
@@ -111,7 +163,7 @@ void GParaboloidIndividual2D::load_(const gen::GOptimizableEntity *cp) {
         Gem::Common::g_convert_and_compare<gen::GOptimizableEntity, GParaboloidIndividual2D>(cp, this);
 
     // Load our parent's data
-    gen::GFlatGenome::load_(cp);
+    gen::GGenome::load_(cp);
 
     // No local data
     // sampleVariable = p_load->sampleVariable;
@@ -121,30 +173,26 @@ void GParaboloidIndividual2D::load_(const gen::GOptimizableEntity *cp) {
 /**
  * Creates a deep clone of this object
  *
- * @return A deep clone of this object, camouflaged as a GFlatGenome
+ * @return A deep clone of this object, camouflaged as a GGenome
  */
-gen::GFlatGenome *GParaboloidIndividual2D::clone_() const {
+gen::GGenome *GParaboloidIndividual2D::clone_() const {
     return new GParaboloidIndividual2D(*this);
 }
 
 /********************************************************************************************/
 /**
- * The actual fitness calculation takes place here.
+ * The evaluation hook: the sum of squares of the genome's external parameters (single criterion).
  *
- * @return The value of this object
+ * @return The raw fitness as a one-element vector
  */
-double GParaboloidIndividual2D::fitnessCalculation() {
-    double result = 0.;         // Will hold the result
+std::vector<double> GParaboloidIndividual2D::evaluate() {
     std::vector<double> parVec; // Will hold the parameters
 
-    this->streamline(parVec); // Retrieve the parameters
+    this->streamline(parVec); // Retrieve the (external) parameters
 
-    // Do the actual calculation
-    for(auto const &d : parVec) {
-        result += d * d;
-    }
-
-    return result;
+    // Do the actual calculation (a single criterion -> a one-element result vector)
+    return {std::ranges::fold_left(
+        parVec | std::views::transform([](double d) { return d * d; }), 0., std::plus{})};
 }
 
 /********************************************************************************************/

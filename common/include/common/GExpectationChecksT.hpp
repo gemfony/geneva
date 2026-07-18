@@ -40,6 +40,7 @@
 #include <deque>
 #include <functional>
 #include <iostream>
+#include <ranges>
 #include <set>
 #include <sstream>
 #include <string>
@@ -361,8 +362,6 @@ identity<base_type> getBaseIdentity(
     std::string const &x_name_var,
     std::string const &y_name_var
 ) {
-    std::cout << "Creating base identity" << '\n';
-
     auto const &x_var_base = dynamic_cast<const base_type &>(x_var);
     auto const &y_var_base = dynamic_cast<const base_type &>(y_var);
 
@@ -1271,19 +1270,13 @@ void compare(
             break;
         }
 
-        // Now loop over all members of the containers
+        // Now loop over all members of the containers (equal sizes guaranteed above)
         bool found_deviation = false;
-        typename c_type<
-            std::shared_ptr<geneva_type>,
-            std::allocator<std::shared_ptr<geneva_type>>>::const_iterator x_it;
-        typename c_type<
-            std::shared_ptr<geneva_type>,
-            std::allocator<std::shared_ptr<geneva_type>>>::const_iterator y_it;
-        std::size_t index = 0;
-        for(x_it = x.begin(), y_it = y.begin(); x_it != x.end(); ++x_it, ++y_it, ++index) {
+        for(auto const &[index, elems] : std::views::zip(x, y) | std::views::enumerate) {
+            auto const &[x_ptr, y_ptr] = elems;
             // First check that both pointers have content
             // Check whether the pointers hold content
-            if(*x_it && not *y_it) {
+            if(x_ptr && not y_ptr) {
                 error << "Smart pointer " << x_name << "[" << index << "] holds content while "
                       << y_name << "[" << index << "]  does not." << '\n'
                       << "Thus the expectation of " << expectation_str << " was violated"
@@ -1291,7 +1284,7 @@ void compare(
                 found_deviation = true;
                 break; // terminate the loop
             }
-            if(not *x_it && *y_it) {
+            if(not x_ptr && y_ptr) {
                 error << "Smart pointer " << x_name << "[" << index
                       << "] doesn't hold content while " << y_name << "[" << index << "]  does."
                       << '\n'
@@ -1300,15 +1293,15 @@ void compare(
                 found_deviation = true;
                 break; // terminate the loop
             }
-            if(not *x_it &&
-                    not *y_it) { // No content to check. Both smart pointers can be considered equal
+            if(not x_ptr &&
+                    not y_ptr) { // No content to check. Both smart pointers can be considered equal
                 continue;        // Go on with next iteration in the loop
             }
 
             // At this point we know that both pointers have content. We can now check the content
             // which is assumed to have the compare() function
             try {
-                (*x_it)->compare(**y_it, e, limit);
+                x_ptr->compare(*y_ptr, e, limit);
             }
             catch(g_expectation_violation &g) {
                 error << "Content of " << x_name << "[" << index << "] and " << y_name << "["
@@ -1335,30 +1328,24 @@ void compare(
             break; // Terminate the switch statement
         }
 
-        // Now loop over all members of the containers
+        // Now loop over all members of the containers (sizes are equal here)
         bool found_inequality = false;
-        typename c_type<
-            std::shared_ptr<geneva_type>,
-            std::allocator<std::shared_ptr<geneva_type>>>::const_iterator x_it;
-        typename c_type<
-            std::shared_ptr<geneva_type>,
-            std::allocator<std::shared_ptr<geneva_type>>>::const_iterator y_it;
-        for(x_it = x.begin(), y_it = y.begin(); x_it != x.end(); ++x_it, ++y_it) {
+        for(auto const &[x_ptr, y_ptr] : std::views::zip(x, y)) {
             // First check that both pointers have content
             // Check whether the pointers hold content
-            if((*x_it && not *y_it) || (not *x_it && *y_it)) {
+            if((x_ptr && not y_ptr) || (not x_ptr && y_ptr)) {
                 found_inequality = true;
                 break; // terminate the loop
             }
-            if(not *x_it &&
-                    not *y_it) { // No content to check. Both smart pointers can be considered equal
+            if(not x_ptr &&
+                    not y_ptr) { // No content to check. Both smart pointers can be considered equal
                 continue; // Go on with next iteration in the loop - there is nothing to check here
             }
 
             // At this point we know that both pointers have content. We can now check this content
             // which is assumed to have the compare() function
             try {
-                (*x_it)->compare(**y_it, e, limit);
+                x_ptr->compare(*y_ptr, e, limit);
                 found_inequality = true;
                 break; // terminate the loop
             }

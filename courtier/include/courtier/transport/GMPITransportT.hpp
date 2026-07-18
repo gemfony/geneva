@@ -39,6 +39,7 @@
 #include <array>
 #include <chrono>
 #include <cstdint>
+#include <expected>
 #include <functional>
 #include <iostream>
 #include <memory>
@@ -92,7 +93,10 @@ constexpr std::chrono::seconds GMPICONSUMERSHUTDOWNGRACE{10};
 /// always answers a request promptly (work or NODATA), so this only trips when the master has died or
 /// gone silent -- it is generous to avoid ever false-killing a worker while a live master is busy.
 constexpr std::chrono::seconds GMPICONSUMERWORKERMPITIMEOUT{120};
-static MPI_Comm MPI_COMMUNICATOR =
+/// The communicator all MPI transport operations run on. `inline` (not `static`): every translation
+/// unit must see the SAME object, so that setMPICommunicator() (e.g. an application splitting
+/// MPI_COMM_WORLD) takes effect in all TUs rather than only in the one that called it.
+inline MPI_Comm MPI_COMMUNICATOR =
     MPI_COMM_WORLD; // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
 
 /******************************************************************************/
@@ -271,8 +275,8 @@ public:
          */
     explicit GMPIConsumerWorkerNodeT(
         std::int32_t commRank,
-        std::function<bool()> halt,
-        std::function<void()> incrementProcessingCounter,
+        std::move_only_function<bool()> halt,
+        std::move_only_function<void()> incrementProcessingCounter,
         const MPIConsumerConfig &config
     )
       : commRank_{commRank}
@@ -301,7 +305,8 @@ public:
         // GNetworkedConsumerT::bufferLateReturn_locked). A work item can force a full return per item via
         // setReturnFullIndividual().
         wireCtx_.returning = true;
-        wireCtx_.fetch_blob = [this](const Gem::Courtier::GWireLayoutId &id) -> std::string {
+        wireCtx_.fetch_blob =
+            [this](const Gem::Courtier::GWireLayoutId &id) -> std::expected<std::string, std::string> {
             return this->fetchLayoutBlob_(id);
         };
     }
@@ -661,7 +666,7 @@ private:
          * @param id The content id of the layout to fetch from the master.
          * @return The serialized layout blob, or an empty string if the fetch failed / timed out.
          */
-    std::string fetchLayoutBlob_(const Gem::Courtier::GWireLayoutId &id) {
+    std::expected<std::string, std::string> fetchLayoutBlob_(const Gem::Courtier::GWireLayoutId &id) {
         // Build and serialise the REQUEST_LAYOUT message (no genome payload, so no nested wire scope).
         std::string requestStr;
         // Build the REQUEST_LAYOUT message (under a null scope; carries no genome). MPI identifies the
@@ -685,27 +690,27 @@ private:
         );
         MPI_Status status{};
         if(not waitForRequestOrTimeout(sendReq, status) || status.MPI_ERROR != MPI_SUCCESS) {
-            glogger << "In GMPIConsumerWorkerNodeT<processable_type>::fetchLayoutBlob_() with rank="
-                    << commRank_ << ":" << '\n'
-                    << "Timed out / errored sending a REQUEST_LAYOUT to the master." << '\n'
-                    << GWARNING;
-            return {};
+            return std::unexpected("rank=" + std::to_string(commRank_) +
+                                   ": timed out / errored sending a REQUEST_LAYOUT to the master");
         }
 
         // Receive the SEND_LAYOUT reply on its dedicated tag. Probe first so a layout blob of any size
         // can be received (a large layout is exactly what would have exceeded the old fixed cap).
         if(not probeWithTimeout(RANK_MASTER_NODE, TAG_SEND_LAYOUT, status) ||
            status.MPI_ERROR != MPI_SUCCESS) {
-            glogger << "In GMPIConsumerWorkerNodeT<processable_type>::fetchLayoutBlob_() with rank="
-                    << commRank_ << ":" << '\n'
-                    << "Timed out / errored waiting for the SEND_LAYOUT reply from the master." << '\n'
-                    << GWARNING;
-            return {};
+            return std::unexpected("rank=" + std::to_string(commRank_) +
+                                   ": timed out / errored waiting for the SEND_LAYOUT reply from the master");
         }
 
-        // Deserialise the reply (again no nested wire scope) and hand back the blob.
+        // Deserialise the reply (again no nested wire scope) and hand back the blob. An empty blob means a
+        // malformed/empty reply -- a failure, not a usable layout, so report it as such.
         const std::string replyStr = receiveProbedMessage(status);
-        return Gem::Courtier::parseLayoutReply<processable_type>(replyStr, config_.serializationMode);
+        std::string blob = Gem::Courtier::parseLayoutReply<processable_type>(replyStr, config_.serializationMode);
+        if(blob.empty()) {
+            return std::unexpected("rank=" + std::to_string(commRank_) +
+                                   ": empty or malformed SEND_LAYOUT reply");
+        }
+        return blob;
     }
 
     //-------------------------------------------------------------------------
@@ -718,11 +723,11 @@ private:
     /**
          * Callback function that returns true if the halt criterion has been reached
          */
-    std::function<bool()> halt_;
+    std::move_only_function<bool()> halt_;
     /**
          * Increments the counter for processed work items of the calling instance of GConsumerBaseT.
          */
-    std::function<void()> incrementProcessingCounter_;
+    std::move_only_function<void()> incrementProcessingCounter_;
     /**
          * reference to configuration specified by the end-user.
          */
@@ -767,7 +772,7 @@ private:
      *
      * A GMPIConsumerSessionT can be opened as soon as the master node has fully received a request from
      * a worker node. The opened GMPIConsumerSessionT will then take care of deserializing and processing
-     * the request as well as responding to it with a new work item (if there are items available in the brokers queue
+     * the request as well as responding to it with a new work item (if the injected payload source has items
      * at that point in time).
      *
      * @tparam processable_type the type of work item exchanged with the worker node
@@ -791,8 +796,8 @@ public:
     GMPIConsumerSessionT(
         MPI_Status status,
         std::string requestMessage,
-        std::function<std::unique_ptr<processable_type>()> getPayloadItem,
-        std::function<void(std::unique_ptr<processable_type>)> putPayloadItem,
+        std::move_only_function<std::unique_ptr<processable_type>()> getPayloadItem,
+        std::move_only_function<void(std::unique_ptr<processable_type>)> putPayloadItem,
         Gem::Common::serializationMode serializationMode,
         bool stopRequested,
         Gem::Courtier::GWireLayoutRegistry *wireRegistry = nullptr
@@ -890,7 +895,7 @@ private:
     /**
          * @brief Deserializes and acts on the inbound request.
          *
-         * On a RESULT command the payload is delivered to the broker; a GETDATA command carries no
+         * On a RESULT command the payload is delivered to the payload sink; a GETDATA command carries no
          * payload. Unknown commands and deserialization failures are logged.
          *
          * @return true if the request was a valid RESULT or GETDATA, false otherwise
@@ -937,21 +942,25 @@ private:
             }
             }
         }
-        catch(const geneva_exception &ex) {
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+        catch(const std::exception &ex) {
+            // A malformed / truncated request must not unwind the master's session machinery (one bad
+            // worker message would take down the whole master). Log and refuse the request; the worker's
+            // own receive timeout bounds how long it waits for the answer that will not come.
+            // (boost archive exceptions derive from std::exception, not geneva_exception, so the wider
+            // catch is required to actually contain deserialization failures.)
+            glogger
                 << "GMPIConsumerSessionT<processable_type>::processRequest() connected to rank="
                 << mpiStatus_.MPI_SOURCE << ":" << '\n'
                 << "Caught exception while deserializing request" << '\n'
                 << ex.what() << '\n'
-            );
+                << GWARNING;
         }
 
         return false;
     }
 
     /**
-         * @brief Releases the processed payload from the command container and hands it to the broker sink.
+         * @brief Releases the processed payload from the command container and hands it to the payload sink.
          *
          * If the container unexpectedly holds no payload, a warning is logged and the request is still
          * answered normally.
@@ -960,7 +969,7 @@ private:
         // Retrieve the payload from the command container
         auto payloadPtr = commandContainer_.release_payload();
 
-        // Submit the payload to the server (which will send it to the broker)
+        // Submit the payload to the server (which hands it to the injected payload sink)
         if(payloadPtr) {
             putPayloadItem_(std::move(payloadPtr));
             return;
@@ -976,7 +985,7 @@ private:
     /**
          * @brief Assigns a new command and payload (if any) to the commandContainer_ member.
          *
-         * Fetches a work item from the broker; on success stores it with a COMPUTE command, otherwise
+         * Fetches a work item from the injected payload source; on success stores it with a COMPUTE command, otherwise
          * stores a NODATA command.
          */
     void prepareDataResponse() {
@@ -1090,13 +1099,13 @@ private:
          */
     const bool stopRequested_;
     /**
-         * function to retrieve a work item from the broker
+         * function to retrieve a work item from the injected payload source
          */
-    std::function<std::unique_ptr<processable_type>()> getPayloadItem_;
+    std::move_only_function<std::unique_ptr<processable_type>()> getPayloadItem_;
     /**
-         * function to deliver a processed work item to the broker
+         * function to deliver a processed work item to the injected payload sink
          */
-    std::function<void(std::unique_ptr<processable_type>)> putPayloadItem_;
+    std::move_only_function<void(std::unique_ptr<processable_type>)> putPayloadItem_;
     /**
          * Command and payload received/processed (depends on current state of session)
          */
@@ -1126,7 +1135,7 @@ private:
      * GMPIConsumerMasterNodeT will constantly wait for incoming work items requests, process them and answer them
      * by opening a new GMPIConsumerSessionT for each request.
      *
-     * @tparam processable_type a type that is processable (e.g. a GFlatGenome-derived individual)
+     * @tparam processable_type a type that is processable (e.g. a GGenome-derived individual)
      *
      *
      * The simplified workflow of the GMPIConsumerMasterNodeT can be described as follows:
@@ -1146,7 +1155,7 @@ private:
      *
      * Then the handler thread works as follows (implemented in the class GMPIConsumerSessionT):\n
      *  (3.1) Deserialize received object\n
-     *  (3.2) If the message from the worker includes a processed item, put it into the processed items queue of the broker\n
+     *  (3.2) If the message from the worker includes a processed item, hand it to the injected payload sink\n
      *  (3.3) Take an item from the non-processed items queue (if currently there is one available)\n
      *  (3.4) Serialize the response container, which contains a new work item or the NODATA command.\n
      *  (3.5) Asynchronously send the item to the worker node which has requested it.\n
@@ -1443,7 +1452,7 @@ private:
          */
     std::unique_ptr<processable_type> getPayloadItem() {
         // If an external source has been injected (e.g. the courtier reconcile-the-span path),
-        // use it instead of the broker. Default (no functor set) is the original broker behaviour.
+        // use it as the sole work-item source; with no functor set there is nothing to fetch from.
         // The courtier consumer always injects a source via setPayloadFunctors(); the former broker
         // fallback was removed together with the legacy broker. An unset source yields no item.
         if(getPayloadItemFn_) {
@@ -1479,17 +1488,17 @@ private:
 public:
     //-------------------------------------------------------------------------
     /**
-         * Injects an external source/sink for work items, bypassing the broker. This is the seam the
+         * Injects the external source/sink for work items. This is the seam the
          * courtier networked-consumer path uses to drive the MPI master node from a span+policy
-         * batch instead of the broker's buffer ports. With no functors set the node behaves exactly
-         * as before (broker-backed), so this is behaviour-neutral for existing callers.
+         * batch. The consumer always injects both functors before starting the node; without them the node
+         * has no work-item source or sink (the former broker fallback was removed).
          *
          * @param getPayloadItemFn Source callback returning the next raw work item (or empty pointer)
          * @param putPayloadItemFn Sink callback receiving each processed work item
          */
     void setPayloadFunctors(
-        std::function<std::unique_ptr<processable_type>()> getPayloadItemFn,
-        std::function<void(std::unique_ptr<processable_type>)> putPayloadItemFn
+        std::move_only_function<std::unique_ptr<processable_type>()> getPayloadItemFn,
+        std::move_only_function<void(std::unique_ptr<processable_type>)> putPayloadItemFn
     ) {
         getPayloadItemFn_ = std::move(getPayloadItemFn);
         putPayloadItemFn_ = std::move(putPayloadItemFn);
@@ -1531,8 +1540,8 @@ private:
     std::atomic_bool isToldToStop_;
     // whether the stop request has been sent to all clients
     /// External source/sink injected by the courtier consumer via setPayloadFunctors().
-    std::function<std::unique_ptr<processable_type>()> getPayloadItemFn_;
-    std::function<void(std::unique_ptr<processable_type>)> putPayloadItemFn_;
+    std::move_only_function<std::unique_ptr<processable_type>()> getPayloadItemFn_;
+    std::move_only_function<void(std::unique_ptr<processable_type>)> putPayloadItemFn_;
 
     /// layout send-once registry shared by every session this master opens. MPI ranks are
     /// persistent, so each session keys its per-peer ack tracking on the requesting worker's rank

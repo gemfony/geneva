@@ -43,10 +43,10 @@
 #include "common/GSerializationHelperFunctionsT.hpp"
 #include "courtier/GCourtierEnums.hpp"
 #include "courtier/GExecutorStatusT.hpp"
-#include "courtier/GProcessingContainerT.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/GPostProcessorT.hpp"
 #include "geneva/GenevaHelperFunctions.hpp"
+#include <algorithm>
 #include <chrono>
 #include <cstddef>
 #include <cstdint>
@@ -54,156 +54,18 @@
 #include <filesystem>
 #include <iomanip>
 #include <iostream>
+#include <limits>
 #include <memory>
+#include <ranges>
 #include <span>
 #include <tuple>
 #include <utility>
+#include <set>
 #include <vector>
 
 /******************************************************************************/
 
 namespace Gem::Geneva::OptimizationAlgorithms {
-
-/******************************************************************************/
-////////////////////////////////////////////////////////////////////////////////
-/******************************************************************************/
-/**
-	 * Searches for compliance with expectations with respect to another object
-	 * of the same type
-	 *
-	 * @param cp A constant reference to another GBasePluggableOM object
-	 * @param e The expected outcome of the comparison
-	 * @param limit The maximum deviation for floating point values (important for similarity checks)
-	 */
-void GBasePluggableOM::compare_(
-    const GBasePluggableOM &cp,
-    const Gem::Common::expectation &e,
-    [[maybe_unused]] const double & limit
-) const {
-    using namespace Gem::Common;
-
-    // Check that we are dealing with a GBasePluggableOM reference independent of this object and convert the pointer
-    const auto *p_load =
-        Gem::Common::g_convert_and_compare<GBasePluggableOM, GBasePluggableOM>(cp, this);
-
-    GToken token("GBasePluggableOM", e);
-
-    // Compare our parent data ...
-    Gem::Common::compare_base_t<Gem::Common::GCommonInterfaceT<GBasePluggableOM>>(*this, *p_load, token);
-
-    // ... and then our local data, derived from the single localMembers() declaration
-    g_compare_members(localMembers_(*this), localMembers_(*p_load), token);
-
-    // React on deviations from the expectation
-    token.evaluate();
-}
-
-/******************************************************************************/
-/**
- * @brief Allows to set the use_raw_evaluation_ variable
- *
- * @param use_raw If true, the monitor reports raw (untransformed) fitness values instead of transformed ones
- */
-void GBasePluggableOM::setUseRawEvaluation(bool use_raw) {
-    use_raw_evaluation_ = use_raw;
-}
-
-/******************************************************************************/
-/**
- * @brief Allows to retrieve the value of the use_raw_evaluation_ variable
- *
- * @return True if the monitor reports raw (untransformed) fitness values, false if it reports transformed ones
- */
-bool GBasePluggableOM::getUseRawEvaluation() const {
-    return use_raw_evaluation_;
-}
-
-/******************************************************************************/
-/**
- * @brief Access to information about the current iteration. This is a wrapper
- * function to avoid public virtual.
- *
- * @param im The information mode (INFOINIT, INFOPROCESSING or INFOEND) describing the optimization phase
- * @param goa A pointer to the optimization algorithm currently being monitored (not owned)
- */
-void GBasePluggableOM::informationFunction(
-    infoMode im,
-    GOptimizationAlgorithmBase const *const goa
-) {
-    informationFunction_(im, goa);
-}
-
-/******************************************************************************/
-/**
- * @brief Loads the data of another object
- *
- * @param cp A pointer to another GBasePluggableOM object, camouflaged as a GBasePluggableOM (not owned)
- */
-void GBasePluggableOM::load_(const GBasePluggableOM *cp) {
-    // Check that we are dealing with a GBasePluggableOM reference independent of this object and convert the pointer
-    const auto *p_load =
-        Gem::Common::g_convert_and_compare<GBasePluggableOM, GBasePluggableOM>(cp, this);
-
-    // This is the category root; there is no GObject parent class to load.
-
-    // Our own data, derived from the single localMembers() declaration
-    Gem::Common::g_load_members(localMembers_(*this), localMembers_(*p_load));
-}
-
-/******************************************************************************/
-/**
- * @brief Applies modifications to this object. This is needed for testing purposes
- *
- * @return A boolean which indicates whether modifications were made
- */
-bool GBasePluggableOM::modify_GUnitTests_() {
-#ifdef GEM_TESTING
-    bool result = false;
-
-    // This is the category root; there is no modifiable parent class.
-
-    this->setUseRawEvaluation(!this->getUseRawEvaluation());
-    result = true;
-
-    return result;
-
-#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-    Gem::Common::condnotset("GBasePluggableOM", "GEM_TESTING");
-    return false;
-#endif                  /* GEM_TESTING */
-}
-
-/******************************************************************************/
-/**
- * @brief Performs self tests that are expected to succeed. This is needed for testing purposes
- */
-void GBasePluggableOM::specificTestsNoFailureExpected_GUnitTests_() {
-#ifdef GEM_TESTING
-    // This is the category root; there is no parent class to test.
-
-#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-    Gem::Common::condnotset(
-        "GBasePluggableOM::specificTestsNoFailureExpected_GUnitTests",
-        "GEM_TESTING"
-    );
-#endif                  /* GEM_TESTING */
-}
-
-/******************************************************************************/
-/**
- * @brief Performs self tests that are expected to fail. This is needed for testing purposes
- */
-void GBasePluggableOM::specificTestsFailuresExpected_GUnitTests_() {
-#ifdef GEM_TESTING
-    // This is the category root; there is no parent class to test.
-
-#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-    Gem::Common::condnotset(
-        "GBasePluggableOM::specificTestsFailuresExpected_GUnitTests",
-        "GEM_TESTING"
-    );
-#endif                  /* GEM_TESTING */
-}
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -216,43 +78,20 @@ void GBasePluggableOM::specificTestsFailuresExpected_GUnitTests_() {
  */
 GOptimizationAlgorithmBase::GOptimizationAlgorithmBase(const GOptimizationAlgorithmBase &cp)
   : Gem::Common::GCommonInterfaceT<GOptimizationAlgorithmBase>(cp)
-  , Gem::Common::GUniquePtrContainerT<gen::GIndividualSlot>(cp)
-  , iteration_(cp.iteration_)
-  , offset_(DEFAULTOFFSET)
-  , min_iteration_(cp.min_iteration_)
-  , max_iteration_(cp.max_iteration_)
-  , max_stall_iteration_(cp.max_stall_iteration_)
-  , report_iteration_(cp.report_iteration_)
-  , n_recordbest_global_individuals_(cp.n_recordbest_global_individuals_)
-  , best_global_individuals_pq_(cp.best_global_individuals_pq_)
-  , best_iteration_individuals_pq_(cp.best_iteration_individuals_pq_)
-  , default_population_size_(cp.default_population_size_)
-  , best_known_primary_fitness_(cp.best_known_primary_fitness_)
-  , best_current_primary_fitness_(cp.best_current_primary_fitness_)
-  , stall_counter_(cp.stall_counter_)
-  , stall_counter_threshold_(cp.stall_counter_threshold_)
-  , cp_interval_(cp.cp_interval_)
-  , cp_base_name_(cp.cp_base_name_)
-  , cp_directory_path_(cp.cp_directory_path_)
-  , cp_last_(cp.cp_last_)
-  , cp_remove_(cp.cp_remove_)
-  , cp_serialization_mode_(cp.cp_serialization_mode_)
-  , quality_threshold_(cp.quality_threshold_)
-  , has_quality_threshold_(cp.has_quality_threshold_)
-  , max_duration_(cp.max_duration_)
-  , min_duration_(cp.min_duration_)
-  , termination_file_(cp.termination_file_)
-  , terminate_on_file_modification_(cp.terminate_on_file_modification_)
-  , emit_termination_reason_(cp.emit_termination_reason_)
-  , worst_known_valids_cnt_(cp.worst_known_valids_cnt_) {
-    // Copy atomics over
-    halted_.store(cp.halted_.load());
+  , Gem::Common::GUniquePtrContainerT<gen::GOptimizableEntity>(cp) {
+    // All local data is copied from the single localMembers_() declaration -- the same
+    // machinery load_() uses -- so this constructor cannot drift from the member list:
+    // plain members are assigned, the cloneable monitor container is deep-cloned and the
+    // atomic halted_ is transferred via .store(.load()).
+    Gem::Common::g_load_members(this->localMembers_(), cp.localMembers_());
 
-    // Copy the pluggable optimization monitors over (if any)
-    Gem::Common::copyCloneableSmartPointerContainer(
-        cp.pluggable_monitors_cnt_,
-        pluggable_monitors_cnt_
-    );
+    // best_iteration_individuals_pq_ is transient (per iteration) and deliberately not part
+    // of localMembers_(); it is copied in memory here, mirroring load_().
+    best_iteration_individuals_pq_ = cp.best_iteration_individuals_pq_;
+
+    // A copied algorithm starts a NEW run: its iteration offset reverts to the default
+    // instead of inheriting a chaining offset from the source.
+    offset_ = DEFAULTOFFSET;
 }
 
 /******************************************************************************/
@@ -284,11 +123,26 @@ void GOptimizationAlgorithmBase::checkpoint(bool is_better) const {
     else if(cp_interval_ > 0 && iteration_ % cp_interval_ == 0) {
         do_save = true;
     } // Save in regular intervals
-    else if(this->halted()) {
+    else if(cp_interval_ != 0 && this->halted()) {
         do_save = true;
-    } // Save the final result
+    } // Save the final result -- only when the user enabled checkpointing at all
 
     if(do_save) {
+        // Create the checkpoint directory lazily, at the first actual write (configuring an
+        // algorithm must not touch the filesystem -- see setCheckpointBaseName()).
+        const auto &cp_dir = getCheckpointDirectoryPath();
+        if(not std::filesystem::exists(cp_dir)) {
+            std::error_code ec;
+            if(not std::filesystem::create_directories(cp_dir, ec) || ec) {
+                throw geneva_exception(
+                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+                    << "In GOptimizationAlgorithmBase::checkpoint(): Error!" << '\n'
+                    << "Could not create checkpoint directory " << cp_dir.string()
+                    << (ec ? (": " + ec.message()) : std::string()) << '\n'
+                );
+            }
+        }
+
         saveCheckpoint(output_file);
 
         // Remove the last checkoint file if requested by the user
@@ -325,7 +179,27 @@ void GOptimizationAlgorithmBase::loadCheckpoint(std::filesystem::path const &cp_
         );
     }
 
-    this->fromFile(cp_file, this->getCheckpointSerializationMode());
+    // Deserialize the checkpoint. A checkpoint is a Boost archive of this algorithm AND its polymorphic
+    // population, so the concrete individual type must be registered (compiled in, or loaded from an
+    // --individual plugin) BEFORE this point -- exactly like the networked wire. If it is not, Boost throws
+    // deep inside deserialization (typically unregistered_class); translate that into actionable guidance
+    // rather than an opaque archive error, while preserving the original message.
+    try {
+        this->fromFile(cp_file, this->getCheckpointSerializationMode());
+    }
+    catch(const std::exception &e) {
+        throw geneva_exception(
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+            << "In GOptimizationAlgorithmBase<>::loadCheckpoint(): Error!" << '\n'
+            << "Failed to deserialize the checkpoint file " << cp_file << '\n'
+            << "Underlying error: " << e.what() << '\n'
+            << "This usually means the individual (optimization-problem) type stored in the checkpoint is"
+            << '\n'
+            << "not available. Resume with the SAME individual that wrote the checkpoint -- compiled in, or"
+            << '\n'
+            << "loaded via --individual <path>.so -- built against the same Geneva version." << '\n'
+        );
+    }
 
     // The population (with its OA-owned scratch: personality + adaption / swarm / CG POD blocks) has
     // just been restored. Mark the run as resumed so the upcoming setup PRESERVES that scratch instead
@@ -370,8 +244,61 @@ std::int32_t GOptimizationAlgorithmBase::getCheckpointInterval() const {
 
 /******************************************************************************/
 /**
+ * @brief The shared population precondition of the floating-point-only algorithms (CGD, Nelder-Mead):
+ * requires a non-empty population whose first individual carries at least one active floating-point
+ * parameter, and logs a note when integer/boolean parameters ride along (such an algorithm leaves
+ * them unchanged). Formerly duplicated verbatim in both algorithms' adjustPopulation_().
+ *
+ * @param algorithm_name The calling algorithm's class name, used in the error/log texts
+ * @return The number of active floating-point parameters of the first individual
+ */
+std::size_t GOptimizationAlgorithmBase::requireFloatingPointGenome_(
+    const std::string &algorithm_name
+) const {
+    if(this->empty()) {
+        throw geneva_exception(
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+            << "In " << algorithm_name << "::adjustPopulation():" << '\n'
+            << "You didn't add any individuals to the collection. We need at least one."
+            << '\n'
+        );
+    }
+
+    const std::size_t n_fp_parms = this->at(0)->countFPParameters(activityMode::ACTIVEONLY);
+
+    if(n_fp_parms == 0) {
+        throw geneva_exception(
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+            << "In " << algorithm_name << "::adjustPopulation():" << '\n'
+            << "No floating point parameters in individual." << '\n'
+        );
+    }
+
+    // A floating-point-only algorithm leaves any integer / boolean parameters unchanged -- this is
+    // normal, user-expected behaviour, so it is merely logged (not warned about).
+    auto const &ind0 = (*this->at(0));
+    const std::size_t n_int_parms = ind0.countParameters<std::int32_t>(activityMode::ACTIVEONLY);
+    const std::size_t n_bool_parms = ind0.countParameters<bool>(activityMode::ACTIVEONLY);
+    if(n_int_parms + n_bool_parms > 0) {
+        glogger << "In " << algorithm_name << "::adjustPopulation_(): Note:" << '\n'
+                << "The individual carries " << n_int_parms << " integer and " << n_bool_parms
+                << " boolean parameter(s) alongside " << n_fp_parms
+                << " floating point parameter(s)." << '\n'
+                << "The algorithm only operates on the floating point parameters;" << '\n'
+                << "the non-floating-point parameters are left unchanged." << '\n'
+                << GLOGGING;
+    }
+
+    return n_fp_parms;
+}
+
+/******************************************************************************/
+/**
  * Allows to set the base name of the checkpoint file and the directory where it
- * should be stored.
+ * should be stored. The directory is only validated here (an existing path must
+ * be a directory); a missing directory is created lazily when the first
+ * checkpoint is actually written, so merely configuring an algorithm has no
+ * filesystem side effects.
  *
  * @param cp_directory The directory where checkpoint files should be stored
  * @param cp_base_name The base name used for the checkpoint files
@@ -406,22 +333,12 @@ void GOptimizationAlgorithmBase::setCheckpointBaseName(
     // Transform the directory into a path
     cp_directory_path_ = std::filesystem::path(cp_directory);
 
-    // Check that the provided directory exists
-    if(not std::filesystem::exists(cp_directory_path_)) {
-        glogger << "In GOptimizationAlgorithmBase::setCheckpointBaseName(): Warning!" << '\n'
-                << "Directory " << cp_directory_path_.string()
-                << " does not exist and will be created automatically." << '\n'
-                << GWARNING;
-
-        if(not std::filesystem::create_directory(cp_directory_path_)) {
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GOptimizationAlgorithmBase::setCheckpointBaseName(): Error!" << '\n'
-                << "Could not create directory " << cp_directory_path_.string() << '\n'
-            );
-        }
-    }
-    else if(not std::filesystem::is_directory(cp_directory_path_)) {
+    // Validate only -- a missing directory is created lazily by checkpoint() when the first
+    // checkpoint is written, so that a default-constructed / merely-configured algorithm has no
+    // filesystem side effects (previously an eager create_directory here fired for every
+    // default-constructed algorithm, checkpointing enabled or not).
+    if(std::filesystem::exists(cp_directory_path_) &&
+       not std::filesystem::is_directory(cp_directory_path_)) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GOptimizationAlgorithmBase::setCheckpointBaseName(): Error!" << '\n'
@@ -538,7 +455,7 @@ void GOptimizationAlgorithmBase::compare_(
 
     // ... all the local data (plain members, cloneable pointers, and the atomic
     // halted_), derived from the single localMembers() declaration ...
-    Gem::Common::g_compare_members(localMembers_(*this), localMembers_(*p_load), token);
+    Gem::Common::g_compare_members(this->localMembers_(), p_load->localMembers_(), token);
 
     // ... and finally best_iteration_individuals_pq_, which is intentionally not
     // persisted (so it is not part of localMembers()) but is still compared.
@@ -635,7 +552,7 @@ GOptimizationAlgorithmBase const *GOptimizationAlgorithmBase::optimize_(std::uin
     }
 
     // We want to know if no better values were found for a longer period of time
-    double worst_case = this->at(0)->individual().getWorstCase();
+    double worst_case = this->at(0)->getWorstCase();
     best_known_primary_fitness_ = std::make_tuple(worst_case, worst_case);
     best_current_primary_fitness_ = std::make_tuple(worst_case, worst_case);
 
@@ -679,12 +596,6 @@ GOptimizationAlgorithmBase const *GOptimizationAlgorithmBase::optimize_(std::uin
         // Check whether a better value was found, and do the check-pointing, if necessary and requested.
         checkpoint(progress());
 
-        // Let all individuals know about the best fitness known so far
-        markBestFitness();
-
-        // Let individuals know about the stalls encountered so far
-        markNStalls();
-
         // Give derived classes an opportunity to act on stalls. NOTE that no action
         // may be taken that affects the "dirty" state of individuals
         if(stall_counter_threshold_ && stallCounterThresholdExceeded()) {
@@ -702,6 +613,13 @@ GOptimizationAlgorithmBase const *GOptimizationAlgorithmBase::optimize_(std::uin
         iteration_++;
     }
     while(not(halted_ = halt()));
+
+    // Write the final checkpoint. halted_ is only set in the loop condition ABOVE the in-loop
+    // checkpoint() call, so the in-loop calls never see halted() == true -- without this post-loop
+    // call the "final" checkpoint (see checkpoint()'s halted() branch and the "final" file-name tag)
+    // would never be written at all. checkpoint() itself gates on the user having enabled
+    // checkpointing (cp_interval_ != 0).
+    checkpoint(progress());
 
     // Give derived classes the opportunity to perform any remaining clean-up work
     finalize();
@@ -1125,14 +1043,64 @@ std::uint32_t GOptimizationAlgorithmBase::getStallCounterThreshold() const {
 
 /******************************************************************************/
 /**
+ * @brief Sets the time-to-live (in dispatch rounds) of a networked consumer's late-return buffer entry.
+ *
+ * @param ttl_rounds The late-return buffer TTL, in dispatch rounds
+ */
+void GOptimizationAlgorithmBase::setLateReturnTTL(std::uint64_t ttl_rounds) {
+    late_return_ttl_ = ttl_rounds;
+}
+
+/******************************************************************************/
+/**
+ * @brief Retrieves the time-to-live (in dispatch rounds) of a networked consumer's late-return entry.
+ *
+ * @return The late-return buffer TTL, in dispatch rounds
+ */
+std::uint64_t GOptimizationAlgorithmBase::getLateReturnTTL() const {
+    return late_return_ttl_;
+}
+
+/******************************************************************************/
+/**
+ * @brief Sets the late-return buffer capacity as a multiple of the population size (0 disables it).
+ *
+ * @param cap_factor The late-return buffer capacity as a multiple of the population size (>= 0)
+ */
+void GOptimizationAlgorithmBase::setLateReturnCapFactor(double cap_factor) {
+    if(cap_factor < 0.) {
+        throw geneva_exception(
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+            << "In GOptimizationAlgorithmBase::setLateReturnCapFactor(): Error!" << '\n'
+            << "Received a negative capacity factor " << cap_factor << '\n'
+        );
+    }
+    late_return_cap_factor_ = cap_factor;
+}
+
+/******************************************************************************/
+/**
+ * @brief Retrieves the late-return buffer capacity factor (multiple of the population size).
+ *
+ * @return The late-return buffer capacity factor
+ */
+double GOptimizationAlgorithmBase::getLateReturnCapFactor() const {
+    return late_return_cap_factor_;
+}
+
+/******************************************************************************/
+/**
  * Retrieve the best value found in the entire optimization run so far
  *
  * @return The best raw and transformed fitness found so far
  */
 std::tuple<double, double> GOptimizationAlgorithmBase::getBestKnownPrimaryFitness() const {
-    return (best_global_individuals_pq_.best())->getFitnessTuple();
-
-    // return best_known_primary_fitness_;
+    // The single source of the best-known fitness: the same member the stall counter and the
+    // quality-threshold halt use (serialized, initialized to the worst case at optimization
+    // start). Reading the best-individuals priority queue here instead would create a second
+    // source of truth -- and throw on an empty queue (e.g. for a checkpoint file name written
+    // before the first iteration completes).
+    return best_known_primary_fitness_;
 }
 
 /******************************************************************************/
@@ -1265,6 +1233,24 @@ void GOptimizationAlgorithmBase::addConfigurationOptions_(Gem::Common::GParserBu
       << '\n'
       << "individuals are asked to update their internal data structures" << '\n'
       << "through the actOnStalls() function. A value of 0 disables this check";
+
+    gpb.registerFileParameter<std::uint64_t>(
+        "late_return_ttl" // The name of the variable
+        ,
+        DEFAULTLATERETURNTTL // The default value
+        ,
+        [this](std::uint64_t ttl) { this->setLateReturnTTL(ttl); }
+    ) << "Time-to-live (in dispatch rounds) of a networked consumer's late-return" << '\n'
+      << "buffer entry. A late return not reaped within this many rounds is evicted.";
+
+    gpb.registerFileParameter<double>(
+        "late_return_cap_factor" // The name of the variable
+        ,
+        DEFAULTLATERETURNCAPFACTOR // The default value
+        ,
+        [this](double cap_factor) { this->setLateReturnCapFactor(cap_factor); }
+    ) << "Capacity of a networked consumer's late-return buffer, as a multiple of" << '\n'
+      << "the population size. 0 disables late-return buffering entirely.";
 
     gpb.registerFileParameter<std::uint32_t>(
         "report_iteration" // The name of the variable
@@ -1452,8 +1438,8 @@ void GOptimizationAlgorithmBase::addCleanStoredBests(
     // (and cloned) Unless we have asked for the queue to have an unlimited size, the queue will be
     // resized as required by its maximum allowed size.
     for(auto const &ind_ptr : *this) {
-        if(ind_ptr->individual().is_processed()) {
-            best_individuals.add(ind_ptr->individualPtr(), clone);
+        if(ind_ptr->is_processed()) {
+            best_individuals.add(ind_ptr, clone);
         }
     }
 }
@@ -1508,12 +1494,12 @@ void GOptimizationAlgorithmBase::load_(const GOptimizationAlgorithmBase *cp) {
 
     // This is the category root; there is no GObject parent class to load.
     // Load the stateful base classes' data
-    Gem::Common::GUniquePtrContainerT<gen::GIndividualSlot>::operator=(*p_load);
+    Gem::Common::GUniquePtrContainerT<gen::GOptimizableEntity>::operator=(*p_load);
 
     // All local data, derived from the single localMembers() declaration: plain members
     // are assigned, the cloneable container pluggable_monitors_cnt_ is deep-cloned, and
     // halted_ (atomic) is loaded via .store(.load()) -- the tie dispatches on the member kind.
-    Gem::Common::g_load_members(localMembers_(*this), localMembers_(*p_load));
+    Gem::Common::g_load_members(this->localMembers_(), p_load->localMembers_());
 
     // best_iteration_individuals_pq_ is intentionally not persisted (transient per
     // iteration), so it is not part of localMembers(); copied in memory here.
@@ -1522,14 +1508,13 @@ void GOptimizationAlgorithmBase::load_(const GOptimizationAlgorithmBase *cp) {
 
 /******************************************************************************/
 /**
-	 * Delegation of work to be performed to the private executor object. Note that
-	 * the return values "is_complete" and "has_errors" may both be true, i.e. all items
-	 * may have returned, but there were errors in some or all of them. The function
-	 * will also make the executor use this objects iteration counter.
+	 * Submits the sub-range [start, end) of @p work_items to the one process-wide consumer for
+	 * evaluation. Note that the returned "is_complete" and "has_errors" may both be true, i.e. all
+	 * items may have returned, but there were errors in some or all of them.
 	 *
-	 * @param work_items The set of work items to be processed
-	 * @param resubmit_unprocessed Indicates whether unprocessed work items should be resubmitted after a timeout
-	 * @param caller The name of the caller (used for error messages and logs)
+	 * @param work_items The work-item vector whose sub-range is submitted (reconciled in place)
+	 * @param start The (inclusive) start index of the range to evaluate
+	 * @param end The (exclusive) end index of the range to evaluate
 	 * @return A struct which indicates whether all items have returned ("is_complete") and whether there were errors ("has_errors")
 	 */
 Gem::Courtier::executor_status_t GOptimizationAlgorithmBase::workOn(
@@ -1537,19 +1522,77 @@ Gem::Courtier::executor_status_t GOptimizationAlgorithmBase::workOn(
     std::size_t start,
     std::size_t end
 ) {
-    // All submission goes through courtier's span+policy path. init() guarantees a courtier routing
-    // is selected (an injected broker, a chosen local kind, or the multithreaded default).
+    // All submission goes through courtier's span+policy path. init() guarantees the process
+    // consumer is established (registered explicitly, or the lazily-built local default).
     return this->workOnViaConsumer_(work_items, start, end);
 }
 
 /******************************************************************************/
 /**
- * Submits the population's [start, end) range for evaluation. The population holds GIndividualSlots, but
- * the courtier deals in bare individuals: move each slot's individual out into a submission vector
- * (positions preserved), workOn() it, then move the (possibly reconciled) individuals back into their
- * slots. The slots -- and the OA scratch they carry (the personality) -- stay put, so a networked
- * round-trip that replaces an individual does not disturb its slot. workOn() is in-place (the work-item
- * vector keeps its size), so the move-back by index is exact.
+ * Enforces the "need-all" evaluation policy after a submission (see the header).
+ *
+ * @param status The executor status returned by the submission
+ * @param caller The calling function's name, used in the error message
+ */
+void GOptimizationAlgorithmBase::requireCompleteEvaluation_(
+    const Gem::Courtier::executor_status_t &status,
+    const std::string &caller
+) const {
+    if(not status.is_complete || status.has_errors) {
+        throw geneva_exception(
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+            << "In " << caller << ": Error!" << '\n'
+            << "No complete set of items received or errors found in some individuals"
+            << '\n'
+        );
+    }
+}
+
+/******************************************************************************/
+/**
+ * Applies the "tolerant" evaluation policy after a submission (see the header): individuals that a
+ * partial or errored return left unusable -- still flagged DO_PROCESS, or error-flagged -- are
+ * erased from the population.
+ *
+ * @param status The executor status returned by the submission
+ */
+void GOptimizationAlgorithmBase::discardUnusableItems_(
+    const Gem::Courtier::executor_status_t &status,
+    [[maybe_unused]] const std::string &caller
+) {
+    if(not status.is_complete) {
+        [[maybe_unused]] const std::size_t n_erased =
+            std::erase_if(data_cnt_, [](const std::unique_ptr<gen::GOptimizableEntity> &p) -> bool {
+                return (p->getProcessingStatus() == Gem::Courtier::processingStatus::DO_PROCESS);
+            });
+
+#ifdef DEBUG
+        glogger << "In " << caller << ": " << '\n'
+                << "Removed " << n_erased << " unprocessed work items in iteration "
+                << this->getIteration() << '\n'
+                << GLOGGING;
+#endif
+    }
+
+    if(status.has_errors) {
+        [[maybe_unused]] const std::size_t n_erased =
+            std::erase_if(data_cnt_, [](const auto &p) -> bool { return p->has_errors(); });
+
+#ifdef DEBUG
+        glogger << "In " << caller << ": " << '\n'
+                << "Removed " << n_erased << " erroneous work items in iteration "
+                << this->getIteration() << '\n'
+                << GLOGGING;
+#endif
+    }
+}
+
+/******************************************************************************/
+/**
+ * Submits the population's [start, end) range for evaluation. The population element IS the work item
+ * (a gen::GOptimizableEntity carrying its own OA scratch), so the population vector is the submission
+ * vector: workOn() submits a span over the live sub-range and reconciles it in place. No move-out /
+ * move-back is needed -- the scratch rides along on each individual untouched.
  *
  * @param start The index of the first individual in the population to be evaluated
  * @param end One past the index of the last individual to be evaluated (range is [start, end))
@@ -1557,18 +1600,7 @@ Gem::Courtier::executor_status_t GOptimizationAlgorithmBase::workOn(
  */
 Gem::Courtier::executor_status_t
 GOptimizationAlgorithmBase::workOnPopulation(std::size_t start, std::size_t end) {
-    std::vector<std::unique_ptr<gen::GOptimizableEntity>> work_items;
-    work_items.reserve(this->size());
-    for(auto &slot : this->data_cnt_) {
-        work_items.push_back(slot->releaseIndividual());
-    }
-
-    auto status = this->workOn(work_items, start, end);
-
-    for(std::size_t i = 0; i < this->size(); ++i) {
-        this->data_cnt_[i]->resetIndividual(std::move(work_items[i]));
-    }
-    return status;
+    return this->workOn(this->data_cnt_, start, end);
 }
 
 /******************************************************************************/
@@ -1606,13 +1638,8 @@ Gem::Courtier::executor_status_t GOptimizationAlgorithmBase::workOnViaConsumer_(
     auto consumer = this->consumerForSubmission_();
     consumer->processBatch(sp, this->getSubmissionPolicy_());
 
-    bool has_errors = false;
-    for(const auto &it : sp) {
-        if(it && it->has_errors()) {
-            has_errors = true;
-            break;
-        }
-    }
+    const bool has_errors =
+        std::ranges::any_of(sp, [](const auto &it) { return it && it->has_errors(); });
     return Gem::Courtier::executor_status_t{.is_complete=true, .has_errors=has_errors};
 }
 
@@ -1636,27 +1663,87 @@ GOptimizationAlgorithmBase::consumerForSubmission_() {
             });
             return c;
         });
-    // Enable the late-return buffer (sized to ~one generation). Idempotent: re-setting the cap is harmless.
-    consumer->enableLateReturns(this->size(), /*ttl_rounds*/ 3);
+    // Enable the late-return buffer -- but ONLY for algorithms that actually reap late returns
+    // (reapsLateReturns()); a non-reaping algorithm (gradient descent, parameter scan, ...) passes cap 0
+    // so nothing is retained on its behalf. For a reaper the cap scales with the live population
+    // (cap_factor x size) so it is independent of how a generation is chunked into submission batches;
+    // cap_factor 0 also disables buffering. TTL and cap_factor are configurable (see
+    // set/getLateReturnTTL / set/getLateReturnCapFactor). Idempotent: re-setting the knobs each
+    // submission is harmless.
+    const std::size_t cap =
+        this->reapsLateReturns()
+            ? static_cast<std::size_t>(late_return_cap_factor_ * static_cast<double>(this->size()))
+            : 0;
+    consumer->enableLateReturns(cap, late_return_ttl_);
     return consumer;
 }
 
 /******************************************************************************/
 /**
- * @brief Retrieves a vector of old work items after job submission
+ * @brief Drains the consumer's late-return buffer and returns only the late returns that are SAFE TO
+ * INTEGRATE. See the header for the full contract; in short this is the single, algorithm-agnostic gate
+ * every OA reaps late returns through, applying a VALIDITY filter (clean successes only) and a LINEAGE
+ * de-duplication (drop a return whose submission UUID is already live or duplicated within the batch).
  *
- * @return A vector of late-returned (bare) individuals that the consumer buffered after their batch was reconciled
+ * @return A vector of integrable (clean, de-duplicated) late-returned individuals the consumer buffered
  */
-std::vector<std::unique_ptr<gen::GOptimizableEntity>> GOptimizationAlgorithmBase::getOldWorkItems() {
+std::vector<std::unique_ptr<gen::GOptimizableEntity>> GOptimizationAlgorithmBase::getOldWorkItems() const {
     // Reap any LATE returns the consumer buffered -- results that came back after their batch had
     // already been reconciled in place (empty for a local consumer; a networked consumer hands back its
-    // bounded late-return buffer). The OA folds the returned (bare) individuals into the next selection
-    // via fixAfterJobSubmission().
+    // bounded late-return buffer). The OA folds the integrable individuals into the next selection.
     auto consumer = Gem::Courtier::GConsumerRegistryT<gen::GOptimizableEntity>::instance().consumer();
-    if(consumer) {
-        return consumer->getLateReturns();
+    if(not consumer) {
+        return {};
     }
-    return {};
+    auto items = consumer->getLateReturns();
+
+    // Pre-load the de-dup set with the UUIDs already represented in the LIVE population, so a late
+    // return whose lineage is still present (a re-dispatched individual whose fresh copy already
+    // returned) is rejected. retainIntegrableLateReturns() then drops invalid and duplicate returns.
+    auto seen = *this
+        | std::views::transform([](const auto &p) { return p->getSubmissionUuid(); })
+        | std::ranges::to<std::set<Gem::Courtier::SUBMISSION_UUID_TYPE>>();
+    retainIntegrableLateReturns(items, seen);
+
+    // OPTIONAL per-algorithm age window (on top of the consumer-side TTL): drop late returns older than
+    // lateReturnMaxAge() iterations. The default (max()) means "no window" -- the common case, skipped
+    // entirely. GParChild (EA/SA) returns 1 here: a child evaluated in iteration N typically returns
+    // during N+1, so a one-generation window admits exactly those and discards staler returns. iteration
+    // >= getAssignedIteration() always holds (no item from the future), so the subtraction cannot underflow.
+    const std::uint32_t max_age = this->lateReturnMaxAge();
+    if(max_age != std::numeric_limits<std::uint32_t>::max()) {
+        const std::uint32_t iteration = this->getIteration();
+        std::erase_if(items, [iteration, max_age](const auto &x) -> bool {
+            return (iteration - x->getAssignedIteration()) > max_age;
+        });
+    }
+    return items;
+}
+
+/******************************************************************************/
+/**
+ * @brief The pure validity + lineage-dedup filter behind getOldWorkItems(). See the header for the
+ * contract. Factored out (and static) so it can be unit-tested with synthetic items, no consumer needed.
+ *
+ * @param items The drained late returns to filter (mutated in place)
+ * @param seen The set of already-represented submission UUIDs (updated with survivors)
+ */
+void GOptimizationAlgorithmBase::retainIntegrableLateReturns(
+    std::vector<std::unique_ptr<gen::GOptimizableEntity>> &items,
+    std::set<Gem::Courtier::SUBMISSION_UUID_TYPE> &seen
+) {
+    // VALIDITY: keep only clean successes. is_processed() and has_errors() are mutually exclusive states,
+    // but we test both so the filter stays watertight against any status added between them in future.
+    std::erase_if(items, [](const auto &x) -> bool {
+        return (not x->is_processed()) || x->has_errors();
+    });
+
+    // LINEAGE de-dup: drop a return whose UUID is already represented (live population, pre-loaded above)
+    // or that recurs within this batch. set::insert reports false on a duplicate, so the first occurrence
+    // of each UUID is kept and every later one removed.
+    std::erase_if(items, [&seen](const auto &x) -> bool {
+        return not seen.insert(x->getSubmissionUuid()).second;
+    });
 }
 
 /******************************************************************************/
@@ -1782,26 +1869,26 @@ GOptimizationAlgorithmBase::getBestIterationIndividuals_() const {
  */
 void GOptimizationAlgorithmBase::setIndividualPersonalities() {
     const std::string oa_mnemonic = this->getPersonalityTraits_()->getMnemonic();
-    for(auto const &slot : *this) {
-        // The rich personality OBJECT is OA scratch -- it lives on the slot. Each slot gets its own
-        // (getPersonalityTraits_() returns a fresh instance per call). On a checkpoint resume, however,
-        // the slot already carries its restored personality (e.g. a swarm's personal-best lives there);
-        // preserve it rather than overwriting it with a fresh, empty one.
-        if(not(resumed_from_checkpoint_ && slot->scratch().personalityRef())) {
-            slot->setPersonality(this->getPersonalityTraits_());
+    for(auto const &ind : *this) {
+        // The rich personality OBJECT is OA scratch -- it rides on the individual itself. Each individual
+        // gets its own (getPersonalityTraits_() returns a fresh instance per call). On a checkpoint resume,
+        // however, the individual already carries its restored personality (e.g. a swarm's personal-best
+        // lives there); preserve it rather than overwriting it with a fresh, empty one.
+        if(not(resumed_from_checkpoint_ && ind->scratch().personalityRef())) {
+            ind->setPersonality(this->getPersonalityTraits_());
         }
 
         // Decide post-processing eligibility HERE (the algorithm knows its own mnemonic) and veto it on
         // the work items this algorithm is not allowed to post-process -- so the individual carries no
         // knowledge of which algorithm owns it. The veto rides on the work item's processing metadata
         // (where the post-processor already lives) and is consulted by GProcessingContainerT::postProcess_().
-        auto pp = slot->individual().postProcessor();
+        auto pp = ind->postProcessor();
         if(pp) {
             auto post_processor =
                 std::dynamic_pointer_cast<GPostProcessorBaseT<gen::GOptimizableEntity>>(pp);
             const bool eligible =
                 post_processor and post_processor->postProcessingAllowedFor(oa_mnemonic);
-            slot->individual().vetoPostProcessing(not eligible);
+            ind->vetoPostProcessing(not eligible);
         }
     }
 }
@@ -1811,12 +1898,12 @@ void GOptimizationAlgorithmBase::setIndividualPersonalities() {
  * @brief Resets the individual's personality types
  */
 void GOptimizationAlgorithmBase::resetIndividualPersonalities() {
-    for(auto const &slot : *this) {
-        // Drop the slot's OA-owned scratch -- BOTH the personality OBJECT and the per-group adaption
-        // POD state now live on the slot, so resetPersonality() (which clears the whole GAuxiliaryStore)
+    for(auto const &ind : *this) {
+        // Drop the individual's OA-owned scratch -- BOTH the personality OBJECT and the per-group adaption
+        // POD state ride on the individual, so resetPersonality() (which clears the whole GAuxiliaryStore)
         // performs the algorithm-boundary teardown (an EA's sigma / personality is meaningless to a
         // chained CGD).
-        slot->resetPersonality();
+        ind->resetPersonality();
     }
 }
 
@@ -1935,17 +2022,7 @@ std::uint16_t GOptimizationAlgorithmBase::getNThreads() const {
  */
 void GOptimizationAlgorithmBase::markIteration() {
     for(auto const &ind_ptr : *this) {
-        ind_ptr->individual().setAssignedIteration(iteration_);
-    }
-}
-
-/******************************************************************************/
-/**
- * @brief Let individuals know the number of stalls encountered so far
- */
-void GOptimizationAlgorithmBase::markNStalls() {
-    for(auto const &ind_ptr : *this) {
-        ind_ptr->individual().setNStalls(stall_counter_);
+        ind_ptr->setAssignedIteration(iteration_);
     }
 }
 
@@ -1958,7 +2035,7 @@ void GOptimizationAlgorithmBase::markNStalls() {
  * @param best_eval The best raw and transformed fitness tuple found in the current iteration; the transformed value is compared against the best known so far
  */
 void GOptimizationAlgorithmBase::updateStallCounter(const std::tuple<double, double> &best_eval) {
-    auto m = this->at(0)->individual().getMaxMode(); // We assume the same maxMode for all individuals
+    auto m = this->at(0)->getMaxMode(); // We assume the same maxMode for all individuals
     if(isBetter(
            std::get<G_TRANSFORMED_FITNESS>(best_eval),
            std::get<G_TRANSFORMED_FITNESS>(best_known_primary_fitness_),
@@ -2020,7 +2097,7 @@ bool GOptimizationAlgorithmBase::minTimePassed(
  * @return A boolean indicating whether the quality is above or below a given threshold
  */
 bool GOptimizationAlgorithmBase::qualityHalt() const {
-    auto m = this->at(0)->individual().getMaxMode(); // We assume the same maxMode for all individuals
+    auto m = this->at(0)->getMaxMode(); // We assume the same maxMode for all individuals
     if(isBetter(
            std::get<G_RAW_FITNESS>(
                best_known_primary_fitness_
@@ -2306,16 +2383,6 @@ bool GOptimizationAlgorithmBase::qualityThresholdHaltSet() const {
 
 /******************************************************************************/
 /**
- * @brief Marks the globally best known fitness in all individuals
- */
-void GOptimizationAlgorithmBase::markBestFitness() {
-    for(auto const &ind_ptr : *this) {
-        ind_ptr->individual().setBestKnownPrimaryFitness(this->getBestKnownPrimaryFitness());
-    }
-}
-
-/******************************************************************************/
-/**
  * @brief Indicates whether the stall_counter_threshold_ has been exceeded
  *
  * @return A boolean indicating whether the current stall counter exceeds the configured threshold
@@ -2336,7 +2403,7 @@ bool GOptimizationAlgorithmBase::modify_GUnitTests_() {
 
     // This is the category root; there is no modifiable GObject parent class.
     // Call the stateful base class'es function
-    if(Gem::Common::GUniquePtrContainerT<gen::GIndividualSlot>::modify_GUnitTests_()) {
+    if(Gem::Common::GUniquePtrContainerT<gen::GOptimizableEntity>::modify_GUnitTests_()) {
         result = true;
     }
 
@@ -2367,7 +2434,7 @@ void GOptimizationAlgorithmBase::specificTestsNoFailureExpected_GUnitTests_() {
 
     // This is the category root; there is no GObject parent class to delegate to.
     // Call the stateful base class'es function
-    Gem::Common::GUniquePtrContainerT<gen::GIndividualSlot>::specificTestsNoFailureExpected_GUnitTests_();
+    Gem::Common::GUniquePtrContainerT<gen::GOptimizableEntity>::specificTestsNoFailureExpected_GUnitTests_();
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
     Gem::Common::condnotset(
@@ -2386,7 +2453,7 @@ void GOptimizationAlgorithmBase::specificTestsFailuresExpected_GUnitTests_() {
 
     // This is the category root; there is no GObject parent class to delegate to.
     // Call the stateful base class'es function
-    Gem::Common::GUniquePtrContainerT<gen::GIndividualSlot>::specificTestsFailuresExpected_GUnitTests_();
+    Gem::Common::GUniquePtrContainerT<gen::GOptimizableEntity>::specificTestsFailuresExpected_GUnitTests_();
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
     Gem::Common::condnotset(

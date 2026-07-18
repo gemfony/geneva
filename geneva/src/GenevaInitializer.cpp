@@ -44,11 +44,21 @@ GenevaInitializer::GenevaInitializer() {
 
 /******************************************************************************/
 /**
- * @brief The destructor; finalizes the Hap random-number factory.
+ * @brief The destructor.
+ *
+ * Deliberately does NOT finalize the Hap random-number factory. The factory is a process-global
+ * singleton (GSingletonT<GRandomFactory>) shared by every Geneva facility, and its finalize() is
+ * TERMINAL -- it closes the producer/return buffers (a terminal close()) and joins the producer
+ * threads, after which getNewRandomContainer() can never succeed again. A GenevaInitializer is,
+ * however, NOT the exclusive owner of that singleton: it is embedded in every Go2 (as Go2::gi_), so
+ * a short-lived Go2 (or any scoped GenevaInitializer) would otherwise finalize the shared factory the
+ * moment it is destroyed, permanently starving all subsequent random-number consumers -- an
+ * unbounded 100%-CPU spin in GRandomT::getNewRandomContainer(). The factory is instead torn down
+ * exactly once, by its own singleton destructor at process exit (which joins the producers cleanly);
+ * that is precisely the destruction-order guarantee GSingletonT's shared_ptr hand-out exists to
+ * provide. See the regression test "destroying a GenevaInitializer keeps the process RNG alive".
  */
-GenevaInitializer::~GenevaInitializer() {
-    Gem::Hap::randomFactory()->finalize();
-}
+GenevaInitializer::~GenevaInitializer() = default;
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////

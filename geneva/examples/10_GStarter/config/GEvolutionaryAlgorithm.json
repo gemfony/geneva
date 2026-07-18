@@ -1,7 +1,13 @@
 {
     "header": {
         "comment": "This configuration file was automatically created by GParserBuilder",
-        "comment": "Sat May 23 18:56:35 2026"
+        "comment": "Sat Jul  4 02:10:10 2026"
+    },
+    "n_adaption_threads": {
+        "comment": "The number of threads used to simultaneously adapt and recombine individuals",
+        "comment": "0 means \"automatic\"",
+        "default": "2",
+        "value": "2"
     },
     "max_iteration": {
         "comment": "The maximum allowed number of iterations",
@@ -40,6 +46,18 @@
         "comment": "through the actOnStalls() function. A value of 0 disables this check",
         "default": "0",
         "value": "0"
+    },
+    "late_return_ttl": {
+        "comment": "Time-to-live (in dispatch rounds) of a networked consumer's late-return",
+        "comment": "buffer entry. A late return not reaped within this many rounds is evicted.",
+        "default": "2",
+        "value": "2"
+    },
+    "late_return_cap_factor": {
+        "comment": "Capacity of a networked consumer's late-return buffer, as a multiple of",
+        "comment": "the population size. 0 disables late-return buffering entirely.",
+        "default": "2",
+        "value": "2"
     },
     "report_iteration": {
         "comment": "The number of iterations after which a report should be issued",
@@ -112,21 +130,6 @@
         "default": "true",
         "value": "true"
     },
-    "default_executor": {
-        "default_exec_mode": {
-            "comment": "The default executor type to be used for this algorithm.",
-            "comment": "0: serial",
-            "comment": "1: multi-threaded",
-            "comment": "2: brokered",
-            "default": "2",
-            "value": "2"
-        },
-        "default_exec_config": {
-            "comment": "The configuration file for the default executor. Note that it needs to fit the executor type.",
-            "default": ".\/config\/GBrokerExecutor.json",
-            "value": ".\/config\/GBrokerExecutor.json"
-        }
-    },
     "amalgamation_likelihood": {
         "comment": "The likelihood for parent individuals to be \"fused\" together",
         "comment": "rather than \"just\" being created through duplication schemes",
@@ -166,12 +169,6 @@
             "value": "0"
         }
     },
-    "n_adaption_threads": {
-        "comment": "The number of threads used to simultaneously adapt individuals",
-        "comment": "0 means \"automatic\"",
-        "default": "2",
-        "value": "2"
-    },
     "sorting_method": {
         "comment": "The sorting scheme. Options",
         "comment": "0: MUPLUSNU mode with a single evaluation criterion",
@@ -183,5 +180,24 @@
         "comment": "4: MUCOMMANU mode for multiple evaluation criteria, pareto selection",
         "default": "1",
         "value": "1"
+    },
+    "step_control": {
+        "comment": "The step-size control strategy. Options",
+        "comment": "0: SELF_ADAPT (classic mutative sigma self-adaption, the legacy \"ea\")",
+        "comment": "1: SELF_ADAPT_SCALED (dimension-scaled tau = c\/sqrt(2n)) [default]",
+        "comment": "2: ONE_FIFTH (Rechenberg 1\/5 success rule on a single global sigma)",
+        "comment": "3: CSA (cumulative step-size adaptation on a single global sigma)",
+        "default": "1",
+        "value": "1"
+    },
+    "learning_rate_c": {
+        "comment": "The learning-rate constant c used by SELF_ADAPT_SCALED (tau = c\/sqrt(2n))",
+        "default": "1",
+        "value": "1"
+    },
+    "recombine_sigma": {
+        "comment": "Whether to intermediate-recombine the per-individual sigma after recombination",
+        "default": "true",
+        "value": "true"
     }
 }

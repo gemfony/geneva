@@ -37,6 +37,8 @@
 #include <cstdlib>
 #include <functional>
 #include <memory>
+#include <algorithm>
+#include <ranges>
 #include <span>
 #include <string>
 #include <type_traits>
@@ -47,7 +49,7 @@
 #include "common/GExceptions.hpp"
 #include "common/GLogger.hpp"
 #include "courtier/GCourtierEnums.hpp"       // processingStatus
-#include "courtier/GProcessingContainerT.hpp" // the work-item base (reused)
+#include "courtier/GProcessable.hpp"          // the non-generic work-item lifecycle base
 #include "courtier/GSubmissionPolicy.hpp"
 
 namespace Gem::Courtier {
@@ -121,70 +123,73 @@ public:
         bool any_success = false;
 
         // Mark every (non-null) slot due for processing. Null slots are treated as resolved.
-        for(std::size_t i = 0; i < n; ++i) {
-            if(items[i]) {
-                items[i]->set_processing_status(processingStatus::DO_PROCESS);
+        for(auto&& [item, item_state] : std::views::zip(items, state)) {
+            if(item) {
+                item->set_processing_status(processingStatus::DO_PROCESS);
             }
             else {
-                state[i] = slot::resolved;
+                item_state = slot::resolved;
             }
         }
 
         // Reconciliation loop. Terminates because every MISSING/FAILED slot eventually exhausts
         // its budget and becomes "unresolved" (so it stops being pending).
         while(true) {
-            std::vector<item_ptr> to_eval;
-            std::vector<std::size_t> idx;
-            for(std::size_t i = 0; i < n; ++i) {
-                if(state[i] == slot::pending &&
-                   items[i]->getProcessingStatus() == processingStatus::DO_PROCESS) {
-                    // Items are uniquely owned: move each into the working set for this round and
-                    // move the (possibly replaced) result straight back below. The batch slot is
-                    // transiently null only for the duration of the synchronous dispatch_ call.
-                    to_eval.push_back(std::move(items[i]));
-                    idx.push_back(i);
-                }
-            }
-            if(to_eval.empty()) {
+            // Any slot still pending and flagged for processing? (A pending slot is always DO_PROCESS;
+            // resolved/unresolved slots are not.) There is no temporary working vector: the consumer
+            // evaluates the batch span IN PLACE, processing exactly the slots whose status is DO_PROCESS
+            // and writing each (possibly replaced) result straight back into its own slot.
+            const bool any_pending = std::ranges::any_of(
+                std::views::zip(state, items), [](auto &&slot_and_item) {
+                    auto &&[s, item] = slot_and_item;
+                    return s == slot::pending && item &&
+                           item->getProcessingStatus() == processingStatus::DO_PROCESS;
+                });
+            if(not any_pending) {
                 break; // every slot is resolved or unresolved
             }
 
-            // Consumer-specific evaluation of this round. A networked consumer evaluates a copy on
-            // a remote client and hands back a *different* object (the deserialized result), so
-            // dispatch_ may replace entries of to_eval with those results; write them back into the
-            // batch. A local consumer mutates each item in place, so the write-back is a no-op.
-            this->dispatch_(to_eval);
-            for(std::size_t k = 0; k < idx.size(); ++k) {
-                items[idx[k]] = std::move(to_eval[k]);
-            }
+            // Consumer-specific evaluation of this round, directly over the batch span. A networked
+            // consumer evaluates a copy on a remote client and writes the returned object back into the
+            // originating slot; a local consumer mutates each item in place. Either way every DO_PROCESS
+            // slot carries its (possibly replaced) result on return, and non-DO_PROCESS slots are skipped.
+            this->dispatch_(items);
 
-            for(unsigned long i : idx) {
-                const auto st = items[i]->getProcessingStatus();
+            for(auto&& [item, item_state, item_resubmits, item_failed_retries] :
+                    std::views::zip(items, state, resubmits, failed_retries)) {
+                if(item_state != slot::pending) {
+                    continue;
+                }
+                const auto st = item->getProcessingStatus();
                 if(st == processingStatus::PROCESSED) {
-                    state[i] = slot::resolved;
+                    item_state = slot::resolved;
                     any_success = true;
                 }
                 else if(st == processingStatus::EXCEPTION_CAUGHT ||
                         st == processingStatus::ERROR_FLAGGED) {
                     // FAILED: retry only to ride out *transient* crashes; a deterministic crash
                     // will keep failing, so the budget terminates in "unresolved".
-                    if(failed_retries[i] < policy.max_failed_retries) {
-                        ++failed_retries[i];
-                        items[i]->set_processing_status(processingStatus::DO_PROCESS);
+                    if(item_failed_retries < policy.max_failed_retries) {
+                        ++item_failed_retries;
+                        item->set_processing_status(processingStatus::DO_PROCESS);
                     }
                     else {
-                        state[i] = slot::unresolved;
+                        item_state = slot::unresolved; // status already non-DO_PROCESS
                     }
                 }
                 else {
                     // MISSING (still DO_PROCESS -- a networked timeout). Resubmit within budget;
                     // a MISSING item that persists despite resubmissions is treated as a hidden
                     // FAILED (poison individual) and becomes unresolved rather than looping forever.
-                    if(resubmits[i] < policy.max_resubmissions) {
-                        ++resubmits[i]; // stays DO_PROCESS -> re-dispatched next round
+                    if(item_resubmits < policy.max_resubmissions) {
+                        ++item_resubmits; // stays DO_PROCESS -> re-dispatched next round
                     }
                     else {
-                        state[i] = slot::unresolved;
+                        item_state = slot::unresolved;
+                        // Clear the DO_PROCESS flag (DO_PROCESS -> UNPROCESSED is the only valid
+                        // transition here) so the next round's in-place dispatch no longer selects this
+                        // permanently-unresolved slot. The slot is reconciled below by clone/fatal.
+                        item->set_processing_status(processingStatus::UNPROCESSED);
                     }
                 }
             }
@@ -199,12 +204,12 @@ public:
         }
 
         // Reconcile the unresolved slots per the policy.
-        for(std::size_t i = 0; i < n; ++i) {
-            if(state[i] != slot::unresolved) {
+        for(auto&& [item, item_state] : std::views::zip(items, state)) {
+            if(item_state != slot::unresolved) {
                 continue;
             }
             if(policy.unresolved_action == on_unresolved::clone) {
-                items[i] = this->clone_for_refill_(items, clone_template);
+                this->refill_slot_(item, items, clone_template);
             }
             else {
                 this->fatal_(
@@ -218,20 +223,20 @@ public:
 protected:
     /***************************************************************************/
     /**
-     * Consumer-specific evaluation of one round of items. Must, for each item, either evaluate it
-     * (leaving it PROCESSED or, on a caught processing exception, EXCEPTION_CAUGHT/ERROR_FLAGGED)
-     * or -- for networked consumers that time out -- leave it DO_PROCESS to signal MISSING. Must
-     * not let exceptions escape (a failed evaluation is reported via the item's status, not by
-     * throwing).
+     * Consumer-specific evaluation of one round, directly over the batch span. The consumer processes
+     * exactly the slots whose status is DO_PROCESS (skipping null slots and slots in any other state),
+     * leaving each evaluated item PROCESSED or -- on a caught processing exception -- EXCEPTION_CAUGHT/
+     * ERROR_FLAGGED, or -- for networked consumers that time out -- DO_PROCESS to signal MISSING. Must
+     * not let exceptions escape (a failed evaluation is reported via the item's status, not by throwing).
      *
-     * A consumer that evaluates a copy elsewhere (e.g. a remote client) may overwrite an entry of
-     * @p items with the resulting object; the replacement is written back into the batch by the
-     * caller. A consumer that mutates each item in place simply leaves the pointers untouched.
+     * A consumer that evaluates a copy elsewhere (e.g. a remote client) writes the resulting object back
+     * into its originating span slot in place; a consumer that mutates each item in place leaves the
+     * pointers untouched. No working copy of the batch is made -- the span is the OA's own population view.
      *
-     * @param items One round of (uniquely owned) work items to evaluate; entries may be replaced
-     *        with the resulting objects for consumers that evaluate a copy elsewhere
+     * @param items The batch span to evaluate in place; the consumer acts on the DO_PROCESS slots and
+     *        writes each (possibly replaced) result straight back into the same slot
      */
-    virtual void dispatch_(std::vector<item_ptr> &items) = 0;
+    virtual void dispatch_(std::span<item_ptr> items) = 0;
 
     /***************************************************************************/
     /** @brief Clean, fatal exit when the policy cannot be honoured. This is an expected terminal
@@ -246,7 +251,7 @@ protected:
 
     /***************************************************************************/
     /** @brief Deep-clones one (uniquely owned) work item into a fresh owning item. Uses the polymorphic
-     *  clone functor when set (required for polymorphic item types such as GFlatGenome, to avoid
+     *  clone functor when set (required for polymorphic item types such as GGenome, to avoid
      *  slicing), otherwise copy-construction (correct for leaf/concrete item types). Used both by the
      *  refill path and by the networked consumers when handing a session a copy to ship.
      *  @param src The (borrowed) uniquely owned work item to clone from
@@ -270,7 +275,7 @@ protected:
 public:
     /***************************************************************************/
     /** @brief Sets a polymorphic clone function for clone-on-partial-return. REQUIRED when the work
-     *  item is a polymorphic base (e.g. GFlatGenome holding a concrete individual): plain
+     *  item is a polymorphic base (e.g. GGenome holding a concrete individual): plain
      *  copy-construction of processable_type would SLICE it. The functor should deep-clone via the
      *  type's own clone mechanism, e.g. `[](const item_ptr& p){ return p->template clone<T>(); }`.
      *  When unset, refill falls back to copy-construction (correct for leaf/concrete item types).
@@ -279,17 +284,23 @@ public:
 
 private:
     /***************************************************************************/
-    /** @brief Produces a replacement item to refill an unresolved slot under clone-on-partial-return.
-     *  Source = a caller-supplied @p clone_template (e.g. a representative individual) if present,
-     *  else the first successfully evaluated sibling in the batch. The clone itself uses the
-     *  polymorphic clone functor when set (required for polymorphic item types to avoid slicing),
-     *  otherwise copy-construction (leaf types).
-     *  @param items The batch, scanned for a successfully evaluated sibling to clone from when no template is given
-     *  @param clone_template An explicit clone source; if empty, the first processed item of @p items is used
-     *  @return A fresh owning replacement item; an empty item_ptr if no source is available (after fatal exit) */
-    item_ptr clone_for_refill_(std::span<item_ptr> items, const item_ptr &clone_template) const {
-        // Items are uniquely owned, so the source is only borrowed (a pointer to the chosen owner),
-        // never copied; we clone from it to produce the fresh owning item.
+    /** @brief Refills an unresolved slot @p dest with a viable sibling under clone-on-partial-return,
+     *  preferring an in-place substitution that PRESERVES the slot's heap address.
+     *
+     *  Source = a caller-supplied @p clone_template (e.g. a representative individual) if present, else the
+     *  first successfully evaluated sibling in the batch. The substitution copies the source's content INTO
+     *  the failed slot without relocating it (@c loadContentFrom) and then mints a fresh lineage id -- a
+     *  refill is a NEW individual, distinct from the failed original, so a very-late return for that
+     *  original never reunites with the substitute. Item types that need no address stability (the
+     *  non-optimization demo containers) return false from @c loadContentFrom and fall back to
+     *  clone-and-replace, exactly as before. Keeping the address stable lets a concurrent per-individual
+     *  prefetch hold a snapshot of population addresses across the submission.
+     *
+     *  @param dest The unresolved slot to refill (its owning pointer, so a fallback can replace it)
+     *  @param items The batch, scanned for a successfully evaluated sibling when no template is given
+     *  @param clone_template An explicit clone source; if empty, the first processed item of @p items is used */
+    void refill_slot_(item_ptr &dest, std::span<item_ptr> items, const item_ptr &clone_template) const {
+        // Items are uniquely owned, so the source is only borrowed (a pointer to the chosen owner).
         const item_ptr *src = &clone_template;
         if(not *src) {
             for(auto &it : items) {
@@ -304,9 +315,16 @@ private:
                 "clone-on-partial-return: no clone template was supplied and no successfully "
                 "evaluated item is available to clone from."
             );
-            return {};
+            return;
         }
-        return this->clone_item_(*src);
+        // Prefer the pointer-preserving in-place substitution; fall back to clone-and-replace for item
+        // types that do not support it (they need no address stability).
+        if(dest && dest->loadContentFrom(**src)) {
+            dest->setSubmissionUuid(detail::mint_submission_uuid()); // a refill is a new individual
+        }
+        else {
+            dest = this->clone_item_(*src);
+        }
     }
 
     /***************************************************************************/

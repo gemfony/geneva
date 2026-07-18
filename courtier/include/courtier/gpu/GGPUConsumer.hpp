@@ -40,7 +40,6 @@
 #include "common/GExceptions.hpp"
 #include "common/GLogger.hpp"
 #include "courtier/GBaseConsumerT.hpp"
-#include "courtier/gpu/GCPUBackend.hpp"
 #include "courtier/gpu/GGPUBackendFactory.hpp"
 #include "courtier/gpu/GGPUConsumerConfig.hpp"
 #include "courtier/gpu/GGPUDeviceBackendI.hpp"
@@ -55,14 +54,16 @@ namespace Gem::Courtier::GPU {
  * It is an ordinary courtier LOCAL consumer (it derives from the same Gem::Courtier::GBaseConsumerT
  * that every other consumer -- serial, multi-threaded, asio, beast, mpi -- derives from), so it plugs
  * into the existing span+policy submission path unchanged. It is mnemonic-selectable like every other
- * consumer (`--consumer gpu`): a Go2 program contributes its device marshaller via
- * Go2::registerGPUConsumerBuilder(...) and Go2 builds + registers this consumer; a Go2-less program can
- * still construct it directly and register it in GConsumerRegistry. courtier hands dispatch_() the WHOLE
- * round's batch at once, which this consumer evaluates in a single bulk kernel launch.
+ * consumer (`--consumer gpu`): a Go2 program contributes its device marshaller into the marshaller store
+ * (Gem::Geneva::registerGPUMarshaller(...)) and Go2 builds + registers this consumer through the normal
+ * consumer setup; a Go2-less program can still construct it directly and register it in GConsumerRegistry.
+ * courtier hands dispatch_() the WHOLE round's batch at once, which this consumer evaluates in a single
+ * bulk kernel launch.
  *
  * The two things that used to be hard-wired per CUDA consumer are now decoupled and configurable:
- *   - the device-programming model (CPU / CUDA) -- chosen at run time from the config file,
- *     served by a swappable GGPUDeviceBackendI;
+ *   - the device-programming model (CUDA) -- chosen at run time from the config file, served by a
+ *     swappable GGPUDeviceBackendI; the GPU consumer is DEVICE-ONLY (a CPU run uses a CPU consumer
+ *     such as --consumer stc, which evaluates via the individual's own evaluate());
  *   - the kernel code -- a path in the config file, runtime-compiled (NVRTC) or loaded as a prebuilt
  *     module.
  * The problem-specific marshalling (how a batch of individuals becomes flat device buffers and how
@@ -97,7 +98,7 @@ public:
     GGPUConsumerT(const GGPUConsumerT &) = delete;
     GGPUConsumerT &operator=(const GGPUConsumerT &) = delete;
 
-    /** @brief The backend actually in use (after the first dispatch_), e.g. "cuda" / "cpu".
+    /** @brief The backend actually in use (after the first dispatch_), e.g. "cuda".
      *  @return The backend name, or "(uninitialised)" before the first dispatch_ */
     [[nodiscard]] std::string activeBackendName() const {
         return backend_ ? backend_->name() : std::string("(uninitialised)");
@@ -106,10 +107,12 @@ public:
 protected:
     /***************************************************************************/
     /** @brief Evaluates the whole round's batch in one bulk launch: flatten -> backend -> scatter.
-     *  Requires a uniform genome geometry across the batch (rejects mixed geometries loudly).
+     *  Requires a uniform genome geometry across the batch (rejects mixed geometries loudly). The GPU
+     *  consumer is non-networked and evaluates a batch all-or-nothing, so a round is always a full,
+     *  uniform-geometry batch of DO_PROCESS items (no MISSING/partial re-dispatch, no gaps).
      *
-     *  @param items The whole round's batch of work items, evaluated in place (fitness written back) */
-    void dispatch_(std::vector<item_ptr> &items) override {
+     *  @param items The whole round's batch span of work items, evaluated in place (fitness written back) */
+    void dispatch_(std::span<item_ptr> items) override {
         if(items.empty()) {
             return;
         }
@@ -159,20 +162,24 @@ protected:
 
 private:
     /***************************************************************************/
-    /** @brief Lazily builds the backend and acquires the kernel. Falls back to the CPU backend (with
-     *  a warning) if the configured backend was not compiled into this build. */
+    /** @brief Lazily builds the backend and acquires the kernel. The GPU consumer is device-only, so a
+     *  configured backend that was not compiled into this build is a hard error (there is no CPU
+     *  fallback -- a CPU run uses a CPU consumer such as --consumer stc). */
     void ensureBackend_() {
         if(backend_) {
             return;
         }
         BackendKind kind = cfg_.backendKind();
         if(not backendAvailable(kind)) {
-            glogger << "In Gem::Courtier::GPU::GGPUConsumer: the '" << toString(kind)
-                    << "' backend was not compiled into this build; falling back to 'cpu'." << '\n'
-                    << GWARNING;
-            kind = BackendKind::CPU;
+            throw geneva_exception(
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+                << "In Gem::Courtier::GPU::GGPUConsumer::ensureBackend_(): Error!" << '\n'
+                << "The '" << toString(kind) << "' backend was not compiled into this build (its"
+                << " toolkit was not found at configure time)." << '\n'
+                << "The GPU consumer is device-only; to run on the CPU use a CPU consumer instead"
+                << " (e.g. --consumer stc), which evaluates via the individual's own evaluate()." << '\n');
         }
-        backend_ = makeBackend<scalar_type>(kind, marshaller_.get());
+        backend_ = makeBackend<scalar_type>(kind);
         backend_->initialize(cfg_.kernelSpec());
         glogger << "Gem::Courtier::GPU::GGPUConsumer using the '" << backend_->name()
                 << "' backend (kernel: " << cfg_.kernel_path << ")" << '\n'

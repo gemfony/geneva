@@ -33,7 +33,8 @@
 #include <algorithm>
 #include <thread>
 
-#include "geneva/ind/GIndividualSlot.hpp"
+#include "common/GExpectationChecksT.hpp"
+#include "geneva/ind/GOptimizableEntity.hpp"
 
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::OptimizationAlgorithms::GMetaEvolutionaryAlgorithm) // NOLINT
 
@@ -56,7 +57,7 @@ GMetaEvolutionaryAlgorithm::evaluatePopulationRange_(std::size_t start, std::siz
     // Run each umbrella-individual's process() on the orchestration pool. process() funnels any thrown
     // exception into the item's status (EXCEPTION_CAUGHT) rather than letting it escape the worker.
     for(std::size_t i = start; i < end; ++i) {
-        auto *ind = &(this->at(i)->individual());
+        auto *ind = &((*this->at(i)));
         orchestration_pool_->post([ind]() { ind->process(); });
     }
     orchestration_pool_->wait();
@@ -65,12 +66,55 @@ GMetaEvolutionaryAlgorithm::evaluatePopulationRange_(std::size_t start, std::siz
     // "complete", flagging errors so the base runFitnessCalculation_ removes any failed umbrella-individual.
     bool has_errors = false;
     for(std::size_t i = start; i < end; ++i) {
-        if(this->at(i)->individual().has_errors()) {
+        if(this->at(i)->has_errors()) {
             has_errors = true;
             break;
         }
     }
     return Gem::Courtier::executor_status_t{.is_complete=true, .has_errors=has_errors};
+}
+
+/******************************************************************************/
+/**
+ * @brief Loads the data of another GMetaEvolutionaryAlgorithm, camouflaged as a
+ * GOptimizationAlgorithmBase. The local config members travel through localMembers_() -- the same
+ * single source serialize()/compare_()/the copy constructor use; the transient orchestration pool is
+ * not copied (it is re-established on first use).
+ *
+ * @param cp A pointer to another GMetaEvolutionaryAlgorithm, camouflaged as a GOptimizationAlgorithmBase
+ */
+void GMetaEvolutionaryAlgorithm::load_(const GOptimizationAlgorithmBase *cp) {
+    const GMetaEvolutionaryAlgorithm *p_load = Gem::Common::g_convert_and_compare<
+        GOptimizationAlgorithmBase, GMetaEvolutionaryAlgorithm>(cp, this);
+
+    GEvolutionaryAlgorithm::load_(cp);
+    Gem::Common::g_load_members(this->localMembers_(), p_load->localMembers_());
+}
+
+/******************************************************************************/
+/**
+ * @brief Searches for compliance with expectations with respect to another object of the same type.
+ *
+ * @param cp A constant reference to another object, camouflaged as a GOptimizationAlgorithmBase
+ * @param e The expected outcome of the comparison (equality, inequality, ...)
+ * @param limit The maximum acceptable deviation for floating-point comparisons (unused here)
+ */
+void GMetaEvolutionaryAlgorithm::compare_(
+    const GOptimizationAlgorithmBase &cp,
+    const Gem::Common::expectation &e,
+    const double & /*limit*/
+) const {
+    using namespace Gem::Common;
+
+    const GMetaEvolutionaryAlgorithm *p_load = Gem::Common::g_convert_and_compare<
+        GOptimizationAlgorithmBase, GMetaEvolutionaryAlgorithm>(cp, this);
+
+    GToken token("GMetaEvolutionaryAlgorithm", e);
+
+    Gem::Common::compare_base_t<GEvolutionaryAlgorithm>(*this, *p_load, token);
+    g_compare_members(this->localMembers_(), p_load->localMembers_(), token);
+
+    token.evaluate();
 }
 
 /******************************************************************************/

@@ -40,7 +40,7 @@
 #include "geneva/oa/GAdaption.hpp"
 #include "geneva/oa/GAdaptionConfig.hpp"
 #include "geneva/ind/GOptimizableEntity.hpp"
-#include "geneva/ind/GFlatGenome.hpp"
+#include "geneva/ind/GGenome.hpp"
 #include <algorithm>
 #include <cstddef>
 #include <cstdint>
@@ -48,6 +48,7 @@
 #include <future>
 #include <memory>
 #include <random>
+#include <ranges>
 #include <tuple>
 #include <vector>
 
@@ -99,7 +100,7 @@ using namespace Gem::Common::Concurrency;
     Gem::Common::compare_base_t<GOptimizationAlgorithmBase>(*this, *p_load, token);
 
     // ... and then the local data, derived from the single localMembers() declaration
-    g_compare_members(localMembers_(*this), localMembers_(*p_load), token);
+    g_compare_members(this->localMembers_(), p_load->localMembers_(), token);
 
     // React on deviations from the expectation
     token.evaluate();
@@ -392,12 +393,10 @@ void GParChild::doRecombine() {
     // ------------------------------------------------------------------------
     // Parallel fast path: when no cross-over can occur (amalgamation disabled)
     // and a derived algorithm supplies a thread pool, select the parent for every
-    // child sequentially first -- this reproduces both the random-number sequence
-    // and the chosen recombination scheme exactly -- and then run only the heavy
-    // load() deep-copies in parallel. Parents are read only and each child slot is
-    // written by exactly one task, so there are no data races. load() does not copy
-    // the per-individual RNG (gr_ is deliberately absent from localMembers()), so
-    // children keep their own generators.
+    // child sequentially first (the draws happen on the orchestration thread, so
+    // there is no concurrent use of the algorithm's RNG) and then run only the
+    // heavy load() deep-copies in parallel. Parents are read only and each child
+    // slot is written by exactly one task, so there are no data races.
     Gem::Common::Concurrency::GThreadPool *tp = this->tp_ptr_.get();
     const std::size_t n_children = GOptimizationAlgorithmBase::data_cnt_.size() - n_parents_;
     if(tp != nullptr && amalgamation_likelihood_ <= 0. && n_children > 1) {
@@ -405,14 +404,12 @@ void GParChild::doRecombine() {
             (duplicationScheme::VALUEDUPLICATIONSCHEME == recombination_method_)
             && not GOptimizationAlgorithmBase::inFirstIteration();
 
-        // (1) Sequential parent selection -- mirrors the serial path's draws exactly.
+        // (1) Sequential parent selection (same selection semantics as the serial path; Geneva's
+        // RNG is never deterministic, so no draw-for-draw mirroring of that path is attempted).
         std::vector<std::size_t> parent_pos(n_children);
         for(std::size_t c = 0; c < n_children; ++c) {
             std::size_t pp = 0;
             if(n_parents_ > 1) {
-                // The serial path flips an (always-false) cross-over coin here; flip it
-                // too so the random-number stream stays identical.
-                (void) amalgamation_wanted(this->gr_);
                 if(value_scheme) {
                     const double rand_test = GOptimizationAlgorithmBase::uniform_real_distribution_(this->gr_);
                     pp = n_parents_ - 1; // threshold[n_parents_-1] == 1, so a match is guaranteed
@@ -440,7 +437,7 @@ void GParChild::doRecombine() {
             const std::size_t child_idx = n_parents_ + c;
             const std::size_t pp = parent_pos[c];
             futures_cnt.push_back(tp->async_schedule([this, child_idx, pp]() {
-                std::unique_ptr<gen::GIndividualSlot> &child = GOptimizationAlgorithmBase::data_cnt_[child_idx];
+                std::unique_ptr<gen::GOptimizableEntity> &child = GOptimizationAlgorithmBase::data_cnt_[child_idx];
                 child->load(GOptimizationAlgorithmBase::data_cnt_[pp]);
                 child->template getPersonalityTraits<GBaseParChildPersonalityTraits>()
                     ->setParentId(pp);
@@ -474,7 +471,7 @@ void GParChild::doRecombine() {
 
     // ------------------------------------------------------------------------
     // Serial path (original behaviour; also covers the cross-over / amalgamation case).
-    std::vector<std::unique_ptr<gen::GIndividualSlot>>::iterator it;
+    std::vector<std::unique_ptr<gen::GOptimizableEntity>>::iterator it;
     for(it = GOptimizationAlgorithmBase::data_cnt_.begin() + n_parents_;
         it != GOptimizationAlgorithmBase::data_cnt_.end();
         ++it) {
@@ -482,19 +479,19 @@ void GParChild::doRecombine() {
         // If we do perform cross-over, we always cross the best individual with another random parent
         if(n_parents_ > 1 &&
            amalgamation_wanted(this->gr_)) { // Create individuals using a cross-over scheme
-            const gen::GOptimizableEntity &best_parent = this->front()->individual();
+            const gen::GOptimizableEntity &best_parent = (*this->front());
             const gen::GOptimizableEntity &combiner =
                 (n_parents_ > 2)
-                    ? (*(this->begin() + this->uniform_int_distribution_(
+                    ? (*(*(this->begin() + this->uniform_int_distribution_(
                                              this->gr_,
                                              std::uniform_int_distribution<std::size_t>::param_type(
                                                  1,
                                                  n_parents_ - 1
                                              )
-                                         )))->individual()
-                    : (*(this->begin() + 1))->individual();
+                                         ))))
+                    : (*(*(this->begin() + 1)));
 
-            (*it)->individual().load(best_parent.crossOverWith(combiner));
+            (*it)->load(best_parent.crossOverWith(combiner));
         }
         else { // Just perform duplication
             switch(recombination_method_) {
@@ -573,7 +570,7 @@ void GParChild::adaptChildren_() {
             // Drive the data-oriented adaption from the OA-owned config instead of the
             // individual's own adapt(). The config is read-only here, so the schedule stays lock-free.
             [it, cfg = adaption_config_.get()]() {
-                auto &flat = dynamic_cast<gen::GFlatGenome &>((*it)->individual());
+                auto &flat = dynamic_cast<gen::GGenome &>((*(*it)));
                 return adaptIndividual(flat, (*it)->scratch(), *cfg);
             } // Returns the number of adaptions
         ));
@@ -619,50 +616,33 @@ void GParChild::fixAfterJobSubmission() {
     const std::size_t np = this->getNParents();
     const std::uint32_t iteration = this->getIteration();
 
-    // Retrieve any LATE returns the consumer buffered -- bare individuals that came back after their
-    // batch had already been reconciled (only networked consumers produce these; local consumers return
-    // an empty list). They carry no OA personality (that lives on the population slot), so we
-    // reconcile purely by assigned iteration: each is appended below as a fresh child candidate and the
-    // subsequent selection keeps it only if it is competitive -- which makes this MO-safe without any
-    // bespoke "fitness >" comparison.
+    // Retrieve any LATE returns the consumer buffered -- individuals that came back after their batch had
+    // already been reconciled (only networked consumers produce these; local consumers return an empty
+    // list). getOldWorkItems() has already applied the universal gate: only CLEAN SUCCESSES survive and
+    // each lineage (submission UUID) appears at most once, de-duplicated against the live population. The
+    // OA personality (parent/child role, traits) now rides ON the individual, but a late return arrives
+    // with a wire-stripped scratch and a stale personality, so we re-stamp a fresh concrete personality
+    // below and let the subsequent selection keep each return only if it is competitive -- which makes
+    // this MO-safe without any bespoke "fitness >" comparison.
+    // getOldWorkItems() has also already applied this algorithm's one-generation age window (via the
+    // lateReturnMaxAge() override) -- a child evaluated in iteration N typically returns during N+1, so
+    // returns staler than one generation are dropped there. Only the current re-stamp remains here.
     auto old_work_items = this->getOldWorkItems();
 
-    // Admit late returns from the current OR the immediately-preceding iteration: a child evaluated in
-    // iteration N typically returns during N+1, so a strict "== current iteration" test would discard
-    // exactly the late returns we want to reap. Items staler than one generation are dropped. iteration
-    // >= getAssignedIteration() always (no items from the future), so the subtraction cannot underflow.
-    std::erase_if(old_work_items, [iteration](const auto &x) -> bool {
-        return (iteration - x->getAssignedIteration()) > 1;
-    });
-
     // Make it known to remaining old individuals that they are now part of a new iteration
-    std::for_each(
-        old_work_items.begin(),
-        old_work_items.end(),
-        [iteration](const auto &p) { p->setAssignedIteration(iteration); }
-    );
+    std::ranges::for_each(old_work_items, [iteration](const auto &p) { p->setAssignedIteration(iteration); });
 
     // Make sure that parents are at the beginning of the array.
-    std::sort(
-        this->begin(),
-        this->end(),
-        [](const auto &x, const auto &y) -> bool {
-            return (
-                x->template getPersonalityTraits<GBaseParChildPersonalityTraits>()->isParent() >
-                y->template getPersonalityTraits<GBaseParChildPersonalityTraits>()->isParent()
-            );
-        }
-    );
+    std::ranges::sort(*this, std::ranges::greater{}, [](const auto &p) {
+        return p->template getPersonalityTraits<GBaseParChildPersonalityTraits>()->isParent();
+    });
 
-    // Attach all old work items to the end of the current population and clear the array of old items.
-    // A late return is a BARE individual -- the personality object lives on the population slot, not on
-    // the individual, so the freshly-wrapped slot starts with an empty personality. Install the correct
-    // concrete one (the marking loop below, and selection, dereference it). It is tagged as a child by
-    // that marking loop.
+    // Attach all surviving old work items to the end of the current population and clear the array of old
+    // items. A late return arrives with a stale/empty personality, so install the correct concrete one
+    // (the marking loop below, and selection, dereference it). It is tagged as a child by that marking loop.
     for(auto &item_ptr : old_work_items) {
-        auto slot = std::make_unique<gen::GIndividualSlot>(std::move(item_ptr));
-        slot->setPersonality(this->makePersonalityTraits());
-        this->push_back(std::move(slot));
+        item_ptr->setPersonality(this->makePersonalityTraits());
+        this->push_back(std::move(item_ptr));
     }
     old_work_items.clear();
 
@@ -685,7 +665,7 @@ void GParChild::fixAfterJobSubmission() {
     }
 
     // Check that the last individual is not unprocessed. This is a severe error.
-    if(this->back()->individual().is_due_for_processing()) {
+    if(this->back()->is_due_for_processing()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GParChild::fixAfterJobSubmission(): Error!" << '\n'
@@ -740,7 +720,7 @@ void GParChild::load_(const GOptimizationAlgorithmBase *cp) {
     GOptimizationAlgorithmBase::load_(cp);
 
     // ... and then our own data, derived from the single localMembers() declaration
-    Gem::Common::g_load_members(localMembers_(*this), localMembers_(*p_load));
+    Gem::Common::g_load_members(this->localMembers_(), p_load->localMembers_());
 }
 
 /******************************************************************************/
@@ -793,7 +773,7 @@ std::tuple<std::size_t, std::size_t> GParChild::getAdaptionRange() const {
  * @brief This helper function marks the first n_parents_ individuals in the population as parents.
  */
 void GParChild::markParents() {
-    typename std::vector<std::unique_ptr<gen::GIndividualSlot>>::iterator it;
+    typename std::vector<std::unique_ptr<gen::GOptimizableEntity>>::iterator it;
     for(it = GOptimizationAlgorithmBase::data_cnt_.begin();
         it != GOptimizationAlgorithmBase::data_cnt_.begin() + n_parents_;
         ++it) {
@@ -808,11 +788,8 @@ void GParChild::markParents() {
  * @brief This helper function marks the individuals behind the parents as children
  */
 void GParChild::markChildren() {
-    typename std::vector<std::unique_ptr<gen::GIndividualSlot>>::iterator it;
-    for(it = GOptimizationAlgorithmBase::data_cnt_.begin() + n_parents_;
-        it != GOptimizationAlgorithmBase::data_cnt_.end();
-        ++it) {
-        (*it)
+    for(auto const &child : GOptimizationAlgorithmBase::data_cnt_ | std::views::drop(n_parents_)) {
+        child
             ->template getPersonalityTraits<GBaseParChildPersonalityTraits>()
             ->setIsChild();
     }
@@ -824,11 +801,10 @@ void GParChild::markChildren() {
  * population.
  */
 void GParChild::markIndividualPositions() {
-    std::size_t pos = 0;
-    for(const auto &individual : GOptimizationAlgorithmBase::data_cnt_) {
+    for(auto const &[pos, individual] : GOptimizationAlgorithmBase::data_cnt_ | std::views::enumerate) {
         individual
             ->template getPersonalityTraits<GBaseParChildPersonalityTraits>()
-            ->setPopulationPosition(pos++);
+            ->setPopulationPosition(static_cast<std::size_t>(pos));
     }
 }
 
@@ -859,7 +835,7 @@ std::tuple<double, double> GParChild::cycleLogic_() {
 
 #ifdef DEBUG
     // The dirty flag of this individual shouldn't be set
-    if(not this->at(0)->individual().is_processed()) {
+    if(not this->at(0)->is_processed()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In GParChild::cycleLogic(): Error!" << '\n'
@@ -870,7 +846,7 @@ std::tuple<double, double> GParChild::cycleLogic_() {
 #endif /* DEBUG */
 
     // Return the primary fitness of the best individual in the collection
-    return this->at(0)->individual().getFitnessTuple();
+    return this->at(0)->getFitnessTuple();
 }
 
 /******************************************************************************/
@@ -901,7 +877,7 @@ void GParChild::init() {
     // individual's own adapt(). It is transient run scratch, rebuilt on every optimize().
     adaption_config_.reset();
     if(not this->empty()) {
-        if(const auto *flat = dynamic_cast<const gen::GFlatGenome *>(&this->at(0)->individual())) {
+        if(const auto *flat = dynamic_cast<const gen::GGenome *>(&(*this->at(0)))) {
             // The genome carries only structure -- the adaptors live on an OA-owned GAdaptionConfig that
             // MUST be provided explicitly (via setAdaptionConfig(), e.g. Go2::registerAdaptionConfig() for
             // this algorithm's personality type). Adaption intent is never inferred from the genome, so an
@@ -923,7 +899,7 @@ void GParChild::init() {
             adaption_config_ = provided_adaption_config_;
 
             // Seed each slot's OA-owned scratch with the per-group adaption state from the shared
-            // config. The state (sigma / ad_prob / counter, …) lives on the GIndividualSlot, OA-owned.
+            // config. The state (sigma / ad_prob / counter, …) lives on the individual's OA-owned scratch.
             // Children created by recombination copy their chosen parent's whole slot (scratch included),
             // so the evolved state propagates with the parent.
             // On a checkpoint resume the slots already carry their restored, evolved adaption state --
@@ -991,7 +967,7 @@ void GParChild::adjustPopulation_() {
     }
 
     // Do the smart pointers actually point to any objects ?
-    typename std::vector<std::unique_ptr<gen::GIndividualSlot>>::iterator it;
+    typename std::vector<std::unique_ptr<gen::GOptimizableEntity>>::iterator it;
     for(const auto &individual : GOptimizationAlgorithmBase::data_cnt_) {
         if(not individual) { // unique_ptr can be implicitly converted to bool
             throw geneva_exception(
@@ -1013,7 +989,7 @@ void GParChild::adjustPopulation_() {
         for(it = GOptimizationAlgorithmBase::data_cnt_.begin() + this_sz;
             it != GOptimizationAlgorithmBase::data_cnt_.end();
             ++it) {
-            (*it)->individual().randomInit(activityMode::ACTIVEONLY);
+            (*it)->randomInit(activityMode::ACTIVEONLY);
         }
     }
 }
@@ -1048,7 +1024,7 @@ void GParChild::performScheduledPopulationGrowth() {
  *
  * @param child The child slot into which the randomly chosen parent's slot is loaded
  */
-void GParChild::randomRecombine(const std::unique_ptr<gen::GIndividualSlot> &child) {
+void GParChild::randomRecombine(const std::unique_ptr<gen::GOptimizableEntity> &child) {
     std::size_t parent_pos = 0;
 
     if(n_parents_ == 1) {
@@ -1087,7 +1063,7 @@ void GParChild::randomRecombine(const std::unique_ptr<gen::GIndividualSlot> &chi
  * @param threshold A std::vector<double> holding the cumulative recombination likelihoods for each parent
  */
 void GParChild::valueRecombine(
-    const std::unique_ptr<gen::GIndividualSlot> &child,
+    const std::unique_ptr<gen::GOptimizableEntity> &child,
     const std::vector<double> &threshold
 ) {
     bool done = false;

@@ -45,12 +45,11 @@
 
 // Geneva header files go here
 #include "common/GParserBuilder.hpp"
-#include "geneva/ind/GFlatGenome.hpp"
-#include "geneva/ind/GFlatIndividualFactory.hpp"
+#include "geneva/ind/GGenome.hpp"
+#include "geneva/ind/GIndividualFactory.hpp"
 #include "geneva/ind/GGenomeBuilder.hpp"
 #include "geneva/par/GOptimizableEntityFactory.hpp"
 #include "geneva/par/GOptimizableEntityMultiConstraint.hpp"
-#include "hap/GRandomT.hpp"
 
 namespace Gem::Geneva::OptimizationAlgorithms {
 class GAdaptionConfigBase;
@@ -254,14 +253,16 @@ std::ostream &operator<<(std::ostream &o, const Gem::Geneva::Individuals::solver
 std::istream &operator>>(std::istream &i, Gem::Geneva::Individuals::solverFunction &ur);
 
 /**
- * This enum describes different parameter types that may be used to fill the object with data
+ * @brief Selects the flat-genome structure a GFunctionIndividual is built with, along two orthogonal
+ * axes: whether the parameters are bounded (folded into [min_var, max_var]) or unbounded (that range is
+ * only the initialisation perimeter), and whether they share one adaptor group (one common sigma) or get
+ * one group each (a per-parameter sigma).
  */
 enum class parameterType : Gem::Common::ENUMBASETYPE {
-    USEGDOUBLECOLLECTION = 0,
-    USEGCONSTRAINEDOUBLECOLLECTION = 1,
-    USEGDOUBLEOBJECTCOLLECTION = 2,
-    USEGCONSTRAINEDDOUBLEOBJECTCOLLECTION = 3,
-    USEGCONSTRAINEDDOUBLEOBJECT = 4
+    UNBOUNDED_SHARED = 0,        ///< unbounded parameters, one shared adaptor group
+    BOUNDED_SHARED = 1,          ///< bounded parameters, one shared adaptor group
+    UNBOUNDED_PER_PARAMETER = 2, ///< unbounded parameters, one adaptor group per parameter
+    BOUNDED_PER_PARAMETER = 3    ///< bounded parameters, one adaptor group per parameter
 };
 
 // Make sure parameterType can be streamed
@@ -270,22 +271,6 @@ std::ostream &operator<<(std::ostream &o, const Gem::Geneva::Individuals::parame
 
 /** @brief Reads a Gem::Geneva::Individuals::parameterType from a stream. Needed for streaming / Gem::Common::fromString<> */
 std::istream &operator>>(std::istream &i, Gem::Geneva::Individuals::parameterType &ur);
-
-/**
- * This enum describes several ways of initializing the data collections
- */
-enum class initMode : Gem::Common::ENUMBASETYPE {
-    INITRANDOM = 0 // random values for all variables
-        ,
-    INITPERIMETER = 1 // Uses a parameter set on the perimeter of the allowed or common value range
-};
-
-// Make sure initMode can be streamed
-/** @brief Puts a Gem::Geneva::Individuals::initMode into a stream. Needed for streaming / Gem::Common::fromString<> */
-std::ostream &operator<<(std::ostream &o, const Gem::Geneva::Individuals::initMode &ur);
-
-/** @brief Reads a Gem::Geneva::Individuals::initMode from a stream. Needed for streaming / Gem::Common::fromString<> */
-std::istream &operator>>(std::istream &i, Gem::Geneva::Individuals::initMode &ur);
 
 /******************************************************************************/
 // A number of default settings for the factory
@@ -310,23 +295,20 @@ constexpr double GFI_DEF_MAXDELTA = 1.;
 constexpr std::size_t GFI_DEF_PARDIM = 2;
 constexpr double GFI_DEF_MINVAR = -10.;
 constexpr double GFI_DEF_MAXVAR = 10.;
-constexpr bool GFI_DEF_USECONSTRAINEDDOUBLECOLLECTION = false;
-const parameterType GFI_DEF_PARAMETERTYPE = parameterType::USEGCONSTRAINEDDOUBLEOBJECT;
-const initMode GFI_DEF_INITMODE = initMode::INITPERIMETER;
+const parameterType GFI_DEF_PARAMETERTYPE = parameterType::BOUNDED_PER_PARAMETER;
 const solverFunction GO_DEF_EVALFUNCTION = solverFunction::PARABOLA;
-constexpr double GFI_DEF_CROSSOVERPROB = 0.5;
 
 /******************************************************************************/
 /**
  * @brief An individual that evaluates one of several standard benchmark test functions.
  *
- * GFunctionIndividual is the standard benchmark vehicle for Geneva's optimisation algorithms.
+ * GFunctionIndividual is the standard benchmark vehicle for Geneva's optimization algorithms.
  * It supports 15 test functions (solverFunction enum, IDs 0–14) covering unimodal, multimodal,
  * separable, non-separable, ill-conditioned, deceptive, and asymmetric landscapes. The active
  * function is selected via setDemoFunction() or through the factory configuration file.
  *
  * All functions accept arbitrary parameter dimensionality n ≥ 1 (some require n ≥ 2).
- * The factory (GFunctionIndividualFactory) populates the individual with n GConstrainedDoubleObject
+ * The factory (GFunctionIndividualFactory) populates the individual's flat genome with n double
  * parameters within [min_var, max_var]; these bounds should match the recommended domain of the
  * selected function (see solverFunction enum documentation).
  *
@@ -334,21 +316,21 @@ constexpr double GFI_DEF_CROSSOVERPROB = 0.5;
  *       explicitly; the factory default of [-10, 10] is not suitable for that function.
  */
 class GFunctionIndividual
-  : public gen::GFlatGenome // NOLINT(cppcoreguidelines-special-member-functions)
+  : public gen::GGenome // NOLINT(cppcoreguidelines-special-member-functions)
 {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
     template <class Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gen::GFlatGenome) &
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gen::GGenome) &
             BOOST_SERIALIZATION_NVP(demo_function_);
     }
 
     ///////////////////////////////////////////////////////////////////////
 
 public:
-    using FACTORYTYPE = Gem::Geneva::Genome::GFlatIndividualFactory<GFunctionIndividual>;
+    using FACTORYTYPE = Gem::Geneva::Genome::GIndividualFactory<GFunctionIndividual>;
 
     /** @brief The default constructor */
     GFunctionIndividual() = default;
@@ -367,18 +349,12 @@ public:
     ~GFunctionIndividual() override = default;
 
     /**
-     * @brief Allows external entities to set the fitness (e.g. from a remote evaluation).
-     * @param fitnesses The vector of fitness values to assign to this individual
-     */
-    void setFitness(std::vector<double> const &result_vec);
-
-    /**
-     * @brief Allows to set the demo function to be evaluated.
+     * @brief Allows setting the demo function to be evaluated.
      * @param df The solverFunction this individual should evaluate
      */
     void setDemoFunction(solverFunction d_f);
     /**
-     * @brief Allows to retrieve the current demo function.
+     * @brief Allows retrieving the current demo function.
      * @return The solverFunction currently selected for evaluation
      */
     solverFunction getDemoFunction() const;
@@ -541,147 +517,7 @@ public:
     }
 
     //---------------------------------------------------------------------------
-    /**
-	  * @brief Returns the x-coordinate(s) of the global optimum for the 2D version of a function.
-	  *
-	  * Used to annotate plots produced by GFitnessMonitor and GOptimizationBenchmark.
-	  * Multiple values are returned only when the function has more than one global
-	  * optimum in 2D. Coordinates are for the first parameter (x-axis in 2D plots).
-	  *
-	  * For MICHALEWICZ the global minimum location is known only approximately.
-	  * For SCHWEFEL each dimension's optimum is at ≈420.9687; Geneva normalises
-	  * by n so the function value at the optimum is ≈-418.9829/n.
-	  *
-	  * @param df The solverFunction identifier
-	  * @return x-coordinate(s) of the global optimum in 2D
-	  */
-    static std::vector<double> getXMin(const solverFunction &df) {
-        std::vector<double> result;
-
-        switch(df) {
-        case solverFunction::PARABOLA:
-            result.push_back(0.);
-            break;
-        case solverFunction::NOISYPARABOLA:
-            result.push_back(0.);
-            break;
-        case solverFunction::ROSENBROCK:
-            result.push_back(1.);
-            break;
-        case solverFunction::ACKLEY:
-            // Pairwise-variant: two numerically determined global optima in 2D
-            result.push_back(-1.5096201);
-            result.push_back(1.5096201);
-            break;
-        case solverFunction::RASTRIGIN:
-            result.push_back(0.);
-            break;
-        case solverFunction::SCHWEFEL:
-            result.push_back(420.968746);
-            break;
-        case solverFunction::SALOMON:
-            result.push_back(0.);
-            break;
-        case solverFunction::NEGPARABOLA:
-            result.push_back(0.);
-            break;
-        case solverFunction::ACKLEY_CANONICAL:
-            result.push_back(0.);
-            break;
-        case solverFunction::GRIEWANK:
-            result.push_back(0.);
-            break;
-        case solverFunction::LEVY:
-            result.push_back(1.);
-            break;
-        case solverFunction::STYBLINSKI_TANG:
-            result.push_back(-2.903534);
-            break;
-        case solverFunction::ELLIPSOID:
-            result.push_back(0.);
-            break;
-        case solverFunction::MICHALEWICZ:
-            // Approximate; exact value not analytically known
-            result.push_back(2.2029);
-            break;
-        case solverFunction::ZAKHAROV:
-            result.push_back(0.);
-            break;
-        }
-
-        return result;
-    }
-
-    //---------------------------------------------------------------------------
-    /**
-	  * @brief Returns the y-coordinate(s) of the global optimum for the 2D version of a function.
-	  *
-	  * Used to annotate plots produced by GFitnessMonitor and GOptimizationBenchmark.
-	  * Coordinates are for the second parameter (y-axis in 2D plots). For functions
-	  * with a single global optimum this returns a single value; the ACKLEY pairwise
-	  * variant has one numerically determined y-coordinate for its 2D optimum.
-	  *
-	  * @param df The solverFunction identifier
-	  * @return y-coordinate(s) of the global optimum in 2D
-	  */
-    static std::vector<double> getYMin(const solverFunction &df) {
-        std::vector<double> result;
-
-        switch(df) {
-        case solverFunction::PARABOLA:
-            result.push_back(0.);
-            break;
-        case solverFunction::NOISYPARABOLA:
-            result.push_back(0.);
-            break;
-        case solverFunction::ROSENBROCK:
-            result.push_back(1.);
-            break;
-        case solverFunction::ACKLEY:
-            // Pairwise-variant: numerically determined y-coordinate of 2D optimum
-            result.push_back(-0.7548651);
-            break;
-        case solverFunction::RASTRIGIN:
-            result.push_back(0.);
-            break;
-        case solverFunction::SCHWEFEL:
-            result.push_back(420.968746);
-            break;
-        case solverFunction::SALOMON:
-            result.push_back(0.);
-            break;
-        case solverFunction::NEGPARABOLA:
-            result.push_back(0.);
-            break;
-        case solverFunction::ACKLEY_CANONICAL:
-            result.push_back(0.);
-            break;
-        case solverFunction::GRIEWANK:
-            result.push_back(0.);
-            break;
-        case solverFunction::LEVY:
-            result.push_back(1.);
-            break;
-        case solverFunction::STYBLINSKI_TANG:
-            result.push_back(-2.903534);
-            break;
-        case solverFunction::ELLIPSOID:
-            result.push_back(0.);
-            break;
-        case solverFunction::MICHALEWICZ:
-            // Approximate; exact value not analytically known
-            result.push_back(1.5708);
-            break;
-        case solverFunction::ZAKHAROV:
-            result.push_back(0.);
-            break;
-        }
-
-        return result;
-    }
-
-    //---------------------------------------------------------------------------
-    // GFlatIndividualFactory<GFunctionIndividual> hooks. GFunctionIndividual is a Tier-2
+    // GIndividualFactory<GFunctionIndividual> hooks. GFunctionIndividual is a Tier-2
     // (config-driven) flat individual: it supplies the static hooks the generic factory needs --
     // describeConfig (the configurable values), buildGenome (the genome structure for the five
     // parameter-type modes), buildAdaptionConfig (the OA-owned Gauss / bi-Gauss adaption config) and
@@ -711,7 +547,6 @@ public:
         double min_var = GFI_DEF_MINVAR;
         double max_var = GFI_DEF_MAXVAR;
         parameterType p_t = GFI_DEF_PARAMETERTYPE;
-        initMode i_m = GFI_DEF_INITMODE;
         solverFunction demo_function = GO_DEF_EVALFUNCTION;
     };
 
@@ -734,7 +569,7 @@ public:
      * @return A shared pointer to the populated adaption config
      */
     static std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase>
-    buildAdaptionConfig(const gen::GFlatGenome &sample, const Config &c);
+    buildAdaptionConfig(const gen::GGenome &sample, const Config &c);
     /**
      * @brief Per-object post-config hook: applies the (non-genome) demo function to a produced individual.
      * @param ind The individual to configure (modified in place)
@@ -770,7 +605,7 @@ protected:
     void addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) override;
     /** @brief Single declaration of this class'es local data members */
     template <typename Self>
-    static auto localMembers_(Self &self) {
+    auto localMembers_(this Self &self) {
         return std::make_tuple(Gem::Common::make_member("demo_function_", self.demo_function_));
     }
 
@@ -802,10 +637,10 @@ protected:
     ) const final;
 
     /**
-     * @brief The actual value calculation takes place here.
-     * @return The fitness value of this individual for the selected demo function
+     * @brief The evaluation hook: evaluates the selected benchmark function on the individual's parameters.
+     * @return The raw fitness as a one-element vector (a single-criterion problem)
      */
-    double fitnessCalculation() final;
+    std::vector<double> evaluate() final;
 
     //---------------------------------------------------------------------------
 
@@ -823,9 +658,9 @@ private:
     //---------------------------------------------------------------------------
     /**
      * @brief Creates a deep clone of this object.
-     * @return A deep clone of this object, camouflaged as a GFlatGenome
+     * @return A deep clone of this object, camouflaged as a GGenome
      */
-    gen::GFlatGenome *clone_() const final;
+    gen::GGenome *clone_() const final;
 
     //---------------------------------------------------------------------------
     // Data
@@ -858,12 +693,12 @@ operator<<(std::ostream & s, std::shared_ptr<Gem::Geneva::Individuals::GFunction
 /******************************************************************************/
 /**
  * A factory for GFunctionIndividual objects: an alias for the generic, config-driven
- * GFlatIndividualFactory, for which GFunctionIndividual supplies the static describeConfig /
+ * GIndividualFactory, for which GFunctionIndividual supplies the static describeConfig /
  * buildGenome / buildAdaptionConfig / applyConfig hooks. Call sites use ctor(path), get()/get_as<>(),
  * getAdaptionConfig(), registerContentCreator() and serialization via GMetaOptimizer.
  */
 using GFunctionIndividualFactory =
-    Gem::Geneva::Genome::GFlatIndividualFactory<GFunctionIndividual>;
+    Gem::Geneva::Genome::GIndividualFactory<GFunctionIndividual>;
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -880,7 +715,7 @@ class GDoubleSumConstraint
 
     /** @brief Single declaration of this class'es local data members */
     template <typename Self>
-    static auto localMembers_(Self &self) {
+    auto localMembers_(this Self &self) {
         return std::make_tuple(Gem::Common::make_member("c_", self.c_));
     }
 
@@ -888,7 +723,7 @@ class GDoubleSumConstraint
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         using boost::serialization::make_nvp;
         ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gen::GOptimizableEntityConstraint);
-        Gem::Common::serialize_members(ar, localMembers_(*this));
+        Gem::Common::serialize_members(ar, this->localMembers_());
     }
     ///////////////////////////////////////////////////////////////////////
 public:
@@ -973,7 +808,7 @@ class GDoubleSumGapConstraint
 
     /** @brief The single declaration of this class'es local data members. */
     template <typename Self>
-    static auto localMembers_(Self &self) {
+    auto localMembers_(this Self &self) {
         return std::make_tuple(
             Gem::Common::make_member("c_", self.c_),
             Gem::Common::make_member("gap_", self.gap_));
@@ -983,7 +818,7 @@ class GDoubleSumGapConstraint
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         using boost::serialization::make_nvp;
         ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gen::GOptimizableEntityConstraint);
-        Gem::Common::serialize_members(ar, localMembers_(*this));
+        Gem::Common::serialize_members(ar, this->localMembers_());
     }
     ///////////////////////////////////////////////////////////////////////
 public:
@@ -1070,7 +905,7 @@ class GSphereConstraint
 
     /** @brief Single declaration of this class'es local data members */
     template <typename Self>
-    static auto localMembers_(Self &self) {
+    auto localMembers_(this Self &self) {
         return std::make_tuple(Gem::Common::make_member("diameter_", self.diameter_));
     }
 
@@ -1080,7 +915,7 @@ class GSphereConstraint
         ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gen::GOptimizableEntityConstraint);
         // diameter_ was previously not serialized at all -- it was silently lost on
         // (de)serialization. Derive it from the single localMembers() declaration.
-        Gem::Common::serialize_members(ar, localMembers_(*this));
+        Gem::Common::serialize_members(ar, this->localMembers_());
     }
     ///////////////////////////////////////////////////////////////////////
 public:

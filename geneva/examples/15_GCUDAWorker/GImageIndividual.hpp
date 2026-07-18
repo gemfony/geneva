@@ -62,8 +62,8 @@
 #include "common/GParserBuilder.hpp"
 #include "common/GSingletonT.hpp"
 #include "common/GUnitTestFrameworkT.hpp"
-#include "geneva/ind/GFlatGenome.hpp"
-#include "geneva/ind/GFlatIndividualFactory.hpp"
+#include "geneva/ind/GGenome.hpp"
+#include "geneva/ind/GIndividualFactory.hpp"
 #include "geneva/ind/GGenomeBuilder.hpp"
 
 // Example-local headers
@@ -137,7 +137,7 @@ std::ostream &operator<<(std::ostream &, const CircleTriangle &);
      * that most closely resembles a given picture. It was developed
      * for evaluation using CUDA on a GPU.
      */
-class GImageIndividual final : public gen::GFlatGenome {
+class GImageIndividual final : public gen::GGenome {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
@@ -146,7 +146,7 @@ class GImageIndividual final : public gen::GFlatGenome {
      * @return A tuple of named member references driving serialize(), load_() and compare_()
      */
     template <typename Self>
-    static auto localMembers_(Self &self) {
+    auto localMembers_(this Self &self) {
         return std::make_tuple(
             Gem::Common::make_member("width_", self.width_),
             Gem::Common::make_member("height_", self.height_),
@@ -165,8 +165,8 @@ class GImageIndividual final : public gen::GFlatGenome {
         // background / alpha mutation flags are now on the wire too (they were
         // previously dropped, leaving a networked worker or a resumed checkpoint with
         // default dimensions / flags while load_()/compare_() already carried them).
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gen::GFlatGenome);
-        Gem::Common::serialize_members(ar, localMembers_(*this));
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gen::GGenome);
+        Gem::Common::serialize_members(ar, this->localMembers_());
     }
 
     ///////////////////////////////////////////////////////////////////////
@@ -180,11 +180,8 @@ public:
     /** @brief The standard destructor */
     ~GImageIndividual() override = default;
 
-    /** @brief Allows an external entity to set our fitness */
-    void setFitness(std::vector<double> const &);
-
     //---------------------------------------------------------------------------
-    // GFlatIndividualFactory<GImageIndividual> hooks. The individual supplies the static hooks the generic
+    // GIndividualFactory<GImageIndividual> hooks. The individual supplies the static hooks the generic
     // factory needs: describeConfig (the configurable values), buildGenome
     // (the labelled triangle + background genome structure), applyConfig (the per-object members + the
     // random init) and buildAdaptionConfig (the OA-owned main/location Gauss adaption config, authored
@@ -232,7 +229,7 @@ public:
     /** @brief The OA-owned main/location Gauss adaption config, authored from the labelled genome layout.
      *  Authored from the Config -- no adaptor data resides on the individual. */
     static std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase>
-    buildAdaptionConfig(const gen::GFlatGenome &sample, const Config &c);
+    buildAdaptionConfig(const gen::GGenome &sample, const Config &c);
 
     /** @brief Retrieves the number of triangles */
     std::size_t getNTriangles() const;
@@ -284,13 +281,16 @@ protected:
     /** @brief Loads the data of another GImageIndividual */
     void load_(const gen::GOptimizableEntity *) override;
 
-    /** @brief The actual fitness calculation takes place here. */
-    double fitnessCalculation() override;
+    /** @brief The evaluation hook: the CPU render+score of the genome's triangles against the process-wide
+     *  target image (Gem::Geneva::MonaLisa::scoreAgainstTarget) -- the SAME render+score the GPU kernel uses,
+     *  so it doubles as the device cross-check reference. Reads only the genome and the shared target store.
+     *  @return The raw fitness (deviation from the target image) as a one-element vector */
+    std::vector<double> evaluate() override;
 
 private:
     /******************************************************************************/
     /** @brief Creates a deep clone of this object */
-    gen::GFlatGenome *clone_() const override;
+    gen::GGenome *clone_() const override;
 
     /******************************************************************************/
     // Local parameters
@@ -316,11 +316,11 @@ protected:
 /******************************************************************************/
 /**
      * A factory for GImageIndividual objects: an alias for the generic, config-driven
-     * GFlatIndividualFactory, for which GImageIndividual supplies the static describeConfig /
+     * GIndividualFactory, for which GImageIndividual supplies the static describeConfig /
      * buildGenome / applyConfig / buildAdaptionConfig hooks. Call sites use ctor(path), get_as<>()
      * and the factory's getAdaptionConfig(sample).
      */
-using GImageIndividualFactory = Gem::Geneva::Genome::GFlatIndividualFactory<GImageIndividual>;
+using GImageIndividualFactory = Gem::Geneva::Genome::GIndividualFactory<GImageIndividual>;
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////

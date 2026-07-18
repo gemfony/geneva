@@ -6,6 +6,8 @@ SET ( OPTIMIZATIONINCLUDES
     GMultiConstraintT.hpp
 	Go2.hpp
 	GConsumerSetup.hpp
+	GMarshallerSetup.hpp
+	GModuleLoader.hpp
     GOptimizationEnums.hpp
     GSigHupHandler.hpp
 	GPersonalityTraits.hpp
@@ -30,6 +32,9 @@ SET ( PARAM_INCLUDES
 # so every one must ship.
 SET ( IND_INCLUDES
     ind/GAuxiliaryStore.hpp
+    ind/GIndividualProcessingResult.hpp
+    ind/GProblemPolicy.hpp
+    ind/GGenomeT.hpp
     ind/GOptimizableEntity.hpp
     ind/GAdaptionAuxKeys.hpp
     ind/GAdaptionKernels.hpp
@@ -37,10 +42,9 @@ SET ( IND_INCLUDES
     ind/GGenomeLayoutSerialization.hpp
     ind/GGenomeBuilder.hpp
     ind/GGenomeArchitecture.hpp
-    ind/GFlatGenome.hpp
-    ind/GIndividualSlot.hpp
-    ind/GFlatIndividualT.hpp
-    ind/GFlatIndividualFactory.hpp
+    ind/GGenome.hpp
+    ind/GIndividualFactory.hpp
+    ind/GIndividualPlugin.hpp
 )
 
 # Optimization-algorithm headers (namespace Gem::Geneva::OptimizationAlgorithms),
@@ -55,8 +59,10 @@ SET ( OA_INCLUDES
     oa/GAdaption.hpp
     oa/GInitializerT.hpp
     oa/GOAFactoryT.hpp
+    oa/GOAPlugin.hpp
     oa/GFactoryStore.hpp
     oa/GBaseParChildPersonalityTraits.hpp
+    oa/GPositionPersonalityTraits.hpp
     oa/GConjugateGradientDescent.hpp
     oa/GConjugateGradientDescentFactory.hpp
     oa/GConjugateGradientDescent_PersonalityTraits.hpp
@@ -65,7 +71,6 @@ SET ( OA_INCLUDES
     oa/GEvolutionaryAlgorithm.hpp
     oa/GEvolutionaryAlgorithmFactory.hpp
     oa/GEvolutionaryAlgorithm_PersonalityTraits.hpp
-    oa/GGradientDescent_PersonalityTraits.hpp
     oa/GNelderMead.hpp
     oa/GNelderMeadFactory.hpp
     oa/GNelderMead_PersonalityTraits.hpp
@@ -95,7 +100,6 @@ SET ( OA_INCLUDES
 # Interface headers (namespace Gem::Geneva::Interface), installed under
 # geneva/Interface to mirror the nested `Interface` namespace.
 SET ( IFACE_INCLUDES
-    Interface/GMutableI.hpp
     Interface/GRateableI.hpp
     Interface/GOptimizerIT.hpp
 )
@@ -128,20 +132,11 @@ ENDIF()
 # This is a workaround for a CLion-problem -- see CPP270 in the JetBrains issue tracker
 ADD_CUSTOM_TARGET(CLION_ALL_GENEVA_HEADERS SOURCES ${OPTIMIZATIONINCLUDES} ${OA_INCLUDES} ${IFACE_INCLUDES} ${PARAM_INCLUDES} ${IND_INCLUDES} ${INDIVIDUALS_INCLUDES})
 
-SET_TARGET_PROPERTIES(
-    CLION_ALL_GENEVA_HEADERS
-    PROPERTIES
-	CXX_STANDARD 20
-	CXX_STANDARD_REQUIRED ON
-	CXX_EXTENSIONS OFF
-)
-
-INSTALL ( FILES ${OPTIMIZATIONINCLUDES} DESTINATION ${INSTALL_PREFIX_INCLUDES}/geneva )
-INSTALL ( FILES ${OA_INCLUDES} DESTINATION ${INSTALL_PREFIX_INCLUDES}/geneva/oa )
-INSTALL ( FILES ${IFACE_INCLUDES} DESTINATION ${INSTALL_PREFIX_INCLUDES}/geneva/Interface )
-INSTALL ( FILES ${PARAM_INCLUDES} DESTINATION ${INSTALL_PREFIX_INCLUDES}/geneva/par )
-INSTALL ( FILES ${IND_INCLUDES} DESTINATION ${INSTALL_PREFIX_INCLUDES}/geneva/ind )
-INSTALL ( FILES ${INDIVIDUALS_INCLUDES} DESTINATION ${INSTALL_PREFIX_INCLUDES}/geneva/individuals )
+# Install ALL headers under this directory wholesale (directory install), so the installed public interface
+# is self-contained by construction and cannot drift out of sync with newly added headers or transitive
+# includes. (The SET lists above are retained only to populate the CLion header target for IDE indexing.)
+INSTALL ( DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/ DESTINATION ${INSTALL_PREFIX_INCLUDES}/geneva
+	FILES_MATCHING PATTERN "*.hpp" )
 
 # GEqualityPrinter.hpp (the only former include/geneva/tests/ header) is
 # pure test scaffolding and now lives next to its sole consumer in

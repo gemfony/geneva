@@ -78,8 +78,8 @@ TEST_CASE("GToken: registerErrorMessage accumulates strings",
     t.registerErrorMessage("alpha");
     t.registerErrorMessage(g_expectation_violation("beta"));
     auto msgs = t.getErrorMessages();
-    CHECK(msgs.find("alpha") != std::string::npos);
-    CHECK(msgs.find("beta")  != std::string::npos);
+    CHECK(msgs.contains("alpha"));
+    CHECK(msgs.contains("beta"));
 }
 
 TEST_CASE("GToken: toString and operator<< both produce non-empty output mentioning the caller",
@@ -93,10 +93,10 @@ TEST_CASE("GToken: toString and operator<< both produce non-empty output mention
     std::ostringstream oss;
     oss << t;
     CHECK_FALSE(oss.str().empty());
-    CHECK(oss.str().find("MyClass") != std::string::npos);
+    CHECK(oss.str().contains("MyClass"));
 
     CHECK_FALSE(t.toString().empty());
-    CHECK(t.toString().find("MyClass") != std::string::npos);
+    CHECK(t.toString().contains("MyClass"));
 }
 
 TEST_CASE("GToken: evaluate() throws when expectation is not met",
@@ -206,8 +206,8 @@ TEST_CASE("identity: stream-out names the items",
     auto id = getIdentity(a, b, "a", "b");
     std::ostringstream oss;
     oss << id;
-    CHECK(oss.str().find("a") != std::string::npos);
-    CHECK(oss.str().find("b") != std::string::npos);
+    CHECK(oss.str().contains("a"));
+    CHECK(oss.str().contains("b"));
 }
 
 // ---------------------------------------------------------------------------

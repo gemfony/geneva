@@ -1,0 +1,206 @@
+{
+    "header": {
+        "comment": [
+            "This configuration file was automatically created by GParserBuilder"
+        ]
+    },
+    "n_adaption_threads": {
+        "comment": [
+            "The number of threads used to simultaneously adapt and recombine individuals",
+            "0 means \"automatic\""
+        ],
+        "default": 2,
+        "value": 2
+    },
+    "max_iteration": {
+        "comment": [
+            "The maximum allowed number of iterations"
+        ],
+        "default": 1000,
+        "value": 1000
+    },
+    "min_iteration": {
+        "comment": [
+            "The minimum allowed number of iterations"
+        ],
+        "default": 0,
+        "value": 0
+    },
+    "max_stall_iteration": {
+        "comment": [
+            "The maximum allowed number of iterations without improvement",
+            "0 means: no constraint."
+        ],
+        "default": 20,
+        "value": 20
+    },
+    "touched_termination": {
+        "termination_file": {
+            "comment": [
+                "The name of a file which, when modified after the start of an",
+                "optimization run, instructs Geneva to terminate optimitation.",
+                "This can be used to \"touch a file\" after the start of an optimization",
+                "run, which will lead to the termination of the run after the current iteration."
+            ],
+            "default": "empty",
+            "value": "empty"
+        },
+        "touched_termination_active": {
+            "comment": [
+                "Activates (1) or de-activates (0) the \"touched termination\""
+            ],
+            "default": false,
+            "value": false
+        }
+    },
+    "individual_update_stall_counter_threshold": {
+        "comment": [
+            "The number of iterations without improvement after which",
+            "individuals are asked to update their internal data structures",
+            "through the actOnStalls() function. A value of 0 disables this check"
+        ],
+        "default": 0,
+        "value": 0
+    },
+    "late_return_ttl": {
+        "comment": [
+            "Time-to-live (in dispatch rounds) of a networked consumer's late-return",
+            "buffer entry. A late return not reaped within this many rounds is evicted."
+        ],
+        "default": 2,
+        "value": 2
+    },
+    "late_return_cap_factor": {
+        "comment": [
+            "Capacity of a networked consumer's late-return buffer, as a multiple of",
+            "the population size. 0 disables late-return buffering entirely."
+        ],
+        "default": 2E0,
+        "value": 2E0
+    },
+    "report_iteration": {
+        "comment": [
+            "The number of iterations after which a report should be issued"
+        ],
+        "default": 1,
+        "value": 1
+    },
+    "n_record_best_individuals": {
+        "comment": [
+            "Indicates how many \"best\" individuals should be recorded in each iteration"
+        ],
+        "default": 10,
+        "value": 10
+    },
+    "cp_interval": {
+        "comment": [
+            "The number of iterations after which a checkpoint should be written.",
+            "-1 means: Write a checkpoint file whenever an improvement was encountered",
+            "0 means: Never emit checkpoint files."
+        ],
+        "default": 0,
+        "value": 0
+    },
+    "checkpoint_location": {
+        "cp_directory": {
+            "comment": [
+                "The directory where checkpoint files should be stored."
+            ],
+            "default": "./checkpoints/",
+            "value": "./checkpoints/"
+        },
+        "cp_base_name": {
+            "comment": [
+                "The significant part of the checkpoint file name."
+            ],
+            "default": "geneva.cp",
+            "value": "geneva.cp"
+        }
+    },
+    "cp_overwrite": {
+        "comment": [
+            "When set to \"true\", old checkpoint files will not be kept"
+        ],
+        "default": true,
+        "value": true
+    },
+    "cp_ser_mode": {
+        "comment": [
+            "Determines whether check-pointing should be done in",
+            "text- (0), XML- (1), or binary-mode (2)"
+        ],
+        "default": "2",
+        "value": "2"
+    },
+    "quality_termination": {
+        "threshold": {
+            "comment": [
+                "A threshold beyond which optimization is expected to stop",
+                "Note that in order to activate this threshold, you also need to",
+                "set \"hasQualityThreshold\" to 1."
+            ],
+            "default": 0E0,
+            "value": 0E0
+        },
+        "threshold_active": {
+            "comment": [
+                "Activates (1) or de-activates (0) the quality threshold"
+            ],
+            "default": false,
+            "value": false
+        }
+    },
+    "max_duration": {
+        "comment": [
+            "The maximum allowed time-frame for the optimization",
+            "in the format hours:minutes:seconds"
+        ],
+        "default": "00:00:00",
+        "value": "00:00:00"
+    },
+    "min_duration": {
+        "comment": [
+            "The minimum required time-frame for the optimization",
+            "in the format hours:minutes:seconds"
+        ],
+        "default": "00:00:00",
+        "value": "00:00:00"
+    },
+    "emit_termination_reason": {
+        "comment": [
+            "Triggers emission (1) or omission (0) of information about reasons for termination"
+        ],
+        "default": true,
+        "value": true
+    },
+    "archive_size": {
+        "comment": [
+            "The size k of the ACOR solution archive (the continuous pheromone model",
+            "at least 2)"
+        ],
+        "default": 50,
+        "value": 50
+    },
+    "n_ants": {
+        "comment": [
+            "The number of ants m constructed (and evaluated) per iteration"
+        ],
+        "default": 2,
+        "value": 2
+    },
+    "q": {
+        "comment": [
+            "The ACOR locality / intensification parameter q (> 0",
+            "small = strong intensification)"
+        ],
+        "default": 1E-4,
+        "value": 1E-4
+    },
+    "xi": {
+        "comment": [
+            "The ACOR evaporation / convergence-speed parameter xi (> 0)"
+        ],
+        "default": 8.5E-1,
+        "value": 8.5E-1
+    }
+}

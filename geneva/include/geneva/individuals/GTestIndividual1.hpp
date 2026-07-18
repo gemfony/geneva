@@ -47,10 +47,10 @@
 #include "common/GCommonEnums.hpp"
 #include "common/GExceptions.hpp"
 #include "geneva/GOptimizationEnums.hpp"
-#include "geneva/ind/GFlatGenome.hpp"
+#include "geneva/ind/GGenome.hpp"
 #include "geneva/ind/GGenomeBuilder.hpp"
 #include "geneva/oa/GEvolutionaryAlgorithm_PersonalityTraits.hpp"
-#include "geneva/oa/GGradientDescent_PersonalityTraits.hpp"
+#include "geneva/oa/GConjugateGradientDescent_PersonalityTraits.hpp"
 #include "geneva/oa/GParameterScan_PersonalityTraits.hpp"
 #include "geneva/oa/GSimulatedAnnealing_PersonalityTraits.hpp"
 #include "geneva/oa/GSwarmAlgorithm_PersonalityTraits.hpp"
@@ -68,7 +68,7 @@ namespace Gem::Geneva::Individuals {
  * weakening data protection.
  */
 class GTestIndividual1 // NOLINT(cppcoreguidelines-special-member-functions)
-  : public gen::GFlatGenome {
+  : public gen::GGenome {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
@@ -76,7 +76,7 @@ class GTestIndividual1 // NOLINT(cppcoreguidelines-special-member-functions)
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         using boost::serialization::make_nvp;
 
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gen::GFlatGenome);
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gen::GGenome);
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -127,10 +127,10 @@ protected:
     ) const final;
 
     /**
-     * @brief The actual fitness calculation takes place here.
-     * @return The fitness value computed for this individual's genome
+     * @brief The evaluation hook: computes this individual's fitness.
+     * @return The fitness as a one-element vector (single criterion)
      */
-    double fitnessCalculation() final;
+    std::vector<double> evaluate() final;
 
     // Note: The following functions are, in the context of GTestIndividual1,
     // designed to mainly test parent classes
@@ -148,9 +148,9 @@ protected:
 private:
     /**
      * @brief Creates a deep clone of this object
-     * @return A deep clone of this object, returned as a pointer to its GFlatGenome base
+     * @return A deep clone of this object, returned as a pointer to its GGenome base
      */
-    gen::GFlatGenome *clone_() const final;
+    gen::GGenome *clone_() const final;
 };
 
 /******************************************************************************/

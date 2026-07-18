@@ -64,20 +64,6 @@ std::atomic<bool> GRandomFactory::multiple_call_trap_{false};
  * multiple_call_trap_ flag: a second construction throws a geneva_exception.
  */
 GRandomFactory::GRandomFactory() {
-    /*
-	 * Apparently the entropy() call currently always returns 0 with g++ and clang,
-	 * as this call is not fully implemented.
-	 *
-	// Check whether enough entropy is available. Warn, if this is not the case
-	if (0. == multiple_call_trap_.entropy()) {
-		glogger
-		<< "In GSeedManager::GSeedManager(): Error!" << std::endl
-		<< "Source of non-deterministic random numbers" << std::endl
-		<< "has entropy 0." << std::endl
-		<< GWARNING;
-	}
-	*/
-
     if(multiple_call_trap_) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
@@ -209,111 +195,62 @@ void GRandomFactory::returnUsedPackage(std::unique_ptr<random_container> &&p) {
 /**
  * @brief Sets the number of producer threads for this factory.
  *
- * See also http://preshing.com/20130930/double-checked-locking-is-fixed-in-cpp11/
- * for the rationale of the double-checked locking pattern. Note that only an
- * increase of the number of threads is allowed when threads are already
- * running; a requested decrease is ignored with a warning, and a request for 0
- * threads falls back to the default DEFAULT01PRODUCERTHREADS.
+ * A request for 0 threads auto-sizes the pool to the hardware
+ * (autoProducerThreadCount()). While producer threads are already running only
+ * an increase is possible: the missing threads are started on the spot and the
+ * stored count is updated; a requested decrease is ignored with a warning.
+ * Before the first start (threads are launched lazily on the first
+ * getNewRandomContainer() call) the count is simply stored.
  *
  * @param n_producer_threads The requested number of threads simultaneously producing random numbers
  */
 void GRandomFactory::setNProducerThreads(const std::uint16_t &n_producer_threads) {
-    // Threads might already be running, so we need to regulate access
-    if(threads_started_) {
-        // If we enter this code-path, there is no way threads
-        // could go into the "not-running" state, so we do not need
-        // to check again using DCLP .
-        std::unique_lock<std::mutex> lk(thread_creation_mutex_);
-        // Make a suggestion for the number of threads, if requested
-        std::uint16_t n_producer_threads_local = DEFAULT01PRODUCERTHREADS;
-        if(0 == n_producer_threads) {
-            glogger << "In GRandomFactory::setNProducerThreads(n_producer_threads) / 1:" << '\n'
-                    << "n_producer_threads == 0 was requested. n_producer_threads_local was set to the "
-                       "default "
-                    << DEFAULT01PRODUCERTHREADS << '\n'
-                    << GWARNING;
-        }
-        else {
-            n_producer_threads_local = n_producer_threads;
-        }
+    // thread_creation_mutex_ orders this call against the lazy thread start in
+    // getNewRandomContainer() and against concurrent setNProducerThreads() calls.
+    std::unique_lock<std::mutex> tc_lk(thread_creation_mutex_);
 
-        if(n_producer_threads_local > n_producer_threads_.load()) { // start new 01 threads
-            for(std::uint16_t i = n_producer_threads_.load(); i < n_producer_threads_local;
-                i++) { // NOLINT(cppcoreguidelines-init-variables)
-                producer_threads_.create_thread([this]() { this->producer(this->getSeed()); });
-            }
-        }
-        else if(
-            n_producer_threads_local < n_producer_threads_.load()
-        ) { // We need to remove threads
+    // A request of 0 means "auto-size to the hardware" (not an error) -- see autoProducerThreadCount().
+    const std::uint16_t n_producer_threads_local =
+        (0 == n_producer_threads) ? autoProducerThreadCount() : n_producer_threads;
+    const std::uint16_t n_current = n_producer_threads_.load();
+
+    if(threads_started_) {
+        if(n_producer_threads_local < n_current) { // Running threads cannot be removed
             glogger
                 << "In GRandomFactory::setNProducerThreads(" << n_producer_threads << "): Warning!"
                 << '\n'
                 << "Attempt to decrease the number of producer threads from "
-                << n_producer_threads_.load() << " to " << n_producer_threads << '\n'
-                << "while threads were alredy running. The number of threads will remain unchanged."
+                << n_current << " to " << n_producer_threads_local << '\n'
+                << "while threads were already running. The number of threads will remain unchanged."
                 << '\n'
                 << GWARNING;
 
             return;
         }
+
+        // Start the missing producer threads (a no-op if the count is unchanged)
+        for(std::uint16_t i = n_current; i < n_producer_threads_local; i++) {
+            producer_threads_.create_thread([this]() { this->producer(this->getSeed()); });
+        }
     }
-    else { // Double-checked locking pattern
-        // Here it appears that no threads were running. We do need to check again, though (DLCP)
-        std::unique_lock<std::mutex> tc_lk(thread_creation_mutex_);
-        // Make a suggestion for the number of threads, if requested
-        std::uint16_t n_producer_threads_local = DEFAULT01PRODUCERTHREADS;
-        if(n_producer_threads == 0) {
-            glogger << "In GRandomFactory::setNProducerThreads(n_producer_threads) / 2:" << '\n'
-                    << "n_producer_threads == 0 was requested. n_producer_threads_local was set to the "
-                       "default "
-                    << DEFAULT01PRODUCERTHREADS << '\n'
-                    << GWARNING;
-        }
-        else {
-            n_producer_threads_local = n_producer_threads;
-        }
 
-        if(threads_started_) { // Someone has started the threads in the meantime. Adjust the number of threads
-            if(n_producer_threads_local > n_producer_threads_.load()) { // start new 01 threads
-                for(std::uint16_t i = n_producer_threads_.load(); i < n_producer_threads_local;
-                    i++) { // NOLINT(cppcoreguidelines-init-variables)
-                    producer_threads_.create_thread([this]() { this->producer(this->getSeed()); });
-                }
-            }
-            else if(
-                n_producer_threads_local < n_producer_threads_.load()
-            ) { // We need to remove threads
-                glogger << "In GRandomFactory::setNProducerThreads(" << n_producer_threads
-                        << "): Warning!" << '\n'
-                        << "Attempt to decrease the number of producer threads from "
-                        << n_producer_threads_.load() << " to " << n_producer_threads << '\n'
-                        << "while threads were alredy running. The number of threads will remain "
-                           "unchanged."
-                        << '\n'
-                        << GWARNING;
-
-                return;
-            }
-        }
-
-        // Whether they were already running or not -- we may now adjust the number of producer threads
-        n_producer_threads_ = n_producer_threads_local;
-    }
+    // Record the new count -- whether threads run already (so a later call starts its
+    // delta from the actual pool size) or are yet to be started lazily
+    n_producer_threads_ = n_producer_threads_local;
 }
 
 /******************************************************************************/
 /**
  * @brief Hands out a new container of random numbers.
  *
- * When objects need a new container of [0,1[ random numbers with the current
+ * When objects need a new container of raw random words with the current
  * default size, they call this function. The producer threads are started on
  * first access (double-checked locking; see
  * http://preshing.com/20130930/double-checked-locking-is-fixed-in-cpp11/ for
  * the rationale). A fresh container is popped from the buffer with a bounded
  * wait.
  *
- * @return A packet of new [0,1[ random numbers, or an empty unique_ptr on timeout
+ * @return A packet of new raw random words, or an empty unique_ptr on timeout
  */
 std::unique_ptr<random_container> GRandomFactory::getNewRandomContainer() {
     // Start the producer threads upon first access to this function
@@ -334,14 +271,18 @@ std::unique_ptr<random_container> GRandomFactory::getNewRandomContainer() {
     if(auto popped = p_fresh_bfr_.pop_wait(std::chrono::milliseconds(DEFAULTFACTORYGETWAIT))) {
         p = std::move(*popped);
     }
-    // On timeout p stays empty -- our way of signaling a time out is an empty std::unique_ptr
+    else {
+        // On timeout p stays empty -- our way of signaling a time out is an empty std::unique_ptr.
+        // Count it: this is the aggregate "production could not keep up with demand" signal.
+        n_get_timeouts_.fetch_add(1, std::memory_order_relaxed);
+    }
 
     return p;
 }
 
 /******************************************************************************/
 /**
- * @brief The production of [0,1[ random numbers takes place here.
+ * @brief The production of raw random words takes place here.
  *
  * Runs as the body of a producer std::thread: it (re)fills containers from the
  * active backend -- the SIMD engine when an AVX2/NEON backend is compiled in,
@@ -406,6 +347,7 @@ void GRandomFactory::producer(std::uint32_t seed) {
             if(not p_fresh_bfr_.push(std::move(p))) {
                 break; // buffer closed at shutdown -- leave the producer loop
             }
+            n_packages_produced_.fetch_add(1, std::memory_order_relaxed); // supply-throughput signal
         }
     }
     // producer() is the body of a std::thread, so no exception may escape it:
@@ -431,6 +373,47 @@ void GRandomFactory::producer(std::uint32_t seed) {
             << GWARNING;
     }
 }
+
+/******************************************************************************/
+/**
+ * @brief Process-lifetime guard that brackets the global random-number factory around main().
+ *
+ * A single object with static storage duration, living in the hap library. It is constructed during
+ * this shared library's dynamic initialization -- i.e. BEFORE main() -- and destroyed at library
+ * unload / static teardown -- i.e. AFTER main() returns. Its constructor brings the factory online and
+ * its destructor finalizes it exactly once (joining the producer threads and closing the buffers).
+ *
+ * Making the factory's finalize the responsibility of this ONE library-global -- rather than of every
+ * GenevaInitializer / Go2, as it used to be -- is what keeps a short-lived Go2 from tearing the shared
+ * factory down mid-run (a finalized factory can never hand out another random-number container, so
+ * every later consumer would spin/throw; see GenevaInitializer's destructor and
+ * GRandomT::getNewRandomContainer()). finalize() is idempotent, so the factory's own destructor calling
+ * it again when the singleton storage is released is a harmless no-op.
+ *
+ * Ordering is correct by construction: because the RNG consumers (libgemfony-geneva et al.) depend on
+ * this library, their statics are destroyed BEFORE this guard's destructor runs, so nothing still draws
+ * random numbers when the producers are joined. And because the guard's constructor lazily builds the
+ * factory singleton, that singleton's storage completes construction during this guard's construction
+ * and is therefore destroyed AFTER it -- so randomFactory() is still valid inside the guard's
+ * destructor. (This relies on hap being a shared library, whose object files are all loaded; if hap is
+ * ever linked statically and this TU's guard is dropped by the linker, behaviour falls back to the
+ * factory being finalized by its own singleton destructor -- correct, just less deterministically
+ * timed. No functional regression either way.)
+ */
+namespace {
+struct GRandomFactoryLifecycleGuard {
+    // Acquire and HOLD a strong reference to the factory. This is what makes the destructor safe against
+    // static-destruction ORDER: the factory object cannot be torn down while this guard is alive, so the
+    // finalize() below always runs against a live factory (and we never re-enter the GSingletonT storage
+    // at teardown, where it may already be gone). init() is a formality; constructing factory_ is what
+    // brings the singleton online before main().
+    GRandomFactoryLifecycleGuard() : factory_(randomFactory()) { factory_->init(); }
+    ~GRandomFactoryLifecycleGuard() { factory_->finalize(); }
+
+    std::shared_ptr<GRandomFactory> factory_;
+};
+const GRandomFactoryLifecycleGuard g_random_factory_lifecycle_guard;
+} // namespace
 
 /******************************************************************************/
 

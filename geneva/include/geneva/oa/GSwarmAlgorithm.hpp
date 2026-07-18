@@ -39,7 +39,6 @@
 
 // Geneva headers go here
 #include "common/GExceptions.hpp"
-#include "dietrich/GPlotDesigner.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/ind/GOptimizableEntity.hpp"
 #include "geneva/oa/GOptimizationAlgorithmBase.hpp"
@@ -115,7 +114,7 @@ private:
     // The member list is written ONCE, in the static template helper below; the two localMembers()
     // overloads are trivial forwarders. Self is deduced as the (const) class type.
     template <typename Self>
-    static auto localMembers_(Self &self) {
+    auto localMembers_(this Self &self) {
         return std::make_tuple(
             Gem::Common::make_member("default_n_neighborhood_members_", self.default_n_neighborhood_members_),
             Gem::Common::make_member("c_personal_", self.c_personal_),
@@ -135,7 +134,7 @@ private:
 
         ar &make_nvp("GOptimizationAlgorithmBase", boost::serialization::base_object<GOptimizationAlgorithmBase>(*this));
         // Unconditional members derived from the single localMembers() declaration ...
-        Gem::Common::serialize_members(ar, localMembers_(*this));
+        Gem::Common::serialize_members(ar, this->localMembers_());
         // ... and the manual tail for the conditionally-reconstructed members (kept as
         // separate NVPs, with the same names as before).
         ar & BOOST_SERIALIZATION_NVP(n_neighborhoods_) &
@@ -336,6 +335,11 @@ protected:
      */
     void load_(const GOptimizationAlgorithmBase *cp) override;
 
+    /** @brief The swarm reuses late returns: a particle that returns asynchronously is re-attached to its
+     *  neighborhood and folded into the next iteration (no age window -- the base default keeps all ages).
+     *  @return true (the swarm algorithm reaps late returns) */
+    bool reapsLateReturns() const override { return true; }
+
     /** @brief Allow access to this classes compare_ function */
     friend void Gem::Common::compare_base_t<GSwarmAlgorithm>(
         GSwarmAlgorithm const &,
@@ -422,7 +426,7 @@ protected:
      */
     void updateIndividualPositions(
         const std::size_t &neighborhood,
-        const std::unique_ptr<gen::GIndividualSlot> &ind, // the population slot being moved (borrowed)
+        const std::unique_ptr<gen::GOptimizableEntity> &ind, // the population slot being moved (borrowed)
         std::shared_ptr<gen::GOptimizableEntity> neighborhood_best,      // neighborhood best
         std::shared_ptr<gen::GOptimizableEntity> global_best,      // global best
         std::tuple<double, double, double, double> constants      // c_personal / c_neighborhood / c_global / c_velocity
@@ -441,14 +445,14 @@ protected:
      *
      * The (unnamed) argument is the population slot whose personal best is unconditionally updated (borrowed).
      */
-    static void updatePersonalBest(const std::unique_ptr<gen::GIndividualSlot> &ind_ptr);
+    static void updatePersonalBest(const std::unique_ptr<gen::GOptimizableEntity> &ind_ptr);
     /**
      * @brief Updates the personal best of an individual, if a better solution was found.
      *
      * The (unnamed) argument is the population slot whose personal best is updated only when the current
      * solution is better (borrowed).
      */
-    void updatePersonalBestIfBetter(const std::unique_ptr<gen::GIndividualSlot> &ind_ptr);
+    void updatePersonalBestIfBetter(const std::unique_ptr<gen::GOptimizableEntity> &ind_ptr);
 
     std::size_t n_neighborhoods_ =
         (DEFAULTNNEIGHBORHOODS ? DEFAULTNNEIGHBORHOODS
@@ -468,7 +472,7 @@ protected:
         std::vector<std::shared_ptr<gen::GOptimizableEntity>>(
             n_neighborhoods_
         ); ///< The collection of best individuals from each neighborhood
-    // (Per-particle velocities now live on each GIndividualSlot's OA scratch as a POD double block --
+    // (Per-particle velocities now live on each individual's OA scratch as a POD double block --
     //  key AUXKEY_SWARM_VELOCITY in GSwarmAlgorithm.cpp -- not in a parallel vector here.)
 
     double c_personal_ =
@@ -506,11 +510,6 @@ private:
     /** @brief Updates the fitness of all individuals */
     void runFitnessCalculation_() override;
 
-    /**
-     * @brief Retrieves the number of processable items for the current iteration.
-     * @return The number of individuals that need to be (re-)evaluated in the current iteration
-     */
-    std::size_t getNProcessableItems_() const override;
 
     /**
      * @brief Retrieve a GPersonalityTraits object belonging to this algorithm.

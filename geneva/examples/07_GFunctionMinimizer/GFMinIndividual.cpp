@@ -36,7 +36,11 @@
 #include "geneva/oa/GAdaption.hpp"
 #include "geneva/oa/GAdaptionConfig.hpp"
 
+#include <algorithm>
 #include <any>
+#include <functional>
+#include <ranges>
+#include <utility>
 
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GFMinIndividual) // NOLINT
 namespace Gem::Geneva {
@@ -50,7 +54,7 @@ namespace Gem::Geneva {
  * @return The std::ostream object used to add the item to
  */
 std::ostream &operator<<(std::ostream &o, const Gem::Geneva::targetFunction &tF) {
-    Gem::Common::ENUMBASETYPE tmp = static_cast<Gem::Common::ENUMBASETYPE>(tF);
+    Gem::Common::ENUMBASETYPE tmp = std::to_underlying(tF);
     o << tmp;
     return o;
 }
@@ -90,7 +94,7 @@ GFMinIndividual::GFMinIndividual() { /* nothing */
  * @param cp A copy of another GFunctionIndidivual
  */
 GFMinIndividual::GFMinIndividual(const GFMinIndividual &cp)
-  : gen::GFlatGenome(cp)
+  : gen::GGenome(cp)
   , targetFunction_(cp.targetFunction_)
   , seed_sigma_(cp.seed_sigma_) { /* nothing */
 }
@@ -133,7 +137,7 @@ targetFunction GFMinIndividual::getTargetFunction() const {
  */
 double GFMinIndividual::getAverageSigma() const {
     // The Gauss adaptor configuration now lives on the OA-owned config (the genome is structure-only), and
-    // the live evolving sigma is OA-owned scratch on the GIndividualSlot, not on the individual. An
+    // the live evolving sigma is OA-owned scratch carried on the individual itself (its GAuxiliaryStore). An
     // individual queried in isolation (as here) is detached from its slot, so this reports the configured
     // SEED sigma the factory stamped at construction.
     return seed_sigma_;
@@ -151,7 +155,7 @@ void GFMinIndividual::load_(const gen::GOptimizableEntity *cp) {
         Gem::Common::g_convert_and_compare<gen::GOptimizableEntity, GFMinIndividual>(cp, this);
 
     // Load our parent class'es data ...
-    gen::GFlatGenome::load_(cp);
+    gen::GGenome::load_(cp);
 
     // ... and then our local data
     targetFunction_ = p_load->targetFunction_;
@@ -162,9 +166,9 @@ void GFMinIndividual::load_(const gen::GOptimizableEntity *cp) {
 /**
  * Creates a deep clone of this object
  *
- * @return A deep clone of this object, camouflaged as a GFlatGenome
+ * @return A deep clone of this object, camouflaged as a GGenome
  */
-gen::GFlatGenome *GFMinIndividual::clone_() const {
+gen::GGenome *GFMinIndividual::clone_() const {
     return new GFMinIndividual(*this);
 }
 
@@ -175,7 +179,7 @@ gen::GFlatGenome *GFMinIndividual::clone_() const {
  * @param The id of the target function (ignored here)
  * @return The value of this object, as calculated with the evaluation function
  */
-double GFMinIndividual::fitnessCalculation() {
+std::vector<double> GFMinIndividual::evaluate() {
     // Retrieve the parameters
     std::vector<double> parVec;
     this->streamline(parVec);
@@ -185,20 +189,18 @@ double GFMinIndividual::fitnessCalculation() {
     //-----------------------------------------------------------
     // A simple, multi-dimensional parabola
     case targetFunction::GFM_PARABOLA:
-        return parabola(parVec);
-        break;
+        return {parabola(parVec)};
 
     //-----------------------------------------------------------
     // A "noisy" parabola, i.e. a parabola with a very large
     // number of overlaid local optima
     case targetFunction::GFM_NOISYPARABOLA:
-        return noisyParabola(parVec);
-        break;
+        return {noisyParabola(parVec)};
         //-----------------------------------------------------------
     };
 
     // Make the compiler happy
-    return 0.;
+    return {0.};
 }
 
 /******************************************************************************/
@@ -206,14 +208,8 @@ double GFMinIndividual::fitnessCalculation() {
  * A simple n-dimensional parabola
  */
 double GFMinIndividual::parabola(const std::vector<double> &parVec) {
-    double result = 0.;
-
-    std::vector<double>::const_iterator cit;
-    for(cit = parVec.begin(); cit != parVec.end(); ++cit) {
-        result += Gem::Common::gsquared(*cit);
-    }
-
-    return result;
+    return std::ranges::fold_left(
+        parVec | std::views::transform([](double x) { return Gem::Common::gsquared(x); }), 0., std::plus{});
 }
 
 /******************************************************************************/
@@ -221,12 +217,8 @@ double GFMinIndividual::parabola(const std::vector<double> &parVec) {
  * A "noisy" parabola
  */
 double GFMinIndividual::noisyParabola(const std::vector<double> &parVec) {
-    double xsquared = 0.;
-
-    std::vector<double>::const_iterator cit;
-    for(cit = parVec.begin(); cit != parVec.end(); ++cit) {
-        xsquared += Gem::Common::gsquared(*cit);
-    }
+    const double xsquared = std::ranges::fold_left(
+        parVec | std::views::transform([](double x) { return Gem::Common::gsquared(x); }), 0., std::plus{});
 
     return (cos(xsquared) + 2.) * xsquared;
 }
@@ -338,7 +330,7 @@ gen::GenomeData GFMinIndividual::buildGenome(const Config &c) {
  * double group gets a Gauss adaptor with the configured parameters.
  */
 std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase>
-GFMinIndividual::buildAdaptionConfig(const gen::GFlatGenome &sample, const Config &c) {
+GFMinIndividual::buildAdaptionConfig(const gen::GGenome &sample, const Config &c) {
     namespace oa = Gem::Geneva::OptimizationAlgorithms;
     auto cfg = oa::makeAdaptionConfig<oa::GAdaptionConfigBase>(sample);
     for(std::size_t i = 0; i < cfg->doubleGroups().size(); i++) {

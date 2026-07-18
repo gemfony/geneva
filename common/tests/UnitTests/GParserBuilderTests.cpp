@@ -31,10 +31,15 @@
 
 #include <filesystem>
 #include <fstream>
+#include <iterator>
 #include <functional>
 #include <string>
+#include <vector>
+
+#include <boost/json.hpp>
 
 #include "common/GExceptions.hpp"
+#include "common/GJsonIO.hpp"
 #include "common/GParserBuilder.hpp"
 
 using namespace Gem::Common;
@@ -95,6 +100,44 @@ TEST_CASE("GParserBuilder: writeConfigFile + parseConfigFile round-trip "
         REQUIRE(gpb.parseConfigFile(cfg));
         CHECK(answer == 42);
         CHECK(scale  == 3.14);
+    }
+
+    std::filesystem::remove(cfg);
+}
+
+// ---------------------------------------------------------------------------
+// Regression: a vector file-parameter with an EMPTY default must emit + round-trip.
+// Its save_to() previously threw "You need to provide at least one default value" on an
+// empty default vector, which broke config emission (--update-configs) for any binary
+// registering such a parameter (e.g. Go2's list of module paths). An empty default is
+// valid -- it denotes a list that is empty unless the user fills it in.
+
+TEST_CASE("GParserBuilder: vector file-parameter with an empty default round-trips",
+          "[common][parser-builder]") {
+    auto cfg = scratch("rt_empty_vector");
+    std::filesystem::remove(cfg);
+
+    {
+        GParserBuilder gpb;
+        std::vector<std::string> paths;
+        // Missing file -> GParserBuilder emits it from the (empty) default, then parses it back.
+        // Before the fix this parseConfigFile() threw during emission; it must now succeed and
+        // write an empty array.
+        gpb.registerFileParameter<std::string>(
+            "paths", paths, std::vector<std::string>{}, VAR_IS_SECONDARY, "optional paths");
+        REQUIRE_NOTHROW(gpb.parseConfigFile(cfg));
+        REQUIRE(std::filesystem::exists(cfg));
+        CHECK(paths.empty());
+    }
+
+    // Re-parse the generated file: the empty list must survive.
+    {
+        GParserBuilder gpb;
+        std::vector<std::string> paths{"stale", "values"};
+        gpb.registerFileParameter<std::string>(
+            "paths", paths, std::vector<std::string>{}, VAR_IS_SECONDARY, "optional paths");
+        REQUIRE_NOTHROW(gpb.parseConfigFile(cfg));
+        CHECK(paths.empty());
     }
 
     std::filesystem::remove(cfg);
@@ -629,4 +672,302 @@ TEST_CASE("GParserBuilder::resetFileParameterDefaults (array form): missing opti
         (gpb.resetFileParameterDefaults<int, 2>("nope", std::array<int, 2>{1, 2})),
         geneva_exception
     );
+}
+
+// ---------------------------------------------------------------------------
+// updateConfigFile: the update-in-place contract (drop stale keys, preserve
+// existing values, add newly-registered keys with defaults).
+
+TEST_CASE("GParserBuilder::updateConfigFile drops stale keys, preserves values, defaults new keys",
+          "[common][parser-builder]") {
+    namespace json = boost::json;
+    auto cfg = scratch("update_inplace");
+    std::filesystem::remove(cfg);
+
+    // Write a v1 config by hand: a CUSTOMIZED "answer" value (13, not the default 42), a normal
+    // "scale", and a "stale_key" that the v2 schema below no longer registers.
+    {
+        json::object t;
+        t["answer"]    = json::object{{"default", "42"}, {"value", "13"}}; // customized on disk
+        t["scale"]     = json::object{{"default", "3.14"}, {"value", "3.14"}};
+        t["stale_key"] = json::object{{"default", "999"}, {"value", "999"}};
+        Gem::Common::writeJsonFile(cfg, json::value(std::move(t)));
+    }
+
+    // v2 schema: {answer, scale, fresh} -- "stale_key" gone, "fresh" new.
+    GParserBuilder gpb;
+    int    answer = 0;
+    double scale  = 0.0;
+    int    fresh  = 0;
+    gpb.registerFileParameter<int>   ("answer", answer, 42,   VAR_IS_ESSENTIAL, "the int");
+    gpb.registerFileParameter<double>("scale",  scale,  3.14, VAR_IS_ESSENTIAL, "the double");
+    gpb.registerFileParameter<int>   ("fresh",  fresh,  7,    VAR_IS_ESSENTIAL, "new in v2");
+
+    REQUIRE(gpb.updateConfigFile(cfg));
+
+    // Applied (in-memory) values: existing preserved, new defaulted.
+    CHECK(answer == 13);   // preserved from disk (not reset to the 42 default)
+    CHECK(scale  == 3.14);
+    CHECK(fresh  == 7);    // absent from v1 -> registered default
+
+    // On-disk shape after the rewrite. Arithmetic scalars are stored as native JSON numbers (the input
+    // above was hand-written in the earlier all-strings form, which the reader still accepts).
+    const json::value after = Gem::Common::parseJsonFile(cfg);
+    REQUIRE(after.is_object());
+    const json::object &ao = after.get_object();
+    CHECK(ao.at("answer").at("value").to_number<int>() == 13);   // value preserved on disk
+    CHECK(ao.at("scale").at("value").to_number<double>() == 3.14);
+    CHECK(ao.at("fresh").at("value").to_number<int>()  == 7);    // new key present, defaulted
+    CHECK_FALSE(ao.contains("stale_key")); // stale key dropped
+    CHECK(ao.contains("header"));          // canonical header written
+
+    std::filesystem::remove(cfg);
+}
+
+// ---------------------------------------------------------------------------
+// Regression (vector load_from): a config that lacks a registered vector
+// parameter must keep that parameter's defaults instead of throwing. Guards the
+// get_child_optional() fix that makes update-in-place work when a NEW vector
+// parameter is added to the schema.
+
+TEST_CASE("GParserBuilder: a config missing a registered vector parameter keeps its defaults",
+          "[common][parser-builder]") {
+    namespace json = boost::json;
+    auto cfg = scratch("vec_newkey");
+    std::filesystem::remove(cfg);
+
+    // A config with a scalar but WITHOUT the vector key "vints".
+    {
+        json::object t;
+        t["other"] = json::object{{"default", "5"}, {"value", "5"}};
+        Gem::Common::writeJsonFile(cfg, json::value(std::move(t)));
+    }
+
+    GParserBuilder gpb;
+    int              other = 0;
+    std::vector<int> vints;
+    gpb.registerFileParameter<int>("other", other, 5, VAR_IS_ESSENTIAL, "scalar");
+    gpb.registerFileParameter<int>("vints", vints, std::vector<int>{10, 20, 30}, VAR_IS_ESSENTIAL, "a vector");
+
+    // Before the fix a missing vector key aborted the parse; now it keeps the registered defaults.
+    REQUIRE(gpb.parseConfigFile(cfg));
+    CHECK(other == 5);
+    CHECK(vints == std::vector<int>{10, 20, 30}); // the registered defaults survive
+
+    std::filesystem::remove(cfg);
+}
+
+// ---------------------------------------------------------------------------
+// Regression (Inv 15): a multi-element vector parameter must round-trip through a
+// written-then-parsed config with ALL its elements intact. The old ptree format
+// stored vectors as duplicate "item" keys, which a strict JSON parser collapses to
+// one (silent data loss); the JSON-array representation keeps every element.
+
+TEST_CASE("GParserBuilder: a multi-element vector round-trips as a JSON array (no dup-key collapse)",
+          "[common][parser-builder][regression]") {
+    namespace json = boost::json;
+    auto cfg = scratch("vec_roundtrip");
+    std::filesystem::remove(cfg);
+
+    // Hand-write a config whose vector "value" is a 4-element JSON array of non-default values.
+    {
+        json::object t;
+        t["vec"] = json::object{
+            {"default", json::array{"1", "1", "1", "1"}},
+            {"value", json::array{"7", "8", "9", "10"}}
+        };
+        Gem::Common::writeJsonFile(cfg, json::value(std::move(t)));
+    }
+
+    // Reading it back restores every element (the old dup-key format would have collapsed to one).
+    GParserBuilder reader;
+    std::vector<int> vec_in;
+    reader.registerFileParameter<int>("vec", vec_in, std::vector<int>{1, 1, 1, 1}, VAR_IS_ESSENTIAL, "a vector");
+    REQUIRE(reader.parseConfigFile(cfg));
+    CHECK(vec_in == std::vector<int>{7, 8, 9, 10});
+
+    std::filesystem::remove(cfg);
+}
+
+// ---------------------------------------------------------------------------
+// Native scalar typing: arithmetic types and booleans are written as native JSON
+// numbers / bools (not quoted strings), while a config hand-written in the earlier
+// all-strings form still loads (back-compat of the read path).
+
+TEST_CASE("GParserBuilder: arithmetic and bool scalars write as native JSON, old string form still reads",
+          "[common][parser-builder][regression]") {
+    namespace json = boost::json;
+    auto cfg = scratch("native_scalars");
+    std::filesystem::remove(cfg);
+
+    // parseConfigFile on a non-existent file creates it from the registered defaults.
+    {
+        GParserBuilder gpb;
+        int         i = 20;
+        double      d = 3.5;
+        bool        b = true;
+        std::string s = "hello";
+        gpb.registerFileParameter<int>        ("i", i, 20,                  VAR_IS_ESSENTIAL, "an int");
+        gpb.registerFileParameter<double>     ("d", d, 3.5,                 VAR_IS_ESSENTIAL, "a double");
+        gpb.registerFileParameter<bool>       ("b", b, true,                VAR_IS_ESSENTIAL, "a bool");
+        gpb.registerFileParameter<std::string>("s", s, std::string("hi"),   VAR_IS_ESSENTIAL, "a string");
+        REQUIRE(gpb.parseConfigFile(cfg));
+    }
+
+    const json::value doc = Gem::Common::parseJsonFile(cfg);
+    REQUIRE(doc.is_object());
+    const json::object &o = doc.get_object();
+    CHECK(o.at("i").at("value").is_int64());            // native number, not "20"
+    CHECK(o.at("i").at("value").to_number<int>() == 20);
+    CHECK(o.at("d").at("value").is_double());           // native number
+    CHECK(o.at("b").at("value").is_bool());             // native bool, not "true"
+    CHECK(o.at("b").at("value").as_bool());
+    CHECK(o.at("s").at("value").is_string());           // strings stay strings
+
+    // A config hand-written in the earlier all-strings form must still load.
+    {
+        json::object t;
+        t["i"] = json::object{{"default", "20"},    {"value", "33"}};
+        t["d"] = json::object{{"default", "3.5"},   {"value", "9.5"}};
+        t["b"] = json::object{{"default", "true"},  {"value", "false"}};
+        t["s"] = json::object{{"default", "hi"},    {"value", "world"}};
+        Gem::Common::writeJsonFile(cfg, json::value(std::move(t)));
+    }
+    GParserBuilder reader;
+    int         i2 = 0;
+    double      d2 = 0.0;
+    bool        b2 = true;
+    std::string s2;
+    reader.registerFileParameter<int>        ("i", i2, 20,                VAR_IS_ESSENTIAL, "an int");
+    reader.registerFileParameter<double>     ("d", d2, 3.5,               VAR_IS_ESSENTIAL, "a double");
+    reader.registerFileParameter<bool>       ("b", b2, true,              VAR_IS_ESSENTIAL, "a bool");
+    reader.registerFileParameter<std::string>("s", s2, std::string("hi"), VAR_IS_ESSENTIAL, "a string");
+    REQUIRE(reader.parseConfigFile(cfg));
+    CHECK(i2 == 33);
+    CHECK(d2 == 9.5);
+    CHECK_FALSE(b2);
+    CHECK(s2 == "world");
+
+    std::filesystem::remove(cfg);
+}
+
+// ---------------------------------------------------------------------------
+// Regression: a std::uint8_t parameter (e.g. GEvolutionaryAlgorithm's step_control)
+// must round-trip by VALUE. Because (u)int8_t aliases a character type, a naive stream
+// conversion of "1" reads the character '1' (49) rather than the number 1; the scalar
+// helpers widen it so the numeric value survives, in both the native and the string form.
+
+TEST_CASE("GParserBuilder: a uint8_t scalar round-trips by value, not as a character",
+          "[common][parser-builder][regression]") {
+    namespace json = boost::json;
+    auto cfg = scratch("uint8_roundtrip");
+    std::filesystem::remove(cfg);
+
+    // A freshly created config stores the uint8_t value 1 as the NUMBER 1 (not 49).
+    {
+        GParserBuilder gpb;
+        std::uint8_t code = 1;
+        gpb.registerFileParameter<std::uint8_t>("code", code, std::uint8_t(1), VAR_IS_ESSENTIAL, "8-bit code");
+        REQUIRE(gpb.parseConfigFile(cfg));
+    }
+    {
+        const json::value doc = Gem::Common::parseJsonFile(cfg);
+        const json::object &o = doc.get_object();
+        CHECK(o.at("code").at("value").to_number<int>() == 1);      // the number 1, not 49
+        CHECK(o.at("code").at("default").to_number<int>() == 1);
+    }
+    {
+        GParserBuilder reader;
+        std::uint8_t code = 0;
+        reader.registerFileParameter<std::uint8_t>("code", code, std::uint8_t(0), VAR_IS_ESSENTIAL, "8-bit code");
+        REQUIRE(reader.parseConfigFile(cfg));
+        CHECK(int(code) == 1);
+    }
+
+    // The earlier all-strings form ("1") must also read back as 1, not 49.
+    {
+        json::object t;
+        t["code"] = json::object{{"default", "1"}, {"value", "1"}};
+        Gem::Common::writeJsonFile(cfg, json::value(std::move(t)));
+        GParserBuilder reader;
+        std::uint8_t code = 0;
+        reader.registerFileParameter<std::uint8_t>("code", code, std::uint8_t(0), VAR_IS_ESSENTIAL, "8-bit code");
+        REQUIRE(reader.parseConfigFile(cfg));
+        CHECK(int(code) == 1);
+    }
+
+    std::filesystem::remove(cfg);
+}
+
+// ---------------------------------------------------------------------------
+// setEmitTimestamp: the header's creation-timestamp line can be suppressed for byte-stable,
+// version-controlled output (the config-reference tree). Regression guard for that flag.
+
+TEST_CASE("GParserBuilder::setEmitTimestamp toggles the header creation timestamp",
+          "[common][parser-builder]") {
+    auto with_ts    = scratch("ts_on");
+    auto without_ts = scratch("ts_off");
+    std::filesystem::remove(with_ts);
+    std::filesystem::remove(without_ts);
+
+    auto header_lines = [](std::filesystem::path const &p) {
+        return Gem::Common::parseJsonFile(p)
+            .as_object().at("header").as_object().at("comment").as_array().size();
+    };
+
+    // The flag is a process-global; it defaults to on.
+    REQUIRE(GParserBuilder::emitTimestamp());
+    {
+        GParserBuilder gpb;
+        int v = 0;
+        gpb.registerFileParameter<int>("v", v, 1, VAR_IS_ESSENTIAL, "a value");
+        gpb.writeConfigFile(with_ts, "created", true);
+    }
+
+    GParserBuilder::setEmitTimestamp(false);
+    CHECK_FALSE(GParserBuilder::emitTimestamp());
+    {
+        GParserBuilder gpb;
+        int v = 0;
+        gpb.registerFileParameter<int>("v", v, 1, VAR_IS_ESSENTIAL, "a value");
+        gpb.writeConfigFile(without_ts, "created", true);
+    }
+    GParserBuilder::setEmitTimestamp(true); // restore the global default before any assertion can throw
+
+    // With the timestamp on the header has exactly one extra comment line (the creation time).
+    CHECK(header_lines(with_ts) == header_lines(without_ts) + 1);
+
+    std::filesystem::remove(with_ts);
+    std::filesystem::remove(without_ts);
+}
+
+// ---------------------------------------------------------------------------
+// Regression (2026-07-18): a comment-less registration must keep the caller's is_essential
+// choice. The empty-comment fast path used to route through the comment-less node constructor,
+// which hardcodes VAR_IS_ESSENTIAL -- a comment-less SECONDARY parameter was silently promoted
+// to essential and leaked into essential-only config files.
+
+TEST_CASE("GParserBuilder: comment-less registration honors is_essential",
+          "[common][parser-builder]") {
+    GParserBuilder gpb;
+
+    int essential_v = 0;
+    int secondary_v = 0;
+    gpb.registerFileParameter<int>("essential_option", essential_v, 1, VAR_IS_ESSENTIAL);
+    gpb.registerFileParameter<int>("secondary_option", secondary_v, 2, VAR_IS_SECONDARY);
+
+    // The registered proxies must carry the requested essentiality ...
+    CHECK(gpb.file_at<GFileParsableI>("essential_option")->isEssential());
+    CHECK_FALSE(gpb.file_at<GFileParsableI>("secondary_option")->isEssential());
+
+    // ... and an essential-only config write must omit the secondary parameter.
+    const auto path = scratch("essential_only");
+    gpb.writeConfigFile(path, "essential-only test", /*write_all=*/false);
+
+    std::ifstream in(path);
+    const std::string text((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
+    CHECK(text.find("essential_option") != std::string::npos);
+    CHECK(text.find("secondary_option") == std::string::npos);
+
+    std::filesystem::remove(path);
 }

@@ -41,13 +41,14 @@
 
 // Geneva header files go here
 #include "common/GCommonEnums.hpp"
+#include "common/GConfigEmission.hpp"
 #include "common/GSerializationHelperFunctionsT.hpp"
 #include "courtier/GCourtierEnums.hpp"
 #include "courtier/GCourtierHelperFunctions.hpp"
 #include "geneva/GConsumerSetup.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/Go2.hpp"
-#include "geneva/ind/GFlatGenome.hpp"
+#include "geneva/ind/GGenome.hpp"
 #include "geneva/ind/GGenomeBuilder.hpp"
 #include "geneva/oa/GAdaption.hpp"
 
@@ -302,6 +303,14 @@ bool parseCommandLine(
  * The main function.
  */
 int main(int argc, char **argv) {
+    // --update-configs: materialize the one config this benchmark owns (the GFunctionIndividual
+    // factory's) from code defaults, then exit without running the benchmark.
+    if(Gem::Common::configEmissionRequested(argc, argv)) {
+        Gem::Common::beginConfigEmission();
+        gind::GFunctionIndividualFactory("./config/GFunctionIndividual.json").get();
+        Gem::Common::finishConfigEmission();
+    }
+
     std::string configFile;
     execMode parallelizationMode;
     std::string ip;
@@ -373,7 +382,7 @@ int main(int argc, char **argv) {
         // factory-produced genome with the benchmark's command-line geometry.
         gen::GGenomeBuilder b;
         b.addDoublePlainGroup(parDim, minVar, maxVar); // structure only; the adaptor lives on the OA config
-        dynamic_cast<gen::GFlatGenome &>(*functionIndividual_ptr).setGenome(b.build());
+        dynamic_cast<gen::GGenome &>(*functionIndividual_ptr).setGenome(b.build());
 
         parentIndividuals.push_back(functionIndividual_ptr);
     }
@@ -384,13 +393,14 @@ int main(int argc, char **argv) {
     std::shared_ptr<oa::GEvolutionaryAlgorithm> pop_ptr(new oa::GEvolutionaryAlgorithm());
 
     // All three modes are LOCAL here (the "broker" mode used a local thread consumer too); build and
-    // register the ONE process-wide consumer. Serial -> inline, the others -> multithreaded.
+    // register the ONE process-wide consumer. Serial -> stc with one thread, the others -> multithreaded.
     {
         Gem::Geneva::ConsumerSpec spec;
         switch(parallelizationMode) {
-        case execMode::SERIAL: // Serial (inline) execution
+        case execMode::SERIAL: // Serial (single-threaded) execution
             std::cout << "Using serial execution." << std::endl;
-            spec.mnemonic = "sc";
+            spec.mnemonic  = "stc";
+            spec.n_threads = 1;
             break;
 
         case execMode::MULTITHREADED: // Multi-threaded local execution
@@ -416,7 +426,7 @@ int main(int argc, char **argv) {
     // The EA's Gauss adaptor now lives on the OA-owned config (authored here from the shared genome
     // geometry), not baked into the genome layout. Hand it to the population.
     {
-        const auto &flat0 = dynamic_cast<const gen::GFlatGenome &>(*parentIndividuals[0]);
+        const auto &flat0 = dynamic_cast<const gen::GGenome &>(*parentIndividuals[0]);
         auto cfg = oa::makeAdaptionConfig<oa::GEAAdaptionConfig>(flat0);
         cfg->groupDouble(0).gauss(sigma, sigmaSigma, minSigma, maxSigma, adProb, 0., adaptionThreshold);
         pop_ptr->setAdaptionConfig(cfg);

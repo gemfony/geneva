@@ -38,6 +38,9 @@ ADD_EXECUTABLE(${EXECUTABLENAME}
 )
 
 SET(LIBRARIES_TO_LINK
+		# GFunctionIndividual is no longer in the geneva library; compiled in via its object library (before the
+		# Geneva/Boost libraries so its serialization objects resolve libboost_serialization).
+		GFunctionIndividual-obj
 		${GENEVA_LIBRARIES}
 		${Boost_LIBRARIES})
 
@@ -51,7 +54,7 @@ ENDIF()
 TARGET_LINK_LIBRARIES (${EXECUTABLENAME}
 		${LIBRARIES_TO_LINK})
 
-ADD_SUBDIRECTORY (config)
+GENEVA_MATERIALIZE_CONFIGS ( ${EXECUTABLENAME} ${INSTALL_PREFIX_DATA}/tests/geneva/PerformanceTests/${EXECUTABLENAME}/config )
 
 ADD_TEST(${EXECUTABLENAME} ${EXECUTABLENAME})
 SET_TESTS_PROPERTIES(${EXECUTABLENAME} PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})

@@ -30,8 +30,8 @@
 // Geneva headers
 #include "common/GErrorStreamer.hpp"
 #include "common/GExceptions.hpp"
-#include "courtier/gpu/GCPUBackend.hpp"
 #include "courtier/gpu/GGPUBackendFactory.hpp"
+#include "courtier/gpu/GGPUDeviceBackendI.hpp"
 
 #ifdef GPUGEN_HAVE_CUDA
 #include "courtier/gpu/GCUDABackend.hpp"
@@ -49,16 +49,14 @@ namespace Gem::Courtier::GPU {
 /**
  * @brief Reports whether a given backend was compiled into this build.
  *
- * The CPU backend is always available; CUDA is only available when its toolkit was found at configure
- * time (guarded by GPUGEN_HAVE_CUDA).
+ * The GPU consumer is device-only: CUDA is available only when its toolkit was found at configure time
+ * (guarded by GPUGEN_HAVE_CUDA). There is no CPU fallback backend.
  *
  * @param kind The backend to query
  * @return true if the backend is available in this build, false otherwise
  */
 bool backendAvailable(BackendKind kind) {
     switch(kind) {
-    case BackendKind::CPU:
-        return true;
     case BackendKind::CUDA:
 #ifdef GPUGEN_HAVE_CUDA
         return true;
@@ -73,21 +71,17 @@ bool backendAvailable(BackendKind kind) {
 /**
  * @brief Constructs the requested device backend for the given scalar type.
  *
- * The CPU backend always delegates to the supplied host-evaluation interface; the CUDA backend is
- * only constructible when its toolkit was compiled in.
+ * The GPU consumer is device-only: the only backend is CUDA, constructible only when its toolkit was
+ * compiled in.
  *
  * @tparam scalar_type The floating-point scalar the backend operates on (double or float)
  * @param kind The backend to construct
- * @param hostEval The host-evaluation interface used by the CPU backend (the CUDA backend ignores it)
  * @return An owning pointer to the constructed backend
  * @throws geneva_exception if the requested backend was not compiled into this build
  */
 template <typename scalar_type>
-std::unique_ptr<GGPUDeviceBackendI<scalar_type>> makeBackend(BackendKind kind,
-                                                            const GGPUHostEvalI<scalar_type> *hostEval) {
+std::unique_ptr<GGPUDeviceBackendI<scalar_type>> makeBackend(BackendKind kind) {
     switch(kind) {
-    case BackendKind::CPU:
-        return std::make_unique<GCPUBackend<scalar_type>>(hostEval);
     case BackendKind::CUDA:
 #ifdef GPUGEN_HAVE_CUDA
         return std::make_unique<GCUDABackend<scalar_type>>();
@@ -104,10 +98,8 @@ std::unique_ptr<GGPUDeviceBackendI<scalar_type>> makeBackend(BackendKind kind,
 /******************************************************************************/
 // Explicit instantiations: this .cpp is where the CUDA backend header and its toolkit guard are
 // available, so the templated backends are materialised here for the supported scalars.
-template std::unique_ptr<GGPUDeviceBackendI<double>>
-makeBackend<double>(BackendKind, const GGPUHostEvalI<double> *);
-template std::unique_ptr<GGPUDeviceBackendI<float>>
-makeBackend<float>(BackendKind, const GGPUHostEvalI<float> *);
+template std::unique_ptr<GGPUDeviceBackendI<double>> makeBackend<double>(BackendKind);
+template std::unique_ptr<GGPUDeviceBackendI<float>> makeBackend<float>(BackendKind);
 
 /******************************************************************************/
 

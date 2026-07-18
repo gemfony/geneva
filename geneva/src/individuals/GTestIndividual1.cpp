@@ -31,18 +31,21 @@
 #include "common/GExceptions.hpp"
 #include "common/GExpectationChecksT.hpp"
 #include "common/GLogger.hpp"
-#include "courtier/GProcessingContainerT.hpp"
+#include "hap/GRandomLeasePool.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/GPersonalityTraits.hpp"
 #include "geneva/oa/GEvolutionaryAlgorithm_PersonalityTraits.hpp"
-#include "geneva/oa/GGradientDescent_PersonalityTraits.hpp"
+#include "geneva/oa/GConjugateGradientDescent_PersonalityTraits.hpp"
 #include "geneva/oa/GSwarmAlgorithm_PersonalityTraits.hpp"
-#include "geneva/ind/GFlatGenome.hpp"
-#include "geneva/ind/GIndividualSlot.hpp"
+#include "geneva/ind/GGenome.hpp"
+#include "geneva/ind/GOptimizableEntity.hpp"
 #include "geneva/ind/GGenomeBuilder.hpp"
 #include "geneva/oa/GAdaption.hpp"
+#include <algorithm>
 #include <cstddef>
+#include <functional>
 #include <memory>
+#include <ranges>
 #include <vector>
 
 #ifdef GEM_TESTING
@@ -114,7 +117,7 @@ void GTestIndividual1::compare_(
     GToken token("GTestIndividual1", e);
 
     // Compare our parent data ...
-    Gem::Common::compare_base_t<gen::GFlatGenome>(*this, *p_load, token);
+    Gem::Common::compare_base_t<gen::GGenome>(*this, *p_load, token);
 
     // ... no local data
 
@@ -137,7 +140,7 @@ void GTestIndividual1::load_(const gen::GOptimizableEntity *cp) {
         Gem::Common::g_convert_and_compare<gen::GOptimizableEntity, GTestIndividual1>(cp, this);
 
     // Load our parent's data
-    gen::GFlatGenome::load_(cp);
+    gen::GGenome::load_(cp);
 
     // No local data
 }
@@ -146,9 +149,9 @@ void GTestIndividual1::load_(const gen::GOptimizableEntity *cp) {
 /**
  * @brief Creates a deep clone of this object.
  *
- * @return A deep clone of this object, camouflaged as a GFlatGenome pointer
+ * @return A deep clone of this object, camouflaged as a GGenome pointer
  */
-gen::GFlatGenome *GTestIndividual1::clone_() const {
+gen::GGenome *GTestIndividual1::clone_() const {
     return new GTestIndividual1(*this);
 }
 
@@ -159,18 +162,13 @@ gen::GFlatGenome *GTestIndividual1::clone_() const {
  *
  * @return The fitness of this object: the sum of the squares of all flat double parameters
  */
-double GTestIndividual1::fitnessCalculation() {
-    double result = 0.;
-
+std::vector<double> GTestIndividual1::evaluate() {
     // Read the flat double values and calculate the value of the parabola.
     std::vector<double> par_vec;
     this->streamline(par_vec);
 
-    for(double i : par_vec) {
-        result += i * i;
-    }
-
-    return result;
+    return {std::ranges::fold_left(
+        par_vec | std::views::transform([](double x) { return x * x; }), 0., std::plus{})};
 }
 
 // Note: The following code is designed to mainly test parent classes
@@ -187,7 +185,7 @@ bool GTestIndividual1::modify_GUnitTests_() {
     bool result = false;
 
     // Call the parent classes' functions
-    if(gen::GFlatGenome::modify_GUnitTests_()) {
+    if(gen::GGenome::modify_GUnitTests_()) {
         result = true;
     }
 
@@ -211,7 +209,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
     using namespace Gem::Geneva;
 
     // Call the parent classes' functions
-    gen::GFlatGenome::specificTestsNoFailureExpected_GUnitTests_();
+    gen::GGenome::specificTestsNoFailureExpected_GUnitTests_();
 
     //------------------------------------------------------------------------------
 
@@ -257,9 +255,10 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
         gen::GAuxiliaryStore scratch;
         cfg->installInto(scratch);
 
+        auto gr_lease = Gem::Hap::randomLeasePool().acquire();
         for(std::size_t i = 0; i < n_tests; i++) {
             // Change the parameters without instantly triggering fitness calculation
-            CHECK_NOTHROW(OptimizationAlgorithms::runAdaptionKernels(*p_test, scratch, *cfg, p_test->getRandomEngine()));
+            CHECK_NOTHROW(OptimizationAlgorithms::runAdaptionKernels(*p_test, scratch, *cfg, *gr_lease));
             // The dirty flag should not have been set yet (done in adapt() )
             INFO("Processing status = " << p_test->getProcessingStatusAsStr() << ", i = " << i);
             CHECK((p_test->is_processed() || p_test->is_unprocessed()));
@@ -394,7 +393,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
 
     //------------------------------------------------------------------------------
 
-    { // Check of the GFlatGenome::customAdaptions() function
+    { // Check of the GGenome::customAdaptions() function
         std::shared_ptr<Gem::Geneva::Individuals::GTestIndividual1> p_test1 =
             this->clone<Gem::Geneva::Individuals::GTestIndividual1>();
         std::shared_ptr<Gem::Geneva::Individuals::GTestIndividual1> p_test2 =
@@ -427,7 +426,8 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
             auto cfg = p_test1->getAdaptionConfig();
             gen::GAuxiliaryStore scratch;
             cfg->installInto(scratch);
-            CHECK_NOTHROW(OptimizationAlgorithms::runAdaptionKernels(*p_test1, scratch, *cfg, p_test1->getRandomEngine()));
+            auto gr_lease = Gem::Hap::randomLeasePool().acquire();
+            CHECK_NOTHROW(OptimizationAlgorithms::runAdaptionKernels(*p_test1, scratch, *cfg, *gr_lease));
         }
         // We need to manually mark the individual as dirty
         CHECK_NOTHROW(p_test1->mark_as_due_for_processing());
@@ -457,98 +457,98 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
     //------------------------------------------------------------------------------
 
     { // Check setting and retrieval of the current personality status and whether the personalities
-      // themselves can be accessed. The personality is OA scratch and now lives on the population SLOT
-      // (GIndividualSlot), not on the individual, so this exercise runs on a slot wrapping the individual.
-        gen::GIndividualSlot slot(this->clone_unique());
+      // themselves can be accessed. The personality is OA scratch carried on the individual itself
+      // (in its GAuxiliaryStore), exercised here via the personality surface on GOptimizableEntity.
+        auto ind = this->clone_unique();
         std::shared_ptr<GPersonalityTraits> p_pt;
 
         // Reset the personality type
-        CHECK_NOTHROW(slot.resetPersonality());
+        CHECK_NOTHROW(ind->resetPersonality());
         INFO(
             "\n"
-            << "slot.getPersonality() = " << slot.getPersonality() << "\n"
+            << "ind->getPersonality() = " << ind->getPersonality() << "\n"
             << "expected PERSONALITY_NONE\n"
         );
-        CHECK(slot.getPersonality() == "PERSONALITY_NONE");
+        CHECK(ind->getPersonality() == "PERSONALITY_NONE");
 
         // Set the personality type to EA
-        CHECK_NOTHROW(slot.setPersonality(
+        CHECK_NOTHROW(ind->setPersonality(
             std::make_shared<oa::GEvolutionaryAlgorithm_PersonalityTraits>()
         ));
         INFO(
             "\n"
-            << "slot.getPersonality() = " << slot.getPersonality() << "\n"
+            << "ind->getPersonality() = " << ind->getPersonality() << "\n"
             << "expected EA\n"
         );
-        CHECK(slot.getPersonality() == "GEvolutionaryAlgorithm_PersonalityTraits");
+        CHECK(ind->getPersonality() == "GEvolutionaryAlgorithm_PersonalityTraits");
 
         // Try to retrieve a GEvolutionaryAlgorithm_PersonalityTraits object and check that the smart pointer actually points somewhere
         std::shared_ptr<oa::GEvolutionaryAlgorithm_PersonalityTraits> p_pt_ea;
         CHECK_NOTHROW(
-            p_pt_ea = slot.getPersonalityTraits<oa::GEvolutionaryAlgorithm_PersonalityTraits>()
+            p_pt_ea = ind->getPersonalityTraits<oa::GEvolutionaryAlgorithm_PersonalityTraits>()
         );
         CHECK(p_pt_ea);
         p_pt_ea.reset();
 
         // Retrieve a base pointer to the EA object and check that it points somewhere
-        CHECK_NOTHROW(p_pt = slot.getPersonalityTraits());
+        CHECK_NOTHROW(p_pt = ind->getPersonalityTraits());
         CHECK(p_pt);
         p_pt.reset();
 
-        // Set the personality type to GD
-        CHECK_NOTHROW(slot.setPersonality(
-            std::make_shared<oa::GGradientDescent_PersonalityTraits>()
+        // Set the personality type to CGD
+        CHECK_NOTHROW(ind->setPersonality(
+            std::make_shared<oa::GConjugateGradientDescent_PersonalityTraits>()
         ));
         INFO(
             "\n"
-            << "slot.getPersonality() = " << slot.getPersonality() << "\n"
-            << "expected GGradientDescent_PersonalityTraits\n"
+            << "ind->getPersonality() = " << ind->getPersonality() << "\n"
+            << "expected GConjugateGradientDescent_PersonalityTraits\n"
         );
-        CHECK(slot.getPersonality() == "GGradientDescent_PersonalityTraits");
+        CHECK(ind->getPersonality() == "GConjugateGradientDescent_PersonalityTraits");
 
-        // Try to retrieve a GGradientDescent_PersonalityTraits object and check that the smart pointer actually points somewhere
-        std::shared_ptr<oa::GGradientDescent_PersonalityTraits> p_pt_gd;
-        CHECK_NOTHROW(p_pt_gd = slot.getPersonalityTraits<oa::GGradientDescent_PersonalityTraits>());
-        CHECK(p_pt_gd);
-        p_pt_gd.reset();
+        // Try to retrieve a GConjugateGradientDescent_PersonalityTraits object and check that the smart pointer actually points somewhere
+        std::shared_ptr<oa::GConjugateGradientDescent_PersonalityTraits> p_pt_cgd;
+        CHECK_NOTHROW(p_pt_cgd = ind->getPersonalityTraits<oa::GConjugateGradientDescent_PersonalityTraits>());
+        CHECK(p_pt_cgd);
+        p_pt_cgd.reset();
 
-        // Retrieve a base pointer to the GD object and check that it points somewhere
-        CHECK_NOTHROW(p_pt = slot.getPersonalityTraits());
+        // Retrieve a base pointer to the CGD object and check that it points somewhere
+        CHECK_NOTHROW(p_pt = ind->getPersonalityTraits());
         CHECK(p_pt);
         p_pt.reset();
 
         // Set the personality type to SWARM
-        CHECK_NOTHROW(slot.setPersonality(
+        CHECK_NOTHROW(ind->setPersonality(
             std::make_shared<oa::GSwarmAlgorithm_PersonalityTraits>()
         ));
         INFO(
             "\n"
-            << "slot.getPersonality() = " << slot.getPersonality() << "\n"
+            << "ind->getPersonality() = " << ind->getPersonality() << "\n"
             << "expected GSwarmAlgorithm_PersonalityTraits\n"
         );
-        CHECK(slot.getPersonality() == "GSwarmAlgorithm_PersonalityTraits");
+        CHECK(ind->getPersonality() == "GSwarmAlgorithm_PersonalityTraits");
 
         // Try to retrieve a GSwarmAlgorithm_PersonalityTraits object and check that the smart pointer actually points somewhere
         std::shared_ptr<oa::GSwarmAlgorithm_PersonalityTraits> p_pt_swarm;
         CHECK_NOTHROW(
-            p_pt_swarm = slot.getPersonalityTraits<oa::GSwarmAlgorithm_PersonalityTraits>()
+            p_pt_swarm = ind->getPersonalityTraits<oa::GSwarmAlgorithm_PersonalityTraits>()
         );
         CHECK(p_pt_swarm);
         p_pt_swarm.reset();
 
         // Retrieve a base pointer to the SWARM object and check that it points somewhere
-        CHECK_NOTHROW(p_pt = slot.getPersonalityTraits());
+        CHECK_NOTHROW(p_pt = ind->getPersonalityTraits());
         CHECK(p_pt);
         p_pt.reset();
 
         // Set the personality type to PERSONALITY_NONE
-        CHECK_NOTHROW(slot.resetPersonality());
+        CHECK_NOTHROW(ind->resetPersonality());
         INFO(
             "\n"
-            << "slot.getPersonality() = " << slot.getPersonality() << "\n"
+            << "ind->getPersonality() = " << ind->getPersonality() << "\n"
             << "expected PERSONALITY_NONE\n"
         );
-        CHECK(slot.getPersonality() == "PERSONALITY_NONE");
+        CHECK(ind->getPersonality() == "PERSONALITY_NONE");
     }
 
     // --------------------------------------------------------------------------
@@ -569,7 +569,7 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests_() {
     using namespace Gem::Geneva;
 
     // Call the parent classes' functions
-    gen::GFlatGenome::specificTestsFailuresExpected_GUnitTests_();
+    gen::GGenome::specificTestsFailuresExpected_GUnitTests_();
 
     //------------------------------------------------------------------------------
 
@@ -619,16 +619,16 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests_() {
     //------------------------------------------------------------------------------
 
 #ifdef DEBUG
-    { // Test that retrieval of an EA personality traits object from an uninitialized slot throws in DEBUG mode
-        gen::GIndividualSlot slot(this->clone_unique());
+    { // Test that retrieval of an EA personality traits object from an uninitialized individual throws in DEBUG mode
+        auto ind = this->clone_unique();
 
         // Make sure the personality type is set to PERSONALITY_NONE
-        CHECK_NOTHROW(slot.resetPersonality());
+        CHECK_NOTHROW(ind->resetPersonality());
 
         // Trying to retrieve an EA personality object should throw
         std::shared_ptr<oa::GEvolutionaryAlgorithm_PersonalityTraits> p_pt_ea;
         CHECK_THROWS_AS(
-            (p_pt_ea = slot.getPersonalityTraits<oa::GEvolutionaryAlgorithm_PersonalityTraits>()),
+            (p_pt_ea = ind->getPersonalityTraits<oa::GEvolutionaryAlgorithm_PersonalityTraits>()),
             geneva_exception
         );
     }
@@ -637,17 +637,17 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests_() {
     //------------------------------------------------------------------------------
 
 #ifdef DEBUG
-    { // Test that retrieval of an EA personality traits object from a slot with SWARM personality throws
-        gen::GIndividualSlot slot(this->clone_unique());
+    { // Test that retrieval of an EA personality traits object from an individual with SWARM personality throws
+        auto ind = this->clone_unique();
 
         // Make sure the personality type is set to SWARM
-        CHECK_NOTHROW(slot.setPersonality(
+        CHECK_NOTHROW(ind->setPersonality(
             std::make_shared<oa::GSwarmAlgorithm_PersonalityTraits>()
         ));
 
         // Trying to retrieve an EA personality object should throw
         CHECK_THROWS_AS(
-            (slot.getPersonalityTraits<oa::GEvolutionaryAlgorithm_PersonalityTraits>()),
+            (ind->getPersonalityTraits<oa::GEvolutionaryAlgorithm_PersonalityTraits>()),
             geneva_exception
         );
     }
@@ -656,15 +656,15 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests_() {
     //------------------------------------------------------------------------------
 
 #ifdef DEBUG
-    { // Test that retrieval of a personality traits base object from a slot without personality throws
-        gen::GIndividualSlot slot(this->clone_unique());
+    { // Test that retrieval of a personality traits base object from an individual without personality throws
+        auto ind = this->clone_unique();
 
         // Make sure the personality type is set to PERSONALITY_NONE
-        CHECK_NOTHROW(slot.resetPersonality());
+        CHECK_NOTHROW(ind->resetPersonality());
 
         // Trying to retrieve an EA personality object should throw
         std::shared_ptr<GPersonalityTraits> p_pt;
-        CHECK_THROWS_AS((p_pt = slot.getPersonalityTraits()), geneva_exception);
+        CHECK_THROWS_AS((p_pt = ind->getPersonalityTraits()), geneva_exception);
     }
 #endif /* DEBUG */
 

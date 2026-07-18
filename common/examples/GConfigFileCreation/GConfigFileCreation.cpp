@@ -39,6 +39,7 @@
 // Boost header files go here
 
 // Geneva header files go here
+#include "common/GConfigEmission.hpp"
 #include "common/GParserBuilder.hpp"
 
 using namespace Gem::Common;
@@ -118,8 +119,17 @@ int main(int argc, char **argv) {
         "The name of the file information should be written to or read from"
     );
 
+    // --update-configs: this demo's whole purpose is to write a configuration file, so emitting its
+    // config is simply its file-creation path. Skip the command line, force the creation defaults, and
+    // (below) exit after the file has been written.
+    bool const emit_configs = Gem::Common::configEmissionRequested(argc, argv);
+    if(emit_configs) {
+        creationSwitcher = 0;                        // file-creation mode
+        useOperator      = false;                    // the non-operator registration path
+        fileName         = "./config/configFile.json";
+    }
     // Parse the command line and leave if the help flag was given
-    if(Gem::Common::GCL_HELP_REQUESTED == gpb.parseCommandLine(argc, argv, true /*verbose*/)) {
+    else if(Gem::Common::GCL_HELP_REQUESTED == gpb.parseCommandLine(argc, argv, true /*verbose*/)) {
         return 0;
     }
 
@@ -336,5 +346,10 @@ int main(int argc, char **argv) {
 
     default: // Complain
         throw;
+    }
+
+    // In --update-configs mode the file has now been written: log and exit cleanly.
+    if(emit_configs) {
+        Gem::Common::finishConfigEmission();
     }
 }

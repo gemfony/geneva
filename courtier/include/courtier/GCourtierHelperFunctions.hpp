@@ -33,59 +33,16 @@
 #include "common/GGlobalDefines.hpp"
 
 // Standard headers go here
-
-#include <cfloat>
-#include <climits>
-#include <cmath>
-#include <iomanip>
-#include <iostream>
-#include <sstream>
 #include <string>
-#include <vector>
 
 // Boost headers go here
-#include <boost/asio.hpp>
 
 // Geneva headers go here
-#include "common/GErrorStreamer.hpp"
-#include "common/GExceptions.hpp"
-#include "common/GLogger.hpp"
 #include "courtier/GCourtierEnums.hpp"
 
 namespace Gem::Courtier {
 
 /******************************************************************************/
-/**
- * @brief Assembles a query string from a given command, right-justified into a fixed-width field.
- * @param query The string to place into the fixed-width query string
- * @param sz The desired total width of the resulting query string
- * @return The query string
- */
-std::string assembleQueryString(const std::string &query, const std::size_t &sz);
-
-/**
- * @brief Extracts the size of ASIO's data section from a (hex-encoded) C string.
- * @param ds The data string holding the hex-encoded data size
- * @param sz The number of characters in @p ds to read
- * @return The size of the data section
- */
-std::size_t extractDataSize(const char *ds, const std::size_t &sz);
-
-/**
- * @brief Cleanly shuts down (bidirectionally) and closes a socket.
- * @param socket The socket on which the shutdown and close should be performed
- */
-void disconnect(boost::asio::ip::tcp::socket &socket);
-
-/**
- * @brief Creates a boolean mask with the half-open range [start, end) marked as unprocessed.
- * @param vec_size The total length of the mask vector
- * @param start The first index (inclusive) to mark as unprocessed
- * @param end The index one past the last entry (exclusive) to mark as unprocessed
- * @return A boolean mask with [start, end) set to GBC_UNPROCESSED and the rest GBC_PROCESSED
- */
-std::vector<bool> getBooleanMask(std::size_t vec_size, std::size_t start, std::size_t end);
-
 /**
  * @brief Translates the processingStatus into a clear-text string.
  * @param ps The processingStatus to be translated

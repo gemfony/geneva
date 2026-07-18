@@ -42,9 +42,10 @@
 #include "geneva/ind/GAdaptionAuxKeys.hpp"
 #include "geneva/ind/GAdaptionKernels.hpp"
 #include "geneva/ind/GAuxiliaryStore.hpp"
-#include "geneva/ind/GFlatGenome.hpp"
+#include "geneva/ind/GGenome.hpp"
 #include "geneva/oa/GAdaptionConfig.hpp"
 #include "hap/GRandomBase.hpp"
+#include "hap/GRandomLeasePool.hpp"
 
 namespace Gem::Geneva::OptimizationAlgorithms {
 
@@ -54,10 +55,11 @@ namespace Gem::Geneva::OptimizationAlgorithms {
  * RNG). The adaption is driven by an OA-OWNED GAdaptionConfig rather than by the structure-only genome
  * layout. The config supplies each group's adaptor kind + parameters; the genome supplies the mutable
  * internal value spans; the per-group evolving state lives in an OA-owned GAuxiliaryStore (the
- * GIndividualSlot's scratch_) passed in explicitly — the individual itself is pure data. The RNG is the
- * individual's own per-individual stream. Each call
- * touches only this individual's values + its slot's scratch + its RNG and reads the shared config
- * read-only, so the functions compose with the EA's parallel adaptChildren_.
+ * individual's scratch_) passed in explicitly — the individual itself is pure data. The RNG is a
+ * proxy leased from the process-global Gem::Hap::randomLeasePool() for the duration of one adaption
+ * call (the candidate holds no RNG of its own). Each call touches only this individual's values +
+ * its slot's scratch + its leased RNG and reads the shared config read-only, so the functions
+ * compose with the EA's parallel adaptChildren_.
  */
 
 namespace detail {
@@ -67,7 +69,7 @@ using Gem::Geneva::Genome::BiGaussState;
 using Gem::Geneva::Genome::FlipState;
 using Gem::Geneva::Genome::GaussState;
 using Gem::Geneva::Genome::GAuxiliaryStore;
-using Gem::Geneva::Genome::GFlatGenome;
+using Gem::Geneva::Genome::GGenome;
 using Gem::Geneva::Genome::GroupSpec;
 
 /**
@@ -81,7 +83,7 @@ using Gem::Geneva::Genome::GroupSpec;
  * @param groups The channel's group specifications (bounds / grouping / adaptor config) from the shared config.
  * @param values The channel's full value array (each group adapts its [start, start+len) sub-span) in internal representation.
  * @param key The auxiliary-store key identifying this channel's GaussState block.
- * @param gr The per-individual random engine the mutation draws from.
+ * @param gr The random engine the mutation draws from.
  * @return The number of values actually adapted across the channel.
  */
 template <typename T>
@@ -158,7 +160,7 @@ std::size_t adaptBiGaussChannel(
 /******************************************************************************/
 /**
  * @brief Runs the data-oriented adaption kernels over an individual once, driven by the config (the
- * "customAdaptions" half of adapt(), config-injected). Mirrors GFlatGenome::customAdaptions()'s channel
+ * "customAdaptions" half of adapt(), config-injected). Mirrors GGenome::customAdaptions()'s channel
  * order exactly (Gauss double/float, bi-Gauss double/float, int Gauss, int flip, bool flip), then folds
  * constrained values back into range.
  *
@@ -169,7 +171,7 @@ std::size_t adaptBiGaussChannel(
  * @return The total number of values actually adapted across all channels.
  */
 inline std::size_t runAdaptionKernels(
-    detail::GFlatGenome &ind,
+    detail::GGenome &ind,
     detail::GAuxiliaryStore &scratch,
     const GAdaptionConfigBase &cfg,
     Gem::Hap::GRandomBase &gr
@@ -254,14 +256,17 @@ inline std::size_t runAdaptionKernels(
  * RNG, so it composes with the EA's parallel adaptChildren_.
  */
 inline std::size_t adaptIndividual(
-    detail::GFlatGenome &ind,
+    detail::GGenome &ind,
     detail::GAuxiliaryStore &scratch,
     const GAdaptionConfigBase &cfg
 ) {
-    Gem::Hap::GRandomBase &gr = ind.getRandomEngine();
+    // The candidate holds no RNG of its own -- lease a proxy for the duration of this adaption. The
+    // lease is thread-scoped, so this composes with the EA's parallel adaptChildren_.
+    auto             lease = Gem::Hap::randomLeasePool().acquire();
+    Gem::Hap::GRandomBase &gr = *lease;
 
-    const std::size_t max_unsuccessful = ind.getMaxUnsuccessfulAdaptions();
-    const std::size_t max_retries = ind.getMaxRetriesUntilValid();
+    const std::size_t max_unsuccessful = cfg.getMaxUnsuccessfulAdaptions();
+    const std::size_t max_retries = cfg.getMaxRetriesUntilValid();
 
     std::size_t n_adaption_attempts = 0;
     std::size_t n_adaptions = 0;
@@ -287,14 +292,14 @@ inline std::size_t adaptIndividual(
     if(n_adaptions > 0) {
         ind.mark_as_due_for_processing();
     }
-    ind.setNAdaptions(n_adaptions);
+    scratch.setNAdaptions(n_adaptions);
     return n_adaptions;
 }
 
 /******************************************************************************/
 /**
  * @brief Resets an individual's per-group adaption state to the config's seed values (the stall-reset).
- * Mirrors GFlatGenome::updateAdaptorsOnStall(), but driven by the OA-owned config.
+ * Mirrors GGenome::updateAdaptorsOnStall(), but driven by the OA-owned config.
  */
 inline void resetAdaptionState(detail::GAuxiliaryStore &scratch, const GAdaptionConfigBase &cfg) {
     using namespace Gem::Geneva::Genome;
@@ -403,14 +408,14 @@ inline std::vector<double> readAdaptionSigmas(
 /******************************************************************************/
 /**
  * @brief The convenience factory for an OA-owned adaption config, built from a representative genome so it
- * describes exactly the groups that exist. ConfigT selects the per-OA type (GEAAdaptionConfig /
- * GSAAdaptionConfig / the plain base). The genome (structure-only) supplies the group SKELETON, and the
+ * describes exactly the groups that exist. ConfigT selects the per-OA type (GEAAdaptionConfig or
+ * the plain base). The genome (structure-only) supplies the group SKELETON, and the
  * caller authors the adaptors onto the returned config via its fluent API (cfg->groupDouble(i).gauss(...) /
  * cfg->forLabel(...).gauss(...)). It is an oa-side factory because GAdaptionConfig lives in geneva/oa/ while
  * GGenomeBuilder lives in geneva/ind/ (oa depends on ind, not the reverse).
  */
 template <typename ConfigT = GAdaptionConfigBase>
-std::shared_ptr<ConfigT> makeAdaptionConfig(const detail::GFlatGenome &genome) {
+std::shared_ptr<ConfigT> makeAdaptionConfig(const detail::GGenome &genome) {
     return std::make_shared<ConfigT>(genome);
 }
 
@@ -493,6 +498,35 @@ inline double readRepresentativeSigma(
 
 /******************************************************************************/
 /**
+ * @brief Reads back one representative per-group MAXIMUM sigma from the adaption config (the first
+ * installed Gauss group, double channel preferred, else float). Used by the global-σ step controllers
+ * (ONE_FIFTH / CSA) to clamp the single global sigma to the authored per-group band rather than to a
+ * hard-coded constant: in the normalized coordinate model sigma is a fraction of the parameter range,
+ * so max_sigma is the meaningful ceiling. Returns the fallback when no Gauss group is installed.
+ *
+ * @param cfg The shared adaption config supplying the per-channel group specs.
+ * @param fallback The value returned when no Gauss group is installed.
+ * @return The first installed Gauss group's authored max_sigma, or @p fallback.
+ */
+inline double readRepresentativeMaxSigma(const GAdaptionConfigBase &cfg, double fallback) {
+    using namespace Gem::Geneva::Genome;
+    const auto &dg = cfg.doubleGroups();
+    for(std::size_t gi = 0; gi < dg.size(); ++gi) {
+        if(dg[gi].has_gauss) {
+            return static_cast<double>(dg[gi].gauss.max_sigma);
+        }
+    }
+    const auto &fg = cfg.floatGroups();
+    for(std::size_t gi = 0; gi < fg.size(); ++gi) {
+        if(fg[gi].has_gauss) {
+            return static_cast<double>(fg[gi].gauss.max_sigma);
+        }
+    }
+    return fallback;
+}
+
+/******************************************************************************/
+/**
  * @brief A small RAII helper that gives a single, slot-less individual its own adaption scratch + config
  * so the data-oriented adaption can be driven outside an optimization algorithm (test individuals'
  * modify hooks, standalone perturbation loops, serialization benchmarks). Construct once with the
@@ -503,13 +537,13 @@ inline double readRepresentativeSigma(
  */
 class StandaloneAdapter {
 public:
-    StandaloneAdapter(const detail::GFlatGenome &ind, const std::shared_ptr<GAdaptionConfigBase> &cfg)
+    StandaloneAdapter(const detail::GGenome &ind, const std::shared_ptr<GAdaptionConfigBase> &cfg)
       : cfg_(*cfg) {
         cfg_.checkConsistency(ind);
         cfg_.installInto(scratch_);
     }
 
-    std::size_t adapt(detail::GFlatGenome &ind) { return adaptIndividual(ind, scratch_, cfg_); }
+    std::size_t adapt(detail::GGenome &ind) { return adaptIndividual(ind, scratch_, cfg_); }
 
 private:
     detail::GAuxiliaryStore scratch_;

@@ -57,7 +57,7 @@ class GEvolutionaryAlgorithm_PersonalityTraits // NOLINT(cppcoreguidelines-speci
 
     /** @brief Single declaration of this class'es local data members */
     template <typename Self>
-    static auto localMembers_(Self &self) {
+    auto localMembers_(this Self &self) {
         return std::make_tuple(Gem::Common::make_member("is_on_pareto_front_", self.is_on_pareto_front_));
     }
 
@@ -66,7 +66,7 @@ class GEvolutionaryAlgorithm_PersonalityTraits // NOLINT(cppcoreguidelines-speci
         using boost::serialization::make_nvp;
         ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GBaseParChildPersonalityTraits);
         // ... and then our own data, derived from the single localMembers() declaration
-        Gem::Common::serialize_members(ar, localMembers_(*this));
+        Gem::Common::serialize_members(ar, this->localMembers_());
     }
     ///////////////////////////////////////////////////////////////////////
 

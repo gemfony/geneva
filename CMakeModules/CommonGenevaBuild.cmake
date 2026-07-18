@@ -87,14 +87,27 @@ IF(NOT COMMON_GENEVA_BUILD_INCLUDED)
 	################################################################################
 	# Set the C++ standard to be used
 
-	# Geneva requires at least the C++20 Standard. The user may force another
-	# value at his own risk by setting the variable CMAKE_CXX_STANDARD.
+	# Geneva requires at least the C++23 Standard. The user may force a NEWER value
+	# at his own risk by setting CMAKE_CXX_STANDARD; anything below 23 is rejected.
 	IF( NOT DEFINED CMAKE_CXX_STANDARD )
-		SET( CMAKE_CXX_STANDARD "20" )
+		SET( CMAKE_CXX_STANDARD "23" )
+	ELSEIF( CMAKE_CXX_STANDARD LESS 23 )
+		MESSAGE(FATAL_ERROR
+			"Geneva requires C++23 or newer, but CMAKE_CXX_STANDARD=${CMAKE_CXX_STANDARD} was requested.")
 	ENDIF()
 
 	SET(CMAKE_CXX_STANDARD_REQUIRED ON)
 	set(CMAKE_CXX_EXTENSIONS OFF)
+
+	# The CUDA device dialect is set centrally here too, and DELIBERATELY trails the host C++ standard:
+	# nvcc (CUDA 13.3) does not implement a C++23 device dialect yet, and Geneva's device code (.cu) is
+	# intentionally kept at C++20. Setting it centrally keeps every CUDA target off the inherited C++23
+	# (which nvcc would reject) without any per-target restatement. Only relevant when CUDA is enabled;
+	# harmless as an unused variable otherwise. Raise this in lockstep once nvcc gains C++23 device support.
+	IF( NOT DEFINED CMAKE_CUDA_STANDARD )
+		SET( CMAKE_CUDA_STANDARD "20" )
+	ENDIF()
+	SET(CMAKE_CUDA_STANDARD_REQUIRED ON)
 
 	################################################################################
 	# Set the compiler and linker flags
@@ -150,6 +163,7 @@ IF(NOT COMMON_GENEVA_BUILD_INCLUDED)
 			GENEVA_BOOST_LIBS
 			atomic
 			filesystem
+			json
 			regex
 			serialization
 			program_options
@@ -202,13 +216,13 @@ IF(NOT COMMON_GENEVA_BUILD_INCLUDED)
 	# exactly like the MPI consumer: when enabled, courtier dynamically links the CUDA/OpenCL backends; when
 	# disabled, no GPU code is compiled. There is no separate GPU library.
 	SET ( GENEVA_LIBNAME            "gemfony-geneva" )
-	SET ( GENEVA_INDIVIDUAL_LIBNAME "gemfony-geneva-individuals" )
+	# The geneva-individuals library was dissolved into the geneva library: the sample
+	# individuals now live in Gem::Geneva::Individuals under geneva/{include,src}/individuals/,
+	# compiled into gemfony-geneva. There is no separate individuals library (and no
+	# GENEVA_INDIVIDUAL_LIBNAME variable — it was removed as an unused leftover of the fold-in).
 
 	# The order of the entries is important, as it translates to the linking
 	# order in TARGET_LINK_LIBRARIES() later...
-	# The geneva-individuals library was dissolved into the geneva library
-	# (the sample individuals now live in Gem::Geneva::Individuals under
-	# geneva/individuals/); there is no separate individuals library.
 	# Dietrich (plotting) is a leaf peer on top of common, used by geneva; it links
 	# after hap so geneva -> dietrich -> common resolves left-to-right.
 	SET (
@@ -270,6 +284,21 @@ IF(NOT COMMON_GENEVA_BUILD_INCLUDED)
 				" installation prefix values INSTALL_PREFIX_INCLUDES,"
 				" INSTALL_PREFIX_LIBS, INSTALL_PREFIX_DOCS, and INSTALL_PREFIX_DATA .")
 	ENDIF ()
+
+	################################################################################
+	# Install RPATH so an INSTALLED host executable (and every runtime-loadable module) finds the Geneva
+	# shared libraries -- and the module directory -- without LD_LIBRARY_PATH. Nothing set an RPATH before,
+	# so an installed binary relied on the loader's default search path; once individuals / algorithms /
+	# consumers ship as modules alongside the libs this must be self-locating. The Geneva libraries always
+	# install into <prefix>/lib (INSTALL_PREFIX_LIBS); executables land at various depths under the prefix
+	# (<prefix>/..., <prefix>/examples/<name>/, ...), so the RPATH lists $ORIGIN-relative entries covering
+	# those depths (relocatable) plus the absolute lib dir as a backstop. USE_LINK_PATH also records the
+	# link-time dependency dirs (e.g. Boost). A user-supplied CMAKE_INSTALL_RPATH is respected.
+	IF (NOT CMAKE_INSTALL_RPATH)
+		SET (CMAKE_INSTALL_RPATH
+			"$ORIGIN/../lib;$ORIGIN/../../lib;$ORIGIN/../../../lib;${INSTALL_PREFIX_LIBS}")
+	ENDIF ()
+	SET (CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 	################################################################################
 	# Print a summary of the build settings before continuing with the main script
@@ -343,7 +372,16 @@ IF(NOT COMMON_GENEVA_BUILD_INCLUDED)
 	FUNCTION(_GENEVA_COLLECT_TARGETS_RECURSIVE _out_var _dir)
 		GET_PROPERTY(_subdirs DIRECTORY "${_dir}" PROPERTY SUBDIRECTORIES)
 		GET_PROPERTY(_targets DIRECTORY "${_dir}" PROPERTY BUILDSYSTEM_TARGETS)
-		SET(_acc ${_targets})
+		SET(_acc "")
+		# Skip targets that opt out of the aggregate (GENEVA_EXCLUDE_FROM_AGGREGATE): opt-in maintenance
+		# targets (e.g. config-reference, which regenerates a version-controlled tree) must not run as part
+		# of a normal build.
+		FOREACH(_t ${_targets})
+			GET_TARGET_PROPERTY(_excl ${_t} GENEVA_EXCLUDE_FROM_AGGREGATE)
+			IF(NOT _excl)
+				LIST(APPEND _acc ${_t})
+			ENDIF()
+		ENDFOREACH()
 		FOREACH(_sub ${_subdirs})
 			_GENEVA_COLLECT_TARGETS_RECURSIVE(_child "${_sub}")
 			LIST(APPEND _acc ${_child})
@@ -359,6 +397,115 @@ IF(NOT COMMON_GENEVA_BUILD_INCLUDED)
 		ADD_CUSTOM_TARGET("${_name}" DEPENDS ${_collected}
 			COMMENT "Building all auto-collected targets for \"${_name}\".")
 	ENDFUNCTION()
+
+	###############################################################################
+	# GENEVA_MATERIALIZE_CONFIGS(<target> <install-config-dest>)
+	#
+	# Wires a config-owning binary so its configuration directory is MATERIALIZED FROM CODE at build time
+	# rather than copied from a hand-maintained set of shipped files. After <target> is built it is run once
+	# with --update-configs, which (re)creates its configuration files from the code's registered defaults
+	# into <build-dir>/config; that directory's intentional overrides (config/config-overrides.json in the
+	# source tree, if present) are then overlaid onto them via the GConfigOverlay helper. The materialized
+	# directory is installed to <install-config-dest> (pass an empty string to skip installation).
+	#
+	# Any extra arguments after <install-dest> are passed to the binary before --update-configs (e.g. a
+	# plugin loader's "--individual <plugin.so>"); if such an argument references another target via a
+	# $<TARGET_FILE:...> genex, make <target> depend on it so it is built first.
+	#
+	# This replaces the former per-directory FILE(COPY config) + INSTALL(FILES ...). It MUST be called from
+	# the same CMakeLists.txt that defines <target>, because a POST_BUILD command may only be attached to a
+	# target in the current directory -- i.e. in place of the former ADD_SUBDIRECTORY(config).
+	#
+	# The binaries run here emit their normal runtime output (GLogger notes about created config files
+	# etc.); to keep that from interleaving with the build output, each run is routed through the
+	# GenevaRunQuiet.cmake helper, which captures stdout+stderr to a log file in the target's build
+	# directory and replays it only if the run fails.
+	SET(GENEVA_RUN_QUIET_SCRIPT ${CMAKE_CURRENT_LIST_DIR}/GenevaRunQuiet.cmake)
+	FUNCTION(GENEVA_MATERIALIZE_CONFIGS _target _install_dest)
+		SET(_extra_args ${ARGN})
+		SET(_cfg_dir ${CMAKE_CURRENT_BINARY_DIR}/config)
+		SET(_overrides ${CMAKE_CURRENT_SOURCE_DIR}/config/config-overrides.json)
+
+		# Ensure the directory exists at configure time so the INSTALL(DIRECTORY) rule below is valid; the
+		# POST_BUILD step (re)populates it from code.
+		FILE(MAKE_DIRECTORY ${_cfg_dir})
+
+		# The overlay helper must exist before this target's POST_BUILD step runs it.
+		IF(TARGET GConfigOverlay)
+			ADD_DEPENDENCIES(${_target} GConfigOverlay)
+		ENDIF()
+
+		# POST_BUILD: (re)materialize the config directory from the code defaults. Running the freshly built
+		# binary with --update-configs creates any missing config from defaults and rewrites it canonically.
+		# The run's output goes to config-materialization.log (replayed only on failure).
+		SET(_mat_cmd "$<TARGET_FILE:${_target}>")
+		FOREACH(_mat_arg IN LISTS _extra_args)
+			STRING(APPEND _mat_cmd "|${_mat_arg}")
+		ENDFOREACH()
+		STRING(APPEND _mat_cmd "|--update-configs")
+		ADD_CUSTOM_COMMAND(TARGET ${_target} POST_BUILD
+				COMMAND ${CMAKE_COMMAND} -E rm -rf ${_cfg_dir}
+				COMMAND ${CMAKE_COMMAND} -E make_directory ${_cfg_dir}
+				COMMAND ${CMAKE_COMMAND}
+					"-DRQ_CMD=${_mat_cmd}"
+					"-DRQ_WD=${CMAKE_CURRENT_BINARY_DIR}"
+					"-DRQ_LOG=${CMAKE_CURRENT_BINARY_DIR}/config-materialization.log"
+					"-DRQ_DESC=Config materialization for ${_target}"
+					-P ${GENEVA_RUN_QUIET_SCRIPT}
+				WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+				COMMENT "Materializing ${_target} configuration from code defaults"
+				VERBATIM)
+
+		# Overlay this directory's intentional overrides, if it ships a fragment.
+		IF(EXISTS ${_overrides})
+			ADD_CUSTOM_COMMAND(TARGET ${_target} POST_BUILD
+					COMMAND ${CMAKE_COMMAND}
+						"-DRQ_CMD=$<TARGET_FILE:GConfigOverlay>|${_cfg_dir}|${_overrides}"
+						"-DRQ_WD=${CMAKE_CURRENT_BINARY_DIR}"
+						"-DRQ_LOG=${CMAKE_CURRENT_BINARY_DIR}/config-overlay.log"
+						"-DRQ_DESC=Config-override overlay for ${_target}"
+						-P ${GENEVA_RUN_QUIET_SCRIPT}
+					COMMENT "Overlaying ${_target} configuration overrides"
+					VERBATIM)
+		ENDIF()
+
+		# Install the materialized directory's contents into <install-config-dest>.
+		IF(NOT "${_install_dest}" STREQUAL "")
+			INSTALL(DIRECTORY ${_cfg_dir}/ DESTINATION ${_install_dest})
+		ENDIF()
+	ENDFUNCTION()
+
+	###############################################################################
+	# Runtime-loadable / compiled-in individual packaging helpers
+	# (GENEVA_ADD_INDIVIDUAL_MODULE / GENEVA_DECLARE_INDIVIDUAL). The function bodies live in the shared,
+	# installable GenevaIndividualModule.cmake so the SAME helpers are available to an out-of-tree project
+	# that consumes an installed Geneva via find_package(Geneva). Here (the in-tree build) we point them at
+	# the in-tree source include layout; the installed GenevaConfig.cmake points them at the install prefix.
+	SET(GENEVA_INDIVIDUAL_INCLUDE_DIRS
+		${PROJECT_SOURCE_DIR}/common/include
+		${PROJECT_SOURCE_DIR}/hap/include
+		${PROJECT_SOURCE_DIR}/courtier/include
+		${PROJECT_SOURCE_DIR}/dietrich/include
+		${PROJECT_SOURCE_DIR}/geneva/include)
+	SET(GENEVA_INDIVIDUAL_CXX_STANDARD ${CMAKE_CXX_STANDARD})
+
+	# ABI-affecting compile options a loadable individual module MUST match: it links none of the Geneva
+	# libraries, so it inherits none of their build flags and would otherwise pick up the consumer's toolchain
+	# defaults. The axis that bites is _GLIBCXX_ASSERTIONS (part of the module-compat fingerprint's abi_flags):
+	# on this stdlib it is toggled by the OPTIMISATION / _FORTIFY_SOURCE level (on at -O0, off at -O2+), NOT by
+	# NDEBUG. So propagate Geneva's effective build-type compile flags (e.g. "-O3 -DNDEBUG" for Release) to the
+	# module, which makes its _GLIBCXX_ASSERTIONS state -- and hence abi_flags -- match this Geneva regardless
+	# of the consumer's own build type. (A sanitizer / _GLIBCXX_DEBUG build would be carried the same way, since
+	# those flags are in the build-type flags too.)
+	SET(_gi_bt "${CMAKE_BUILD_TYPE}")
+	IF(NOT _gi_bt AND DEFINED GENEVA_BUILD_TYPE)
+		SET(_gi_bt "${GENEVA_BUILD_TYPE}")
+	ENDIF()
+	STRING(TOUPPER "${_gi_bt}" _gi_bt_u)
+	SEPARATE_ARGUMENTS(GENEVA_INDIVIDUAL_ABI_OPTIONS UNIX_COMMAND
+		"${CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS_${_gi_bt_u}}")
+
+	INCLUDE(GenevaIndividualModule)
 
 	###############################################################################
 	# End of the include-guard

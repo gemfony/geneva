@@ -36,6 +36,7 @@
 #include <array>
 #include <cstddef>
 #include <cstdint>
+#include <expected>
 #include <functional>
 #include <list>
 #include <mutex>
@@ -82,7 +83,7 @@ using GWirePeerId = std::uint64_t;
 /** @brief Hashes a GWireLayoutId (which is already a strong hash) into a size_t for the registry maps. */
 struct GWireLayoutIdHash {
     /** @brief @param id The id to hash. @return A size_t hash of the id. */
-    std::size_t operator()(const GWireLayoutId &id) const noexcept {
+    static std::size_t operator()(const GWireLayoutId &id) noexcept {
         return static_cast<std::size_t>(id[0] ^ (id[1] + 0x9E3779B97F4A7C15ULL + (id[0] << 6) + (id[0] >> 2)));
     }
 };
@@ -148,9 +149,10 @@ struct GWireSerializationContext {
     bool returning = false;
 
     /** @brief Worker-side cache-miss fetch: given a layout id whose blob is absent locally, performs the
-     *  blocking round trip to the server (REQUEST_LAYOUT -> SEND_LAYOUT) and returns the serialized blob,
-     *  or an empty string on failure. Null on the server side (which never fetches). */
-    std::function<std::string(const GWireLayoutId &)> fetch_blob;
+     *  blocking round trip to the server (REQUEST_LAYOUT -> SEND_LAYOUT) and returns the serialized blob on
+     *  success, or a std::unexpected carrying the failure reason (timeout, transport error, malformed/empty
+     *  reply). The value is always a non-empty blob. Null on the server side (which never fetches). */
+    std::function<std::expected<std::string, std::string>(const GWireLayoutId &)> fetch_blob;
 };
 
 /******************************************************************************/

@@ -43,6 +43,7 @@
 #include "geneva/individuals/GMetaOptimizerIndividualT.hpp"
 // The single facility for meta-optimization: it runs the umbrella-individuals on its own orchestration
 // thread pool, while their sub-optimizations submit to the one process-wide work consumer.
+#include "geneva/oa/GEvolutionaryAlgorithmFactory.hpp"
 #include "geneva/oa/GMetaEvolutionaryAlgorithm.hpp"
 
 using namespace Gem::Geneva;
@@ -90,6 +91,15 @@ int main(int argc, char **argv) {
 
     // Add a content creator so Go2 can generate its own individuals, if necessary
     go.registerContentCreator(gmoi_ptr);
+
+    // --update-configs: the meta-optimizer's sub-problem configs are read only when a sub-optimization
+    // actually runs (not during a config refresh), so materialize them directly here -- the sub-problem
+    // individual config and the (sub-)evolutionary-algorithm config the umbrella individuals run.
+    if(go.updateConfigsMode()) {
+        gfi_ptr->get();
+        oa::GEvolutionaryAlgorithmFactory("./config/GSubEvolutionaryAlgorithm.json")
+            .get<oa::GOptimizationAlgorithmBase>();
+    }
 
     // The meta genome carries only structure; its adaptors (n_parents flip, n_children integer-Gauss,
     // doubles Gauss) live on an OA-owned config the meta individual authors. Register it for the outer EA.

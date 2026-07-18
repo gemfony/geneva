@@ -245,7 +245,8 @@ private:
     bool inputDataOmitted_() const override { return input_omitted_; }
     /** @brief Grafts the input data (the stored id) from the originally-submitted container.
      *  @param original The originally-submitted container supplying the omitted input data */
-    void graftInputDataFrom_(const GFaultyContainer &original) override {
+    void graftInputDataFrom_(const Gem::Courtier::GProcessable &original_raw) override {
+        const auto &original = dynamic_cast<const GFaultyContainer &>(original_raw);
         stored_number_ = original.stored_number_;
         input_omitted_ = false;
     }

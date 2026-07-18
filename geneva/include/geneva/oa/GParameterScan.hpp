@@ -43,7 +43,6 @@
 #include "common/GCommonInterfaceT.hpp"
 #include "common/GExceptions.hpp"
 #include "common/GContainerT.hpp"
-#include "dietrich/GPlotDesigner.hpp"
 #include "common/GSerializeTupleT.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/par/GParameterPropertyParser.hpp"
@@ -198,7 +197,7 @@ class GBaseScanParT // NOLINT(cppcoreguidelines-special-member-functions)
     // GBaseScanParT or const GBaseScanParT, so each member binds with the matching const-ness and
     // make_member() deduces accordingly; the two localMembers() overloads are trivial forwarders.
     template <typename Self>
-    static auto localMembers_(Self &self) {
+    auto localMembers_(this Self &self) {
         return std::make_tuple(
             Gem::Common::make_member("var_mode", std::get<0>(self.var_)),
             Gem::Common::make_member("var_name", std::get<1>(self.var_)),
@@ -225,7 +224,7 @@ class GBaseScanParT // NOLINT(cppcoreguidelines-special-member-functions)
             boost::serialization::base_object<Gem::Common::GPodContainerT<T>>(*this)
         );
         // ... and the scan-state members, derived from the single localMembers_() declaration.
-        Gem::Common::serialize_members(ar, localMembers_(*this));
+        Gem::Common::serialize_members(ar, this->localMembers_());
     }
 
     ///////////////////////////////////////////////////////////////////////
@@ -333,7 +332,7 @@ public:
         // The pre-computed grid (held by the GPodContainerT base) ...
         compare_t(Gem::Common::getIdentity(this->data_cnt_, other.data_cnt_, "this->data_cnt_", "other.data_cnt_"), token);
         // ... and all the scan-state members, derived from the single localMembers_() declaration.
-        g_compare_members(localMembers_(*this), localMembers_(other), token);
+        g_compare_members(this->localMembers_(), other.localMembers_(), token);
     }
 
     /***************************************************************************/
@@ -400,7 +399,7 @@ protected:
         // base ...
         Gem::Common::GPodContainerT<T>::operator=(*cp);
         // ... and the scan state, derived from the single localMembers_() declaration.
-        Gem::Common::g_load_members(localMembers_(*this), localMembers_(*cp));
+        Gem::Common::g_load_members(this->localMembers_(), cp->localMembers_());
     }
 
     /**
@@ -666,19 +665,17 @@ public:
 
 /******************************************************************************/
 /**
- * @brief A single scanned parameter value together with its addressing metadata.
+ * @brief A single scanned parameter value together with its position.
  *
- * Replaces the former positional 4-tuple (value, mode, name, position), whose anonymous std::get<N>
- * accesses were error-prone.
+ * Every scan parameter is addressed positionally (the former by-name addressing modes have been
+ * removed together with their mode/name metadata).
  *
  * @tparam T The parameter value type (bool, std::int32_t, float, double)
  */
 template <typename T>
 struct singleParameter {
-    T value{};            ///< The parameter value to be written into the individual
-    std::size_t mode{0};  ///< The addressing mode (always 0 = positional / by-index)
-    std::string name;   ///< The parameter's name (may be empty for purely positional addressing)
-    std::size_t pos{0};   ///< The parameter's position within its value channel
+    T value{};          ///< The parameter value to be written into the individual
+    std::size_t pos{0}; ///< The parameter's position within its value channel
 };
 
 // Convenience aliases for the value/position descriptor of a single scanned parameter
@@ -707,7 +704,6 @@ std::ostream &operator<<(std::ostream &os, const parSet &p_s);
 
 /******************************************************************************/
 /** @brief The default number of "best" individuals to be kept during the algorithm run */
-constexpr std::size_t DEFAULTNMONITORINDS = 10;
 
 /******************************************************************************/
 /**
@@ -779,10 +775,9 @@ private:
     // each member binds with the matching const-ness and make_member()/make_cloneable_container_member()
     // deduce accordingly.
     template <typename Self>
-    static auto localMembers_(Self &self) {
+    auto localMembers_(this Self &self) {
         return std::make_tuple(
             Gem::Common::make_member("scan_randomly_", self.scan_randomly_),
-            Gem::Common::make_member("n_monitor_inds_", self.n_monitor_inds_),
             Gem::Common::make_member("simple_scan_items_", self.simple_scan_items_),
             Gem::Common::make_member("scans_performed_", self.scans_performed_),
             Gem::Common::make_member("cycle_logic_halt_", self.cycle_logic_halt_),
@@ -805,7 +800,7 @@ private:
         // All members -- the plain scalars AND the scan-parameter vectors -- are derived from the single
         // localMembers() declaration; the scan parameters now carry the Gemfony common interface, so no
         // hand-written tail is needed.
-        Gem::Common::serialize_members(ar, localMembers_(*this));
+        Gem::Common::serialize_members(ar, this->localMembers_());
     }
 
     ///////////////////////////////////////////////////////////////////////
@@ -818,13 +813,6 @@ public:
     GParameterScan(const GParameterScan &cp);
     /** @brief The destructor */
     ~GParameterScan() override = default;
-
-    /** @brief Allows to set the number of "best" individuals to be monitored over the course of the algorithm run
-     *  @param n_monitor_inds The number of best individuals of the entire run to be kept */
-    void setNMonitorInds(std::size_t n_monitor_inds);
-    /** @brief Allows to retrieve the number of "best" individuals to be monitored over the course of the algorithm run
-     *  @return The number of best individuals being monitored */
-    std::size_t getNMonitorInds() const;
 
     /** @brief Fills the parameter vectors from a textual parameter specification
      *  @param par_str The parameter specification string to be parsed */
@@ -908,9 +896,6 @@ private:
     /** @brief Triggers fitness calculation of a number of individuals */
     void runFitnessCalculation_() override;
 
-    /** @brief Retrieves the number of processable items for the current iteration
-     *  @return The number of items that can be processed in the current iteration */
-    std::size_t getNProcessableItems_() const override;
 
     /** @brief A custom halt criterion for the optimization, allowing to stop the loop when no items are left to be scanned
      *  @return true if the optimization should be halted, false otherwise */
@@ -937,16 +922,6 @@ private:
         const singleParameter<data_type> &data_point,
         std::vector<data_type> &data_vec
     ) {
-#ifdef DEBUG
-        if(0 != data_point.mode) {
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GParameterScan::addDataPoint(mode 0): Error!" << '\n'
-                << "Function was called for invalid mode " << data_point.mode << '\n'
-            );
-        }
-#endif
-
         // Check that we haven't exceeded the size of the data vector
         if(data_point.pos >= data_vec.size()) {
             throw geneva_exception(
@@ -973,7 +948,7 @@ private:
     /** @brief Retrieves the next available parameter set
      *  @param mode An out-parameter receiving the running index of the returned parameter set
      *  @return A shared_ptr to the next parameter set to be evaluated */
-    std::shared_ptr<parSet> getParameterSet(std::size_t &mode);
+    std::shared_ptr<parSet> getParameterSet();
 
     /** @brief Switches to the next parameter set
      *  @return true if all parameter sets have been exhausted (warp-around), false otherwise */
@@ -989,8 +964,6 @@ private:
         false; ///< Temporary flag used to specify that the optimization should be halted
     bool scan_randomly_ =
         true; ///< Determines whether the algorithm should scan the parameter space randomly or on a grid
-    std::size_t n_monitor_inds_ =
-        DEFAULTNMONITORINDS; ///< The number of best individuals of the entire run to be kept
 
     std::vector<std::shared_ptr<GBScanPar>> b_cnt_; ///< Holds boolean parameters to be scanned
     std::vector<std::shared_ptr<GInt32ScanPar>>

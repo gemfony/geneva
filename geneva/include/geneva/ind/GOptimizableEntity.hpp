@@ -33,40 +33,40 @@
 #include "common/GGlobalDefines.hpp"
 
 // Standard header files go here
-#include <any>
 #include <cstdint>
-#include <functional>
 #include <limits>
 #include <memory>
 #include <random>
-#include <span>
+#include <ranges>
 #include <string>
 #include <tuple>
 #include <type_traits>
-#include <typeinfo>
 #include <vector>
 
 // Boost header files go here
-#include <boost/serialization/split_member.hpp>
-#include <boost/property_tree/ptree.hpp>
-#include <boost/property_tree/ptree_serialization.hpp>
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/nvp.hpp>
+#include <boost/serialization/shared_ptr.hpp>
+#include <boost/serialization/vector.hpp>
+#include <boost/json.hpp>
 
 // Geneva headers go here
+#include "common/GCommonHelperFunctionsT.hpp"
 #include "common/GCommonInterfaceT.hpp"
-#include "common/GCommonMathHelperFunctionsT.hpp"
 #include "common/GExceptions.hpp"
 #include "common/GLogger.hpp"
-#include "courtier/GProcessingContainerT.hpp"
-#include "geneva/GMultiConstraintT.hpp"
-#include "geneva/GPersonalityTraits.hpp"
-#include "geneva/ind/GAuxiliaryStore.hpp"
-#include "geneva/Interface/GMutableI.hpp"
-#include "geneva/Interface/GRateableI.hpp"
+#include "common/GSerializableFunctionObjectT.hpp"
+#include "common/GSerializationHelperFunctionsT.hpp" // serialization of std::chrono time_point (GProcessable timing)
+#include "common/GSerializeTupleT.hpp"               // Boost serialization of std::tuple (result / fitness tuples across the geneva graph)
+#include "courtier/GProcessable.hpp" // the non-generic processing-lifecycle base
+#include "courtier/GWireSerializationContext.hpp" // the wire scope: scratch is skipped on transport
+#include "geneva/GMultiConstraintT.hpp" // GPreEvaluationValidityCheckT (registered on the shared policy)
 #include "geneva/GOptimizationEnums.hpp"
+#include "geneva/Interface/GRateableI.hpp"
+#include "geneva/ind/GAuxiliaryStore.hpp" // the OA-owned scratch (personality + per-group adaption PODs)
+#include "geneva/ind/GIndividualProcessingResult.hpp"
+#include "geneva/ind/GProblemPolicy.hpp"
 #include "hap/GRandomT.hpp"
-
-// aliases for ease of use
-namespace pt = boost::property_tree;
 
 namespace Gem::Geneva::Genome {
 
@@ -74,205 +74,69 @@ namespace Gem::Geneva::Genome {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * Container for fitness and transformed fitness values, as produced by
- * GOptimizableEntity derivatives.
- */
-class individual_processing_result {
-    ///////////////////////////////////////////////////////////////////////
-    friend class boost::serialization::access;
-
-    /**
-     * @brief Serializes this object to/from a Boost archive
-     * @tparam Archive The Boost.Serialization archive type
-     * @param ar The archive to read from or write to
-     * @param version The serialization version (unused)
-     */
-    template <typename Archive>
-    void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
-        using boost::serialization::make_nvp;
-        ar &BOOST_SERIALIZATION_NVP(raw_fitness_) &
-            BOOST_SERIALIZATION_NVP(transformed_fitness_) &
-            BOOST_SERIALIZATION_NVP(transformed_fitness_set_);
-    }
-    ///////////////////////////////////////////////////////////////////////
-
-public:
-    /** @brief The default constuctor */
-    individual_processing_result() = default;
-
-    /**
-     * @brief Initialization with a raw fitness
-     * @param raw_fitness The raw fitness value to store
-     */
-    explicit individual_processing_result(double raw_fitness);
-
-    /**
-     * @brief Initialization with a raw and transformed fitness
-     * @param raw_fitness The raw fitness value to store
-     * @param transformed_fitness The transformed fitness value to store
-     */
-    individual_processing_result(double raw_fitness, double transformed_fitness);
-
-    /**
-     * @brief Initialization with a raw fitness and recalculation of the transformed fitness
-     * @param raw_fitness The raw fitness value to store
-     * @param transform The function used to derive the transformed fitness from the raw value
-     */
-    individual_processing_result(double raw_fitness, std::function<double(double)> f);
-
-    /**
-     * @brief Copy construction
-     * @param cp The other object to copy from
-     */
-    individual_processing_result(individual_processing_result const &) = default;
-
-    /**
-     * @brief Move construction
-     * @param cp The other object to move from
-     */
-    individual_processing_result(individual_processing_result &&) = default;
-
-    /** @brief Destructor */
-    ~individual_processing_result() = default;
-
-    /**
-     * @brief Assignment
-     * @param cp The other object to copy-assign from
-     * @return A reference to this object
-     */
-    individual_processing_result &operator=(individual_processing_result const &) = default;
-
-    /**
-     * @brief Move assignment
-     * @param cp The other object to move-assign from
-     * @return A reference to this object
-     */
-    individual_processing_result &operator=(individual_processing_result &&) = default;
-
-    /**
-     * @brief Access to the raw fitness
-     * @return The stored raw fitness value
-     */
-    double rawFitness() const;
-
-    /**
-     * @brief Access to the transformed fitness
-     * @return The stored transformed fitness value
-     */
-    double transformedFitness() const;
-
-    /**
-     * @brief Updates the transformed fitness using an external function
-     * @param transform The function applied to the raw fitness to obtain the transformed fitness
-     */
-    void setTransformedFitnessWith(std::function<double(double)> f);
-
-    /**
-     * @brief Sets the transformed fitness to a user-defined value
-     * @param transformed_fitness The transformed fitness value to store
-     */
-    void setTransformedFitnessTo(double transformed_fitness);
-
-    /** @brief Sets the transformed fitness to the same value as the raw fitness */
-    void setTransformedFitnessToRaw();
-
-    /**
-     * @brief Checks whether the transformed fitness was set
-     * @return true if a transformed fitness value is available, false otherwise
-     */
-    bool transformedFitnessSet() const;
-
-    /**
-     * @brief Resets the object and stores a new raw value in the class
-     * @param raw_fitness The new raw fitness value to store
-     */
-    void reset(double raw_fitness);
-
-    /**
-     * @brief Resets the object and stores a new raw and transformed value in the class
-     * @param raw_fitness The new raw fitness value to store
-     * @param transformed_fitness The new transformed fitness value to store
-     */
-    void reset(double raw_fitness, double transformed_fitness);
-
-    /**
-     * @brief Resets the object and stores a new raw value in the class and triggers recalculation of the transformed value
-     * @param raw_fitness The new raw fitness value to store
-     * @param transform The function used to derive the transformed fitness from the raw value
-     */
-    void reset(double raw_fitness, std::function<double(double)> f);
-
-private:
-    /***************************************************************************/
-    // Data
-
-    double raw_fitness_ = 0.; ///< The fitness as it comes out of the fitnessCalculation() function
-    double transformed_fitness_ =
-        0.; ///< The fitness as calculated from raw_fitness_ through
-    bool transformed_fitness_set_ =
-        false; ///< Indicates whether a suitable transformed_fitness_ value is available
-};
-
-/******************************************************************************/
-////////////////////////////////////////////////////////////////////////////////
-/******************************************************************************/
-/**
- * This is the abstract base class of all optimizable individuals. It carries all
- * the framework-level per-individual state (fitness / processing result, the
- * registered constraint object, best-past fitness, iteration, validity, stall
- * counters, eval policy, personality traits, ...) and the algorithm-facing surface
- * that the optimization algorithms operate on. The genome itself -- how the actual
- * parameters are stored -- is provided by the derived GFlatGenome, which stores plain
- * value vectors (GenomeData). The optimization algorithms hold their population as
- * GOptimizableEntity and reach the genome through this type-safe interface.
+ * @brief The algorithm-facing base class of all optimizable individuals: the genome-agnostic assembly the
+ * optimization algorithms hold their population as.
  *
- * This class is the CRTP category root (GCommonInterfaceT<GOptimizableEntity>); the
- * genome access points that the algorithms call polymorphically are declared pure
- * virtual here and implemented by the genome-carrying derivatives.
+ * GOptimizableEntity combines three concerns into one object without knowing how the parameters are
+ * stored:
+ *   - the courtier processing LIFECYCLE (status / routing / timing), inherited from GProcessable;
+ *   - IDENTITY and the clone/compare/serialize category machinery, via GCommonInterfaceT;
+ *   - EVALUATABILITY, via GRateableI (the raw / transformed fitness accessors) plus the pure-virtual
+ *     evaluate() hook the concrete individual implements to compute its raw result vector.
+ *
+ * On top of those it owns the RESULT STORE (one individual_processing_result per fitness criterion), the
+ * process() orchestration that drives an evaluation (timing, the configured pre-/post-processors, the
+ * feasibility check and the evaluation-policy transform), and the per-individual feasibility STATE (the
+ * computed validity level, the best-known fitness and stall counters). The population-uniform feasibility
+ * and ranking RULES -- the optimization direction, the policy for invalid solutions, the sigmoid
+ * parameters and the constraint object -- are NOT stored per individual; they live in a single shared
+ * GProblemPolicy that every entity references (the 1:N policy), so feasibility (fulfillsConstraints) is a
+ * concrete base operation that reads this entity's values through the policy's constraint.
+ *
+ * The algorithms reach the parameters THROUGH THIS BASE: the genome value API (streamline<T> /
+ * assignValueVector<T> / countParameters<T> / boundaries<T> + the FP / internal views + getVarVal<T> +
+ * toJSON / toCSV / crossOverWith / cannibalize) is declared here, dispatching to pure-virtual
+ * hooks that the value-bearing genome layer (GGenome) implements. "Read my parameters as a vector" is
+ * a universal optimization operation; only the storage is genome-specific. This keeps the assembly
+ * representation-agnostic: a future non-flat genome would derive GOptimizableEntity directly.
  */
 class GOptimizableEntity // NOLINT(cppcoreguidelines-special-member-functions)
-  : public Gem::Common::GCommonInterfaceT<GOptimizableEntity>
-  , public Interface::GMutableI
-  , public Interface::GRateableI
-  , public Gem::Courtier::GProcessingContainerT<GOptimizableEntity, individual_processing_result> {
+  : public Gem::Courtier::GProcessable
+  , public Gem::Common::GCommonInterfaceT<GOptimizableEntity>
+  , public Interface::GRateableI {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
-    /***************************************************************************/
     /**
-     * Single declaration of this class'es local data members. This drives serialize(),
-     * load_() and compare_() from one place. Plain members use make_member(); the
-     * cloneable smart pointers (the aux store's personality traits + individual_constraint_ptr_) use
-     * make_cloneable_member(), so g_load_members() deep-clones them while serialize()
-     * and compare_() treat them like any other member.
+     * @brief Single declaration of this class's plain compared/loaded local data members (the
+     * pre-/post-processor veto flags and the per-individual feasibility / best-known state), driving
+     * compare_(), the plain-member half of serialize() and load_() from one source. The result store,
+     * the cloneable pre-/post-processors and the shared policy are handled separately (the result store is
+     * serialized but not compared; the policy is shared 1:N, copied by shared-pointer), so they are NOT
+     * listed here.
      *
-     * Handled manually (NOT in this tuple): the GProcessingContainerT processing base,
-     * which is a base-object rather than a local member.
-     *
+     * @tparam Self The (const or non-const) deduced type of *this
+     * @param self A reference to *this whose members are tied into the tuple
      * @return A tuple of named member references driving serialize(), load_() and compare_()
      */
     template <typename Self>
-    static auto localMembers_(Self &self) {
+    auto localMembers_(this Self &self) {
         return std::make_tuple(
-            Gem::Common::make_member("best_past_primary_fitness_", self.best_past_primary_fitness_),
-            Gem::Common::make_member("n_stalls_", self.n_stalls_),
-            Gem::Common::make_member("maxmode_", self.maxmode_),
+            Gem::Common::make_member("pre_processing_disabled_", self.pre_processing_disabled_),
+            Gem::Common::make_member("post_processing_disabled_", self.post_processing_disabled_),
             Gem::Common::make_member("assigned_iteration_", self.assigned_iteration_),
-            Gem::Common::make_member("validity_level_", self.validity_level_),
-            Gem::Common::make_member("eval_policy_", self.eval_policy_),
-            Gem::Common::make_member("sigmoid_steepness_", self.sigmoid_steepness_),
-            Gem::Common::make_member("sigmoid_extremes_", self.sigmoid_extremes_),
-            Gem::Common::make_member("max_unsuccessful_adaptions_", self.max_unsuccessful_adaptions_),
-            Gem::Common::make_member("max_retries_until_valid_", self.max_retries_until_valid_),
-            Gem::Common::make_member("n_adaptions_", self.n_adaptions_),
-            Gem::Common::make_member("use_random_crash_", self.use_random_crash_),
-            Gem::Common::make_member("random_crash_prob_", self.random_crash_prob_),
-            Gem::Common::make_cloneable_member("individual_constraint_ptr_", self.individual_constraint_ptr_)
+            Gem::Common::make_member("validity_level_", self.validity_level_)
         );
     }
 
     /**
-     * @brief Serializes this object to/from a Boost archive
+     * @brief Serializes this object to/from a Boost archive.
+     *
+     * The non-generic lifecycle state is serialized through the GProcessable base; the CRTP category
+     * root (GCommonInterfaceT) and GRateableI carry no state. The cloneable pre-/post-processors and the
+     * shared policy are serialized explicitly (boost shared-pointer tracking deduplicates a policy shared
+     * by many candidates within one archive), and the plain local members come from localMembers_().
+     *
      * @tparam Archive The Boost.Serialization archive type
      * @param ar The archive to read from or write to
      * @param version The serialization version (unused)
@@ -281,126 +145,330 @@ class GOptimizableEntity // NOLINT(cppcoreguidelines-special-member-functions)
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         using boost::serialization::make_nvp;
 
-        // This is the CRTP category root. Its CRTP base
-        // (Gem::Common::GCommonInterfaceT<GOptimizableEntity>) carries no state and is
-        // therefore not serialized as a base_object -- mirroring GObject, whose
-        // serialize() is likewise empty. The stateful processing base IS serialized
-        // as a base-object rather than a local member.
         ar &make_nvp(
-            "GProcessingContainerT_GOptimizableEntity",
-            boost::serialization::base_object<Gem::Courtier::GProcessingContainerT<
-                GOptimizableEntity,
-                individual_processing_result>>(*this)
+            "GProcessable",
+            boost::serialization::base_object<Gem::Courtier::GProcessable>(*this)
         );
 
-        // All members (plain and cloneable alike) are derived from the single
-        // localMembers() declaration. The individual carries NO optimization-algorithm scratch or
-        // identity (the personality object lives on the GIndividualSlot, and post-processing eligibility
-        // is decided by the algorithm and vetoed on the work item's processing metadata), so serialize()
-        // is unconditionally pure.
-        Gem::Common::serialize_members(ar, localMembers_(*this));
+        // The result store is serialized (it travels on the wire) but is deliberately NOT among the
+        // compared members (results are not part of per-individual identity, matching the historical
+        // processing container), so it is handled here rather than in localMembers_().
+        ar &BOOST_SERIALIZATION_NVP(pre_processor_ptr_) &
+            BOOST_SERIALIZATION_NVP(post_processor_ptr_) &
+            BOOST_SERIALIZATION_NVP(policy_) &
+            BOOST_SERIALIZATION_NVP(stored_results_cnt_);
+
+        Gem::Common::serialize_members(ar, this->localMembers_());
+
+        // The OA-owned scratch (the personality OBJECT and the per-group adaption POD blocks) is
+        // server-side state: it rides a CHECKPOINT so a resumed algorithm keeps its evolved per-individual
+        // state, but it must NOT travel on the wire -- a remote worker neither needs it nor should mutate
+        // it, and the server keeps the originally-submitted item's scratch to graft results back onto. So
+        // under an active wire-serialisation scope (transport) the scratch is OMITTED (a leading
+        // `has_scratch` flag keeps the stream self-describing and symmetric); with no scope (checkpoint /
+        // file) it travels by value. It is OUT of localMembers_() so it is serialized but never part of
+        // the compared identity (two individuals touched by different algorithms compare equal).
+        const auto *ctx = Gem::Courtier::GWireSerializationScope::current();
+        const bool on_the_wire = (ctx != nullptr) && ctx->enabled;
+        bool has_scratch = (not on_the_wire) && static_cast<bool>(scratch_);
+        ar &make_nvp("has_scratch", has_scratch);
+        if(has_scratch) {
+            if constexpr(Archive::is_loading::value) {
+                if(not scratch_) {
+                    scratch_ = std::make_unique<GAuxiliaryStore>();
+                }
+            }
+            ar &make_nvp("scratch_", *scratch_);
+        }
     }
     ///////////////////////////////////////////////////////////////////////
 
 public:
-    /** @brief The default constructor */
+    using payload_type = GOptimizableEntity;
+    using result_type = individual_processing_result;
+
+    /** @brief The default constructor (a single fitness criterion, a fresh private policy) */
     GOptimizableEntity();
     /**
-     * @brief Initialization with the number of fitness criteria
-     * @param n_fitness_criteria The number of fitness criteria this individual evaluates
+     * @brief Initialization with the number of fitness criteria.
+     * @param n_fitness_criteria The number of fitness criteria this candidate evaluates to
      */
     explicit GOptimizableEntity(std::size_t n_fitness_criteria);
     /**
-     * @brief The copy constructor
-     * @param cp The other GOptimizableEntity whose data is copied
+     * @brief The copy constructor. The shared policy is copied by shared pointer (1:N), the
+     * pre-/post-processors are deep-cloned.
+     * @param cp The other candidate whose data is copied
      */
     GOptimizableEntity(GOptimizableEntity const &cp);
     /** @brief The destructor */
     ~GOptimizableEntity() override = default;
 
-    /**
-     * @brief Allows to randomly initialize parameter members
-     * @param am The activity mode controlling which parameters are affected
-     * @return true if at least one parameter was randomly initialized
-     */
-    bool randomInit(activityMode const &am);
+    /***************************************************************************/
+    // Processing: the result store + the evaluation orchestration.
 
     /**
-     * @brief Specify whether we want to work in maximization (maxMode::MAXIMIZE) or minimization (maxMode::MINIMIZE) mode
-     * @param mode The optimization mode (maximization or minimization)
+     * @brief Performs the evaluation of this candidate: drives the optional pre-processor, the feasibility
+     * check and fitness calculation (or adopts pre-computed raw results from res_vec), the evaluation-policy
+     * transform and the optional post-processor, measuring the time of each step. On an exception the
+     * fitnesses are set to the worst case and a processing exception is rethrown. Only an item with the
+     * DO_PROCESS status is accepted.
+     * @param res_vec Optional pre-computed raw results (e.g. from a remote/GPU evaluator); if empty,
+     *        evaluate() is invoked. Its size must match the criteria count.
+     * @return The first stored result after processing
      */
-    void setMaxMode(maxMode const &mode);
+    individual_processing_result process(
+        const std::vector<individual_processing_result> &res_vec =
+            std::vector<individual_processing_result>()
+    );
 
     /**
-     * @brief Requests that this individual be returned to the server in FULL (its input parameters
-     * included) rather than in the default lightweight results-only form. A networked client that has
-     * MODIFIED the individual -- e.g. a nested / network-tiered optimization that replaces it with a
-     * better one it found locally -- sets this so the new parameters travel back. A transient transport
-     * hint (not serialized, compared or loaded); the default (false) ships only the computed results,
-     * the server grafting the originally-submitted parameters back on.
-     * @param full true to force a full return; false (the default) for the lightweight results-only form
+     * @brief Sets the vector of stored results to a given collection and marks the candidate PROCESSED.
+     * @param result_cnt The new result vector (size must match the configured number of stored results)
+     * @return The first stored result after the assignment
      */
-    void setReturnFullIndividual(bool full) { return_full_individual_ = full; }
-    /**
-     * @brief Whether a full return was requested for this individual (see setReturnFullIndividual()).
-     * @return true if the full individual should be returned; false for the results-only form
-     */
-    bool getReturnFullIndividual() const { return return_full_individual_; }
+    individual_processing_result
+    markAsProcessedWith(std::vector<individual_processing_result> const &result_cnt);
 
     /**
-     * @brief Transformation of the individual's parameters into a boost::property_tree object
-     * @param ptr The property tree the parameters are written to
-     * @param baseName The base name under which the parameters are stored (default "parameterset")
+     * @brief Read-only retrieval of a stored result. Throws if the PROCESSED flag is not set.
+     * @param id The position of the stored result to return
+     * @return The stored result at position id
      */
-    virtual void toPropertyTree(pt::ptree &, std::string const & = "parameterset") const = 0;
+    individual_processing_result getStoredResult(std::size_t id = 0) const;
+
+    /** @brief @return The number of result slots held by this candidate */
+    std::size_t getNStoredResults() const { return stored_results_cnt_.size(); }
+
+    /***************************************************************************/
+    // Pre-/post-processing (used by nested / post-optimizing algorithms).
+
+    /** @brief @return true if pre-processing is currently allowed (not vetoed) */
+    bool mayBePreProcessed() const noexcept { return not pre_processing_disabled_; }
+    /** @brief Allow or veto pre-processing. @param veto true to disable, false to allow */
+    void vetoPreProcessing(bool veto) noexcept { pre_processing_disabled_ = veto; }
+    /** @brief Registers a pre-processor (ignored if empty). @param pre_processor_ptr The processor */
+    void registerPreProcessor(
+        std::shared_ptr<Gem::Common::GSerializableFunctionObjectT<GOptimizableEntity>> pre_processor_ptr
+    ) {
+        if(pre_processor_ptr) {
+            pre_processor_ptr_ = pre_processor_ptr;
+        }
+    }
+
+    /** @brief @return true if post-processing is currently allowed (not vetoed) */
+    bool mayBePostProcessed() const { return not post_processing_disabled_; }
+    /** @brief Allow or veto post-processing. @param veto true to disable, false to allow */
+    void vetoPostProcessing(bool veto) { post_processing_disabled_ = veto; }
+    /** @brief Registers a post-processor (ignored if empty). @param post_processor_ptr The processor */
+    void registerPostProcessor(
+        std::shared_ptr<Gem::Common::GSerializableFunctionObjectT<GOptimizableEntity>> post_processor_ptr
+    ) {
+        if(post_processor_ptr) {
+            post_processor_ptr_ = post_processor_ptr;
+        }
+    }
+    /** @brief @return The registered post-processor, or an empty pointer if none is registered */
+    std::shared_ptr<Gem::Common::GSerializableFunctionObjectT<GOptimizableEntity>>
+    postProcessor() const {
+        return post_processor_ptr_;
+    }
+    /** @brief Removes any registered post-processor */
+    void clearPostProcessor() { post_processor_ptr_.reset(); }
+
+    /** @brief Loads otherwise-constant data into this (freshly de-serialized) item from a template held at
+     *  a remote site, so that data need not travel with every work item (a networked-client convenience;
+     *  the default is a no-op, a derived type overrides the hook below if it carries such data).
+     *  @param cd_ptr A template item whose constant data is loaded into this one */
+    void loadConstantData(std::shared_ptr<GOptimizableEntity> cd_ptr) {
+        this->loadConstantData_(cd_ptr);
+    }
+
+    /***************************************************************************/
+    // Fitness accessors / multi-criterion support.
 
     /**
-     * @brief Transformation of the individual's parameters into a list of comma-separated values
-     * @param with_name_and_type Whether to prepend each value with its name and type
-     * @param with_commas Whether to separate values with commas
-     * @param use_raw_fitness Whether to emit the raw (rather than transformed) fitness
-     * @param show_validity Whether to include the validity status
-     * @return The CSV representation of this individual
+     * @brief Registers a (raw) result value of the fitness calculation at a given criterion position.
+     * @param id The position of the fitness criterion (must be < the criteria count)
+     * @param value The raw fitness value to register
      */
-    virtual std::string toCSV(
-        bool = false // with_name_and_type
-        ,
-        bool = true // with_commas
-        ,
-        bool = true // use_raw_fitness
-        ,
-        bool = true // show_validity
-    ) const = 0;
-
+    void setResult(std::size_t id, double value);
+    /** @brief @return true if more than one fitness criterion is present */
+    bool hasMultipleFitnessCriteria() const { return this->getNStoredResults() > 1; }
     /**
-     * @brief Checks whether this object is better than a given set of evaluations
-     * @param boundaries The set of evaluation values to compare this individual's fitness against
-     * @return true if this object is good enough (better than the given evaluations)
+     * @brief Retrieve the (raw, transformed) fitness tuple at a given evaluation position.
+     * @param id The evaluation position (fitness criterion index); defaults to 0
+     * @return A (raw, transformed) fitness tuple at the requested position
+     */
+    std::tuple<double, double> getFitnessTuple(std::uint32_t id = 0) const;
+    /**
+     * @brief Checks whether this candidate is at least as good as a set of raw boundaries.
+     * @param boundaries One boundary value per fitness criterion
+     * @return true if every raw fitness is at least as good as its boundary, false otherwise
      */
     bool isGoodEnough(std::vector<double> const &boundaries);
 
-    /**
-     * @brief Perform a cross-over operation between this object and another
-     * @param cp The other entity to cross over with
-     * @return A shared pointer to the resulting offspring entity
-     */
-    virtual std::shared_ptr<GOptimizableEntity>
-    crossOverWith(GOptimizableEntity const &) const = 0;
+    /***************************************************************************/
+    // Policy-derived accessors (forwarded to the shared GProblemPolicy).
 
-    /**
-     * @brief Retrieves parameters relevant for the evaluation from another GOptimizableEntity
-     * @param cp The entity whose evaluation-relevant parameters are absorbed into this object
-     */
-    virtual void cannibalize(GOptimizableEntity &) = 0;
+    /** @brief Installs the shared problem policy (the 1:N feasibility/ranking rules).
+     *  @param policy The shared policy to reference (must not be empty) */
+    void setPolicy(std::shared_ptr<GProblemPolicy> policy);
+    /** @brief @return The shared problem policy referenced by this candidate */
+    std::shared_ptr<GProblemPolicy> getPolicy() const { return policy_; }
+
+    /** @brief Sets the optimization direction on the shared policy. @param mode MAXIMIZE or MINIMIZE */
+    void setMaxMode(maxMode const &mode) { policy_->setMaxMode(mode); }
+    /** @brief @return The optimization direction from the shared policy */
+    maxMode getMaxMode() const { return policy_->getMaxMode(); }
+    /** @brief @return The worst-case evaluation value for the current direction */
+    virtual double getWorstCase() const { return policy_->getWorstCase(); }
+    /** @brief @return The best-case evaluation value for the current direction */
+    virtual double getBestCase() const { return policy_->getBestCase(); }
+
+    /** @brief Sets the policy for invalid solutions. @param eval_policy The evaluation policy */
+    void setEvaluationPolicy(evaluationPolicy eval_policy) { policy_->setEvaluationPolicy(eval_policy); }
+    /** @brief @return The evaluation policy for invalid solutions */
+    evaluationPolicy getEvaluationPolicy() const { return policy_->getEvaluationPolicy(); }
+
+    /** @brief @return The sigmoid steepness from the shared policy */
+    double getSteepness() const { return policy_->getSteepness(); }
+    /** @brief Sets the sigmoid steepness on the shared policy. @param steepness The steepness (> 0) */
+    void setSteepness(double steepness) { policy_->setSteepness(steepness); }
+    /** @brief @return The sigmoid barrier from the shared policy */
+    double getBarrier() const { return policy_->getBarrier(); }
+    /** @brief Sets the sigmoid barrier on the shared policy. @param barrier The barrier (> 0) */
+    void setBarrier(double barrier) { policy_->setBarrier(barrier); }
+
+    /** @brief @return The computed validity level of this candidate (<= 1 means feasible) */
+    double getValidityLevel() const { return validity_level_; }
+    /** @brief @return true if this candidate fulfils its constraints (validity level <= 1) */
+    bool constraintsFulfilled() const { return validity_level_ <= 1.; }
+    /** @brief @return true if this candidate is a valid solution (meant for processed candidates) */
+    bool isValid() const;
+    /** @brief @return true if this candidate is an invalid solution */
+    bool isInValid() const { return not this->isValid(); }
 
     /***************************************************************************/
-    // Genome value channels (genome-agnostic). The public per-type templates are the ergonomic
-    // surface the optimization algorithms use; each dispatches to a non-template virtual that the
-    // flat genome (GFlatGenome) implements. The algorithms therefore read and write parameter
-    // values without knowing the storage layout -- no downcast.
+    // Iteration bookkeeping (per individual). The stall count and best-known fitness are OA state and
+    // live on GOptimizationAlgorithmBase; the adaption-retry limits are OA adaption policy and live on
+    // the OA-owned GAdaptionConfig -- neither is carried on the individual any more.
+
+    /** @brief Sets the parent algorithm's iteration. @param parent_alg_iteration The iteration */
+    void setAssignedIteration(std::uint32_t const &parent_alg_iteration) {
+        assigned_iteration_ = parent_alg_iteration;
+    }
+    /** @brief @return The parent algorithm's current iteration */
+    std::uint32_t getAssignedIteration() const { return assigned_iteration_; }
+
+    /** @brief @return The number of adaptions performed during the last adaption (read from the OA
+     *  scratch, where the adaption machinery records it; 0 if no scratch is attached) */
+    std::size_t getNAdaptions() const { return scratch_ ? scratch_->getNAdaptions() : 0; }
 
     /**
-     * @brief Streamlines all parameters of type par_type into a vector (cleared first)
+     * @brief Public constraint check used by the OA-owned adaption retry loop. Feasibility is a concrete
+     * base operation: it reads this entity's parameter values (streamlineFP, below) through the shared
+     * policy's constraint. Returns true if the entity satisfies its constraints and writes the validity
+     * level to the out-parameter.
+     * @param validity_level Out-parameter receiving the computed validity level
+     * @return true if the candidate satisfies its constraints, false otherwise
+     */
+    bool fulfillsConstraints(double &validity_level) const {
+        return policy_->fulfillsConstraints(*this, validity_level);
+    }
+
+    /**
+     * @brief Registers a constraint with this entity's shared problem policy (the 1:N feasibility rule).
+     * Forwarded to GProblemPolicy::registerConstraint, which clones the constraint.
+     * @param c_ptr The validity-check constraint to register (must not be empty)
+     */
+    void registerConstraint(std::shared_ptr<GPreEvaluationValidityCheckT<GOptimizableEntity>> c_ptr) {
+        policy_->registerConstraint(c_ptr);
+    }
+
+    /***************************************************************************/
+    // OA-owned scratch (the personality OBJECT + per-group adaption POD blocks). Held ON the work item so
+    // it permutes coherently through every sort / select / swap; it is server-side state, dropped at the
+    // algorithm boundary (resetPersonality / clearScratch), and never travels on the wire (see serialize()).
+
+    /** @brief The optimization-algorithm-owned scratch (personality + POD adaption state).
+     *  @return A reference to the scratch store */
+    GAuxiliaryStore &scratch() noexcept { return *scratch_; }
+    /** @brief The OA-owned scratch (const). @return A const reference to the scratch store */
+    const GAuxiliaryStore &scratch() const noexcept { return *scratch_; }
+
+    /**
+     * @brief Converts the personality base pointer to the desired type. Only accessible when
+     * personality_type derives from GPersonalityTraits.
+     * @tparam personality_type The concrete personality-traits type (must derive from GPersonalityTraits)
+     * @return A shared pointer to the personality traits cast to personality_type
+     */
+    template <typename personality_type>
+        requires std::derived_from<personality_type, GPersonalityTraits>
+    std::shared_ptr<personality_type> getPersonalityTraits() {
+#ifdef DEBUG
+        if(not scratch_->personalityRef()) {
+            throw geneva_exception(
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+                << "In GOptimizableEntity::getPersonalityTraits<personality_type>() : Empty personality "
+                   "pointer found"
+                << '\n'
+            );
+        }
+#endif /* DEBUG */
+        return Gem::Common::convertSmartPointer<GPersonalityTraits, personality_type>(
+            scratch_->personalityRef()
+        );
+    }
+
+    /** @brief The personality-traits base pointer.
+     *  @return A shared pointer to this entity's GPersonalityTraits
+     *  @throw geneva_exception (DEBUG builds) if the personality pointer is empty */
+    std::shared_ptr<GPersonalityTraits> getPersonalityTraits() {
+#ifdef DEBUG
+        if(not scratch_->personalityRef()) {
+            throw geneva_exception(
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+                << "In GOptimizableEntity::getPersonalityTraits() : Empty personality pointer found" << '\n'
+            );
+        }
+#endif /* DEBUG */
+        return scratch_->personalityRef();
+    }
+
+    /** @brief Sets the personality of this entity.
+     *  @param gpt The personality-traits object to install (must be non-null)
+     *  @throw geneva_exception if gpt is empty */
+    void setPersonality(std::shared_ptr<GPersonalityTraits> gpt) {
+        if(not gpt) {
+            throw geneva_exception(
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+                << "In GOptimizableEntity::setPersonality() : Empty personality pointer passed" << '\n'
+            );
+        }
+        scratch_->personalityRef() = std::move(gpt);
+    }
+
+    /** @brief Resets the OA-owned scratch (personality + any POD blocks held on this entity) */
+    void resetPersonality() { scratch_->clearScratch(); }
+
+    /** @brief A string identifier for the current personality.
+     *  @return The personality's name(), or "PERSONALITY_NONE" if no personality is set */
+    std::string getPersonality() const {
+        if(scratch_->personalityRef()) {
+            return scratch_->personalityRef()->name();
+        }
+        return std::string("PERSONALITY_NONE");
+    }
+
+    /***************************************************************************/
+    // Genome value channels (genome-agnostic). The public per-type templates are the ergonomic surface the
+    // optimization algorithms use; each dispatches to a non-template virtual that the flat genome
+    // (GGenome) implements. The algorithms therefore read and write parameter values without knowing
+    // the storage layout -- no downcast. "Read my parameters as a vector" is a universal optimization
+    // operation; only the storage is genome-specific, so the base declares it and the flat impl overrides.
+
+    /**
+     * @brief Streamlines all parameters of type par_type into a vector (cleared first).
      * @tparam par_type The parameter value type (double, float, std::int32_t or bool)
      * @param par_vec The vector the parameter values are written into (cleared first)
      * @param am The activity mode controlling which parameters are included
@@ -414,7 +482,8 @@ public:
     }
 
     /**
-     * @brief Assigns values from a vector to the parameters of type par_type
+     * @brief Assigns values from a vector to the parameters of type par_type (marks the item for
+     * reprocessing).
      * @tparam par_type The parameter value type (double, float, std::int32_t or bool)
      * @param par_vec The vector of values to scatter onto the matching parameters
      * @param am The activity mode controlling which parameters are written
@@ -440,7 +509,7 @@ public:
     }
 
     /**
-     * @brief The number of parameters of type par_type
+     * @brief The number of parameters of type par_type.
      * @tparam par_type The parameter value type (double, float, std::int32_t or bool)
      * @param am The activity mode controlling which parameters are counted
      * @return The number of parameters of the requested type
@@ -466,7 +535,7 @@ public:
     }
 
     /**
-     * @brief Lower/upper boundaries of all parameters of type par_type (cleared first)
+     * @brief Lower/upper boundaries of all parameters of type par_type (cleared first).
      * @tparam par_type The parameter value type (double, float, std::int32_t or bool)
      * @param l_bnd_vec The vector the lower boundaries are written into (cleared first)
      * @param u_bnd_vec The vector the upper boundaries are written into (cleared first)
@@ -482,25 +551,17 @@ public:
     }
 
     /***************************************************************************/
-    // The precision-agnostic floating point view (double + float widened to double). Implemented
-    // once here on top of the per-type channels above, so every genome layout gets it for free.
-    // Geometric algorithms -- (conjugate) gradient descent, Nelder-Mead, swarm -- use this view.
+    // The precision-agnostic floating point view (double + float widened to double). Implemented once
+    // here on top of the per-type channels above, so every genome layout gets it for free.
 
-    /**
-     * @brief The combined number of double- and float-typed parameters
-     * @param am The activity mode controlling which parameters are counted
-     * @return The combined count of double and float parameters
-     */
+    /** @brief @param am The activity mode. @return The combined count of double and float parameters */
     std::size_t
     countFPParameters(activityMode const &am = activityMode::DEFAULTACTIVITYMODE) const {
         return countParameters<double>(am) + countParameters<float>(am);
     }
 
-    /**
-     * @brief Streamlines all floating point parameters into a single double vector (double-typed first, then widened float-typed)
-     * @param par_vec The vector the floating point values are written into (cleared first)
-     * @param am The activity mode controlling which parameters are included
-     */
+    /** @brief Streamlines all FP parameters into a single double vector (double-typed first, then widened
+     *  float-typed). @param par_vec The output vector (cleared first). @param am The activity mode */
     void streamlineFP(
         std::vector<double> &par_vec,
         activityMode const &am = activityMode::DEFAULTACTIVITYMODE
@@ -510,17 +571,11 @@ public:
 
         std::vector<float> float_vec;
         this->streamline<float>(float_vec, am);
-        par_vec.reserve(par_vec.size() + float_vec.size());
-        for(float f : float_vec) {
-            par_vec.push_back(static_cast<double>(f));
-        }
+        par_vec.append_range(float_vec); // each float implicitly widened to double
     }
 
-    /**
-     * @brief Scatters a double vector produced by streamlineFP() back onto the floating point parameters
-     * @param par_vec The combined double vector (double-typed first, then float-typed) to scatter back
-     * @param am The activity mode controlling which parameters are written
-     */
+    /** @brief Scatters a double vector produced by streamlineFP() back onto the FP parameters.
+     *  @param par_vec The combined double vector. @param am The activity mode */
     void assignFPValueVector(
         std::vector<double> const &par_vec,
         activityMode const &am = activityMode::DEFAULTACTIVITYMODE
@@ -546,20 +601,14 @@ public:
             this->assignValueVector<double>(double_vec, am);
         }
         if(n_float > 0) {
-            std::vector<float> float_vec(n_float);
-            for(std::size_t i = 0; i < n_float; ++i) {
-                float_vec[i] = static_cast<float>(par_vec[n_double + i]);
-            }
+            std::vector<float> float_vec;
+            float_vec.append_range(par_vec | std::views::drop(n_double)); // each double implicitly narrowed to float
             this->assignValueVector<float>(float_vec, am);
         }
     }
 
-    /**
-     * @brief Lower/upper boundaries of all floating point parameters (matching streamlineFP() ordering)
-     * @param l_bnd_vec The vector the lower boundaries are written into (cleared first)
-     * @param u_bnd_vec The vector the upper boundaries are written into (cleared first)
-     * @param am The activity mode controlling which parameters are included
-     */
+    /** @brief Lower/upper boundaries of all FP parameters (matching streamlineFP() ordering).
+     *  @param l_bnd_vec Lower bounds out (cleared). @param u_bnd_vec Upper bounds out (cleared). @param am The activity mode */
     void boundariesFP(
         std::vector<double> &l_bnd_vec,
         std::vector<double> &u_bnd_vec,
@@ -575,35 +624,19 @@ public:
 
         l_bnd_vec.clear();
         u_bnd_vec.clear();
-        l_bnd_vec.reserve(l_double.size() + l_float.size());
-        u_bnd_vec.reserve(u_double.size() + u_float.size());
-        l_bnd_vec.insert(l_bnd_vec.end(), l_double.begin(), l_double.end());
-        u_bnd_vec.insert(u_bnd_vec.end(), u_double.begin(), u_double.end());
-        for(float v : l_float) {
-            l_bnd_vec.push_back(static_cast<double>(v));
-        }
-        for(float v : u_float) {
-            u_bnd_vec.push_back(static_cast<double>(v));
-        }
+        l_bnd_vec.append_range(l_double);
+        l_bnd_vec.append_range(l_float); // each float implicitly widened to double
+        u_bnd_vec.append_range(u_double);
+        u_bnd_vec.append_range(u_float); // each float implicitly widened to double
     }
 
     /***************************************************************************/
-    // The INTERNAL (normalized) floating-point view (normalized-genome architecture, §2.3). The
-    // optimization algorithms read and write the raw, normalized internal coordinate (magnitude ≈ 1,
-    // confined to the canonical interval [-0.5, 0.5) for a bounded parameter), NOT the user-facing
-    // external value. This is the "two-reader split": OAs use these *Internal accessors; the objective
-    // function / GPU marshaller / user inspection use the external streamlineFP / assignFPValueVector /
-    // boundariesFP above. The internal view costs no per-read affine map (it is the stored value), and
-    // an internal write FOLDS an overshooting bounded value back into range (never throws), whereas an
-    // external write scales + range-validates (throws out of range). Ordering matches streamlineFP:
-    // double-typed first, then float-typed widened to double.
+    // The INTERNAL (normalized) floating-point view (normalized-genome architecture §2.3): the OAs read
+    // and write the raw normalized internal coordinate (the two-reader split). Ordering matches
+    // streamlineFP: double-typed first, then float-typed widened to double.
 
-    /**
-     * @brief Streamlines all floating point parameters in their raw INTERNAL (normalized) representation
-     *  into a single double vector (double-typed first, then widened float-typed). For OA move generation.
-     * @param par_vec The vector the internal values are written into (cleared first)
-     * @param am The activity mode controlling which parameters are included
-     */
+    /** @brief Streamlines all FP parameters in their raw INTERNAL representation into a double vector.
+     *  @param par_vec The output vector (cleared first). @param am The activity mode */
     void streamlineFPInternal(
         std::vector<double> &par_vec,
         activityMode const &am = activityMode::DEFAULTACTIVITYMODE
@@ -613,19 +646,11 @@ public:
 
         std::vector<float> float_vec;
         this->streamlineInternal_(float_vec, am);
-        par_vec.reserve(par_vec.size() + float_vec.size());
-        for(float f : float_vec) {
-            par_vec.push_back(static_cast<double>(f));
-        }
+        par_vec.append_range(float_vec); // each float implicitly widened to double
     }
 
-    /**
-     * @brief Scatters a vector of raw INTERNAL (normalized) values back onto the floating point parameters
-     *  (an OA write: a bounded value is folded into [-0.5, 0.5), never range-validated). Ordering matches
-     *  streamlineFPInternal() (double-typed first, then float-typed).
-     * @param par_vec The combined internal-value vector to scatter back
-     * @param am The activity mode controlling which parameters are written
-     */
+    /** @brief Scatters a vector of raw INTERNAL values back onto the FP parameters (folds bounded values,
+     *  never range-validates). @param par_vec The combined internal-value vector. @param am The activity mode */
     void assignFPValueVectorInternal(
         std::vector<double> const &par_vec,
         activityMode const &am = activityMode::DEFAULTACTIVITYMODE
@@ -651,169 +676,19 @@ public:
             this->assignValueVectorInternal_(double_vec, am);
         }
         if(n_float > 0) {
-            std::vector<float> float_vec(n_float);
-            for(std::size_t i = 0; i < n_float; ++i) {
-                float_vec[i] = static_cast<float>(par_vec[n_double + i]);
-            }
+            std::vector<float> float_vec;
+            float_vec.append_range(par_vec | std::views::drop(n_double)); // each double implicitly narrowed to float
             this->assignValueVectorInternal_(float_vec, am);
         }
         // As with the external assign, modifying the parameters marks the item for reprocessing.
         this->mark_as_due_for_processing();
     }
 
-    /**
-     * @brief Register another result value of the fitness calculation
-     * @param id The index of the fitness criterion to store the result for
-     * @param value The result value to register
-     */
-    void setResult(std::size_t id, double value);
-    /**
-     * @brief Determines whether more than one fitness criterion is present for this individual
-     * @return true if more than one fitness criterion is present
-     */
-    bool hasMultipleFitnessCriteria() const;
-
-    /**
-     * @brief Retrieve the fitness tuple at a given evaluation position
-     * @param id The evaluation position (fitness criterion index); defaults to 0
-     * @return A (raw, transformed) fitness tuple at the requested position
-     */
-    std::tuple<double, double> getFitnessTuple(std::uint32_t id = 0) const;
-
-    /**
-     * @brief Allows to retrieve the maxmode_ parameter
-     * @return The optimization mode (maximization or minimization)
-     */
-    maxMode getMaxMode() const;
-
-    /**
-     * @brief Retrieves the worst possible evaluation result, depending on whether we are in maximization or minimization mode
-     * @return The worst-case evaluation value for the current mode
-     */
-    virtual double getWorstCase() const;
-
-    /**
-     * @brief Retrieves the best possible evaluation result, depending on whether we are in maximization or minimization mode
-     * @return The best-case evaluation value for the current mode
-     */
-    virtual double getBestCase() const;
-
-    /**
-     * @brief Retrieves the steepness_ variable (used for the sigmoid transformation)
-     * @return The sigmoid steepness value
-     */
-    double getSteepness() const;
-    /**
-     * @brief Sets the steepness variable (used for the sigmoid transformation)
-     * @param steepness The new sigmoid steepness value
-     */
-    void setSteepness(double steepness);
-
-    /**
-     * @brief Retrieves the barrier_ variable (used for the sigmoid transformation)
-     * @return The sigmoid barrier (extreme) value
-     */
-    double getBarrier() const;
-    /**
-     * @brief Sets the barrier variable (used for the sigmoid transformation)
-     * @param barrier The new sigmoid barrier (extreme) value
-     */
-    void setBarrier(double barrier);
-
-    /**
-     * @brief Sets the maximum number of adaption attempts that may pass without actual modifications
-     * @param max_unsuccessful_adaptions The maximum number of unsuccessful adaption attempts allowed
-     */
-    void setMaxUnsuccessfulAdaptions(std::size_t max_unsuccessful_adaptions);
-    /**
-     * @brief Retrieves the maximum number of adaption attempts that may pass without actual modifications
-     * @return The maximum number of unsuccessful adaption attempts allowed
-     */
-    std::size_t getMaxUnsuccessfulAdaptions() const;
-
-    /**
-     * @brief Set maximum number of retries until a valid individual was found
-     * @param max_retries_until_valid The maximum number of adaption retries until a valid individual is found
-     */
-    void setMaxRetriesUntilValid(std::size_t max_retries_until_valid);
-    /**
-     * @brief Retrieves the maximum number of retries until a valid individual was found
-     * @return The maximum number of adaption retries until a valid individual is found
-     */
-    std::size_t getMaxRetriesUntilValid() const;
-
-    /**
-     * @brief Retrieves the number of adaptions performed during the last call to adapt()
-     * @return The number of adaptions performed during the last adaption
-     */
-    std::size_t getNAdaptions() const;
-    /**
-     * @brief Records the number of adaptions performed (used by the OA-owned adaption free functions)
-     * @param n The number of adaptions performed to record
-     */
-    void setNAdaptions(std::size_t n) { n_adaptions_ = n; }
-
-    /**
-     * @brief Public, non-folding access to this individual's per-individual RNG stream. The OA-owned
-     * adaption free functions draw from it; each individual owns its own stream, so parallel
-     * adaption of distinct individuals is lock-free.
-     *
-     * @return A reference to this individual's per-individual random engine
-     */
-    Gem::Hap::GRandomBase &getRandomEngine() { return gr_; }
-
-    /**
-     * @brief Public constraint check used by the OA-owned adaption retry loop. Forwards to the protected
-     * individualFulfillsConstraints(); returns true if the individual satisfies its constraints and writes
-     * the validity level to the out-parameter.
-     *
-     * @param validity_level Out-parameter receiving the computed validity level
-     * @return true if the individual satisfies its constraints, false otherwise
-     */
-    bool fulfillsConstraints(double &validity_level) const {
-        return this->individualFulfillsConstraints(validity_level);
-    }
-
-    /**
-     * @brief Allows to set the current iteration of the parent optimization algorithm.
-     * @param iteration The current iteration of the parent optimization algorithm
-     */
-    void setAssignedIteration(std::uint32_t const &parent_alg_iteration);
-    /**
-     * @brief Gives access to the parent optimization algorithm's iteration
-     * @return The current iteration of the parent optimization algorithm
-     */
-    std::uint32_t getAssignedIteration() const;
-
-    /**
-     * @brief Allows to specify the number of optimization cycles without improvement of the primary fitness criterion
-     * @param nStalls The number of stalled optimization cycles to record
-     */
-    void setNStalls(std::uint32_t const &n_stalls);
-    /**
-     * @brief Allows to retrieve the number of optimization cycles without improvement of the primary fitness criterion
-     * @return The number of stalled optimization cycles
-     */
-    std::uint32_t getNStalls() const;
-
-    /**
-     * @brief Allows to activate random crashes for debugging purposes
-     * @param useRandomCrash Whether random crashes are enabled
-     * @param prob The probability with which a random crash occurs
-     */
-    void setRandomCrash(bool use_random_crash, double crash_prob);
-    /**
-     * @brief Allows to check whether random crashes are activated, and with which probability the occur
-     * @return A (enabled, probability) tuple describing the random-crash configuration
-     */
-    std::tuple<bool, double> getRandomCrash() const;
-
     /***************************************************************************/
     /**
-     * @brief Retrieves a parameter of a given type at the specified position.
+     * @brief Retrieves a parameter of a given type at the specified active index.
      * @tparam val_type The value type to retrieve (double, float, std::int32_t or bool)
-     * @param target A (type-index, name, position) tuple; the third element is the index of the
-     *        active parameter to retrieve
+     * @param target A (type-index, name, position) tuple; the third element is the active index
      * @return The parameter value of the requested type at the requested index
      */
     template <typename val_type>
@@ -826,8 +701,6 @@ public:
 
         const std::size_t idx = std::get<2>(target);
 
-        // Compile-time dispatch to the matching typed virtual -- no std::any boxing, no runtime typeid
-        // branch, on what is a per-iteration monitor hot path.
         if constexpr (std::is_same_v<val_type, double>) {
             return this->getVarVal_d_(idx);
         } else if constexpr (std::is_same_v<val_type, float>) {
@@ -840,225 +713,178 @@ public:
     }
 
     /***************************************************************************/
-    // OA-owned scratch — the personality OBJECT (GPersonalityTraits) AND the per-group adaption POD
-    // state (sigma / ad_prob / counter, …) — lives on the GIndividualSlot, NOT on the individual. The
-    // individual is pure data: genome + bounds + fitness + constraints + the courtier processing
-    // container. The adaption logic is OA-owned (geneva/oa/GAdaption.hpp), driven by the slot's scratch.
+    // Algorithm-facing genome operations (declared here so the algorithms reach them through the base;
+    // the flat genome implements them over its value channels).
 
-    /**
-     * @brief Check how valid a given solution is
-     * @return The validity level of the current solution
-     */
-    double getValidityLevel() const;
-    /**
-     * @brief Checks whether all constraints were fulfilled
-     * @return true if all registered constraints are fulfilled
-     */
-    bool constraintsFulfilled() const;
-    /**
-     * @brief Allows to register a constraint with this individual
-     * @param constraint_ptr The constraint-check object to register with this individual
-     */
-    void
-        registerConstraint(std::shared_ptr<GPreEvaluationValidityCheckT<GOptimizableEntity>> c_ptr);
+    /** @brief Transformation of the entity's parameters into a JSON object.
+     *  @return A boost::json::object holding this entity's parameters, metadata and results (the body only;
+     *          callers place it under whatever key they need) */
+    virtual boost::json::object toJSON() const = 0;
 
-    /**
-     * @brief Allows to set the policy to use in case this individual represents an invalid solution
-     * @param eval_policy The evaluation policy to apply for invalid solutions
-     */
-    void setEvaluationPolicy(evaluationPolicy eval_policy);
-    /**
-     * @brief Allows to retrieve the current policy in case this individual represents an invalid solution
-     * @return The current evaluation policy
-     */
-    evaluationPolicy getEvaluationPolicy() const;
+    /** @brief Transformation of the entity's parameters into a list of comma-separated values.
+     *  @param with_name_and_type Whether to prefix each value with its name and type
+     *  @param with_commas Whether to separate the values with commas
+     *  @param use_raw_fitness Whether to emit the raw rather than the transformed fitness
+     *  @param show_validity Whether to append the validity flag
+     *  @return The CSV representation of this entity */
+    virtual std::string toCSV(
+        bool with_name_and_type = false,
+        bool with_commas = true,
+        bool use_raw_fitness = true,
+        bool show_validity = true
+    ) const = 0;
 
-    /**
-     * @brief Checks whether this is a valid solution; meant to be called for "clean" individuals only
-     * @return true if this is a valid solution
-     */
-    bool isValid() const;
-    /**
-     * @brief Checks whether this solution is invalid
-     * @return true if this solution is invalid
-     */
-    bool isInValid() const;
+    /** @brief Perform a cross-over operation between this entity and another.
+     *  @param cp The other entity to cross over with
+     *  @return A shared pointer to the resulting offspring entity */
+    virtual std::shared_ptr<GOptimizableEntity> crossOverWith(GOptimizableEntity const &cp) const = 0;
 
-    /**
-     * @brief Allows to set the globally best known primary fitness
-     * @param bnf The (raw, transformed) globally best known primary fitness tuple
-     */
-    void setBestKnownPrimaryFitness(std::tuple<double, double> const &bnf);
-    /**
-     * @brief Retrieves the value of the globally best known primary fitness
-     * @return The (raw, transformed) globally best known primary fitness tuple
-     */
-    std::tuple<double, double> getBestKnownPrimaryFitness() const;
+    /** @brief Retrieves parameters relevant for the evaluation from another GOptimizableEntity.
+     *  @param cp The entity whose evaluation-relevant parameters are absorbed into this object */
+    virtual void cannibalize(GOptimizableEntity &cp) = 0;
 
     /***************************************************************************/
-    // Deleted functions
+    // Randomization.
 
-    explicit GOptimizableEntity(float const &) = delete;  ///< Intentionally undefined
-    explicit GOptimizableEntity(double const &) = delete; ///< Intentionally undefined
+    /**
+     * @brief Randomly initializes the parameters (marking the item for reprocessing on change).
+     * @param am The activity mode selecting which parameters are (re-)initialized
+     * @return true if at least one parameter was changed
+     */
+    bool randomInit(activityMode const &am);
 
 protected:
     /***************************************************************************/
-    /**
-     * A random number generator. Note that the actual calculation is
-     * done in a random number proxy / factory
-     */
-    Gem::Hap::GRandom gr_; ///< Per-individual engine; follows the HAP_RANDOM_SOURCE-selected backend
+    // Result-store mutators (for the genome / process orchestration).
 
-    /** @brief Uniformly distributed integer random numbers */
-    std::uniform_int_distribution<std::size_t> uniform_int_;
+    /**
+     * @brief Sets the fitness from a vector of externally-computed raw values, applying the feasibility
+     * check and evaluation-policy transform, then marking the candidate PROCESSED. An internal helper (an
+     * alternative to process(res_vec) used on the genome copy/move path); not a public API -- external
+     * results are injected through process(res_vec).
+     * @param f_cnt A vector of raw fitness values (size must match the criteria count)
+     */
+    void setFitness_(std::vector<double> const &f_cnt);
+
+    /** @brief Modifiable retrieval of a stored result. @param id The position. @return A modifiable reference */
+    individual_processing_result &modifyStoredResult(std::size_t id = 0) {
+        return stored_results_cnt_.at(id);
+    }
+    /** @brief Sets the number of stored results, copying new_val into new positions.
+     *  @param n_stored_results The new number of result slots. @param new_val The fill value */
+    void setNStoredResults(std::size_t n_stored_results, individual_processing_result new_val) {
+        stored_results_cnt_.resize(n_stored_results, new_val);
+    }
+    /** @brief Sets the number of stored results, default-initializing new positions.
+     *  @param n_stored_results The new number of result slots */
+    void setNStoredResults(std::size_t n_stored_results) {
+        stored_results_cnt_.resize(n_stored_results, individual_processing_result());
+    }
+    /** @brief Registers a result at a given position. @param id The position. @param r The result */
+    void registerResult(std::size_t id, const individual_processing_result &r) {
+        stored_results_cnt_.at(id) = r;
+    }
+
+    /** @brief @return A reference to the shared problem policy (for the genome's feasibility check) */
+    GProblemPolicy &policy() { return *policy_; }
+    /** @brief @return A const reference to the shared problem policy */
+    const GProblemPolicy &policy() const { return *policy_; }
 
     /***************************************************************************/
-    /**
-     * @brief Do the required processing for this object
-     * @param res_vec An optional vector of pre-computed processing results; if empty, the
-     *        fitness is calculated here
-     */
-    void process_(
-        const std::vector<individual_processing_result> &res_vec =
-            std::vector<individual_processing_result>()
-    ) final;
+    // Secondary-result combiners (the user's evaluate() may return one of these).
 
-    /**
-     * @brief Adds local configuration options to a GParserBuilder object
-     * @param gpb The parser builder the configuration options are registered with
-     */
+    /** @brief @return The sum of all stored transformed fitness values */
+    double sumCombiner() const;
+    /** @brief @return The sum of the absolute values of all stored transformed fitness values */
+    double fabsSumCombiner() const;
+    /** @brief @return The square root of the sum of squares of all stored transformed fitness values */
+    double squaredSumCombiner() const;
+    /** @brief @return The square root of the weighed sum of squares of all stored transformed fitness values
+     *  @param weights The per-criterion weights (size must match the criteria count) */
+    double weighedSquaredSumCombiner(std::vector<double> const &weights) const;
+
+    /***************************************************************************/
+    // GCommonInterfaceT / configuration contract.
+
+    /** @brief Adds local configuration options (eval policy, sigmoid, max mode, adaption limits).
+     *  @param gpb The parser builder the configuration options are registered with */
     void addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) override;
-    /**
-     * @brief Loads the data of another GOptimizableEntity
-     * @param cp Pointer to the other GOptimizableEntity whose data is loaded
-     */
+
+    /** @brief Loads the data of another GOptimizableEntity. @param cp The source candidate */
     void load_(const GOptimizableEntity *cp) override;
 
-    /** @brief Allow access to this classes compare_ function */
+    /** @brief Allow access to this class's compare_ function */
     friend void Gem::Common::compare_base_t<GOptimizableEntity>(
         GOptimizableEntity const &,
         GOptimizableEntity const &,
         Gem::Common::GToken &
     );
 
-    /**
-     * @brief Searches for compliance with expectations with respect to another object of the same type
-     * @param cp The other object to compare against
-     * @param e The expectation for this object, e.g. equality
-     * @param limit The limit for allowed deviations of floating point types
-     */
+    /** @brief Searches for compliance with expectations with respect to another candidate.
+     *  @param cp The other candidate to compare against
+     *  @param e The expectation (e.g. equality)
+     *  @param limit The limit for allowed floating-point deviations */
     void compare_(
-        GOptimizableEntity const &cp // the other object
-        ,
-        Gem::Common::expectation const &e // the expectation for this object, e.g. equality
-        ,
-        [[maybe_unused]] double const &limit // the limit for allowed deviations of floating point types
+        GOptimizableEntity const &cp,
+        Gem::Common::expectation const &e,
+        double const &limit
     ) const override;
 
-    /**
-     * @brief Random initialization
-     * @param am The activity mode controlling which parameters are affected
-     * @return true if at least one parameter was randomly initialized
-     */
-    virtual bool randomInit_(activityMode const &) = 0;
+    /***************************************************************************/
+    // A candidate carries NO random-number state of its own -- it is pure data. Every external
+    // operation that needs randomness on it (adaption, random-init, cross-over position) leases a
+    // proxy from the process-global Gem::Hap::randomLeasePool() for the duration of the operation, so
+    // the number of live proxies is bounded by peak concurrency (O(worker threads)), not by the
+    // population size.
 
-    /**
-     * @brief The fitness calculation for the main quality criterion takes place here
-     * @return The computed primary fitness value
-     */
-    double fitnessCalculation() override = 0;
-    /**
-     * @brief Sets the fitness to a given set of values and clears the dirty flag
-     * @param fitness_vec The set of fitness values to assign
-     */
-    void setFitness_(std::vector<double> const &f_cnt);
+    /***************************************************************************/
+    // Pure-virtual hooks implemented by the genome layer.
 
-    /**
-     * @brief Combines secondary evaluation results by adding the individual results
-     * @return The sum of the secondary evaluation results
-     */
-    double sumCombiner() const;
-    /**
-     * @brief Combines secondary evaluation results by adding the absolute values of individual results
-     * @return The sum of the absolute values of the secondary evaluation results
-     */
-    double fabsSumCombiner() const;
-    /**
-     * @brief Combines secondary evaluation results by calculating the square root of the squared sum
-     * @return The Euclidean (square-root-of-squared-sum) combination of the secondary results
-     */
-    double squaredSumCombiner() const;
-    /**
-     * @brief Combines secondary evaluation results by calculation the square root of the weighed squared sum
-     * @param weights The per-result weights applied before squaring and summing
-     * @return The square root of the weighed squared sum of the secondary results
-     */
-    double weighedSquaredSumCombiner(std::vector<double> const &weights) const;
+    /** @brief Randomly initializes the parameters (genome-specific).
+     *  @param am The activity mode selecting which parameters are affected
+     *  @return true if at least one parameter was changed */
+    virtual bool randomInit_(activityMode const &am) = 0;
 
-    /**
-     * @brief Checks whether this solution has been rated to be valid; meant to be called by internal functions only
-     * @param validity_level Out-parameter receiving the computed validity level
-     * @return true if this solution fulfils its constraints
-     */
-    bool individualFulfillsConstraints(double &validity_level) const;
+    /** @brief The evaluation hook a concrete individual implements: computes and RETURNS this individual's
+     *  raw result vector (size 1 for a single-criterion problem, one entry per criterion otherwise -- main
+     *  at index 0). It reads the individual through @c this (genome via streamline(), any per-run context via
+     *  the individual's own accessors) and RETURNS the results; the caller (@c runEvaluation_) writes them and
+     *  applies feasibility + policy + PROCESSED, so the hook itself sets no fitness. The single evaluation
+     *  call site dispatches here for a locally-evaluated individual. Implemented by every concrete
+     *  individual (the value-bearing genome layer's problem definition).
+     *  @return The raw result vector */
+    virtual std::vector<double> evaluate() = 0;
 
 private:
     /***************************************************************************/
-    // Overridden or virtual private functions
+    // GRateableI surface (read the stored results).
 
-    /**
-     * @brief Emits a name for this class / object
-     * @return The class / object name
-     */
-    std::string name_() const override;
-    /**
-     * @brief Creates a deep clone of this object
-     * @return A pointer to a newly allocated deep copy of this object
-     */
-    GOptimizableEntity *clone_() const override = 0;
-
-    /**
-     * @brief Retrieves the stored raw fitness with a given id
-     * @param id The index of the fitness criterion
-     * @return The stored raw fitness for the requested criterion
-     */
-    double raw_fitness_(std::size_t id) const final;
-    /**
-     * @brief Retrieves the stored transformed fitness with a given id
-     * @param id The index of the fitness criterion
-     * @return The stored transformed fitness for the requested criterion
-     */
-    double transformed_fitness_(std::size_t id) const final;
-
-    /**
-     * @brief Returns all raw fitness results in a std::vector
-     * @return A vector of all stored raw fitness results
-     */
+    /** @brief @param id The criterion index. @return The stored raw fitness for that criterion */
+    double raw_fitness_(std::size_t id) const final { return this->getStoredResult(id).rawFitness(); }
+    /** @brief @param id The criterion index. @return The stored transformed fitness for that criterion */
+    double transformed_fitness_(std::size_t id) const final {
+        return this->getStoredResult(id).transformedFitness();
+    }
+    /** @brief @return A vector of all stored raw fitness results */
     std::vector<double> raw_fitness_vec_() const final;
-    /**
-     * @brief Returns all transformed fitness results in a std::vector
-     * @return A vector of all stored transformed fitness results
-     */
+    /** @brief @return A vector of all stored transformed fitness results */
     std::vector<double> transformed_fitness_vec_() const final;
 
     /***************************************************************************/
+    // Per-type genome value channels -- the non-template dispatch targets of the public
+    // streamline<T>/assignValueVector<T>/countParameters<T>/boundaries<T> templates (and the getVarVal<T>
+    // template). Implemented by the concrete flat genome. These are the entire seam that makes value
+    // access genome-agnostic; each overload takes the per-type value/boundary vector(s) and the
+    // activityMode controlling which parameters participate.
 
-    /** @brief Retrieve the value of the active parameter at the given index, per type (genome-specific
-     *  dispatch). The non-template targets of the public getVarVal<T>() template -- typed virtuals rather
-     *  than a std::any-returning impl, so there is no boxing/typeid on the (hot) monitor path.
+    /** @brief Retrieve the value of the active parameter at the given index, per type (genome dispatch).
      *  @param idx The index of the active parameter to retrieve
-     *  @return The active parameter value at @p idx (double for _d_, float for _f_, std::int32_t for _i_, bool for _b_) */
+     *  @return The active parameter value at @p idx (double for _d_, float for _f_, int32 for _i_, bool for _b_) */
     virtual double getVarVal_d_(std::size_t idx) = 0;
     virtual float getVarVal_f_(std::size_t idx) = 0;
     virtual std::int32_t getVarVal_i_(std::size_t idx) = 0;
     virtual bool getVarVal_b_(std::size_t idx) = 0;
 
-    /***************************************************************************/
-    // Per-type genome value channels -- the non-template dispatch targets of the public
-    // streamline<T>/assignValueVector<T>/countParameters<T>/boundaries<T> templates. Implemented by
-    // the concrete flat genome (which copies a channel array). These are the entire seam that makes
-    // value access genome-agnostic. Each overload takes the per-type value/boundary vector(s) and the
-    // activityMode controlling which parameters participate.
     virtual void streamline_(std::vector<double> &, activityMode const &) const = 0;
     virtual void streamline_(std::vector<float> &, activityMode const &) const = 0;
     virtual void streamline_(std::vector<std::int32_t> &, activityMode const &) const = 0;
@@ -1079,69 +905,109 @@ private:
     virtual void boundaries_(std::vector<std::int32_t> &, std::vector<std::int32_t> &, activityMode const &) const = 0;
     virtual void boundaries_(std::vector<bool> &, std::vector<bool> &, activityMode const &) const = 0;
 
-    // The INTERNAL (normalized) floating-point channel virtuals backing streamlineFPInternal /
-    // assignFPValueVectorInternal (normalized-genome architecture §2.3). Only the FP channels carry an
-    // internal/external distinction (int / bool are not normalized), so only double and float overloads
-    // exist. The internal read returns the raw stored value; the internal write folds a bounded value
-    // into [-0.5, 0.5) (no range validation). The algorithms are boundary-agnostic (they never query the
-    // bounds), so there is no internal-boundaries accessor.
+    // The INTERNAL (normalized) FP channels (§2.3): only double/float have an internal/external
+    // distinction (int / bool are not normalized).
     virtual void streamlineInternal_(std::vector<double> &, activityMode const &) const = 0;
     virtual void streamlineInternal_(std::vector<float> &, activityMode const &) const = 0;
     virtual void assignValueVectorInternal_(std::vector<double> const &, activityMode const &) = 0;
     virtual void assignValueVectorInternal_(std::vector<float> const &, activityMode const &) = 0;
 
-    /**
-     * @brief  Allows to set all fitnesses to the same value (both raw and transformed values)
-     * @param val The value assigned to every raw and transformed fitness
-     */
-    void setAllFitnessTo(double val);
+    /** @brief Re-attaches the OA-owned scratch from @p original onto this individual (the wire omits the
+     *  scratch, so a networked return arrives without it; the consumer grafts it back from the retained
+     *  original -- see Gem::Courtier::GProcessable::graftOaScratchFrom()).
+     *  @param original The originally-submitted item supplying the scratch (ignored if not a GOptimizableEntity) */
+    void graftOaScratchFrom_(const Gem::Courtier::GProcessable &original) override {
+        const auto *src = dynamic_cast<const GOptimizableEntity *>(&original);
+        if(src != nullptr && src->scratch_) {
+            // This deep-copy runs under the consumer's mutex (the original is reconciled in place). It is
+            // deliberately a COPY, not a move: every call site discards the original immediately afterwards,
+            // so a move WOULD be safe and O(1) -- but coupling correctness to that "source dies next"
+            // invariant is a footgun a future reorder could trip silently. SIGNPOST: if profiling at high
+            // client/return rates ever shows this mutex as hot, switch to an explicit consume -- take the
+            // source by rvalue-ref (graftOaScratchFrom_(GProcessable&&)) so call sites must std::move it and
+            // the steal is visible -- rather than turning this into a silent move. Until then, keep the copy.
+            scratch_ = std::make_unique<GAuxiliaryStore>(*src->scratch_);
+        }
+    }
 
-    /**
-     * @brief  Allows to set all fitnesses to the same value (raw and transformed values seperately)
-     * @param raw_val The value assigned to every raw fitness
-     * @param transformed_val The value assigned to every transformed fitness
-     */
-    void setAllFitnessTo(double raw_value, double transformed_value);
+    /** @brief In-place return reconciliation (see Gem::Courtier::GProcessable::absorbResultsFrom): absorbs
+     *  the returned item's computed results + evaluation-derived local state + processing lifecycle, while
+     *  KEEPING this live population element's own genome value channels (a results-only return leaves them
+     *  untouched; a full return grafts the genome separately, see GNetworkedConsumerT::checkin) and its
+     *  OA-owned scratch. Keeping the object in place (rather than swapping in the deserialized return) is
+     *  what preserves its heap address across a networked round-trip.
+     *  @param src The returned, evaluated item whose results + lifecycle are absorbed */
+    void absorbResultsFrom_(const Gem::Courtier::GProcessable &src) override;
+
+    /** @brief In-place full deep copy (see Gem::Courtier::GProcessable::loadContentFrom): replaces this
+     *  item's whole content (genome + results + scratch + lifecycle) with a copy of @p src without
+     *  relocating the object, so a concurrent snapshot of population addresses stays valid. Used by the
+     *  clone-on-partial-return refill to substitute a viable sibling into a failed slot.
+     *  @param src The source item to deep-copy in place
+     *  @return true (the optimization individual supports in-place substitution) */
+    bool loadContentFrom_(const Gem::Courtier::GProcessable &src) override;
+
+    /** @brief Default no-op constant-data load; a derived type overrides if it deposits constant data at a
+     *  remote site. @param cd_ptr A template item whose constant data would be loaded into this one */
+    virtual void loadConstantData_([[maybe_unused]] std::shared_ptr<GOptimizableEntity> cd_ptr) { /* nothing */ }
 
     /***************************************************************************/
-    // Data
+    // Evaluation internals.
 
-    /** @brief Holds the globally best known primary fitness of all individuals */
-    std::tuple<double, double> best_past_primary_fitness_{std::make_tuple(0., 0.)};
-    /** @brief The number of stalls of the primary fitness criterion in the entire set of individuals */
-    std::uint32_t n_stalls_ = 0;
-    /** @brief Indicates whether we are using maximization or minimization mode */
-    maxMode maxmode_ = maxMode::MINIMIZE;
-    /** @brief The iteration of the parent algorithm's optimization cycle */
-    std::uint32_t assigned_iteration_ = 0;
-    /** @brief Indicates how valid a given solution is */
-    double validity_level_ = 0.;
+    /** @brief The evaluation body run inside process(): feasibility check + evaluate()/res_vec
+     *  adoption + the evaluation-policy transform. @param res_vec Optional pre-computed raw results */
+    void runEvaluation_(const std::vector<individual_processing_result> &res_vec);
 
-    /** @brief Specifies what to do when the individual is marked as invalid */
-    evaluationPolicy eval_policy_ = Gem::Geneva::evaluationPolicy::USESIMPLEEVALUATION;
-    /** @brief Determines the "steepness" of a sigmoid function used by optimization algorithms */
-    double sigmoid_steepness_ = Gem::Geneva::FITNESSSIGMOIDSTEEPNESS;
-    /** @brief Determines the extreme values of a sigmoid function used by optimization algorithms */
-    double sigmoid_extremes_ = Gem::Geneva::WORSTALLOWEDVALIDFITNESS;
+    /** @brief Applies the configured invalidity policy (worst-case, or the sigmoid barrier value)
+     *  to the whole quality surface of a constraint-violating candidate. Shared by
+     *  runEvaluation_() and setFitness_() (formerly two identical copies). */
+    void applyInvalidityPolicy_();
 
-    /** @brief A constraint-check to be applied to one or more components of this individual */
-    std::shared_ptr<GPreEvaluationValidityCheckT<GOptimizableEntity>> individual_constraint_ptr_;
+    /** @brief Runs the registered pre-processor (if allowed) on this candidate */
+    void preProcess_();
+    /** @brief Runs the registered post-processor (if allowed) on this candidate */
+    void postProcess_();
 
-    std::size_t max_unsuccessful_adaptions_ = Gem::Geneva::
-        DEFMAXUNSUCCESSFULADAPTIONS; ///< The maximum number of calls to customAdaptions() in a row without actual modifications
-    std::size_t max_retries_until_valid_ = Gem::Geneva::
-        DEFMAXRETRIESUNTILVALID; ///< The maximum number an adaption of an individual should be performed until a valid parameter set was found
-    std::size_t n_adaptions_ =
-        0; ///< Stores the actual number of adaptions after a call to "adapt()"
+    /** @brief Sets every raw and transformed fitness to the same value. @param val The value */
+    void setAllFitnessTo(double val) { this->setAllFitnessTo(val, val); }
+    /** @brief Sets every raw fitness to raw_value and every transformed fitness to transformed_value.
+     *  @param raw_value The raw value. @param transformed_value The transformed value */
+    void setAllFitnessTo(double raw_value, double transformed_value);
 
-    bool use_random_crash_ =
-        false; ///< Indicates whether the individual should crash at random intervals for debugging purposes
-    double random_crash_prob_ = 0.; ///< The probability for a random crash
+    /** @brief Resets every stored result to a default-constructed value */
+    void clear_stored_results_vec();
+    /** @brief Bridges the GProcessable status machine to the result store (clears it on a status reset) */
+    void clearStoredResults_() override { this->clear_stored_results_vec(); }
 
-    /** @brief Transient transport hint (NOT serialized / compared / loaded): when a networked client
-     *  has MODIFIED this individual and wants the modified version returned in full, it sets this so the
-     *  return carries the input parameters rather than the default lightweight results-only form. */
-    bool return_full_individual_ = false;
+    /** @brief Emits a name for this class / object. @return The class / object name */
+    std::string name_() const override { return std::string("GOptimizableEntity"); }
+    /** @brief Creates a deep clone of this object (supplied by the concrete leaf). @return A heap copy */
+    GOptimizableEntity *clone_() const override = 0;
+
+    /***************************************************************************/
+    // Data.
+
+    bool pre_processing_disabled_ = false;  ///< Whether pre-processing was disabled entirely
+    bool post_processing_disabled_ = false; ///< Whether post-processing was disabled entirely
+
+    std::shared_ptr<Gem::Common::GSerializableFunctionObjectT<GOptimizableEntity>>
+        pre_processor_ptr_; ///< Actions to be performed before processing
+    std::shared_ptr<Gem::Common::GSerializableFunctionObjectT<GOptimizableEntity>>
+        post_processor_ptr_; ///< Actions to be performed after processing
+
+    std::vector<individual_processing_result> stored_results_cnt_ =
+        std::vector<individual_processing_result>(1, individual_processing_result()); ///< The result store
+
+    /** @brief The shared, problem-uniform feasibility / ranking policy (referenced 1:N) */
+    std::shared_ptr<GProblemPolicy> policy_ = std::make_shared<GProblemPolicy>();
+
+    std::uint32_t assigned_iteration_ = 0; ///< The parent algorithm's optimization-cycle iteration
+    double validity_level_ = 0.;        ///< How valid the current solution is (<= 1 == feasible)
+
+    /** @brief The OA-owned scratch (personality object + per-group adaption POD blocks). Always allocated
+     *  (so the accessors never null-check); deep-copied on clone/load; serialized only on a checkpoint
+     *  (omitted on the wire, see serialize()); excluded from the compared identity (not in localMembers_). */
+    std::unique_ptr<GAuxiliaryStore> scratch_ = std::make_unique<GAuxiliaryStore>();
 };
 
 /******************************************************************************/
@@ -1151,11 +1017,8 @@ private:
 } /* namespace Gem::Geneva::Genome */
 
 /******************************************************************************/
-////////////////////////////////////////////////////////////////////////////////
-/******************************************************************************/
 /**
  * @brief Needed for Boost.Serialization
  */
-BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::Geneva::Genome::GOptimizableEntity)        // NOLINT
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::Genome::individual_processing_result) // NOLINT
+BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::Geneva::Genome::GOptimizableEntity) // NOLINT
 /******************************************************************************/

@@ -30,6 +30,7 @@
 #include <catch2/catch_test_macros.hpp>
 
 #include <cmath>
+#include <ranges>
 #include <vector>
 
 #include "geneva/oa/GLineSearch.hpp"
@@ -57,12 +58,7 @@ double rosenbrock(std::vector<double> const &x) {
 template <typename F>
 GLineSearch::eval_fn_t batchOf(F f) {
     return [f](std::vector<std::vector<double>> const &points) {
-        std::vector<double> values;
-        values.reserve(points.size());
-        for(auto const &p : points) {
-            values.push_back(f(p));
-        }
-        return values;
+        return points | std::views::transform(f) | std::ranges::to<std::vector<double>>();
     };
 }
 

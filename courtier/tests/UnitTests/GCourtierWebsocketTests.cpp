@@ -37,6 +37,7 @@
 
 #include <algorithm>
 #include <atomic>
+#include <chrono>
 #include <cstddef>
 #include <memory>
 #include <thread>
@@ -66,7 +67,7 @@ std::vector<item_ptr> make_batch(
     std::vector<item_ptr> v;
     v.reserve(n);
     for(std::size_t i = 0; i < n; ++i) {
-        const bool f = std::find(faulty.begin(), faulty.end(), i) != faulty.end();
+        const bool f = std::ranges::contains(faulty, i);
         v.push_back(std::make_unique<GFaultyContainer>(i, f ? fm : fault_mode::NONE));
     }
     return v;
@@ -173,3 +174,65 @@ TEST_CASE("courtier(websocket): prefetch + throwing items refilled under clone-o
 }
 
 /******************************************************************************/
+
+TEST_CASE("courtier(websocket): a client whose server vanishes terminates on its own",
+          "[courtier][websocket][net]") {
+    // Regression (2026-07-18): every fatal client transport path (read/write error, decode
+    // failure, invalid command) set close_code_ but never tore the connection down, so the
+    // 1-second halt-poll timer kept io_context::run() alive forever -- the client hung instead
+    // of terminating. A minimal one-shot server stands in for a crashed server process: it
+    // completes the websocket handshake, reads the client's first pull, then hard-closes the
+    // TCP socket without a websocket close handshake. The client's outstanding read errors and
+    // its run() must return BY ITSELF (no flagCloseRequested from the outside).
+    namespace bws = boost::beast::websocket;
+    using boost::asio::ip::tcp;
+
+    boost::asio::io_context server_ioc;
+    tcp::acceptor acceptor(
+        server_ioc, tcp::endpoint(boost::asio::ip::address_v4::loopback(), /*port=*/0)
+    );
+    const unsigned short port = acceptor.local_endpoint().port();
+
+    std::jthread server_thread([&acceptor] {
+        boost::system::error_code ec;
+        tcp::socket sock = acceptor.accept(ec);
+        if(ec) {
+            return;
+        }
+        bws::stream<tcp::socket> ws(std::move(sock));
+        ws.accept(ec); // the server side of the websocket handshake
+        if(ec) {
+            return;
+        }
+        boost::beast::flat_buffer buf;
+        ws.read(buf, ec); // the client's first GETDATA pull
+        // No reply, no close frame: slam the TCP connection shut like a killed server process.
+        ws.next_layer().close(ec);
+    });
+
+    auto client = std::make_shared<ccons::GWebsocketClientT<GFaultyContainer>>(
+        "127.0.0.1", port, BIN, /*verbose_control_frames=*/false, /*prefetch_depth=*/1
+    );
+    std::atomic<bool> returned{false};
+    std::jthread client_thread([client, &returned] {
+        try {
+            client->run();
+        }
+        catch(...) { /* a throw still counts as returning */
+        }
+        returned.store(true);
+    });
+
+    // The client must come back on its own within a generous bound.
+    const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(15);
+    while(not returned.load() && std::chrono::steady_clock::now() < deadline) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(50));
+    }
+    CHECK(returned.load());
+
+    if(not returned.load()) {
+        // Rescue a hung client (the pre-fix behaviour) so the jthread can join and the test
+        // FAILS instead of deadlocking the suite.
+        client->flagCloseRequested();
+    }
+}

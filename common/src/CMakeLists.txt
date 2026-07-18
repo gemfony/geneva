@@ -30,8 +30,10 @@
 SET ( COMMONSOURCES
     GCommonEnums.cpp
     GCommonHelperFunctions.cpp
+    GConfigEmission.cpp
     GExceptions.cpp
 	GExpectationChecksT.cpp
+	GJsonIO.cpp
 	GLogger.cpp
 	GParserBuilder.cpp
 	concurrency/GThreadGroup.cpp
@@ -43,7 +45,6 @@ set_source_files_properties(
     ${COMMONSOURCES}
     PROPERTIES
     LANGUAGE CXX
-    CXX_STANDARD 20
 )
 
 ADD_LIBRARY ( ${COMMON_LIBNAME} SHARED ${COMMONSOURCES} )
@@ -52,9 +53,6 @@ SET_TARGET_PROPERTIES(
     ${COMMON_LIBNAME}
     PROPERTIES
     VERSION ${GENEVA_VERSION}
-	CXX_STANDARD 20
-	CXX_STANDARD_REQUIRED ON
-	CXX_EXTENSIONS OFF
 	EXPORT_NAME common
 )
 
@@ -68,13 +66,14 @@ TARGET_INCLUDE_DIRECTORIES(
     $<INSTALL_INTERFACE:include>
 )
 
-# Require C++20 transitively and propagate the Boost dependencies that appear
-# in the public headers (program_options/serialization/filesystem/regex/atomic).
-TARGET_COMPILE_FEATURES(${COMMON_LIBNAME} PUBLIC cxx_std_20)
+# Propagate the Boost dependencies that appear in the public headers
+# (program_options/serialization/filesystem/regex/atomic). The C++ standard is
+# selected centrally in CMakeModules/CommonGenevaBuild.cmake.
 TARGET_LINK_LIBRARIES(
     ${COMMON_LIBNAME}
     PUBLIC
     Boost::filesystem
+    Boost::json
     Boost::program_options
     Boost::regex
     Boost::serialization

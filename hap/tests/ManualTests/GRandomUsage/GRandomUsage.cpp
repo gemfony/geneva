@@ -46,6 +46,7 @@
 #include <fstream>
 #include <iostream>
 #include <random>
+#include <utility>
 #include <vector>
 
 // Boost header files
@@ -146,7 +147,7 @@ enum class distType : Gem::Common::ENUMBASETYPE {
  * Puts a distType item into a stream
  */
 std::ostream &operator<<(std::ostream &o, const distType &x) {
-    Gem::Common::ENUMBASETYPE tmp = static_cast<Gem::Common::ENUMBASETYPE>(x);
+    Gem::Common::ENUMBASETYPE tmp = std::to_underlying(x);
     o << tmp;
     return o;
 }

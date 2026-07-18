@@ -37,7 +37,6 @@
 #include "common/GLogger.hpp"
 #include "common/GParserBuilder.hpp"
 #include "common/concurrency/GThreadPool.hpp"
-#include "courtier/GProcessingContainerT.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/GPersonalityTraits.hpp"
 #include "geneva/GenevaHelperFunctions.hpp"
@@ -51,7 +50,7 @@
 #include "geneva/oa/GAdaptionConfig.hpp"
 #include "geneva/oa/GParetoTools.hpp"
 #include "geneva/ind/GOptimizableEntity.hpp"
-#include "geneva/ind/GFlatGenome.hpp"
+#include "geneva/ind/GGenome.hpp"
 #include "geneva/par/GOptimizableEntityFixedSizePriorityQueue.hpp"
 #include <algorithm>
 #include <cmath>
@@ -61,8 +60,10 @@
 #include <future>
 #include <iterator>
 #include <ostream>
+#include <ranges>
 #include <sstream>
 #include <tuple>
+#include <utility>
 #include <vector>
 
 #ifdef GEM_TESTING
@@ -106,7 +107,7 @@ using namespace Gem::Common::Concurrency;
     GToken token("GEvolutionaryAlgorithm", e);
 
     Gem::Common::compare_base_t<GParChild>(*this, *p_load, token);
-    g_compare_members(localMembers_(*this), localMembers_(*p_load), token);
+    g_compare_members(this->localMembers_(), p_load->localMembers_(), token);
 
     token.evaluate();
 }
@@ -166,13 +167,13 @@ void GType::extractCurrentParetoIndividuals(
     for(std::size_t i = 0; i < sz; ++i) {
         bool dominated = false;
         for(std::size_t j = 0; j < sz; ++j) {
-            if(i != j && paretoDominates(this->at(j)->individual(), this->at(i)->individual())) {
+            if(i != j && paretoDominates((*this->at(j)), (*this->at(i)))) {
                 dominated = true;
                 break;
             }
         }
         if(not dominated) {
-            pareto_inds.push_back(this->at(i)->individual().clone<gen::GOptimizableEntity>());
+            pareto_inds.push_back(this->at(i)->clone<gen::GOptimizableEntity>());
         }
     }
 }
@@ -185,8 +186,8 @@ GType::evaluatePopulationRange_(std::size_t start, std::size_t end) {
         end = std::min(end, this->size());
         bool has_errors = false;
         for(std::size_t i = start; i < end; ++i) {
-            this->at(i)->individual().process();
-            if(this->at(i)->individual().has_errors()) {
+            this->at(i)->process();
+            if(this->at(i)->has_errors()) {
                 has_errors = true;
             }
         }
@@ -315,14 +316,14 @@ void GType::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) {
 
     gpb.registerFileParameter<std::uint8_t>(
         "step_control",
-        static_cast<std::uint8_t>(stepControl::CSA),
+        std::to_underlying(stepControl::SELF_ADAPT_SCALED),
         [this](std::uint8_t sc) { this->setStepControl(static_cast<stepControl>(sc)); }
     ) << "The step-size control strategy. Options"
       << '\n'
       << "0: SELF_ADAPT (classic mutative sigma self-adaption, the legacy \"ea\")" << '\n'
-      << "1: SELF_ADAPT_SCALED (dimension-scaled tau = c/sqrt(2n))" << '\n'
+      << "1: SELF_ADAPT_SCALED (dimension-scaled tau = c/sqrt(2n)) [default]" << '\n'
       << "2: ONE_FIFTH (Rechenberg 1/5 success rule on a single global sigma)" << '\n'
-      << "3: CSA (cumulative step-size adaptation on a single global sigma) [default]";
+      << "3: CSA (cumulative step-size adaptation on a single global sigma)";
 
     gpb.registerFileParameter<double>(
         "learning_rate_c",
@@ -344,7 +345,7 @@ void GType::load_(const GOptimizationAlgorithmBase *cp) {
         Gem::Common::g_convert_and_compare<GOptimizationAlgorithmBase, GType>(cp, this);
 
     GParChild::load_(cp);
-    Gem::Common::g_load_members(localMembers_(*this), localMembers_(*p_load));
+    Gem::Common::g_load_members(this->localMembers_(), p_load->localMembers_());
 }
 
 /******************************************************************************/
@@ -383,7 +384,7 @@ void GType::runFitnessCalculation_() {
 
 #ifdef DEBUG
     for(std::size_t i = this->getNParents(); i < this->size(); i++) {
-        if(not this->at(i)->individual().is_due_for_processing()) {
+        if(not this->at(i)->is_due_for_processing()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GEvolutionaryAlgorithm::runFitnessCalculation(): Error!" << '\n'
@@ -406,18 +407,7 @@ void GType::runFitnessCalculation_() {
 
     auto status = this->evaluatePopulationRange_(std::get<0>(range), std::get<1>(range));
 
-    if(not status.is_complete) {
-        std::erase_if(this->data_cnt_, [](const std::unique_ptr<gen::GIndividualSlot> &p) -> bool {
-            return (p->individual().getProcessingStatus() == Gem::Courtier::processingStatus::DO_PROCESS);
-        });
-    }
-
-    if(status.has_errors) {
-        std::erase_if(
-            this->data_cnt_,
-            [](const auto &p) -> bool { return p->individual().has_errors(); }
-        );
-    }
+    this->discardUnusableItems_(status, "GEvolutionaryAlgorithm::runFitnessCalculation()");
 
     fixAfterJobSubmission();
 }
@@ -435,6 +425,11 @@ void GType::selectBest_() {
         );
     }
 #endif /* DEBUG */
+
+    // Measure the offspring success rate (children vs. their OWN parent) NOW, while the population is
+    // still laid out as parents [0, np) + children [np, size) -- i.e. before the sort below reorders
+    // it. driveGlobalSigmaController() (called at the end, after selection) consumes the stored value.
+    this->measureOffspringSuccess_();
 
     switch(sorting_mode_) {
     case sortingMode::MUPLUSNU_SINGLEEVAL: {
@@ -495,15 +490,6 @@ void GType::selectBest_() {
 
 /******************************************************************************/
 
-std::tuple<std::size_t, std::size_t> GType::getEvaluationRange_() const {
-    return std::make_tuple<std::size_t, std::size_t>(
-        this->inFirstIteration() ? static_cast<std::size_t>(0) : this->getNParents(),
-        this->size()
-    );
-}
-
-/******************************************************************************/
-
 std::shared_ptr<GPersonalityTraits> GType::getPersonalityTraits_() const {
     return std::make_shared<TraitsType>();
 }
@@ -550,13 +536,17 @@ void GType::installStepController() {
     case stepControl::CSA: {
         // The global controller owns sigma: stop the per-group log-normal self-adaption.
         cfg->suppressPerGroupSigmaSelfAdaption();
-        // Seed the global sigma from a representative seed sigma in the (already seeded) scratch.
+        // Seed the global sigma from a representative sigma in the slots' scratch. On a fresh run
+        // that is the config's seed sigma (GParChild::init() just installed it); on a checkpoint
+        // resume it is the EVOLVED sigma the interrupted run had reached (the scratch is
+        // serialized), so the controller resumes where it left off instead of restarting at 1.0.
         global_sigma_ = 1.;
         p_sigma_ = 0.;
-        have_prev_best_ = false;
-        if(not this->empty() && not this->resumedFromCheckpoint()) {
+        last_p_success_ = 0.;
+        controller_warmed_up_ = false;
+        if(not this->empty()) {
             global_sigma_ = readRepresentativeSigma(this->at(0)->scratch(), *cfg, 1.);
-            // Push the seed global sigma into every slot so the first adaption uses it uniformly.
+            // Push the global sigma into every slot so the first adaption uses it uniformly.
             for(auto const &slot : *this) {
                 writeGlobalSigma(slot->scratch(), *cfg, global_sigma_);
             }
@@ -581,6 +571,49 @@ void GType::installStepController() {
  * The updated global sigma is clamped to a sane range and pushed into every slot's scratch so the next
  * generation's adaption (and the children cloned from these parents) uses it.
  */
+void GType::measureOffspringSuccess_() {
+    if(step_control_ != stepControl::ONE_FIFTH && step_control_ != stepControl::CSA) {
+        return;
+    }
+    last_p_success_ = 0.;
+    // The first generation has no meaningful parent-child lineage yet (comma mode even sorts as plus in
+    // iteration 0); skip -- driveGlobalSigmaController() will hold sigma until we have a real measurement.
+    if(this->inFirstIteration() || this->empty()) {
+        return;
+    }
+
+    // At this point selection has NOT yet run: the parents that produced this generation's children sit
+    // at [0, n_parents_) and the children at [n_parents_, size()). Rechenberg's success signal is the
+    // fraction of children that IMPROVED ON THEIR OWN PARENT -- measured per offspring, pre-selection.
+    // Each child records the population position of the parent it descended from (set during
+    // recombination), so we compare the child's fitness against exactly that parent's fitness. This is a
+    // monotone, well-posed signal in every sorting mode (unlike "survivors vs. last generation's best",
+    // whose reference degrades when sigma overshoots under comma selection and drives sigma to run away).
+    const std::size_t np = this->getNParents();
+    std::size_t n_children = 0;
+    std::size_t n_success = 0;
+    for(std::size_t ci = np; ci < this->size(); ++ci) {
+        const auto traits =
+            this->at(ci)->template getPersonalityTraits<GBaseParChildPersonalityTraits>();
+        if(not traits->parentIdSet()) {
+            continue; // no recorded lineage (e.g. a cross-over child) -- leave it out of the estimate
+        }
+        const std::size_t parent_id = traits->getParentId();
+        if(parent_id >= np) {
+            continue; // defensive: a stale/out-of-range id cannot be scored against a current parent
+        }
+        ++n_children;
+        if(minOnly_transformed_fitness(*this->at(ci)) < minOnly_transformed_fitness(*this->at(parent_id))) {
+            ++n_success;
+        }
+    }
+    if(n_children > 0) {
+        last_p_success_ = static_cast<double>(n_success) / static_cast<double>(n_children);
+    }
+}
+
+/******************************************************************************/
+
 void GType::driveGlobalSigmaController() {
     if(step_control_ != stepControl::ONE_FIFTH && step_control_ != stepControl::CSA) {
         return;
@@ -590,32 +623,16 @@ void GType::driveGlobalSigmaController() {
         return;
     }
 
-    // The best (min-only transformed) fitness of the current generation's selected parents.
-    const double best_now = minOnly_transformed_fitness(this->at(0)->individual());
+    // The success rate was measured before selection reordered the population (measureOffspringSuccess_):
+    // the fraction of children that beat their own parent -- the textbook Rechenberg signal.
+    const double p_success = last_p_success_;
 
-    // The success rate: the fraction of this generation's SELECTED survivors (the np new parents, now at
-    // the front of the population) that improved on the PREVIOUS generation's best fitness. Measuring the
-    // survivors -- not the discarded children -- is the right offspring-vs-parent success signal for a
-    // (mu,lambda) step-size rule: it is the share of the surviving search distribution that made forward
-    // progress. The Rechenberg 1/5 rule and the scalar CSA both key off it.
-    const std::size_t np = this->getNParents();
-    double p_success = 0.;
-    {
-        std::size_t n_success = 0;
-        for(std::size_t i = 0; i < np; ++i) {
-            if(minOnly_transformed_fitness(this->at(i)->individual()) < prev_best_fitness_) {
-                ++n_success;
-            }
-        }
-        p_success = (np > 0) ? static_cast<double>(n_success) / static_cast<double>(np)
-                             : (best_now < prev_best_fitness_ ? 1. : 0.);
-    }
-
-    if(have_prev_best_) {
+    // Skip the very first measured generation (warm-up): measureOffspringSuccess_ leaves last_p_success_
+    // at 0 in iteration 0, which would otherwise spuriously shrink sigma before any real signal exists.
+    if(controller_warmed_up_) {
         if(step_control_ == stepControl::ONE_FIFTH) {
-            // Rechenberg 1/5 success rule: grow sigma while more than 1/5 of the offspring improve,
-            // shrink it otherwise. A responsive damping (≈1/5) lets sigma climb fast enough that the
-            // step does not collapse into the high-dimensional "noise dominates" regime, then settle.
+            // Rechenberg 1/5 success rule: grow sigma while more than 1/5 of the offspring improve on
+            // their parent, shrink it otherwise. A responsive damping lets sigma track the success rate.
             constexpr double target = 1. / 5.;
             constexpr double damping = 0.2;
             global_sigma_ *= std::exp((p_success - target) / (1. + damping));
@@ -634,8 +651,11 @@ void GType::driveGlobalSigmaController() {
         }
     }
 
-    // Clamp to a sane band so the controller can never explode or collapse to zero.
-    global_sigma_ = std::clamp(global_sigma_, 1e-12, 10.0);
+    // Clamp to the authored per-group sigma band so the controller can never explode or collapse. In the
+    // normalized coordinate model sigma is a FRACTION of the parameter range, so the config's max_sigma is
+    // the meaningful ceiling (the former hard-coded 10.0 was 10x the whole range -- no bound at all).
+    const double max_sigma = readRepresentativeMaxSigma(*cfg, 0.5);
+    global_sigma_ = std::clamp(global_sigma_, 1e-12, max_sigma);
 
     // Push the new global sigma into every slot (parents now at the front; children get it on the next
     // recombine via the whole-slot copy, but writing all slots keeps the state coherent for telemetry).
@@ -643,8 +663,7 @@ void GType::driveGlobalSigmaController() {
         writeGlobalSigma(slot->scratch(), *cfg, global_sigma_);
     }
 
-    prev_best_fitness_ = best_now;
-    have_prev_best_ = true;
+    controller_warmed_up_ = true;
 }
 
 /******************************************************************************/
@@ -693,8 +712,8 @@ void GType::recombine() {
     const double mean_sigma = sum / static_cast<double>(cnt);
 
     // Write the mean into every child's scratch (children are at [np, size())).
-    for(std::size_t i = np; i < this->size(); ++i) {
-        writeGlobalSigma(this->at(i)->scratch(), *cfg, mean_sigma);
+    for(auto const &child : GOptimizationAlgorithmBase::data_cnt_ | std::views::drop(np)) {
+        writeGlobalSigma(child->scratch(), *cfg, mean_sigma);
     }
 }
 
@@ -703,26 +722,24 @@ void GType::recombine() {
 /******************************************************************************/
 
 void GType::sortMuPlusNuMode() {
-    std::partial_sort(
+    std::ranges::partial_sort(
         GOptimizationAlgorithmBase::data_cnt_.begin(),
         GOptimizationAlgorithmBase::data_cnt_.begin() + n_parents_,
         GOptimizationAlgorithmBase::data_cnt_.end(),
-        [](const auto &x_ptr, const auto &y_ptr) -> bool {
-            return minOnly_transformed_fitness(x_ptr->individual()) < minOnly_transformed_fitness(y_ptr->individual());
-        }
+        std::ranges::less{},
+        [](const auto &p) static { return minOnly_transformed_fitness(*p); }
     );
 }
 
 /******************************************************************************/
 
 void GType::sortMuCommaNuMode() {
-    std::partial_sort(
+    std::ranges::partial_sort(
         GOptimizationAlgorithmBase::data_cnt_.begin() + n_parents_,
         GOptimizationAlgorithmBase::data_cnt_.begin() + 2 * n_parents_,
         GOptimizationAlgorithmBase::data_cnt_.end(),
-        [](const auto &x_ptr, const auto &y_ptr) -> bool {
-            return minOnly_transformed_fitness(x_ptr->individual()) < minOnly_transformed_fitness(y_ptr->individual());
-        }
+        std::ranges::less{},
+        [](const auto &p) static { return minOnly_transformed_fitness(*p); }
     );
 
     std::swap_ranges(
@@ -735,20 +752,19 @@ void GType::sortMuCommaNuMode() {
 /******************************************************************************/
 
 void GType::sortMunu1pretainMode() {
-    std::partial_sort(
+    std::ranges::partial_sort(
         GOptimizationAlgorithmBase::data_cnt_.begin() + n_parents_,
         GOptimizationAlgorithmBase::data_cnt_.begin() + 2 * n_parents_,
         GOptimizationAlgorithmBase::data_cnt_.end(),
-        [](const auto &x_ptr, const auto &y_ptr) -> bool {
-            return minOnly_transformed_fitness(x_ptr->individual()) < minOnly_transformed_fitness(y_ptr->individual());
-        }
+        std::ranges::less{},
+        [](const auto &p) static { return minOnly_transformed_fitness(*p); }
     );
 
     double best_child = minOnly_transformed_fitness(
-        (*(GOptimizationAlgorithmBase::data_cnt_.begin() + n_parents_))->individual()
+        (*(*(GOptimizationAlgorithmBase::data_cnt_.begin() + n_parents_)))
     );
     double best_parent =
-        minOnly_transformed_fitness((*(GOptimizationAlgorithmBase::data_cnt_.begin()))->individual());
+        minOnly_transformed_fitness((*(*(GOptimizationAlgorithmBase::data_cnt_.begin()))));
 
     if(best_child < best_parent) {
         std::swap_ranges(
@@ -780,41 +796,37 @@ void GType::selectParetoParents(bool include_parents) {
     std::vector<const gen::GOptimizableEntity *> eligible;
     eligible.reserve(sz - start);
     for(std::size_t i = start; i < sz; ++i) {
-        eligible.push_back(&this->at(i)->individual());
+        eligible.push_back(&(*this->at(i)));
     }
     const std::vector<std::size_t> order = nonDominatedRank(eligible); // best-first, local to [start, sz)
 
     // Rebuild the population: eligible individuals in NSGA-II order (so [0, n_parents_) are the survivors),
     // then -- for mu,nu -- the discarded old parents at the tail (overwritten by the next recombination).
-    std::vector<std::unique_ptr<gen::GIndividualSlot>> reordered;
+    std::vector<std::unique_ptr<gen::GOptimizableEntity>> reordered;
     reordered.reserve(sz);
     for(std::size_t local : order) {
         reordered.push_back(std::move(this->data_cnt_[start + local]));
     }
     if(not include_parents) {
-        for(std::size_t i = 0; i < this->n_parents_; ++i) {
-            reordered.push_back(std::move(this->data_cnt_[i]));
-        }
+        std::ranges::move(this->data_cnt_ | std::views::take(this->n_parents_), std::back_inserter(reordered));
     }
     this->data_cnt_ = std::move(reordered);
 
     // Order the surviving parent block by the min-only scalar fitness -- the EA convention (parent[0] is
     // the single-objective best for reporting, and the rank drives the recombination weighting). The
     // NSGA-II step already decided WHICH mu survive; this only orders that block.
-    std::sort(
+    std::ranges::sort(
         this->begin(),
         this->begin() + this->n_parents_,
-        [](const auto &x_ptr, const auto &y_ptr) -> bool {
-            return minOnly_transformed_fitness(x_ptr->individual()) <
-                   minOnly_transformed_fitness(y_ptr->individual());
-        }
+        std::ranges::less{},
+        [](const auto &p) static { return minOnly_transformed_fitness(*p); }
     );
 }
 
 /******************************************************************************/
 
 void GType::sortMuPlusNuParetoMode() {
-    if(not(*this->begin())->individual().hasMultipleFitnessCriteria()) {
+    if(not(*this->begin())->hasMultipleFitnessCriteria()) {
         static std::atomic<bool> warned{false};
         if(not warned.exchange(true)) {
             glogger << "In GEvolutionaryAlgorithm::sortMuPlusNuParetoMode(): Warning!" << '\n'
@@ -833,7 +845,7 @@ void GType::sortMuPlusNuParetoMode() {
 /******************************************************************************/
 
 void GType::sortMuCommaNuParetoMode() {
-    if(not(*this->begin())->individual().hasMultipleFitnessCriteria()) {
+    if(not(*this->begin())->hasMultipleFitnessCriteria()) {
         static std::atomic<bool> warned{false};
         if(not warned.exchange(true)) {
             glogger << "In GEvolutionaryAlgorithm::sortMuCommaNuParetoMode(): Warning!" << '\n'
@@ -882,12 +894,12 @@ void GType::fillWithObjects(const std::size_t &n_individuals) {
     CHECK_NOTHROW(this->clear());
 
     for(std::size_t i = 0; i < n_individuals; i++) {
-        this->push_back(std::make_unique<gen::GIndividualSlot>(
-            std::make_unique<Gem::Geneva::Individuals::GTestIndividual1>()));
+        this->push_back(
+            std::make_unique<Gem::Geneva::Individuals::GTestIndividual1>());
     }
 
     for(const auto &ind_ptr : *this) {
-        ind_ptr->individual().randomInit(activityMode::ALLPARAMETERS);
+        ind_ptr->randomInit(activityMode::ALLPARAMETERS);
     }
 
 #else /* GEM_TESTING */
@@ -946,7 +958,7 @@ void GType::specificTestsFailuresExpected_GUnitTests_() {
 std::ostream &operator<<(std::ostream &os, const GEvolutionaryAlgorithm &pop) {
     os << '\n' << '\n';
     for(auto it = pop.begin(); it != pop.begin() + pop.getNParents(); ++it) {
-        os << (*it)->individual().raw_fitness() << " " << (*it)->individual().transformed_fitness() << '\n';
+        os << (*it)->raw_fitness() << " " << (*it)->transformed_fitness() << '\n';
     }
     os << "***************************************" << '\n';
 

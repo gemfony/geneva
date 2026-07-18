@@ -36,7 +36,8 @@
 #include "common/GExpectationChecksT.hpp"
 #include "common/GLogger.hpp"
 #include "common/GParserBuilder.hpp"
-#include "geneva/ind/GFlatGenome.hpp"
+#include "hap/GRandomLeasePool.hpp"
+#include "geneva/ind/GGenome.hpp"
 #include "geneva/ind/GGenomeBuilder.hpp"
 #include <chrono>
 #include <cstddef>
@@ -67,7 +68,7 @@ GDelayIndividual::GDelayIndividual()
  * @param cp A copy of another GDelayIndividual
  */
 GDelayIndividual::GDelayIndividual(const GDelayIndividual &cp)
-  : gen::GFlatGenome(cp)
+  : gen::GGenome(cp)
   , fixed_sleep_time_(cp.fixed_sleep_time_)
   , may_crash_(cp.may_crash_)
   , throw_likelihood_(cp.throw_likelihood_)
@@ -104,10 +105,10 @@ void GDelayIndividual::compare_(
     Gem::Common::GToken token("GDelayIndividual", e);
 
     // Compare our parent data ...
-    Gem::Common::compare_base_t<gen::GFlatGenome>(*this, *p_load, token);
+    Gem::Common::compare_base_t<gen::GGenome>(*this, *p_load, token);
 
     // ... and then the local data
-    Gem::Common::g_compare_members(localMembers_(*this), localMembers_(*p_load), token);
+    Gem::Common::g_compare_members(this->localMembers_(), p_load->localMembers_(), token);
 
     // React on deviations from the expectation
     token.evaluate();
@@ -125,19 +126,19 @@ void GDelayIndividual::load_(const gen::GOptimizableEntity *cp) {
         Gem::Common::g_convert_and_compare<gen::GOptimizableEntity, GDelayIndividual>(cp, this);
 
     // Load our parent class'es data ...
-    gen::GFlatGenome::load_(cp);
+    gen::GGenome::load_(cp);
 
     // ... and then our own, derived from the single localMembers() declaration
-    Gem::Common::g_load_members(localMembers_(*this), localMembers_(*p_load));
+    Gem::Common::g_load_members(this->localMembers_(), p_load->localMembers_());
 }
 
 /******************************************************************************/
 /**
  * @brief Creates a deep clone of this object.
  *
- * @return A deep clone of this object, camouflaged as a GFlatGenome pointer
+ * @return A deep clone of this object, camouflaged as a GGenome pointer
  */
-gen::GFlatGenome *GDelayIndividual::clone_() const {
+gen::GGenome *GDelayIndividual::clone_() const {
     return new GDelayIndividual(*this);
 }
 
@@ -151,13 +152,17 @@ gen::GFlatGenome *GDelayIndividual::clone_() const {
  *
  * @return A random value in [0, 1); the result is not used for any actual optimization
  */
-double GDelayIndividual::fitnessCalculation() {
+std::vector<double> GDelayIndividual::evaluate() {
+    // The candidate holds no RNG of its own -- lease a proxy for this evaluation's random draws.
+    auto             gr_lease = Gem::Hap::randomLeasePool().acquire();
+    Gem::Hap::GRandomBase &gr = *gr_lease;
+
     std::uniform_real_distribution<double> uniform_real_distribution;
 
     if(sleep_randomly_) {
         // Calculate the sleep time
         double sleep_time = uniform_real_distribution(
-            gr_,
+            gr,
             std::uniform_real_distribution<double>::param_type(
                 std::get<0>(rand_sleep_boundaries_),
                 std::get<1>(rand_sleep_boundaries_)
@@ -177,7 +182,7 @@ double GDelayIndividual::fitnessCalculation() {
     // Throw if we were asked to do so
     if(may_crash_) {
         if(uniform_real_distribution(
-               gr_,
+               gr,
                std::uniform_real_distribution<double>::param_type(0., 1.)
            ) < throw_likelihood_) {
             throw fitnessException();
@@ -185,10 +190,10 @@ double GDelayIndividual::fitnessCalculation() {
     }
 
     // Return a random value - we do not perform any real optimization
-    return uniform_real_distribution(
-        gr_,
+    return {uniform_real_distribution(
+        gr,
         std::uniform_real_distribution<double>::param_type(0., 1.)
-    );
+    )};
 }
 
 /******************************************************************************/

@@ -38,13 +38,14 @@
 #include "common/GLogger.hpp"
 #include "common/GParserBuilder.hpp"
 #include "common/GSingletonT.hpp"
-#include "geneva/ind/GFlatGenome.hpp"
+#include "geneva/ind/GGenome.hpp"
 #include "geneva/ind/GGenomeBuilder.hpp"
 #include "geneva/oa/GAdaption.hpp"
 #include "geneva/oa/GAdaptionConfig.hpp"
 #include <cmath>
 #include <cstddef>
 #include <filesystem>
+#include <format>
 #include <fstream>
 #include <istream>
 #include <memory>
@@ -52,8 +53,11 @@
 #include <optional>
 #include <ostream>
 #include <random>
+#include <ranges>
 #include <sstream>
+#include <string_view>
 #include <tuple>
+#include <utility>
 #include <vector>
 
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::Individuals::trainingSet)              // NOLINT
@@ -605,7 +609,7 @@ std::istream &operator>>(std::istream &i, Gem::Geneva::Individuals::trainingData
  * @return The std::ostream object used to add the item to
  */
 std::ostream &operator<<(std::ostream &o, const Gem::Geneva::Individuals::trainingDataType &tdt) {
-    auto tmp = static_cast<Gem::Common::ENUMBASETYPE>(tdt);
+    auto tmp = std::to_underlying(tdt);
     o << tmp;
     return o;
 }
@@ -642,7 +646,7 @@ std::istream &operator>>(std::istream &i, Gem::Geneva::Individuals::transferFunc
  * @return The std::ostream object used to add the item to
  */
 std::ostream &operator<<(std::ostream &o, const Gem::Geneva::Individuals::transferFunction &t_f) {
-    auto tmp = static_cast<Gem::Common::ENUMBASETYPE>(t_f);
+    auto tmp = std::to_underlying(t_f);
     o << tmp;
     return o;
 }
@@ -712,7 +716,7 @@ GNeuralNetworkIndividual::GNeuralNetworkIndividual(
  * @param cp A copy of another GNeuralNetworkIndividual object
  */
 GNeuralNetworkIndividual::GNeuralNetworkIndividual(const GNeuralNetworkIndividual &cp)
-  : gen::GFlatGenome(cp)
+  : gen::GGenome(cp)
   , t_f_(cp.t_f_)
   , n_d_(nnTrainingDataStore()) // We want a single source for the training data
 {                             /* nothing */
@@ -748,10 +752,10 @@ void GNeuralNetworkIndividual::compare_(
     GToken token("GNeuralNetworkIndividual", e);
 
     // Compare our parent data ...
-    Gem::Common::compare_base_t<gen::GFlatGenome>(*this, *p_load, token);
+    Gem::Common::compare_base_t<gen::GGenome>(*this, *p_load, token);
 
     // ... and then the local data, derived from the single localMembers() declaration
-    g_compare_members(localMembers_(*this), localMembers_(*p_load), token);
+    g_compare_members(this->localMembers_(), p_load->localMembers_(), token);
 
     // React on deviations from the expectation
     token.evaluate();
@@ -1280,15 +1284,11 @@ void GNeuralNetworkIndividual::writeTrainedNetwork(const std::string &header_fil
            << "      const std::size_t n_layers = " << n_d_->size() << ";" << '\n'
            << "      const std::size_t architecture[n_layers] = {" << '\n';
 
-    for(std::size_t i = 0; i < n_d_->size(); i++) {
-        header << "        " << n_d_->at(i);
-        if(i == n_d_->size() - 1) {
-            header << '\n';
-        }
-        else {
-            header << "," << '\n';
-        }
-    }
+    header << (*n_d_
+               | std::views::transform([](std::size_t n) { return std::format("        {}", n); })
+               | std::views::join_with(std::string_view{",\n"})
+               | std::ranges::to<std::string>())
+           << '\n';
 
     std::size_t weight_offset = 0;
 
@@ -1325,16 +1325,11 @@ void GNeuralNetworkIndividual::writeTrainedNetwork(const std::string &header_fil
     // architecture decodes), so dump them straight from the genome-agnostic §2 view.
     std::vector<double> all_weights;
     this->streamlineFP(all_weights);
-    for(std::size_t i = 0; i < all_weights.size(); i++) {
-        header << "        " << all_weights[i];
-
-        if(i == (all_weights.size() - 1)) {
-            header << '\n';
-        }
-        else {
-            header << "," << '\n';
-        }
-    }
+    header << (all_weights
+               | std::views::transform([](double w) { return std::format("        {:g}", w); })
+               | std::views::join_with(std::string_view{",\n"})
+               | std::ranges::to<std::string>())
+           << '\n';
 
     header
         << "      };" << '\n'
@@ -1413,21 +1408,21 @@ void GNeuralNetworkIndividual::load_(const gen::GOptimizableEntity *cp) {
         Gem::Common::g_convert_and_compare<gen::GOptimizableEntity, GNeuralNetworkIndividual>(cp, this);
 
     // Load the parent class'es data
-    gen::GFlatGenome::load_(cp);
+    gen::GGenome::load_(cp);
 
     // Load our local data, derived from the single localMembers() declaration.
     // We do not copy the network data, as it is always initialized through
     // the constructors, even in the case of a copy constructor
-    Gem::Common::g_load_members(localMembers_(*this), localMembers_(*p_load));
+    Gem::Common::g_load_members(this->localMembers_(), p_load->localMembers_());
 }
 
 /******************************************************************************/
 /**
  * @brief Creates a deep clone of this object
  *
- * @return A deep clone of this object, camouflaged as a GFlatGenome
+ * @return A deep clone of this object, camouflaged as a GGenome
  */
-gen::GFlatGenome *GNeuralNetworkIndividual::clone_() const {
+gen::GGenome *GNeuralNetworkIndividual::clone_() const {
     return new GNeuralNetworkIndividual(*this);
 }
 
@@ -1442,12 +1437,8 @@ gen::GFlatGenome *GNeuralNetworkIndividual::clone_() const {
  */
 std::shared_ptr<const GNeuralNetworkArchitecture>
 GNeuralNetworkIndividual::makeArchitecture(const networkData &n_d) {
-    std::vector<std::size_t> layers;
-    layers.reserve(n_d.size());
-    for(unsigned long i : n_d) {
-        layers.push_back(i);
-    }
-    return std::make_shared<const GNeuralNetworkArchitecture>(std::move(layers));
+    return std::make_shared<const GNeuralNetworkArchitecture>(
+        n_d | std::ranges::to<std::vector<std::size_t>>());
 }
 
 /******************************************************************************/
@@ -1492,7 +1483,7 @@ const GNeuralNetworkArchitecture &GNeuralNetworkIndividual::architecture() const
  *
  * @return The fitness of this object
  */
-double GNeuralNetworkIndividual::fitnessCalculation() {
+std::vector<double> GNeuralNetworkIndividual::evaluate() {
     double result = 0;
 
     // Read all weights out of the flat genome once (genome-agnostic §2 access), then decode their
@@ -1556,7 +1547,7 @@ double GNeuralNetworkIndividual::fitnessCalculation() {
     }
 
     // Let the audience know
-    return result;
+    return {result};
 }
 
 /******************************************************************************/
@@ -1595,7 +1586,7 @@ double GNeuralNetworkIndividual::transfer(const double &value) const {
 /******************************************************************************/
 /**
  * @brief Registers the config-file options, binding them to the passed Config. The base
- * GOptimizableEntity options are registered separately by GFlatIndividualFactory::getObject_ (via
+ * GOptimizableEntity options are registered separately by GIndividualFactory::getObject_ (via
  * addConfigurationOptions).
  *
  * @param gpb The parser builder the file-parameter options are registered with
@@ -1714,7 +1705,7 @@ gen::GenomeData GNeuralNetworkIndividual::buildGenome(const Config &c) {
  * @return A std::shared_ptr to the populated OA-owned adaption config
  */
 std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase>
-GNeuralNetworkIndividual::buildAdaptionConfig(const gen::GFlatGenome &sample, const Config &c) {
+GNeuralNetworkIndividual::buildAdaptionConfig(const gen::GGenome &sample, const Config &c) {
     namespace oa = Gem::Geneva::OptimizationAlgorithms;
     auto cfg = oa::makeAdaptionConfig<oa::GAdaptionConfigBase>(sample);
     for(std::size_t i = 0; i < cfg->doubleGroups().size(); i++) {
@@ -1728,7 +1719,7 @@ GNeuralNetworkIndividual::buildAdaptionConfig(const gen::GFlatGenome &sample, co
 
 /******************************************************************************/
 /**
- * @brief Per-object post-config hook (called by GFlatIndividualFactory::postProcess_ after the genome is
+ * @brief Per-object post-config hook (called by GIndividualFactory::postProcess_ after the genome is
  * installed): applies the non-genome transfer function to a produced individual.
  *
  * @param ind The individual to configure (its transfer function is set)

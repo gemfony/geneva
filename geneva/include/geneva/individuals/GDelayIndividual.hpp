@@ -52,7 +52,7 @@
 #include "common/GCommonHelperFunctionsT.hpp"
 #include "common/GCommonMathHelperFunctionsT.hpp"
 #include "common/GExceptions.hpp"
-#include "geneva/ind/GFlatGenome.hpp"
+#include "geneva/ind/GGenome.hpp"
 #include "geneva/ind/GGenomeBuilder.hpp"
 #include "hap/GRandomDistributionsT.hpp"
 
@@ -82,14 +82,14 @@ public:
  * clients and server.
  */
 class GDelayIndividual
-  : public gen::GFlatGenome // NOLINT(cppcoreguidelines-special-member-functions)
+  : public gen::GGenome // NOLINT(cppcoreguidelines-special-member-functions)
 {
     /////////////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
     template <class Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gen::GFlatGenome) &
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gen::GGenome) &
             BOOST_SERIALIZATION_NVP(fixed_sleep_time_) & BOOST_SERIALIZATION_NVP(may_crash_) &
             BOOST_SERIALIZATION_NVP(throw_likelihood_) & BOOST_SERIALIZATION_NVP(sleep_randomly_) &
             BOOST_SERIALIZATION_NVP(rand_sleep_boundaries_);
@@ -214,7 +214,7 @@ protected:
      * @return A tuple of named member references driving serialize(), load_() and compare_()
      */
     template <typename Self>
-    static auto localMembers_(Self &self) {
+    auto localMembers_(this Self &self) {
         return std::make_tuple(
             Gem::Common::make_member("fixed_sleep_time_", self.fixed_sleep_time_),
             Gem::Common::make_member("may_crash_", self.may_crash_),
@@ -252,17 +252,18 @@ protected:
     ) const final;
 
     /**
-     * @brief The actual fitness calculation takes place here
-     * @return A random fitness value, returned after the configured sleep time
+     * @brief The evaluation hook: sleeps as configured (this individual measures framework overhead, not a
+     *  real objective) and returns a random value in [0,1) that is not used for optimization.
+     * @return A one-element vector holding the random value
      */
-    double fitnessCalculation() final;
+    std::vector<double> evaluate() final;
 
 private:
     /**
      * @brief Creates a deep clone of this object
      * @return A pointer to a newly allocated deep copy of this object
      */
-    gen::GFlatGenome *clone_() const final;
+    gen::GGenome *clone_() const final;
 
     double
         fixed_sleep_time_; ///< The amount of time the evaluation function should sleep before continuing (seconds)

@@ -38,13 +38,13 @@
 #include <cstdint>
 #include <functional>
 #include <limits>
-#include <mutex>
 #include <string>
 #include <type_traits>
 #include <vector>
 
 // Geneva headers go here
 #include "common/GCommonMathHelperFunctionsT.hpp"
+#include "common/concurrency/GLoadOnceCellT.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/ind/GAdaptionKernels.hpp"
 
@@ -174,7 +174,7 @@ T foldConstrainedInt(const T &val, const T &lo, const T &hi) {
 // With a width-1 interval, scale == (upper - lower) and anchor == (upper + lower) / 2, so internal
 // -0.5 maps to `lower` and +0.5 to `upper`. `scale` is the single scale concept of the model, computed
 // here from the bounds (ngScale) -- there is no separately stored copy. These helpers are the single
-// source of truth for the coordinate transform and back the live read/write path (GFlatGenome). All maps
+// source of truth for the coordinate transform and back the live read/write path (GGenome). All maps
 // compose in long double for a faithful, well-conditioned round-trip even for offset / narrow boxes.
 
 /** @brief external = anchor + u * scale, composed in long double and narrowed back to T. */
@@ -283,7 +283,7 @@ struct GroupSpec {
  * The structural description of one value channel (all parameters of a single type). Per-value: the
  * hard bound [lower, upper], the init perimeter [init_lower, init_upper], a `fold` bit and an active
  * flag; plus the list of adaption groups tiling the channel. Held by the shared GGenomeLayout; the
- * per-individual GFlatGenome only stores the value array and a handle to this.
+ * per-individual GGenome only stores the value array and a handle to this.
  *
  * The `fold` bit is the single bounded/unbounded distinction (§2.5):
  *   - fold == true  (bounded): the value folds into the half-open [lower, upper) (FP) / closed [lower,
@@ -367,7 +367,7 @@ struct LayoutId {
  * one ChannelLayout per supported value type. A single layout is built once (by GGenomeBuilder, and
  * in turn by a factory) and shared by every individual of a problem via std::shared_ptr<const ...>,
  * so per-individual state is just the value arrays. The layout carries no evolving state; the
- * per-individual, per-group adaption state (sigma, ...) lives in the GIndividualSlot's scratch (GAuxiliaryStore).
+ * per-individual, per-group adaption state (sigma, ...) lives in the individual's scratch (GAuxiliaryStore).
  *
  * Optionally, groups carry an interned LABEL: `labels` holds each distinct label string once, and a
  * GroupStructure stores a small integer index into it (GroupStructure::label_id, -1 = unlabeled). Labels are
@@ -386,9 +386,10 @@ public:
     std::vector<std::string> labels;///< the interned, distinct group-label strings (label_id indexes this)
 
     /***************************************************************************/
-    // Special members. The layout caches its content id lazily (a std::once_flag, which is neither
-    // copyable nor movable), so the value-member copy/move are spelled out and simply leave the copy's
-    // cache cold -- a structural copy recomputes the (identical) id on first use.
+    // Special members. The layout caches its content id lazily in a GLoadOnceCellT (which owns a
+    // std::once_flag and is thus neither copyable nor movable), so the value-member copy/move are spelled
+    // out and simply leave the copy's cache cold -- a structural copy recomputes the (identical) id on
+    // first use.
 
     /** @brief The default constructor (empty layout). */
     GGenomeLayout() = default;
@@ -431,8 +432,7 @@ public:
      * @return A const reference to the cached content id.
      */
     const LayoutId &layoutId() const {
-        std::call_once(id_once_, [this] { id_cache_ = computeLayoutId(); });
-        return id_cache_;
+        return id_cell_.getOrCompute([this] { return computeLayoutId(); });
     }
 
     /**
@@ -657,9 +657,10 @@ private:
 
     /***************************************************************************/
     // The lazily-computed, cached content id. mutable because layoutId() is logically const on the
-    // immutable layout; std::once_flag makes the first concurrent computation thread-safe.
-    mutable std::once_flag id_once_;       ///< guards the one-time computation of id_cache_
-    mutable LayoutId id_cache_;            ///< the cached content id (valid once id_once_ has fired)
+    // immutable layout; the load-once cell makes the first concurrent computation thread-safe and every
+    // later read lock-free. A copied/moved layout leaves this cold (the copy/move members do not touch it),
+    // so it recomputes its id from the copied structure on first use.
+    mutable Gem::Common::Concurrency::GLoadOnceCellT<LayoutId> id_cell_;
 };
 
 /******************************************************************************/

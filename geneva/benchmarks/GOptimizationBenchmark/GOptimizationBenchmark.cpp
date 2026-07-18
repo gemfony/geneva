@@ -83,7 +83,7 @@ int main(int argc, char **argv) {
     std::tuple<double, double> varBoundaries;
 
     // Read the GFunctionIndividual configuration once. GFunctionIndividual is a flat individual driven by
-    // the generic GFlatIndividualFactory; this benchmark needs a different genome DIMENSION per row, so it
+    // the generic GIndividualFactory; this benchmark needs a different genome DIMENSION per row, so it
     // builds individuals directly through the static hooks (buildGenome / applyConfig / buildAdaptionConfig)
     // rather than through the factory (whose par_dim comes fixed from the config file).
     gind::GFunctionIndividual::Config gfiCfg =

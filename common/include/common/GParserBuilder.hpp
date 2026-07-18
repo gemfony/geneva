@@ -33,6 +33,7 @@
 #include "common/GGlobalDefines.hpp"
 
 // Standard headers go here
+#include <algorithm>
 #include <array>
 #include <cstdlib>
 #include <filesystem>
@@ -44,6 +45,7 @@
 #include <optional>
 #include <sstream>
 #include <string>
+#include <type_traits>
 #include <vector>
 
 // Boost headers go here
@@ -51,7 +53,7 @@
 // headers the way GCC does.  The three diagnostics below are Boost-internal
 // false positives that are irrelevant to Geneva code:
 //   #68-D  – integer conversion sign change    (boost/mpl/print.hpp)
-//   #186-D – unsigned comparison with zero     (boost/mp11, via ptree/multi_index)
+//   #186-D – unsigned comparison with zero     (boost/mp11, via boost/json)
 //   #191-D – meaningless cast qualifier        (boost/archive/detail/iserializer.hpp)
 #include <boost/archive/binary_iarchive.hpp>
 #include <boost/archive/binary_oarchive.hpp>
@@ -59,8 +61,8 @@
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/xml_iarchive.hpp>
 #include <boost/archive/xml_oarchive.hpp>
+#include <boost/json.hpp>
 #include <boost/program_options.hpp>
-#include <boost/property_tree/ptree.hpp>
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/export.hpp>
 #include <boost/serialization/map.hpp>
@@ -86,6 +88,158 @@ namespace Gem::Common {
 class GParserBuilder;
 
 /******************************************************************************/
+/**
+ * Internal helpers shared by the file-parameter proxies for reading and writing the JSON
+ * configuration format. A parameter node is a JSON object `{ "comment": [ ... ], "default": ...,
+ * "value": ... }`; scalars are stored natively (arithmetic types as JSON numbers, booleans as JSON
+ * bools, strings as JSON strings, and enums / durations / other custom types as strings via
+ * Gem::Common::to_string), and vectors / arrays store their elements as JSON arrays under the
+ * "default"/"value" keys. The read path accepts either the native or the earlier all-strings form, so
+ * a config written before the switch to native scalars still loads. Comments are write-only decoration
+ * (regenerated from each proxy's registered comment on every write) and are never read back.
+ */
+namespace detail {
+
+/******************************************************************************/
+/** @brief Converts a scalar configuration value to its on-disk string form.
+ *  @tparam T The scalar parameter type
+ *  @param v The value to convert
+ *  @return The string stored under a parameter's "value"/"default" key */
+template <typename T>
+std::string cfgScalarToString(T const &v) {
+    if constexpr(std::is_same_v<T, std::string>) {
+        return v; // stored verbatim so embedded spaces survive
+    }
+    else if constexpr(std::is_same_v<T, bool>) {
+        return v ? "true" : "false";
+    }
+    else if constexpr(std::is_same_v<T, std::int8_t> || std::is_same_v<T, std::uint8_t>) {
+        // Render (u)int8_t numerically (via a wider integer), not as the character it aliases.
+        using wider = std::conditional_t<std::is_signed_v<T>, int, unsigned int>;
+        return Gem::Common::to_string(static_cast<wider>(v));
+    }
+    else {
+        return Gem::Common::to_string(v);
+    }
+}
+
+/******************************************************************************/
+/** @brief Parses an on-disk scalar string back into its parameter type (inverse of
+ *  cfgScalarToString). Booleans accept both "true"/"false" and "1"/"0".
+ *  @tparam T The scalar parameter type
+ *  @param s The string to parse
+ *  @return The parsed value */
+template <typename T>
+T cfgScalarFromString(std::string const &s) {
+    if constexpr(std::is_same_v<T, std::string>) {
+        return s;
+    }
+    else if constexpr(std::is_same_v<T, bool>) {
+        return (s == "true" || s == "1");
+    }
+    else if constexpr(std::is_same_v<T, std::int8_t> || std::is_same_v<T, std::uint8_t>) {
+        // (u)int8_t is a character type: a stream extraction of "1" would read the character '1'
+        // (value 49), not the number 1. Parse through a wider integer so small enums/counts stored in
+        // an 8-bit field round-trip by value.
+        using wider = std::conditional_t<std::is_signed_v<T>, int, unsigned int>;
+        return static_cast<T>(Gem::Common::from_string<wider>(s));
+    }
+    else {
+        return Gem::Common::from_string<T>(s);
+    }
+}
+
+/******************************************************************************/
+/** @brief Converts a scalar configuration value to its on-disk JSON form.
+ *
+ *  Plain arithmetic types and booleans are stored as native JSON numbers / bools; strings are stored
+ *  as JSON strings; everything else (enums, durations, other custom types) is stored as a JSON string
+ *  produced by cfgScalarToString, preserving that type's to_string/from_string round-trip. The read
+ *  path (cfgValueToString + cfgScalarFromString) accepts either form, so a config written in the
+ *  earlier all-strings layout still loads.
+ *  @tparam T The scalar parameter type
+ *  @param v The value to convert
+ *  @return The JSON value stored under a parameter's "value"/"default" key */
+template <typename T>
+boost::json::value cfgScalarToJson(T const &v) {
+    if constexpr(std::is_same_v<T, std::string>) {
+        return boost::json::value(v);
+    }
+    else if constexpr(std::is_same_v<T, bool>) {
+        return boost::json::value(v);
+    }
+    else if constexpr(std::is_same_v<T, std::int8_t> || std::is_same_v<T, std::uint8_t>) {
+        // Widen (u)int8_t so it is emitted as a numeric value rather than a single character; the
+        // symmetric read path (cfgScalarFromString) parses it back through the same wider integer.
+        using wider = std::conditional_t<std::is_signed_v<T>, int, unsigned int>;
+        return boost::json::value(static_cast<wider>(v));
+    }
+    else if constexpr(std::is_arithmetic_v<T>) {
+        return boost::json::value(v);
+    }
+    else {
+        return boost::json::value(cfgScalarToString(v));
+    }
+}
+
+/******************************************************************************/
+/** @brief Returns the object stored under @p key of @p parent, or nullptr if the key is absent or
+ *  does not hold an object.
+ *  @param parent The enclosing JSON object
+ *  @param key The member key to look up
+ *  @return A pointer to the child object, or nullptr */
+inline boost::json::object const *
+cfgChildObject(boost::json::object const &parent, std::string const &key) {
+    auto const *v = parent.if_contains(key);
+    if(v == nullptr || not v->is_object()) { return nullptr; }
+    return &v->get_object();
+}
+
+/******************************************************************************/
+/** @brief Returns the array stored under @p key of @p parent, or nullptr if the key is absent or
+ *  does not hold an array. A value written in the historical dup-key object form therefore reads as
+ *  "absent" here, so the caller falls back to the registered defaults.
+ *  @param parent The enclosing JSON object
+ *  @param key The member key to look up
+ *  @return A pointer to the child array, or nullptr */
+inline boost::json::array const *
+cfgChildArray(boost::json::object const &parent, std::string const &key) {
+    auto const *v = parent.if_contains(key);
+    if(v == nullptr || not v->is_array()) { return nullptr; }
+    return &v->get_array();
+}
+
+/******************************************************************************/
+/** @brief Renders a JSON value expected to hold a scalar as a std::string; a non-string value is
+ *  rendered via its serialized token so a natively-typed value (Phase 8) still yields a parseable
+ *  string.
+ *  @param v The JSON value
+ *  @return The string form */
+inline std::string cfgValueToString(boost::json::value const &v) {
+    if(v.is_string()) {
+        auto const &s = v.get_string();
+        return std::string(s.data(), s.size());
+    }
+    return boost::json::serialize(v);
+}
+
+/******************************************************************************/
+/** @brief Writes @p lines as a "comment" array into @p target when the list is non-empty. Each line
+ *  is a separate array element so the pretty-printer emits one comment per line.
+ *  @param target The JSON object receiving the comment array
+ *  @param lines The individual comment lines */
+inline void cfgWriteComments(boost::json::object &target, std::vector<std::string> const &lines) {
+    if(not lines.empty()) {
+        boost::json::array arr;
+        arr.reserve(lines.size());
+        for(auto const &line : lines) { arr.emplace_back(line); }
+        target["comment"] = std::move(arr);
+    }
+}
+
+} /* namespace detail */
+
+/******************************************************************************/
 // Indicates whether help was requested using the -h or --help switch on the command line
 constexpr bool GCL_HELP_REQUESTED = true;
 constexpr bool GCL_NO_HELP_REQUESTED = false;
@@ -94,142 +248,6 @@ constexpr bool GCL_NO_HELP_REQUESTED = false;
 constexpr bool GCL_IMPLICIT_ALLOWED = true;
 constexpr bool GCL_IMPLICIT_NOT_ALLOWED = false;
 
-/******************************************************************************/
-////////////////////////////////////////////////////////////////////////////////
-/******************************************************************************/
-/**
- * Allows to store values for a single entity from different sources, such
- * as command line, configuration files or environment variables. The enum class
- * parameter_source holds the available parameter sources. These sources are
- * grouped in the order "network", "command line", "environment variable",
- * "configuration file" and "assignment".
- *
- * @tparam parameter_type The type of the stored parameter value
- */
-template <typename parameter_type>
-class GMultiSourceParameterT {
-    ///////////////////////////////////////////////////////////////////////
-    friend class boost::serialization::access;
-
-    template <typename Archive>
-    void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
-        using boost::serialization::make_nvp;
-
-        ar &BOOST_SERIALIZATION_NVP(default_value_) & BOOST_SERIALIZATION_NVP(parameter_values_);
-    }
-    ///////////////////////////////////////////////////////////////////////
-
-public:
-    /***************************************************************************/
-    /**
-	  * Construction with a default value
-	  *
-	  * @param default_value The value returned by value() when none of the
-	  * registered sources has set a value
-	  */
-    explicit GMultiSourceParameterT(parameter_type default_value)
-      : default_value_(default_value) { /* nothing */
-    }
-
-    /***************************************************************************/
-    // Defaulted constructors. destructors and assignment operators
-
-    GMultiSourceParameterT(GMultiSourceParameterT<parameter_type> const &cp) = default;
-    GMultiSourceParameterT(GMultiSourceParameterT<parameter_type> &&cp) noexcept = default;
-    GMultiSourceParameterT<parameter_type> &
-    operator=(GMultiSourceParameterT<parameter_type> const &cp) = default;
-    GMultiSourceParameterT<parameter_type> &
-    operator=(GMultiSourceParameterT<parameter_type> &&cp) noexcept = default;
-    ~GMultiSourceParameterT() = default;
-
-    /***************************************************************************/
-    /**
-	  * Allows to set the value associated with a given data source
-	  *
-	  * @param data_source The source (command line, environment, config file, ...) the value originates from
-	  * @param parameter_value The value to store for that source
-	  */
-    void set(Gem::Common::parameter_source data_source, parameter_type parameter_value) {
-        parameter_values_.at(data_source) = parameter_value;
-    }
-
-    /***************************************************************************/
-    /**
-	  * Allows to check whether the value for a given data source was set
-	  *
-	  * @param data_source The source whose set-state should be queried
-	  * @return true if a value has been stored for the given source, false otherwise
-	  */
-    bool isSet(Gem::Common::parameter_source data_source) {
-        return parameter_values_.at(data_source).second;
-    }
-
-    /***************************************************************************/
-    /**
-	  * Retrieves the first stored value that has been set, in the order of
-	  * appearance in parameter_values_, or alternatively the default value,
-	  * if the value was not set from any source.
-	  *
-	  * @return The first source value that was set, or the default value if none was set
-	  */
-    parameter_type value() const {
-        for(auto const &v_pair : parameter_values_) {
-            if(v_pair.second) { // Value was set
-                return *v_pair.second;
-            }
-
-            // Not set -- continue loop
-        }
-
-        // Nothing found
-        return default_value_;
-    }
-
-    /***************************************************************************/
-    /**
-	  * Returns the value stored for a given data source. The function will throw
-	  * when called for a parameter source not listed in parameter_values_.
-	  *
-	  * @param data_source The source whose stored value should be retrieved
-	  * @return The value stored for the given source
-	  */
-    parameter_type value(Gem::Common::parameter_source data_source) {
-        return parameter_values_.at(data_source);
-    }
-
-    /***************************************************************************/
-    /**
-	  * Automatic conversion for constant callers
-	  *
-	  * @return The effective value, as returned by value()
-	  */
-    operator parameter_type() const { // NOLINT
-        return value();
-    }
-
-private:
-    /***************************************************************************/
-    /**
-    * Default constructor -- Only needed for (de-)serialization purposes
-    */
-    GMultiSourceParameterT() = default;
-
-    /***************************************************************************/
-    // Data
-
-    parameter_type default_value_ =
-        parameter_type(nullptr); // The default value to be returned when all else fails
-
-    // Value retrieval will look at each entry of the map until it finds one that was set.
-    // If none was set, the default value will be returned
-    std::map<Gem::Common::parameter_source, std::optional<parameter_type>> parameter_values_{
-        {Gem::Common::parameter_source::NETWORK, std::optional<parameter_type>()},
-        {Gem::Common::parameter_source::COMMAND_LINE, std::optional<parameter_type>()},
-        {Gem::Common::parameter_source::ENVIRONMENT_VARIABLE, std::optional<parameter_type>()},
-        {Gem::Common::parameter_source::CONFIGURATION_FILE, std::optional<parameter_type>()},
-        {Gem::Common::parameter_source::ASSIGNMENT, std::optional<parameter_type>()}
-    };
-};
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
@@ -464,13 +482,13 @@ public:
 
 private:
     /***************************************************************************/
-    /** @brief Loads data from a property_tree object
-     *  @param pt The property tree from which data should be loaded */
-    virtual void load_from(boost::property_tree::ptree const &pt) = 0;
+    /** @brief Loads this parameter's value from the parsed configuration document
+     *  @param root The root JSON object of the parsed configuration */
+    virtual void load_from(boost::json::object const &root) = 0;
 
-    /** @brief Saves data to a property tree object
-     *  @param pt The property tree to which data should be saved */
-    virtual void save_to(boost::property_tree::ptree &pt) const = 0;
+    /** @brief Saves this parameter (comment, default and value) into the configuration document
+     *  @param root The root JSON object being assembled */
+    virtual void save_to(boost::json::object &root) const = 0;
 
     /** @brief Executes a stored call-back function */
     virtual void executeCallBackFunction_() = 0;
@@ -551,13 +569,13 @@ protected:
 
 private:
     /***************************************************************************/
-    /** @brief Loads data from a property_tree object
-     *  @param pt The property tree from which data should be loaded */
-    void load_from(boost::property_tree::ptree const &pt) override = 0;
+    /** @brief Loads this parameter's value from the parsed configuration document
+     *  @param root The root JSON object of the parsed configuration */
+    void load_from(boost::json::object const &root) override = 0;
 
-    /** @brief Saves data to a property tree object
-     *  @param pt The property tree to which data should be saved */
-    void save_to(boost::property_tree::ptree &pt) const override = 0;
+    /** @brief Saves this parameter into the configuration document
+     *  @param root The root JSON object being assembled */
+    void save_to(boost::json::object &root) const override = 0;
 };
 
 /******************************************************************************/
@@ -637,7 +655,7 @@ public:
 	  *
 	  * @param call_back The function to be executed
 	  */
-    void registerCallBackFunction(std::function<void(parameter_type)> call_back) {
+    void registerCallBackFunction(std::move_only_function<void(parameter_type)> call_back) {
         if(not call_back) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
@@ -646,30 +664,35 @@ public:
             );
         }
 
-        call_back_func_ = call_back;
+        call_back_func_ = std::move(call_back);
     }
 
 private:
     /***************************************************************************/
     /**
-	  * Loads data from a property_tree object
+	  * Loads this parameter's value from the parsed configuration document
 	  *
-	  * @param pt The object from which data should be loaded
+	  * @param root The root JSON object of the parsed configuration
 	  */
-    void load_from(boost::property_tree::ptree const &pt) override {
-        GSingleParmT<parameter_type>::par_ = pt.get(
-            (GParsableI::optionName(0) + ".value").c_str(),
-            GSingleParmT<parameter_type>::def_val_
-        );
+    void load_from(boost::json::object const &root) override {
+        if(auto const *entry = detail::cfgChildObject(root, GParsableI::optionName(0))) {
+            if(auto const *v = entry->if_contains("value")) {
+                GSingleParmT<parameter_type>::par_ =
+                    detail::cfgScalarFromString<parameter_type>(detail::cfgValueToString(*v));
+            }
+        }
+        // An absent key keeps the value seeded from the default in the constructor.
     }
 
     /***************************************************************************/
     /**
-	  * Saves data to a property tree object, including comments.
+	  * Saves data to the configuration document, including comments.
 	  *
-	  * @param pt The object to which data should be saved
+	  * @param root The root JSON object to which this parameter is added
 	  */
-    void save_to(boost::property_tree::ptree &pt) const override {
+    void save_to(boost::json::object &root) const override {
+        boost::json::object entry;
+
         // Check that we have the right number of comments
         if(this->hasComments()) {
             if(this->numberOfComments() != 1) {
@@ -679,21 +702,12 @@ private:
                     << "Expected 0 or 1 comment but got " << this->numberOfComments() << '\n'
                 );
             }
-
-            // Retrieve a list of sub-comments
-            std::vector<std::string> comments = GParsableI::splitComment(this->comment(0));
-            if(not comments.empty()) {
-                for(auto const &comment : comments) {
-                    pt.add((GParsableI::optionName(0) + ".comment").c_str(), comment.c_str());
-                }
-            }
+            detail::cfgWriteComments(entry, GParsableI::splitComment(this->comment(0)));
         }
 
-        pt.put(
-            (GParsableI::optionName(0) + ".default").c_str(),
-            GSingleParmT<parameter_type>::def_val_
-        );
-        pt.put((GParsableI::optionName(0) + ".value").c_str(), GSingleParmT<parameter_type>::par_);
+        entry["default"] = detail::cfgScalarToJson(GSingleParmT<parameter_type>::def_val_);
+        entry["value"] = detail::cfgScalarToJson(GSingleParmT<parameter_type>::par_);
+        root[GParsableI::optionName(0)] = std::move(entry);
     }
 
     /***************************************************************************/
@@ -715,7 +729,7 @@ private:
 
     /***************************************************************************/
 
-    std::function<void(parameter_type)> call_back_func_; ///< Holds the call-back function
+    std::move_only_function<void(parameter_type)> call_back_func_; ///< Holds the call-back function
 };
 
 /******************************************************************************/
@@ -798,24 +812,29 @@ public:
 private:
     /***************************************************************************/
     /**
-	  * Loads data from a property_tree object
+	  * Loads this parameter's value from the parsed configuration document
 	  *
-	  * @param pt The object from which data should be loaded
+	  * @param root The root JSON object of the parsed configuration
 	  */
-    void load_from(boost::property_tree::ptree const &pt) override {
-        GSingleParmT<parameter_type>::par_ = pt.get(
-            (GParsableI::optionName(0) + ".value").c_str(),
-            GSingleParmT<parameter_type>::def_val_
-        );
+    void load_from(boost::json::object const &root) override {
+        if(auto const *entry = detail::cfgChildObject(root, GParsableI::optionName(0))) {
+            if(auto const *v = entry->if_contains("value")) {
+                GSingleParmT<parameter_type>::par_ =
+                    detail::cfgScalarFromString<parameter_type>(detail::cfgValueToString(*v));
+            }
+        }
+        // An absent key keeps the value seeded from the default in the constructor.
     }
 
     /***************************************************************************/
     /**
-	  * Saves data to a property tree object, including comments.
+	  * Saves data to the configuration document, including comments.
 	  *
-	  * @param pt The object to which data should be saved
+	  * @param root The root JSON object to which this parameter is added
 	  */
-    void save_to(boost::property_tree::ptree &pt) const override {
+    void save_to(boost::json::object &root) const override {
+        boost::json::object entry;
+
         // Check that we have the right number of comments
         if(this->hasComments()) {
             if(this->numberOfComments() != 1) {
@@ -825,21 +844,12 @@ private:
                     << "Expected 0 or 1 comment but got " << this->numberOfComments() << '\n'
                 );
             }
-
-            // Retrieve a list of sub-comments
-            std::vector<std::string> comments = GParsableI::splitComment(this->comment(0));
-            if(not comments.empty()) {
-                for(auto const &comment : comments) {
-                    pt.add((GParsableI::optionName(0) + ".comment").c_str(), comment.c_str());
-                }
-            }
+            detail::cfgWriteComments(entry, GParsableI::splitComment(this->comment(0)));
         }
 
-        pt.put(
-            (GParsableI::optionName(0) + ".default").c_str(),
-            GSingleParmT<parameter_type>::def_val_
-        );
-        pt.put((GParsableI::optionName(0) + ".value").c_str(), GSingleParmT<parameter_type>::par_);
+        entry["default"] = detail::cfgScalarToJson(GSingleParmT<parameter_type>::def_val_);
+        entry["value"] = detail::cfgScalarToJson(GSingleParmT<parameter_type>::par_);
+        root[GParsableI::optionName(0)] = std::move(entry);
     }
 
     /***************************************************************************/
@@ -958,13 +968,13 @@ protected:
 
 private:
     /***************************************************************************/
-    /** @brief Loads data from a property_tree object
-     *  @param pt The property tree from which data should be loaded */
-    void load_from(boost::property_tree::ptree const &pt) override = 0;
+    /** @brief Loads this parameter's value from the parsed configuration document
+     *  @param root The root JSON object of the parsed configuration */
+    void load_from(boost::json::object const &root) override = 0;
 
-    /** @brief Saves data to a property tree object
-     *  @param pt The property tree to which data should be saved */
-    void save_to(boost::property_tree::ptree &pt) const override = 0;
+    /** @brief Saves this parameter into the configuration document
+     *  @param root The root JSON object being assembled */
+    void save_to(boost::json::object &root) const override = 0;
 };
 
 /******************************************************************************/
@@ -1071,7 +1081,7 @@ public:
 	  *
 	  * @param call_back The function to be executed
 	  */
-    void registerCallBackFunction(std::function<void(par_type0, par_type1)> call_back) {
+    void registerCallBackFunction(std::move_only_function<void(par_type0, par_type1)> call_back) {
         if(not call_back) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
@@ -1081,99 +1091,74 @@ public:
             );
         }
 
-        call_back_func_ = call_back;
+        call_back_func_ = std::move(call_back);
     }
 
 private:
     /***************************************************************************/
     /**
-	  * Loads data from a property_tree object
+	  * Loads this parameter's value from the parsed configuration document
 	  *
-	  * @param pt The object from which data should be loaded
+	  * @param root The root JSON object of the parsed configuration
 	  */
-    void load_from(boost::property_tree::ptree const &pt) override {
-        GCombinedParT<par_type0, par_type1>::par0_ = pt.get(
-            (GCombinedParT<par_type0, par_type1>::combined_label_ + "." +
-             GParsableI::optionName(0) + ".value")
-                .c_str(),
-            GCombinedParT<par_type0, par_type1>::def_val0_
+    void load_from(boost::json::object const &root) override {
+        auto const *group = detail::cfgChildObject(
+            root, GCombinedParT<par_type0, par_type1>::combined_label_
         );
-        GCombinedParT<par_type0, par_type1>::par1_ = pt.get(
-            (GCombinedParT<par_type0, par_type1>::combined_label_ + "." +
-             GParsableI::optionName(1) + ".value")
-                .c_str(),
-            GCombinedParT<par_type0, par_type1>::def_val1_
-        );
+        if(group == nullptr) {
+            return; // absent group keeps both defaults seeded in the constructor
+        }
+        if(auto const *e0 = detail::cfgChildObject(*group, GParsableI::optionName(0))) {
+            if(auto const *v = e0->if_contains("value")) {
+                GCombinedParT<par_type0, par_type1>::par0_ =
+                    detail::cfgScalarFromString<par_type0>(detail::cfgValueToString(*v));
+            }
+        }
+        if(auto const *e1 = detail::cfgChildObject(*group, GParsableI::optionName(1))) {
+            if(auto const *v = e1->if_contains("value")) {
+                GCombinedParT<par_type0, par_type1>::par1_ =
+                    detail::cfgScalarFromString<par_type1>(detail::cfgValueToString(*v));
+            }
+        }
     }
 
     /***************************************************************************/
     /**
-	  * Saves data to a property tree object, including comments.
+	  * Saves data to the configuration document, including comments. Both sub-options are nested
+	  * under the combined group label.
 	  *
-	  * @param pt The object to which data should be saved
+	  * @param root The root JSON object to which this parameter is added
 	  */
-    void save_to(boost::property_tree::ptree &pt) const override {
+    void save_to(boost::json::object &root) const override {
         // Check that we have the right number of comments
-        if(this->hasComments()) {
-            if(this->numberOfComments() != 2) {
-                throw geneva_exception(
-                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                    << "In GFileCombinedParsableParameterT<>::save_to(): Error!" << '\n'
-                    << "Expected 0 or 2 comments but got " << this->numberOfComments() << '\n'
-                );
-            }
-
-            // Retrieve a list of sub-comments
-            std::vector<std::string> comments0 = GParsableI::splitComment(this->comment(0));
-            if(not comments0.empty()) {
-                for(auto const &comment : comments0) {
-                    pt.add(
-                        (GCombinedParT<par_type0, par_type1>::combined_label_ + "." +
-                         GParsableI::optionName(0) + ".comment")
-                            .c_str(),
-                        comment.c_str()
-                    );
-                }
-            }
+        if(this->hasComments() && this->numberOfComments() != 2) {
+            throw geneva_exception(
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+                << "In GFileCombinedParsableParameterT<>::save_to(): Error!" << '\n'
+                << "Expected 0 or 2 comments but got " << this->numberOfComments() << '\n'
+            );
         }
-        pt.put(
-            (GCombinedParT<par_type0, par_type1>::combined_label_ + "." +
-             GParsableI::optionName(0) + ".default")
-                .c_str(),
-            GCombinedParT<par_type0, par_type1>::def_val0_
-        );
-        pt.put(
-            (GCombinedParT<par_type0, par_type1>::combined_label_ + "." +
-             GParsableI::optionName(0) + ".value")
-                .c_str(),
-            GCombinedParT<par_type0, par_type1>::par0_
-        );
 
+        boost::json::object entry0;
         if(this->hasComments()) {
-            std::vector<std::string> comments1 = GParsableI::splitComment(this->comment(1));
-            if(not comments1.empty()) {
-                for(auto const &comment : comments1) {
-                    pt.add(
-                        (GCombinedParT<par_type0, par_type1>::combined_label_ + "." +
-                         GParsableI::optionName(1) + ".comment")
-                            .c_str(),
-                        comment.c_str()
-                    );
-                }
-            }
+            detail::cfgWriteComments(entry0, GParsableI::splitComment(this->comment(0)));
         }
-        pt.put(
-            (GCombinedParT<par_type0, par_type1>::combined_label_ + "." +
-             GParsableI::optionName(1) + ".default")
-                .c_str(),
-            GCombinedParT<par_type0, par_type1>::def_val1_
-        );
-        pt.put(
-            (GCombinedParT<par_type0, par_type1>::combined_label_ + "." +
-             GParsableI::optionName(1) + ".value")
-                .c_str(),
-            GCombinedParT<par_type0, par_type1>::par1_
-        );
+        entry0["default"] =
+            detail::cfgScalarToJson(GCombinedParT<par_type0, par_type1>::def_val0_);
+        entry0["value"] = detail::cfgScalarToJson(GCombinedParT<par_type0, par_type1>::par0_);
+
+        boost::json::object entry1;
+        if(this->hasComments()) {
+            detail::cfgWriteComments(entry1, GParsableI::splitComment(this->comment(1)));
+        }
+        entry1["default"] =
+            detail::cfgScalarToJson(GCombinedParT<par_type0, par_type1>::def_val1_);
+        entry1["value"] = detail::cfgScalarToJson(GCombinedParT<par_type0, par_type1>::par1_);
+
+        boost::json::object group;
+        group[GParsableI::optionName(0)] = std::move(entry0);
+        group[GParsableI::optionName(1)] = std::move(entry1);
+        root[GCombinedParT<par_type0, par_type1>::combined_label_] = std::move(group);
     }
 
     /***************************************************************************/
@@ -1199,7 +1184,7 @@ private:
 
     /***************************************************************************/
 
-    std::function<void(par_type0, par_type1)> call_back_func_; ///< Holds the call-back function
+    std::move_only_function<void(par_type0, par_type1)> call_back_func_; ///< Holds the call-back function
 };
 
 /******************************************************************************/
@@ -1278,13 +1263,13 @@ protected:
 
 private:
     /***************************************************************************/
-    /** @brief Loads data from a property_tree object
-     *  @param pt The property tree from which data should be loaded */
-    void load_from(boost::property_tree::ptree const &pt) override = 0;
+    /** @brief Loads this parameter's value from the parsed configuration document
+     *  @param root The root JSON object of the parsed configuration */
+    void load_from(boost::json::object const &root) override = 0;
 
-    /** @brief Saves data to a property tree object
-     *  @param pt The property tree to which data should be saved */
-    void save_to(boost::property_tree::ptree &pt) const override = 0;
+    /** @brief Saves this parameter into the configuration document
+     *  @param root The root JSON object being assembled */
+    void save_to(boost::json::object &root) const override = 0;
 };
 
 /******************************************************************************/
@@ -1292,9 +1277,8 @@ private:
 /******************************************************************************/
 /**
  * This class wraps a std::vector of values (obviously of identical type).
- * Note that this class does not enforce a given amount of parameters. However,
- * there needs to be at least one default value in the def_val vector, if
- * you plan to write out a parameter file.
+ * The default vector may be empty -- that denotes a list-valued parameter which
+ * is empty unless the user fills it in; it round-trips through a config file as "[]".
  *
  * @tparam parameter_type The element type of the wrapped parameter vector
  */
@@ -1367,7 +1351,7 @@ public:
 	  *
 	  * @param call_back The function to be executed
 	  */
-    void registerCallBackFunction(std::function<void(std::vector<parameter_type>)> call_back) {
+    void registerCallBackFunction(std::move_only_function<void(std::vector<parameter_type>)> call_back) {
         if(not call_back) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
@@ -1377,26 +1361,36 @@ public:
             );
         }
 
-        call_back_func_ = call_back;
+        call_back_func_ = std::move(call_back);
     }
 
 private:
     /***************************************************************************/
     /**
-	  * Loads data from a property_tree object
+	  * Loads this parameter's value from the parsed configuration document
 	  *
-	  * @param pt The object from which data should be loaded
+	  * @param root The root JSON object of the parsed configuration
 	  */
-    void load_from(boost::property_tree::ptree const &pt) override {
-        using namespace boost::property_tree;
+    void load_from(boost::json::object const &root) override {
+        auto const *entry = detail::cfgChildObject(root, GParsableI::optionName(0));
+        if(entry == nullptr) {
+            // The key is absent from the file -- e.g. a newly-registered vector parameter, or an
+            // update-in-place pass over a config written before this parameter existed. Keep the
+            // defaults par_cnt_ was seeded with in the constructor.
+            return;
+        }
+        auto const *values = detail::cfgChildArray(*entry, "value");
+        if(values == nullptr) {
+            // The "value" key is absent (or, for a config in the historical dup-key object form,
+            // does not read back as an array). Keep the seeded defaults.
+            return;
+        }
 
-        // Make sure the recipient vector is empty
+        // The values are present: replace the seeded defaults with the on-disk values.
         GVectorParT<parameter_type>::par_cnt_.clear();
-
-        std::string ppath = GParsableI::optionName(0) + ".value";
-        for(auto const &v : pt.get_child(ppath.c_str())) {
+        for(auto const &v : *values) {
             GVectorParT<parameter_type>::par_cnt_.push_back(
-                Gem::Common::from_string<parameter_type>(v.second.data())
+                detail::cfgScalarFromString<parameter_type>(detail::cfgValueToString(v))
             );
         }
     }
@@ -1404,48 +1398,44 @@ private:
     /***************************************************************************/
     /**
 	  * Saves data to a property tree object, including comments. Default
-	  * values are taken from the def_val_ vector. Note that there needs
-	  * to be at least a single default value in it.
+	  * values are taken from the def_val_ vector, which may be empty (it is
+	  * then written out as an empty "default"/"value" array).
 	  *
 	  * @param pt The object to which data should be saved
 	  */
-    void save_to(boost::property_tree::ptree &pt) const override {
+    void save_to(boost::json::object &root) const override {
         // Check that we have the right number of comments
-        if(this->hasComments()) {
-            if(this->numberOfComments() != 1) {
-                throw geneva_exception(
-                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                    << "In GFileVectorParsableParameterT<>::save_to(): Error!" << '\n'
-                    << "Expected 0 or 1 comment but got " << this->numberOfComments() << '\n'
-                );
-            }
-
-            // Retrieve a list of sub-comments
-            std::vector<std::string> comments = GParsableI::splitComment(this->comment(0));
-            if(not comments.empty()) {
-                for(auto const &comment : comments) {
-                    pt.add((GParsableI::optionName(0) + ".comment").c_str(), comment.c_str());
-                }
-            }
-        }
-
-        // Do some error checking
-        if(GVectorParT<parameter_type>::def_val_cnt_.empty()) {
+        if(this->hasComments() && this->numberOfComments() != 1) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GVectorParsableParameter::save_to(): Error!" << '\n'
-                << "You need to provide at least one default value" << '\n'
+                << "In GFileVectorParsableParameterT<>::save_to(): Error!" << '\n'
+                << "Expected 0 or 1 comment but got " << this->numberOfComments() << '\n'
             );
         }
 
-        // Add the value and default items
-        auto par_it = GVectorParT<parameter_type>::par_cnt_.cbegin();
-        for(auto const &def_val : GVectorParT<parameter_type>::def_val_cnt_) {
-            pt.add((GParsableI::optionName(0) + ".default.item").c_str(), def_val);
-            pt.add((GParsableI::optionName(0) + ".value.item").c_str(), *par_it);
-
-            par_it++;
+        // An empty default is valid: it denotes a list-valued parameter that is empty unless the user fills
+        // it in (e.g. a set of optional paths). save_to() and load_from() both round-trip it as "[]"; the
+        // two loops below iterate def_val_cnt_ / par_cnt_ independently, so an empty vector is harmless.
+        boost::json::object entry;
+        if(this->hasComments()) {
+            detail::cfgWriteComments(entry, GParsableI::splitComment(this->comment(0)));
         }
+
+        boost::json::array default_arr;
+        default_arr.reserve(GVectorParT<parameter_type>::def_val_cnt_.size());
+        for(auto const &def_val : GVectorParT<parameter_type>::def_val_cnt_) {
+            default_arr.emplace_back(detail::cfgScalarToJson(def_val));
+        }
+
+        boost::json::array value_arr;
+        value_arr.reserve(GVectorParT<parameter_type>::par_cnt_.size());
+        for(auto const &value : GVectorParT<parameter_type>::par_cnt_) {
+            value_arr.emplace_back(detail::cfgScalarToJson(value));
+        }
+
+        entry["default"] = std::move(default_arr);
+        entry["value"] = std::move(value_arr);
+        root[GParsableI::optionName(0)] = std::move(entry);
     }
 
     /***************************************************************************/
@@ -1468,7 +1458,7 @@ private:
 
     /***************************************************************************/
 
-    std::function<void(std::vector<parameter_type>)>
+    std::move_only_function<void(std::vector<parameter_type>)>
         call_back_func_; ///< Holds the call-back function
 };
 
@@ -1477,9 +1467,8 @@ private:
 /******************************************************************************/
 /**
  * This class wraps a reference std::vector of values (obviously of identical type).
- * Note that this class does not enforce a given amount of parameters. However,
- * there needs to be at least one default value in the def_val vector, if
- * you plan to write out a parameter file.
+ * The default vector may be empty -- that denotes a list-valued parameter which
+ * is empty unless the user fills it in; it round-trips through a config file as "[]".
  *
  * @tparam parameter_type The element type of the referenced parameter vector
  */
@@ -1555,20 +1544,30 @@ public:
 private:
     /***************************************************************************/
     /**
-	  * Loads data from a property_tree object
+	  * Loads this parameter's value from the parsed configuration document
 	  *
-	  * @param pt The object from which data should be loaded
+	  * @param root The root JSON object of the parsed configuration
 	  */
-    void load_from(boost::property_tree::ptree const &pt) override {
-        using namespace boost::property_tree;
+    void load_from(boost::json::object const &root) override {
+        auto const *entry = detail::cfgChildObject(root, GParsableI::optionName(0));
+        if(entry == nullptr) {
+            // The key is absent from the file -- e.g. a newly-registered vector parameter, or an
+            // update-in-place pass over a config written before this parameter existed. Keep the
+            // defaults par_cnt_ was seeded with in the constructor.
+            return;
+        }
+        auto const *values = detail::cfgChildArray(*entry, "value");
+        if(values == nullptr) {
+            // The "value" key is absent (or, for a config in the historical dup-key object form,
+            // does not read back as an array). Keep the seeded defaults.
+            return;
+        }
 
-        // Make sure the recipient vector is empty
+        // The values are present: replace the seeded defaults with the on-disk values.
         GVectorParT<parameter_type>::par_cnt_.clear();
-
-        std::string ppath = GParsableI::optionName(0) + ".value";
-        for(auto const &v : pt.get_child(ppath.c_str())) {
+        for(auto const &v : *values) {
             GVectorParT<parameter_type>::par_cnt_.push_back(
-                Gem::Common::from_string<parameter_type>(v.second.data())
+                detail::cfgScalarFromString<parameter_type>(detail::cfgValueToString(v))
             );
         }
     }
@@ -1576,48 +1575,44 @@ private:
     /***************************************************************************/
     /**
 	  * Saves data to a property tree object, including comments. Default
-	  * values are taken from the def_val_ vector. Note that there needs
-	  * to be at least a single default value in it.
+	  * values are taken from the def_val_ vector, which may be empty (it is
+	  * then written out as an empty "default"/"value" array).
 	  *
 	  * @param pt The object to which data should be saved
 	  */
-    void save_to(boost::property_tree::ptree &pt) const override {
+    void save_to(boost::json::object &root) const override {
         // Check that we have the right number of comments
-        if(this->hasComments()) {
-            if(this->numberOfComments() != 1) {
-                throw geneva_exception(
-                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                    << "In GFileVectorReferenceParsableParameterT<>::save_to(): Error!" << '\n'
-                    << "Expected 0 or 1 comment but got " << this->numberOfComments() << '\n'
-                );
-            }
-
-            // Retrieve a list of sub-comments
-            std::vector<std::string> comments = GParsableI::splitComment(this->comment(0));
-            if(not comments.empty()) {
-                for(auto const &comment : comments) {
-                    pt.add((GParsableI::optionName(0) + ".comment").c_str(), comment.c_str());
-                }
-            }
-        }
-
-        // Do some error checking
-        if(GVectorParT<parameter_type>::def_val_cnt_.empty()) {
+        if(this->hasComments() && this->numberOfComments() != 1) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GFileVectorReferenceParsableParameterT::save_to(): Error!" << '\n'
-                << "You need to provide at least one default value" << '\n'
+                << "In GFileVectorReferenceParsableParameterT<>::save_to(): Error!" << '\n'
+                << "Expected 0 or 1 comment but got " << this->numberOfComments() << '\n'
             );
         }
 
-        // Add the value and default items
-        auto par_it = GVectorParT<parameter_type>::par_cnt_.cbegin();
-        for(auto const &def_val : GVectorParT<parameter_type>::def_val_cnt_) {
-            pt.add((GParsableI::optionName(0) + ".default.item").c_str(), def_val);
-            pt.add((GParsableI::optionName(0) + ".value.item").c_str(), *par_it);
-
-            par_it++;
+        // An empty default is valid: it denotes a list-valued parameter that is empty unless the user fills
+        // it in (e.g. a set of optional paths). save_to() and load_from() both round-trip it as "[]"; the
+        // two loops below iterate def_val_cnt_ / par_cnt_ independently, so an empty vector is harmless.
+        boost::json::object entry;
+        if(this->hasComments()) {
+            detail::cfgWriteComments(entry, GParsableI::splitComment(this->comment(0)));
         }
+
+        boost::json::array default_arr;
+        default_arr.reserve(GVectorParT<parameter_type>::def_val_cnt_.size());
+        for(auto const &def_val : GVectorParT<parameter_type>::def_val_cnt_) {
+            default_arr.emplace_back(detail::cfgScalarToJson(def_val));
+        }
+
+        boost::json::array value_arr;
+        value_arr.reserve(GVectorParT<parameter_type>::par_cnt_.size());
+        for(auto const &value : GVectorParT<parameter_type>::par_cnt_) {
+            value_arr.emplace_back(detail::cfgScalarToJson(value));
+        }
+
+        entry["default"] = std::move(default_arr);
+        entry["value"] = std::move(value_arr);
+        root[GParsableI::optionName(0)] = std::move(entry);
     }
 
     /***************************************************************************/
@@ -1705,13 +1700,13 @@ protected:
 
 private:
     /***************************************************************************/
-    /** @brief Loads data from a property_tree object
-     *  @param pt The property tree from which data should be loaded */
-    void load_from(boost::property_tree::ptree const &pt) override = 0;
+    /** @brief Loads this parameter's value from the parsed configuration document
+     *  @param root The root JSON object of the parsed configuration */
+    void load_from(boost::json::object const &root) override = 0;
 
-    /** @brief Saves data to a property tree object
-     *  @param pt The property tree to which data should be saved */
-    void save_to(boost::property_tree::ptree &pt) const override = 0;
+    /** @brief Saves this parameter into the configuration document
+     *  @param root The root JSON object being assembled */
+    void save_to(boost::json::object &root) const override = 0;
 };
 
 /******************************************************************************/
@@ -1794,7 +1789,7 @@ public:
 	  *
 	  * @param call_back The function to be executed
 	  */
-    void registerCallBackFunction(std::function<void(std::array<parameter_type, N>)> call_back) {
+    void registerCallBackFunction(std::move_only_function<void(std::array<parameter_type, N>)> call_back) {
         if(not call_back) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
@@ -1803,26 +1798,32 @@ public:
             );
         }
 
-        call_back_func_ = call_back;
+        call_back_func_ = std::move(call_back);
     }
 
 private:
     /***************************************************************************/
     /**
-	  * Loads data from a property_tree object
+	  * Loads this parameter's value from the parsed configuration document
 	  *
-	  * @param pt The object from which data should be loaded
+	  * @param root The root JSON object of the parsed configuration
 	  */
-    void load_from(boost::property_tree::ptree const &pt) override {
-        using namespace boost::property_tree;
-
-        // We are looping over two arrays here, so a range-based for is unfortunately no option
-        for(std::size_t i = 0; i < GArrayParT<parameter_type, N>::par_arr_.size(); i++) {
-            GArrayParT<parameter_type, N>::par_arr_.at(i) = pt.get(
-                (GParsableI::optionName(0) + "." + Gem::Common::to_string(i) + ".value").c_str(),
-                GArrayParT<parameter_type, N>::def_val_arr_.at(i)
-            );
+    void load_from(boost::json::object const &root) override {
+        auto const *entry = detail::cfgChildObject(root, GParsableI::optionName(0));
+        if(entry == nullptr) {
+            return; // absent key keeps the constructor-seeded defaults
         }
+        auto const *values = detail::cfgChildArray(*entry, "value");
+        if(values == nullptr) {
+            return;
+        }
+        for(std::size_t i = 0;
+            i < GArrayParT<parameter_type, N>::par_arr_.size() && i < values->size();
+            ++i) {
+            GArrayParT<parameter_type, N>::par_arr_.at(i) =
+                detail::cfgScalarFromString<parameter_type>(detail::cfgValueToString((*values)[i]));
+        }
+        // Elements beyond the on-disk array length keep their defaults.
     }
 
     /***************************************************************************/
@@ -1832,24 +1833,14 @@ private:
 	  *
 	  * @param pt The object to which data should be saved
 	  */
-    void save_to(boost::property_tree::ptree &pt) const override {
+    void save_to(boost::json::object &root) const override {
         // Check that we have the right number of comments
-        if(this->hasComments()) {
-            if(this->numberOfComments() != 1) {
-                throw geneva_exception(
-                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                    << "In GFileArrayParsableParameterT<>::save_to(): Error!" << '\n'
-                    << "Expected 0 or 1 comment but got " << this->numberOfComments() << '\n'
-                );
-            }
-
-            // Retrieve a list of sub-comments
-            std::vector<std::string> comments = GParsableI::splitComment(this->comment(0));
-            if(not comments.empty()) {
-                for(auto const &comment : comments) {
-                    pt.add((GParsableI::optionName(0) + ".comment").c_str(), comment.c_str());
-                }
-            }
+        if(this->hasComments() && this->numberOfComments() != 1) {
+            throw geneva_exception(
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+                << "In GFileArrayParsableParameterT<>::save_to(): Error!" << '\n'
+                << "Expected 0 or 1 comment but got " << this->numberOfComments() << '\n'
+            );
         }
 
         // Do some error checking
@@ -1861,17 +1852,26 @@ private:
             );
         }
 
-        // Add the value and default items
-        for(std::size_t i = 0; i < GArrayParT<parameter_type, N>::def_val_arr_.size(); i++) {
-            pt.add(
-                (GParsableI::optionName(0) + "." + Gem::Common::to_string(i) + ".default").c_str(),
-                GArrayParT<parameter_type, N>::def_val_arr_.at(i)
-            );
-            pt.add(
-                (GParsableI::optionName(0) + "." + Gem::Common::to_string(i) + ".value").c_str(),
-                GArrayParT<parameter_type, N>::par_arr_.at(i)
-            );
+        boost::json::object entry;
+        if(this->hasComments()) {
+            detail::cfgWriteComments(entry, GParsableI::splitComment(this->comment(0)));
         }
+
+        boost::json::array default_arr;
+        default_arr.reserve(GArrayParT<parameter_type, N>::def_val_arr_.size());
+        for(auto const &def_val : GArrayParT<parameter_type, N>::def_val_arr_) {
+            default_arr.emplace_back(detail::cfgScalarToJson(def_val));
+        }
+
+        boost::json::array value_arr;
+        value_arr.reserve(GArrayParT<parameter_type, N>::par_arr_.size());
+        for(auto const &value : GArrayParT<parameter_type, N>::par_arr_) {
+            value_arr.emplace_back(detail::cfgScalarToJson(value));
+        }
+
+        entry["default"] = std::move(default_arr);
+        entry["value"] = std::move(value_arr);
+        root[GParsableI::optionName(0)] = std::move(entry);
     }
 
     /***************************************************************************/
@@ -1893,7 +1893,7 @@ private:
 
     /***************************************************************************/
 
-    std::function<void(std::array<parameter_type, N>)>
+    std::move_only_function<void(std::array<parameter_type, N>)>
         call_back_func_; ///< Holds the call-back function
 };
 
@@ -1979,19 +1979,26 @@ public:
 private:
     /***************************************************************************/
     /**
-	  * Loads data from a property_tree object
+	  * Loads this parameter's value from the parsed configuration document
 	  *
-	  * @param pt The object from which data should be loaded
+	  * @param root The root JSON object of the parsed configuration
 	  */
-    void load_from(boost::property_tree::ptree const &pt) override {
-        using namespace boost::property_tree;
-
-        for(std::size_t i = 0; i < GArrayParT<parameter_type, N>::par_arr_.size(); i++) {
-            GArrayParT<parameter_type, N>::par_arr_.at(i) = pt.get(
-                (GParsableI::optionName(0) + "." + Gem::Common::to_string(i) + ".value").c_str(),
-                GArrayParT<parameter_type, N>::def_val_arr_.at(i)
-            );
+    void load_from(boost::json::object const &root) override {
+        auto const *entry = detail::cfgChildObject(root, GParsableI::optionName(0));
+        if(entry == nullptr) {
+            return; // absent key keeps the constructor-seeded defaults
         }
+        auto const *values = detail::cfgChildArray(*entry, "value");
+        if(values == nullptr) {
+            return;
+        }
+        for(std::size_t i = 0;
+            i < GArrayParT<parameter_type, N>::par_arr_.size() && i < values->size();
+            ++i) {
+            GArrayParT<parameter_type, N>::par_arr_.at(i) =
+                detail::cfgScalarFromString<parameter_type>(detail::cfgValueToString((*values)[i]));
+        }
+        // Elements beyond the on-disk array length keep their defaults.
     }
 
     /***************************************************************************/
@@ -2001,25 +2008,14 @@ private:
 	  *
 	  * @param pt The object to which data should be saved
 	  */
-    void save_to(boost::property_tree::ptree &pt) const override {
+    void save_to(boost::json::object &root) const override {
         // Check that we have the right number of comments
-        if(this->hasComments()) {
-            if(this->numberOfComments() != 1) {
-                throw geneva_exception(
-                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                    << "In GFileArrayReferenceParsableParameterT<>::save_to(): Error!" << '\n'
-                    << "Expected 0 or 1 comment but got " << this->numberOfComments() << '\n'
-                );
-            }
-
-            // Retrieve a list of sub-comments
-            std::vector<std::string> comments = GParsableI::splitComment(this->comment(0));
-            std::vector<std::string>::iterator c;
-            if(not comments.empty()) {
-                for(c = comments.begin(); c != comments.end(); ++c) {
-                    pt.add((GParsableI::optionName(0) + ".comment").c_str(), (*c).c_str());
-                }
-            }
+        if(this->hasComments() && this->numberOfComments() != 1) {
+            throw geneva_exception(
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+                << "In GFileArrayReferenceParsableParameterT<>::save_to(): Error!" << '\n'
+                << "Expected 0 or 1 comment but got " << this->numberOfComments() << '\n'
+            );
         }
 
         // Do some error checking
@@ -2031,17 +2027,26 @@ private:
             );
         }
 
-        // Add the value and default items
-        for(std::size_t i = 0; i < GArrayParT<parameter_type, N>::def_val_arr_.size(); i++) {
-            pt.add(
-                (GParsableI::optionName(0) + "." + Gem::Common::to_string(i) + ".default").c_str(),
-                GArrayParT<parameter_type, N>::def_val_arr_.at(i)
-            );
-            pt.add(
-                (GParsableI::optionName(0) + "." + Gem::Common::to_string(i) + ".value").c_str(),
-                GArrayParT<parameter_type, N>::par_arr_.at(i)
-            );
+        boost::json::object entry;
+        if(this->hasComments()) {
+            detail::cfgWriteComments(entry, GParsableI::splitComment(this->comment(0)));
         }
+
+        boost::json::array default_arr;
+        default_arr.reserve(GArrayParT<parameter_type, N>::def_val_arr_.size());
+        for(auto const &def_val : GArrayParT<parameter_type, N>::def_val_arr_) {
+            default_arr.emplace_back(detail::cfgScalarToJson(def_val));
+        }
+
+        boost::json::array value_arr;
+        value_arr.reserve(GArrayParT<parameter_type, N>::par_arr_.size());
+        for(auto const &value : GArrayParT<parameter_type, N>::par_arr_) {
+            value_arr.emplace_back(detail::cfgScalarToJson(value));
+        }
+
+        entry["default"] = std::move(default_arr);
+        entry["value"] = std::move(value_arr);
+        root[GParsableI::optionName(0)] = std::move(entry);
     }
 
     /***************************************************************************/
@@ -2257,17 +2262,20 @@ public:
     GParserBuilder &operator=(GParserBuilder const &) = delete;
     GParserBuilder &operator=(GParserBuilder &&) = delete;
 
-    /** @brief Reads and parses a configuration file, applying the values to the registered options. Optionally hands the parsed ptree back via the second argument so callers can cache it.
+    /** @brief Reads and parses a configuration file, applying the values to the registered options. A
+     *  missing file is created from defaults (also a success). Optionally hands the parsed JSON document
+     *  back via the second argument so callers can cache it.
      *  @param config_file The path of the configuration file to read and parse
-     *  @param out_ptree Optional output pointer; if non-null, receives a copy of the parsed property tree for caching
-     *  @return true if the file already existed and was parsed, false if it had to be created from defaults */
-    bool parseConfigFile(std::filesystem::path const &config_file, boost::property_tree::ptree *captured = nullptr);
-    /** @brief Applies an already-parsed configuration ptree to the registered options (no file access); runs the optional unknown-key diagnostic.
-     *  @param pt The already-parsed property tree to apply to the registered options
-     *  @param config_file The originating file path, used only for diagnostic messages (may be empty)
+     *  @param captured Optional output pointer; if non-null, receives a copy of the parsed JSON document for caching
+     *  @return true on success (the file was parsed, or a missing one was created from its defaults);
+     *          false if an error occurred (the exception is logged and swallowed) */
+    bool parseConfigFile(std::filesystem::path const &config_file, boost::json::value *captured = nullptr);
+    /** @brief Applies an already-parsed configuration document to the registered options (no file access); runs the optional unknown-key diagnostic.
+     *  @param root The already-parsed JSON document to apply to the registered options
+     *  @param config_path The originating file path, used only for diagnostic messages (may be empty)
      *  @param run_unknown_key_check Whether to run the unknown-key diagnostic for this load */
-    void loadFromPtree(
-        boost::property_tree::ptree const &ptr,
+    void loadFromDocument(
+        boost::json::value const &root,
         std::filesystem::path const &config_path = {},
         bool run_unknown_key_check = true
     );
@@ -2277,6 +2285,33 @@ public:
      *  @param write_all Whether to also write secondary (non-essential) options */
     void
     writeConfigFile(std::filesystem::path const &config_file, std::string const &header = "", bool write_all = true) const;
+    /** @brief Update-in-place: parse @p config_file (if it exists) into the registered options, then rewrite
+     *  it in canonical form -- stale keys (that no registered parameter consumes) dropped, existing values
+     *  preserved, newly-registered parameters emitted with their defaults, comments/order refreshed. A
+     *  missing file is created from defaults (same as parseConfigFile). The rewrite is atomic (a temp sibling
+     *  is written and then renamed over the target), and never runs during a build into the source tree
+     *  because it targets exactly the file it was given.
+     *  @param config_file The path of the configuration file to update in place
+     *  @param header An optional header comment; empty uses the standard auto-created header
+     *  @return true on success (the file was updated, or a missing one was created from its defaults);
+     *          false if an error occurred (the exception is logged and swallowed) */
+    bool updateConfigFile(std::filesystem::path const &config_file, std::string const &header = "");
+    /** @brief Globally enables/disables update-in-place: when enabled, every successful parseConfigFile() that
+     *  read an existing file also rewrites it in canonical form (mirrors setCheckUnknownKeys). Call once at startup.
+     *  @param enabled Whether parseConfigFile should rewrite the files it reads */
+    static void setUpdateInPlace(bool enabled);
+    /** @brief Retrieves whether update-in-place is globally enabled
+     *  @return true if parseConfigFile rewrites the files it reads, false otherwise */
+    static bool updateInPlace();
+    /** @brief Globally enables/disables the creation-timestamp line in a generated config's header (default:
+     *  enabled). Disable it to produce byte-stable, reproducible output -- e.g. for a config set that is
+     *  checked into version control (the config-reference tree), where a changing timestamp would show as a
+     *  spurious diff on every regeneration. Call once at startup.
+     *  @param enabled Whether the header should carry the creation timestamp */
+    static void setEmitTimestamp(bool enabled);
+    /** @brief Retrieves whether the header creation-timestamp line is emitted
+     *  @return true if a generated config's header carries the creation timestamp, false otherwise */
+    static bool emitTimestamp();
     /** @brief Globally enables/disables the unknown-configuration-key diagnostic (default: enabled; warns on config keys no registered parameter consumes).
      *  @param check Whether the unknown-key diagnostic should be enabled */
     static void setCheckUnknownKeys(bool enabled);
@@ -2316,9 +2351,8 @@ public:
     template <typename fileParsableDerivative>
     std::shared_ptr<fileParsableDerivative>
     file_at(std::string const &option_name) { // NOLINT(misc-unused-parameters)
-        auto it = std::find_if(
-            file_parameter_proxies_.begin(),
-            file_parameter_proxies_.end(),
+        auto it = std::ranges::find_if(
+            file_parameter_proxies_,
             [&](std::shared_ptr<GFileParsableI> const &candidate_ptr) {
                 return (candidate_ptr->GParsableI::optionName(0) == option_name);
             }
@@ -2343,9 +2377,8 @@ public:
     template <typename clParsableDerivative>
     std::shared_ptr<clParsableDerivative>
     cl_at(std::string const &option_name) { // NOLINT(misc-unused-parameters)
-        auto it = std::find_if(
-            cl_parameter_proxies_.begin(),
-            cl_parameter_proxies_.end(),
+        auto it = std::ranges::find_if(
+            cl_parameter_proxies_,
             [&](std::shared_ptr<GCLParsableI> const &candidate_ptr) {
                 return (candidate_ptr->GParsableI::optionName(0) == option_name);
             }
@@ -2376,45 +2409,25 @@ public:
     GParsableI &registerFileParameter(
         std::string const &option_name,
         parameter_type def_val,
-        std::function<void(parameter_type)> call_back,
+        std::move_only_function<void(parameter_type)> call_back,
         bool is_essential = Gem::Common::VAR_IS_ESSENTIAL,
         std::string const &comment = std::string()
     ) {
 #ifdef DEBUG
-        auto it = std::find_if(
-            file_parameter_proxies_.begin(),
-            file_parameter_proxies_.end(),
-            [&](std::shared_ptr<GFileParsableI> const &candidate_ptr) {
-                return (candidate_ptr->GParsableI::optionName(0) == option_name);
-            }
-        );
-        if(it != file_parameter_proxies_.end()) {
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GParserBuilder::registerFileParameter(single_parm_ptr): Error!" << '\n'
-                << "Parameter " << option_name << " has already been registered" << '\n'
-            );
-        }
+        assertNotRegistered_(option_name, file_parameter_proxies_, "registerFileParameter(single_parm_ptr)");
 #endif /* DEBUG */
 
-        std::shared_ptr<GFileSingleParsableParameterT<parameter_type>> single_parm_ptr;
+        // Always route through the full constructor: the comment may legitimately be empty, but the
+        // caller's is_essential choice must never be dropped (the comment-less constructor hardcodes
+        // VAR_IS_ESSENTIAL, which used to silently mark comment-less SECONDARY parameters essential).
+        auto single_parm_ptr = std::make_shared<GFileSingleParsableParameterT<parameter_type>>(
+            option_name,
+            comment,
+            is_essential,
+            def_val
+        );
 
-        if(comment.empty()) {
-            single_parm_ptr = std::make_shared<GFileSingleParsableParameterT<parameter_type>>(
-                option_name,
-                def_val
-            );
-        }
-        else {
-            single_parm_ptr = std::make_shared<GFileSingleParsableParameterT<parameter_type>>(
-                option_name,
-                comment,
-                is_essential,
-                def_val
-            );
-        }
-
-        single_parm_ptr->registerCallBackFunction(call_back);
+        single_parm_ptr->registerCallBackFunction(std::move(call_back));
 
         // Add to the proxy store
         file_parameter_proxies_.push_back(single_parm_ptr);
@@ -2442,40 +2455,18 @@ public:
         std::string const &comment = std::string()
     ) {
 #ifdef DEBUG
-        auto it = std::find_if(
-            file_parameter_proxies_.begin(),
-            file_parameter_proxies_.end(),
-            [&](std::shared_ptr<GFileParsableI> const &candidate_ptr) {
-                return (candidate_ptr->GParsableI::optionName(0) == option_name);
-            }
-        );
-        if(it != file_parameter_proxies_.end()) {
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GParserBuilder::registerFileParameter(ref_parm_ptr): Error!" << '\n'
-                << "Parameter " << option_name << " has already been registered" << '\n'
-            );
-        }
+        assertNotRegistered_(option_name, file_parameter_proxies_, "registerFileParameter(ref_parm_ptr)");
 #endif /* DEBUG */
 
-        std::shared_ptr<GFileReferenceParsableParameterT<parameter_type>> ref_parm_ptr;
-
-        if(comment.empty()) {
-            ref_parm_ptr = std::make_shared<GFileReferenceParsableParameterT<parameter_type>>(
-                parameter,
-                option_name,
-                def_val
-            );
-        }
-        else {
-            ref_parm_ptr = std::make_shared<GFileReferenceParsableParameterT<parameter_type>>(
-                parameter,
-                option_name,
-                comment,
-                is_essential,
-                def_val
-            );
-        }
+        // Always route through the full constructor -- see registerFileParameter(single_parm_ptr):
+        // an empty comment must not drop the caller's is_essential choice.
+        auto ref_parm_ptr = std::make_shared<GFileReferenceParsableParameterT<parameter_type>>(
+            parameter,
+            option_name,
+            comment,
+            is_essential,
+            def_val
+        );
 
         // Add to the proxy store
         file_parameter_proxies_.push_back(ref_parm_ptr);
@@ -2539,55 +2530,30 @@ public:
         std::string const &option_name2,
         par_type1 def_val1,
         par_type2 def_val2,
-        std::function<void(par_type1, par_type2)> call_back,
+        std::move_only_function<void(par_type1, par_type2)> call_back,
         std::string const &combined_label,
         bool is_essential = Gem::Common::VAR_IS_ESSENTIAL,
         std::string const &comment1 = std::string(),
         std::string const &comment2 = std::string()
     ) {
 #ifdef DEBUG
-        // Check whether the option already exists
-        auto it = std::find_if(
-            file_parameter_proxies_.begin(),
-            file_parameter_proxies_.end(),
-            [&](std::shared_ptr<GFileParsableI> const &candidate_ptr) {
-                return (candidate_ptr->GParsableI::optionName(0) == option_name1);
-            }
-        );
-        if(it != file_parameter_proxies_.end()) {
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GParserBuilder::registerFileParameter(comb_parm_ptr): Error!" << '\n'
-                << "Parameter " << option_name1 << " has already been registered" << '\n'
-            );
-        }
+        assertNotRegistered_(option_name1, file_parameter_proxies_, "registerFileParameter(comb_parm_ptr)");
 #endif /* DEBUG */
 
-        std::shared_ptr<GFileCombinedParsableParameterT<par_type1, par_type2>> comb_parm_ptr;
+        // Always route through the full constructor -- see registerFileParameter(single_parm_ptr):
+        // empty comments must not drop the caller's is_essential choice.
+        auto comb_parm_ptr = std::make_shared<GFileCombinedParsableParameterT<par_type1, par_type2>>(
+            option_name1,
+            comment1,
+            def_val1,
+            option_name2,
+            comment2,
+            def_val2,
+            is_essential,
+            combined_label
+        );
 
-        if(comment1.empty() && comment2.empty()) {
-            comb_parm_ptr = std::make_shared<GFileCombinedParsableParameterT<par_type1, par_type2>>(
-                option_name1,
-                def_val1,
-                option_name2,
-                def_val2,
-                combined_label
-            );
-        }
-        else {
-            comb_parm_ptr = std::make_shared<GFileCombinedParsableParameterT<par_type1, par_type2>>(
-                option_name1,
-                comment1,
-                def_val1,
-                option_name2,
-                comment2,
-                def_val2,
-                is_essential,
-                combined_label
-            );
-        }
-
-        comb_parm_ptr->registerCallBackFunction(call_back);
+        comb_parm_ptr->registerCallBackFunction(std::move(call_back));
 
         // Add to the proxy store
         file_parameter_proxies_.push_back(comb_parm_ptr);
@@ -2650,46 +2616,24 @@ public:
     GParsableI &registerFileParameter(
         std::string const &option_name,
         std::vector<parameter_type> const &def_val,
-        std::function<void(std::vector<parameter_type>)> call_back,
+        std::move_only_function<void(std::vector<parameter_type>)> call_back,
         bool is_essential = Gem::Common::VAR_IS_ESSENTIAL,
         std::string const &comment = std::string()
     ) {
 #ifdef DEBUG
-        // Check whether the option already exists
-        auto it = std::find_if(
-            file_parameter_proxies_.begin(),
-            file_parameter_proxies_.end(),
-            [&](std::shared_ptr<GFileParsableI> const &candidate_ptr) {
-                return (candidate_ptr->GParsableI::optionName(0) == option_name);
-            }
-        );
-        if(it != file_parameter_proxies_.end()) {
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GParserBuilder::registerFileParameter(vec_parm_ptr): Error!" << '\n'
-                << "Parameter " << option_name << " has already been registered" << '\n'
-            );
-        }
+        assertNotRegistered_(option_name, file_parameter_proxies_, "registerFileParameter(vec_parm_ptr)");
 #endif /* DEBUG */
 
-        std::shared_ptr<GFileVectorParsableParameterT<parameter_type>> vec_parm_ptr;
+        // Always route through the full constructor -- see registerFileParameter(single_parm_ptr):
+        // an empty comment must not drop the caller's is_essential choice.
+        auto vec_parm_ptr = std::make_shared<GFileVectorParsableParameterT<parameter_type>>(
+            option_name,
+            comment,
+            def_val,
+            is_essential
+        );
 
-        if(comment.empty()) {
-            vec_parm_ptr = std::make_shared<GFileVectorParsableParameterT<parameter_type>>(
-                option_name,
-                def_val
-            );
-        }
-        else {
-            vec_parm_ptr = std::make_shared<GFileVectorParsableParameterT<parameter_type>>(
-                option_name,
-                comment,
-                def_val,
-                is_essential
-            );
-        }
-
-        vec_parm_ptr->registerCallBackFunction(call_back);
+        vec_parm_ptr->registerCallBackFunction(std::move(call_back));
 
         // Add to the proxy store
         file_parameter_proxies_.push_back(vec_parm_ptr);
@@ -2717,43 +2661,19 @@ public:
         std::string const &comment = std::string()
     ) {
 #ifdef DEBUG
-        // Check whether the option already exists
-        auto it = std::find_if(
-            file_parameter_proxies_.begin(),
-            file_parameter_proxies_.end(),
-            [&](std::shared_ptr<GFileParsableI> const &candidate_ptr) {
-                return (candidate_ptr->GParsableI::optionName(0) == option_name);
-            }
-        );
-        if(it != file_parameter_proxies_.end()) {
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GParserBuilder::registerFileParameter(vec_ref_parm_ptr): Error!" << '\n'
-                << "Parameter " << option_name << " has already been registered" << '\n'
-            );
-        }
+        assertNotRegistered_(option_name, file_parameter_proxies_, "registerFileParameter(vec_ref_parm_ptr)");
 #endif /* DEBUG */
 
-        std::shared_ptr<GFileVectorReferenceParsableParameterT<parameter_type>> vec_ref_parm_ptr;
-
-        if(comment.empty()) {
-            vec_ref_parm_ptr =
-                std::make_shared<GFileVectorReferenceParsableParameterT<parameter_type>>(
-                    stored_reference,
-                    option_name,
-                    def_val
-                );
-        }
-        else {
-            vec_ref_parm_ptr =
-                std::make_shared<GFileVectorReferenceParsableParameterT<parameter_type>>(
-                    stored_reference,
-                    option_name,
-                    comment,
-                    def_val,
-                    is_essential
-                );
-        }
+        // Always route through the full constructor -- see registerFileParameter(single_parm_ptr):
+        // an empty comment must not drop the caller's is_essential choice.
+        auto vec_ref_parm_ptr =
+            std::make_shared<GFileVectorReferenceParsableParameterT<parameter_type>>(
+                stored_reference,
+                option_name,
+                comment,
+                def_val,
+                is_essential
+            );
 
         // Add to the proxy store
         file_parameter_proxies_.push_back(vec_ref_parm_ptr);
@@ -2814,47 +2734,27 @@ public:
     GParsableI &registerFileParameter(
         std::string const &option_name,
         std::array<parameter_type, N> const &def_val,
-        std::function<void(std::array<parameter_type, N>)> call_back,
+        std::move_only_function<void(std::array<parameter_type, N>)> call_back,
         bool is_essential = Gem::Common::VAR_IS_ESSENTIAL,
         std::string const &comment = std::string()
     ) {
 #ifdef DEBUG
-        // Check whether the option already exists
-        auto it = std::find_if(
-            file_parameter_proxies_.begin(),
-            file_parameter_proxies_.end(),
-            [&](std::shared_ptr<GFileParsableI> const &candidate_ptr) {
-                return (candidate_ptr->GParsableI::optionName(0) == option_name);
-            }
-        );
-        if(it != file_parameter_proxies_.end()) {
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GParserBuilder::registerFileParameter(array_parm_ptr): Error!" << '\n'
-                << "Parameter " << option_name << " has already been registered" << '\n'
-            );
-        }
+        assertNotRegistered_(option_name, file_parameter_proxies_, "registerFileParameter(array_parm_ptr)");
 #endif /* DEBUG */
 
         std::shared_ptr<GFileArrayParsableParameterT<parameter_type, N>> array_parm_ptr;
 
-        if(comment.empty()) {
-            array_parm_ptr = std::make_shared<GFileArrayParsableParameterT<parameter_type, N>>(
-                option_name,
-                def_val
-            );
-        }
-        else {
-            array_parm_ptr = std::make_shared<GFileArrayParsableParameterT<parameter_type, N>>(
-                option_name,
-                comment,
-                def_val,
-                is_essential
-            );
-        }
+        // Always route through the full constructor -- see registerFileParameter(single_parm_ptr):
+        // an empty comment must not drop the caller's is_essential choice.
+        array_parm_ptr = std::make_shared<GFileArrayParsableParameterT<parameter_type, N>>(
+            option_name,
+            comment,
+            def_val,
+            is_essential
+        );
 
         // Register the call back function
-        array_parm_ptr->registerCallBackFunction(call_back);
+        array_parm_ptr->registerCallBackFunction(std::move(call_back));
 
         // Add to the proxy store
         file_parameter_proxies_.push_back(array_parm_ptr);
@@ -2884,43 +2784,21 @@ public:
         std::string const &comment = std::string()
     ) {
 #ifdef DEBUG
-        // Check whether the option already exists
-        auto it = std::find_if(
-            file_parameter_proxies_.begin(),
-            file_parameter_proxies_.end(),
-            [&](std::shared_ptr<GFileParsableI> const &candidate_ptr) {
-                return (candidate_ptr->GParsableI::optionName(0) == option_name);
-            }
-        );
-        if(it != file_parameter_proxies_.end()) {
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GParserBuilder::registerFileParameter(array_ref_parm_ptr): Error!" << '\n'
-                << "Parameter " << option_name << " has already been registered" << '\n'
-            );
-        }
+        assertNotRegistered_(option_name, file_parameter_proxies_, "registerFileParameter(array_ref_parm_ptr)");
 #endif /* DEBUG */
 
         std::shared_ptr<GFileArrayReferenceParsableParameterT<parameter_type, N>>
             array_ref_parm_ptr;
-        if(comment.empty()) {
-            array_ref_parm_ptr =
-                std::make_shared<GFileArrayReferenceParsableParameterT<parameter_type, N>>(
-                    stored_reference,
-                    option_name,
-                    def_val
-                );
-        }
-        else {
-            array_ref_parm_ptr =
-                std::make_shared<GFileArrayReferenceParsableParameterT<parameter_type, N>>(
-                    stored_reference,
-                    option_name,
-                    comment,
-                    def_val,
-                    is_essential
-                );
-        }
+        // Always route through the full constructor -- see registerFileParameter(single_parm_ptr):
+        // an empty comment must not drop the caller's is_essential choice.
+        array_ref_parm_ptr =
+            std::make_shared<GFileArrayReferenceParsableParameterT<parameter_type, N>>(
+                stored_reference,
+                option_name,
+                comment,
+                def_val,
+                is_essential
+            );
 
         // Add to the proxy store
         file_parameter_proxies_.push_back(array_ref_parm_ptr);
@@ -2987,22 +2865,7 @@ public:
         parameter_type impl_val = GDefaultValueT<parameter_type>::value()
     ) {
 #ifdef DEBUG
-        // Check whether the option already exists
-        auto it = std::find_if(
-            cl_parameter_proxies_.begin(),
-            cl_parameter_proxies_.end(),
-            [&](std::shared_ptr<GCLParsableI> const &candidate_ptr) {
-                return (candidate_ptr->GParsableI::optionName(0) == option_name);
-            }
-        );
-
-        if(it != cl_parameter_proxies_.end()) {
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GParserBuilder::registerCLParameter(ref_parm_ptr): Error!" << '\n'
-                << "Parameter " << option_name << " has already been registered" << '\n'
-            );
-        }
+        assertNotRegistered_(option_name, cl_parameter_proxies_, "registerCLParameter(ref_parm_ptr)");
 #endif /* DEBUG */
 
         std::shared_ptr<GCLReferenceParsableParameterT<parameter_type>> ref_parm_ptr;
@@ -3034,6 +2897,32 @@ public:
 
 private:
     /***************************************************************************/
+    /** @brief DEBUG-build helper shared by every registration overload: throws if an option of
+     *  the given name was already registered in @p proxies (formerly an identical 15-line
+     *  #ifdef DEBUG block per overload).
+     *  @tparam proxy_vector_type The proxy-vector type (file or command-line proxies)
+     *  @param option_name The (first) option name about to be registered
+     *  @param proxies The proxy store to check for a duplicate
+     *  @param caller The registering overload, used in the error message */
+    template <typename proxy_vector_type>
+    static void assertNotRegistered_(
+        std::string const &option_name,
+        proxy_vector_type const &proxies,
+        char const *caller
+    ) {
+        auto it = std::ranges::find_if(proxies, [&](auto const &candidate_ptr) {
+            return (candidate_ptr->GParsableI::optionName(0) == option_name);
+        });
+        if(it != proxies.end()) {
+            throw geneva_exception(
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+                << "In GParserBuilder::" << caller << ": Error!" << '\n'
+                << "Parameter " << option_name << " has already been registered" << '\n'
+            );
+        }
+    }
+
+    /***************************************************************************/
 
     std::vector<std::shared_ptr<GFileParsableI>>
         file_parameter_proxies_; ///< Holds file parameter proxies
@@ -3042,12 +2931,47 @@ private:
 
     std::filesystem::path config_base_dir_;
 
+    /** @brief Shared implementation of parseConfigFile()/updateConfigFile(): reads @p config_file (creating
+     *  it from defaults if absent), applies it to the registered options and, when @p do_rewrite is set and
+     *  the file already existed, rewrites it in canonical form.
+     *  @param config_file The configuration file to read (and, when do_rewrite, rewrite)
+     *  @param captured Optional output pointer receiving the parsed JSON document, or nullptr
+     *  @param do_rewrite Whether to rewrite the file in canonical form after reading it
+     *  @param rewrite_header The header for a rewrite; empty uses the standard auto-created header
+     *  @return true if the file already existed, false if it had to be created from defaults */
+    bool doParseConfigFile_(
+        std::filesystem::path const &config_file,
+        boost::json::value *captured,
+        bool do_rewrite,
+        std::string const &rewrite_header = ""
+    );
+    /** @brief Builds the canonical configuration document (header + one entry per registered file
+     *  option: value = the current parsed/default value, default = the registered default). Shared by
+     *  writeConfigFile() and the update-in-place rewrite.
+     *  @param header The header comment (split on ';' into individual comment lines)
+     *  @param write_all Whether to also emit non-essential options
+     *  @return The assembled JSON document (a JSON object at the root) */
+    boost::json::value buildConfigDocument_(std::string const &header, bool write_all) const;
+    /** @brief Atomically replaces @p config_file with the pretty-printed serialization of @p document
+     *  (writes a temp sibling, then renames it over the target), bypassing the deliberate no-overwrite
+     *  guard of writeConfigFile() -- the update path is the one caller that legitimately overwrites a file.
+     *  @param config_file The target configuration file (.json) to replace
+     *  @param document The JSON document to serialize */
+    void atomicReplaceConfigFile_(
+        std::filesystem::path const &config_file,
+        boost::json::value const &document
+    ) const;
+
     static std::mutex
         configfile_parser_mutex_; ///< Synchronization of access to configuration files (may only happen serially)
     static bool
         unknown_key_is_error_; ///< If true, an unknown configuration-file key throws instead of warning (default: false)
     static bool
         check_unknown_keys_; ///< If true, a genuine config-file parse warns about keys no registered parameter consumes (default: true; group-aware, runs once per parse)
+    static bool
+        update_in_place_; ///< If true, a successful parseConfigFile() that read an existing file also rewrites it in canonical form (default: false)
+    static bool
+        emit_timestamp_; ///< If true, a generated config's header carries a creation timestamp (default: true; disable for byte-stable, version-controlled output)
 };
 
 /******************************************************************************/

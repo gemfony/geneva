@@ -140,7 +140,7 @@ public:
 /**
  * The matplotlib backend. emitDocument() supports the graph plotters
  * (GGraph2D / GGraph2ED / GGraph3D / GGraph4D) and the histogram plotters
- * (GHistogram1D / GHistogram2D); any other plotter type (e.g. a function plotter)
+ * (GHistogram1D / GHistogram1I / GHistogram2D); any other plotter type (e.g. a function plotter)
  * triggers a clear geneva_exception directing the caller to the ROOT backend. The
  * emitted script is a self-contained Python program that selects the headless Agg
  * backend, builds a `fig` with one Axes per pad and plots into it, but deliberately
@@ -167,7 +167,7 @@ public:
 /**
  * The Octave / MATLAB backend. emitDocument() supports the graph plotters
  * (GGraph2D / GGraph2ED / GGraph3D / GGraph4D) and the histogram plotters
- * (GHistogram1D / GHistogram2D); any other plotter type (e.g. a function plotter)
+ * (GHistogram1D / GHistogram1I / GHistogram2D); any other plotter type (e.g. a function plotter)
  * triggers a clear geneva_exception directing the caller to the ROOT backend. The
  * emitted script is a self-contained `.m` program using only the Octave-and-MATLAB
  * COMMON CORE (base functions, no toolboxes / packages): a `figure()` with one
@@ -195,7 +195,7 @@ public:
 /**
  * The DATA backend. emitDocument() exports each registered plotter's raw columnar
  * series data -- it does NOT render a plot. The graph plotters (GGraph2D / GGraph2ED /
- * GGraph3D / GGraph4D) and the histogram plotters (GHistogram1D / GHistogram2D) export
+ * GGraph3D / GGraph4D) and the histogram plotters (GHistogram1D / GHistogram1I / GHistogram2D) export
  * their axis columns; the function plotters (GFunctionPlotter1D / GFunctionPlotter2D)
  * carry no sampled data and are skipped (with a comment in CSV mode).
  *

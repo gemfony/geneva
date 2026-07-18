@@ -1,0 +1,5 @@
+{
+    "GGPUConsumer.json": {
+        "kernel_path": "./kernels/benchmark_eval.cu"
+    }
+}

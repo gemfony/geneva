@@ -34,13 +34,13 @@
 #include "common/GFixedSizePriorityQueueT.hpp"
 #include "common/GLogger.hpp"
 #include "geneva/GenevaHelperFunctions.hpp"
-#include "geneva/ind/GIndividualSlot.hpp"
 #include "geneva/ind/GOptimizableEntity.hpp"
 #include <algorithm>
 #include <cstddef>
+#include <format>
 #include <iterator>
 #include <memory>
-#include <sstream>
+#include <ranges>
 #include <string>
 #include <vector>
 
@@ -168,13 +168,12 @@ bool GOptimizableEntityFixedSizePriorityQueue::allClean(std::size_t &pos) const 
 	 * @return A string listing each item's position and clean/dirty status ("c" for clean, "d" for dirty)
 	 */
 std::string GOptimizableEntityFixedSizePriorityQueue::getCleanStatus() const {
-    std::size_t pos = 0;
-    std::ostringstream oss; // NOLINT(cppcoreguidelines-init-variables)
-    for(const auto &item_ptr : data_deq_) {
-        oss << "(" << pos++ << ", " << (not item_ptr->is_processed() ? "d" : "c") << ") ";
+    std::string result;
+    for(auto const &[pos, item_ptr] : data_deq_ | std::views::enumerate) {
+        result += std::format("({}, {}) ", pos, item_ptr->is_processed() ? "c" : "d");
     }
 
-    return oss.str();
+    return result;
 }
 
 /******************************************************************************/
@@ -334,57 +333,6 @@ void GOptimizableEntityFixedSizePriorityQueue::add(
     for(auto const &item_ptr : items_cnt) {
         if(item_ptr) {
             bridge.push_back(item_ptr->clone<GOptimizableEntity>());
-        }
-    }
-    this->add(bridge, false, do_replace);
-}
-
-/******************************************************************************/
-/**
-	 * @brief Boundary overload: adds the individuals held by a SLOT population. The population owns its slots by
-	 * unique_ptr, each slot owns its individual; this archive keeps its own shared_ptr clones, so we clone
-	 * each slot's individual across the ownership boundary and delegate to the shared_ptr overload (which
-	 * co-owns the clones directly). (do_clone is intentionally ignored: cloning at the boundary is exactly
-	 * what do_clone asks for.)
-	 *
-	 * @param items_cnt A vector of slots whose held individuals are cloned into the queue (empty slots are skipped)
-	 * @param do_replace If true, the queue's existing content is replaced rather than merged
-	 */
-void GOptimizableEntityFixedSizePriorityQueue::add(
-    std::vector<std::unique_ptr<GIndividualSlot>> const &items_cnt,
-    const bool /* do_clone */,
-    const bool do_replace
-) {
-    std::vector<std::shared_ptr<GOptimizableEntity>> bridge;
-    bridge.reserve(items_cnt.size());
-    for(auto const &slot_ptr : items_cnt) {
-        if(slot_ptr && slot_ptr->hasIndividual()) {
-            bridge.push_back(slot_ptr->individual().clone<GOptimizableEntity>());
-        }
-    }
-    this->add(bridge, false, do_replace);
-}
-
-/******************************************************************************/
-/**
-	 * @brief Boundary overload: adds the individuals held by a SLOT population sub-range [begin, end). See the
-	 * slot-vector overload above.
-	 *
-	 * @param begin An iterator to the first slot of the range whose individuals are added
-	 * @param end An iterator one past the last slot of the range
-	 * @param do_replace If true, the queue's existing content is replaced rather than merged
-	 */
-void GOptimizableEntityFixedSizePriorityQueue::add(
-    std::vector<std::unique_ptr<GIndividualSlot>>::const_iterator begin,
-    std::vector<std::unique_ptr<GIndividualSlot>>::const_iterator end,
-    const bool /* do_clone */,
-    const bool do_replace
-) {
-    std::vector<std::shared_ptr<GOptimizableEntity>> bridge;
-    bridge.reserve(static_cast<std::size_t>(std::distance(begin, end)));
-    for(auto it = begin; it != end; ++it) {
-        if(*it && (*it)->hasIndividual()) {
-            bridge.push_back((*it)->individual().clone<GOptimizableEntity>());
         }
     }
     this->add(bridge, false, do_replace);

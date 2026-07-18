@@ -38,6 +38,7 @@
 #include <concepts>
 #include <cstdint>
 #include <cstdlib>
+#include <format>
 #include <iomanip>
 #include <iostream>
 #include <limits>
@@ -53,6 +54,7 @@
 #include <tuple>
 #include <type_traits>
 #include <typeinfo>
+#include <utility>
 #include <vector>
 
 // Boost headers go here
@@ -226,14 +228,16 @@ inline std::string generate_uuid_v4() {
     hi = (hi & 0xFFFFFFFFFFFF0FFFULL) | 0x0000000000004000ULL;
     // Set variant 10xx (top 2 bits of lo's most-significant byte)
     lo = (lo & 0xBFFFFFFFFFFFFFFFULL) | 0x8000000000000000ULL;
-    std::ostringstream oss;
-    oss << std::hex << std::setfill('0')
-        << std::setw(8) << static_cast<std::uint32_t>(hi >> 32) << '-'
-        << std::setw(4) << static_cast<std::uint32_t>((hi >> 16) & 0xFFFFU) << '-'
-        << std::setw(4) << static_cast<std::uint32_t>(hi & 0xFFFFU) << '-'
-        << std::setw(4) << static_cast<std::uint32_t>(lo >> 48) << '-'
-        << std::setw(12) << (lo & 0x0000FFFFFFFFFFFFULL);
-    return oss.str();
+    // Lowercase, zero-padded hex in the canonical 8-4-4-4-12 grouping (identical bytes to the
+    // former std::hex/std::setfill/std::setw manipulator chain).
+    return std::format(
+        "{:08x}-{:04x}-{:04x}-{:04x}-{:012x}",
+        static_cast<std::uint32_t>(hi >> 32),
+        static_cast<std::uint32_t>((hi >> 16) & 0xFFFFU),
+        static_cast<std::uint32_t>(hi & 0xFFFFU),
+        static_cast<std::uint32_t>(lo >> 48),
+        lo & 0x0000FFFFFFFFFFFFULL
+    );
 }
 
 /******************************************************************************/
@@ -296,15 +300,7 @@ std::optional<target_type> environmentVariableAs(std::string const &var) {
 #endif
     } // releases the lock
 
-    auto ltrim = result_str.find_first_not_of(" \t\r\n");
-    auto rtrim = result_str.find_last_not_of(" \t\r\n");
-    if(ltrim != std::string::npos) {
-        result_str = result_str.substr(ltrim, rtrim - ltrim + 1);
-    }
-    else {
-        result_str.clear();
-    }
-    return {Gem::Common::from_string<target_type>(result_str)};
+    return {Gem::Common::from_string<target_type>(trimWhitespace(result_str))};
 }
 
 /******************************************************************************/
@@ -978,16 +974,20 @@ splitStringT(const std::string &raw, const char *sep1, const char *sep2) {
 
 /******************************************************************************/
 /**
- * @brief Returns a reference to the value at key in m.
+ * @brief Returns a reference to the value at key in m, preserving the map's const/ref qualification.
  *
- * @tparam item_type The mapped value type
- * @param m The map to look up in (mutable)
+ * A single forwarding template replaces the former mutable+const overload pair: @c std::forward_like
+ * transfers the value category and constness of @p m onto the returned reference, so a mutable map
+ * yields a mutable reference and a const map a const reference.
+ *
+ * @tparam Map The map type (deduced; a const or non-const std::map<std::string, item_type>)
+ * @param m The map to look up in
  * @param key The key whose mapped value is returned
- * @return A reference to the mapped value associated with key
+ * @return A reference to the mapped value associated with key, const-qualified to match @p m
  * @throws geneva_exception if the map is empty or the key is absent
  */
-template <typename item_type>
-item_type &getMapItem(std::map<std::string, item_type> &m, const std::string &key) {
+template <typename Map>
+decltype(auto) getMapItem(Map &&m, const std::string &key) {
     if(m.empty()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace()) << "In getMapItem(): map is empty" << '\n'
@@ -995,34 +995,7 @@ item_type &getMapItem(std::map<std::string, item_type> &m, const std::string &ke
     }
     auto it = m.find(key);
     if(it != m.end()) {
-        return it->second;
-    }
-    throw geneva_exception(
-        g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-        << "In getMapItem(): key \"" << key << "\" not found" << '\n'
-    );
-}
-
-/******************************************************************************/
-/**
- * @brief Const overload of getMapItem.
- *
- * @tparam item_type The mapped value type
- * @param m The map to look up in (const)
- * @param key The key whose mapped value is returned
- * @return A const reference to the mapped value associated with key
- * @throws geneva_exception if the map is empty or the key is absent
- */
-template <typename item_type>
-const item_type &getMapItem(const std::map<std::string, item_type> &m, const std::string &key) {
-    if(m.empty()) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace()) << "In getMapItem(): map is empty" << '\n'
-        );
-    }
-    auto cit = m.find(key);
-    if(cit != m.end()) {
-        return cit->second;
+        return std::forward_like<Map>(it->second);
     }
     throw geneva_exception(
         g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
@@ -1113,7 +1086,7 @@ std::string to_string(fp_type val) {
 template <typename enum_type>
     requires (std::is_enum_v<enum_type> && !std::is_convertible_v<enum_type, int>)
 std::string to_string(enum_type val) {
-    return std::to_string(static_cast<std::uint32_t>(val));
+    return std::to_string(std::to_underlying(val));
 }
 
 /******************************************************************************/

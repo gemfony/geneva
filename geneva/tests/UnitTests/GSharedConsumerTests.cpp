@@ -48,7 +48,7 @@
 #include "courtier/GConsumerRegistry.hpp"
 #include "courtier/consumers/GStdThreadConsumerT.hpp"
 #include "geneva/GConsumerSetup.hpp"
-#include "geneva/ind/GFlatIndividualT.hpp"
+#include "geneva/ind/GGenomeT.hpp"
 #include "geneva/ind/GGenomeBuilder.hpp"
 #include "geneva/ind/GOptimizableEntity.hpp"
 #include "geneva/oa/GAdaption.hpp"
@@ -62,7 +62,7 @@ namespace oa = Gem::Geneva::OptimizationAlgorithms;
 namespace {
 
 /** @brief A tiny flat sphere: 3 constrained doubles in [-5, 5), started at 3.0. The inner problem. */
-class InnerSphere : public gen::GFlatIndividualT<InnerSphere> {
+class InnerSphere : public gen::GGenomeT<InnerSphere> {
 public:
     InnerSphere() {
         gen::GGenomeBuilder b;
@@ -78,14 +78,14 @@ public:
     }
 
 protected:
-    double fitnessCalculation() override {
+    std::vector<double> evaluate() override {
         std::vector<double> v;
         this->streamline<double>(v);
         double s = 0.;
         for(double x : v) {
             s += x * x;
         }
-        return s;
+        return {s};
     }
 };
 
@@ -94,7 +94,7 @@ protected:
  * (un-injected) submission path -- i.e. exactly the nesting the invariant targets. Its own genome is
  * one constrained double (so the outer EA has something to adapt); the value is unused.
  */
-class MetaSphere : public gen::GFlatIndividualT<MetaSphere> {
+class MetaSphere : public gen::GGenomeT<MetaSphere> {
 public:
     MetaSphere() {
         gen::GGenomeBuilder b;
@@ -110,7 +110,7 @@ public:
     }
 
 protected:
-    double fitnessCalculation() override {
+    std::vector<double> evaluate() override {
         auto inner = std::make_shared<oa::GEvolutionaryAlgorithm>();
         inner->setPopulationSizes(4, 2);
         inner->setMaxIteration(2);
@@ -129,7 +129,7 @@ protected:
         for(double x : v) {
             s += x * x;
         }
-        return s;
+        return {s};
     }
 };
 
@@ -272,9 +272,50 @@ TEST_CASE("buildConsumerSetup registers the process consumer", "[consumer][shari
     CHECK(reg.consumer() == stc.consumer); // registered, so un-injected algorithms submit through it
 
     // A later build replaces the single process consumer (the process has one work endpoint).
-    auto sc = Gem::Geneva::buildConsumerSetup(Gem::Geneva::ConsumerSpec{.mnemonic = "sc"});
-    REQUIRE(sc.consumer);
-    CHECK(reg.consumer() == sc.consumer);
+    auto stc2 = Gem::Geneva::buildConsumerSetup(
+        Gem::Geneva::ConsumerSpec{.mnemonic = "stc", .n_threads = 1});
+    REQUIRE(stc2.consumer);
+    CHECK(stc2.consumer != stc.consumer);  // a genuinely new consumer was built
+    CHECK(reg.consumer() == stc2.consumer);
 
     reg.clear();
+}
+
+// ---------------------------------------------------------------------------
+// The consumer catalog is data in the shared provider store, not a hard-coded table + switch.
+
+TEST_CASE("Consumer provider store exposes the built-in consumer catalog", "[consumer][sharing][registry]") {
+    // The built-in local + socket consumers are always registered; unknown mnemonics are not (the retired
+    // "sc" serial consumer is now "stc" with one thread, so "sc" is no longer a known mnemonic).
+    CHECK(Gem::Geneva::isKnownConsumer("stc"));
+    CHECK(Gem::Geneva::isKnownConsumer("asio"));
+    CHECK(Gem::Geneva::isKnownConsumer("beast"));
+    CHECK_FALSE(Gem::Geneva::isKnownConsumer("sc"));
+    CHECK_FALSE(Gem::Geneva::isKnownConsumer("does_not_exist"));
+
+    // The local consumer needs no networked client; the socket consumers do. An unknown mnemonic never does.
+    CHECK_FALSE(Gem::Geneva::consumerNeedsClient("stc"));
+    CHECK(Gem::Geneva::consumerNeedsClient("asio"));
+    CHECK(Gem::Geneva::consumerNeedsClient("beast"));
+    CHECK_FALSE(Gem::Geneva::consumerNeedsClient("does_not_exist"));
+
+    // The listing names each registered consumer, and the count covers at least the three always-built ones.
+    const std::string listing = Gem::Geneva::consumerListing();
+    CHECK(listing.contains("stc:"));
+    CHECK(listing.contains("asio:"));
+    CHECK(listing.contains("beast:"));
+    CHECK_FALSE(listing.contains("sc:"));
+    CHECK(Gem::Geneva::consumerCount() >= 3);
+
+    // The always-built consumers take their client/server role from --client (known before the consumer is
+    // built), so they do NOT determine it at runtime. This is the generic capability generic drivers query
+    // instead of naming a specific consumer. An unknown mnemonic is never role-at-runtime.
+    CHECK_FALSE(Gem::Geneva::consumerDeterminesRoleAtRuntime("stc"));
+    CHECK_FALSE(Gem::Geneva::consumerDeterminesRoleAtRuntime("asio"));
+    CHECK_FALSE(Gem::Geneva::consumerDeterminesRoleAtRuntime("beast"));
+    CHECK_FALSE(Gem::Geneva::consumerDeterminesRoleAtRuntime("does_not_exist"));
+    // The MPI consumer, when built into this binary, self-assigns the role from its process rank.
+    if(Gem::Geneva::isKnownConsumer("mpi")) {
+        CHECK(Gem::Geneva::consumerDeterminesRoleAtRuntime("mpi"));
+    }
 }

@@ -37,6 +37,7 @@
 #include <chrono>
 #include <cstddef>
 #include <deque>
+#include <expected>
 #include <functional>
 #include <iostream>
 #include <limits>
@@ -145,7 +146,8 @@ public:
         // the originally-submitted item and grafts the parameters back on); a work item can override
         // per item via setReturnFullIndividual().
         wire_ctx_.returning = true;
-        wire_ctx_.fetch_blob = [this](const Gem::Courtier::GWireLayoutId &id) -> std::string {
+        wire_ctx_.fetch_blob =
+            [this](const Gem::Courtier::GWireLayoutId &id) -> std::expected<std::string, std::string> {
             return this->fetch_layout_blob_(id);
         };
     }
@@ -669,7 +671,7 @@ private:
 	  * @param id The content id of the layout to fetch from the server.
 	  * @return The serialized layout blob, or an empty string if the fetch failed.
 	  */
-    std::string fetch_layout_blob_(const Gem::Courtier::GWireLayoutId &id) {
+    std::expected<std::string, std::string> fetch_layout_blob_(const Gem::Courtier::GWireLayoutId &id) {
         try {
             // This runs mid-decode (inside a genome load() under the work-item wire scope). The codec's
             // build/parse helpers each (de)serialize under a null scope so the REQUEST_LAYOUT/SEND_LAYOUT
@@ -697,20 +699,19 @@ private:
             boost::system::error_code read_ec;
             boost::asio::read(fetch_socket, boost::asio::dynamic_buffer(response_str), read_ec);
             if(read_ec && read_ec != boost::asio::error::eof) {
-                glogger << "In GAsioConsumerClientT<processable_type>::fetch_layout_blob_(): " << '\n'
-                        << "read error: " << read_ec.message() << '\n'
-                        << GWARNING;
-                return {};
+                return std::unexpected("read error: " + read_ec.message());
             }
 
-            // De-serialize the SEND_LAYOUT reply (under a null scope) and pull out the blob.
-            return Gem::Courtier::parseLayoutReply<processable_type>(response_str, serialization_mode_);
+            // De-serialize the SEND_LAYOUT reply (under a null scope) and pull out the blob. An empty blob
+            // means a malformed/empty reply -- a failure, not a usable layout, so report it as such.
+            std::string blob = Gem::Courtier::parseLayoutReply<processable_type>(response_str, serialization_mode_);
+            if(blob.empty()) {
+                return std::unexpected(std::string("empty or malformed SEND_LAYOUT reply"));
+            }
+            return blob;
         }
         catch(const std::exception &e) {
-            glogger << "In GAsioConsumerClientT<processable_type>::fetch_layout_blob_(): " << '\n'
-                    << "fetch failed: " << e.what() << '\n'
-                    << GWARNING;
-            return {};
+            return std::unexpected(std::string("fetch failed: ") + e.what());
         }
     }
 
@@ -832,20 +833,23 @@ public:
 	  * @param serialization_mode The serialization format used on the wire
 	  * @param sign_on Functor called with true on construction and false on destruction to track the active-session count
 	  * @param wire_registry The consumer-shared layout send-once registry, or nullptr to disable the feature
+	  * @param session_timeout The per-exchange connection deadline; a non-positive value disables it
 	  */
     GAsioConsumerSessionT(
         boost::asio::io_context &io_context,
         boost::asio::ip::tcp::socket socket,
-        std::function<std::unique_ptr<processable_type>()> get_payload_item,
-        std::function<void(std::unique_ptr<processable_type>)> put_payload_item,
-        std::function<bool()> check_server_stopped,
+        std::move_only_function<std::unique_ptr<processable_type>()> get_payload_item,
+        std::move_only_function<void(std::unique_ptr<processable_type>)> put_payload_item,
+        std::move_only_function<bool()> check_server_stopped,
         Gem::Common::serializationMode serialization_mode,
-        std::function<void(bool)> sign_on,
-        Gem::Courtier::GWireLayoutRegistry *wire_registry = nullptr
+        std::move_only_function<void(bool)> sign_on,
+        Gem::Courtier::GWireLayoutRegistry *wire_registry = nullptr,
+        std::chrono::milliseconds session_timeout = std::chrono::milliseconds{300'000}
     )
       : socket_(std::move(socket))
       , strand_(io_context.get_executor())
       , deadline_timer_(io_context)
+      , session_timeout_(session_timeout)
       , get_payload_item_(std::move(get_payload_item))
       , put_payload_item_(std::move(put_payload_item))
       , check_server_stopped_(std::move(check_server_stopped))
@@ -912,6 +916,9 @@ private:
     /** @brief Arms the per-session deadline timer. On expiry the socket is closed, which aborts the
 	 *  outstanding read/write so the session (and its file descriptor) is released. */
     void arm_deadline() {
+        if(session_timeout_ <= std::chrono::milliseconds::zero()) {
+            return; // per-exchange deadline disabled by configuration
+        }
         deadline_timer_.expires_after(session_timeout_);
         auto self = this->shared_from_this();
         deadline_timer_.async_wait(
@@ -1133,14 +1140,16 @@ private:
     /// (it closes the connection BEFORE evaluating a work item, so this never overlaps computation),
     /// a connection still open after this long is a stalled/half-open/dead client and is closed --
     /// otherwise its socket+fd would be pinned forever by the never-completing read, eventually
-    /// exhausting the server's file descriptors.
+    /// exhausting the server's file descriptors. This is the per-EXCHANGE deadline, NOT the evaluation
+    /// timeout; it is configurable (GNetworkedTimeoutConfig::session_timeout_ms, threaded in via the
+    /// consumer), and a non-positive value disables it (arm_deadline() then never arms the timer).
     boost::asio::steady_timer deadline_timer_;
-    const std::chrono::seconds session_timeout_{300};
+    std::chrono::milliseconds session_timeout_{300'000};
 
-    std::function<std::unique_ptr<processable_type>()> get_payload_item_;
-    std::function<void(std::unique_ptr<processable_type>)> put_payload_item_;
-    std::function<bool()> check_server_stopped_;
-    std::function<void(bool)> f_sign_on_; ///< Signs the session on (true) / off (false) with the consumer
+    std::move_only_function<std::unique_ptr<processable_type>()> get_payload_item_;
+    std::move_only_function<void(std::unique_ptr<processable_type>)> put_payload_item_;
+    std::move_only_function<bool()> check_server_stopped_;
+    std::move_only_function<void(bool)> f_sign_on_; ///< Signs the session on (true) / off (false) with the consumer
 
     Gem::Common::serializationMode serialization_mode_ = Gem::Common::serializationMode::BINARY;
 

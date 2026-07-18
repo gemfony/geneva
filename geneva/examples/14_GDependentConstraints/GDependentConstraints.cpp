@@ -89,11 +89,10 @@ int main(int argc, char **argv) {
         new gind::GFunctionIndividualFactory("./config/GFunctionIndividual.json")
     );
 
-    // We want the GFunctionIndividual objects to always use GConstrainedDoubleObject objects so that
-    // parameter types have defined names. This is now expressed in the config file
-    // (config/GFunctionIndividual.json: "parameter_type": "4" == USEGCONSTRAINEDDOUBLEOBJECT) rather than
-    // through a factory setter -- the generic GFlatIndividualFactory re-applies its config file on every
-    // produced object, so a programmatic setter would not stick.
+    // We want the GFunctionIndividual objects to always use bounded parameters. This is expressed in the
+    // config file (config/GFunctionIndividual.json: "parameter_type": 3 == BOUNDED_PER_PARAMETER) rather
+    // than through a factory setter -- the generic GIndividualFactory re-applies its config file on
+    // every produced object, so a programmatic setter would not stick.
 
     //---------------------------------------------------------------------------
     // Register a progress plotter with the global optimization algorithm factory

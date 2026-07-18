@@ -48,8 +48,8 @@
 // Geneva header files go here
 #include "common/GCommonMathHelperFunctionsT.hpp"
 #include "common/GParserBuilder.hpp"
-#include "geneva/ind/GFlatGenome.hpp"
-#include "geneva/ind/GFlatIndividualFactory.hpp"
+#include "geneva/ind/GGenome.hpp"
+#include "geneva/ind/GIndividualFactory.hpp"
 #include "geneva/ind/GGenomeBuilder.hpp"
 #include <filesystem>
 #include <memory>
@@ -92,7 +92,7 @@ const targetFunction GO_DEF_TARGETFUNCTION = targetFunction::PARABOLA;
  * This individual searches for a minimum of a number of predefined functions, each capable
  * of processing their input in multiple dimensions.
  */
-class GStarterIndividual : public gen::GFlatGenome {
+class GStarterIndividual : public gen::GGenome {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
@@ -101,7 +101,7 @@ class GStarterIndividual : public gen::GFlatGenome {
      * @return A tuple of named member references driving serialize(), load_() and compare_()
      */
     template <typename Self>
-    static auto localMembers_(Self &self) {
+    auto localMembers_(this Self &self) {
         return std::make_tuple(Gem::Common::make_member("targetFunction_", self.targetFunction_));
     }
 
@@ -109,8 +109,8 @@ class GStarterIndividual : public gen::GFlatGenome {
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         // The member list is derived from the single localMembers() declaration
         // so serialize()/load_()/compare_() stay in sync (no silently-dropped member).
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gen::GFlatGenome);
-        Gem::Common::serialize_members(ar, localMembers_(*this));
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gen::GGenome);
+        Gem::Common::serialize_members(ar, this->localMembers_());
     }
 
     ///////////////////////////////////////////////////////////////////////
@@ -139,7 +139,7 @@ public:
     std::string print();
 
     //---------------------------------------------------------------------------
-    // GFlatIndividualFactory<GStarterIndividual> hooks. The individual supplies the static hooks the
+    // GIndividualFactory<GStarterIndividual> hooks. The individual supplies the static hooks the
     // generic factory needs: describeConfig (the configurable values,
     // including the target function), buildGenome (one constrained double per start value), applyConfig
     // (the per-object, non-genome target function) and buildAdaptionConfig (the OA-owned Gauss adaption
@@ -168,7 +168,7 @@ public:
     /** @brief The OA-owned Gauss adaption config: every parameter group gets the configured adaptor.
      *  Authored from the Config -- no adaptor data resides on the individual. */
     static std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase>
-    buildAdaptionConfig(const gen::GFlatGenome &sample, const Config &c);
+    buildAdaptionConfig(const gen::GGenome &sample, const Config &c);
 
     /***************************************************************************/
     /**
@@ -253,8 +253,8 @@ protected:
         const double & // the limit for allowed deviations of floating point types
     ) const final;
 
-    /** @brief The actual value calculation takes place here */
-    virtual double fitnessCalculation() final;
+    /** @brief The evaluation hook: the selected target function on the genome (single criterion). */
+    std::vector<double> evaluate() final;
 
     /** @brief Applies modifications to this object. */
     virtual bool modify_GUnitTests_();
@@ -271,7 +271,7 @@ private:
 
     /***************************************************************************/
     /** @brief Creates a deep clone of this object */
-    virtual gen::GFlatGenome *clone_() const final;
+    virtual gen::GGenome *clone_() const final;
 
     /***************************************************************************/
     /** @brief A simple n-dimensional parabola */
@@ -290,11 +290,11 @@ std::ostream &operator<<(std::ostream &, std::shared_ptr<GStarterIndividual>);
 /******************************************************************************/
 /**
  * A factory for GStarterIndividual objects: an alias for the generic, config-driven
- * GFlatIndividualFactory, for which GStarterIndividual supplies the static describeConfig /
+ * GIndividualFactory, for which GStarterIndividual supplies the static describeConfig /
  * buildGenome / applyConfig / buildAdaptionConfig hooks. Call sites use ctor(path), get_as<>(),
  * registerContentCreator() and the factory's getAdaptionConfig(sample).
  */
-using GStarterIndividualFactory = Gem::Geneva::Genome::GFlatIndividualFactory<GStarterIndividual>;
+using GStarterIndividualFactory = Gem::Geneva::Genome::GIndividualFactory<GStarterIndividual>;
 
 /******************************************************************************/
 

@@ -40,6 +40,7 @@
 #include <span>
 #include <type_traits>
 #include <typeinfo>
+#include <utility>
 #include <vector>
 
 // Boost headers go here
@@ -91,7 +92,7 @@ struct AuxBlock {
      */
     template <typename Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
-        auto scope_u = static_cast<std::uint8_t>(scope);
+        auto scope_u = std::to_underlying(scope);
         ar &boost::serialization::make_nvp("scope", scope_u);
         scope = static_cast<AuxScope>(scope_u);
 
@@ -129,7 +130,7 @@ inline std::uint32_t auxTypeTag() {
 /**
  * The unified, per-individual home for optimization-algorithm-owned auxiliary data.
  *
- * It is genome-layout-agnostic: the flat individual (GFlatGenome) holds exactly one, so the place
+ * It is genome-layout-agnostic: the flat individual (GGenome) holds exactly one, so the place
  * where an optimization algorithm stashes its per-individual data is the same regardless of how the
  * genome is stored.
  *
@@ -164,7 +165,8 @@ public:
      * @param cp A constant reference to another GAuxiliaryStore object to be copied
      */
     GAuxiliaryStore(const GAuxiliaryStore &cp)
-      : pods_(cp.pods_) {
+      : pods_(cp.pods_)
+      , n_adaptions_(cp.n_adaptions_) {
         Gem::Common::copyCloneableSmartPointer(cp.personality_, personality_);
     }
 
@@ -184,6 +186,7 @@ public:
         if(this != &cp) {
             Gem::Common::copyCloneableSmartPointer(cp.personality_, personality_);
             pods_ = cp.pods_;
+            n_adaptions_ = cp.n_adaptions_;
         }
         return *this;
     }
@@ -199,22 +202,15 @@ public:
     // Personality (the per-individual OA object; part of the genome's serialized/compared identity).
 
     /**
-     * @brief Direct (mutable) access to the personality-traits slot. Returned by reference so the
-     * individual's serialization / load / compare machinery (make_cloneable_member) can drive it
-     * directly.
+     * @brief Direct access to the personality-traits slot. Returned by reference so the individual's
+     * serialization / load / compare machinery (make_cloneable_member) can drive it directly; the
+     * explicit object parameter lets its constness flow (a const store yields a const reference).
      *
-     * @return A mutable reference to the personality-traits shared pointer slot
+     * @return A reference to the personality-traits shared pointer slot (const iff *this is const)
      */
-    std::shared_ptr<Gem::Geneva::GPersonalityTraits> &personalityRef() {
-        return personality_;
-    }
-    /**
-     * @brief Direct (const) access to the personality-traits slot
-     *
-     * @return A const reference to the personality-traits shared pointer slot
-     */
-    const std::shared_ptr<Gem::Geneva::GPersonalityTraits> &personalityRef() const {
-        return personality_;
+    template <typename Self>
+    auto &personalityRef(this Self &&self) {
+        return self.personality_;
     }
 
     /***************************************************************************/
@@ -254,54 +250,31 @@ public:
     }
 
     /**
-     * @brief A typed, mutable view over the records of the POD block under key
+     * @brief A typed view over the records of the POD block under key. The explicit object parameter
+     * lets the store's constness flow through to the span: a const store yields std::span<const POD>.
      *
      * @tparam POD The record type the block holds
      * @param key The key identifying the auxiliary POD block
-     * @return A mutable span over the block's records
+     * @return A span over the block's records (const iff *this is const)
      */
-    template <typename POD>
-    std::span<POD> metaRecords(AuxKey key) {
-        AuxBlock &b = fetch(key, sizeof(POD), auxTypeTag<POD>());
-        return std::span<POD>(reinterpret_cast<POD *>(b.bytes.data()), b.bytes.size() / sizeof(POD));
-    }
-    /**
-     * @brief A typed, read-only view over the records of the POD block under key
-     *
-     * @tparam POD The record type the block holds
-     * @param key The key identifying the auxiliary POD block
-     * @return A read-only span over the block's records
-     */
-    template <typename POD>
-    std::span<const POD> metaRecords(AuxKey key) const {
-        const AuxBlock &b = fetch(key, sizeof(POD), auxTypeTag<POD>());
-        return std::span<const POD>(
-            reinterpret_cast<const POD *>(b.bytes.data()),
-            b.bytes.size() / sizeof(POD)
-        );
+    template <typename POD, typename Self>
+    auto metaRecords(this Self &&self, AuxKey key) {
+        auto &b = self.fetch(key, sizeof(POD), auxTypeTag<POD>());
+        using QPOD = std::conditional_t<std::is_const_v<std::remove_reference_t<decltype(b)>>, const POD, POD>;
+        return std::span<QPOD>(reinterpret_cast<QPOD *>(b.bytes.data()), b.bytes.size() / sizeof(POD));
     }
 
     /**
-     * @brief Typed (mutable) access to a per-individual (single-record) POD block
+     * @brief Typed access to a per-individual (single-record) POD block. The explicit object parameter
+     * lets the store's constness flow: a const store yields a const reference to the record.
      *
      * @tparam POD The record type the block holds
      * @param key The key identifying the single-record auxiliary POD block
-     * @return A mutable reference to the block's single record
+     * @return A reference to the block's single record (const iff *this is const)
      */
-    template <typename POD>
-    POD &metaScalar(AuxKey key) {
-        return metaRecords<POD>(key)[0];
-    }
-    /**
-     * @brief Typed (read-only) access to a per-individual (single-record) POD block
-     *
-     * @tparam POD The record type the block holds
-     * @param key The key identifying the single-record auxiliary POD block
-     * @return A const reference to the block's single record
-     */
-    template <typename POD>
-    const POD &metaScalar(AuxKey key) const {
-        return metaRecords<POD>(key)[0];
+    template <typename POD, typename Self>
+    auto &metaScalar(this Self &&self, AuxKey key) {
+        return self.template metaRecords<POD>(key)[0];
     }
 
     /**
@@ -323,6 +296,16 @@ public:
         pods_.clear();
     }
 
+    /***************************************************************************/
+    // Diagnostic adaption counter (OA-side scratch; a transient per-individual count of how many values
+    // the last adaption changed -- read by the adaption monitor). Lives here rather than on the genome so
+    // the individual stays pure data; nulled on the wire with the rest of the scratch.
+
+    /** @brief @return The number of adaptions performed during the individual's last adaption */
+    std::size_t getNAdaptions() const { return n_adaptions_; }
+    /** @brief Records the number of adaptions performed during the last adaption. @param n The count */
+    void setNAdaptions(std::size_t n) { n_adaptions_ = n; }
+
 private:
     /***************************************************************************/
     // Full-state serialization (personality OBJECT + the opaque POD blocks). Used ONLY for
@@ -343,36 +326,24 @@ private:
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         ar &boost::serialization::make_nvp("personality_", personality_);
         ar &boost::serialization::make_nvp("pods_", pods_);
+        ar &boost::serialization::make_nvp("n_adaptions_", n_adaptions_);
     }
 
     /***************************************************************************/
     /**
-     * @brief Looks up a POD block (mutable), sanity-checking its stride and type tag in DEBUG mode
+     * @brief Looks up a POD block, sanity-checking its stride and type tag in DEBUG mode. The explicit
+     * object parameter lets the store's constness flow to the returned block reference.
      *
      * @param key The key identifying the auxiliary POD block
      * @param pod_size The expected record stride (sizeof of the caller's POD type)
      * @param pod_tag The expected type tag of the caller's POD type
-     * @return A mutable reference to the matching auxiliary block
+     * @return A reference to the matching auxiliary block (const iff *this is const)
      */
-    AuxBlock &fetch(AuxKey key, [[maybe_unused]] std::size_t pod_size, [[maybe_unused]] std::uint32_t pod_tag) {
-        auto it = pods_.find(key);
+    template <typename Self>
+    auto &fetch(this Self &&self, AuxKey key, [[maybe_unused]] std::size_t pod_size, [[maybe_unused]] std::uint32_t pod_tag) {
+        auto it = self.pods_.find(key);
 #ifdef DEBUG
-        verify(it != pods_.end(), key, pod_size, pod_tag, it);
-#endif
-        return it->second;
-    }
-    /**
-     * @brief Looks up a POD block (read-only), sanity-checking its stride and type tag in DEBUG mode
-     *
-     * @param key The key identifying the auxiliary POD block
-     * @param pod_size The expected record stride (sizeof of the caller's POD type)
-     * @param pod_tag The expected type tag of the caller's POD type
-     * @return A const reference to the matching auxiliary block
-     */
-    const AuxBlock &fetch(AuxKey key, [[maybe_unused]] std::size_t pod_size, [[maybe_unused]] std::uint32_t pod_tag) const {
-        auto it = pods_.find(key);
-#ifdef DEBUG
-        verify(it != pods_.end(), key, pod_size, pod_tag, it);
+        self.verify(it != self.pods_.end(), key, pod_size, pod_tag, it);
 #endif
         return it->second;
     }
@@ -416,6 +387,9 @@ private:
 
     /** @brief Opaque per-group/per-individual OA metadata blocks (adaptor state, …), keyed; transient scratch */
     std::map<AuxKey, AuxBlock> pods_;
+
+    /** @brief Number of adaptions performed during the individual's last adaption (diagnostic) */
+    std::size_t n_adaptions_ = 0;
 };
 
 /******************************************************************************/

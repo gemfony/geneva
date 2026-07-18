@@ -37,18 +37,16 @@
 // Boost header files go here
 
 // Geneva headers go here
-#include "common/GGlobalOptionsT.hpp"
-#include "common/GProviderT.hpp"
+#include "common/GProviderStoreT.hpp"
 #include "geneva/ind/GOptimizableEntity.hpp"
 #include "geneva/oa/GOptimizationAlgorithmBase.hpp"
 #include "geneva/oa/GOAFactoryT.hpp"
 
 // A global store for optimization-algorithm providers. Each provider wraps a
 // config-file-driven factory (see GOAFactoryProviderT in GInitializerT.hpp) and
-// produces a freshly configured algorithm on every provide() call.
-using GOAStore =
-    Gem::Common::GSingletonT<Gem::Common::GGlobalOptionsT<
-        std::shared_ptr<Gem::Common::GProviderT<oa::GOptimizationAlgorithmBase>>>>;
+// produces a freshly configured algorithm on every provide() call. This is the
+// optimization-algorithm instantiation of the shared common/ provider-store template.
+using GOAStore = Gem::Common::GProviderStoreT<oa::GOptimizationAlgorithmBase>;
 /**
  * @brief Returns the global optimization-algorithm-provider store singleton.
  *

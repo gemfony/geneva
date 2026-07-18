@@ -50,9 +50,9 @@
 #include "common/GParserBuilder.hpp"
 #include "dietrich/GPlotDesigner.hpp"
 #include "geneva/individuals/GFunctionIndividual.hpp"
-#include "geneva/ind/GFlatGenome.hpp"
+#include "geneva/ind/GGenome.hpp"
 #include "geneva/ind/GGenomeBuilder.hpp"
-#include "geneva/ind/GIndividualSlot.hpp"
+#include "geneva/ind/GOptimizableEntity.hpp"
 #include "geneva/GPluggableOptimizationMonitors.hpp"
 #include "geneva/oa/GAdaption.hpp"
 #include "geneva/oa/GEvolutionaryAlgorithm.hpp"
@@ -175,13 +175,13 @@ const bool GMETAOPT_DEF_SUBEXECMODE = GMETAOPT_SUBEXEC_MULTITHREADED;
  */
 template <typename ind_type = Gem::Geneva::Individuals::GFunctionIndividual>
 class GMetaOptimizerIndividualT // NOLINT(cppcoreguidelines-special-member-functions)
-  : public gen::GFlatGenome {
+  : public gen::GGenome {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
     template <class Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gen::GFlatGenome) &
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gen::GGenome) &
             BOOST_SERIALIZATION_NVP(n_runs_per_optimization_) &
             BOOST_SERIALIZATION_NVP(fitness_target_) & BOOST_SERIALIZATION_NVP(iteration_threshold_) &
             BOOST_SERIALIZATION_NVP(mo_target_) & BOOST_SERIALIZATION_NVP(sub_ea_config_) &
@@ -196,7 +196,7 @@ public:
      * The default constructor.
      */
     GMetaOptimizerIndividualT()
-      : gen::GFlatGenome()
+      : gen::GGenome()
       , n_runs_per_optimization_(GMETAOPT_DEF_NRUNSPEROPT)
       , fitness_target_(GMETAOPT_DEF_FITNESSTARGET)
       , iteration_threshold_(GMETAOPT_DEF_ITERATIONTHRESHOLD)
@@ -212,7 +212,7 @@ public:
      * @param cp A constant reference to another GMetaOptimizerIndividualT object
      */
     GMetaOptimizerIndividualT(const GMetaOptimizerIndividualT<ind_type> &cp)
-      : gen::GFlatGenome(cp)
+      : gen::GGenome(cp)
       , n_runs_per_optimization_(cp.n_runs_per_optimization_)
       , fitness_target_(cp.fitness_target_)
       , iteration_threshold_(cp.iteration_threshold_)
@@ -578,7 +578,7 @@ protected:
      */
     void addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) override {
         // Call our parent class'es function
-        gen::GFlatGenome::addConfigurationOptions_(gpb);
+        gen::GGenome::addConfigurationOptions_(gpb);
 
         // Add local data
         gpb.registerFileParameter<std::size_t>(
@@ -635,7 +635,7 @@ protected:
      * separately; do not derive serialize() from localMembers() for this class.
      */
     template <typename Self>
-    static auto localMembers_(Self &self) {
+    auto localMembers_(this Self &self) {
         return std::make_tuple(
             Gem::Common::make_member("n_runs_per_optimization_", self.n_runs_per_optimization_),
             Gem::Common::make_member("fitness_target_", self.fitness_target_),
@@ -660,12 +660,12 @@ protected:
             );
 
         // Load our parent class'es data ...
-        gen::GFlatGenome::load_(cp);
+        gen::GGenome::load_(cp);
 
         // ... and then our local data, derived from the single localMembers() declaration
-        Gem::Common::g_load_members(localMembers_(*this), localMembers_(*p_load));
+        Gem::Common::g_load_members(this->localMembers_(), p_load->localMembers_());
 
-        // We simply keep our local individual factory, as all settings are made inside of fitnessCalculation
+        // We simply keep our local individual factory, as all settings are made inside of evaluate()
     }
 
     /***************************************************************************/
@@ -700,10 +700,10 @@ protected:
         Gem::Common::GToken token("GMetaOptimizerIndividualT<ind_type>", e);
 
         // Compare our parent data ...
-        Gem::Common::compare_base_t<gen::GFlatGenome>(*this, *p_load, token);
+        Gem::Common::compare_base_t<gen::GGenome>(*this, *p_load, token);
 
         // ... and then the local data, derived from the single localMembers() declaration
-        Gem::Common::g_compare_members(localMembers_(*this), localMembers_(*p_load), token);
+        Gem::Common::g_compare_members(this->localMembers_(), p_load->localMembers_(), token);
 
         // React on deviations from the expectation
         token.evaluate();
@@ -711,11 +711,13 @@ protected:
 
     /***************************************************************************/
     /**
-     * The actual value calculation takes place here
+     * The evaluation hook: runs the nested optimization(s) and returns the meta-fitness. For the
+     * multi-criterion target (MC_MINSOLVER_BESTFITNESS) it returns {best-fitness, average-solver-calls};
+     * otherwise a single-element vector.
      *
-     * @return The value of this object, as calculated with the evaluation function
+     * @return The raw result vector (size == getNStoredResults())
      */
-    double fitnessCalculation() override {
+    std::vector<double> evaluate() override {
         // Retrieve the parameters from the flat genome by name (see readTuned()).
         namespace n = oa::ea_tunable;
         const auto v = readTuned();
@@ -726,7 +728,7 @@ protected:
         if(not ind_factory_) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GMetaOptimizerIndividualT<T>::fitnessCalculation(): Error!" << '\n'
+                << "In GMetaOptimizerIndividualT<T>::evaluate(): Error!" << '\n'
                 << "No factory class for individuals has been registered" << '\n'
             );
         }
@@ -755,10 +757,10 @@ protected:
         // The sub-individuals' adaptors live on an OA-owned config (their genome is structure-only). The
         // meta individual OWNS the adaptor parameters it optimises, so it authors that config INLINE here
         // (the inner individuals are single-Gauss). It is built here from a sample genome rather than via
-        // the factory because GFlatIndividualFactory re-applies its config file on every get_(), so
+        // the factory because GIndividualFactory re-applies its config file on every get_(), so
         // programmatic setters on the factory would not stick.
         auto sub_adaption_config = oa::makeAdaptionConfig<oa::GAdaptionConfigBase>(
-            dynamic_cast<const gen::GFlatGenome &>(*ind_factory_->get())
+            dynamic_cast<const gen::GGenome &>(*ind_factory_->get())
         );
         for(std::size_t i = 0; i < sub_adaption_config->doubleGroups().size(); i++) {
             sub_adaption_config->groupDouble(i).gauss(
@@ -798,7 +800,7 @@ protected:
                 // Retrieve an individual
                 std::shared_ptr<gen::GOptimizableEntity> gi_ptr = ind_factory_->get();
 
-                ea_ptr->push_back(std::make_unique<gen::GIndividualSlot>(gi_ptr->clone_unique()));
+                ea_ptr->push_back(gi_ptr->clone_unique());
             }
 
             // Drive the sub-individuals' adaption through the OA-owned config built above.
@@ -868,7 +870,6 @@ protected:
         }
         else if(metaOptimizationTarget::MC_MINSOLVER_BESTFITNESS == mo_target_) {
             evaluation = std::get<0>(best_mean);
-            this->setResult(1, std::get<0>(sd)); // The secondary result
         }
 
         // Emit some information
@@ -879,13 +880,17 @@ protected:
                   << "and a best evaluation of " << std::get<0>(best_mean) << " +/- "
                   << std::get<1>(best_mean) << '\n'
                   << "out of " << n_runs_per_optimization_ << " consecutive runs" << '\n'
-                  << "fitnessCalculation() will return the value " << evaluation << '\n'
+                  << "evaluate() will return the value " << evaluation << '\n'
                   << this->print(false)
                   << '\n' // print without fitness -- not defined at this stage
                   << '\n';
 
-        // Let the audience know
-        return evaluation;
+        // Return the raw result vector: the secondary (average solver calls) is present only for the
+        // multi-criterion target, matching getNStoredResults() (2 vs 1).
+        if(metaOptimizationTarget::MC_MINSOLVER_BESTFITNESS == mo_target_) {
+            return {evaluation, std::get<0>(sd)};
+        }
+        return {evaluation};
     }
 
     /***************************************************************************/
@@ -925,7 +930,7 @@ protected:
         bool result = false;
 
         // Call the parent classes' functions
-        if(gen::GFlatGenome::modify_GUnitTests_()) {
+        if(gen::GGenome::modify_GUnitTests_()) {
             result = true;
         }
 
@@ -959,7 +964,7 @@ protected:
         using namespace Gem::Geneva;
 
         // Call the parent classes' functions
-        gen::GFlatGenome::specificTestsNoFailureExpected_GUnitTests_();
+        gen::GGenome::specificTestsNoFailureExpected_GUnitTests_();
 
         //------------------------------------------------------------------------------
 
@@ -984,7 +989,7 @@ protected:
         using namespace Gem::Geneva;
 
         // Call the parent classes' functions
-        gen::GFlatGenome::specificTestsFailuresExpected_GUnitTests_();
+        gen::GGenome::specificTestsFailuresExpected_GUnitTests_();
 
         //------------------------------------------------------------------------------
 
@@ -1040,9 +1045,9 @@ private:
     /**
      * Creates a deep clone of this object
      *
-     * @return A deep clone of this object, camouflaged as a GFlatGenome
+     * @return A deep clone of this object, camouflaged as a GGenome
      */
-    gen::GFlatGenome *clone_() const final {
+    gen::GGenome *clone_() const final {
         return new GMetaOptimizerIndividualT<ind_type>(*this);
     }
 
@@ -1083,7 +1088,7 @@ std::ostream &operator<<(std::ostream &stream, const GMetaOptimizerIndividualT<i
  * A factory for GMetaOptimizerIndividualT<ind_type> objects.
  *
  * This is intentionally a hand-written factory rather than the generic
- * Gem::Geneva::Genome::GFlatIndividualFactory used by every other individual: a meta-optimizer
+ * Gem::Geneva::Genome::GIndividualFactory used by every other individual: a meta-optimizer
  * COMPOSES a sub-individual's own factory (registerIndividualFactory() clones and stores an
  * ind_type::FACTORYTYPE, which is then injected into each produced meta-individual so it can spawn the
  * inner population it optimises). That is per-factory-instance state handed to each product -- a capability
@@ -1628,7 +1633,7 @@ class GOptOptMonitorT // NOLINT(cppcoreguidelines-special-member-functions)
             boost::serialization::base_object<oa::GBasePluggableOM>(*this)
         );
         // All local members, derived from the single localMembers() declaration (same NVP tags as before).
-        Gem::Common::serialize_members(ar, localMembers_(*this));
+        Gem::Common::serialize_members(ar, this->localMembers_());
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -1636,7 +1641,7 @@ class GOptOptMonitorT // NOLINT(cppcoreguidelines-special-member-functions)
      *  compare_() from one source. Only file_name_ is state; the eight progress curves are declared into
      *  a transient GDataLog at INFOINIT, filled in INFOPROCESSING and written at INFOEND. */
     template <typename Self>
-    static auto localMembers_(Self &self) {
+    auto localMembers_(this Self &self) {
         return std::make_tuple(
             Gem::Common::make_member("file_name_", self.file_name_)
         );
@@ -1711,7 +1716,7 @@ protected:
 
         // Load local data, derived from the single localMembers() declaration (the cloneable plotter
         // pointers are deep-cloned, the plain members assigned).
-        Gem::Common::g_load_members(localMembers_(*this), localMembers_(*p_load));
+        Gem::Common::g_load_members(this->localMembers_(), p_load->localMembers_());
     }
 
     /***************************************************************************/
@@ -1748,7 +1753,7 @@ protected:
         Gem::Common::compare_base_t<oa::GBasePluggableOM>(*this, *p_load, token);
 
         // ... and then our local data, derived from the single localMembers() declaration
-        Gem::Common::g_compare_members(localMembers_(*this), localMembers_(*p_load), token);
+        Gem::Common::g_compare_members(this->localMembers_(), p_load->localMembers_(), token);
 
         // React on deviations from the expectation
         token.evaluate();
@@ -1892,7 +1897,7 @@ private:
             // Extract the requested data. First retrieve the best individual.
             // It can always be found in the first position with evolutionary algorithms
             std::shared_ptr<GMetaOptimizerIndividualT<ind_type>> p =
-                ea->at(0)->individual().clone<GMetaOptimizerIndividualT<ind_type>>();
+                ea->at(0)->clone<GMetaOptimizerIndividualT<ind_type>>();
 
             // Retrieve the best fitness and average sigma value and append them to the data log,
             // in the same { progress, n_parent, n_children, ad_prob, min_sigma, max_sigma,

@@ -58,7 +58,7 @@ constexpr std::size_t SUCCESSCOUNTER = 1;
  * @param e The expectation (equality, similarity or inequality) the comparisons should fulfil
  */
 GToken::GToken(std::string caller, Gem::Common::expectation e)
-  : test_counter_(std::make_tuple(static_cast<std::size_t>(0), static_cast<std::size_t>(0)))
+  : test_counter_(std::make_tuple(0uz, 0uz))
   , caller_(std::move(caller))
   , e_(e) { /* nothing */
 }

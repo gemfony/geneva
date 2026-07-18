@@ -43,6 +43,8 @@
 #include <memory>
 #include <mutex>
 #include <optional>
+#include <ranges>
+#include <span>
 #include <utility>
 #include <vector>
 
@@ -52,6 +54,7 @@
 #include "common/concurrency/GThreadSafeSetT.hpp" // the per-session in-flight borrow set (CheckoutLease)
 #include "courtier/GCourtierEnums.hpp" // CORRELATION_ID_TYPE, dispatchState
 #include "courtier/GBaseConsumerT.hpp"
+#include "courtier/consumers/GNetworkedTimeoutConfig.hpp" // timeoutTreatment + the config struct
 
 namespace Gem::Courtier {
 
@@ -84,16 +87,21 @@ namespace Gem::Courtier {
  * through it but never takes ownership. The only write is checkin() swapping a slot's pointer for the
  * deserialized result -- the population stays the sole owner of its individuals.
  *
- * Timeout / death-detection (unchanged in spirit, now per batch): each dispatch_ waits until its batch
- * is DONE or progress stalls past an ADAPTIVE give-up window (a multiple of the running mean return
- * time, shared across batches). The give-up window only applies ONCE at least one result has ever been
- * received: before that, dispatch_ waits INDEFINITELY, because under a batch-scheduling system the first
- * worker may not enter the pool for minutes or hours. While waiting, where the transport has no
- * client-liveness signal
- * (usesTimeLease(), default true: ASIO/MPI), stuck in-flight items of that batch are reclaimed once
- * they exceed an adaptive LEASE. A transport that detects client death directly (the websocket
- * consumer, via its persistent session + CheckoutLease) reclaims immediately on disconnect and
- * disables the time lease.
+ * Timeout / death-detection (per batch, user-selectable via applyTimeoutConfig()): each dispatch_ waits
+ * until its batch is DONE or progress stalls past a give-up window; items left DO_PROCESS == MISSING are
+ * resubmitted/cloned/failed by the inherited reconciliation loop. The give-up window (and the reclaim lease
+ * below) follow the configured timeoutTreatment:
+ *  - adaptive (the default): a multiple of the running mean return time, clamped -- scale-free, so it
+ *    self-calibrates to an evaluation that may run from microseconds to days;
+ *  - fixed: a user-set fixed window / lease (for a user who knows their time bound);
+ *  - wait_indefinitely: never declare an item MISSING on time (for a reliable cluster + a need-all policy).
+ * The give-up window only applies ONCE at least one result has ever been received: before that, dispatch_
+ * waits INDEFINITELY, because under a batch-scheduling system the first worker may not enter the pool for
+ * minutes or hours. While waiting, where the transport has no client-liveness signal (usesTimeLease(),
+ * default true: ASIO/MPI), stuck in-flight items of that batch are reclaimed once they exceed the reclaim
+ * LEASE. A transport that detects client death directly (the websocket consumer, via its persistent session
+ * + CheckoutLease) reclaims immediately on disconnect and disables the time lease, so it honours the
+ * give-up treatment but is not bound by the time lease.
  *
  * @tparam processable_type The work-item type the consumer schedules to remote clients and reconciles
  */
@@ -123,6 +131,35 @@ public:
     /** @brief Sets the poll interval at which dispatch_ re-evaluates the lease/stall while waiting.
      *  @param w The re-evaluation poll interval */
     void setSweepTick(std::chrono::milliseconds w) { sweep_tick_ = w; }
+    /** @brief Selects the timeout treatment (adaptive / fixed / wait_indefinitely) directly.
+     *  @param t The treatment governing when an unreturned item is declared MISSING */
+    void setTimeoutTreatment(timeoutTreatment t) { treatment_ = t; }
+
+    /***************************************************************************/
+    /**
+     * @brief Applies a networked-consumer timeout configuration (typically read from a config file).
+     *
+     * Sets the treatment and every adaptive/fixed knob from @p cfg. A derived consumer with an additional,
+     * transport-specific timeout (e.g. the ASIO per-exchange session deadline) overrides this to consume the
+     * relevant extra field and then calls the base. This is the SERVER-side "when is an item lost" transport
+     * concern; it is orthogonal to the algorithm's GSubmissionPolicy (what to do about a lost item).
+     *
+     * @param cfg The parsed timeout configuration to apply
+     */
+    virtual void applyTimeoutConfig(const GNetworkedTimeoutConfig &cfg) {
+        treatment_ = cfg.treatmentEnum();
+        ema_alpha_ = cfg.ema_alpha;
+        lease_factor_ = cfg.lease_factor;
+        stall_factor_ = cfg.stall_factor;
+        lease_bootstrap_ = std::chrono::milliseconds(cfg.lease_bootstrap_ms);
+        min_lease_ = std::chrono::milliseconds(cfg.min_lease_ms);
+        max_lease_ = std::chrono::milliseconds(cfg.max_lease_ms);
+        min_stall_ = std::chrono::milliseconds(cfg.min_stall_ms);
+        max_stall_ = std::chrono::milliseconds(cfg.max_stall_ms);
+        sweep_tick_ = std::chrono::milliseconds(cfg.sweep_tick_ms);
+        fixed_stall_window_ = std::chrono::milliseconds(cfg.fixed_stall_window_ms);
+        fixed_lease_ = std::chrono::milliseconds(cfg.fixed_lease_ms);
+    }
 
     /***************************************************************************/
     /**
@@ -132,7 +169,7 @@ public:
      * batch_id is no longer active). With this buffer enabled, such a late arrival -- a genuinely
      * distinct evaluation that simply came back too late to be used this round -- is parked instead
      * of discarded, so an optimization algorithm can reap it via getOldWorkItems() (the
-     * GOptimizerExecutionPolicy reaper enables it via enableLateReturns() and drains it through
+     * GOptimizationAlgorithmBase reaper enables it via enableLateReturns() and drains it through
      * getLateReturns()/getOldWorkItems()). The buffer is bounded two ways: @p cap (max items held; 0 DISABLES buffering, the
      * default) and @p ttl_rounds (a held item is evicted after this many dispatch rounds). Each entry
      * carries the dispatch-round "epoch" at which it was buffered, used only for TTL eviction; the batch
@@ -142,7 +179,7 @@ public:
      *
      * Results-only late returns: a work item returned in the lightweight results-only form (only its
      * computed results travel; its input parameters are grafted back from the originally-submitted item
-     * -- see GProcessingContainerT::graftInputDataFrom) normally cannot be reconstructed once it arrives
+     * -- see GProcessable::graftInputDataFrom) normally cannot be reconstructed once it arrives
      * LATE, because its batch has been reconciled and the original it would graft from is gone. To make
      * such a slow-but-alive worker's result usable, enabling this buffer ALSO makes dispatch_ retain a
      * clone of every un-returned original (keyed by correlation id, bounded by the same cap + ttl_rounds).
@@ -217,7 +254,7 @@ protected:
         // correlation ids (a borrow). The owning copy stays in the consumer's batch; on abandon the
         // lease asks the consumer to requeue those ids.
         Gem::Common::Concurrency::GThreadSafeSetT<Gem::Courtier::CORRELATION_ID_TYPE> in_flight;
-        std::function<void(Gem::Courtier::CORRELATION_ID_TYPE)> on_abandon;
+        std::move_only_function<void(Gem::Courtier::CORRELATION_ID_TYPE)> on_abandon;
 
         CheckoutLease() = default;
         CheckoutLease(const CheckoutLease &) = delete;
@@ -299,29 +336,33 @@ protected:
         }
         BatchState &b = it->second;
         const std::size_t slot = decodeSlot(id);
-        if(slot >= b.items->size() ||
-           (*b.items)[slot]->getDispatchState() != Gem::Courtier::dispatchState::IN_FLIGHT) {
-            return; // out of range, or duplicate / not currently in flight
+        if(slot >= b.items.size() || not b.items[slot] ||
+           b.items[slot]->getDispatchState() != Gem::Courtier::dispatchState::IN_FLIGHT) {
+            return; // out of range, a null (non-participating) slot, or duplicate / not in flight
         }
         // Feed the (shared) adaptive timeout: how long this item took from checkout to return.
         const auto now = clock::now();
         recordReturnTime_(now - b.checked_out_at[slot]);
         b.last_progress = now;
 
-        // Replace the work item in this broker slot with the returned result. The broker deals in bare
-        // individuals; all OA scratch (the personality object) now lives on the population's
-        // GIndividualSlot, NOT on the individual, so replacing the individual is lossless -- the
-        // optimization algorithm swaps the reconciled individual back into its slot, which still holds
-        // its own personality.
-        //
-        // A lightweight "results-only" return carries the computed results but not the (large) input
-        // parameters; the originally-submitted item -- still occupying this slot until the line below --
-        // supplies them, grafted onto the result before it replaces the original.
-        if(p->inputDataOmitted()) {
-            p->graftInputDataFrom(*(*b.items)[slot]);
+        // Reconcile the return INTO the live slot object in place, keeping its heap address (the slot
+        // aliases the live population element). Rather than swapping the returned object in -- which would
+        // free the original and RELOCATE the population element -- we keep the original and absorb only
+        // what the worker computed. The original already holds the submitted parameters and the evolved
+        // OA-owned scratch (the personality object + per-group adaption POD state, which is omitted on the
+        // wire), so:
+        //  - a results-only return leaves the genome untouched; only the computed results are absorbed;
+        //  - a full return (a client that modified the individual, or a transport that always returns the
+        //    whole item, e.g. MPI) first grafts the returned genome onto the original, then absorbs the
+        //    results.
+        // Either way the OA scratch is kept from the original (never re-copied) and, crucially, the
+        // population element never changes address -- so a concurrent per-individual prefetch that holds a
+        // snapshot of population addresses across the submission stays valid.
+        if(not p->inputDataOmitted()) {
+            b.items[slot]->graftInputDataFrom(*p);
         }
-        p->setDispatchState(Gem::Courtier::dispatchState::DONE);
-        (*b.items)[slot] = std::move(p);
+        b.items[slot]->absorbResultsFrom(*p);
+        b.items[slot]->setDispatchState(Gem::Courtier::dispatchState::DONE);
         ++b.done;
         if(b.done == b.target) {
             cv_done_.notify_all(); // each waiting dispatch_ re-checks its own batch
@@ -375,7 +416,7 @@ protected:
      *
      * @param items The round's work items, BORROWED (not owned) for the duration of the call; results are written back into their slots in place
      */
-    void dispatch_(std::vector<item_ptr> &items) override {
+    void dispatch_(std::span<item_ptr> items) override {
         const std::size_t n = items.size();
         if(n == 0) {
             return;
@@ -387,19 +428,28 @@ protected:
             std::scoped_lock lk(mtx_);
             const batch_key_t key = (next_batch_id_++ & BATCH_MASK);
             BatchState b;
-            b.items = &items;
-            b.target = n;
-            b.pending = n;
+            b.items = items;
             b.cursor = 0;
-            b.checked_out_at.assign(n, start);
+            b.checked_out_at.assign(n, start); // indexed by slot (the span index)
             b.last_progress = start;
-            for(std::size_t k = 0; k < n; ++k) {
-                // (batch_id, slot) correlation token; slot is the index into this round's batch.
-                items[k]->setCorrelationId(encodeId(key, k));
-                items[k]->setDispatchState(Gem::Courtier::dispatchState::PENDING);
+            // Select exactly the DO_PROCESS slots of the span for this batch: tag each with its
+            // (batch_id, slot) correlation token (slot == span index) and mark it PENDING. Slots in any
+            // other state -- already resolved, or null -- are left in dispatchState NONE and are ignored
+            // by checkout()/checkin()/leaseSweep(), so the span may carry non-participating slots without
+            // affecting routing or the write-back position.
+            std::size_t n_sel = 0;
+            for(auto&& [k, item] : items | std::views::enumerate) {
+                if(item &&
+                   item->getProcessingStatus() == Gem::Courtier::processingStatus::DO_PROCESS) {
+                    item->setCorrelationId(encodeId(key, static_cast<std::size_t>(k)));
+                    item->setDispatchState(Gem::Courtier::dispatchState::PENDING);
+                    ++n_sel;
+                }
             }
+            b.target = n_sel;
+            b.pending = n_sel;
             my_it = batches_.emplace(key, std::move(b)).first;
-            total_pending_ += n;
+            total_pending_ += n_sel;
         }
         cv_work_.notify_all(); // wake any session blocked in checkoutWait()
 
@@ -438,11 +488,15 @@ protected:
             // (its input parameters reconstructed) and reaped via getOldWorkItems() instead of dropped.
             // Only when buffering is enabled; bounded by the same TTL + cap as the late-return buffer.
             if(late_store_.buffering()) {
-                for(std::size_t k = 0; k < b.items->size(); ++k) {
-                    if((*b.items)[k] &&
-                       (*b.items)[k]->getDispatchState() != Gem::Courtier::dispatchState::DONE) {
-                        late_store_.retain((*b.items)[k]->getCorrelationId(),
-                                           this->clone_item_((*b.items)[k]));
+                for(std::size_t k = 0; k < b.items.size(); ++k) {
+                    // Retain only THIS batch's still-unreturned slots (PENDING/IN_FLIGHT == MISSING):
+                    // a DONE slot already returned, and a NONE slot never participated in this batch.
+                    const auto ds = b.items[k] ? b.items[k]->getDispatchState()
+                                               : Gem::Courtier::dispatchState::NONE;
+                    if(b.items[k] && (ds == Gem::Courtier::dispatchState::PENDING ||
+                                      ds == Gem::Courtier::dispatchState::IN_FLIGHT)) {
+                        late_store_.retain(b.items[k]->getCorrelationId(),
+                                           this->clone_item_(b.items[k]));
                     }
                 }
             }
@@ -513,11 +567,15 @@ private:
                 return;
             }
             p->graftInputDataFrom(**orig);
+            p->graftOaScratchFrom(**orig); // the wire stripped the OA scratch; restore it from the original
             // p is now a complete individual -> fall through to park it
         }
         else {
-            // A full late return makes any retained original for this id redundant.
-            late_store_.dropRetained(id);
+            // A full late return carries its own genome; the retained original is only still needed for
+            // its OA scratch (omitted on the wire), which we graft back before discarding it.
+            if(auto orig = late_store_.takeRetained(id)) {
+                p->graftOaScratchFrom(**orig);
+            }
         }
         if(not late_store_.buffering()) {
             recordLateDrop_locked(1); // buffering off: count the drop, do not hold the item
@@ -550,7 +608,7 @@ private:
     /** @brief Per-batch scheduling state. `items` is a BORROWED pointer to the caller's round vector
      *  (valid only while that call's dispatch_ blocks); everything else is this batch's bookkeeping. */
     struct BatchState {
-        std::vector<item_ptr> *items = nullptr; ///< Borrowed round vector (not owned)
+        std::span<item_ptr> items; ///< Borrowed batch span (not owned); empty by default
         std::size_t target = 0;                 ///< Number of slots in this batch
         std::size_t done = 0;                   ///< Slots that have reached DONE
         std::size_t pending = 0;                ///< Slots currently PENDING (awaiting a client)
@@ -574,13 +632,16 @@ private:
                 it = batches_.begin();
             }
             BatchState &b = it->second;
-            while(b.cursor < b.items->size() &&
-                  (*b.items)[b.cursor]->getDispatchState() != Gem::Courtier::dispatchState::PENDING) {
+            // Skip non-participating slots: null entries and anything not PENDING (see dispatch_'s
+            // selection comment -- the span may carry null / already-resolved slots).
+            while(b.cursor < b.items.size() &&
+                  (not b.items[b.cursor] ||
+                   b.items[b.cursor]->getDispatchState() != Gem::Courtier::dispatchState::PENDING)) {
                 ++b.cursor;
             }
-            if(b.cursor < b.items->size()) {
+            if(b.cursor < b.items.size()) {
                 const std::size_t k = b.cursor++;
-                (*b.items)[k]->setDispatchState(Gem::Courtier::dispatchState::IN_FLIGHT);
+                b.items[k]->setDispatchState(Gem::Courtier::dispatchState::IN_FLIGHT);
                 b.checked_out_at[k] = clock::now();
                 --b.pending;
                 --total_pending_;
@@ -588,7 +649,7 @@ private:
                 // Hand the session a clone to serialize and ship; the owning copy stays in the slot,
                 // marked IN_FLIGHT. Its correlation id rides the clone, so checkin() finds the slot again.
                 // Clone via the consumer's type-generic helper (polymorphic functor or copy-construct).
-                return this->clone_item_((*b.items)[k]);
+                return this->clone_item_(b.items[k]);
             }
             ++it;
         }
@@ -602,11 +663,11 @@ private:
      *  @param slot The slot index to flip back to PENDING
      *  @return true if the slot was flipped; false if it was out of range or not currently IN_FLIGHT */
     bool requeueSlot_locked(BatchState &b, std::size_t slot) {
-        if(slot >= b.items->size() ||
-           (*b.items)[slot]->getDispatchState() != Gem::Courtier::dispatchState::IN_FLIGHT) {
+        if(slot >= b.items.size() || not b.items[slot] ||
+           b.items[slot]->getDispatchState() != Gem::Courtier::dispatchState::IN_FLIGHT) {
             return false;
         }
-        (*b.items)[slot]->setDispatchState(Gem::Courtier::dispatchState::PENDING);
+        b.items[slot]->setDispatchState(Gem::Courtier::dispatchState::PENDING);
         ++b.pending;
         ++total_pending_;
         if(slot < b.cursor) {
@@ -623,8 +684,9 @@ private:
     void leaseSweep_locked(BatchState &b, clock::time_point now) {
         const auto lease = currentLease();
         bool any = false;
-        for(std::size_t k = 0; k < b.items->size(); ++k) {
-            if((*b.items)[k]->getDispatchState() == Gem::Courtier::dispatchState::IN_FLIGHT &&
+        for(std::size_t k = 0; k < b.items.size(); ++k) {
+            if(b.items[k] &&
+               b.items[k]->getDispatchState() == Gem::Courtier::dispatchState::IN_FLIGHT &&
                (now - b.checked_out_at[k]) > lease) {
                 any = requeueSlot_locked(b, k) || any;
             }
@@ -648,16 +710,29 @@ private:
         ++n_return_samples_;
     }
 
+protected:
     /***************************************************************************/
     /** @brief The current reclaim lease: a multiple of the running mean return time (clamped), or a
-     *  bootstrap value until the first return has been observed.
+     *  bootstrap value until the first return has been observed. Protected so a derived transport (and the
+     *  timeout tests) can inspect the treatment-driven value.
      *  @return The current reclaim lease duration */
     std::chrono::milliseconds currentLease() const {
-        if(n_return_samples_ == 0) {
-            return lease_bootstrap_;
+        switch(treatment_) {
+            case timeoutTreatment::wait_indefinitely:
+                // Never reclaim on time: no time lease can ever elapse (liveness-driven reclaim, e.g. a
+                // websocket disconnect, still applies independently).
+                return kNeverWindow_;
+            case timeoutTreatment::fixed:
+                return fixed_lease_;
+            case timeoutTreatment::adaptive:
+            default:
+                if(n_return_samples_ == 0) {
+                    return lease_bootstrap_;
+                }
+                const auto v =
+                    std::chrono::milliseconds(static_cast<long long>(lease_factor_ * mean_return_ms_));
+                return std::clamp(v, min_lease_, max_lease_);
         }
-        const auto v = std::chrono::milliseconds(static_cast<long long>(lease_factor_ * mean_return_ms_));
-        return std::clamp(v, min_lease_, max_lease_);
     }
 
     /***************************************************************************/
@@ -667,10 +742,22 @@ private:
      *  the first return ever arrives), so there is no pre-sample fallback here.
      *  @return The current give-up (stall) window duration */
     std::chrono::milliseconds currentStallWindow() const {
-        const auto v = std::chrono::milliseconds(static_cast<long long>(stall_factor_ * mean_return_ms_));
-        return std::clamp(v, min_stall_, max_stall_);
+        switch(treatment_) {
+            case timeoutTreatment::wait_indefinitely:
+                // Never give up on time: the stall window can never elapse, so no item is declared MISSING
+                // for lateness (a genuinely dead client is still detected by liveness where available).
+                return kNeverWindow_;
+            case timeoutTreatment::fixed:
+                return fixed_stall_window_;
+            case timeoutTreatment::adaptive:
+            default:
+                const auto v =
+                    std::chrono::milliseconds(static_cast<long long>(stall_factor_ * mean_return_ms_));
+                return std::clamp(v, min_stall_, max_stall_);
+        }
     }
 
+private:
     mutable std::mutex mtx_;
     std::condition_variable cv_done_; ///< Signalled when a batch's last slot reaches DONE
     std::condition_variable cv_work_; ///< Signalled when a slot becomes available
@@ -685,7 +772,7 @@ private:
     //     RETAINED (keyed by correlation id) so a late results-only return can still be grafted. Both live
     //     in one shared aging store (FIFO + keyed faces, one epoch + cap + TTL); the epoch advances once
     //     per retired batch. Disabled by default (cap == 0); when enabled, the OA-side reaper
-    //     (GOptimizerExecutionPolicy, via enableLateReturns() / getOldWorkItems()) drains the FIFO. The
+    //     (GOptimizationAlgorithmBase, via enableLateReturns() / getOldWorkItems()) drains the FIFO. The
     //     graft-or-drop policy and the drop accounting below are the consumer's; the store is invoked
     //     under mtx_, so its operations stay consistent with the batch bookkeeping. ---
     Gem::Common::Concurrency::GAgingStoreT<Gem::Courtier::CORRELATION_ID_TYPE, item_ptr> late_store_;
@@ -696,6 +783,18 @@ private:
     std::size_t n_return_samples_ = 0;  ///< Returns observed so far (across all batches)
 
     std::atomic<bool> stop_{false};
+
+    // --- timeout treatment (see timeoutTreatment): adaptive (scale-free, the default) declares MISSING /
+    //     reclaims relative to the running mean; fixed uses the two fixed windows below; wait_indefinitely
+    //     never declares MISSING on time. Selected from the config file via applyTimeoutConfig(). ---
+    timeoutTreatment treatment_ = timeoutTreatment::adaptive;
+    std::chrono::milliseconds fixed_stall_window_{300'000}; ///< give-up window when treatment_ == fixed
+    std::chrono::milliseconds fixed_lease_{300'000};        ///< reclaim lease when treatment_ == fixed
+    // The "never" window/lease for wait_indefinitely. A finite but astronomically large value (100 years)
+    // rather than milliseconds::max(): it is compared against a steady_clock (nanosecond) duration, and
+    // max() would overflow int64 when the comparison promotes it to nanoseconds, whereas 100 years in ns
+    // (~3.15e18) stays well within range and can never elapse in a real run.
+    static constexpr std::chrono::milliseconds kNeverWindow_{100LL * 365 * 24 * 3600 * 1000};
 
     // --- adaptive-timeout configuration (sane defaults; tunable via the setters) ---
     double ema_alpha_ = 0.25;   ///< EMA weight for new return-time samples

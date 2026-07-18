@@ -99,7 +99,7 @@ void GThreadPool::start_workers(unsigned int n) {
  * @return true if the task was enqueued; false if the queue was closed (pool shutting down),
  *         in which case the in-flight counter is left unchanged
  */
-bool GThreadPool::enqueue(std::function<void()> task) {
+bool GThreadPool::enqueue(std::move_only_function<void()> task) {
     std::shared_lock<std::shared_mutex> sub_lck(submission_mutex_);
     {
         std::scoped_lock<std::mutex> cnt_lck(counter_mutex_);

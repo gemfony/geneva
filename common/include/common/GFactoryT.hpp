@@ -46,7 +46,7 @@
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/xml_iarchive.hpp>
 #include <boost/archive/xml_oarchive.hpp>
-#include <boost/property_tree/ptree.hpp>
+#include <boost/json.hpp>
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/export.hpp>
 #include <boost/serialization/map.hpp>
@@ -173,8 +173,8 @@ public:
             // init_mutex_ deliberately not copied: synchronisation primitives
             // do not carry over with the logical value of the object.
             // Invalidate the parse cache: config_path_ may have changed.
-            config_ptree_.clear();
-            config_ptree_cached_ = false;
+            config_document_ = {};
+            config_document_cached_ = false;
         }
         return *this;
     }
@@ -190,8 +190,8 @@ public:
             config_path_ = std::move(cp.config_path_);
             initialized_ = cp.initialized_;
             // Invalidate the parse cache: config_path_ may have changed.
-            config_ptree_.clear();
-            config_ptree_cached_ = false;
+            config_document_ = {};
+            config_document_cached_ = false;
         }
         return *this;
     }
@@ -381,26 +381,26 @@ protected:
         std::shared_ptr<prod_type> p = this->getObject_(gpb);
 
         // Read + parse the configuration file only ONCE: the first call captures the
-        // parsed ptree, every subsequent call re-applies the cached ptree to the
+        // parsed document, every subsequent call re-applies the cached document to the
         // freshly created object (no disk I/O / JSON re-parse). The file does not
         // change between produce() calls, so this is purely an efficiency win.
         {
             std::scoped_lock config_lock(init_mutex_);
-            if(config_ptree_cached_) {
-                // Re-apply the cached ptree to this freshly produced object. The
+            if(config_document_cached_) {
+                // Re-apply the cached document to this freshly produced object. The
                 // unknown-key diagnostic already ran on the first (real) parse, so
                 // skip it here -- otherwise it would re-run per produced object.
-                gpb.loadFromPtree(config_ptree_, config_path_, /* run_unknown_key_check = */ false);
+                gpb.loadFromDocument(config_document_, config_path_, /* run_unknown_key_check = */ false);
             }
             else {
-                if(not gpb.parseConfigFile(config_path_, &config_ptree_)) {
+                if(not gpb.parseConfigFile(config_path_, &config_document_)) {
                     throw geneva_exception(
                         g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                         << "In GFactoryT<prod_type>::operator(): Error!" << '\n'
                         << "Could not parse configuration file " << config_path_.string() << '\n'
                     );
                 }
-                config_ptree_cached_ = true;
+                config_document_cached_ = true;
             }
         }
 
@@ -451,9 +451,9 @@ private:
 
     // Transient parse cache (NOT serialized; reset to empty/false on copy, move and
     // deserialization via the default member initialisers). The config file is read
-    // and parsed only on the first get_(); later calls re-apply this cached ptree.
-    boost::property_tree::ptree config_ptree_; ///< Cached parsed configuration (transient)
-    bool config_ptree_cached_ = false;           ///< Whether config_ptree_ has been populated
+    // and parsed only on the first get_(); later calls re-apply this cached document.
+    boost::json::value config_document_; ///< Cached parsed configuration document (transient)
+    bool config_document_cached_ = false;  ///< Whether config_document_ has been populated
 };
 
 /******************************************************************************/

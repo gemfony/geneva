@@ -33,10 +33,12 @@
 #include "common/GGlobalDefines.hpp"
 
 // Standard header files go here
+#include <algorithm>
 #include <cmath>
 #include <cstdint>
 #include <istream>
 #include <ostream>
+#include <ranges>
 #include <string>
 #include <type_traits>
 #include <vector>
@@ -48,7 +50,7 @@
 #include "geneva/ind/GAdaptionAuxKeys.hpp"
 #include "geneva/ind/GAdaptionKernels.hpp"
 #include "geneva/ind/GAuxiliaryStore.hpp"
-#include "geneva/ind/GFlatGenome.hpp"
+#include "geneva/ind/GGenome.hpp"
 #include "geneva/ind/GGenomeLayout.hpp"
 
 namespace Gem::Geneva::OptimizationAlgorithms {
@@ -61,7 +63,7 @@ using Gem::Geneva::Genome::ChannelTag;
 using Gem::Geneva::Genome::FlipConfig;
 using Gem::Geneva::Genome::GaussConfig;
 using Gem::Geneva::Genome::GAuxiliaryStore;
-using Gem::Geneva::Genome::GFlatGenome;
+using Gem::Geneva::Genome::GGenome;
 using Gem::Geneva::Genome::GGenomeLayout;
 using Gem::Geneva::Genome::GroupRef;
 using Gem::Geneva::Genome::GroupSpec;
@@ -425,6 +427,76 @@ public:
     }
 
     /**
+     * @brief Applies a bi-Gauss adaptor to the labelled floating-point (double + float) groups,
+     * mirroring the per-index handle's biGauss() so a labelled bi-Gauss group is authorable by name.
+     *
+     * @param sigma1 The initial step width of the first Gaussian
+     * @param sigma_sigma1 The self-adaption strength applied to sigma1
+     * @param min_sigma1 The lower clamp for sigma1
+     * @param max_sigma1 The upper clamp for sigma1
+     * @param sigma2 The initial step width of the second Gaussian
+     * @param sigma_sigma2 The self-adaption strength applied to sigma2
+     * @param min_sigma2 The lower clamp for sigma2
+     * @param max_sigma2 The upper clamp for sigma2
+     * @param delta The initial distance between the two Gaussian peaks
+     * @param sigma_delta The self-adaption strength applied to delta
+     * @param min_delta The lower clamp for delta
+     * @param max_delta The upper clamp for delta
+     * @param ad_prob The probability that a given parameter is adapted
+     * @param use_symmetric_sigmas If true, both Gaussians share a single sigma (default false)
+     * @param adapt_ad_prob The self-adaption strength applied to ad_prob (default 0, i.e. fixed)
+     * @param adaption_threshold The number of calls after which sigmas are self-adapted (default 1)
+     * @param mode The adaption mode (default WITHPROBABILITY)
+     * @param min_ad_prob The lower clamp for ad_prob during self-adaption (default 0)
+     * @param max_ad_prob The upper clamp for ad_prob during self-adaption (default 1)
+     * @return A reference to this handle, for fluent chaining
+     */
+    GLabelConfigHandle &biGauss(
+        double sigma1,
+        double sigma_sigma1,
+        double min_sigma1,
+        double max_sigma1,
+        double sigma2,
+        double sigma_sigma2,
+        double min_sigma2,
+        double max_sigma2,
+        double delta,
+        double sigma_delta,
+        double min_delta,
+        double max_delta,
+        double ad_prob,
+        bool use_symmetric_sigmas = false,
+        double adapt_ad_prob = 0.,
+        std::uint32_t adaption_threshold = 1,
+        adaptionMode mode = adaptionMode::WITHPROBABILITY,
+        double min_ad_prob = 0.,
+        double max_ad_prob = 1.
+    ) {
+        if(d_.size() > 0) {
+            d_.biGauss(
+                sigma1, sigma_sigma1, min_sigma1, max_sigma1, sigma2, sigma_sigma2, min_sigma2,
+                max_sigma2, delta, sigma_delta, min_delta, max_delta, ad_prob,
+                use_symmetric_sigmas, adapt_ad_prob, adaption_threshold, mode, min_ad_prob,
+                max_ad_prob
+            );
+        }
+        if(f_.size() > 0) {
+            f_.biGauss(
+                static_cast<float>(sigma1), static_cast<float>(sigma_sigma1),
+                static_cast<float>(min_sigma1), static_cast<float>(max_sigma1),
+                static_cast<float>(sigma2), static_cast<float>(sigma_sigma2),
+                static_cast<float>(min_sigma2), static_cast<float>(max_sigma2),
+                static_cast<float>(delta), static_cast<float>(sigma_delta),
+                static_cast<float>(min_delta), static_cast<float>(max_delta),
+                static_cast<float>(ad_prob), use_symmetric_sigmas,
+                static_cast<float>(adapt_ad_prob), adaption_threshold, mode,
+                static_cast<float>(min_ad_prob), static_cast<float>(max_ad_prob)
+            );
+        }
+        return *this;
+    }
+
+    /**
      * @brief Applies an integer Gauss adaptor to the labelled int32 groups.
      *
      * @param sigma The initial step width (standard deviation) of the Gaussian
@@ -515,8 +587,8 @@ private:
  *
  * The base owns the OA-agnostic machinery: existence-validated authoring, a structural signature +
  * checkConsistency(genome) cross-check (so a genome and a config can be verified as belonging
- * together), label resolution, and the install-state-into-aux hook. Derived classes (GEAAdaptionConfig
- * / GSAAdaptionConfig) are the per-OA types.
+ * together), label resolution, and the install-state-into-aux hook. A per-OA subclass (e.g.
+ * GEAAdaptionConfig) may add algorithm-specific configuration on top.
  */
 class GAdaptionConfigBase {
 public:
@@ -525,7 +597,7 @@ public:
      *
      * @param genome The genome whose (structure-only) layout is snapshotted into this config
      */
-    explicit GAdaptionConfigBase(const GFlatGenome &genome) { initFrom(*genome.getLayout()); }
+    explicit GAdaptionConfigBase(const GGenome &genome) { initFrom(*genome.getLayout()); }
     /**
      * @brief Builds a config describing exactly the groups of the passed layout.
      *
@@ -613,7 +685,7 @@ public:
      *
      * @param genome The genome whose layout is cross-checked against this config's group structure
      */
-    void checkConsistency(const GFlatGenome &genome) const { checkConsistency(*genome.getLayout()); }
+    void checkConsistency(const GGenome &genome) const { checkConsistency(*genome.getLayout()); }
 
     /**
      * @brief Throws unless the passed layout has exactly the structure this config was authored against.
@@ -670,7 +742,7 @@ public:
     /**
      * @brief Seeds the per-group adaption state blocks into an OA-owned auxiliary store (the slot's
      * scratch) from this config (one block per adaptor kind + channel that is actually used). The
-     * per-group adaption state is OA scratch and lives on the GIndividualSlot, NOT on the individual,
+     * per-group adaption state is OA scratch carried on the individual itself (its GAuxiliaryStore),
      * so the seeding targets a GAuxiliaryStore directly. The seeds also serve as the reset targets used
      * by the stall-reset free function.
      *
@@ -700,6 +772,25 @@ public:
     const std::vector<GroupSpec<bool>> &boolGroups() const { return b_; }
     /** @brief Read access to the interned label table. @return The vector of label strings (indexed by label id). */
     const std::vector<std::string> &labels() const { return labels_; }
+
+    /***************************************************************************/
+    // Adaption-retry policy (moved off the individual). Bounds adaptIndividual()'s retry loop.
+
+    /** @brief Sets the max consecutive unsuccessful adaptions per adaption (0 disables the check).
+     *  @param max_unsuccessful_adaptions The maximum number of consecutive unsuccessful adaptions */
+    void setMaxUnsuccessfulAdaptions(std::size_t max_unsuccessful_adaptions) {
+        max_unsuccessful_adaptions_ = max_unsuccessful_adaptions;
+    }
+    /** @brief @return The max consecutive unsuccessful adaptions per adaption */
+    std::size_t getMaxUnsuccessfulAdaptions() const { return max_unsuccessful_adaptions_; }
+
+    /** @brief Sets the max adaption retries until a valid solution is found (0 disables the check).
+     *  @param max_retries_until_valid The maximum number of retries */
+    void setMaxRetriesUntilValid(std::size_t max_retries_until_valid) {
+        max_retries_until_valid_ = max_retries_until_valid;
+    }
+    /** @brief @return The max adaption retries until a valid solution is found */
+    std::size_t getMaxRetriesUntilValid() const { return max_retries_until_valid_; }
 
     /***************************************************************************/
     // Step-size-control strategy (used by GEvolutionaryAlgorithm; default reproduces the
@@ -921,9 +1012,8 @@ private:
                 << ", genome has " << layout.size() << '\n'
             );
         }
-        for(std::size_t gi = 0; gi < cfg.size(); ++gi) {
-            if(cfg[gi].start != layout[gi].start || cfg[gi].len != layout[gi].len ||
-               cfg[gi].label_id != layout[gi].label_id) {
+        for(auto const &[gi, c, l] : std::views::zip(std::views::iota(0uz), cfg, layout)) {
+            if(c.start != l.start || c.len != l.len || c.label_id != l.label_id) {
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                     << "In GAdaptionConfigBase::checkConsistency(): Error!" << '\n'
@@ -961,7 +1051,7 @@ private:
     }
 
     /***************************************************************************/
-    // State seeding helpers (mirror GFlatGenome::installAdaptionStates).
+    // State seeding helpers (mirror GGenome::installAdaptionStates).
 
     /**
      * @brief Installs and seeds a per-group Gauss state block into the scratch store (no-op if no group uses Gauss).
@@ -975,19 +1065,16 @@ private:
     static void seedGauss(GAuxiliaryStore &scratch, const std::vector<GroupSpec<T>> &groups, Gem::Geneva::Genome::AuxKey key) {
         using Gem::Geneva::Genome::GaussState;
         using Gem::Geneva::Genome::AuxScope;
-        bool any = false;
-        for(const GroupSpec<T> &g : groups) {
-            if(g.has_gauss) { any = true; break; }
-        }
+        bool any = std::ranges::any_of(groups, [](const GroupSpec<T> &g) { return g.has_gauss; });
         if(not any) {
             return;
         }
         scratch.installAuxBlock<GaussState<adaption_fp_t<T>>>(key, groups.size(), AuxScope::PerIndividual);
         std::span<GaussState<adaption_fp_t<T>>> states = scratch.metaRecords<GaussState<adaption_fp_t<T>>>(key);
-        for(std::size_t gi = 0; gi < groups.size(); ++gi) {
-            states[gi].sigma = groups[gi].start_sigma;
-            states[gi].ad_prob = groups[gi].start_ad_prob;
-            states[gi].counter = 0;
+        for(auto const &[state, group] : std::views::zip(states, groups)) {
+            state.sigma = group.start_sigma;
+            state.ad_prob = group.start_ad_prob;
+            state.counter = 0;
         }
     }
 
@@ -1003,21 +1090,18 @@ private:
     static void seedBiGauss(GAuxiliaryStore &scratch, const std::vector<GroupSpec<T>> &groups, Gem::Geneva::Genome::AuxKey key) {
         using Gem::Geneva::Genome::BiGaussState;
         using Gem::Geneva::Genome::AuxScope;
-        bool any = false;
-        for(const GroupSpec<T> &g : groups) {
-            if(g.has_bigauss) { any = true; break; }
-        }
+        bool any = std::ranges::any_of(groups, [](const GroupSpec<T> &g) { return g.has_bigauss; });
         if(not any) {
             return;
         }
         scratch.installAuxBlock<BiGaussState<adaption_fp_t<T>>>(key, groups.size(), AuxScope::PerIndividual);
         std::span<BiGaussState<adaption_fp_t<T>>> states = scratch.metaRecords<BiGaussState<adaption_fp_t<T>>>(key);
-        for(std::size_t gi = 0; gi < groups.size(); ++gi) {
-            states[gi].sigma1 = groups[gi].start_sigma1;
-            states[gi].sigma2 = groups[gi].start_sigma2;
-            states[gi].delta = groups[gi].start_delta;
-            states[gi].ad_prob = groups[gi].start_ad_prob;
-            states[gi].counter = 0;
+        for(auto const &[state, group] : std::views::zip(states, groups)) {
+            state.sigma1 = group.start_sigma1;
+            state.sigma2 = group.start_sigma2;
+            state.delta = group.start_delta;
+            state.ad_prob = group.start_ad_prob;
+            state.counter = 0;
         }
     }
 
@@ -1033,17 +1117,14 @@ private:
     static void seedFlip(GAuxiliaryStore &scratch, const std::vector<GroupSpec<T>> &groups, Gem::Geneva::Genome::AuxKey key) {
         using Gem::Geneva::Genome::FlipState;
         using Gem::Geneva::Genome::AuxScope;
-        bool any = false;
-        for(const GroupSpec<T> &g : groups) {
-            if(g.has_flip) { any = true; break; }
-        }
+        bool any = std::ranges::any_of(groups, [](const GroupSpec<T> &g) { return g.has_flip; });
         if(not any) {
             return;
         }
         scratch.installAuxBlock<FlipState>(key, groups.size(), AuxScope::PerIndividual);
         std::span<FlipState> states = scratch.metaRecords<FlipState>(key);
-        for(std::size_t gi = 0; gi < groups.size(); ++gi) {
-            states[gi].ad_prob = groups[gi].start_ad_prob;
+        for(auto const &[state, group] : std::views::zip(states, groups)) {
+            state.ad_prob = group.start_ad_prob;
         }
     }
 
@@ -1056,6 +1137,15 @@ private:
     std::vector<std::string> labels_;
 
     /***************************************************************************/
+    // Adaption-retry policy (moved off the individual: the retry loop is an OA-owned adaption concern,
+    // not per-individual data). Bounds the "guarantee a change, then a valid solution" loop in
+    // adaptIndividual(). Defaults reproduce the previous per-individual values.
+    std::size_t max_unsuccessful_adaptions_ =
+        Gem::Geneva::DEFMAXUNSUCCESSFULADAPTIONS; ///< Max consecutive unsuccessful adaptions per adaption (0 disables)
+    std::size_t max_retries_until_valid_ =
+        Gem::Geneva::DEFMAXRETRIESUNTILVALID; ///< Max adaption retries until a valid solution is found (0 disables)
+
+    /***************************************************************************/
     // Step-size-control strategy + its tunables. The default reproduces the classic σSA behaviour, so
     // a config used by the stock EA is byte-identical to before.
     stepControl step_control_ = stepControl::SELF_ADAPT; ///< the step-size-control strategy
@@ -1065,13 +1155,6 @@ private:
 /******************************************************************************/
 /** @brief The evolutionary-algorithm adaption configuration. */
 class GEAAdaptionConfig : public GAdaptionConfigBase {
-public:
-    using GAdaptionConfigBase::GAdaptionConfigBase;
-};
-
-/******************************************************************************/
-/** @brief The simulated-annealing adaption configuration. */
-class GSAAdaptionConfig : public GAdaptionConfigBase {
 public:
     using GAdaptionConfigBase::GAdaptionConfigBase;
 };

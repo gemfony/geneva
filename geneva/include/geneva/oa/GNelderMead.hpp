@@ -42,7 +42,6 @@
 
 // Geneva headers go here
 #include "common/GExceptions.hpp"
-#include "dietrich/GPlotDesigner.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/ind/GOptimizableEntity.hpp"
 #include "geneva/oa/GOptimizationAlgorithmBase.hpp"
@@ -160,7 +159,7 @@ private:
     // The member list is written ONCE, in the static template helper below; the two localMembers()
     // overloads are trivial forwarders. Self is deduced as the (const) class type.
     template <typename Self>
-    static auto localMembers_(Self &self) {
+    auto localMembers_(this Self &self) {
         return std::make_tuple(
             Gem::Common::make_member("n_simplices_", self.n_simplices_),
             Gem::Common::make_member("n_fp_parms_first_", self.n_fp_parms_first_),
@@ -180,7 +179,7 @@ private:
         ar &make_nvp("GOptimizationAlgorithmBase", boost::serialization::base_object<GOptimizationAlgorithmBase>(*this));
         // Member list derived from the single localMembers() declaration (same NVP
         // names/order as the previous explicit list).
-        Gem::Common::serialize_members(ar, localMembers_(*this));
+        Gem::Common::serialize_members(ar, this->localMembers_());
     }
 
     ///////////////////////////////////////////////////////////////////////
@@ -351,11 +350,6 @@ private:
     /** @brief Triggers fitness calculation of a number of individuals */
     void runFitnessCalculation_() override;
 
-    /**
-     * @brief Retrieves the number of processable items for the current iteration.
-     * @return The number of individuals that need to be evaluated in the current iteration
-     */
-    std::size_t getNProcessableItems_() const override;
 
     /**
      * @brief Retrieve a GPersonalityTraits object belonging to this algorithm.

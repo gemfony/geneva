@@ -1081,9 +1081,8 @@ public:
                 << "Tried to count with an empty smart pointer." << '\n'
             );
         }
-        return Gem::Common::narrow<size_type>(std::count_if(
-            data_cnt_.begin(),
-            data_cnt_.end(),
+        return Gem::Common::narrow<size_type>(std::ranges::count_if(
+            data_cnt_,
             [&item](const StoredType &cont_item) -> bool {
                 auto cast = std::dynamic_pointer_cast<ItemType>(cont_item);
                 return cast && (*item == *cast);
@@ -1111,9 +1110,8 @@ public:
                 << "Tried to find an empty smart pointer." << '\n'
             );
         }
-        return std::find_if(
-            data_cnt_.begin(),
-            data_cnt_.end(),
+        return std::ranges::find_if(
+            data_cnt_,
             [&item](const StoredType &cont_item) -> bool {
                 auto cast = std::dynamic_pointer_cast<ItemType>(cont_item);
                 return cast && (*item == *cast);
@@ -1248,11 +1246,7 @@ public:
         for(std::size_t i = 0; i < count; ++i) {
             clones.push_back(clone_into_stored(item_ptr));
         }
-        data_cnt_.insert(
-            pos,
-            std::make_move_iterator(clones.begin()),
-            std::make_move_iterator(clones.end())
-        );
+        data_cnt_.insert_range(pos, clones | std::views::as_rvalue);
     }
 
     /**
@@ -1313,11 +1307,7 @@ public:
         for(std::size_t i = 0; i < count - 1; ++i) {
             to_insert.push_back(clone_into_stored(to_insert.front()));
         }
-        data_cnt_.insert(
-            pos,
-            std::make_move_iterator(to_insert.begin()),
-            std::make_move_iterator(to_insert.end())
-        );
+        data_cnt_.insert_range(pos, to_insert | std::views::as_rvalue);
     }
 
     // ------------------------------------------------------------------

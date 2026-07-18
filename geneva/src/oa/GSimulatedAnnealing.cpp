@@ -34,7 +34,6 @@
 #include "common/GLogger.hpp"
 #include "common/GParserBuilder.hpp"
 #include "common/concurrency/GThreadPool.hpp"
-#include "courtier/GProcessingContainerT.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/GPersonalityTraits.hpp"
 #include "geneva/GenevaHelperFunctions.hpp"
@@ -44,7 +43,7 @@
 #include "geneva/oa/GAdaption.hpp"
 #include "geneva/oa/GAdaptionConfig.hpp"
 #include "geneva/ind/GOptimizableEntity.hpp"
-#include "geneva/ind/GFlatGenome.hpp"
+#include "geneva/ind/GGenome.hpp"
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
@@ -107,7 +106,7 @@ using namespace Gem::Common::Concurrency;
     Gem::Common::compare_base_t<GParChild>(*this, *p_load, token);
 
     // ... and then the local data, derived from the single localMembers() declaration
-    g_compare_members(localMembers_(*this), localMembers_(*p_load), token);
+    g_compare_members(this->localMembers_(), p_load->localMembers_(), token);
 
     // React on deviations from the expectation
     token.evaluate();
@@ -239,7 +238,7 @@ void GSimulatedAnnealing::load_(const GOptimizationAlgorithmBase *cp) {
     GParChild::load_(cp);
 
     // ... and then our own data, derived from the single localMembers() declaration
-    Gem::Common::g_load_members(localMembers_(*this), localMembers_(*p_load));
+    Gem::Common::g_load_members(this->localMembers_(), p_load->localMembers_());
 }
 
 /******************************************************************************/
@@ -287,7 +286,7 @@ void GSimulatedAnnealing::runFitnessCalculation_() {
     // through this function. There MAY be situations, where in the first iteration
     // parents are clean, e.g. when they were extracted from another optimization.
     for(std::size_t i = this->getNParents(); i < this->size(); i++) {
-        if(not this->at(i)->individual().is_due_for_processing()) {
+        if(not this->at(i)->is_due_for_processing()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GSimulatedAnnealing::runFitnessCalculation(): Error!" << '\n'
@@ -306,35 +305,7 @@ void GSimulatedAnnealing::runFitnessCalculation_() {
 
     //--------------------------------------------------------------------------------
     // Take care of unprocessed items, if these exist. We simply remove them and continue.
-    if(not status.is_complete) {
-        std::size_t n_erased =
-            std::erase_if(this->data_cnt_, [this](const std::unique_ptr<gen::GIndividualSlot> &p) -> bool {
-                return (p->individual().getProcessingStatus() == Gem::Courtier::processingStatus::DO_PROCESS);
-            });
-
-#ifdef DEBUG
-        glogger << "In GSimulatedAnnealing::runFitnessCalculation(): " << '\n'
-                << "Removed " << n_erased << " unprocessed work items in iteration "
-                << this->getIteration() << '\n'
-                << GLOGGING;
-#endif
-    }
-
-    // Remove items for which an error has occurred during processing
-    // We simply remove them and continue.
-    if(status.has_errors) {
-        std::size_t n_erased =
-            std::erase_if(this->data_cnt_, [this](const std::unique_ptr<gen::GIndividualSlot> &p) -> bool {
-                return p->individual().has_errors();
-            });
-
-#ifdef DEBUG
-        glogger << "In GSimulatedAnnealing::runFitnessCalculation(): " << '\n'
-                << "Removed " << n_erased << " erroneous work items in iteration "
-                << this->getIteration() << '\n'
-                << GLOGGING;
-#endif
-    }
+    this->discardUnusableItems_(status, "GSimulatedAnnealing::runFitnessCalculation()");
 
     //--------------------------------------------------------------------------------
     // Now fix the population -- it may be smaller than its nominal size
@@ -386,15 +357,6 @@ void GSimulatedAnnealing::selectBest_() {
   *
   * @return A tuple holding the half-open [start, end) range of population positions to be evaluated
   */
-std::tuple<std::size_t, std::size_t> GSimulatedAnnealing::getEvaluationRange_() const {
-    // We evaluate all individuals in the first iteration This happens so pluggable
-    // optimization monitors do not need to distinguish between algorithms
-    return std::tuple<std::size_t, std::size_t>{
-        this->inFirstIteration() ? 0 : this->getNParents(),
-        this->size()
-    };
-}
-
 /******************************************************************************/
 /**
   * @brief Retrieve a GPersonalityTraits object belonging to this algorithm
@@ -411,21 +373,19 @@ std::shared_ptr<GPersonalityTraits> GSimulatedAnnealing::getPersonalityTraits_()
  */
 void GSimulatedAnnealing::sortSAMode() {
     // Position the n_parents best children of the population right behind the parents
-    std::partial_sort(
+    std::ranges::partial_sort(
         this->begin() + this->n_parents_,
         this->begin() + 2 * this->n_parents_,
         this->end(),
-        [](const auto &x_ptr, const auto &y_ptr) -> bool {
-            return minOnly_transformed_fitness(x_ptr->individual()) <
-                   minOnly_transformed_fitness(y_ptr->individual());
-        }
+        std::ranges::less{},
+        [](const auto &p) static { return minOnly_transformed_fitness(*p); }
     );
 
     // Check for each parent whether it should be replaced by the corresponding child
     for(std::size_t np = 0; np < this->n_parents_; np++) {
         double p_pass = saProb(
-            minOnly_transformed_fitness(this->at(np)->individual()),
-            minOnly_transformed_fitness(this->at(this->n_parents_ + np)->individual())
+            minOnly_transformed_fitness((*this->at(np))),
+            minOnly_transformed_fitness((*this->at(this->n_parents_ + np)))
         );
         if(p_pass >= 1.) {
             this->at(np)->load(this->at(this->n_parents_ + np));
@@ -442,13 +402,11 @@ void GSimulatedAnnealing::sortSAMode() {
     }
 
     // Sort the new parents -- it is possible that a child with a worse fitness has replaced a parent
-    std::sort(
+    std::ranges::sort(
         this->begin(),
         this->begin() + this->n_parents_,
-        [](const auto &x_ptr, const auto &y_ptr) -> bool {
-            return minOnly_transformed_fitness(x_ptr->individual()) <
-                   minOnly_transformed_fitness(y_ptr->individual());
-        }
+        std::ranges::less{},
+        [](const auto &p) static { return minOnly_transformed_fitness(*p); }
     );
 
     // Make sure the temperature gets updated

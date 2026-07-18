@@ -35,8 +35,12 @@
 // Standard header files go here
 #include <chrono>
 #include <concepts>
+#include <cstdint>
 #include <ctime>
 #include <iostream>
+#include <limits>
+#include <set>
+#include <span>
 #include <tuple>
 #include <type_traits>
 #include <utility>
@@ -51,6 +55,7 @@
 #include "common/GContainerT.hpp"
 #include "common/GSerializationHelperFunctionsT.hpp"
 #include "common/GStdFilesystemPathSerialization.hpp"
+#include "courtier/GCourtierEnums.hpp"     // SUBMISSION_UUID_TYPE (late-return lineage de-dup)
 #include "courtier/GExecutorStatusT.hpp" // executor_status_t (workOn's return type)
 // --- Submission goes through the one process-wide consumer (GConsumerRegistry): the algorithm is
 //     transport-agnostic, it just reads that consumer and calls processBatch(), see workOn ---
@@ -59,7 +64,6 @@
 #include "courtier/GSubmissionPolicy.hpp"
 #include "courtier/consumers/GStdThreadConsumerT.hpp" // the default consumer built when none was set
 #include "geneva/ind/GOptimizableEntity.hpp"
-#include "geneva/ind/GIndividualSlot.hpp"
 #include "geneva/par/GOptimizableEntityFixedSizePriorityQueue.hpp"
 #include "geneva/GPersonalityTraits.hpp"
 #include "geneva/Interface/GOptimizerIT.hpp"
@@ -88,7 +92,7 @@ class GAdaptionConfigBase;
  */
 class GOptimizationAlgorithmBase // NOLINT(cppcoreguidelines-special-member-functions)
   : public Gem::Common::GCommonInterfaceT<GOptimizationAlgorithmBase>
-  , public Gem::Common::GUniquePtrContainerT<gen::GIndividualSlot>
+  , public Gem::Common::GUniquePtrContainerT<gen::GOptimizableEntity>
   , public Interface::GOptimizerIT<GOptimizationAlgorithmBase> {
 private:
     ///////////////////////////////////////////////////////////////////////
@@ -116,7 +120,7 @@ private:
     // The member list is written ONCE, in the static template helper below; the two localMembers()
     // overloads are trivial forwarders. Self is deduced as the (const) class type.
     template <typename Self>
-    static auto localMembers_(Self &self) {
+    auto localMembers_(this Self &self) {
         return std::make_tuple(
             Gem::Common::make_member("iteration_", self.iteration_),
             Gem::Common::make_member("offset_", self.offset_),
@@ -131,6 +135,8 @@ private:
             Gem::Common::make_member("best_current_primary_fitness_", self.best_current_primary_fitness_),
             Gem::Common::make_member("stall_counter_", self.stall_counter_),
             Gem::Common::make_member("stall_counter_threshold_", self.stall_counter_threshold_),
+            Gem::Common::make_member("late_return_ttl_", self.late_return_ttl_),
+            Gem::Common::make_member("late_return_cap_factor_", self.late_return_cap_factor_),
             Gem::Common::make_member("cp_interval_", self.cp_interval_),
             Gem::Common::make_member("cp_base_name_", self.cp_base_name_),
             Gem::Common::make_member("cp_directory_path_", self.cp_directory_path_),
@@ -162,14 +168,14 @@ private:
         // a base-object rather than a local member, is serialized here.
         ar &make_nvp(
                 "GStdPtrVectorInterfaceT_T",
-                boost::serialization::base_object<Gem::Common::GUniquePtrContainerT<gen::GIndividualSlot>>(*this)
+                boost::serialization::base_object<Gem::Common::GUniquePtrContainerT<gen::GOptimizableEntity>>(*this)
             );
 
         // All members are derived from the single localMembers() declaration: plain
         // members serialise directly, the cloneable smart pointers (de)serialise as
         // polymorphic pointers, and halted_ goes through the std::atomic<bool> free
         // serialization.
-        Gem::Common::serialize_members(ar, localMembers_(*this));
+        Gem::Common::serialize_members(ar, this->localMembers_());
     }
 
     ///////////////////////////////////////////////////////////////////////
@@ -182,22 +188,10 @@ public:
     using Gem::Common::GCommonInterfaceT<GOptimizationAlgorithmBase>::load;
 
     /***************************************************************************/
-    // The population element is a GIndividualSlot (the individual + its OA scratch). Keep the
-    // user-facing API individual-based: a user adds bare individuals and the algorithm wraps each in a
-    // slot. The inherited slot push_back overloads remain available (re-exposed via the using-declaration
-    // so the individual overload below does not name-hide them) for population-growth code that already
-    // holds slots.
-    using Gem::Common::GUniquePtrContainerT<gen::GIndividualSlot>::push_back;
-
-    /**
-     * @brief Adds an individual to the population, wrapping it in a fresh GIndividualSlot.
-     * @param ind The individual to add; ownership is transferred into a newly created slot
-     */
-    void push_back(std::unique_ptr<gen::GOptimizableEntity> ind) {
-        Gem::Common::GUniquePtrContainerT<gen::GIndividualSlot>::push_back(
-            std::make_unique<gen::GIndividualSlot>(std::move(ind))
-        );
-    }
+    // The population element IS the work item (gen::GOptimizableEntity), which carries its own OA
+    // scratch. A user adds bare individuals straight into the population; the inherited push_back
+    // overloads are re-exposed so callers can grow the population directly.
+    using Gem::Common::GUniquePtrContainerT<gen::GOptimizableEntity>::push_back;
 
     /**
      * @brief The copy constructor.
@@ -265,6 +259,8 @@ public:
 
     /**
      * @brief Allows to set the base name of the checkpoint file and the directory where it should be stored.
+     * A missing directory is created lazily when the first checkpoint is written; configuring has no
+     * filesystem side effects (an existing path must be a directory, though).
      * @param cp_directory The directory in which checkpoint files are stored
      * @param cp_base_name The base name of the checkpoint files
      */
@@ -450,7 +446,7 @@ public:
 
     /**
      * @brief Returns the current offset used to calculate the current iteration.
-     * @return The starting iteration offset (non-zero when resuming from a checkpoint)
+     * @return The starting iteration offset (non-zero when chaining algorithms, e.g. in a Go2 chain)
      */
     std::uint32_t getStartIteration() const;
 
@@ -481,6 +477,45 @@ public:
      * @return The stall-counter threshold
      */
     std::uint32_t getStallCounterThreshold() const;
+
+    /**
+     * @brief Sets the time-to-live (in dispatch rounds) of a networked consumer's late-return buffer
+     * entry. A buffered late return that is not reaped within this many rounds is evicted (the drop is
+     * counted and warned). Applied to the consumer on the next submission.
+     * @param ttl_rounds The late-return buffer TTL, in dispatch rounds
+     */
+    void setLateReturnTTL(std::uint64_t ttl_rounds);
+    /**
+     * @brief @return The late-return buffer TTL (in dispatch rounds)
+     */
+    std::uint64_t getLateReturnTTL() const;
+
+    /**
+     * @brief Sets the capacity of a networked consumer's late-return buffer as a MULTIPLE of the
+     * population size (the absolute cap is recomputed from the live population on each submission, so it
+     * is independent of how a generation is split into submission batches). 0.0 disables late-return
+     * buffering entirely.
+     * @param cap_factor The late-return buffer capacity as a multiple of the population size (>= 0)
+     */
+    void setLateReturnCapFactor(double cap_factor);
+    /**
+     * @brief @return The late-return buffer capacity factor (multiple of the population size)
+     */
+    double getLateReturnCapFactor() const;
+
+    /**
+     * @brief The pure validity + lineage-dedup filter behind getOldWorkItems(), exposed (and static) so
+     * it can be unit-tested in isolation without a consumer. Mutates @p items in place, keeping only
+     * clean successes whose submission UUID is not already in @p seen; each surviving item's UUID is
+     * inserted into @p seen (so within-batch duplicates are also dropped). Pre-load @p seen with the
+     * live population's UUIDs to also reject lineages that are still present.
+     * @param items The drained late returns to filter (mutated in place)
+     * @param seen The set of already-represented submission UUIDs (updated with survivors)
+     */
+    static void retainIntegrableLateReturns(
+        std::vector<std::unique_ptr<gen::GOptimizableEntity>> &items,
+        std::set<Gem::Courtier::SUBMISSION_UUID_TYPE> &seen
+    );
 
     /**
      * @brief Retrieve the best value found in the entire optimization run so far.
@@ -527,11 +562,11 @@ public:
         }
 #endif /* DEBUG */
 
-        // The population owns each slot by unique_ptr, and each slot owns its individual. Callers
-        // (pluggable monitors) only read the individual transiently, so hand back a NON-OWNING shared_ptr
-        // view (no-op deleter) of the live individual rather than co-owning or cloning it -- the slot
-        // outlives the call (the population owns it). Does error checks on the conversion internally.
-        std::shared_ptr<gen::GOptimizableEntity> view(&this->at(pos)->individual(), [](gen::GOptimizableEntity *) {});
+        // The population owns each individual by unique_ptr. Callers (pluggable monitors) only read the
+        // individual transiently, so hand back a NON-OWNING shared_ptr view (no-op deleter) of the live
+        // individual rather than co-owning or cloning it -- the population element outlives the call.
+        // Does error checks on the conversion internally.
+        std::shared_ptr<gen::GOptimizableEntity> view(&(*this->at(pos)), [](gen::GOptimizableEntity *) {});
         return Gem::Common::convertSmartPointer<gen::GOptimizableEntity, target_type>(view);
     }
 
@@ -578,6 +613,16 @@ protected:
 
     /***************************************************************************/
     // Overridden or virtual protected functions
+
+    /**
+     * @brief The shared population precondition of the floating-point-only algorithms (CGD, Nelder-
+     * Mead): requires a non-empty population whose first individual carries at least one active
+     * floating-point parameter (throws otherwise), and logs a note when integer/boolean parameters
+     * ride along (they are left unchanged by such an algorithm).
+     * @param algorithm_name The calling algorithm's class name, used in the error/log texts
+     * @return The number of active floating-point parameters of the first individual
+     */
+    std::size_t requireFloatingPointGenome_(const std::string &algorithm_name) const;
 
     /**
      * @brief Adds local configuration options to a GParserBuilder object.
@@ -653,21 +698,83 @@ protected:
     );
 
     /**
-     * @brief Submits the population's [start, end) range for evaluation. The population holds slots, but
-     * the courtier deals in individuals: this moves each slot's individual out into a submission vector
-     * (positions preserved), runs workOn() on it, then moves the (possibly reconciled) individuals back
-     * into their slots. The slots -- and the OA scratch they carry -- stay put. workOn() is in-place
-     * (the work-item vector keeps its size), so the move-back by index is exact.
+     * @brief Submits the population's [start, end) range for evaluation. The population element IS the
+     * work item (carrying its own OA scratch), so the population vector is the submission vector:
+     * workOn() submits a span over the live sub-range and reconciles it in place -- no move-out /
+     * move-back, the scratch rides along on each individual untouched.
      * @param start The (inclusive) start index of the population range to evaluate
      * @param end The (exclusive) end index of the population range to evaluate
      * @return The executor status describing the outcome of the submission
      */
     Gem::Courtier::executor_status_t workOnPopulation(std::size_t start, std::size_t end);
+
     /**
-     * @brief Retrieves a vector of old work items after job submission.
-     * @return The work items that were superseded by reconciliation during the last submission
+     * @brief Enforces the "need-all" evaluation policy after a submission: throws if the returned
+     * status is incomplete or carries errors. The strict counterpart of discardUnusableItems_() --
+     * together the two helpers state the strict/tolerant split exactly once, mirroring the
+     * per-algorithm submission policy (getSubmissionPolicy_()).
+     * @param status The executor status returned by the submission
+     * @param caller The calling function's name, used in the error message
      */
-    static std::vector<std::unique_ptr<gen::GOptimizableEntity>> getOldWorkItems();
+    void requireCompleteEvaluation_(
+        const Gem::Courtier::executor_status_t &status,
+        const std::string &caller
+    ) const;
+
+    /**
+     * @brief Applies the "tolerant" evaluation policy after a submission: erases the individuals a
+     * partial or errored return left unusable (still due for processing, or error-flagged), so the
+     * population continues with evaluated individuals only. In DEBUG builds the number of erased
+     * individuals is logged. See requireCompleteEvaluation_().
+     * @param status The executor status returned by the submission
+     * @param caller The calling function's name, used in the DEBUG log lines
+     */
+    void discardUnusableItems_(
+        const Gem::Courtier::executor_status_t &status,
+        const std::string &caller
+    );
+
+    /**
+     * @brief Drains the consumer's late-return buffer and returns only the late returns that are SAFE
+     * TO INTEGRATE -- this is the single, algorithm-agnostic gate every optimization algorithm reaps
+     * late returns through. Two universal correctness filters are applied here (NOT per algorithm), so
+     * no algorithm can integrate a meaningless or duplicated late return:
+     *  - VALIDITY: only clean successes survive (is_processed() and not has_errors()); an errored,
+     *    exception-flagged or still-unprocessed return is dropped (its results are meaningless and
+     *    selection would otherwise treat them as a real solution).
+     *  - LINEAGE de-duplication: a return whose stable per-individual submission UUID is already
+     *    represented in the live population (a re-dispatched individual whose fresh copy already
+     *    returned) or duplicated within this drained batch (a reclaimed lease re-dispatched one
+     *    individual to two clients, both returning late) is dropped, so a lineage is never counted twice.
+     * On top of those two universal filters, an OPTIONAL per-algorithm age window is applied here via
+     * the virtual lateReturnMaxAge() (default: no window). The remaining reaping policy (personality
+     * re-stamping, neighborhood handling) stays in the calling algorithm.
+     * @return The integrable (clean, de-duplicated, in-age-window) late returns the consumer buffered
+     */
+    std::vector<std::unique_ptr<gen::GOptimizableEntity>> getOldWorkItems() const;
+
+    /**
+     * @brief Whether this algorithm reuses late returns -- results that arrived after their submission
+     *  batch had already been reconciled in place. Default: FALSE, in which case the networked consumer's
+     *  late-return buffer is left DISABLED (nothing is retained on this algorithm's behalf, see
+     *  consumerForSubmission_). Population-based algorithms whose selection can absorb an extra candidate
+     *  (EA/SA via GParChild, and the swarm algorithm) override this to true. Algorithms whose population
+     *  is bound to the current iteration -- gradient descent's finite-difference stencil -- or walked as
+     *  an ordered grid (parameter scan) leave it false, so they neither buffer nor reap.
+     * @return true if the algorithm reaps and integrates late returns; false to disable late-return buffering
+     */
+    virtual bool reapsLateReturns() const { return false; }
+
+    /**
+     * @brief The maximum age (in optimization iterations since submission) of a late return this
+     *  algorithm will integrate, applied by getOldWorkItems() ON TOP of the consumer-side TTL. Default:
+     *  std::numeric_limits<std::uint32_t>::max(), i.e. NO age window -- integrate any clean, de-duplicated
+     *  late return the consumer still holds. GParChild (EA/SA) overrides this to 1: a child evaluated in
+     *  iteration N typically returns during N+1, so a one-generation window admits exactly those late
+     *  returns and drops staler ones. Only consulted for reaping algorithms (reapsLateReturns() == true).
+     * @return The maximum admissible late-return age in iterations (max() disables the age window)
+     */
+    virtual std::uint32_t lateReturnMaxAge() const { return std::numeric_limits<std::uint32_t>::max(); }
 
     /**
      * @brief Returns a fresh personality-traits object for this algorithm. Protected, non-virtual
@@ -730,9 +837,6 @@ protected:
     /** @brief Lets individuals know about the current iteration of the optimization cycle. */
     void markIteration();
 
-    /** @brief Let individuals know the number of stalls encountered so far */
-    void markNStalls();
-
     /**
      * @brief Whether this optimization run was just resumed from a checkpoint. Set by loadCheckpoint()
      * (after the population -- with its OA-owned scratch -- has been deserialised) and cleared once the
@@ -752,7 +856,7 @@ private:
 
     /**
      * @brief This function encapsulates some common functionality of iteration-based optimization algorithms.
-     * @param offset An iteration offset to start from (non-zero when resuming from a checkpoint)
+     * @param offset An iteration offset to start from (non-zero when chaining algorithms, e.g. in a Go2 chain)
      * @return A pointer to this algorithm after the optimization run has completed
      */
     GOptimizationAlgorithmBase const *optimize_(std::uint32_t offset) final;
@@ -929,8 +1033,6 @@ private:
      * @return true if a quality-threshold halt criterion is active, false otherwise
      */
     bool qualityThresholdHaltSet() const;
-    /** @brief Marks the globally best known fitness in all individuals */
-    void markBestFitness();
 
     /**
      * @brief Indicates whether the stall_counter_threshold_ has been exceeded.
@@ -972,6 +1074,11 @@ private:
     std::uint32_t stall_counter_ = 0; ///< Counts the number of iterations without improvement
     std::uint32_t stall_counter_threshold_ =
         DEFAULTSTALLCOUNTERTHRESHOLD; ///< The number of stalls after which individuals are asked to update their internal data structures
+
+    std::uint64_t late_return_ttl_ =
+        DEFAULTLATERETURNTTL; ///< TTL (in dispatch rounds) of a networked consumer's late-return buffer entry
+    double late_return_cap_factor_ =
+        DEFAULTLATERETURNCAPFACTOR; ///< Late-return buffer capacity as a multiple of the population size (0 disables buffering)
 
     std::int32_t cp_interval_ =
         DEFAULTCHECKPOINTIT; ///< Number of iterations after which a checkpoint should be written. -1 means: Write whenever an improvement was encountered

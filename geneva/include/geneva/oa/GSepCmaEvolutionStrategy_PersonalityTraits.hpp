@@ -58,7 +58,7 @@ class GSepCmaEvolutionStrategy_PersonalityTraits // NOLINT(cppcoreguidelines-spe
 
     /** @brief Single declaration of this class'es local data members */
     template <typename Self>
-    static auto localMembers_(Self &self) {
+    auto localMembers_(this Self &self) {
         return std::make_tuple(
             Gem::Common::make_member("rank_", self.rank_),
             Gem::Common::make_member("is_on_pareto_front_", self.is_on_pareto_front_)
@@ -69,7 +69,7 @@ class GSepCmaEvolutionStrategy_PersonalityTraits // NOLINT(cppcoreguidelines-spe
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         using boost::serialization::make_nvp;
         ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GPersonalityTraits);
-        Gem::Common::serialize_members(ar, localMembers_(*this));
+        Gem::Common::serialize_members(ar, this->localMembers_());
     }
     ///////////////////////////////////////////////////////////////////////
 

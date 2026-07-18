@@ -80,7 +80,7 @@ public:
     }
     /**
      * @brief Retrieves the mnemonic of the wrapped algorithm factory.
-     * @return The factory's mnemonic (e.g. "ea", "gd", "swarm").
+     * @return The factory's mnemonic (e.g. "ea", "cgd", "swarm").
      */
     std::string getMnemonic() const override { return factory_->getMnemonic(); }
     /**

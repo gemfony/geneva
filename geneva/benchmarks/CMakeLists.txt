@@ -27,7 +27,6 @@
 #
 ################################################################################
 
-ADD_SUBDIRECTORY ( GAdaptionPrefetch )
 ADD_SUBDIRECTORY ( GBrokerOverhead )
 ADD_SUBDIRECTORY ( GBrokerSanityChecks )
 ADD_SUBDIRECTORY ( GOptimizationBenchmark )

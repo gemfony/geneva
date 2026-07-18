@@ -83,11 +83,17 @@ using G_CPU_BASE_GENERATOR = xoshiro256pp;
  *         "mt19937_64", "mt19937" or "unknown")
  */
 inline const char *cpuEngineName() noexcept {
-    if constexpr (std::is_same_v<G_CPU_BASE_GENERATOR, std::mt19937_64>) { return "mt19937_64";
-    } else if constexpr (std::is_same_v<G_CPU_BASE_GENERATOR, std::mt19937>) { return "mt19937";
-    } else if constexpr (std::is_same_v<G_CPU_BASE_GENERATOR, xoshiro256pp>) { return "xoshiro256++";
-    } else { return "unknown";
-}
+    // The non-xoshiro branches exist so a substituted engine (see G_CPU_BASE_GENERATOR above)
+    // is still labelled correctly; only one branch is ever compiled in.
+    if constexpr (std::is_same_v<G_CPU_BASE_GENERATOR, xoshiro256pp>) {
+        return "xoshiro256++";
+    } else if constexpr (std::is_same_v<G_CPU_BASE_GENERATOR, std::mt19937_64>) {
+        return "mt19937_64";
+    } else if constexpr (std::is_same_v<G_CPU_BASE_GENERATOR, std::mt19937>) {
+        return "mt19937";
+    } else {
+        return "unknown";
+    }
 }
 
 class GRandomFactory; // Forward declaration, so we can make random_container constructor private
@@ -238,24 +244,9 @@ private:
 	  */
     template <typename RNG>
     explicit random_container(RNG &rng) {
-        try {
-            fill_from(rng, r_.size());
-        }
-        catch(const std::bad_alloc &e) {
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In random_container::random_container(T_RNG&): Error!" << '\n'
-                << "std::bad_alloc caught with message" << '\n'
-                << e.what() << '\n'
-            );
-        }
-        catch(...) {
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In random_container::random_container(T_RNG&): Error!" << '\n'
-                << "unknown exception caught" << '\n'
-            );
-        }
+        // fill_from writes into the in-object std::array -- it allocates nothing, so there is
+        // no bad_alloc to guard against here (the producer's `new` has its own catch-all).
+        fill_from(rng, r_.size());
     }
 
     /***************************************************************************/
@@ -313,8 +304,8 @@ private:
  * and block-push it onto the fresh buffer; at shutdown the buffers close and the loop exits. A
  * producer never lets an exception escape (that would call @c std::terminate); it logs and the
  * remaining producers carry on. Consumers (@c getNewRandomContainer()) pop with a timeout and
- * retry, so the path is wait-free of the consumer's logic. The seed manager hands each producer
- * and each non-QUEUE source a distinct seed, so streams do not overlap. The raw engine is
+ * retry, so the path is wait-free of the consumer's logic. The factory's getSeed() hands each
+ * producer and each non-QUEUE source a distinct seed, so streams do not overlap. The raw engine is
  * xoshiro256++ (scalar in the header; SIMD / cuRAND inside @c GFillBackend) -- in an evolutionary
  * algorithm the geometry of the quality surface tolerates fast generators, so throughput is
  * favoured over cryptographic strength.
@@ -342,11 +333,36 @@ public:
     void finalize();
 
     /**
+     * @brief Whether finalize() has run, i.e. the factory is permanently shut down.
+     *
+     * A finalized factory has closed (terminally) its producer/return buffers and joined its
+     * producer threads, so getNewRandomContainer() will never hand out another container again -- the
+     * distinction a consumer needs to tell a transient "buffer momentarily empty" (retry) apart from a
+     * terminal "no more random numbers will ever come" (stop retrying). Consumers use this to fail
+     * fast instead of spinning forever once the factory is down (e.g. during process teardown).
+     *
+     * @return true once finalize() has completed; false while the factory is live
+     */
+    [[nodiscard]] bool finalized() const { return finalized_.load(); }
+
+    /**
      * @brief Sets the number of producer threads for this factory.
      *
      * @param n_producer_threads The desired number of threads producing random number packages
      */
     void setNProducerThreads(const std::uint16_t &n_producer_threads);
+
+    /**
+     * @brief Retrieves the current number of producer threads.
+     *
+     * Before the lazy thread start this is the count the first getNewRandomContainer() call
+     * will launch; afterwards it equals the size of the running producer pool.
+     *
+     * @return The number of threads simultaneously producing random number packages
+     */
+    [[nodiscard]] std::uint16_t getNProducerThreads() const noexcept {
+        return n_producer_threads_.load();
+    }
 
     /**
      * @brief Allows to retrieve the size of the random number array held by each container.
@@ -388,6 +404,29 @@ public:
      */
     void returnUsedPackage(std::unique_ptr<random_container> &&p);
 
+    /**
+     * @brief The number of random-number packages the producer threads have delivered to the fresh
+     * buffer over the factory's lifetime.
+     *
+     * A supply-throughput signal: it climbs continuously while producers keep the buffer fed. Read
+     * together with getNGetTimeouts() to reason about whether production keeps up with demand.
+     *
+     * @return The lifetime count of packages delivered to the fresh buffer
+     */
+    [[nodiscard]] std::uint64_t getNPackagesProduced() const noexcept { return n_packages_produced_.load(std::memory_order_relaxed); }
+
+    /**
+     * @brief The number of times getNewRandomContainer() returned empty because no package became
+     * available within the internal timeout -- i.e. production could not keep up with demand.
+     *
+     * This is the aggregate starvation signal: every consumer-side retry (a proxy waiting for a new
+     * package) corresponds to one such timeout here. A non-zero and rising value indicates the
+     * producer pool is under-supplying its consumers (consider more producer threads).
+     *
+     * @return The lifetime count of empty (timed-out) getNewRandomContainer() results
+     */
+    [[nodiscard]] std::uint64_t getNGetTimeouts() const noexcept { return n_get_timeouts_.load(std::memory_order_relaxed); }
+
 private:
     /**
      * @brief The production of random number packages takes place here.
@@ -399,15 +438,18 @@ private:
      */
     void producer(std::uint32_t seed);
 
+    std::atomic<std::uint64_t> n_packages_produced_{0}; ///< Lifetime count of packages delivered to the fresh buffer (supply-throughput signal)
+    std::atomic<std::uint64_t> n_get_timeouts_{0}; ///< Lifetime count of empty getNewRandomContainer() results (aggregate starvation signal)
+
     std::atomic<bool> finalized_{false};
     std::atomic<bool> threads_started_{false}; ///< Indicates whether threads were already started
     std::atomic<bool> threads_stop_requested_{false}; ///< Indicates whether all threads were requested to stop
     std::atomic<std::uint16_t> n_producer_threads_{
-        DEFAULT01PRODUCERTHREADS
-    }; ///< The number of threads used to produce random numbers
+        autoProducerThreadCount()
+    }; ///< The number of threads used to produce random numbers (hardware-derived by default)
 
     Gem::Common::Concurrency::GThreadGroup
-        producer_threads_; ///< A thread group that holds [0,1[ producer threads
+        producer_threads_; ///< A thread group that holds the raw-random-word producer threads
 
     /** @brief A bounded buffer holding the random number packages. The queue backend is selected at
      *  compile time by FACTORYQUEUEBACKEND (default: the std::deque-backed queue -- unchanged

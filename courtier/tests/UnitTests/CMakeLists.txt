@@ -52,6 +52,8 @@ ENDFUNCTION()
 # executable / file names still carry the "2" until the Stage-E identifier rename (E2); the CTest
 # labels and install paths are already "courtier".
 geneva_courtier_test(GWireLayoutRegistryTests  GWireLayoutRegistryTests.cpp)
+geneva_courtier_test(GProcessableIdentityTests GProcessableIdentityTests.cpp)
+geneva_courtier_test(GProcessingStatusTests    GProcessingStatusTests.cpp)
 geneva_courtier_test(GCourtierPolicyTests      GCourtierPolicyTests.cpp)
 geneva_courtier_test(GCourtierTimeoutTests     GCourtierTimeoutTests.cpp)
 geneva_courtier_test(GCourtierConcurrencyTests GCourtierConcurrencyTests.cpp)

@@ -39,7 +39,10 @@ ADD_EXECUTABLE(${EXECUTABLENAME}
 
 SET(LIBRARIES_TO_LINK
 		${GENEVA_LIBRARIES}
-		${Boost_LIBRARIES})
+		${Boost_LIBRARIES}
+		# GExternalEvaluatorIndividual is no longer in the geneva library; this example compiles it in via
+		# its object library (the alternative to loading it as a module).
+		GExternalEvaluatorIndividual-obj)
 
 # Add MPI Libraries in case building with MPI-consumer
 IF(GENEVA_BUILD_WITH_MPI_CONSUMER)
@@ -52,7 +55,7 @@ TARGET_LINK_LIBRARIES (${EXECUTABLENAME}
 		${LIBRARIES_TO_LINK})
 
 
-ADD_SUBDIRECTORY (config)
+GENEVA_MATERIALIZE_CONFIGS ( ${EXECUTABLENAME} ${INSTALL_PREFIX_DATA}/examples/${EXECUTABLENAME}/config )
 ADD_SUBDIRECTORY (evaluator)
 
 IF (GENEVA_RUN_EXAMPLES_AS_TESTS)

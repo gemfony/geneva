@@ -31,37 +31,9 @@
 #include "common/GCommonEnums.hpp"
 #include <istream>
 #include <ostream>
+#include <utility>
 
 namespace Gem::Courtier {
-
-/******************************************************************************************/
-/**
- * Puts a Gem::Courtier::run_state item into a stream
- *
- * @param o The ostream the item should be added to
- * @param rs the item to be added to the stream
- * @return The std::ostream object used to add the item to
- */
-std::ostream &operator<<(std::ostream &o, const Gem::Courtier::run_state &rs) {
-    auto tmp = static_cast<Gem::Common::ENUMBASETYPE>(rs);
-    o << tmp;
-    return o;
-}
-
-/******************************************************************************************/
-/**
- * Reads a Gem::Courtier::run_state item from a stream
- *
- * @param i The stream the item should be read from
- * @param rs The item read from the stream
- * @return The std::istream object used to read the item from
- */
-std::istream &operator>>(std::istream &i, Gem::Courtier::run_state &rs) {
-    Gem::Common::ENUMBASETYPE tmp = 0;
-    i >> tmp;
-    rs = static_cast<Gem::Courtier::run_state>(tmp);
-    return i;
-}
 
 /******************************************************************************************/
 /**
@@ -73,7 +45,7 @@ std::istream &operator>>(std::istream &i, Gem::Courtier::run_state &rs) {
  */
 std::ostream &
 operator<<(std::ostream &o, const Gem::Courtier::networked_consumer_payload_command &ps) {
-    auto tmp = static_cast<Gem::Common::ENUMBASETYPE>(ps);
+    auto tmp = std::to_underlying(ps);
     o << tmp;
     return o;
 }
@@ -90,64 +62,6 @@ std::istream &operator>>(std::istream &i, Gem::Courtier::networked_consumer_payl
     Gem::Common::ENUMBASETYPE tmp = 0;
     i >> tmp;
     ps = static_cast<Gem::Courtier::networked_consumer_payload_command>(tmp);
-    return i;
-}
-
-/******************************************************************************************/
-/**
- * Puts a Gem::Courtier::beast_ping_state item into a stream
- *
- * @param o The ostream the item should be added to
- * @param ps the item to be added to the stream
- * @return The std::ostream object used to add the item to
- */
-std::ostream &operator<<(std::ostream &o, const Gem::Courtier::beast_ping_state &ps) {
-    auto tmp = static_cast<Gem::Common::ENUMBASETYPE>(ps);
-    o << tmp;
-    return o;
-}
-
-/******************************************************************************************/
-/**
- * Reads a Gem::Courtier::beast_ping_state item from a stream
- *
- * @param i The stream the item should be read from
- * @param ps The item read from the stream
- * @return The std::istream object used to read the item from
- */
-std::istream &operator>>(std::istream &i, Gem::Courtier::beast_ping_state &ps) {
-    Gem::Common::ENUMBASETYPE tmp = 0;
-    i >> tmp;
-    ps = static_cast<Gem::Courtier::beast_ping_state>(tmp);
-    return i;
-}
-
-/******************************************************************************/
-/**
- * Puts a Gem::Courtier::submissionReturnMode item into a stream
- *
- * @param o The ostream the item should be added to
- * @param srm the item to be added to the stream
- * @return The std::ostream object used to add the item to
- */
-std::ostream &operator<<(std::ostream &o, const Gem::Courtier::submissionReturnMode &srm) {
-    auto tmp = static_cast<Gem::Common::ENUMBASETYPE>(srm);
-    o << tmp;
-    return o;
-}
-
-/******************************************************************************/
-/**
- * Reads a Gem::Courtier::submissionReturnMode item from a stream
- *
- * @param i The stream the item should be read from
- * @param srm The item read from the stream
- * @return The std::istream object used to read the item from
- */
-std::istream &operator>>(std::istream &i, Gem::Courtier::submissionReturnMode &srm) {
-    Gem::Common::ENUMBASETYPE tmp = 0;
-    i >> tmp;
-    srm = static_cast<Gem::Courtier::submissionReturnMode>(tmp);
     return i;
 }
 
@@ -209,7 +123,7 @@ std::istream &operator>>(std::istream &i, Gem::Courtier::processingStatus &srm) 
  * @return The std::ostream object used to add the item to
  */
 std::ostream &operator<<(std::ostream &o, const Gem::Courtier::consumerType &bm) {
-    auto tmp = static_cast<Gem::Common::ENUMBASETYPE>(bm);
+    auto tmp = std::to_underlying(bm);
     o << tmp;
     return o;
 }

@@ -36,6 +36,7 @@
 #include <iostream>
 #include <string>
 #include <tuple>
+#include <type_traits>
 #include <vector>
 
 // Geneva headers go here
@@ -145,7 +146,7 @@ protected:
      * @return A tuple of named members (mutable references) bundling var, lowerBoundary, upperBoundary and nSteps
      */
     template <typename Self>
-    static auto localMembers_(Self &self) {
+    auto localMembers_(this Self &self) {
         return std::make_tuple(
             Gem::Common::make_member("var", self.var),
             Gem::Common::make_member("lowerBoundary", self.lowerBoundary),
@@ -167,7 +168,7 @@ protected:
         // No parent class with loadable data
 
         // Load local data, derived from the single localMembers() declaration
-        Gem::Common::g_load_members(localMembers_(*this), localMembers_(*p_load));
+        Gem::Common::g_load_members(this->localMembers_(), p_load->localMembers_());
     }
 
     /***************************************************************************/
@@ -210,7 +211,7 @@ protected:
         );
 
         // ... and then the local data, derived from the single localMembers() declaration
-        Gem::Common::g_compare_members(localMembers_(*this), localMembers_(*p_load), token);
+        Gem::Common::g_compare_members(this->localMembers_(), p_load->localMembers_(), token);
 
         // React on deviations from the expectation
         token.evaluate();
@@ -356,31 +357,47 @@ public:
 	  *
 	  * The function will throw if parsing hasn't happened yet.
 	  *
-	  * Note that this implementation is a trap. Use one of the overloads for
-	  * supported types instead.
+	  * One implementation serves all supported parameter types (double / float / std::int32_t /
+	  * bool) -- the matching spec vector is selected at compile time; an unsupported type is
+	  * rejected at compile time (the former four per-type specializations were byte-identical
+	  * apart from the member vector they read).
 	  *
 	  * @tparam par_type The parameter type whose specification iterators are requested
-	  * @return A tuple holding the begin and end const_iterators of the matching spec vector (never returns here -- always throws)
+	  * @return A tuple holding the begin and end const_iterators of the matching spec vector
 	  */
     template <typename par_type>
     std::tuple<
         typename std::vector<parPropSpec<par_type>>::const_iterator,
         typename std::vector<parPropSpec<par_type>>::const_iterator>
     getIterators() const {
-        std::tuple<
-            typename std::vector<parPropSpec<par_type>>::const_iterator,
-            typename std::vector<parPropSpec<par_type>>::const_iterator>
-            result;
+        // Make sure parsing has happened.
+        if(not parsed_) {
+            throw geneva_exception(
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+                << "In GParameterPropertyParser::getIterators<>(): Error!" << '\n'
+                << "Tried to retrieve iterators when parsing hasn't happened yet" << '\n'
+            );
+        }
 
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In generic GParameterPropertyParser::getIterators<par_type>() function: Error!"
-            << '\n'
-            << "Function was called for an unsupported type" << '\n'
-        );
+        const auto &vec = [this]() -> auto const & {
+            if constexpr(std::is_same_v<par_type, double>) {
+                return d_spec_vec_;
+            }
+            else if constexpr(std::is_same_v<par_type, float>) {
+                return f_spec_vec_;
+            }
+            else if constexpr(std::is_same_v<par_type, std::int32_t>) {
+                return i_spec_vec_;
+            }
+            else if constexpr(std::is_same_v<par_type, bool>) {
+                return b_spec_vec_;
+            }
+            else {
+                static_assert(false, "GParameterPropertyParser::getIterators<par_type>: unsupported parameter type");
+            }
+        }();
 
-        // Make the compiler happy
-        return result;
+        return {vec.begin(), vec.end()};
     }
 
 private:
@@ -396,158 +413,6 @@ private:
         i_spec_vec_;                            ///< Holds parameter specifications for integer values
     std::vector<parPropSpec<bool>> b_spec_vec_; ///< Holds parameter specifications for boolean values
 };
-
-/******************************************************************************/
-/**
- * @brief This function returns a set of const_iterators that allow to retrieve
- * the information from the parsers. Note that these iterators may go out
- * of scope, if a new parameter description is supplied to this class.
- *
- * The first tuple-entry allows you to access all parameter entries. When the
- * function is called, it is set to the start of the vector. The second tuple
- * entry is set to the vector end.
- *
- * The function will throw if parsing hasn't happened yet.
- *
- * This is the overload for double parameters.
- *
- * @return A tuple holding the begin and end const_iterators of the double spec vector
- */
-template <>
-inline std::tuple<
-    std::vector<parPropSpec<double>>::const_iterator,
-    std::vector<parPropSpec<double>>::const_iterator>
-GParameterPropertyParser::getIterators<double>() const {
-    // Make sure parsing has happened.
-    if(not parsed_) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GParameterPropertyParser::getIterators<double>(): Error!" << '\n'
-            << "Tried to retrieve iterators when parsing hasn't happened yet" << '\n'
-        );
-    }
-
-    auto runner_it = d_spec_vec_.begin();
-    auto end_it = d_spec_vec_.end();
-
-    return std::tuple<
-        std::vector<parPropSpec<double>>::const_iterator,
-        std::vector<parPropSpec<double>>::const_iterator>{runner_it, end_it};
-}
-
-/******************************************************************************/
-/**
- * @brief This function returns a set of const_iterators that allow to retrieve
- * the information from the parsers. Note that these iterators may go out
- * of scope, if a new parameter description is supplied to this class.
- *
- * The first tuple-entry allows you to access all parameter entries. When the
- * function is called, it is set to the start of the vector. The second tuple
- * entry is set to the vector end.
- *
- * The function will throw if parsing hasn't happened yet.
- *
- * This is the overload for float parameters.
- *
- * @return A tuple holding the begin and end const_iterators of the float spec vector
- */
-template <>
-inline std::tuple<
-    std::vector<parPropSpec<float>>::const_iterator,
-    std::vector<parPropSpec<float>>::const_iterator>
-GParameterPropertyParser::getIterators<float>() const {
-    // Make sure parsing has happened.
-    if(not parsed_) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GParameterPropertyParser::getIterators<float>(): Error!" << '\n'
-            << "Tried to retrieve iterators when parsing hasn't happened yet" << '\n'
-        );
-    }
-
-    auto runner_it = f_spec_vec_.begin();
-    auto end_it = f_spec_vec_.end();
-
-    return std::tuple<
-        std::vector<parPropSpec<float>>::const_iterator,
-        std::vector<parPropSpec<float>>::const_iterator>{runner_it, end_it};
-}
-
-/******************************************************************************/
-/**
- * @brief This function returns a set of const_iterators that allow to retrieve
- * the information from the parsers. Note that these iterators may go out
- * of scope, if a new parameter description is supplied to this class.
- *
- * The first tuple-entry allows you to access all parameter entries. When the
- * function is called, it is set to the start of the vector. The second tuple
- * entry is set to the vector end.
- *
- * The function will throw if parsing hasn't happened yet.
- *
- * This is the overload for std::int32_t parameters.
- *
- * @return A tuple holding the begin and end const_iterators of the std::int32_t spec vector
- */
-template <>
-inline std::tuple<
-    std::vector<parPropSpec<std::int32_t>>::const_iterator,
-    std::vector<parPropSpec<std::int32_t>>::const_iterator>
-GParameterPropertyParser::getIterators<std::int32_t>() const {
-    // Make sure parsing has happened.
-    if(not parsed_) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GParameterPropertyParser::getIterators<std::int32_t>(): Error!" << '\n'
-            << "Tried to retrieve iterators when parsing hasn't happened yet" << '\n'
-        );
-    }
-
-    auto runner_it = i_spec_vec_.begin();
-    auto end_it = i_spec_vec_.end();
-
-    return std::tuple<
-        std::vector<parPropSpec<std::int32_t>>::const_iterator,
-        std::vector<parPropSpec<std::int32_t>>::const_iterator>{runner_it, end_it};
-}
-
-/******************************************************************************/
-/**
- * @brief This function returns a set of const_iterators that allow to retrieve
- * the information from the parsers. Note that these iterators may go out
- * of scope, if a new parameter description is supplied to this class.
- *
- * The first tuple-entry allows you to access all parameter entries. When the
- * function is called, it is set to the start of the vector. The second tuple
- * entry is set to the vector end.
- *
- * The function will throw if parsing hasn't happened yet.
- *
- * This is the overload for bool parameters.
- *
- * @return A tuple holding the begin and end const_iterators of the bool spec vector
- */
-template <>
-inline std::tuple<
-    std::vector<parPropSpec<bool>>::const_iterator,
-    std::vector<parPropSpec<bool>>::const_iterator>
-GParameterPropertyParser::getIterators<bool>() const {
-    // Make sure parsing has happened.
-    if(not parsed_) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GParameterPropertyParser::getIterators<bool>(): Error!" << '\n'
-            << "Tried to retrieve iterators when parsing hasn't happened yet" << '\n'
-        );
-    }
-
-    auto runner_it = b_spec_vec_.begin();
-    auto end_it = b_spec_vec_.end();
-
-    return std::tuple<
-        std::vector<parPropSpec<bool>>::const_iterator,
-        std::vector<parPropSpec<bool>>::const_iterator>{runner_it, end_it};
-}
 
 /******************************************************************************/
 

@@ -32,20 +32,24 @@
  ********************************************************************************/
 
 // Standard header files go here
+#include <algorithm>
 #include <cstdint>
+#include <functional>
 #include <iostream>
+#include <ranges>
 #include <tuple>
 #include <vector>
 
 // Boost header files go here
-#include <boost/property_tree/ptree.hpp>
-#include <boost/property_tree/xml_parser.hpp>
+#include <boost/json.hpp>
 
 // Geneva header files go here
+#include "common/GConfigEmission.hpp"
+#include "common/GJsonIO.hpp"
 #include "geneva/Go2.hpp"
 #include "geneva/individuals/GFunctionIndividual.hpp"
-#include "geneva/ind/GFlatGenome.hpp"
-#include "geneva/ind/GFlatIndividualT.hpp"
+#include "geneva/ind/GGenome.hpp"
+#include "geneva/ind/GGenomeT.hpp"
 #include "geneva/ind/GGenomeBuilder.hpp"
 #include "geneva/oa/GAdaption.hpp"
 
@@ -55,18 +59,18 @@ namespace oa = Gem::Geneva::OptimizationAlgorithms;
 /******************************************************************************/
 /**
  * A minimal flat individual, used here only to demonstrate genome inspection /
- * adaption. It carries no extra members, so the CRTP base GFlatIndividualT
+ * adaption. It carries no extra members, so the CRTP base GGenomeT
  * supplies clone_(); only a constructor (which authors the genome) and a trivial
- * fitnessCalculation() remain.
+ * evaluate() remain.
  */
-class GDemoIndividual : public gen::GFlatIndividualT<GDemoIndividual> {
+class GDemoIndividual : public gen::GGenomeT<GDemoIndividual> {
     friend class boost::serialization::access;
 
     template <typename Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         ar &boost::serialization::make_nvp(
-            "GFlatIndividualT",
-            boost::serialization::base_object<gen::GFlatIndividualT<GDemoIndividual>>(*this)
+            "GGenomeT",
+            boost::serialization::base_object<gen::GGenomeT<GDemoIndividual>>(*this)
         );
     }
 
@@ -90,14 +94,11 @@ public:
     }
 
 protected:
-    double fitnessCalculation() override {
+    std::vector<double> evaluate() override {
         std::vector<double> v;
         this->streamline(v);
-        double result = 0.;
-        for(double x : v) {
-            result += x * x;
-        }
-        return result;
+        return {std::ranges::fold_left(
+            v | std::views::transform([](double x) { return x * x; }), 0., std::plus{})};
     }
 };
 
@@ -139,11 +140,20 @@ void printGenome(const std::string &title, const gen::GenomeData &g) {
  * parameters of an individual are declared once via the builder rather than by
  * pushing back individual parameter objects.
  */
-int main() {
+int main(int argc, char **argv) {
+    // --update-configs: materialize the one configuration file this demo owns (the GFunctionIndividual
+    // factory's), then exit. Constructing the factory with GParserBuilder in update-in-place mode
+    // creates/rewrites ./config/GFunctionIndividual.json from code defaults.
+    if(Gem::Common::configEmissionRequested(argc, argv)) {
+        Gem::Common::beginConfigEmission();
+        gind::GFunctionIndividualFactory("./config/GFunctionIndividual.json").get();
+        Gem::Common::finishConfigEmission();
+    }
+
     //===========================================================================
-    // 1) A complete individual's genome, dumped to a boost::property_tree.
+    // 1) A complete individual's genome, dumped to a JSON document.
     //    The factory produces an individual with a full flat genome from its JSON
-    //    config; toPropertyTree() serialises that genome's parameters.
+    //    config; toJSON() serialises that genome's parameters.
 
     {
         std::shared_ptr<gind::GFunctionIndividualFactory> gfi_ptr(
@@ -156,17 +166,11 @@ int main() {
         gfi_test->set_processing_status(Gem::Courtier::processingStatus::DO_PROCESS);
         gfi_test->process();
 
-        boost::property_tree::ptree ptr;
-        gfi_test->toPropertyTree(ptr);
+        boost::json::object doc;
+        doc["parameterset"] = gfi_test->toJSON();
+        Gem::Common::writeJsonFile("result.json", doc);
 
-#if BOOST_VERSION > 105500
-        boost::property_tree::xml_writer_settings<std::string> settings('\t', 1);
-#else
-        boost::property_tree::xml_writer_settings<char> settings('\t', 1);
-#endif /* BOOST_VERSION */
-        boost::property_tree::write_xml("result.xml", ptr, std::locale(), settings);
-
-        // Now run this program and see the file "result.xml" for the output
+        // Now run this program and see the file "result.json" for the output
     }
 
     //===========================================================================
@@ -294,8 +298,8 @@ int main() {
         std::vector<double> upper;
         ind.boundaries(lower, upper);
         std::cout << "Double boundaries:";
-        for(std::size_t i = 0; i < lower.size(); ++i) {
-            std::cout << " [" << lower[i] << ", " << upper[i] << "]";
+        for(auto const& [lo, hi] : std::views::zip(lower, upper)) {
+            std::cout << " [" << lo << ", " << hi << "]";
         }
         std::cout << '\n';
 

@@ -32,43 +32,27 @@
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
-// Standard headers go here
-#include <string>
-#include <tuple>
-
-// Boost headers go here
-
 // Geneva headers go here
-#include "geneva/ind/GOptimizableEntity.hpp"
-#include "geneva/GPersonalityTraits.hpp"
+#include "geneva/oa/GPositionPersonalityTraits.hpp"
 
 namespace Gem::Geneva::OptimizationAlgorithms {
 
 /******************************************************************************/
 /**
- * This class adds variables and functions to GPersonalityTraits that are specific
- * to the Standard PSO 2011 algorithm. It carries the index of the particle the
- * individual represents in the swarm, mirroring the informational tags the other
- * algorithms' personalities carry.
+ * The standard PSO 2011's personality traits: every individual only needs to know its
+ * position in the population, which the
+ * GPositionPersonalityTraits base provides; this class contributes only the algorithm's identity.
  */
 class GStandardPSO2011_PersonalityTraits // NOLINT(cppcoreguidelines-special-member-functions)
-  : public GPersonalityTraits {
+  : public GPositionPersonalityTraits {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
-
-    /** @brief Single declaration of this class'es local data members */
-    template <typename Self>
-    static auto localMembers_(Self &self) {
-        return std::make_tuple(
-            Gem::Common::make_member("particle_", self.particle_)
-        );
-    }
 
     template <typename Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         using boost::serialization::make_nvp;
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GPersonalityTraits);
-        Gem::Common::serialize_members(ar, localMembers_(*this));
+
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GPositionPersonalityTraits);
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -78,81 +62,36 @@ public:
 
     /** @brief The default constructor */
     GStandardPSO2011_PersonalityTraits() = default;
-    /**
-     * @brief The copy constructor.
-     * @param The object to be copied
-     */
-    GStandardPSO2011_PersonalityTraits(
-        const GStandardPSO2011_PersonalityTraits &
-    ) = default;
+    /** @brief The copy constructor
+     *  @param cp Another GStandardPSO2011_PersonalityTraits object whose state is copied */
+    GStandardPSO2011_PersonalityTraits(const GStandardPSO2011_PersonalityTraits &cp) = default;
     /** @brief The standard destructor */
     ~GStandardPSO2011_PersonalityTraits() override = default;
 
     /**
-     * @brief Sets the index of the particle this individual represents in the swarm.
-     * @param particle The particle index to store
-     */
-    void setParticle(std::size_t particle);
-    /**
-     * @brief Retrieves the index of the particle this individual represents in the swarm.
-     * @return The stored particle index
-     */
-    std::size_t getParticle() const;
-
-    /**
      * @brief Retrieves the mnemonic of the optimization algorithm.
-     * @return The short mnemonic string identifying this personality
+     * @return The short mnemonic string identifying the standard PSO 2011
      */
     std::string getMnemonic() const override;
 
-protected:
-    /***************************************************************************/
-    // Virtual or overridden protected functions
-
-    /**
-     * @brief Loads the data of another GStandardPSO2011_PersonalityTraits object.
-     * @param The other object whose data is loaded into this one (downcast from GPersonalityTraits)
-     */
-    void load_(const GPersonalityTraits *cp) override;
-
-    /** @brief Allow access to this classes compare_ function */
-    friend void Gem::Common::compare_base_t<GStandardPSO2011_PersonalityTraits>(
-        GStandardPSO2011_PersonalityTraits const &,
-        GStandardPSO2011_PersonalityTraits const &,
-        Gem::Common::GToken &
-    );
-
-    /**
-     * @brief Searches for compliance with expectations with respect to another object of the same type.
-     * @param The other object to compare against (downcast from GPersonalityTraits)
-     * @param The expectation for this object, e.g. equality
-     * @param The limit for allowed deviations of floating point types
-     */
-    void compare_(
-        const GPersonalityTraits &cp // the other object
-        ,
-        const Gem::Common::expectation &e // the expectation for this object, e.g. equality
-        ,
-        [[maybe_unused]] const double &limit // the limit for allowed deviations of floating point types
-    ) const override;
-
-    /** @brief Applies modifications to this object. This is needed for testing purposes */
-    bool modify_GUnitTests_() override;
-    /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-    void specificTestsNoFailureExpected_GUnitTests_() override;
-    /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-    void specificTestsFailuresExpected_GUnitTests_() override;
-
-    /***************************************************************************/
+    /** @brief Sets the particle's index in the swarm (PSO-vocabulary alias for setPopulationPosition).
+     *  @param particle The particle's index in the swarm */
+    void setParticle(std::size_t particle) { this->setPopulationPosition(particle); }
+    /** @brief Retrieves the particle's index in the swarm (PSO-vocabulary alias for getPopulationPosition).
+     *  @return The particle's index in the swarm */
+    std::size_t getParticle() const { return this->getPopulationPosition(); }
 
 private:
-    /** @brief Emits a name for this class / object */
+    /**
+     * @brief Emits a name for this class / object.
+     * @return The class name of this personality-traits object
+     */
     std::string name_() const override;
-    /** @brief Creates a deep clone of this object */
+    /**
+     * @brief Creates a deep clone of this object.
+     * @return A newly allocated deep copy of this object, as a GPersonalityTraits pointer
+     */
     GPersonalityTraits *clone_() const override;
-
-    /** @brief The index of the particle this individual represents in the swarm */
-    std::size_t particle_ = 0;
 };
 
 /******************************************************************************/

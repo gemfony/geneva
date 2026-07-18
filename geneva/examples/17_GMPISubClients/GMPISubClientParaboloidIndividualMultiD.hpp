@@ -62,9 +62,9 @@ class GAdaptionConfigBase;
 /******************************************************************/
 /**
      * This class demonstrates the functionality of GMPISubClientIndividual.
-     * In the fitnessCalculation function it will communicate to MPI sub-clients.
+     * In the evaluate() function it will communicate to MPI sub-clients.
      * In this example we just send an example message. But in a real implementation
-     * real data would be sent in order to solve the fitnessCalculation in a distributed manner.
+     * real data would be sent in order to solve the evaluation in a distributed manner.
      */
 class GMPISubClientParaboloidIndividualMultiD : public GMPISubClientIndividual {
     /** @brief Make the class accessible to Boost.Serialization */
@@ -79,7 +79,7 @@ class GMPISubClientParaboloidIndividualMultiD : public GMPISubClientIndividual {
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         using boost::serialization::make_nvp;
         // Serialize the base class
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gen::GFlatGenome);
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gen::GGenome);
         // Add other variables here like this:
         // ar & BOOST_SERIALIZATION_NVP(sampleVariable);
     }
@@ -96,14 +96,14 @@ public:
     /** @brief The OA-owned adaption config authoring this genome's per-parameter Gauss groups, built from
      *  the genome layout. Static (no adaptor data resides on the individual). */
     static std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase>
-    buildAdaptionConfig(const gen::GFlatGenome &sample);
+    buildAdaptionConfig(const gen::GGenome &sample);
 
 protected:
     /** @brief Loads the data of another GMPISubClientParaboloidIndividualMultiD */
     void load_(const gen::GOptimizableEntity *) final;
 
-    /** @brief The actual fitness calculation takes place here. */
-    double fitnessCalculation() final;
+    /** @brief The evaluation hook: sum of squares of the genome (single criterion). */
+    std::vector<double> evaluate() final;
 
 private:
     /** @brief calculates the square of all parameters in this parameters set together with all sub-clients */
@@ -115,7 +115,7 @@ private:
     );
 
     /** @brief Creates a deep clone of this object */
-    [[nodiscard]] gen::GFlatGenome *clone_() const final;
+    [[nodiscard]] gen::GGenome *clone_() const final;
 
     const double M_PAR_MIN;
     const double M_PAR_MAX;

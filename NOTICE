@@ -6,7 +6,7 @@ with kind support by the Helmholtz Society and by Steinbuch Centre
 for Computing at the Karlsruhe Institute of Technology (as well as
 other departments). It was later maintained together with Dr. Ariel Garcia under
 the auspices of Gemfony scientific. For further information on Gemfony scientific,
-see http://www.gemfomy.eu .
+see http://www.gemfony.eu .
 
 Predecessors of Geneva were developed as of 1994 in the context of a diploma
 thesis by Ruediger Berlich at the Institute for Experimental Physics I at
@@ -61,31 +61,16 @@ an external library's public interface.
 Credits
 -------
 
-We'd like to sincerely thank Dr. Sven Gabriel for his kind
-support and for discovering numerous problems.
+The current release is a substantial redesign of Geneva. Over the library's
+long history, many people contributed to earlier versions -- through their
+support, suggestions, bug reports, ports and joint projects -- and we would like
+to warmly thank them:
 
-Alexander Müller of the Friedrich-Alexander-Universität Erlangen-
-Nürnberg has made many suggestions, discovered bugs and has given
-important advice for porting Geneva to Windows.
+  Dr. Ariel Garcia, Dr. Sven Gabriel; Alexander Müller (Friedrich-Alexander-Universität Erlangen-
+  Nürnberg); Lisa Schätzle; Mathias Michel (Mainz University); Dominik Rödel and
+  Felix Zürker (then Tenneco Clean Air Europe); Prof. Dr. Matthias Lutz and Dr. Kilian
+  Schwarz (GSI Darmstadt); and Jonas Wessner.
 
-Lisa Schätzle has helped with the improvement of the Gradient Descent
-implementation.
-
-Mathias Michel of Mainz University has kindly shared his experiences
-during the deployment of Geneva in a package used for Dalitz plot
-analysis and thus helped to mature Geneva.
-
-Dominik Rödel and Felix Zürker of Tenneco Clean Air Europe made
-many valuable suggestions during a joint project dealing with the
-optimization of the acoustics of exhaust systems.
-
-The work with Prof. Dr. Matthias Lutz and Dr. Kilian Schwarz of
-GSI Darmstadt on scalability issues and optimization efficiency
-of a particular use case from particle physics has helped to make
-Geneva a more mature and versatile solution.
-
-Jonas Wessner has contributed a new MPI consumer that greatly improves
-efficiency in a cluster environment, and has analysed many aspects
-of Geneva for his Bachelor thesis. His work significantly contributes
-to the further development of Geneva.
+Our thanks also go to everyone whose feedback and use of Geneva have helped it
+mature over the years.
 

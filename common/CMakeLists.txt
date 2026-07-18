@@ -42,6 +42,8 @@
 
 ADD_SUBDIRECTORY ( include/common )
 ADD_SUBDIRECTORY ( src )
+# Core build-time tooling (the config-overlay helper), built unconditionally after the library it links.
+ADD_SUBDIRECTORY ( tools )
 
 IF ( GENEVA_BUILD_TESTS )
 	ADD_SUBDIRECTORY ( tests )

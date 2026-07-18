@@ -40,8 +40,8 @@
 #ifdef GENEVA_BUILD_WITH_MPI_CONSUMER
 
 #include <cstddef>
-#include <iostream>
 #include <memory>
+#include <print>
 #include <vector>
 #include <span>
 
@@ -80,11 +80,11 @@ int main(int argc, char **argv) {
         }
 
         if(processed == N) {
-            std::cout << "OK: " << processed << "/" << N << " items processed over MPI ("
-                      << consumer->getCommSize() << " ranks)\n";
+            std::println("OK: {}/{} items processed over MPI ({} ranks)",
+                         processed, N, consumer->getCommSize());
             return 0;
         }
-        std::cout << "FAIL: only " << processed << "/" << N << " items processed\n";
+        std::println("FAIL: only {}/{} items processed", processed, N);
         return 1;
     }
 

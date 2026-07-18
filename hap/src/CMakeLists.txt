@@ -45,7 +45,6 @@ SET ( HAPSOURCES
 	GHapEnums.cpp
 	GRandomBase.cpp
 	GRandomFactory.cpp
-	GRandomT.cpp
 	GStagedSource.cpp
 	GQuarantineSource.cpp
 )
@@ -54,7 +53,6 @@ SET_SOURCE_FILES_PROPERTIES(
 		${HAPSOURCES}
 		PROPERTIES
 		LANGUAGE CXX
-		CXX_STANDARD 20
 )
 
 # If we compile with CUDA support, add the appropriate file
@@ -68,8 +66,6 @@ IF(GENEVA_USE_CUDA_RNG_ENABLED)
 		GCUDARng.cu
 		PROPERTIES
 		LANGUAGE CUDA
-		CMAKE_CUDA_STANDARD 20
-		CMAKE_CUDA_STANDARD_REQUIRED ON
 	)
 ENDIF ()
 
@@ -79,9 +75,6 @@ SET_TARGET_PROPERTIES(
     ${HAP_LIBNAME}
     PROPERTIES
     VERSION ${GENEVA_VERSION}
-	CXX_STANDARD 20
-	CXX_STANDARD_REQUIRED ON
-	CXX_EXTENSIONS OFF
 	CUDA_ARCHITECTURES 80 86 89
 	EXPORT_NAME hap
 )
@@ -90,14 +83,14 @@ target_compile_options(${HAP_LIBNAME} PRIVATE
 		$<$<COMPILE_LANGUAGE:CUDA>:--extended-lambda>
 )
 
-# Export the include directory and require C++20 transitively.
+# Export the include directory. The C++ standard is selected centrally in
+# CMakeModules/CommonGenevaBuild.cmake.
 TARGET_INCLUDE_DIRECTORIES(
     ${HAP_LIBNAME}
     PUBLIC
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/hap/include>
     $<INSTALL_INTERFACE:include>
 )
-TARGET_COMPILE_FEATURES(${HAP_LIBNAME} PUBLIC cxx_std_20)
 
 # Default-source selection for the Gem::Hap::GRandom alias (see HAP_RANDOM_SOURCE in the
 # top-level CMakeLists). The macro is PUBLIC so every consumer of <hap/GRandomT.hpp> sees the

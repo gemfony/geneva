@@ -33,11 +33,14 @@
 #include "common/GGlobalDefines.hpp"
 
 // Standard header files go here
+#include <array>
 #include <algorithm>
 #include <chrono>
 #include <filesystem>
 #include <any>
+#include <format>
 #include <fstream>
+#include <ranges>
 #include <string>
 #include <type_traits>
 
@@ -174,7 +177,7 @@ class GFitnessMonitor // NOLINT(cppcoreguidelines-special-member-functions)
      * objects in its state. No manual tail is needed.
      */
     template <typename Self>
-    static auto localMembers_(Self &self) {
+    auto localMembers_(this Self &self) {
         return std::make_tuple(
             Gem::Common::make_member("x_dim_", self.x_dim_),
             Gem::Common::make_member("y_dim_", self.y_dim_),
@@ -193,7 +196,7 @@ class GFitnessMonitor // NOLINT(cppcoreguidelines-special-member-functions)
         );
 
         // All members are derived from the single localMembers() declaration.
-        Gem::Common::serialize_members(ar, localMembers_(*this));
+        Gem::Common::serialize_members(ar, this->localMembers_());
     }
 
     ///////////////////////////////////////////////////////////////////////
@@ -355,7 +358,7 @@ class GCollectiveMonitor // NOLINT(cppcoreguidelines-special-member-functions)
      * its bespoke body below.
      */
     template <typename Self>
-    static auto localMembers_(Self &self) {
+    auto localMembers_(this Self &self) {
         return std::make_tuple(
             Gem::Common::make_cloneable_container_member("pluggable_monitors_", self.pluggable_monitors_)
         );
@@ -495,7 +498,7 @@ class GProgressPlotterT // NOLINT(cppcoreguidelines-special-member-functions)
      * the documented manual tail.
      */
     template <typename Self>
-    static auto localMembers_(Self &self) {
+    auto localMembers_(this Self &self) {
         return std::make_tuple(
             Gem::Common::make_member("canvas_label_", self.canvas_label_),
             Gem::Common::make_member("file_name_", self.file_name_),
@@ -520,7 +523,7 @@ class GProgressPlotterT // NOLINT(cppcoreguidelines-special-member-functions)
         ar & BOOST_SERIALIZATION_NVP(fp_prof_var_vec_);
 
         // The unconditionally-handled members, derived from localMembers().
-        Gem::Common::serialize_members(ar, localMembers_(*this));
+        Gem::Common::serialize_members(ar, this->localMembers_());
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -606,17 +609,9 @@ public:
         //---------------------------------------------------------------------------
         // Retrieve the parameters
 
-        std::tuple<
-            typename std::vector<gen::parPropSpec<fp_type>>::const_iterator,
-            typename std::vector<gen::parPropSpec<fp_type>>::const_iterator>
-            t_d = ppp.getIterators<fp_type>();
-
-        typename std::vector<gen::parPropSpec<fp_type>>::const_iterator fp_cit = std::get<0>(t_d);
-        typename std::vector<gen::parPropSpec<fp_type>>::const_iterator d_end = std::get<1>(t_d);
-        for(; fp_cit != d_end;
-            ++fp_cit) { // Note: fp_cit is already set to the begin of the double parameter arrays
-            fp_prof_var_vec_.push_back(*fp_cit);
-        }
+        // fp_cit is already set to the begin of the double parameter arrays; append that half-open range.
+        auto [fp_cit, d_end] = ppp.getIterators<fp_type>();
+        fp_prof_var_vec_.append_range(std::ranges::subrange(fp_cit, d_end));
 
         //---------------------------------------------------------------------------
     }
@@ -800,42 +795,10 @@ public:
 	  * @return A human-readable label string for the given variable
 	  */
     std::string getLabel(const gen::parPropSpec<fp_type> &s) const {
-        std::string result; // NOLINT(cppcoreguidelines-init-variables)
-
-        std::size_t var_mode = std::get<0>(s.var);
-        std::string var_name = std::get<1>(s.var);
-        std::size_t var_pos = std::get<2>(s.var);
-
-        switch(var_mode) {
-        //--------------------------------------------------------------------
-        case 0: // parameters are identified by id
-        {
-            result = std::string("variable id ") + Gem::Common::to_string(var_pos);
-        } break;
-
-            //--------------------------------------------------------------------
-        case 1: {
-            result = var_name + "[" + Gem::Common::to_string(var_pos) + "]";
-        } break;
-
-            //--------------------------------------------------------------------
-        case 2: {
-            result = var_name;
-        } break;
-
-            //--------------------------------------------------------------------
-        default: {
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GProgressPlotterT<fp_type>::getLabel(): Error" << '\n'
-                << "Invalid mode " << var_mode << " requested" << '\n'
-            );
-        }
-
-            //--------------------------------------------------------------------
-        };
-
-        return result;
+        // All monitored parameters are addressed positionally (the former by-name addressing
+        // modes have been removed).
+        const std::size_t var_pos = std::get<2>(s.var);
+        return std::string("variable id ") + Gem::Common::to_string(var_pos);
     }
 
 protected:
@@ -856,7 +819,7 @@ protected:
         Gem::Common::copyCloneableObjectsContainer(p_load->fp_prof_var_vec_, fp_prof_var_vec_);
 
         // ... and then the unconditionally-handled members, derived from localMembers().
-        Gem::Common::g_load_members(localMembers_(*this), localMembers_(*p_load));
+        Gem::Common::g_load_members(this->localMembers_(), p_load->localMembers_());
     }
 
     /***************************************************************************/
@@ -895,7 +858,7 @@ protected:
         compare_t(Gem::Common::getIdentity(fp_prof_var_vec_, p_load->fp_prof_var_vec_, "fp_prof_var_vec_", "p_load->fp_prof_var_vec_"), token);
 
         // ... and then the unconditionally-handled members, derived from localMembers().
-        Gem::Common::g_compare_members(localMembers_(*this), localMembers_(*p_load), token);
+        Gem::Common::g_compare_members(this->localMembers_(), p_load->localMembers_(), token);
 
         // React on deviations from the expectation
         token.evaluate();
@@ -1051,206 +1014,14 @@ private:
         } break;
 
         case Gem::Geneva::infoMode::INFOPROCESSING: {
-            double primary_fitness = 0.;
-
-            if(monitor_best_only_) { // Monitor the best individuals only
+            if(monitor_best_only_) { // Monitor the best individual only
                 std::shared_ptr<gen::GOptimizableEntity> p =
                     goa->Interface::GOptimizerIT<oa::GOptimizationAlgorithmBase>::getBestGlobalIndividual<gen::GOptimizableEntity>();
-                if(oa::GBasePluggableOM::use_raw_evaluation_) {
-                    primary_fitness = p->raw_fitness(0);
-                }
-                else {
-                    primary_fitness = p->transformed_fitness(0);
-                }
-
-                if(not monitor_valid_only_ || p->isValid()) {
-                    switch(this->nProfileVars()) {
-                    case 1: {
-                        auto val0 = p->GOptimizableEntity::getVarVal<fp_type>(fp_prof_var_vec_[0].var);
-
-                        if(observe_boundaries_) {
-                            if(val0 >= fp_prof_var_vec_[0].lowerBoundary &&
-                               val0 <= fp_prof_var_vec_[0].upperBoundary) {
-                                data_log_->append(active_series_, double(val0), primary_fitness);
-                            }
-                        }
-                        else {
-                            data_log_->append(active_series_, double(val0), primary_fitness);
-                        }
-                    } break;
-
-                    case 2: {
-                        auto val0 = p->GOptimizableEntity::getVarVal<fp_type>(fp_prof_var_vec_[0].var);
-                        auto val1 = p->GOptimizableEntity::getVarVal<fp_type>(fp_prof_var_vec_[1].var);
-
-                        if(observe_boundaries_) {
-                            if(val0 >= fp_prof_var_vec_[0].lowerBoundary &&
-                               val0 <= fp_prof_var_vec_[0].upperBoundary &&
-                               val1 >= fp_prof_var_vec_[1].lowerBoundary &&
-                               val1 <= fp_prof_var_vec_[1].upperBoundary) {
-                                data_log_->append(active_series_, 
-                                    std::tuple<double, double, double>(
-                                        double(val0),
-                                        double(val1),
-                                        primary_fitness
-                                    )
-                                );
-                            }
-                        }
-                        else {
-                            data_log_->append(active_series_, 
-                                std::tuple<double, double, double>(
-                                    double(val0),
-                                    double(val1),
-                                    primary_fitness
-                                )
-                            );
-                        }
-                    } break;
-
-                    case 3: {
-                        auto val0 = p->GOptimizableEntity::getVarVal<fp_type>(fp_prof_var_vec_[0].var);
-                        auto val1 = p->GOptimizableEntity::getVarVal<fp_type>(fp_prof_var_vec_[1].var);
-                        auto val2 = p->GOptimizableEntity::getVarVal<fp_type>(fp_prof_var_vec_[2].var);
-
-                        if(observe_boundaries_) {
-                            if(val0 >= fp_prof_var_vec_[0].lowerBoundary &&
-                               val0 <= fp_prof_var_vec_[0].upperBoundary &&
-                               val1 >= fp_prof_var_vec_[1].lowerBoundary &&
-                               val1 <= fp_prof_var_vec_[1].upperBoundary &&
-                               val2 >= fp_prof_var_vec_[2].lowerBoundary &&
-                               val2 <= fp_prof_var_vec_[2].upperBoundary) {
-                                data_log_->append(active_series_, 
-                                    std::tuple<double, double, double, double>(
-                                        double(val0),
-                                        double(val1),
-                                        double(val2),
-                                        primary_fitness
-                                    )
-                                );
-                            }
-                        }
-                        else {
-                            data_log_->append(active_series_, 
-                                std::tuple<double, double, double, double>(
-                                    double(val0),
-                                    double(val1),
-                                    double(val2),
-                                    primary_fitness
-                                )
-                            );
-                        }
-                    } break;
-
-                    default: // Do nothing by default. The number of profiling dimensions is too large
-                        break;
-                    }
-                }
+                this->logIndividual_(*p);
             }
             else { // Monitor all individuals
                 for(const auto &ind_ptr : *goa) {
-                    if(oa::GBasePluggableOM::use_raw_evaluation_) {
-                        primary_fitness = ind_ptr->individual().raw_fitness(0);
-                    }
-                    else {
-                        primary_fitness = ind_ptr->individual().transformed_fitness(0);
-                    }
-
-                    if(not monitor_valid_only_ || ind_ptr->individual().isValid()) {
-                        switch(this->nProfileVars()) {
-                        case 1: {
-                            auto val0 = ind_ptr->individual().getVarVal<fp_type>(
-                                fp_prof_var_vec_[0].var
-                            );
-
-                            if(observe_boundaries_) {
-                                if(val0 >= fp_prof_var_vec_[0].lowerBoundary &&
-                                   val0 <= fp_prof_var_vec_[0].upperBoundary) {
-                                    data_log_->append(active_series_, double(val0), primary_fitness);
-                                }
-                            }
-                            else {
-                                data_log_->append(active_series_, double(val0), primary_fitness);
-                            }
-                        } break;
-
-                        case 2: {
-                            auto val0 = ind_ptr->individual().getVarVal<fp_type>(
-                                fp_prof_var_vec_[0].var
-                            );
-                            auto val1 = ind_ptr->individual().getVarVal<fp_type>(
-                                fp_prof_var_vec_[1].var
-                            );
-
-                            if(observe_boundaries_) {
-                                if(val0 >= fp_prof_var_vec_[0].lowerBoundary &&
-                                   val0 <= fp_prof_var_vec_[0].upperBoundary &&
-                                   val1 >= fp_prof_var_vec_[1].lowerBoundary &&
-                                   val1 <= fp_prof_var_vec_[1].upperBoundary) {
-                                    data_log_->append(active_series_, 
-                                        std::tuple<double, double, double>(
-                                            double(val0),
-                                            double(val1),
-                                            primary_fitness
-                                        )
-                                    );
-                                }
-                            }
-                            else {
-                                data_log_->append(active_series_, 
-                                    std::tuple<double, double, double>(
-                                        double(val0),
-                                        double(val1),
-                                        primary_fitness
-                                    )
-                                );
-                            }
-                        } break;
-
-                        case 3: {
-                            auto val0 = ind_ptr->individual().getVarVal<fp_type>(
-                                fp_prof_var_vec_[0].var
-                            );
-                            auto val1 = ind_ptr->individual().getVarVal<fp_type>(
-                                fp_prof_var_vec_[1].var
-                            );
-                            auto val2 = ind_ptr->individual().getVarVal<fp_type>(
-                                fp_prof_var_vec_[2].var
-                            );
-
-                            if(observe_boundaries_) {
-                                if(val0 >= fp_prof_var_vec_[0].lowerBoundary &&
-                                   val0 <= fp_prof_var_vec_[0].upperBoundary &&
-                                   val1 >= fp_prof_var_vec_[1].lowerBoundary &&
-                                   val1 <= fp_prof_var_vec_[1].upperBoundary &&
-                                   val2 >= fp_prof_var_vec_[2].lowerBoundary &&
-                                   val2 <= fp_prof_var_vec_[2].upperBoundary) {
-                                    data_log_->append(active_series_, 
-                                        std::tuple<double, double, double, double>(
-                                            double(val0),
-                                            double(val1),
-                                            double(val2),
-                                            primary_fitness
-                                        )
-                                    );
-                                }
-                            }
-                            else {
-                                data_log_->append(active_series_, 
-                                    std::tuple<double, double, double, double>(
-                                        double(val0),
-                                        double(val1),
-                                        double(val2),
-                                        primary_fitness
-                                    )
-                                );
-                            }
-                        } break;
-
-                        default: // Do nothing by default. The number of profiling dimensions is too large
-                            break;
-                        }
-                    }
+                    this->logIndividual_(*ind_ptr);
                 }
             }
         } break;
@@ -1271,6 +1042,62 @@ private:
             data_log_.reset();
         } break;
         };
+    }
+
+    /************************************************************************/
+    /**
+     * @brief Logs one individual's profiled variables (plus its primary fitness) into the active
+     * series, applying the validity and boundary filters. Shared by the best-only and
+     * all-individuals monitoring paths (formerly two copies of a per-dimension switch, each
+     * duplicated for the boundary filter).
+     *
+     * @param ind The individual whose profiled variables are logged
+     */
+    void logIndividual_(gen::GOptimizableEntity &ind) {
+        const double primary_fitness = oa::GBasePluggableOM::use_raw_evaluation_
+            ? ind.raw_fitness(0)
+            : ind.transformed_fitness(0);
+
+        if(monitor_valid_only_ && not ind.isValid()) {
+            return;
+        }
+
+        const std::size_t n_vars = this->nProfileVars();
+        if(n_vars < 1 || n_vars > 3) {
+            return; // too many profiling dimensions: nothing is logged (no series was declared)
+        }
+
+        // Read the profiled values; with the boundary filter on, an individual outside any
+        // observed window is not logged at all.
+        std::array<double, 3> vals{};
+        for(std::size_t i = 0; i < n_vars; ++i) {
+            const auto v = ind.GOptimizableEntity::template getVarVal<fp_type>(fp_prof_var_vec_[i].var);
+            if(observe_boundaries_ &&
+               (v < fp_prof_var_vec_[i].lowerBoundary || v > fp_prof_var_vec_[i].upperBoundary)) {
+                return;
+            }
+            vals[i] = double(v);
+        }
+
+        switch(n_vars) {
+        case 1:
+            data_log_->append(active_series_, vals[0], primary_fitness);
+            break;
+        case 2:
+            data_log_->append(
+                active_series_,
+                std::tuple<double, double, double>(vals[0], vals[1], primary_fitness)
+            );
+            break;
+        case 3:
+            data_log_->append(
+                active_series_,
+                std::tuple<double, double, double, double>(vals[0], vals[1], vals[2], primary_fitness)
+            );
+            break;
+        default:
+            break;
+        }
     }
 
     /************************************************************************/
@@ -1317,7 +1144,7 @@ private:
  * asking the class to only log solutions better than a given set of values. What
  * is considered better depends on whether evaluation criteria are maximized or minimized
  * and is determined from the individual. Note that this class operates on the
- * GOptimizableEntity hierarchy (the flat-genome GFlatGenome / its GenomeData), i.e. on
+ * GOptimizableEntity hierarchy (the flat-genome GGenome / its GenomeData), i.e. on
  * the optimizable entities managed by the algorithm.
  */
 class GAllSolutionFileLogger // NOLINT(cppcoreguidelines-special-member-functions)
@@ -1332,7 +1159,7 @@ class GAllSolutionFileLogger // NOLINT(cppcoreguidelines-special-member-function
      * config values (make_member); no manual tail is needed.
      */
     template <typename Self>
-    static auto localMembers_(Self &self) {
+    auto localMembers_(this Self &self) {
         return std::make_tuple(
             Gem::Common::make_member("file_name_", self.file_name_),
             Gem::Common::make_member("boundaries_", self.boundaries_),
@@ -1356,7 +1183,7 @@ class GAllSolutionFileLogger // NOLINT(cppcoreguidelines-special-member-function
         );
 
         // All members are derived from the single localMembers() declaration.
-        Gem::Common::serialize_members(ar, localMembers_(*this));
+        Gem::Common::serialize_members(ar, this->localMembers_());
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -1579,7 +1406,7 @@ class GIterationResultsFileLogger // NOLINT(cppcoreguidelines-special-member-fun
      * config values (make_member); no manual tail is needed.
      */
     template <typename Self>
-    static auto localMembers_(Self &self) {
+    auto localMembers_(this Self &self) {
         return std::make_tuple(
             Gem::Common::make_member("file_name_", self.file_name_),
             Gem::Common::make_member("with_commas_", self.with_commas_),
@@ -1597,7 +1424,7 @@ class GIterationResultsFileLogger // NOLINT(cppcoreguidelines-special-member-fun
         );
 
         // All members are derived from the single localMembers() declaration.
-        Gem::Common::serialize_members(ar, localMembers_(*this));
+        Gem::Common::serialize_members(ar, this->localMembers_());
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -1734,7 +1561,7 @@ class GNAdpationsLogger // NOLINT(cppcoreguidelines-special-member-functions)
      * n_adaptions_store_ / fitness_store_ vectors. No manual tail is needed.
      */
     template <typename Self>
-    static auto localMembers_(Self &self) {
+    auto localMembers_(this Self &self) {
         return std::make_tuple(
             Gem::Common::make_member("file_name_", self.file_name_),
             Gem::Common::make_member("canvas_dimensions_", self.canvas_dimensions_),
@@ -1757,7 +1584,7 @@ class GNAdpationsLogger // NOLINT(cppcoreguidelines-special-member-functions)
         );
 
         // All members are derived from the single localMembers() declaration.
-        Gem::Common::serialize_members(ar, localMembers_(*this));
+        Gem::Common::serialize_members(ar, this->localMembers_());
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -1926,7 +1753,7 @@ class GAdaptorPropertyLoggerT // NOLINT(cppcoreguidelines-special-member-functio
      * adaptor_property_store_ / fitness_store_ vectors. No manual tail is needed.
      */
     template <typename Self>
-    static auto localMembers_(Self &self) {
+    auto localMembers_(this Self &self) {
         return std::make_tuple(
             Gem::Common::make_member("file_name_", self.file_name_),
             Gem::Common::make_member("adaptor_name_", self.adaptor_name_),
@@ -1951,7 +1778,7 @@ class GAdaptorPropertyLoggerT // NOLINT(cppcoreguidelines-special-member-functio
         );
 
         // All members are derived from the single localMembers() declaration.
-        Gem::Common::serialize_members(ar, localMembers_(*this));
+        Gem::Common::serialize_members(ar, this->localMembers_());
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -2156,7 +1983,7 @@ protected:
         oa::GBasePluggableOM::load_(cp);
 
         // ... and then all local data, derived from the single localMembers() declaration.
-        Gem::Common::g_load_members(localMembers_(*this), localMembers_(*p_load));
+        Gem::Common::g_load_members(this->localMembers_(), p_load->localMembers_());
     }
 
     /** @brief Allow access to this classes compare_ function */
@@ -2195,7 +2022,7 @@ protected:
         Gem::Common::compare_base_t<oa::GBasePluggableOM>(*this, *p_load, token);
 
         // ... and then all local data, derived from the single localMembers() declaration.
-        Gem::Common::g_compare_members(localMembers_(*this), localMembers_(*p_load), token);
+        Gem::Common::g_compare_members(this->localMembers_(), p_load->localMembers_(), token);
 
         // React on deviations from the expectation
         token.evaluate();
@@ -2333,7 +2160,7 @@ private:
             n_iterations_recorded_++;
 
             // Do the actual logging. The per-group adaption state (sigma, …) is OA-owned
-            // scratch and lives on the GIndividualSlot, not on the individual. The live evolving sigma
+            // scratch carried on the individual itself. The live evolving sigma
             // is therefore read from each population slot's scratch via readAdaptionSigmas(). Only the
             // "sigma" property is exposed by the flat genome.
             //
@@ -2387,8 +2214,7 @@ private:
             // makePlotter() rebuild exactly the GHistogram2D the legacy path constructed.
             GPlotSpec spec(plotKind::hist_2d);
             spec.x_label = "Iteration";
-            spec.y_label = std::string("Adaptor-Name: ") + adaptor_name_ +
-                           std::string(", Property: ") + property_;
+            spec.y_label = std::format("Adaptor-Name: {}, Property: {}", adaptor_name_, property_);
             spec.drawing_args = "BOX";
             spec.columns = {"x", "y"};
             spec.n_bins_x = n_iterations_recorded_;
@@ -2476,7 +2302,7 @@ class GProcessingTimesLogger // NOLINT(cppcoreguidelines-special-member-function
      * INFOPROCESSING and written at INFOEND. No manual tail is needed.
      */
     template <typename Self>
-    static auto localMembers_(Self &self) {
+    auto localMembers_(this Self &self) {
         return std::make_tuple(
             Gem::Common::make_member("file_name_pth_", self.file_name_pth_),
             Gem::Common::make_member("canvas_dimensions_pth_", self.canvas_dimensions_pth_),
@@ -2498,7 +2324,7 @@ class GProcessingTimesLogger // NOLINT(cppcoreguidelines-special-member-function
         );
 
         // All members are derived from the single localMembers() declaration.
-        Gem::Common::serialize_members(ar, localMembers_(*this));
+        Gem::Common::serialize_members(ar, this->localMembers_());
     }
     ///////////////////////////////////////////////////////////////////////
 

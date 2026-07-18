@@ -36,10 +36,12 @@
 #include <algorithm>
 #include <cctype>
 #include <iostream>
+#include <ranges>
 #include <sstream>
 #include <stdexcept>
 #include <string>
 #include <tuple>
+#include <vector>
 
 
 #include "common/GCommonMathHelperFunctionsT.hpp"
@@ -107,7 +109,7 @@ std::vector<GAlgorithmBenchmarkResult> GAlgorithmBenchmarkRunner::run() {
             << std::endl << GLOGGING;
 
     // Individual configuration (shared across all runs). GFunctionIndividual is a flat individual driven
-    // by the generic GFlatIndividualFactory; this benchmark needs a specific genome DIMENSION, so it builds
+    // by the generic GIndividualFactory; this benchmark needs a specific genome DIMENSION, so it builds
     // individuals directly through the static hooks rather than through the factory (whose par_dim is fixed
     // by the config file).
     gind::GFunctionIndividual::Config indCfg =
@@ -140,6 +142,21 @@ std::vector<GAlgorithmBenchmarkResult> GAlgorithmBenchmarkRunner::run() {
     }
 
     return allResults;
+}
+
+/******************************************************************************/
+/**
+ * @brief Materializes every configuration this benchmark owns without running it.
+ */
+void GAlgorithmBenchmarkRunner::emitConfigs() {
+    // The shared individual configuration (create-if-absent / rewritten in update-in-place mode).
+    (void) gind::GFunctionIndividual::readConfig(cfg_.individualConfigFile);
+
+    // Each configured algorithm's configuration, materialized by constructing its factory -- the same
+    // call runOne() makes, minus the optimization run.
+    for (const auto &entry : cfg_.algorithms) {
+        (void) makeAlgorithm(entry);
+    }
 }
 
 /******************************************************************************/
@@ -249,18 +266,18 @@ GAlgorithmBenchmarkResult GAlgorithmBenchmarkRunner::aggregate(
 
     if (runs.empty()) return agg;
 
-    std::vector<double> fitness, iterations, wallTime;
-    fitness.reserve(runs.size());
-    iterations.reserve(runs.size());
-    wallTime.reserve(runs.size());
-    std::size_t successCount = 0;
-
-    for (const auto &r : runs) {
-        fitness.push_back(r.finalFitness);
-        iterations.push_back(static_cast<double>(r.iterationsConsumed));
-        wallTime.push_back(r.wallTimeSeconds);
-        if (r.targetReached) ++successCount;
-    }
+    const auto fitness = runs
+        | std::views::transform([](const GBenchmarkRunResult &r) { return r.finalFitness; })
+        | std::ranges::to<std::vector<double>>();
+    const auto iterations = runs
+        | std::views::transform(
+              [](const GBenchmarkRunResult &r) { return static_cast<double>(r.iterationsConsumed); })
+        | std::ranges::to<std::vector<double>>();
+    const auto wallTime = runs
+        | std::views::transform([](const GBenchmarkRunResult &r) { return r.wallTimeSeconds; })
+        | std::ranges::to<std::vector<double>>();
+    const auto successCount =
+        std::ranges::count_if(runs, [](const GBenchmarkRunResult &r) { return r.targetReached; });
 
     auto [mf, sf] = Gem::Common::GStandardDeviation(fitness);
     auto [mi, si] = Gem::Common::GStandardDeviation(iterations);

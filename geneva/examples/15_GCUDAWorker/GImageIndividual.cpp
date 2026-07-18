@@ -268,7 +268,7 @@ void GImageIndividual::applyConfig(GImageIndividual &ind, const Config &c) {
 	 * @return A shared pointer to the populated OA-owned adaption config
 	 */
 std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase>
-GImageIndividual::buildAdaptionConfig(const gen::GFlatGenome &sample, const Config &c) {
+GImageIndividual::buildAdaptionConfig(const gen::GGenome &sample, const Config &c) {
     namespace oa = Gem::Geneva::OptimizationAlgorithms;
     auto cfg = oa::makeAdaptionConfig<oa::GAdaptionConfigBase>(sample);
     cfg->forLabel("loc").gauss(
@@ -280,11 +280,6 @@ GImageIndividual::buildAdaptionConfig(const gen::GFlatGenome &sample, const Conf
         adaptionMode::WITHPROBABILITY, c.min_ad_prob, c.max_ad_prob
     );
     return cfg;
-}
-
-/** @brief Allows an external entity to set our fitness */
-void GImageIndividual::setFitness(std::vector<double> const &result_vec) {
-    this->setFitness_(result_vec);
 }
 
 /***************************************************************************/
@@ -310,10 +305,10 @@ void GImageIndividual::compare_(
     GToken token("GImageIndividual", e);
 
     // Compare our parent data ...
-    Gem::Common::compare_base_t<gen::GFlatGenome>(*this, *p_load, token);
+    Gem::Common::compare_base_t<gen::GGenome>(*this, *p_load, token);
 
     // ... and then the local data
-    Gem::Common::g_compare_members(localMembers_(*this), localMembers_(*p_load), token);
+    Gem::Common::g_compare_members(this->localMembers_(), p_load->localMembers_(), token);
 
     // React on deviations from the expectation
     token.evaluate();
@@ -405,9 +400,9 @@ std::vector<CircleTriangle> GImageIndividual::getTriangleData() const {
 
 /******************************************************************************/
 /**
-	 * Loads the data of another GImageIndividual, camouflaged as a GFlatGenome.
+	 * Loads the data of another GImageIndividual, camouflaged as a GGenome.
 	 *
-	 * @param cp A copy of another GImageIndividual, camouflaged as a GFlatGenome
+	 * @param cp A copy of another GImageIndividual, camouflaged as a GGenome
 	 */
 void GImageIndividual::load_(const gen::GOptimizableEntity *cp) {
     // Check that we are indeed dealing with a GImageIndividual reference
@@ -415,39 +410,39 @@ void GImageIndividual::load_(const gen::GOptimizableEntity *cp) {
         Gem::Common::g_convert_and_compare<gen::GOptimizableEntity, GImageIndividual>(cp, this);
 
     // Load our parent's data
-    gen::GFlatGenome::load_(cp);
+    gen::GGenome::load_(cp);
 
     // Load local data
-    Gem::Common::g_load_members(localMembers_(*this), localMembers_(*p_load));
+    Gem::Common::g_load_members(this->localMembers_(), p_load->localMembers_());
 }
 
 /******************************************************************************/
 /**
 	 * Creates a deep clone of this object
 	 *
-	 * @return A deep clone of this object, camouflaged as a GFlatGenome
+	 * @return A deep clone of this object, camouflaged as a GGenome
 	 */
-gen::GFlatGenome *GImageIndividual::clone_() const {
+gen::GGenome *GImageIndividual::clone_() const {
     return new GImageIndividual(*this);
 }
 
 /******************************************************************************/
 /**
-	 * The actual fitness calculation takes place here.
-	 *
-	 * @return The value of this object
-	 */
-double GImageIndividual::fitnessCalculation() {
-    // The host fitness is computed on the CPU via the SAME render+score the GPU kernel uses
-    // (Gem::Geneva::MonaLisa::score, shared in GMonaLisaProblem.hpp). This makes the individual
-    // evaluable purely on the CPU -- to cross-check the GPU result and compare speed -- while the
-    // GGPUConsumer path uses the device kernel. Requires the target image to have been loaded
-    // (Gem::Geneva::MonaLisa::loadTarget) beforehand.
-    // The genome scalar type is selected at compile time (gimage_fp_t); streamline<gimage_fp_t>
-    // is required -- streamline<float> collects nothing from a double genome and vice-versa.
+ * The evaluation hook (a single criterion -> a one-element result vector).
+ *
+ * The host fitness is computed on the CPU via the SAME render+score the GPU kernel uses
+ * (Gem::Geneva::MonaLisa::score, shared in GMonaLisaProblem.hpp). This makes the individual evaluable purely
+ * on the CPU -- to cross-check the GPU result and compare speed -- while the GGPUConsumer path uses the device
+ * kernel. Requires the target image to have been loaded (Gem::Geneva::MonaLisa::loadTarget) beforehand. The
+ * genome scalar type is selected at compile time (gimage_fp_t); streamline<gimage_fp_t> is required --
+ * streamline<float> collects nothing from a double genome and vice-versa.
+ *
+ * @return The raw fitness (deviation from the target image) as a one-element vector
+ */
+std::vector<double> GImageIndividual::evaluate() {
     std::vector<gimage_fp_t> parVec;
     this->streamline(parVec);
-    return Gem::Geneva::MonaLisa::scoreAgainstTarget(parVec.data(), static_cast<int>(parVec.size()));
+    return {Gem::Geneva::MonaLisa::scoreAgainstTarget(parVec.data(), static_cast<int>(parVec.size()))};
 }
 
 /******************************************************************************/
@@ -462,11 +457,11 @@ bool GImageIndividual::modify_GUnitTests_() {
     // Call the parent classes' functions. This already random-initialises every genome parameter, so
     // the object is changed. The Gauss adaptor configuration is OA-owned and not exercised here (the
     // individual carries no adaptor data).
-    gen::GFlatGenome::modify_GUnitTests();
+    gen::GGenome::modify_GUnitTests();
 
     return true;
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-    condnotset("GImageIndividual::modify_GUnitTests", "GEM_TESTING");
+    Gem::Common::condnotset("GImageIndividual::modify_GUnitTests", "GEM_TESTING");
     return false;
 #endif                  /* GEM_TESTING */
 }
@@ -480,7 +475,7 @@ void GImageIndividual::specificTestsNoFailureExpected_GUnitTests_() {
     using namespace Gem::Geneva;
 
     // Call the parent classes' functions
-    gen::GFlatGenome::specificTestsNoFailureExpected_GUnitTests();
+    gen::GGenome::specificTestsNoFailureExpected_GUnitTests();
 
     const std::size_t NTESTS = 100;
 
@@ -500,7 +495,7 @@ void GImageIndividual::specificTestsNoFailureExpected_GUnitTests_() {
 
     //------------------------------------------------------------------------------
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-    condnotset("GImageIndividual::modify_GUnitTests", "GEM_TESTING");
+    Gem::Common::condnotset("GImageIndividual::modify_GUnitTests", "GEM_TESTING");
 #endif                  /* GEM_TESTING */
 }
 
@@ -513,13 +508,13 @@ void GImageIndividual::specificTestsFailuresExpected_GUnitTests_() {
     using namespace Gem::Geneva;
 
     // Call the parent classes' functions
-    gen::GFlatGenome::specificTestsFailuresExpected_GUnitTests();
+    gen::GGenome::specificTestsFailuresExpected_GUnitTests();
 
     //------------------------------------------------------------------------------
     //------------------------------------------------------------------------------
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-    condnotset("GImageIndividual::modify_GUnitTests", "GEM_TESTING");
+    Gem::Common::condnotset("GImageIndividual::modify_GUnitTests", "GEM_TESTING");
 #endif                  /* GEM_TESTING */
 }
 

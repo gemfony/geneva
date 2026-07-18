@@ -41,7 +41,6 @@
 // Geneva headers go here
 #include "common/GCommonMathHelperFunctionsT.hpp"
 #include "geneva/GOptimizationEnums.hpp"
-#include "hap/GDistributionCache.hpp"
 #include "hap/GRandomDistributionsT.hpp"
 #include "hap/GRandomT.hpp"
 
@@ -105,9 +104,8 @@ struct GaussState {
  * @return The number of values that were actually adapted.
  *
  * @note Shared implementation behind the public adaptGaussGroup() function. @p vsDelta supplies
- *       the per-value gaussian step: the ncache==nullptr path draws it inline from the shared @c normal
- *       object (bit-identical to the historical kernel), the cache path pops it from a prefetch
- *       cache. Self-adaption and the gates always draw inline from @p gr.
+ *       the per-value gaussian step, drawn inline from the shared @c normal object; self-adaption
+ *       and the gates also draw inline from @p gr.
  * @tparam ValueDelta A callable (g_normal_distribution<T>&, GRandomBase&, T sigma) -> T.
  */
 template <typename T, typename ValueDelta>
@@ -207,31 +205,13 @@ std::size_t adaptGaussGroupImpl(
 
 /******************************************************************************/
 /**
- * @brief The standard-normal prefetch cache type used by adaptGaussGroup's optional fast path.
- *
- * One cache type serves every channel: it pre-produces @e standard normals @f$z\sim N(0,1)@f$
- * (always double, cast where the channel is float); the kernel applies @f$\sigma z@f$ at consume.
- */
-using NormalPrefetchCache = Gem::Hap::GRNGDistributionCacheT<Gem::Hap::g_normal_distribution<double>>;
-
-/******************************************************************************/
-/**
- * @brief Adapts one Gauss group; the per-value N(0,sigma) step is drawn inline, or from a prefetch cache.
- *
- * When @p ncache is null (the default) every draw is inline -- bit-identical to the historical
- * kernel. When a cache is supplied, the dominant per-value gaussian step pops a prefetched standard
- * normal @f$z@f$ and scales it, @f$\delta=\sigma z@f$, so the @f$\sqrt{\cdot}@f$/@f$\log@f$ transform
- * runs ahead of the burst (see Gem::Hap::GRNGDistributionCacheT); self-adaption (sigma / adaption
- * probability) and the per-value bernoulli gate still draw inline from @p gr. Because the value-step
- * normals are then drawn from the cache rather than interleaved with the inline draws, the raw-word
- * consumption order differs: results are statistically equivalent but not bit-identical.
+ * @brief Adapts one Gauss group; the per-value N(0,sigma) step is drawn inline from @p gr.
  *
  * @tparam T The adaption floating-point type (double or float).
  * @param cfg The static, shared Gauss configuration for this group.
  * @param st The per-individual evolving Gauss state; updated in place.
  * @param values The group's parameter values to adapt, in their normalized internal representation.
- * @param gr The per-individual random engine for self-adaption, the gates, and (when no cache) the value step.
- * @param ncache Optional standard-normal prefetch cache for the value step; nullptr draws inline.
+ * @param gr The random engine for self-adaption, the gates, and the value step.
  * @return The number of values that were actually adapted.
  */
 template <typename T>
@@ -239,18 +219,9 @@ std::size_t adaptGaussGroup(
     const GaussConfig<T> &cfg,
     GaussState<T> &st,
     std::span<T> values,
-    Gem::Hap::GRandomBase &gr,
-    NormalPrefetchCache *ncache = nullptr
+    Gem::Hap::GRandomBase &gr
 ) {
     using n_param = typename Gem::Hap::g_normal_distribution<T>::param_type;
-    if(ncache != nullptr) {
-        return adaptGaussGroupImpl<T>(
-            cfg, st, values, gr,
-            [ncache](Gem::Hap::g_normal_distribution<T> & /*unused*/, Gem::Hap::GRandomBase &g, T sigma) {
-                return sigma * static_cast<T>((*ncache)(g)); // pop standard normal z, scale: sigma*z
-            }
-        );
-    }
     return adaptGaussGroupImpl<T>(
         cfg, st, values, gr,
         [](Gem::Hap::g_normal_distribution<T> &normal, Gem::Hap::GRandomBase &g, T sigma) {
@@ -269,7 +240,7 @@ std::size_t adaptGaussGroup(
  * GaussConfig<double> / GaussState<double> POD). Only the value step differs: instead of an FP delta it
  * adds a truncated gaussian integer step, with a guaranteed minimal change of +/-1 when the truncated step
  * is zero (mirroring GIntGaussAdaptorT::customAdaptions). There is NO fold in the kernel -- a
- * constrained integer folds into its range on read (GFlatGenome / foldConstrainedInt), exactly as the
+ * constrained integer folds into its range on read (GGenome / foldConstrainedInt), exactly as the
  * tree applies it via GConstrainedIntT.
  *
  * @param cfg The static, shared Gauss configuration for this group (sigma is a double; bounds, rates, mode).
@@ -379,7 +350,7 @@ inline std::size_t adaptGaussIntGroup(
  * ad_prob (which self-adapts log-normally like the Gauss one). There is no sigma self-adaption, so no
  * adaption-counter draw is made for a flip adaptor and none is modelled here. The value step is a
  * deterministic ±1 (integers) or a toggle (booleans); the integer fold into a constrained range is
- * applied by the genome on read (GFlatGenome / foldConstrainedInt).
+ * applied by the genome on read (GGenome / foldConstrainedInt).
  *
  * The adaption-fp type for the integer and boolean channels is double (their adaption_fp_type), so the
  * flip config / state are plain double POD.

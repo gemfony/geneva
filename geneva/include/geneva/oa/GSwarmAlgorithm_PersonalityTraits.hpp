@@ -66,7 +66,7 @@ class GSwarmAlgorithm_PersonalityTraits // NOLINT(cppcoreguidelines-special-memb
      * serialize()/load_()/compare_().
      */
     template <typename Self>
-    static auto localMembers_(Self &self) {
+    auto localMembers_(this Self &self) {
         return std::make_tuple(
             Gem::Common::make_member("neighborhood_", self.neighborhood_),
             Gem::Common::make_member("no_position_update_", self.no_position_update_),
@@ -82,7 +82,7 @@ class GSwarmAlgorithm_PersonalityTraits // NOLINT(cppcoreguidelines-special-memb
 
         // The unconditionally-handled local members, derived from the single
         // localMembers() declaration.
-        Gem::Common::serialize_members(ar, localMembers_(*this));
+        Gem::Common::serialize_members(ar, this->localMembers_());
 
         // Manual tail: personal_best_ (deep-cloned + personality-reset on load).
         ar & BOOST_SERIALIZATION_NVP(personal_best_);

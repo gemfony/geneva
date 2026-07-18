@@ -49,7 +49,6 @@
 #include "courtier/GDemoProcessingContainers.hpp"
 #include "courtier/GBaseConsumerT.hpp"
 #include "courtier/GSubmissionPolicy.hpp"
-#include "courtier/consumers/GSerialConsumerT.hpp"
 #include "courtier/consumers/GStdThreadConsumerT.hpp"
 
 using namespace Gem::Courtier;
@@ -60,10 +59,14 @@ namespace {
 
 using item_ptr = std::unique_ptr<GFaultyContainer>;
 
-/** @brief Wires a local consumer of type @p ConsumerT for a test. */
+/** @brief Wires a local consumer of type @p ConsumerT (built with @p n_threads worker threads,
+ *  0 == hardware concurrency) for a test. */
 template <typename ConsumerT>
 struct LocalFixtureT {
-    std::shared_ptr<GBaseConsumerT<GFaultyContainer>> consumer = std::make_shared<ConsumerT>();
+    explicit LocalFixtureT(unsigned int n_threads = 0)
+      : consumer(std::make_shared<ConsumerT>(n_threads)) {}
+
+    std::shared_ptr<GBaseConsumerT<GFaultyContainer>> consumer;
 
     /** @brief Reconciles the batch in place against the policy via the consumer directly. */
     void workOn(std::vector<item_ptr> &items, const GSubmissionPolicy &policy,
@@ -85,7 +88,7 @@ std::vector<item_ptr> make_batch(
     v.reserve(n);
     for(std::size_t i = 0; i < n; ++i) {
         const bool faulty =
-            std::find(faulty_indices.begin(), faulty_indices.end(), i) != faulty_indices.end();
+            std::ranges::contains(faulty_indices, i);
         v.push_back(std::make_unique<GFaultyContainer>(i, faulty ? fm : fault_mode::NONE));
     }
     return v;
@@ -173,17 +176,15 @@ TEST_CASE("courtier: a mostly-faulty batch still recovers via cloning", "[courti
 }
 
 /******************************************************************************/
-// The same reconciliation contract must hold for every local consumer (serial + thread pool).
+// The reconciliation contract must also hold for the one local consumer in its single-threaded (serial)
+// configuration -- one worker thread == serial execution. The multi-threaded case is exercised by the
+// LocalFixture tests above.
 
-using local_consumers =
-    std::tuple<GSerialConsumerT<GFaultyContainer>, GStdThreadConsumerT<GFaultyContainer>>;
-
-TEMPLATE_LIST_TEST_CASE(
-    "courtier: every local consumer honours the reconciliation contract",
-    "[courtier][policy][consumers]",
-    local_consumers
+TEST_CASE(
+    "courtier: the local consumer honours the reconciliation contract when single-threaded",
+    "[courtier][policy][consumers]"
 ) {
-    LocalFixtureT<TestType> f;
+    LocalFixtureT<GStdThreadConsumerT<GFaultyContainer>> f(1);
 
     SECTION("clean batch") {
         auto batch = make_batch(8);

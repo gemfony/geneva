@@ -31,36 +31,9 @@
 #include <istream>
 #include <ostream>
 #include <string>
+#include <utility>
 
 namespace Gem::Common {
-
-/******************************************************************************/
-/**
- * Puts a Gem::Common::parameter_source into a stream. Needed for streaming / Gem::Common::fromString<>
- *
- * @param o The output stream to write to
- * @param x The parameter_source value to write
- * @return The output stream, to allow chaining
- */
-std::ostream &operator<<(std::ostream &o, Gem::Common::parameter_source const &x) {
-    o << static_cast<Gem::Common::ENUMBASETYPE>(x);
-    return o;
-}
-
-/******************************************************************************/
-/**
- * Reads a Gem::Common::parameter_source item from a stream. Needed for streaming / Gem::Common::fromString<>
- *
- * @param i The input stream to read from
- * @param x Output parameter: receives the parameter_source value read from the stream
- * @return The input stream, to allow chaining
- */
-std::istream &operator>>(std::istream &i, Gem::Common::parameter_source &x) {
-    Gem::Common::ENUMBASETYPE tmp = 0;
-    i >> tmp;
-    x = static_cast<Gem::Common::parameter_source>(tmp);
-    return i;
-}
 
 /******************************************************************************/
 /**
@@ -71,7 +44,7 @@ std::istream &operator>>(std::istream &i, Gem::Common::parameter_source &x) {
  * @return The output stream, to allow chaining
  */
 std::ostream &operator<<(std::ostream &o, Gem::Common::sortOrder const &x) {
-    o << static_cast<Gem::Common::ENUMBASETYPE>(x);
+    o << std::to_underlying(x);
     return o;
 }
 
@@ -99,7 +72,7 @@ std::istream &operator>>(std::istream &i, Gem::Common::sortOrder &x) {
  * @return The output stream, to allow chaining
  */
 std::ostream &operator<<(std::ostream &o, Gem::Common::dimensions const &x) {
-    o << static_cast<Gem::Common::ENUMBASETYPE>(x);
+    o << std::to_underlying(x);
     return o;
 }
 
@@ -127,7 +100,7 @@ std::istream &operator>>(std::istream &i, Gem::Common::dimensions &x) {
  * @return The output stream, to allow chaining
  */
 std::ostream &operator<<(std::ostream &o, Gem::Common::logType const &x) {
-    o << static_cast<Gem::Common::ENUMBASETYPE>(x);
+    o << std::to_underlying(x);
     return o;
 }
 
@@ -164,7 +137,7 @@ std::ostream &operator<<(std::ostream &o, Gem::Common::tribool const &x) {
         // ENUMBASETYPE to tribool without validation). Without this arm
         // the stream would be left untouched, silently producing empty
         // output instead of a diagnostic.
-        o << "tribool::?(" << static_cast<Gem::Common::ENUMBASETYPE>(x) << ")";
+        o << "tribool::?(" << std::to_underlying(x) << ")";
         break;
     }
     return o;
@@ -179,7 +152,7 @@ std::ostream &operator<<(std::ostream &o, Gem::Common::tribool const &x) {
  * @return The output stream, to allow chaining
  */
 std::ostream &operator<<(std::ostream &o, Gem::Common::triboolStates const &x) {
-    o << static_cast<Gem::Common::ENUMBASETYPE>(x);
+    o << std::to_underlying(x);
     return o;
 }
 
@@ -207,7 +180,7 @@ std::istream &operator>>(std::istream &i, Gem::Common::triboolStates &x) {
  * @return The output stream, to allow chaining
  */
 std::ostream &operator<<(std::ostream &o, Gem::Common::serializationMode const &x) {
-    o << static_cast<Gem::Common::ENUMBASETYPE>(x);
+    o << std::to_underlying(x);
     return o;
 }
 
@@ -255,7 +228,7 @@ std::string serModeToString(Gem::Common::serializationMode ser_mod) {
  * @return The output stream, to allow chaining
  */
 std::ostream &operator<<(std::ostream &o, Gem::Common::expectation const &x) {
-    o << static_cast<Gem::Common::ENUMBASETYPE>(x);
+    o << std::to_underlying(x);
     return o;
 }
 

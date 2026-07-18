@@ -33,7 +33,9 @@
 #include "common/GGlobalDefines.hpp"
 
 // Standard headers go here
+#include <ranges>
 #include <string>
+#include <string_view>
 #include <vector>
 
 // Boost headers go here
@@ -194,14 +196,7 @@ public:
 	 */
     std::string getKeyDescription() const {
         const std::vector<std::string> keys = store_.keys(); // key order
-        std::string result; // NOLINT(cppcoreguidelines-init-variables)
-        for(std::size_t i = 0; i < keys.size(); ++i) {
-            result += keys[i];
-            if(i + 1 != keys.size()) {
-                result += ", ";
-            }
-        }
-        return result;
+        return keys | std::views::join_with(std::string_view(", ")) | std::ranges::to<std::string>();
     }
 
     /************************************************************************/

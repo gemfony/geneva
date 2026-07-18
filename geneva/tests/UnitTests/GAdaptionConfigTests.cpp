@@ -29,9 +29,12 @@
 
 #include <catch2/catch_test_macros.hpp>
 
+#include <algorithm>
 #include <cmath>
 #include <cstdint>
+#include <functional>
 #include <limits>
+#include <ranges>
 #include <vector>
 
 #include <boost/serialization/base_object.hpp>
@@ -40,8 +43,8 @@
 
 #include "common/GExceptions.hpp"
 #include "geneva/GOptimizationEnums.hpp"
-#include "geneva/ind/GFlatGenome.hpp"
-#include "geneva/ind/GFlatIndividualT.hpp"
+#include "geneva/ind/GGenome.hpp"
+#include "geneva/ind/GGenomeT.hpp"
 #include "geneva/ind/GGenomeBuilder.hpp"
 #include "geneva/oa/GAdaption.hpp"
 #include "geneva/oa/GAdaptionConfig.hpp"
@@ -59,20 +62,17 @@ namespace Gem::Tests {
  * sharing the interned label "position", one unlabelled FP group, an int32 group with an integer Gauss
  * adaptor labelled "count", and a bool group with a flip adaptor.
  */
-class AdaptCfgIndividual : public GFlatIndividualT<AdaptCfgIndividual> {
+class AdaptCfgIndividual : public GGenomeT<AdaptCfgIndividual> {
 public:
     AdaptCfgIndividual() { buildGenome(); }
     AdaptCfgIndividual(const AdaptCfgIndividual &) = default;
 
 protected:
-    double fitnessCalculation() override {
+    std::vector<double> evaluate() override {
         std::vector<double> v;
         this->streamline<double>(v);
-        double sum = 0.;
-        for(double x : v) {
-            sum += x * x;
-        }
-        return sum;
+        return {std::ranges::fold_left(
+            v | std::views::transform([](double x) { return x * x; }), 0., std::plus{})};
     }
 
 private:
@@ -91,8 +91,8 @@ private:
     template <typename Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         ar &boost::serialization::make_nvp(
-            "GFlatIndividualT",
-            boost::serialization::base_object<GFlatIndividualT<AdaptCfgIndividual>>(*this)
+            "GGenomeT",
+            boost::serialization::base_object<GGenomeT<AdaptCfgIndividual>>(*this)
         );
     }
 };
@@ -288,4 +288,29 @@ TEST_CASE("GAdaptionConfig: installInto seeds the per-group state", "[flat][adap
     CHECK(sig[0] == 1.25); // the re-seeded group
     CHECK(sig[1] == 0.5);  // the others keep their original seed
     CHECK(sig[2] == 0.5);
+}
+
+/******************************************************************************/
+// API-gap fix (2026-07-18): the label handle used to offer gauss/intGauss/flip/adaptionMode but
+// silently missed biGauss, so a labelled bi-Gauss group was unauthorable by name. Pin the
+// forwarding: biGauss through forLabel() must author every FP group carrying the label.
+TEST_CASE("GAdaptionConfig: biGauss is authorable by label", "[flat][adaptcfg]") {
+    AdaptCfgIndividual ind;
+    auto cfg = authoredConfig(ind);
+
+    CHECK_NOTHROW(cfg.forLabel("position").biGauss(
+        /*sigma1*/ 0.25, /*sigma_sigma1*/ 0.8, /*min_sigma1*/ 1e-3, /*max_sigma1*/ 2.,
+        /*sigma2*/ 0.15, /*sigma_sigma2*/ 0.8, /*min_sigma2*/ 1e-3, /*max_sigma2*/ 2.,
+        /*delta*/ 0.05, /*sigma_delta*/ 0.8, /*min_delta*/ 0., /*max_delta*/ 0.5,
+        /*ad_prob*/ 1.
+    ));
+
+    // Both "position" groups became bi-Gauss groups with the requested start sigmas ...
+    CHECK(cfg.doubleGroups()[0].has_bigauss);
+    CHECK(cfg.doubleGroups()[1].has_bigauss);
+    CHECK(cfg.doubleGroups()[0].start_sigma1 == 0.25);
+    CHECK(cfg.doubleGroups()[1].start_sigma2 == 0.15);
+
+    // ... and the unlabelled group is untouched.
+    CHECK_FALSE(cfg.doubleGroups()[2].has_bigauss);
 }

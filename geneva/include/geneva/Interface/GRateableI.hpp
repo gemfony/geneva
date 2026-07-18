@@ -46,8 +46,8 @@ namespace Gem::Geneva::Interface {
      * @brief A simple interface class for objects that can be evaluated.
      *
      * Defines the public accessors for raw and transformed fitness values (single value by id
-     * or the full vector) and the protected fitnessCalculation() hook that derived classes
-     * implement to compute the main quality criterion.
+     * or the full vector). The evaluation hook itself (the virtual evaluate()) lives on
+     * GOptimizableEntity, which derives this interface.
      */
 class GRateableI {
 public:
@@ -80,13 +80,6 @@ public:
     std::vector<double> transformed_fitness_vec() const;
 
 protected:
-    /**
-     * @brief The fitness calculation for the main quality criterion takes place here.
-     *
-     * @return The computed raw fitness of the main quality criterion
-     */
-    virtual double fitnessCalculation() = 0;
-
     /**************************************************************************/
     // Defaulted constructors / destructors / assignment operators
 

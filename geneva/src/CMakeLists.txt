@@ -31,10 +31,12 @@ SET ( OPTIMIZATIONSOURCES
 	Interface/GRateableI.cpp
 	GenevaHelperFunctions.cpp
 	GConsumerSetup.cpp
+	GFaultInjector.cpp
 	GenevaInitializer.cpp
 	GIndividualMultiConstraint.cpp
 	GOptimizableEntityCommandContainerExport.cpp
 	Go2.cpp
+    oa/GBasePluggableOM.cpp
     oa/GOptimizationAlgorithmBase.cpp
     oa/GLineSearch.cpp
     oa/GHesseError.cpp
@@ -44,6 +46,7 @@ SET ( OPTIMIZATIONSOURCES
     oa/GMetaEvolutionaryAlgorithm.cpp
     oa/GParChild.cpp
     oa/GBaseParChildPersonalityTraits.cpp
+    oa/GPositionPersonalityTraits.cpp
     oa/GSepCmaEvolutionStrategy.cpp
     oa/GSepCmaEvolutionStrategyFactory.cpp
     oa/GSepCmaEvolutionStrategy_PersonalityTraits.cpp
@@ -58,25 +61,92 @@ SET ( OPTIMIZATIONSOURCES
     oa/GGeneralizedSimulatedAnnealing_PersonalityTraits.cpp
 	GOptimizationEnums.cpp
 	GSigHupHandler.cpp
+	GModuleLoader.cpp
 	par/GParameterPropertyParser.cpp
+	ind/GIndividualProcessingResult.cpp
+	ind/GProblemPolicy.cpp
 	ind/GOptimizableEntity.cpp
-	ind/GFlatGenome.cpp
-	ind/GIndividualSlot.cpp
+	ind/GGenome.cpp
 	par/GOptimizableEntityFixedSizePriorityQueue.cpp
 	par/GOptimizableEntityMultiConstraint.cpp
 	GPersonalityTraits.cpp
     GPluggableOptimizationMonitors.cpp
     GPostProcessorT.cpp
-	individuals/GTestIndividual1.cpp
-	individuals/GTestIndividual2.cpp
-	individuals/GTestIndividual3.cpp
-	individuals/GDelayIndividual.cpp
-	individuals/GExternalEvaluatorIndividual.cpp
-	individuals/GFunctionIndividual.cpp
-	individuals/GLineFitIndividual.cpp
-	individuals/GMetaOptimizerIndividualT.cpp
-	individuals/GNeuralNetworkIndividual.cpp
 )
+
+# GTestIndividual1 is a LIBRARY-INTERNAL test fixture: GEvolutionaryAlgorithm's GEM_TESTING self-test
+# (fillWithObjects) instantiates it. It is therefore compiled into the library, but ONLY under
+# GENEVA_BUILD_TESTS (-DGEM_TESTING) -- a production build omits it, so libgemfony-geneva still ships zero
+# concrete individuals. Its GEM_TESTING-only test consumers (GenevaStandardTests) link the library and get it
+# from there. GTestIndividual2 and GTestIndividual3 are NOT used by the library; they are packaged as object
+# libraries below.
+IF(GENEVA_BUILD_TESTS)
+	SET(OPTIMIZATIONSOURCES ${OPTIMIZATIONSOURCES} individuals/GTestIndividual1.cpp)
+ENDIF()
+
+# The reusable sample individuals are packaged, NOT compiled into the geneva library (DA1: libgemfony-geneva
+# ships zero concrete GOptimizableEntity subclasses). Each MODE-both declaration builds an OBJECT library
+# <name>-obj (linked by the individual's compile-in consumers -- examples / tests / benchmarks) and a
+# runtime-loadable module lib<name>.so (loaded by the generic optimizer via --individual). One
+# BOOST_CLASS_EXPORT_IMPLEMENT (in the individual's own .cpp) serves both; each module-only glue TU carries the
+# extern "C" manifest entry point.
+GENEVA_DECLARE_INDIVIDUAL(GLineFitIndividual
+	MODE    both
+	SOURCES individuals/GLineFitIndividual.cpp
+	PLUGIN  individuals/GLineFitIndividualPlugin.cpp
+	CONFIG  ./config/GLineFitIndividual.json)
+
+GENEVA_DECLARE_INDIVIDUAL(GNeuralNetworkIndividual
+	MODE    both
+	SOURCES individuals/GNeuralNetworkIndividual.cpp
+	PLUGIN  individuals/GNeuralNetworkIndividualPlugin.cpp
+	CONFIG  ./config/GNeuralNetworkIndividual.json)
+
+GENEVA_DECLARE_INDIVIDUAL(GExternalEvaluatorIndividual
+	MODE    both
+	SOURCES individuals/GExternalEvaluatorIndividual.cpp
+	PLUGIN  individuals/GExternalEvaluatorIndividualPlugin.cpp
+	CONFIG  ./config/GExternalEvaluatorIndividual.json)
+
+# GDelayIndividual is a pure benchmarking / testing individual (it performs no real optimisation -- its
+# fitness just sleeps, its genome is transport ballast) and deliberately owns its own config parsing and
+# construction (readConfig / create) instead of going through GIndividualFactory. There is nothing to
+# load into the generic optimizer, so it is MODE compile: an object library its benchmark / test consumers
+# link, but no runtime-loadable module. (Maintainer-confirmed 2026-07-06: compile-in is fine here.)
+GENEVA_DECLARE_INDIVIDUAL(GDelayIndividual
+	MODE    compile
+	SOURCES individuals/GDelayIndividual.cpp)
+
+GENEVA_DECLARE_INDIVIDUAL(GFunctionIndividual
+	MODE    both
+	SOURCES individuals/GFunctionIndividual.cpp
+	PLUGIN  individuals/GFunctionIndividualPlugin.cpp
+	CONFIG  ./config/GFunctionIndividual.json)
+
+# GMetaOptimizerIndividualT is the meta-optimization umbrella individual (example 11). It is a class template
+# whose default and only exported instantiation is GMetaOptimizerIndividualT<GFunctionIndividual>, so it needs
+# GFunctionIndividual at compile and link time and must never be loaded (loading a meta-umbrella individual is
+# meaningless). Hence MODE compile: an object library its consumers link, no module. A consumer that links this
+# object library must ALSO link GFunctionIndividual-obj (its instantiation's symbols); the two meta consumers
+# (example 11 and the unit tests) do so explicitly.
+GENEVA_DECLARE_INDIVIDUAL(GMetaOptimizerIndividualT
+	MODE    compile
+	SOURCES individuals/GMetaOptimizerIndividualT.cpp)
+
+# GTestIndividual2 / GTestIndividual3 are serialization / auxiliary-store test fixtures used ONLY by external
+# test and benchmark targets (never by the library). They are packaged MODE compile -- an object library each
+# consumer links -- and built only when something can consume them: GTestIndividual2 by the unit tests and the
+# GSerializationOverhead / GRandomWalk benchmarks-and-manual-tests; GTestIndividual3 by the unit tests only.
+IF(GENEVA_BUILD_TESTS OR GENEVA_BUILD_BENCHMARKS)
+	GENEVA_DECLARE_INDIVIDUAL(GTestIndividual2
+		MODE    compile
+		SOURCES individuals/GTestIndividual2.cpp)
+ENDIF()
+IF(GENEVA_BUILD_TESTS)
+	GENEVA_DECLARE_INDIVIDUAL(GTestIndividual3
+		MODE    compile
+		SOURCES individuals/GTestIndividual3.cpp)
+ENDIF()
 
 # Add MPI specific files
 IF(GENEVA_BUILD_WITH_MPI_CONSUMER)
@@ -120,7 +190,6 @@ ENDIF()
 
 OPTION(GENEVA_ALGO_SA    "Build the Simulated Annealing algorithm"         ON)
 OPTION(GENEVA_ALGO_SWARM "Build the Swarm algorithm"                       ON)
-OPTION(GENEVA_ALGO_GD    "Build the Gradient Descent algorithm"            ON)
 OPTION(GENEVA_ALGO_CGD   "Build the Conjugate Gradient Descent algorithm"  ON)
 OPTION(GENEVA_ALGO_NM    "Build the Nelder-Mead algorithm"                 ON)
 OPTION(GENEVA_ALGO_PS    "Build the Parameter Scan algorithm"              ON)
@@ -133,7 +202,7 @@ OPTION(GENEVA_ALGO_PS    "Build the Parameter Scan algorithm"              ON)
 # with a cryptic undefined-reference error; catch it here with a clear message.
 # (Production slim-core builds run with GENEVA_BUILD_TESTS=OFF anyway.)
 IF (GENEVA_BUILD_TESTS AND NOT (GENEVA_ALGO_SA AND GENEVA_ALGO_SWARM
-		AND GENEVA_ALGO_GD AND GENEVA_ALGO_CGD AND GENEVA_ALGO_NM
+		AND GENEVA_ALGO_CGD AND GENEVA_ALGO_NM
 		AND GENEVA_ALGO_PS))
 	MESSAGE(FATAL_ERROR
 		"GENEVA_BUILD_TESTS=ON requires all GENEVA_ALGO_* options to be ON: the "
@@ -156,19 +225,6 @@ IF(GENEVA_ALGO_SWARM)
 			oa/GSwarmAlgorithm.cpp
 			oa/GSwarmAlgorithmFactory.cpp
 			oa/GSwarmAlgorithm_PersonalityTraits.cpp)
-ENDIF()
-
-# The "gd" (gradient descent) algorithm has been folded into conjugate gradient descent as its
-# steepest-descent mode; the "gd" mnemonic survives as a backward-compatible alias (the factory
-# produces a CGD forced into steepest descent), so this block keeps only the alias factory and the
-# personality-traits marker, and requires the CGD algorithm to be built.
-IF(GENEVA_ALGO_GD)
-	IF(NOT GENEVA_ALGO_CGD)
-		MESSAGE(FATAL_ERROR "GENEVA_ALGO_GD requires GENEVA_ALGO_CGD: 'gd' is now an alias for conjugate gradient descent in steepest-descent mode.")
-	ENDIF()
-	SET(OPTIMIZATIONSOURCES
-			${OPTIMIZATIONSOURCES}
-			oa/GGradientDescent_PersonalityTraits.cpp)
 ENDIF()
 
 IF(GENEVA_ALGO_CGD)
@@ -201,30 +257,32 @@ SET_TARGET_PROPERTIES(
     ${GENEVA_LIBNAME}
     PROPERTIES
     VERSION ${GENEVA_VERSION}
-	CXX_STANDARD 20
-	CXX_STANDARD_REQUIRED ON
-	CXX_EXTENSIONS OFF
 	EXPORT_NAME geneva
 )
 
 
 
-# Export the include directory and require C++20 transitively.
+# Export the include directory. The C++ standard is selected centrally in
+# CMakeModules/CommonGenevaBuild.cmake.
 TARGET_INCLUDE_DIRECTORIES(
 	${GENEVA_LIBNAME}
 	PUBLIC
 	$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/geneva/include>
 	$<INSTALL_INTERFACE:include>
 )
-TARGET_COMPILE_FEATURES(${GENEVA_LIBNAME} PUBLIC cxx_std_20)
 
 # Inter-library dependency: geneva builds on courtier (and transitively on hap
-# and common). PUBLIC so the full include/Boost/C++20 interface propagates to
+# and common). PUBLIC so the full include/Boost interface propagates to
 # downstream consumers that link Geneva::geneva.
 TARGET_LINK_LIBRARIES(${GENEVA_LIBNAME} PUBLIC ${COURTIER_LIBNAME})
 
 # geneva's pluggable monitors render through the dietrich plotting library.
 TARGET_LINK_LIBRARIES(${GENEVA_LIBNAME} PUBLIC ${DIETRICH_LIBNAME})
+
+# The runtime module loader (GModuleLoader) uses Boost.DLL, which needs the dynamic
+# loading library (libdl) on platforms that provide it. Boost.Filesystem (already a Geneva Boost
+# component) supplies the rest of Boost.DLL's needs.
+TARGET_LINK_LIBRARIES(${GENEVA_LIBNAME} PRIVATE ${CMAKE_DL_LIBS})
 
 IF ( GENEVA_BUILD_TESTS )
 	# When built with testing support (-DGEM_TESTING), the library embeds

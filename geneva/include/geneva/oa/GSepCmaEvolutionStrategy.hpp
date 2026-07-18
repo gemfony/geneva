@@ -177,7 +177,7 @@ private:
     // The member list is written ONCE, in the static template helper below; the two localMembers()
     // overloads are trivial forwarders. Self is deduced as the (const) class type.
     template <typename Self>
-    static auto localMembers_(Self &self) {
+    auto localMembers_(this Self &self) {
         return std::make_tuple(
             Gem::Common::make_member("lambda_", self.lambda_),
             Gem::Common::make_member("mu_", self.mu_),
@@ -210,7 +210,7 @@ private:
             "GOptimizationAlgorithmBase",
             boost::serialization::base_object<GOptimizationAlgorithmBase>(*this)
         );
-        Gem::Common::serialize_members(ar, localMembers_(*this));
+        Gem::Common::serialize_members(ar, this->localMembers_());
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -326,8 +326,6 @@ private:
     /** @brief Submits offspring to the one process consumer and waits for processed items */
     void runFitnessCalculation_() override;
 
-    /** @brief Retrieves the number of processable items for the current iteration */
-    std::size_t getNProcessableItems_() const override;
 
     /** @brief Retrieve a GPersonalityTraits object belonging to this algorithm */
     std::shared_ptr<GPersonalityTraits> getPersonalityTraits_() const override;

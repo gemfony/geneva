@@ -151,9 +151,7 @@ inline std::vector<std::size_t> nonDominatedRank(
             std::vector<std::size_t> by_c(fs);
             std::iota(by_c.begin(), by_c.end(), 0);
             auto val = [&](std::size_t local) { return pop[front[local]]->transformed_fitness(c); };
-            std::sort(by_c.begin(), by_c.end(), [&](std::size_t a, std::size_t b) {
-                return val(a) < val(b);
-            });
+            std::ranges::sort(by_c, std::ranges::less{}, val);
             // Boundary points get infinite crowding (always retained).
             crowd[by_c.front()] = std::numeric_limits<double>::infinity();
             crowd[by_c.back()] = std::numeric_limits<double>::infinity();
@@ -168,9 +166,7 @@ inline std::vector<std::size_t> nonDominatedRank(
         // Order this front by decreasing crowding distance.
         std::vector<std::size_t> local_order(fs);
         std::iota(local_order.begin(), local_order.end(), 0);
-        std::sort(local_order.begin(), local_order.end(), [&](std::size_t a, std::size_t b) {
-            return crowd[a] > crowd[b];
-        });
+        std::ranges::sort(local_order, std::ranges::greater{}, [&](std::size_t i) { return crowd[i]; });
         for(std::size_t local : local_order) {
             order.push_back(front[local]);
         }

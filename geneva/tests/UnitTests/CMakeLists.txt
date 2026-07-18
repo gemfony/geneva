@@ -35,19 +35,21 @@ SET ( ${EXECUTABLENAME}_SRCS
 	GHesseErrorTests.cpp
 	GAuxiliaryStoreTests.cpp
 	GAdaptionKernelTests.cpp
-	GFlatGenomeTests.cpp
+	GGenomeTests.cpp
+	GOptimizableEntityTests.cpp
 	GNormalizedGenomeTests.cpp
-	GFlatOptimizationAlgorithmsTests.cpp
+	GOptimizationAlgorithmsTests.cpp
 	GStandardPSO2011Tests.cpp
 	GAntColonyOptimizationTests.cpp
 	GGeneralizedSimulatedAnnealingTests.cpp
 	GOABenchmark.cpp
 	GEvolutionaryAlgorithmModesTests.cpp
 	GAdaptionConfigTests.cpp
-	GIndividualSlotTests.cpp
 	GSharedConsumerTests.cpp
 	GProgressPlotterTests.cpp
 	GMultiConstraintTests.cpp
+	GLateReturnIntegrationTests.cpp
+	GFaultInjectorTests.cpp
 )
 
 ADD_EXECUTABLE(${EXECUTABLENAME}
@@ -57,7 +59,18 @@ ADD_EXECUTABLE(${EXECUTABLENAME}
 SET(LIBRARIES_TO_LINK
 		${GENEVA_LIBRARIES}
 		${Boost_LIBRARIES}
-		Catch2::Catch2WithMain)
+		Catch2::Catch2WithMain
+		# These individuals are no longer compiled into the geneva library; the tests construct and serialize
+		# them directly, so they link the individuals' object libraries (which carry their BOOST_CLASS_EXPORT_IMPLEMENT).
+		GLineFitIndividual-obj
+		GNeuralNetworkIndividual-obj
+		GExternalEvaluatorIndividual-obj
+		GDelayIndividual-obj
+		GFunctionIndividual-obj
+		GMetaOptimizerIndividualT-obj
+		# GTestIndividual2/3 are packaged as object libraries (GTestIndividual1 stays in the GEM_TESTING library).
+		GTestIndividual2-obj
+		GTestIndividual3-obj)
 
 # Add MPI Libraries in case building with MPI-consumer
 IF(GENEVA_BUILD_WITH_MPI_CONSUMER)

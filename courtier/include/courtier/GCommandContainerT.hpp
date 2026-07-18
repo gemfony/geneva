@@ -38,17 +38,20 @@
 #include <iostream>
 #include <memory>
 #include <mutex>
+#include <span>
+#include <spanstream>
 #include <sstream>
 #include <string>
 #include <thread>
 #include <vector>
 
 // Boost headers go here
+#include <boost/archive/binary_iarchive.hpp>
+#include <boost/archive/binary_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/xml_iarchive.hpp>
 #include <boost/archive/xml_oarchive.hpp>
-#include <boost/beast/core.hpp>
-#include <boost/beast/websocket.hpp>
-#include <boost/beast/websocket/rfc6455.hpp>
 #include <boost/serialization/nvp.hpp>
 #include <boost/serialization/string.hpp>
 #include <boost/serialization/unique_ptr.hpp>
@@ -56,7 +59,7 @@
 
 // Geneva headers go here
 #include "courtier/GCourtierEnums.hpp"
-#include "courtier/GProcessingContainerT.hpp"
+#include "courtier/GProcessable.hpp"
 #include "courtier/GWireSerializationContext.hpp" // GWireLayoutId / GWirePeerId for the layout-fetch commands
 
 namespace Gem::Courtier {
@@ -102,13 +105,10 @@ class GCommandContainerT {
     }
     ///////////////////////////////////////////////////////////////
 
-    // Make sure processable_type adheres to the GProcessingContainerT interface
+    // The payload must be a processable (status / process() lifecycle).
     static_assert(
-        std::is_base_of_v<
-            Gem::Courtier::
-                GProcessingContainerT<processable_type, typename processable_type::result_type>,
-            processable_type>,
-        "processable_type does not adhere to the GProcessingContainerT interface"
+        std::is_base_of_v<Gem::Courtier::GProcessable, processable_type>,
+        "processable_type must derive from Gem::Courtier::GProcessable"
     );
 
 public:
@@ -328,16 +328,7 @@ std::string container_to_string(
         } break;
         }
     }
-    catch(const boost::system::system_error &e) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In container_to_string(GCommandContainerT<>):" << '\n'
-            << "Caught boost::system::system_error exception with messages:" << '\n'
-            << e.what() << '\n'
-            << "with serializationMode == " << Gem::Common::serModeToString(serMode) << '\n'
-        );
-    }
-    catch(const std::exception &e) {
+    catch(const std::exception &e) { // boost::system::system_error derives from std::exception
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In container_to_string(GCommandContainerT<>):" << '\n'
@@ -383,13 +374,13 @@ void container_from_string(
         switch(serMode) {
             using enum Gem::Common::serializationMode;
         case TEXT: {
-            std::istringstream iss(descr);
+            std::ispanstream iss{std::span<const char>(descr)};
             boost::archive::text_iarchive ia(iss);
             ia >> boost::serialization::make_nvp("command_container", container);
         } break; // archive and stream closed at end of scope
 
         case XML: {
-            std::istringstream iss(descr);
+            std::ispanstream iss{std::span<const char>(descr)};
             boost::archive::xml_iarchive ia(iss);
             ia >> boost::serialization::make_nvp("command_container", container);
         } break;
@@ -401,16 +392,7 @@ void container_from_string(
         } break;
         }
     }
-    catch(const boost::system::system_error &e) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In container_from_string(GCommandContainerT<>):" << '\n'
-            << "Caught boost::system::system_error exception with messages:" << '\n'
-            << e.what() << '\n'
-            << "with serializationMode == " << Gem::Common::serModeToString(serMode) << '\n'
-        );
-    }
-    catch(const std::exception &e) {
+    catch(const std::exception &e) { // boost::system::system_error derives from std::exception
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In container_from_string(GCommandContainerT<>):" << '\n'

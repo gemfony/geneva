@@ -127,12 +127,12 @@ wiring implemented; the long-running invocations are tagged LONG and several
 are structured stubs with explicit TODOs:
 
 * `checks/consumers.py` — run an optimization to completion under each
-  consumer via example 01 (`-c <name>`): serial (`sc`), StdThread (`stc`),
-  websocket (`beast`), MPI (`mpi`, only when MPI present). Serial + threaded
-  implemented (run from the example build dir so it finds its `config/`);
-  websocket/MPI are STUBS with the intended command lines.
+  consumer via example 01 (`-c <name>`): StdThread (`stc`; serial =
+  `stc --nWorkerThreads 1`), websocket (`beast`), MPI (`mpi`, only when MPI
+  present). Serial + threaded implemented (run from the example build dir so it
+  finds its `config/`); websocket/MPI are STUBS with the intended command lines.
 * `checks/algorithms.py` — EA, SA, Swarm, GD, ParameterScan each run to
-  completion on a simple individual (`-a <key> -c sc`); `Go2` JSON config
+  completion on a simple individual (`-a <key> -c stc`); `Go2` JSON config
   round-trip; checkpoint
   save/restore identity. Wiring + example mapping present; checkpoint-identity
   comparison is a STUB (TODO: byte/objective compare of two runs).

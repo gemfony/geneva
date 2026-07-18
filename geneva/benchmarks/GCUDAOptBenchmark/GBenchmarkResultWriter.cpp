@@ -36,6 +36,7 @@
 #include <algorithm>
 #include <chrono>
 #include <ctime>
+#include <format>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
@@ -84,16 +85,12 @@ void GBenchmarkResultWriter::writeRawCSV(
            "iterations,wall_time_s,termination_reason,target_reached\n";
 
     for (const auto &r : result.rawRuns) {
-        ofs << r.runIndex            << ','
-            << r.algorithmTag        << ','
-            << r.functionName        << ','
-            << r.nDimensions         << ','
-            << std::scientific << std::setprecision(12) << r.finalFitness << ','
-            << r.iterationsConsumed  << ','
-            << std::fixed << std::setprecision(6) << r.wallTimeSeconds << ','
-            << terminationReasonToString(r.terminationReason) << ','
-            << (r.targetReached ? "1" : "0")
-            << '\n';
+        ofs << std::format(
+            "{},{},{},{},{:.12e},{},{:.6f},{},{}\n",
+            r.runIndex, r.algorithmTag, r.functionName, r.nDimensions,
+            r.finalFitness, r.iterationsConsumed, r.wallTimeSeconds,
+            terminationReasonToString(r.terminationReason),
+            r.targetReached ? "1" : "0");
     }
 
     std::cout << "Wrote raw CSV: " << filename << std::endl;
@@ -120,18 +117,13 @@ void GBenchmarkResultWriter::writeSummaryCSV(
            "success_rate\n";
 
     for (const auto &r : results) {
-        ofs << r.algorithmTag  << ','
-            << r.functionName  << ','
-            << r.nDimensions   << ','
-            << r.nRuns         << ','
-            << std::scientific << std::setprecision(12)
-            << r.meanFinalFitness  << ',' << r.sigmaFinalFitness  << ','
-            << std::fixed << std::setprecision(3)
-            << r.meanIterations   << ',' << r.sigmaIterations   << ','
-            << std::setprecision(6)
-            << r.meanWallTime     << ',' << r.sigmaWallTime     << ','
-            << std::setprecision(4) << r.successRate
-            << '\n';
+        ofs << std::format(
+            "{},{},{},{},{:.12e},{:.12e},{:.3f},{:.3f},{:.6f},{:.6f},{:.4f}\n",
+            r.algorithmTag, r.functionName, r.nDimensions, r.nRuns,
+            r.meanFinalFitness, r.sigmaFinalFitness,
+            r.meanIterations, r.sigmaIterations,
+            r.meanWallTime, r.sigmaWallTime,
+            r.successRate);
     }
 
     std::cout << "Wrote summary CSV: " << filename << std::endl;
@@ -156,23 +148,25 @@ void GBenchmarkResultWriter::printSummary(
               << std::string(110, '-') << '\n';
 
     for (const auto &r : results) {
-        std::ostringstream fitness, iter, wall;
-        fitness << std::scientific << std::setprecision(3)
-                << r.meanFinalFitness << "±" << r.sigmaFinalFitness;
-        iter    << std::fixed << std::setprecision(1)
-                << r.meanIterations << "±" << r.sigmaIterations;
-        wall    << std::fixed << std::setprecision(2)
-                << r.meanWallTime << "±" << r.sigmaWallTime;
+        // Build the "mean±σ" cells with std::format (no cross-line iomanip state); the outer column
+        // padding stays on std::setw, which counts bytes -- matching the previous layout even though
+        // these cells contain the multi-byte '±'.
+        const std::string fitness =
+            std::format("{:.3e}±{:.3e}", r.meanFinalFitness, r.sigmaFinalFitness);
+        const std::string iter =
+            std::format("{:.1f}±{:.1f}", r.meanIterations, r.sigmaIterations);
+        const std::string wall =
+            std::format("{:.2f}±{:.2f}", r.meanWallTime, r.sigmaWallTime);
 
         std::cout << std::left
                   << std::setw(20) << r.algorithmTag
                   << std::setw(14) << r.functionName
                   << std::setw(7)  << r.nDimensions
                   << std::setw(7)  << r.nRuns
-                  << std::setw(18) << fitness.str()
-                  << std::setw(18) << iter.str()
-                  << std::setw(18) << wall.str()
-                  << std::setprecision(1) << (r.successRate * 100.0) << "%"
+                  << std::setw(18) << fitness
+                  << std::setw(18) << iter
+                  << std::setw(18) << wall
+                  << std::format("{:.1f}", r.successRate * 100.0) << "%"
                   << '\n';
     }
     std::cout << std::string(110, '=') << '\n';

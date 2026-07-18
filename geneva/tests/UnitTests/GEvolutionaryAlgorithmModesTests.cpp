@@ -44,8 +44,8 @@
 
 #include <boost/serialization/export.hpp>
 
-#include "geneva/ind/GFlatGenome.hpp"
-#include "geneva/ind/GFlatIndividualT.hpp"
+#include "geneva/ind/GGenome.hpp"
+#include "geneva/ind/GGenomeT.hpp"
 #include "geneva/ind/GGenomeBuilder.hpp"
 #include "geneva/oa/GAdaption.hpp"
 #include "geneva/oa/GAdaptionConfig.hpp"
@@ -68,7 +68,7 @@ namespace {
  * structure only; the Gauss adaptor lives on the OA-owned config (config-strip model).
  */
 template <std::size_t N>
-class HighDimSphere : public gen::GFlatIndividualT<HighDimSphere<N>> {
+class HighDimSphere : public gen::GGenomeT<HighDimSphere<N>> {
 public:
     HighDimSphere() {
         gen::GGenomeBuilder b;
@@ -88,14 +88,14 @@ public:
     }
 
 protected:
-    double fitnessCalculation() override {
+    std::vector<double> evaluate() override {
         std::vector<double> v;
         this->template streamline<double>(v);
         double s = 0.;
         for(double x : v) {
             s += x * x;
         }
-        return s;
+        return {s};
     }
 };
 
@@ -150,6 +150,38 @@ double runAdaptiveEA(std::size_t pop, std::size_t parents, std::size_t iteration
     return s;
 }
 
+/** @brief Runs the EA with an explicit step controller AND sorting mode on a low-dim sphere for a fixed
+ *  budget and returns the best fitness. Used by the every-mode convergence regression below. */
+template <std::size_t N>
+double runEAmode(
+    std::size_t pop,
+    std::size_t parents,
+    std::size_t iterations,
+    stepControl sc,
+    Gem::Geneva::sortingMode sm
+) {
+    auto p = std::make_shared<oa::GEvolutionaryAlgorithm>();
+    p->setPopulationSizes(pop, parents);
+    p->setMaxIteration(iterations);
+    p->setMaxStallIteration(0); // run the full budget so a stalled/erratic controller cannot "pass" early
+    p->setReportIteration(100000);
+    p->setStepControl(sc);
+    p->setSortingScheme(sm);
+    HighDimSphere<N> src;
+    p->push_back(src.clone_unique());
+    p->setAdaptionConfig(src.buildAdaptionConfig());
+    p->optimize();
+    auto best = p->template getBestGlobalIndividual<HighDimSphere<N>>();
+    REQUIRE(best);
+    std::vector<double> v;
+    best->template streamline<double>(v);
+    double s = 0.;
+    for(double x : v) {
+        s += x * x;
+    }
+    return s;
+}
+
 } /* anonymous namespace */
 
 /******************************************************************************/
@@ -161,9 +193,12 @@ TEST_CASE("ea optimizes a flat individual (basic)", "[ea][oa]") {
 
 /******************************************************************************/
 
-TEST_CASE("ea default step control is CSA", "[ea][oa]") {
+TEST_CASE("ea default step control is SELF_ADAPT_SCALED", "[ea][oa]") {
+    // The default is the dimension-scaled per-parameter self-adaption: it converges cleanly in every
+    // sorting mode. (The global-sigma controllers CSA / ONE_FIFTH remain selectable but are no longer
+    // the default -- their success signal is only sound once measured per-offspring-vs-own-parent.)
     auto p = std::make_shared<oa::GEvolutionaryAlgorithm>();
-    CHECK(p->getStepControl() == stepControl::CSA);
+    CHECK(p->getStepControl() == stepControl::SELF_ADAPT_SCALED);
 }
 
 /******************************************************************************/
@@ -217,6 +252,49 @@ TEST_CASE("ea ONE_FIFTH and CSA controllers converge", "[ea][oa]") {
     CHECK(f_one_fifth < 20.0);
     const double f_csa = runAdaptiveEA<20>(40, 10, 200, stepControl::CSA);
     CHECK(f_csa < 20.0);
+}
+
+/******************************************************************************/
+
+TEST_CASE("ea converges under EVERY step_control x sorting mode", "[ea][oa][stepcontrol]") {
+    // Regression guard for the global-sigma step-controller defect: the ONE_FIFTH / CSA controllers
+    // measured their success rate against a NON-MONOTONE reference (surviving parents vs. the previous
+    // generation's best), which under comma selection let sigma run away instead of annealing -- the EA
+    // converged for a few iterations, then bounced over orders of magnitude and stalled out. The signal
+    // is now the textbook Rechenberg quantity (fraction of offspring that beat their OWN parent, measured
+    // before selection reorders the population), which is sound in every sorting mode. This asserts that
+    // ALL FOUR step controllers converge cleanly on a small sphere in BOTH the plus and the comma sorting
+    // modes -- the 4x2 matrix that a healthy EA must pass. It FAILS on the pre-fix ONE_FIFTH / CSA comma
+    // combinations (they stall around 0.05+) and passes once the success signal is corrected.
+    using Gem::Geneva::sortingMode;
+    for(stepControl sc : {stepControl::SELF_ADAPT,
+                          stepControl::SELF_ADAPT_SCALED,
+                          stepControl::ONE_FIFTH,
+                          stepControl::CSA}) {
+        for(sortingMode sm : {sortingMode::MUPLUSNU_SINGLEEVAL, sortingMode::MUCOMMANU_SINGLEEVAL}) {
+            // 2-D sphere, pop 42 / 2 parents (the ex07 shape). A healthy controller anneals sigma and
+            // reaches ~1e-8 or better within this budget; a broken global-sigma controller lets sigma run
+            // away, after which no sample beats the early best again -- its best-ever FREEZES well above
+            // the 1e-4 bar (measured: the pre-fix stalls sit around 0.05).
+            //
+            // Best-of-5 seed guard (early-out): most combinations converge to ~1e-19 on EVERY run, but the
+            // two PLUS-selection per-parameter self-adaptive modes have a convergence tail above 1e-4 on
+            // this budget -- measured single-run miss rates over 320 samples were SELF_ADAPT_SCALED/plus
+            // ~7.5% (worst 4.8e-4) and SELF_ADAPT/plus rarer but heavier (~2.6e-3 seen); every comma mode
+            // and both global-sigma controllers (ONE_FIFTH/CSA) missed 0/40. Taking the best of up to five
+            // independent runs (rerunning only while the bar is missed, so a healthy first run does exactly
+            // one run) drives the residual flake to ~1e-6 while KEEPING the tight 1e-4 discrimination: a
+            // BROKEN controller stalls at ~0.05 on every run and can never clear the bar. Mirrors the
+            // high-dim best-of-seeds guard below.
+            double f = runEAmode<2>(42, 2, 300, sc, sm);
+            for(int rerun = 1; rerun < 5 && f > 1.0e-4; ++rerun) {
+                f = (std::min)(f, runEAmode<2>(42, 2, 300, sc, sm));
+            }
+            INFO("step_control=" << static_cast<int>(sc) << " sorting=" << static_cast<int>(sm)
+                                 << " best f=" << f);
+            CHECK(f <= 1.0e-4);
+        }
+    }
 }
 
 /******************************************************************************/

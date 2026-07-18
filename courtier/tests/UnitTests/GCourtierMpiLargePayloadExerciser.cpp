@@ -46,8 +46,8 @@
 #ifdef GENEVA_BUILD_WITH_MPI_CONSUMER
 
 #include <cstddef>
-#include <iostream>
 #include <memory>
+#include <print>
 #include <span>
 #include <sstream>
 #include <vector>
@@ -95,9 +95,9 @@ int main(int argc, char **argv) {
         // path that the 20 KB cap would have rejected (rather than silently using tiny items).
         const std::size_t item_bytes = serialized_size_of_one_item();
         if(item_bytes <= OLD_MPI_CAP_BYTES) {
-            std::cout << "FAIL: per-item payload is only " << item_bytes
-                      << " bytes, not above the old cap of " << OLD_MPI_CAP_BYTES
-                      << "; the test would not exercise the large-message path\n";
+            std::println("FAIL: per-item payload is only {} bytes, not above the old cap of {}; "
+                         "the test would not exercise the large-message path",
+                         item_bytes, OLD_MPI_CAP_BYTES);
             consumer->startServer();
             consumer->stopServer();
             return 1;
@@ -126,12 +126,11 @@ int main(int argc, char **argv) {
         }
 
         if(processed == N_ITEMS) {
-            std::cout << "OK: " << processed << "/" << N_ITEMS << " large items (" << item_bytes
-                      << " bytes each, > old cap " << OLD_MPI_CAP_BYTES << ") processed over MPI ("
-                      << consumer->getCommSize() << " ranks)\n";
+            std::println("OK: {}/{} large items ({} bytes each, > old cap {}) processed over MPI ({} ranks)",
+                         processed, N_ITEMS, item_bytes, OLD_MPI_CAP_BYTES, consumer->getCommSize());
             return 0;
         }
-        std::cout << "FAIL: only " << processed << "/" << N_ITEMS << " large items processed\n";
+        std::println("FAIL: only {}/{} large items processed", processed, N_ITEMS);
         return 1;
     }
 

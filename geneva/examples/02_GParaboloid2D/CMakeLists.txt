@@ -27,15 +27,25 @@
 #
 ################################################################################
 
-SET ( EXECUTABLENAME GParaboloid2D )
+# This introductory example ships the SAME problem (GParaboloidIndividual2D) packaged BOTH ways, side by
+# side, so the two models can be compared directly:
+#
+#   GParaboloid2D-fixed  -- an executable with the individual compiled straight in: the classic, minimal
+#     model the Geneva manual introduces (subclass GGenome, override evaluate(), compile it in).
+#
+#   GParaboloid2D-module -- the individual built as a runtime-loadable module (libGParaboloid2D-module.so),
+#     optimized by the generic optimizer (example 19's GGenericOptimizer) via --individual, with no bespoke
+#     driver. Configuration is auto-created from code defaults on first run.
+#
+# One source serves both: the individual supplies the Tier-2 factory hooks (Config / describeConfig /
+# buildGenome / buildAdaptionConfig) the module path needs while keeping its constructor and one-argument
+# buildAdaptionConfig for the compiled-in driver. The two artifacts are separate binaries (one process each),
+# so the single BOOST_CLASS_EXPORT registration is never duplicated.
 
-SET ( ${EXECUTABLENAME}_SRCS
+# (1) The compiled-in variant -> executable GParaboloid2D-fixed.
+ADD_EXECUTABLE(GParaboloid2D-fixed
 	GParaboloid2D.cpp
 	GParaboloidIndividual2D.cpp
-)
-
-ADD_EXECUTABLE(${EXECUTABLENAME}
-	${${EXECUTABLENAME}_SRCS}
 )
 
 SET(LIBRARIES_TO_LINK
@@ -49,14 +59,27 @@ IF(GENEVA_BUILD_WITH_MPI_CONSUMER)
 			${MPI_LIBRARIES})
 ENDIF()
 
-TARGET_LINK_LIBRARIES (${EXECUTABLENAME}
+TARGET_LINK_LIBRARIES (GParaboloid2D-fixed
 		${LIBRARIES_TO_LINK}
 		)
 
-ADD_SUBDIRECTORY (config)
+GENEVA_MATERIALIZE_CONFIGS ( GParaboloid2D-fixed ${INSTALL_PREFIX_DATA}/examples/GParaboloid2D/config )
+
+# (2) The loadable variant -> module libGParaboloid2D-module.so, run by the generic optimizer.
+GENEVA_DECLARE_INDIVIDUAL(GParaboloid2D-module
+	MODE    load
+	SOURCES GParaboloidIndividual2D.cpp
+	PLUGIN  GParaboloidIndividual2DPlugin.cpp
+	CONFIG  ./config/GParaboloidIndividual2D.json)
 
 IF (GENEVA_RUN_EXAMPLES_AS_TESTS)
-	ADD_TEST(${EXECUTABLENAME} ${EXECUTABLENAME})
+	ADD_TEST(GParaboloid2D-fixed GParaboloid2D-fixed)
+	ADD_TEST(
+		NAME GParaboloid2D-module
+		COMMAND $<TARGET_FILE:GGenericOptimizer> --individual $<TARGET_FILE:GParaboloid2D-module>
+		WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+	)
 ENDIF ()
 
-INSTALL ( TARGETS ${EXECUTABLENAME} DESTINATION ${INSTALL_PREFIX_DATA}/examples/${EXECUTABLENAME} )
+INSTALL ( TARGETS GParaboloid2D-fixed GParaboloid2D-module
+	DESTINATION ${INSTALL_PREFIX_DATA}/examples/GParaboloid2D )

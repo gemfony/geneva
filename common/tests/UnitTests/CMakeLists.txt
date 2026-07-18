@@ -82,10 +82,13 @@ geneva_common_test(GExpectationChecksTTests       GExpectationChecksTTests.cpp)
 geneva_common_test(GFactoryTTests                 GFactoryTTests.cpp)
 geneva_common_test(GFixedSizePriorityQueueTTests  GFixedSizePriorityQueueTTests.cpp)
 geneva_common_test(GGlobalOptionsTTests           GGlobalOptionsTTests.cpp)
+geneva_common_test(GJsonIOTests                   GJsonIOTests.cpp)
+geneva_common_test(GLoadOnceCellTTests            GLoadOnceCellTTests.cpp)
 geneva_common_test(GLoggerTests                   GLoggerTests.cpp)
 geneva_common_test(GMPMCQueueConformanceTests     GMPMCQueueConformanceTests.cpp)
 geneva_common_test(GMPMCQueueShutdownStressTests  GMPMCQueueShutdownStressTests.cpp)
 geneva_common_test(GParserBuilderTests            GParserBuilderTests.cpp)
+geneva_common_test(GProviderStoreTTests           GProviderStoreTTests.cpp)
 geneva_common_test(GSerializableFunctionObjectTTests
                                                   GSerializableFunctionObjectTTests.cpp)
 geneva_common_test(GSerializationHelperFunctionsTTests

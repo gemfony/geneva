@@ -35,6 +35,7 @@ SET ( COMMUNICATIONINCLUDES
     GCourtierHelperFunctions.hpp
     GDemoProcessingContainers.hpp
     GExecutorStatusT.hpp
+    GProcessable.hpp
     GProcessingContainerT.hpp
     GServerSessionLogic.hpp
     GSubmissionPolicy.hpp
@@ -47,7 +48,6 @@ SET ( COMMUNICATIONINCLUDES
 SET ( CONSUMER_INCLUDES
     consumers/GAsioConsumerT.hpp
     consumers/GNetworkedConsumerT.hpp
-    consumers/GSerialConsumerT.hpp
     consumers/GStdThreadConsumerT.hpp
     consumers/GWebsocketConsumerT.hpp
 )
@@ -60,12 +60,12 @@ SET ( TRANSPORT_INCLUDES
     transport/GWebsocketTransportT.hpp
 )
 
-# GPU consumer framework (namespace Gem::Courtier::GPU): the device-agnostic core, the CPU/CUDA
-# backends and the bulk-dispatch consumer. Header-only except for the backend .cpp files, which are
-# compiled into gemfony-courtier as an opt-in add-on when GENEVA_BUILD_WITH_GPU_CONSUMER is ON (see
-# src/gpu/GPUBackends.cmake). The headers are device-toolkit-clean and install unconditionally.
+# GPU consumer framework (namespace Gem::Courtier::GPU): the device-agnostic core, the CUDA backend
+# and the bulk-dispatch consumer. The GPU consumer is DEVICE-ONLY (a CPU run uses the individual's own
+# evaluate() via a CPU consumer such as --consumer stc). Header-only except for the backend .cpp files,
+# which are compiled into gemfony-courtier as an opt-in add-on when GENEVA_BUILD_WITH_GPU_CONSUMER is ON
+# (see src/gpu/GPUBackends.cmake). The headers are device-toolkit-clean and install unconditionally.
 SET ( GPU_INCLUDES
-    gpu/GCPUBackend.hpp
     gpu/GCUDABackend.hpp
     gpu/GGPUBackendFactory.hpp
     gpu/GGPUConsumer.hpp
@@ -92,22 +92,13 @@ set_source_files_properties(
     ${COMMUNICATIONINCLUDES} ${CONSUMER_INCLUDES} ${TRANSPORT_INCLUDES} ${GPU_INCLUDES}
     PROPERTIES
     LANGUAGE CXX
-    CXX_STANDARD 20
 )
 
 # This is a workaround for a CLion-problem -- see CPP270 in the JetBrains issue tracker
 ADD_CUSTOM_TARGET(CLION_ALL_COURTIER_HEADERS
     SOURCES ${COMMUNICATIONINCLUDES} ${CONSUMER_INCLUDES} ${TRANSPORT_INCLUDES} ${GPU_INCLUDES})
 
-SET_TARGET_PROPERTIES(
-    CLION_ALL_COURTIER_HEADERS
-    PROPERTIES
-    CXX_STANDARD 20
-    CXX_STANDARD_REQUIRED ON
-    CXX_EXTENSIONS OFF
-)
-
-INSTALL ( FILES ${COMMUNICATIONINCLUDES} DESTINATION ${INSTALL_PREFIX_INCLUDES}/courtier )
-INSTALL ( FILES ${CONSUMER_INCLUDES} DESTINATION ${INSTALL_PREFIX_INCLUDES}/courtier/consumers )
-INSTALL ( FILES ${TRANSPORT_INCLUDES} DESTINATION ${INSTALL_PREFIX_INCLUDES}/courtier/transport )
-INSTALL ( FILES ${GPU_INCLUDES} DESTINATION ${INSTALL_PREFIX_INCLUDES}/courtier/gpu )
+# Directory install: ship the whole header tree (Inv 19), so the installed interface is self-contained and
+# cannot drift. (The SET lists above are retained only for the CLion header target / IDE indexing.)
+INSTALL ( DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/ DESTINATION ${INSTALL_PREFIX_INCLUDES}/courtier
+	FILES_MATCHING PATTERN "*.hpp" )

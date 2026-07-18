@@ -45,7 +45,7 @@
 #include "geneva/individuals/GTestIndividual3.hpp"
 #include "geneva/individuals/GTestIndividual1.hpp"
 #include "geneva/oa/GEvolutionaryAlgorithm_PersonalityTraits.hpp"
-#include "geneva/oa/GGradientDescent_PersonalityTraits.hpp"
+#include "geneva/oa/GConjugateGradientDescent_PersonalityTraits.hpp"
 #include "geneva/oa/GParameterScan_PersonalityTraits.hpp"
 #include "geneva/oa/GSimulatedAnnealing_PersonalityTraits.hpp"
 #include "geneva/oa/GSwarmAlgorithm_PersonalityTraits.hpp"
@@ -118,7 +118,7 @@ TEMPLATE_TEST_CASE(
     "StandardTests_no_failure_expected — trait types",
     "[geneva][standard]",
     oa::GEvolutionaryAlgorithm_PersonalityTraits,
-    oa::GGradientDescent_PersonalityTraits,
+    oa::GConjugateGradientDescent_PersonalityTraits,
     oa::GSwarmAlgorithm_PersonalityTraits,
     oa::GSimulatedAnnealing_PersonalityTraits,
     oa::GParameterScan_PersonalityTraits
@@ -194,7 +194,7 @@ TEMPLATE_TEST_CASE(
     "StandardTests_failures_expected — trait types",
     "[geneva][standard][failures-expected]",
     oa::GEvolutionaryAlgorithm_PersonalityTraits,
-    oa::GGradientDescent_PersonalityTraits,
+    oa::GConjugateGradientDescent_PersonalityTraits,
     oa::GSwarmAlgorithm_PersonalityTraits,
     oa::GSimulatedAnnealing_PersonalityTraits,
     oa::GParameterScan_PersonalityTraits
@@ -429,68 +429,58 @@ TEST_CASE(
 
 // Safety net for the GOptimizableEntity serialize()/load_()/compare_() unification
 // onto a single localMembers() declaration. GOptimizableEntity is the central serialised
-// base for all individuals. This test sets several of its members to non-default
-// values -- in particular use_random_crash_ / random_crash_prob_, which serialize()
-// stored but the old load_()/compare_() silently ignored (a real member-drop bug,
-// fixed by deriving all three from localMembers()) -- and checks they survive both a
-// wire round-trip AND an in-memory load() (clone path). Exercised on the concrete
-// GTestIndividual1 (a GFlatGenome subclass).
+// base for all individuals. This test sets several of its localMembers()-listed members
+// to non-default values (the adaption limits and the stall / best-known-fitness book-keeping)
+// and checks they survive both an in-memory load() (clone path) AND a wire round-trip; if any
+// member were dropped from serialize()/load_()/compare_(), one of those would fail. The shared
+// optimization direction (carried by the policy) is checked alongside. Exercised on the concrete
+// GTestIndividual1 (a GGenome subclass).
 TEST_CASE(
-    "GOptimizableEntity (via GTestIndividual1) round-trips its members incl. the random-crash settings",
+    "GOptimizableEntity (via GTestIndividual1) round-trips its serialised members",
     "[geneva][serialization]"
 ) {
     using Gem::Common::serializationMode;
 
+    auto make_original = []() {
+        gind::GTestIndividual1 ind;
+        ind.setAssignedIteration(7);
+        ind.setMaxMode(maxMode::MAXIMIZE);
+        return ind;
+    };
+
     // --- in-memory load() (clone path) ---
     {
-        gind::GTestIndividual1 original;
-        original.setRandomCrash(true, 0.25);
-        original.setMaxMode(maxMode::MAXIMIZE);
+        gind::GTestIndividual1 original = make_original();
+        gind::GTestIndividual1 restored; // defaults
 
-        gind::GTestIndividual1 restored;
-        restored.setRandomCrash(false, 0.0);
-
-        // In-memory load goes through load_(); before the fix this dropped the
-        // random-crash members.
         REQUIRE_NOTHROW(restored.load(original));
 
-        auto [use_rc, rc_prob] = restored.getRandomCrash();
-        CHECK(use_rc == true);
-        CHECK(rc_prob == 0.25);
+        CHECK(restored.getAssignedIteration() == 7);
         CHECK(restored.getMaxMode() == maxMode::MAXIMIZE);
 
         GEqualityPrinter gep(
-            "GFlatGenome-load-roundtrip",
+            "GGenome-load-roundtrip",
             pow(10, -7),
             Gem::Common::CE_WITH_MESSAGES
         );
-        // compare_() must now see the two objects as equal (before the fix it
-        // ignored the crash members and would have reported "equal" even when they
-        // differed -- i.e. it could not tell them apart).
         CHECK(gep.isSimilar(restored, original));
     }
 
     // --- wire round-trip in all three modes ---
     for (auto mode :
          {serializationMode::TEXT, serializationMode::XML, serializationMode::BINARY}) {
-        gind::GTestIndividual1 original;
-        original.setRandomCrash(true, 0.5);
-        original.setMaxMode(maxMode::MAXIMIZE);
-
-        gind::GTestIndividual1 restored;
-        restored.setRandomCrash(false, 0.0);
+        gind::GTestIndividual1 original = make_original();
+        gind::GTestIndividual1 restored; // defaults
 
         REQUIRE_NOTHROW(
             restored.fromString(original.toString(mode), mode)
         );
 
-        auto [use_rc, rc_prob] = restored.getRandomCrash();
-        CHECK(use_rc == true);
-        CHECK(rc_prob == 0.5);
+        CHECK(restored.getAssignedIteration() == 7);
         CHECK(restored.getMaxMode() == maxMode::MAXIMIZE);
 
         GEqualityPrinter gep(
-            "GFlatGenome-roundtrip",
+            "GGenome-roundtrip",
             pow(10, -7),
             Gem::Common::CE_WITH_MESSAGES
         );
@@ -591,14 +581,12 @@ TEST_CASE(
         oa::GParameterScan a;
         // Non-default values for the localMembers()-tied plain members.
         a.setScanRandomly(false);    // default is true
-        a.setNMonitorInds(42);       // default is DEFAULTNMONITORINDS (10)
         a.setNSimpleScans(7);        // sets simple_scan_items_ (default 0)
         return a;
     };
 
     auto checkGetters = [](const oa::GParameterScan &restored) {
         CHECK(restored.getScanRandomly() == false);
-        CHECK(restored.getNMonitorInds() == 42);
         CHECK(restored.getNSimpleScans() == 7);
     };
 
@@ -607,7 +595,6 @@ TEST_CASE(
         oa::GParameterScan original = makeOriginal();
         oa::GParameterScan restored;
         restored.setScanRandomly(true);
-        restored.setNMonitorInds(1);
 
         REQUIRE_NOTHROW(restored.load(original));
         checkGetters(restored);
@@ -626,7 +613,6 @@ TEST_CASE(
         oa::GParameterScan original = makeOriginal();
         oa::GParameterScan restored;
         restored.setScanRandomly(true);
-        restored.setNMonitorInds(1);
 
         REQUIRE_NOTHROW(
             restored.fromString(original.toString(mode), mode)

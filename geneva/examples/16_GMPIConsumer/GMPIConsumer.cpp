@@ -71,6 +71,7 @@
 // Boost header files go here
 
 // Geneva header files go here
+#include "common/GConfigEmission.hpp"
 #include "common/GParserBuilder.hpp"
 #include "geneva/GConsumerSetup.hpp"
 #include "geneva/oa/GEvolutionaryAlgorithm.hpp"
@@ -210,6 +211,16 @@ int main(int argc, char **argv) {
     /****************************************************************************/
     // Initialization of Geneva
     GenevaInitializer gi;
+
+    /****************************************************************************/
+    // --update-configs: materialize the one config this example owns (the GFunctionIndividual factory's)
+    // from code defaults, then exit. This runs BEFORE the MPI consumer is built, so no MPI environment
+    // (mpirun) is required to refresh the configuration.
+    if(Gem::Common::configEmissionRequested(argc, argv)) {
+        Gem::Common::beginConfigEmission();
+        gind::GFunctionIndividualFactory("./config/GFunctionIndividual.json").get();
+        Gem::Common::finishConfigEmission();
+    }
 
     /****************************************************************************/
     // Retrieve all necessary configuration data from the command line

@@ -52,6 +52,7 @@ Checks: >-
   hicpp-multiway-paths-covered,
   hicpp-signed-bitwise,
   misc-confusable-identifiers,
+  misc-const-correctness,
   misc-definitions-in-headers,
   misc-misleading-bidirectional,
   misc-misleading-identifier,
@@ -65,7 +66,6 @@ Checks: >-
   modernize-*,
   -modernize-use-trailing-return-type,
   -modernize-avoid-c-arrays,
-  -modernize-use-nodiscard,
   performance-*,
   -performance-enum-size,
   portability-*,
@@ -75,8 +75,6 @@ Checks: >-
   -readability-magic-numbers,
   -readability-named-parameter,
   -readability-uppercase-literal-suffix,
-  -readability-function-size,
-  -readability-function-cognitive-complexity,
   -readability-convert-member-functions-to-static,
   -readability-identifier-length
 
@@ -228,11 +226,18 @@ CheckOptions:
   # Readability.
   readability-implicit-bool-conversion.AllowIntegerConditions: 'true'
   readability-implicit-bool-conversion.AllowPointerConditions: 'true'
+  # Function size / complexity (Clean Code "functions stay small, do one thing";
+  # C++ Core Guidelines F.2/F.3). These checks are ENABLED; the thresholds below are
+  # a starting point -- a genuinely irreducible hot kernel gets a NOLINT with a
+  # recorded reason (cf. Invariant 14) rather than a forced, worse split.
   readability-function-size.LineThreshold: '100'
   readability-function-size.StatementThreshold: '50'
   readability-function-size.BranchThreshold: '15'
   readability-function-size.ParameterThreshold: '8'
   readability-function-size.NestingThreshold: '5'
+  # Cognitive complexity: start lenient (LLVM default is 25) so only the gnarliest
+  # functions are flagged; tighten toward 25 as the code is groomed.
+  readability-function-cognitive-complexity.Threshold: '40'
 
 # ----------------------------------------------------------------------
 # Rules NOT covered by stock clang-tidy, or only partially:

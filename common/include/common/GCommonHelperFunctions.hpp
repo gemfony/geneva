@@ -52,9 +52,6 @@
 #include <typeinfo>
 #include <vector>
 
-// Boost headers go here
-#include <boost/property_tree/ptree_fwd.hpp>
-
 // Geneva headers go here
 #include "common/GCommonEnums.hpp"
 #include "common/GErrorStreamer.hpp"
@@ -77,15 +74,6 @@ std::filesystem::file_time_type touch_time(
     std::string const &content = "",
     bool remove_if_not_present = false
 );
-
-/******************************************************************************/
-/**
- * @brief Reads a json-document from a std::filesystem::path. This is a helper-function.
- *
- * @param path The path of the JSON file to read
- * @param pt Output parameter: the property tree that receives the parsed JSON document
- */
-void read_json(std::filesystem::path const &path, boost::property_tree::ptree &pt);
 
 /******************************************************************************/
 /**
@@ -150,6 +138,15 @@ constexpr std::string_view serializationModeToString(serializationMode s) noexce
     }
     return {}; // unreachable for valid enumerator inputs
 }
+
+/******************************************************************************/
+/**
+ * @brief Trims leading and trailing whitespace (spaces, tabs, CR, LF) from a string.
+ *
+ * @param s The string to trim
+ * @return The trimmed string; an empty string if @p s is whitespace-only
+ */
+std::string trimWhitespace(std::string_view s);
 
 /******************************************************************************/
 /**

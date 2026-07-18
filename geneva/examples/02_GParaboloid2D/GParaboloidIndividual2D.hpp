@@ -44,7 +44,8 @@
 // Geneva header files go here
 #include <memory>
 
-#include <geneva/ind/GFlatGenome.hpp>
+#include <common/GParserBuilder.hpp>
+#include <geneva/ind/GGenome.hpp>
 #include <geneva/ind/GGenomeBuilder.hpp>
 
 namespace Gem {
@@ -59,7 +60,7 @@ class GAdaptionConfigBase;
  * This individual searches for the minimum of a 2-dimensional parabola.
  * It is part of an introductory example, used in the Geneva manual.
  */
-class GParaboloidIndividual2D : public gen::GFlatGenome {
+class GParaboloidIndividual2D : public gen::GGenome {
     /** @brief Make the class accessible to Boost.Serialization */
     friend class boost::serialization::access;
 
@@ -72,7 +73,7 @@ class GParaboloidIndividual2D : public gen::GFlatGenome {
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         using boost::serialization::make_nvp;
         // Serialize the base class
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gen::GFlatGenome);
+        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gen::GGenome);
         // Add other variables here like this:
         // ar & BOOST_SERIALIZATION_NVP(sampleVariable);
     }
@@ -86,20 +87,41 @@ public:
     virtual ~GParaboloidIndividual2D();
 
     /** @brief The OA-owned adaption config authoring this genome's two Gauss groups, built from the genome
-     *  layout. Static (no adaptor data resides on the individual). */
+     *  layout. Static (no adaptor data resides on the individual). Used by the compile-in driver. */
     static std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase>
-    buildAdaptionConfig(const gen::GFlatGenome &sample);
+    buildAdaptionConfig(const gen::GGenome &sample);
+
+    //---------------------------------------------------------------------------
+    // Tier-2 (config-driven) hooks enabling GIndividualFactory<GParaboloidIndividual2D>, so the SAME
+    // individual can also be packaged as a runtime-loadable module (the GParaboloid2D-module artifact) and
+    // optimized by the generic optimizer. The compiled-in driver (the GParaboloid2D-fixed artifact) keeps
+    // using the constructor and the one-argument buildAdaptionConfig() above; the example builds both.
+
+    /** @brief The configurable values parsed from the config file: each parameter's value range. */
+    struct Config {
+        double par_min = -10.; ///< Lower bound of each parameter's value range
+        double par_max = 10.;  ///< Upper bound of each parameter's value range
+    };
+    /** @brief Registers the config-file options (the parameter bounds), binding them to the passed Config. */
+    static void describeConfig(Gem::Common::GParserBuilder &gpb, Config &c);
+    /** @brief Builds the flat genome structure: two constrained doubles in [par_min, par_max]. */
+    static gen::GenomeData buildGenome(const Config &c);
+    /** @brief Factory hook: the OA-owned adaption config for a produced genome (delegates to the one-argument
+     *  form; the Config carries no adaptor settings). */
+    static std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase>
+    buildAdaptionConfig(const gen::GGenome &sample, const Config &c);
 
 protected:
     /** @brief Loads the data of another GParaboloidIndividual2D */
     virtual void load_(const gen::GOptimizableEntity *) final;
 
-    /** @brief The actual fitness calculation takes place here. */
-    virtual double fitnessCalculation() final;
+    /** @brief The evaluation hook: the sum of squares of the genome's (external) parameters, returned as a
+     *  one-element vector (single-criterion). @return The raw fitness vector */
+    std::vector<double> evaluate() final;
 
 private:
     /** @brief Creates a deep clone of this object */
-    virtual gen::GFlatGenome *clone_() const final;
+    virtual gen::GGenome *clone_() const final;
 
     const double M_PAR_MIN;
     const double M_PAR_MAX;
