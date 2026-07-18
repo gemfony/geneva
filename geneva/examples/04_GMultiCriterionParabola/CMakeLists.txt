@@ -51,11 +51,23 @@ ADD_DEPENDENCIES(GMultiCriterionParabolaIndividual GGenericOptimizer)
 IF(TARGET GConfigOverlay)
 	ADD_DEPENDENCIES(GMultiCriterionParabolaIndividual GConfigOverlay)
 ENDIF()
+# Both runs are routed through GenevaRunQuiet.cmake, like the shared macro's: their runtime output is
+# captured to log files in this build directory and replayed only on failure.
 ADD_CUSTOM_COMMAND(TARGET GMultiCriterionParabolaIndividual POST_BUILD
 	COMMAND ${CMAKE_COMMAND} -E rm -rf ${_mc_cfg_dir}
 	COMMAND ${CMAKE_COMMAND} -E make_directory ${_mc_cfg_dir}
-	COMMAND $<TARGET_FILE:GGenericOptimizer> --individual $<TARGET_FILE:GMultiCriterionParabolaIndividual> --update-configs
-	COMMAND $<TARGET_FILE:GConfigOverlay> ${_mc_cfg_dir} ${_mc_overrides}
+	COMMAND ${CMAKE_COMMAND}
+		"-DRQ_CMD=$<TARGET_FILE:GGenericOptimizer>|--individual|$<TARGET_FILE:GMultiCriterionParabolaIndividual>|--update-configs"
+		"-DRQ_WD=${CMAKE_CURRENT_BINARY_DIR}"
+		"-DRQ_LOG=${CMAKE_CURRENT_BINARY_DIR}/config-materialization.log"
+		"-DRQ_DESC=Config materialization for GMultiCriterionParabolaIndividual"
+		-P ${GENEVA_RUN_QUIET_SCRIPT}
+	COMMAND ${CMAKE_COMMAND}
+		"-DRQ_CMD=$<TARGET_FILE:GConfigOverlay>|${_mc_cfg_dir}|${_mc_overrides}"
+		"-DRQ_WD=${CMAKE_CURRENT_BINARY_DIR}"
+		"-DRQ_LOG=${CMAKE_CURRENT_BINARY_DIR}/config-overlay.log"
+		"-DRQ_DESC=Config-override overlay for GMultiCriterionParabolaIndividual"
+		-P ${GENEVA_RUN_QUIET_SCRIPT}
 	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 	COMMENT "Materializing GMultiCriterionParabola configs (Pareto sorting_method)"
 	VERBATIM)

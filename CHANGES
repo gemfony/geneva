@@ -1280,6 +1280,14 @@ Recommended Versions:
 
 ************************* Noteworthy Changes ***********************************
 
+- The build-time config materialization (GENEVA_MATERIALIZE_CONFIGS and example
+  04's inline variant) no longer interleaves the run binaries' console output
+  with the build output: each materialization/overlay run is routed through the
+  new CMakeModules/GenevaRunQuiet.cmake helper, which captures stdout+stderr to
+  config-materialization.log / config-overlay.log in the target's build
+  directory and replays the captured output only if the run fails (failing the
+  build step). The binaries' own runtime messages are unchanged.
+
 - A batch of defect fixes from a full-tree code review:
   * An error flagged from inside an evaluation (force_set_error / ERROR_FLAGGED) was
     silently clobbered by an unconditional terminal PROCESSED assignment in both

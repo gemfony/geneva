@@ -415,6 +415,12 @@ IF(NOT COMMON_GENEVA_BUILD_INCLUDED)
 	# This replaces the former per-directory FILE(COPY config) + INSTALL(FILES ...). It MUST be called from
 	# the same CMakeLists.txt that defines <target>, because a POST_BUILD command may only be attached to a
 	# target in the current directory -- i.e. in place of the former ADD_SUBDIRECTORY(config).
+	#
+	# The binaries run here emit their normal runtime output (GLogger notes about created config files
+	# etc.); to keep that from interleaving with the build output, each run is routed through the
+	# GenevaRunQuiet.cmake helper, which captures stdout+stderr to a log file in the target's build
+	# directory and replays it only if the run fails.
+	SET(GENEVA_RUN_QUIET_SCRIPT ${CMAKE_CURRENT_LIST_DIR}/GenevaRunQuiet.cmake)
 	FUNCTION(GENEVA_MATERIALIZE_CONFIGS _target _install_dest)
 		SET(_extra_args ${ARGN})
 		SET(_cfg_dir ${CMAKE_CURRENT_BINARY_DIR}/config)
@@ -431,10 +437,21 @@ IF(NOT COMMON_GENEVA_BUILD_INCLUDED)
 
 		# POST_BUILD: (re)materialize the config directory from the code defaults. Running the freshly built
 		# binary with --update-configs creates any missing config from defaults and rewrites it canonically.
+		# The run's output goes to config-materialization.log (replayed only on failure).
+		SET(_mat_cmd "$<TARGET_FILE:${_target}>")
+		FOREACH(_mat_arg IN LISTS _extra_args)
+			STRING(APPEND _mat_cmd "|${_mat_arg}")
+		ENDFOREACH()
+		STRING(APPEND _mat_cmd "|--update-configs")
 		ADD_CUSTOM_COMMAND(TARGET ${_target} POST_BUILD
 				COMMAND ${CMAKE_COMMAND} -E rm -rf ${_cfg_dir}
 				COMMAND ${CMAKE_COMMAND} -E make_directory ${_cfg_dir}
-				COMMAND ${_target} ${_extra_args} --update-configs
+				COMMAND ${CMAKE_COMMAND}
+					"-DRQ_CMD=${_mat_cmd}"
+					"-DRQ_WD=${CMAKE_CURRENT_BINARY_DIR}"
+					"-DRQ_LOG=${CMAKE_CURRENT_BINARY_DIR}/config-materialization.log"
+					"-DRQ_DESC=Config materialization for ${_target}"
+					-P ${GENEVA_RUN_QUIET_SCRIPT}
 				WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 				COMMENT "Materializing ${_target} configuration from code defaults"
 				VERBATIM)
@@ -442,7 +459,12 @@ IF(NOT COMMON_GENEVA_BUILD_INCLUDED)
 		# Overlay this directory's intentional overrides, if it ships a fragment.
 		IF(EXISTS ${_overrides})
 			ADD_CUSTOM_COMMAND(TARGET ${_target} POST_BUILD
-					COMMAND $<TARGET_FILE:GConfigOverlay> ${_cfg_dir} ${_overrides}
+					COMMAND ${CMAKE_COMMAND}
+						"-DRQ_CMD=$<TARGET_FILE:GConfigOverlay>|${_cfg_dir}|${_overrides}"
+						"-DRQ_WD=${CMAKE_CURRENT_BINARY_DIR}"
+						"-DRQ_LOG=${CMAKE_CURRENT_BINARY_DIR}/config-overlay.log"
+						"-DRQ_DESC=Config-override overlay for ${_target}"
+						-P ${GENEVA_RUN_QUIET_SCRIPT}
 					COMMENT "Overlaying ${_target} configuration overrides"
 					VERBATIM)
 		ENDIF()
