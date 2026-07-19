@@ -188,7 +188,7 @@ public:
 	  * @brief Retrieval of the command to be executed on the payload.
 	  * @return The command to be executed on the payload
 	  */
-    command_type get_command() const noexcept {
+    [[nodiscard]] command_type get_command() const noexcept {
         return command_;
     }
 
@@ -199,7 +199,7 @@ public:
 	  *
 	  * @return A const reference to the owned payload pointer (may be empty if no payload is present)
 	  */
-    const std::unique_ptr<processable_type> &get_payload() const {
+    [[nodiscard]] const std::unique_ptr<processable_type> &get_payload() const {
         return payload_ptr_;
     }
 

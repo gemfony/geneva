@@ -290,6 +290,7 @@ TEST_CASE("adaptBiGaussGroup: mode ALWAYS adapts every value (ULP-guaranteed cha
 }
 
 /******************************************************************************/
+// NOLINTNEXTLINE(readability-function-cognitive-complexity) -- one coherent kernel test: the 200-rep self-adaption loop checks sigma1/sigma2/delta bounds together against the SAME evolving state
 TEST_CASE("adaptBiGaussGroup: sigma1/sigma2/delta self-adapt within their bounds", "[kernel]") {
     BiGaussConfig<double> cfg;
     cfg.mode = adaptionMode::ALWAYS;

@@ -224,7 +224,7 @@ public:
      * @param key The key identifying the auxiliary POD block
      * @return true if a block is installed under the key, false otherwise
      */
-    bool hasAux(AuxKey key) const {
+    [[nodiscard]] bool hasAux(AuxKey key) const {
         return pods_.contains(key);
     }
 
@@ -304,7 +304,7 @@ public:
     // the individual stays pure data; nulled on the wire with the rest of the scratch.
 
     /** @brief @return The number of adaptions performed during the individual's last adaption */
-    std::size_t getNAdaptions() const { return n_adaptions_; }
+    [[nodiscard]] std::size_t getNAdaptions() const { return n_adaptions_; }
     /** @brief Records the number of adaptions performed during the last adaption. @param n The count */
     void setNAdaptions(std::size_t n) { n_adaptions_ = n; }
 

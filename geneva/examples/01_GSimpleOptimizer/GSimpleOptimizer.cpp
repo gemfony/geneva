@@ -61,7 +61,7 @@ int main(int argc, char **argv) {
     //---------------------------------------------------------------------------
     // Create a factory for GFunctionIndividual objects and perform
     // any necessary initial work.
-    std::shared_ptr<gind::GFunctionIndividualFactory> gfi_ptr(
+    std::shared_ptr<gind::GFunctionIndividualFactory> const gfi_ptr(
         new gind::GFunctionIndividualFactory("./config/GFunctionIndividual.json")
     );
 
@@ -85,7 +85,7 @@ int main(int argc, char **argv) {
     go.registerDefaultAlgorithm("ea");
 
     // Perform the actual optimization
-    std::shared_ptr<gind::GFunctionIndividual> p =
+    std::shared_ptr<gind::GFunctionIndividual> const p =
         go.optimize()->getBestGlobalIndividual<gind::GFunctionIndividual>();
 
     // Here you can do something with the best individual ("p") found.

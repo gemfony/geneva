@@ -45,7 +45,7 @@ using namespace Gem::Common;
 // GToken: counter / success / message accounting
 
 TEST_CASE("GToken: starts empty and reports zero counters", "[common][expectations][GToken]") {
-    GToken t("MyClass", expectation::EQUALITY);
+    GToken const t("MyClass", expectation::EQUALITY);
     CHECK(t.getCallerName() == "MyClass");
     CHECK(t.getExpectation() == expectation::EQUALITY);
     CHECK_FALSE(t.getExpectationStr().empty());
@@ -108,7 +108,7 @@ TEST_CASE("GToken: evaluate() throws when expectation is not met",
 
 TEST_CASE("GToken: evaluate() does not throw when expectation is met",
           "[common][expectations][GToken]") {
-    GToken t("X", expectation::EQUALITY);
+    GToken const t("X", expectation::EQUALITY);
     CHECK_NOTHROW(t.evaluate());
 }
 
@@ -167,8 +167,8 @@ TEST_CASE("compare<duration>: equal durations + EQUALITY pass",
 TEST_CASE("compare<time_point>: equal time_points + EQUALITY pass",
           "[common][expectations][compare]") {
     using TP = std::chrono::high_resolution_clock::time_point;
-    TP t1 = TP::clock::now();
-    TP t2 = t1;
+    TP const t1 = TP::clock::now();
+    TP const t2 = t1;
     CHECK_NOTHROW(compare(t1, t2, "a", "b", expectation::EQUALITY));
 }
 
@@ -201,8 +201,8 @@ TEST_CASE("identity / getIdentity: stores references and names",
 
 TEST_CASE("identity: stream-out names the items",
           "[common][expectations][identity]") {
-    int a = 1;
-    int b = 2;
+    int const a = 1;
+    int const b = 2;
     auto id = getIdentity(a, b, "a", "b");
     std::ostringstream oss;
     oss << id;
@@ -216,8 +216,8 @@ TEST_CASE("identity: stream-out names the items",
 TEST_CASE("compare_t<int>: matching values increment success counter",
           "[common][expectations][compare_t]") {
     GToken tok("X", expectation::EQUALITY);
-    int a = 7;
-    int b = 7;
+    int const a = 7;
+    int const b = 7;
     compare_t(getIdentity(a, b, "a", "b"), tok);
     CHECK(tok.getTestCounter() == 1);
     CHECK(tok.getSuccessCounter() == 1);
@@ -229,8 +229,8 @@ TEST_CASE("compare_t<int>: mismatched values are recorded as failures, not throw
     // compare_t catches g_expectation_violation and records into the token —
     // the call must NOT propagate.
     GToken tok("X", expectation::EQUALITY);
-    int a = 7;
-    int b = 8;
+    int const a = 7;
+    int const b = 8;
     CHECK_NOTHROW(compare_t(getIdentity(a, b, "a", "b"), tok));
     CHECK(tok.getTestCounter() == 1);
     CHECK(tok.getSuccessCounter() == 0);
@@ -243,30 +243,30 @@ TEST_CASE("compare_t<int>: mismatched values are recorded as failures, not throw
 
 TEST_CASE("compare<vector<double>>: equal vectors + EQUALITY pass",
           "[common][expectations][compare]") {
-    std::vector<double> a{1.0, 2.0, 3.0};
-    std::vector<double> b{1.0, 2.0, 3.0};
+    std::vector<double> const a{1.0, 2.0, 3.0};
+    std::vector<double> const b{1.0, 2.0, 3.0};
     CHECK_NOTHROW(compare(a, b, "a", "b", expectation::EQUALITY));
 }
 
 TEST_CASE("compare<vector<double>>: vectors of different sizes + EQUALITY violate",
           "[common][expectations][compare]") {
-    std::vector<double> a{1.0, 2.0};
-    std::vector<double> b{1.0, 2.0, 3.0};
+    std::vector<double> const a{1.0, 2.0};
+    std::vector<double> const b{1.0, 2.0, 3.0};
     CHECK_THROWS_AS(compare(a, b, "a", "b", expectation::EQUALITY),
                     g_expectation_violation);
 }
 
 TEST_CASE("compare<vector<double>>: per-element similarity within limit",
           "[common][expectations][compare]") {
-    std::vector<double> a{1.0, 2.0};
-    std::vector<double> b{1.0 + 1e-7, 2.0 + 1e-7};
+    std::vector<double> const a{1.0, 2.0};
+    std::vector<double> const b{1.0 + 1e-7, 2.0 + 1e-7};
     CHECK_NOTHROW(compare(a, b, "a", "b", expectation::FP_SIMILARITY, 1e-5));
 }
 
 TEST_CASE("compare<vector<double>>: per-element similarity outside limit fails",
           "[common][expectations][compare]") {
-    std::vector<double> a{1.0, 2.0};
-    std::vector<double> b{1.0, 2.5};   // diff > limit
+    std::vector<double> const a{1.0, 2.0};
+    std::vector<double> const b{1.0, 2.5};   // diff > limit
     CHECK_THROWS_AS(
         compare(a, b, "a", "b", expectation::FP_SIMILARITY, 1e-5),
         g_expectation_violation);
@@ -274,15 +274,15 @@ TEST_CASE("compare<vector<double>>: per-element similarity outside limit fails",
 
 TEST_CASE("compare<vector<double>>: INEQUALITY satisfied when contents differ",
           "[common][expectations][compare]") {
-    std::vector<double> a{1.0, 2.0};
-    std::vector<double> b{1.0, 9.0};
+    std::vector<double> const a{1.0, 2.0};
+    std::vector<double> const b{1.0, 9.0};
     CHECK_NOTHROW(compare(a, b, "a", "b", expectation::INEQUALITY));
 }
 
 TEST_CASE("compare<vector<double>>: INEQUALITY violated when contents match",
           "[common][expectations][compare]") {
-    std::vector<double> a{1.0, 2.0};
-    std::vector<double> b{1.0, 2.0};
+    std::vector<double> const a{1.0, 2.0};
+    std::vector<double> const b{1.0, 2.0};
     CHECK_THROWS_AS(compare(a, b, "a", "b", expectation::INEQUALITY),
                     g_expectation_violation);
 }
@@ -297,7 +297,7 @@ class CmpObj : public GCommonInterfaceT<CmpObj> {
 public:
     CmpObj() = default;
     explicit CmpObj(int v) : v_(v) {}
-    int v() const { return v_; }
+    [[nodiscard]] int v() const { return v_; }
 
 protected:
     void load_(CmpObj const *cp) override { if(cp) v_ = cp->v_; }
@@ -312,7 +312,7 @@ protected:
     void specificTestsFailuresExpected_GUnitTests_() override {}
 
 private:
-    CmpObj *clone_() const override { return new CmpObj(*this); }
+    [[nodiscard]] CmpObj *clone_() const override { return new CmpObj(*this); }
 
     int v_{0};
 };
@@ -321,30 +321,30 @@ private:
 
 TEST_CASE("compare<geneva_type>: equal Geneva objects + EQUALITY pass",
           "[common][expectations][compare]") {
-    CmpObj a(5);
-    CmpObj b(5);
+    CmpObj const a(5);
+    CmpObj const b(5);
     CHECK_NOTHROW(compare(a, b, "a", "b", expectation::EQUALITY, 0.));
 }
 
 TEST_CASE("compare<geneva_type>: unequal Geneva objects + EQUALITY fail",
           "[common][expectations][compare]") {
-    CmpObj a(5);
-    CmpObj b(6);
+    CmpObj const a(5);
+    CmpObj const b(6);
     CHECK_THROWS_AS(compare(a, b, "a", "b", expectation::EQUALITY, 0.),
                     g_expectation_violation);
 }
 
 TEST_CASE("compare<geneva_type>: unequal Geneva objects + INEQUALITY pass",
           "[common][expectations][compare]") {
-    CmpObj a(5);
-    CmpObj b(6);
+    CmpObj const a(5);
+    CmpObj const b(6);
     CHECK_NOTHROW(compare(a, b, "a", "b", expectation::INEQUALITY, 0.));
 }
 
 TEST_CASE("compare<geneva_type>: equal Geneva objects + INEQUALITY fail",
           "[common][expectations][compare]") {
-    CmpObj a(5);
-    CmpObj b(5);
+    CmpObj const a(5);
+    CmpObj const b(5);
     CHECK_THROWS_AS(compare(a, b, "a", "b", expectation::INEQUALITY, 0.),
                     g_expectation_violation);
 }
@@ -354,14 +354,14 @@ TEST_CASE("compare<geneva_type>: equal Geneva objects + INEQUALITY fail",
 
 TEST_CASE("compare<shared_ptr<geneva_type>>: both null + EQUALITY pass",
           "[common][expectations][compare]") {
-    std::shared_ptr<CmpObj> a;
-    std::shared_ptr<CmpObj> b;
+    std::shared_ptr<CmpObj> const a;
+    std::shared_ptr<CmpObj> const b;
     CHECK_NOTHROW(compare(a, b, "a", "b", expectation::EQUALITY, 0.));
 }
 
 TEST_CASE("compare<shared_ptr<geneva_type>>: one null one non-null + EQUALITY fail",
           "[common][expectations][compare]") {
-    std::shared_ptr<CmpObj> a;
+    std::shared_ptr<CmpObj> const a;
     auto b = std::make_shared<CmpObj>(1);
     CHECK_THROWS_AS(compare(a, b, "a", "b", expectation::EQUALITY, 0.),
                     g_expectation_violation);
@@ -387,17 +387,17 @@ TEST_CASE("compare<shared_ptr<geneva_type>>: differing contents + EQUALITY fail"
 
 TEST_CASE("compare<vector<shared_ptr<geneva_type>>>: identical contents + EQUALITY pass",
           "[common][expectations][compare]") {
-    std::vector<std::shared_ptr<CmpObj>> a{
+    std::vector<std::shared_ptr<CmpObj>> const a{
         std::make_shared<CmpObj>(1), std::make_shared<CmpObj>(2)};
-    std::vector<std::shared_ptr<CmpObj>> b{
+    std::vector<std::shared_ptr<CmpObj>> const b{
         std::make_shared<CmpObj>(1), std::make_shared<CmpObj>(2)};
     CHECK_NOTHROW(compare(a, b, "a", "b", expectation::EQUALITY, 0.));
 }
 
 TEST_CASE("compare<vector<shared_ptr<geneva_type>>>: differing sizes + EQUALITY fail",
           "[common][expectations][compare]") {
-    std::vector<std::shared_ptr<CmpObj>> a{std::make_shared<CmpObj>(1)};
-    std::vector<std::shared_ptr<CmpObj>> b{
+    std::vector<std::shared_ptr<CmpObj>> const a{std::make_shared<CmpObj>(1)};
+    std::vector<std::shared_ptr<CmpObj>> const b{
         std::make_shared<CmpObj>(1), std::make_shared<CmpObj>(2)};
     CHECK_THROWS_AS(compare(a, b, "a", "b", expectation::EQUALITY, 0.),
                     g_expectation_violation);
@@ -405,9 +405,9 @@ TEST_CASE("compare<vector<shared_ptr<geneva_type>>>: differing sizes + EQUALITY 
 
 TEST_CASE("compare<vector<shared_ptr<geneva_type>>>: element diff + EQUALITY fail",
           "[common][expectations][compare]") {
-    std::vector<std::shared_ptr<CmpObj>> a{
+    std::vector<std::shared_ptr<CmpObj>> const a{
         std::make_shared<CmpObj>(1), std::make_shared<CmpObj>(2)};
-    std::vector<std::shared_ptr<CmpObj>> b{
+    std::vector<std::shared_ptr<CmpObj>> const b{
         std::make_shared<CmpObj>(1), std::make_shared<CmpObj>(99)};
     CHECK_THROWS_AS(compare(a, b, "a", "b", expectation::EQUALITY, 0.),
                     g_expectation_violation);
@@ -415,18 +415,18 @@ TEST_CASE("compare<vector<shared_ptr<geneva_type>>>: element diff + EQUALITY fai
 
 TEST_CASE("compare<vector<shared_ptr<geneva_type>>>: INEQUALITY satisfied when one differs",
           "[common][expectations][compare]") {
-    std::vector<std::shared_ptr<CmpObj>> a{
+    std::vector<std::shared_ptr<CmpObj>> const a{
         std::make_shared<CmpObj>(1), std::make_shared<CmpObj>(2)};
-    std::vector<std::shared_ptr<CmpObj>> b{
+    std::vector<std::shared_ptr<CmpObj>> const b{
         std::make_shared<CmpObj>(1), std::make_shared<CmpObj>(99)};
     CHECK_NOTHROW(compare(a, b, "a", "b", expectation::INEQUALITY, 0.));
 }
 
 TEST_CASE("compare<vector<shared_ptr<geneva_type>>>: nullptr vs non-null element + EQUALITY fail",
           "[common][expectations][compare]") {
-    std::vector<std::shared_ptr<CmpObj>> a{
+    std::vector<std::shared_ptr<CmpObj>> const a{
         std::shared_ptr<CmpObj>(),  std::make_shared<CmpObj>(2)};
-    std::vector<std::shared_ptr<CmpObj>> b{
+    std::vector<std::shared_ptr<CmpObj>> const b{
         std::make_shared<CmpObj>(1), std::make_shared<CmpObj>(2)};
     CHECK_THROWS_AS(compare(a, b, "a", "b", expectation::EQUALITY, 0.),
                     g_expectation_violation);
@@ -462,16 +462,16 @@ TEST_CASE("compare<duration>: equal durations + INEQUALITY throw",
 TEST_CASE("compare<time_point>: different time_points + INEQUALITY pass",
           "[common][expectations][compare]") {
     using TP = std::chrono::high_resolution_clock::time_point;
-    TP t1 = TP::clock::now();
-    TP t2 = t1 + std::chrono::nanoseconds{1};
+    TP const t1 = TP::clock::now();
+    TP const t2 = t1 + std::chrono::nanoseconds{1};
     CHECK_NOTHROW(compare(t1, t2, "a", "b", expectation::INEQUALITY));
 }
 
 TEST_CASE("compare<time_point>: equal time_points + INEQUALITY throw",
           "[common][expectations][compare]") {
     using TP = std::chrono::high_resolution_clock::time_point;
-    TP t1 = TP::clock::now();
-    TP t2 = t1;
+    TP const t1 = TP::clock::now();
+    TP const t2 = t1;
     CHECK_THROWS_AS(compare(t1, t2, "a", "b", expectation::INEQUALITY),
                     g_expectation_violation);
 }
@@ -481,38 +481,38 @@ TEST_CASE("compare<time_point>: equal time_points + INEQUALITY throw",
 
 TEST_CASE("compare<vector<int>>: equal vectors + EQUALITY pass",
           "[common][expectations][compare]") {
-    std::vector<int> a{1, 2, 3};
-    std::vector<int> b{1, 2, 3};
+    std::vector<int> const a{1, 2, 3};
+    std::vector<int> const b{1, 2, 3};
     CHECK_NOTHROW(compare(a, b, "a", "b", expectation::EQUALITY));
 }
 
 TEST_CASE("compare<vector<int>>: size mismatch + EQUALITY throws with diagnostic",
           "[common][expectations][compare]") {
-    std::vector<int> a{1, 2};
-    std::vector<int> b{1, 2, 3};
+    std::vector<int> const a{1, 2};
+    std::vector<int> const b{1, 2, 3};
     CHECK_THROWS_AS(compare(a, b, "a", "b", expectation::EQUALITY),
                     g_expectation_violation);
 }
 
 TEST_CASE("compare<vector<int>>: same size, element mismatch + EQUALITY throws",
           "[common][expectations][compare]") {
-    std::vector<int> a{1, 2, 3};
-    std::vector<int> b{1, 99, 3};
+    std::vector<int> const a{1, 2, 3};
+    std::vector<int> const b{1, 99, 3};
     CHECK_THROWS_AS(compare(a, b, "a", "b", expectation::EQUALITY),
                     g_expectation_violation);
 }
 
 TEST_CASE("compare<vector<int>>: different vectors + INEQUALITY pass",
           "[common][expectations][compare]") {
-    std::vector<int> a{1, 2, 3};
-    std::vector<int> b{1, 99, 3};
+    std::vector<int> const a{1, 2, 3};
+    std::vector<int> const b{1, 99, 3};
     CHECK_NOTHROW(compare(a, b, "a", "b", expectation::INEQUALITY));
 }
 
 TEST_CASE("compare<vector<int>>: equal vectors + INEQUALITY throws",
           "[common][expectations][compare]") {
-    std::vector<int> a{1, 2, 3};
-    std::vector<int> b{1, 2, 3};
+    std::vector<int> const a{1, 2, 3};
+    std::vector<int> const b{1, 2, 3};
     CHECK_THROWS_AS(compare(a, b, "a", "b", expectation::INEQUALITY),
                     g_expectation_violation);
 }
@@ -522,38 +522,38 @@ TEST_CASE("compare<vector<int>>: equal vectors + INEQUALITY throws",
 
 TEST_CASE("compare<set<int>>: equal sets + EQUALITY pass",
           "[common][expectations][compare]") {
-    std::set<int> a{1, 2, 3};
-    std::set<int> b{1, 2, 3};
+    std::set<int> const a{1, 2, 3};
+    std::set<int> const b{1, 2, 3};
     CHECK_NOTHROW(compare(a, b, "a", "b", expectation::EQUALITY));
 }
 
 TEST_CASE("compare<set<int>>: sets of different sizes + EQUALITY throw",
           "[common][expectations][compare]") {
-    std::set<int> a{1, 2};
-    std::set<int> b{1, 2, 3};
+    std::set<int> const a{1, 2};
+    std::set<int> const b{1, 2, 3};
     CHECK_THROWS_AS(compare(a, b, "a", "b", expectation::EQUALITY),
                     g_expectation_violation);
 }
 
 TEST_CASE("compare<set<int>>: same size, different elements + EQUALITY throw",
           "[common][expectations][compare]") {
-    std::set<int> a{1, 2, 3};
-    std::set<int> b{1, 2, 4};
+    std::set<int> const a{1, 2, 3};
+    std::set<int> const b{1, 2, 4};
     CHECK_THROWS_AS(compare(a, b, "a", "b", expectation::EQUALITY),
                     g_expectation_violation);
 }
 
 TEST_CASE("compare<set<int>>: different sets + INEQUALITY pass",
           "[common][expectations][compare]") {
-    std::set<int> a{1, 2, 3};
-    std::set<int> b{1, 2, 4};
+    std::set<int> const a{1, 2, 3};
+    std::set<int> const b{1, 2, 4};
     CHECK_NOTHROW(compare(a, b, "a", "b", expectation::INEQUALITY));
 }
 
 TEST_CASE("compare<set<int>>: equal sets + INEQUALITY throw",
           "[common][expectations][compare]") {
-    std::set<int> a{1, 2, 3};
-    std::set<int> b{1, 2, 3};
+    std::set<int> const a{1, 2, 3};
+    std::set<int> const b{1, 2, 3};
     CHECK_THROWS_AS(compare(a, b, "a", "b", expectation::INEQUALITY),
                     g_expectation_violation);
 }
@@ -563,15 +563,15 @@ TEST_CASE("compare<set<int>>: equal sets + INEQUALITY throw",
 
 TEST_CASE("compare<shared_ptr<geneva_type>>: both null + INEQUALITY throw",
           "[common][expectations][compare]") {
-    std::shared_ptr<CmpObj> a;
-    std::shared_ptr<CmpObj> b;
+    std::shared_ptr<CmpObj> const a;
+    std::shared_ptr<CmpObj> const b;
     CHECK_THROWS_AS(compare(a, b, "a", "b", expectation::INEQUALITY, 0.),
                     g_expectation_violation);
 }
 
 TEST_CASE("compare<shared_ptr<geneva_type>>: one null one non-null + INEQUALITY pass",
           "[common][expectations][compare]") {
-    std::shared_ptr<CmpObj> a;
+    std::shared_ptr<CmpObj> const a;
     auto b = std::make_shared<CmpObj>(1);
     CHECK_NOTHROW(compare(a, b, "a", "b", expectation::INEQUALITY, 0.));
 }
@@ -596,9 +596,9 @@ TEST_CASE("compare<shared_ptr<geneva_type>>: matching contents + INEQUALITY thro
 
 TEST_CASE("compare<vector<shared_ptr<geneva_type>>>: identical containers + INEQUALITY throw",
           "[common][expectations][compare]") {
-    std::vector<std::shared_ptr<CmpObj>> a{
+    std::vector<std::shared_ptr<CmpObj>> const a{
         std::make_shared<CmpObj>(1), std::make_shared<CmpObj>(2)};
-    std::vector<std::shared_ptr<CmpObj>> b{
+    std::vector<std::shared_ptr<CmpObj>> const b{
         std::make_shared<CmpObj>(1), std::make_shared<CmpObj>(2)};
     CHECK_THROWS_AS(compare(a, b, "a", "b", expectation::INEQUALITY, 0.),
                     g_expectation_violation);

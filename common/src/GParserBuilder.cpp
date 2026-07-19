@@ -515,7 +515,7 @@ bool GParserBuilder::doParseConfigFile_(
     // concurrently create e.g. optimization algorithms, letting them
     // parse the same config file. The update-in-place rewrite happens under
     // the same lock, so it is serialized against every other config access.
-    std::scoped_lock lk(GParserBuilder::configfile_parser_mutex_);
+    std::scoped_lock const lk(GParserBuilder::configfile_parser_mutex_);
 
     boost::json::value root; // holds the parsed configuration document
 
@@ -568,7 +568,7 @@ bool GParserBuilder::doParseConfigFile_(
                     << "We will try to create a file with default values for you." << '\n'
                     << GLOGGING;
 
-            std::string header =
+            std::string const header =
                 "This configuration file was automatically created by GParserBuilder;";
             this->writeConfigFile(
                 config_path,
@@ -1009,7 +1009,7 @@ bool GParserBuilder::parseCommandLine(int argc, char **argv, bool verbose) {
 
     // The options description is needed both for parsing and for the usage message printed on a
     // command-line error, so it is built outside the try block below.
-    std::string usage_string = std::string("Usage: ") + argv[0] + " [options]";
+    std::string const usage_string = std::string("Usage: ") + argv[0] + " [options]";
     po::options_description desc(usage_string);
 
     // We always want --help and -h to be available

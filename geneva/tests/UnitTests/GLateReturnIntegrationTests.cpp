@@ -157,13 +157,14 @@ using namespace Gem::Tests;
 
 /******************************************************************************/
 TEST_CASE("late-return gate: a fresh test individual carries a non-zero, unique lineage UUID", "[lateret][id]") {
-    LRSphere a;
-    LRSphere b;
+    LRSphere const a;
+    LRSphere const b;
     CHECK(a.getSubmissionUuid() != SUBMISSION_UUID_TYPE{{0, 0}});
     CHECK(a.getSubmissionUuid() != b.getSubmissionUuid());
 }
 
 /******************************************************************************/
+// NOLINTNEXTLINE(readability-function-cognitive-complexity) -- one coherent test of a single retainIntegrableLateReturns() call, checked from several angles (survivors, order, processed/error state, seen-set membership)
 TEST_CASE("late-return gate: validity filter keeps only clean successes", "[lateret][validity]") {
     std::vector<std::unique_ptr<gen::GOptimizableEntity>> items;
     items.push_back(make_processed(U(1, 1)));    // keep

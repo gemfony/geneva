@@ -272,12 +272,12 @@ std::vector<double> GExternalEvaluatorIndividual::evaluate() {
     batch_out["individuals"] = json::array{this->toJSON()};
 
     // Create a suitable extension and exchange file names for this object
-    std::string extension = std::string("-") +
+    std::string const extension = std::string("-") +
                             Gem::Common::to_string(this->getAssignedIteration()) + "-" +
                             Gem::Common::to_string(this);
-    std::string parameterfile_name = parameter_file_base_name_ + extension + ".json";
-    std::string result_file_name = std::string("result") + extension + ".json";
-    std::string command_output_file_name = std::string("commandOutput") + extension + ".txt";
+    std::string const parameterfile_name = parameter_file_base_name_ + extension + ".json";
+    std::string const result_file_name = std::string("result") + extension + ".json";
+    std::string const command_output_file_name = std::string("commandOutput") + extension + ".txt";
 
     // RAII guard: remove the three IPC temp files on scope exit, whether normal or via exception.
     // remove() is a no-op for non-existent files (e.g. result_file_name when the external
@@ -314,7 +314,7 @@ std::vector<double> GExternalEvaluatorIndividual::evaluate() {
     // each criterion); an error / invalid path fills it with the worst case and flags the individual.
     std::vector<double> results(n_results_, 0.);
     std::string command;
-    int error_code = Gem::Common::runExternalCommand(
+    int const error_code = Gem::Common::runExternalCommand(
         std::filesystem::path(program_name_),
         arguments,
         std::filesystem::path(command_output_file_name),
@@ -386,7 +386,7 @@ std::vector<double> GExternalEvaluatorIndividual::evaluate() {
             }
 
             // Check whether the results represent useful values
-            bool is_valid = result_individual.at("isValid").as_bool();
+            bool const is_valid = result_individual.at("isValid").as_bool();
             if(not is_valid) {                    // Assign worst-case values to all result
                 std::ostringstream error_message; // NOLINT(cppcoreguidelines-init-variables)
 
@@ -435,7 +435,7 @@ std::vector<double> GExternalEvaluatorIndividual::evaluate() {
  *
  * @param run_id The run identifier to assign; must be non-empty and not the literal "empty"
  */
-void GExternalEvaluatorIndividual::setRunId(std::string run_id) {
+void GExternalEvaluatorIndividual::setRunId(const std::string& run_id) {
     if(run_id.empty() || "empty" == run_id) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
@@ -575,7 +575,7 @@ gen::GenomeData GExternalEvaluatorIndividual::buildGenome(Config &c) {
         }
         arguments.emplace_back("--init");
         std::string command;
-        int error_code = Gem::Common::runExternalCommand(
+        int const error_code = Gem::Common::runExternalCommand(
             std::filesystem::path(c.program_name), arguments, std::filesystem::path(), command
         );
         if(error_code) {
@@ -594,13 +594,13 @@ gen::GenomeData GExternalEvaluatorIndividual::buildGenome(Config &c) {
         if(c.custom_options != "empty" && not c.custom_options.empty()) {
             arguments.push_back(c.custom_options);
         }
-        std::string setup_file_name =
+        std::string const setup_file_name =
             std::string("./setup-") + Gem::Common::generate_uuid_v4() + std::string(".json");
         arguments.push_back("--setup");
         arguments.push_back("--output=\"" + setup_file_name + "\"");
         arguments.push_back("--initvalues=\"" + c.init_values + "\"");
         std::string command;
-        int error_code = Gem::Common::runExternalCommand(
+        int const error_code = Gem::Common::runExternalCommand(
             std::filesystem::path(c.program_name), arguments, std::filesystem::path(), command
         );
         if(error_code) {
@@ -658,7 +658,7 @@ gen::GenomeData GExternalEvaluatorIndividual::buildGenome(Config &c) {
         for(std::size_t var_counter = 0; var_counter < n_var && var_counter < var_set_node.size();
             ++var_counter) {
             json::object const &var_subtree = var_set_node.at(var_counter).as_object();
-            std::string var_type = json::value_to<std::string>(var_subtree.at("type"));
+            std::string const var_type = json::value_to<std::string>(var_subtree.at("type"));
             if("GConstrainedDoubleObject" == var_type) {
                 auto min_var = var_subtree.at("lowerBoundary").to_number<double>();
                 auto max_var = var_subtree.at("upperBoundary").to_number<double>();
@@ -781,7 +781,7 @@ void GExternalEvaluatorIndividual::finalize(const Config &c) {
     arguments.emplace_back("--finalize");
 
     std::string command;
-    int error_code = Gem::Common::runExternalCommand(
+    int const error_code = Gem::Common::runExternalCommand(
         std::filesystem::path(c.program_name), arguments, std::filesystem::path(), command
     );
     if(error_code) {
@@ -822,7 +822,7 @@ void GExternalEvaluatorIndividual::archive(
     }
     batch_out["individuals"] = std::move(individuals);
 
-    std::string parameterfile_name =
+    std::string const parameterfile_name =
         arch.front()->getExchangeBaseName() + "-" + Gem::Common::generate_uuid_v4() + ".json";
 
     Gem::Common::writeJsonFile(parameterfile_name, batch_out);
@@ -836,7 +836,7 @@ void GExternalEvaluatorIndividual::archive(
     arguments.push_back(std::string("--input=\"" + parameterfile_name + "\""));
 
     std::string command;
-    int error_code = Gem::Common::runExternalCommand(
+    int const error_code = Gem::Common::runExternalCommand(
         std::filesystem::path(arch.front()->getProgramName()), arguments, std::filesystem::path(), command
     );
     if(error_code) {

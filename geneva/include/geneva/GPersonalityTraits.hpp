@@ -88,7 +88,7 @@ public:
      * @brief Retrieves the mnemonic of the optimization algorithm
      * @return The short mnemonic string identifying the algorithm this personality belongs to
      */
-    virtual std::string getMnemonic() const = 0;
+    [[nodiscard]] virtual std::string getMnemonic() const = 0;
 
 protected:
     /**
@@ -136,12 +136,12 @@ private:
      * @brief Emits a name for this class / object
      * @return The human-readable class name of this object
      */
-    std::string name_() const override;
+    [[nodiscard]] std::string name_() const override;
     /**
      * @brief Creates a deep clone of this object
      * @return A pointer to a freshly allocated deep copy of this object (ownership passes to the caller)
      */
-    GPersonalityTraits *clone_() const override = 0;
+    [[nodiscard]] GPersonalityTraits *clone_() const override = 0;
 };
 
 /******************************************************************************/

@@ -164,7 +164,7 @@ public:
 	 * @param key The name of the option that should be checked for existence
 	 * @return A boolean that indicates whether a given option is available
 	 */
-    bool exists(const std::string &key) const {
+    [[nodiscard]] bool exists(const std::string &key) const {
         return store_.contains(key);
     }
 
@@ -174,7 +174,7 @@ public:
 	 *
 	 * @return The number of options currently held in the option store
 	 */
-    std::size_t size() const {
+    [[nodiscard]] std::size_t size() const {
         return store_.size();
     }
 
@@ -184,7 +184,7 @@ public:
 	 *
 	 * @return A boolean indicating whether the option store holds no options
 	 */
-    bool empty() const {
+    [[nodiscard]] bool empty() const {
         return store_.empty();
     }
 
@@ -194,7 +194,7 @@ public:
 	 *
 	 * @return A single string holding all option keys, separated by ", "
 	 */
-    std::string getKeyDescription() const {
+    [[nodiscard]] std::string getKeyDescription() const {
         const std::vector<std::string> keys = store_.keys(); // key order
         return keys | std::views::join_with(std::string_view(", ")) | std::ranges::to<std::string>();
     }

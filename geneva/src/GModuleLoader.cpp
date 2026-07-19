@@ -206,7 +206,7 @@ void validateCompatOrThrow(const GenevaCompat &mod, const std::string &path_str)
  *  @param caller The calling function's name, used in the error texts
  *  @return The module's (non-null, compat-validated) manifest */
 const GenevaModuleManifest *openModuleLocked(const std::string &path_str, std::string_view caller) {
-    boost::dll::shared_library &lib = openAndKeep(path_str);
+    boost::dll::shared_library  const&lib = openAndKeep(path_str);
 
     if(not lib.has(Gem::Common::GENEVA_MODULE_MANIFEST_SYMBOL)) {
         throw geneva_exception(
@@ -247,7 +247,7 @@ std::string moduleCompatMismatch(const GenevaCompat &moduleCompat) {
 
 const GenevaModuleManifest *openModule(const std::filesystem::path &module_path) {
     const std::string path_str = module_path.string();
-    std::scoped_lock lock(g_module_mutex);
+    std::scoped_lock const lock(g_module_mutex);
 
     return openModuleLocked(path_str, "openModule");
 }
@@ -291,7 +291,7 @@ Ptr takeContribution(const GenevaContribution &contrib, const std::string &path_
  *  mnemonic. A mnemonic already held (a built-in or another module) is a hard error -- a module
  *  cannot shadow one. */
 void registerOAContribution(const GenevaContribution &contrib, const std::string &path_str) {
-    GOAProviderPtr provider = takeContribution<GOAProviderPtr>(contrib, path_str, "OA provider");
+    GOAProviderPtr const provider = takeContribution<GOAProviderPtr>(contrib, path_str, "OA provider");
     const std::string mnemonic = provider->getMnemonic();
     if(not oaFactoryStore()->setOnce(mnemonic, provider)) {
         throw geneva_exception(
@@ -309,7 +309,7 @@ void registerOAContribution(const GenevaContribution &contrib, const std::string
  *  marshaller's device target. A device target already held (a compiled-in marshaller or another
  *  module) is a hard error -- one problem per process means one marshaller per target. */
 void registerMarshallerContribution(const GenevaContribution &contrib, const std::string &path_str) {
-    GMarshallerProviderPtr provider =
+    GMarshallerProviderPtr const provider =
         takeContribution<GMarshallerProviderPtr>(contrib, path_str, "marshaller provider");
     const std::string device_target = provider->getMnemonic();
     if(not marshallerProviderStore()->setOnce(device_target, provider)) {
@@ -331,7 +331,7 @@ void registerMarshallerContribution(const GenevaContribution &contrib, const std
 
 LoadedModule loadModule(const std::filesystem::path &module_path) {
     const std::string path_str = module_path.string();
-    std::scoped_lock lock(g_module_mutex);
+    std::scoped_lock const lock(g_module_mutex);
 
     // Open + require-manifest + validate GenevaCompat, via the prologue shared with openModule();
     // then dispatch every contribution by kind.

@@ -220,6 +220,7 @@ using Gem::Tests::FactorySphere;
 using Gem::Tests::Sphere;
 
 /******************************************************************************/
+// NOLINTNEXTLINE(readability-function-cognitive-complexity) -- one coherent test inspecting a single built layout+adaptor from several angles (structure fields, adaptor config, per-element bounds)
 TEST_CASE("GGenomeBuilder produces the expected shared layout", "[flat]") {
     GGenomeBuilder b;
     b.addDoubleGroup(5, -10., 10.).init(1.0); // structure only -- adaptors are authored on the OA config
@@ -301,7 +302,7 @@ TEST_CASE("GGenomeLayout::layoutId is a stable content hash", "[flat][layoutid]"
     }
 
     // A copy has a cold cache but must recompute the identical id (copy preserves structure).
-    GGenomeLayout copy(*a);
+    GGenomeLayout const copy(*a);
     CHECK(copy.layoutId() == a->layoutId());
     CHECK(copy.sameStructure(*a));
 
@@ -410,7 +411,7 @@ TEST_CASE("GGenomeBuilder: groups vs arrays vs single parameters", "[flat]") {
     b.addDouble(0., -1., 1.);          // group of 1
     b.addDoubleGroup(4, -2., 2.);      // ONE group of 4 (shared sigma)
     b.addDoubleArray(3, -3., 3.);      // 3 groups of 1
-    gen::GenomeData g = b.build();
+    gen::GenomeData const g = b.build();
 
     const ChannelLayout<double> &ch = g.layout->d;
     CHECK(ch.size() == 1 + 4 + 3);
@@ -424,7 +425,7 @@ TEST_CASE("GGenomeBuilder: interned group labels", "[flat]") {
     b.addDoubleGroup(2, -1., 1.).label("position"); // group 1
     b.addDouble(0., -1., 1.).label("scale");        // group 2
     b.addDouble(0., -1., 1.);                        // group 3 (unlabeled)
-    gen::GenomeData g = b.build();
+    gen::GenomeData const g = b.build();
 
     std::shared_ptr<const GGenomeLayout> L = g.layout;
     REQUIRE(L);
@@ -556,7 +557,7 @@ TEST_CASE("Constrained fold helpers map into range", "[flat]") {
     // FP: half-open [lo, hi)
     CHECK(foldConstrainedFP<double>(5., -10., 10.) == 5.);   // in range -> identity
     CHECK(foldConstrainedFP<double>(25., -10., 10.) == -5.); // reflected
-    for(double x : {-37.3, -11., 9.999, 100.25, 10.0}) {
+    for(double const x : {-37.3, -11., 9.999, 100.25, 10.0}) {
         const double f = foldConstrainedFP<double>(x, -10., 10.);
         CHECK(f >= -10.);
         CHECK(f < 10.);
@@ -564,7 +565,7 @@ TEST_CASE("Constrained fold helpers map into range", "[flat]") {
 
     // Int: closed [lo, hi]
     CHECK(foldConstrainedInt<std::int32_t>(7, -10, 10) == 7);
-    for(std::int32_t x : {-100, -11, 11, 250}) {
+    for(std::int32_t const x : {-100, -11, 11, 250}) {
         const std::int32_t f = foldConstrainedInt<std::int32_t>(x, -10, 10);
         CHECK(f >= -10);
         CHECK(f <= 10);
@@ -579,7 +580,7 @@ TEST_CASE("Constrained fold helpers map into range", "[flat]") {
 
 /******************************************************************************/
 TEST_CASE("GGenome: clone is independent", "[flat]") {
-    Sphere ind(6);
+    Sphere const ind(6);
 
     auto twin = ind.clone<Sphere>();
 
@@ -704,7 +705,7 @@ TEST_CASE("GGenome: adapt() mutates within bounds", "[flat]") {
         std::vector<double> v;
         ind.streamline<double>(v);
         REQUIRE(v.size() == 8);
-        for(double x : v) {
+        for(double const x : v) {
             CHECK(x >= -10.); // streamline always folds back into the external range
             CHECK(x < 10.);
         }
@@ -724,7 +725,7 @@ TEST_CASE("GGenome: randomInit stays within bounds and changes values", "[flat]"
     std::vector<double> after;
     ind.streamline<double>(after);
     CHECK(before != after);
-    for(double x : after) {
+    for(double const x : after) {
         CHECK(x >= -10.);
         CHECK(x < 10.);
     }
@@ -909,7 +910,7 @@ TEST_CASE("GGenome: flip adaptor mutates int32 and bool channels", "[flat][flip]
         std::vector<bool> b_now;
         ind.streamline<std::int32_t>(i_now);
         ind.streamline<bool>(b_now);
-        for(std::int32_t x : i_now) {
+        for(std::int32_t const x : i_now) {
             CHECK(x >= -10);
             CHECK(x <= 10);
         }
@@ -938,7 +939,7 @@ TEST_CASE("GGenome: bi-gaussian adaptor mutates the FP channel within bounds", "
         total += adapter.adapt(ind);
         std::vector<double> v;
         ind.streamline<double>(v);
-        for(double x : v) {
+        for(double const x : v) {
             CHECK(x >= -5.);
             CHECK(x < 5.);
         }
@@ -968,6 +969,7 @@ TEST_CASE("GGenome: mixed flip/bigauss genome serialises round-trip", "[flat][fl
 using Gem::Tests::IntGauss;
 
 /******************************************************************************/
+// NOLINTNEXTLINE(readability-function-cognitive-complexity) -- one coherent stochastic robustness test: the 30-round mutation loop checks Gauss- and flip-group bounds together against the SAME evolving state
 TEST_CASE("GGenome: integer Gauss adaptor mutates int32 within bounds", "[flat][intgauss]") {
     IntGauss ind;
 
@@ -1018,8 +1020,8 @@ TEST_CASE("GGenome: integer Gauss genome serialises round-trip", "[flat][intgaus
 
 /******************************************************************************/
 TEST_CASE("GGridArchitecture reads any genome through the §2 seam (flat)", "[flat][architecture]") {
-    Sphere ind(12); // 12 FP values -> a 3x4 grid
-    GGridArchitecture grid(3, 4);
+    Sphere const ind(12); // 12 FP values -> a 3x4 grid
+    GGridArchitecture const grid(3, 4);
 
     CHECK(grid.name() == "GGridArchitecture");
     CHECK(grid.expectedFPSize() == 12);
@@ -1113,7 +1115,7 @@ TEST_CASE("GIndividualFactory::getAdaptionConfig delegates to buildAdaptionConfi
 /******************************************************************************/
 TEST_CASE("GNeuralNetworkArchitecture computes per-layer weight offsets", "[architecture][flat]") {
     // A 2-4-4-1 feed-forward network (the example-09 default geometry).
-    Gem::Geneva::Individuals::GNeuralNetworkArchitecture arch(
+    Gem::Geneva::Individuals::GNeuralNetworkArchitecture const arch(
         std::vector<std::size_t>{2, 4, 4, 1}
     );
 
@@ -1184,7 +1186,7 @@ TEST_CASE("Wire send-once: first item carries the layout, later items only the i
     std::string s_first;
     std::string s_second;
     {
-        GWireSerializationScope scope(&server_ctx);
+        GWireSerializationScope const scope(&server_ctx);
         s_first = a.toString(mode::BINARY);  // first to peer 1 -> full layout inline
         s_second = c.toString(mode::BINARY); // same layout id -> id-only
     }
@@ -1204,7 +1206,7 @@ TEST_CASE("Wire send-once: first item carries the layout, later items only the i
     ManyGroups ra;
     ManyGroups rc;
     {
-        GWireSerializationScope scope(&worker_ctx);
+        GWireSerializationScope const scope(&worker_ctx);
         ra.fromString(s_first, mode::BINARY);
         CHECK(worker_reg.size() == 1); // the worker cached the layout it received
         rc.fromString(s_second, mode::BINARY);
@@ -1233,7 +1235,7 @@ TEST_CASE("Wire send-once: a cache miss is resolved by the fetch fallback", "[fl
     server_ctx.registry = &server_reg;
     std::string s_idonly;
     {
-        GWireSerializationScope scope(&server_ctx);
+        GWireSerializationScope const scope(&server_ctx);
         (void)a.toString(mode::BINARY);          // first send: marks peer 1 as holding the layout
         s_idonly = a.toString(mode::BINARY);     // second send: id-only
     }
@@ -1257,7 +1259,7 @@ TEST_CASE("Wire send-once: a cache miss is resolved by the fetch fallback", "[fl
 
     ManyGroups r;
     {
-        GWireSerializationScope scope(&worker_ctx);
+        GWireSerializationScope const scope(&worker_ctx);
         r.fromString(s_idonly, mode::BINARY); // miss -> fetch -> reconstruct
     }
     CHECK(fetch_calls == 1);
@@ -1271,7 +1273,7 @@ TEST_CASE("Wire send-once: a cache miss is resolved by the fetch fallback", "[fl
 TEST_CASE("Wire send-once: an unresolvable id-only reference throws", "[flat][wire]") {
     using mode = Gem::Common::serializationMode;
 
-    ManyGroups a(16);
+    ManyGroups const a(16);
     GWireLayoutRegistry server_reg;
     GWireSerializationContext server_ctx;
     server_ctx.enabled = true;
@@ -1279,7 +1281,7 @@ TEST_CASE("Wire send-once: an unresolvable id-only reference throws", "[flat][wi
     server_ctx.registry = &server_reg;
     std::string s_idonly;
     {
-        GWireSerializationScope scope(&server_ctx);
+        GWireSerializationScope const scope(&server_ctx);
         (void)a.toString(mode::BINARY);
         s_idonly = a.toString(mode::BINARY);
     }
@@ -1292,7 +1294,7 @@ TEST_CASE("Wire send-once: an unresolvable id-only reference throws", "[flat][wi
     worker_ctx.registry = &worker_reg;
     ManyGroups r;
     {
-        GWireSerializationScope scope(&worker_ctx);
+        GWireSerializationScope const scope(&worker_ctx);
         CHECK_THROWS(r.fromString(s_idonly, mode::BINARY));
     }
 }
@@ -1322,7 +1324,7 @@ TEST_CASE("Wire send-once: default-off encoding is self-contained and interopera
     worker_ctx.registry = &worker_reg;
     ManyGroups r2;
     {
-        GWireSerializationScope scope(&worker_ctx);
+        GWireSerializationScope const scope(&worker_ctx);
         r2.fromString(s_full, mode::BINARY);
     }
     CHECK(r2.getLayout()->sameStructure(*a.getLayout()));
@@ -1353,7 +1355,7 @@ TEST_CASE("Wire results-only return: genome omitted, grafted from the original",
     worker_ctx.returning = true; // this endpoint returns results to the server
     std::string s_results_only;
     {
-        GWireSerializationScope scope(&worker_ctx);
+        GWireSerializationScope const scope(&worker_ctx);
         s_results_only = worker_copy->toString(mode::BINARY);
     }
 
@@ -1370,7 +1372,7 @@ TEST_CASE("Wire results-only return: genome omitted, grafted from the original",
     server_ctx.registry = &server_reg; // returning stays false (the server submits, not returns)
     ManyGroups received;
     {
-        GWireSerializationScope scope(&server_ctx);
+        GWireSerializationScope const scope(&server_ctx);
         received.fromString(s_results_only, mode::BINARY);
     }
     CHECK(received.inputDataOmitted());
@@ -1446,7 +1448,7 @@ TEST_CASE("Wire results-only return: a client may opt into a full return", "[fla
     worker_ctx.returning = true;
     std::string s;
     {
-        GWireSerializationScope scope(&worker_ctx);
+        GWireSerializationScope const scope(&worker_ctx);
         s = worker_copy->toString(mode::BINARY);
     }
 
@@ -1456,7 +1458,7 @@ TEST_CASE("Wire results-only return: a client may opt into a full return", "[fla
     server_ctx.registry = &server_reg;
     ManyGroups received;
     {
-        GWireSerializationScope scope(&server_ctx);
+        GWireSerializationScope const scope(&server_ctx);
         received.fromString(s, mode::BINARY);
     }
     // A full return carried the (modified) genome -- no graft needed.
@@ -1488,7 +1490,7 @@ TEST_CASE("Wire send-once: large-genome wire-size before/after", "[flat][wire]")
     std::size_t first_submit = 0;
     std::size_t idonly_submit = 0;
     {
-        GWireSerializationScope scope(&server_ctx);
+        GWireSerializationScope const scope(&server_ctx);
         first_submit = big.toString(mode::BINARY).size();   // present=true (carries the layout)
         idonly_submit = big.toString(mode::BINARY).size();  // id-only
     }
@@ -1503,7 +1505,7 @@ TEST_CASE("Wire send-once: large-genome wire-size before/after", "[flat][wire]")
     std::size_t full_return = 0;
     std::size_t results_only_return = 0;
     {
-        GWireSerializationScope scope(&worker_ctx);
+        GWireSerializationScope const scope(&worker_ctx);
         big.setReturnFullIndividual(true);
         full_return = big.toString(mode::BINARY).size();
         big.setReturnFullIndividual(false);
@@ -1894,7 +1896,7 @@ TEST_CASE("EA over a websocket consumer with results-only returns keeps full gen
     auto pop = std::make_shared<oa::GEvolutionaryAlgorithm>();
     pop->setPopulationSizes(40, 6);
     pop->setMaxIteration(120);
-    Sphere proto(8);
+    Sphere const proto(8);
     for(std::size_t i = 0; i < 40; ++i) {
         pop->push_back(proto.clone_unique());
     }
@@ -2018,7 +2020,7 @@ TEST_CASE("Marshaller module manifest contributes a registrable GPU marshaller",
     const GenevaModuleManifest *other =
         marshallerManifest<ProbeGPUMarshaller, "cuda", "config/OtherGPU.json">();
     auto *holder2 = static_cast<GMarshallerProviderPtr *>(other->contributions[0].make_factory());
-    GMarshallerProviderPtr provider2 = std::move(*holder2);
+    GMarshallerProviderPtr const provider2 = std::move(*holder2);
     delete holder2;
     CHECK_FALSE(store->setOnce("cuda", provider2)); // collision: at most one marshaller per device target
 
@@ -2030,7 +2032,7 @@ TEST_CASE("Go2 enforces exactly one individual (optimization problem) per proces
     const fs::path base = fs::temp_directory_path() / "geneva_claimonce_tests";
     fs::create_directories(base);
 
-    int argc = 1;
+    int const argc = 1;
     char arg0[] = "unit-test";
     char *argv[] = {arg0, nullptr};
     Go2 go(argc, argv, base / "Go2.json");
@@ -2059,7 +2061,7 @@ TEST_CASE("Go2 two-phase configuration: programmatic setters and CLI precedence"
     fs::create_directories(base);
 
     SECTION("setters and getters are symmetric (before configuration is finalized)") {
-        int argc = 1;
+        int const argc = 1;
         char arg0[] = "unit-test";
         char *argv[] = {arg0, nullptr};
         Go2 go(argc, argv, base / "Go2.json");
@@ -2080,7 +2082,7 @@ TEST_CASE("Go2 two-phase configuration: programmatic setters and CLI precedence"
     // finalization and then inspect the effective (post-precedence) configuration, without running a full
     // optimization.
     SECTION("a --consumer on the command line overrides a programmatic setConsumerName") {
-        int argc = 3;
+        int const argc = 3;
         char arg0[] = "unit-test";
         char arg1[] = "--consumer";
         char arg2[] = "stc";
@@ -2098,7 +2100,7 @@ TEST_CASE("Go2 two-phase configuration: programmatic setters and CLI precedence"
     }
 
     SECTION("a --optimizationAlgorithms list overrides a programmatic setAlgorithmChain") {
-        int argc = 3;
+        int const argc = 3;
         char arg0[] = "unit-test";
         char arg1[] = "--optimizationAlgorithms";
         char arg2[] = "ea";
@@ -2115,7 +2117,7 @@ TEST_CASE("Go2 two-phase configuration: programmatic setters and CLI precedence"
     }
 
     SECTION("with no command-line algorithms, the programmatic chain is resolved") {
-        int argc = 1;
+        int const argc = 1;
         char arg0[] = "unit-test";
         char *argv[] = {arg0, nullptr};
         Go2 go(argc, argv, base / "Go2.json");
@@ -2135,7 +2137,7 @@ TEST_CASE("Go2 two-phase configuration: programmatic setters and CLI precedence"
         // resolved only once the run actually starts. (A role-at-runtime consumer such as mpi would instead
         // finalize here, so its rank-derived client/server role is settled before the caller dispatches; that
         // path needs a live MPI environment and is covered by the MPI examples.)
-        int argc = 1;
+        int const argc = 1;
         char arg0[] = "unit-test";
         char *argv[] = {arg0, nullptr};
         Go2 go(argc, argv, base / "Go2.json");
@@ -2167,7 +2169,7 @@ TEST_CASE("destroying a GenevaInitializer keeps the process RNG alive", "[go2][r
     // fails on the unfixed code (the factory reports finalized(), so the draw throws) and passes once
     // ~GenevaInitializer() no longer finalizes the shared singleton (the factory is torn down only by
     // its own singleton destructor at process exit).
-    { Gem::Geneva::GenevaInitializer gi; } // came online here; must NOT tear the factory down at scope exit
+    { Gem::Geneva::GenevaInitializer const gi; } // came online here; must NOT tear the factory down at scope exit
 
     REQUIRE_FALSE(Gem::Hap::randomFactory()->finalized()); // the shared factory must still be live
 
@@ -2201,7 +2203,7 @@ protected:
     bool process_([[maybe_unused]] GOptimizableEntity &p) override { return true; }
 
 private:
-    Gem::Common::GSerializableFunctionObjectT<GOptimizableEntity> *clone_() const override {
+    [[nodiscard]] Gem::Common::GSerializableFunctionObjectT<GOptimizableEntity> *clone_() const override {
         return new ProbeProcessor(*this);
     }
 };
@@ -2232,7 +2234,7 @@ TEST_CASE("GOptimizableEntityFactory copy retains BOTH pre- and post-processors"
     REQUIRE(orig.post());
 
     // The buggy path: GOptimizableEntityFactory's copy ctor (reached via the derived copy ctor).
-    Gem::Tests::ProbeFactory copy(orig);
+    Gem::Tests::ProbeFactory const copy(orig);
 
     CHECK(copy.pre());   // regressed to null on the unfixed code (pre_processor_ was never copied)
     CHECK(copy.post());

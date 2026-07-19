@@ -110,24 +110,24 @@ public:
 	 * @brief Retrieve the number of bins in x-direction
 	 * @return The number of bins in x-direction
 	 */
-    std::size_t getNBinsX() const;
+    [[nodiscard]] std::size_t getNBinsX() const;
 
     /**
 	 * @brief Retrieve the lower boundary of the plot
 	 * @return The lower boundary of the histogram in x-direction
 	 */
-    double getMinX() const;
+    [[nodiscard]] double getMinX() const;
     /**
 	 * @brief Retrieve the upper boundary of the plot
 	 * @return The upper boundary of the histogram in x-direction
 	 */
-    double getMaxX() const;
+    [[nodiscard]] double getMaxX() const;
 
     /**
 	 * @brief Retrieves a unique name for this plotter
 	 * @return A unique name for this plotter
 	 */
-    std::string getPlotterName() const override;
+    [[nodiscard]] std::string getPlotterName() const override;
 
     /**
 	 * @brief Reports this plotter's choice (kind, columns, bins) as a GPlotSpec value
@@ -143,7 +143,7 @@ protected:
 	 * @param indention The indention string prepended to each emitted line
 	 * @return The header section of the ROOT code for this plot
 	 */
-    std::string headerData_(bool is_secondary, std::size_t p_id, std::size_t own_id, const std::string &indent) const override;
+    [[nodiscard]] std::string headerData_(bool is_secondary, std::size_t p_id, std::size_t own_id, const std::string &indent) const override;
 
     /**
 	 * @brief Retrieves the actual data sets
@@ -152,7 +152,7 @@ protected:
 	 * @param indention The indention string prepended to each emitted line
 	 * @return The body section of the ROOT code, holding the actual data
 	 */
-    std::string bodyData_(bool is_secondary, std::size_t p_id, std::size_t own_id, const std::string &indent) const override;
+    [[nodiscard]] std::string bodyData_(bool is_secondary, std::size_t p_id, std::size_t own_id, const std::string &indent) const override;
 
     /**
 	 * @brief Retrieves specific draw commands for this plot
@@ -161,14 +161,14 @@ protected:
 	 * @param indention The indention string prepended to each emitted line
 	 * @return The footer section of the ROOT code, holding the draw commands
 	 */
-    std::string footerData_(bool is_secondary, std::size_t p_id, std::size_t own_id, const std::string &indent) const override;
+    [[nodiscard]] std::string footerData_(bool is_secondary, std::size_t p_id, std::size_t own_id, const std::string &indent) const override;
 
     /**
 	 * @brief Retrieve the current drawing arguments
 	 * @param isSecondary Whether this is a secondary plot drawn into an existing pad
 	 * @return The drawing arguments to be passed to ROOT's Draw() call
 	 */
-    std::string drawingArguments(bool is_secondary) const override;
+    [[nodiscard]] std::string drawingArguments(bool is_secondary) const override;
 
     /**
 	 * @brief Loads the data of another object
@@ -197,12 +197,12 @@ private:
 	 * @brief Returns the name of this class
 	 * @return The name of this class as a string
 	 */
-    std::string name_() const override;
+    [[nodiscard]] std::string name_() const override;
     /**
 	 * @brief Creates a deep clone of this object
 	 * @return A deep clone of this object, wrapped into a GBasePlotter pointer
 	 */
-    GBasePlotter *clone_() const override;
+    [[nodiscard]] GBasePlotter *clone_() const override;
 
     /** @brief Applies test-only modifications: the base members plus this histogram's bin count,
      *  value range and a sample datum. Never invoked on rendered objects. */
@@ -294,24 +294,24 @@ public:
 	 * @brief Retrieve the number of bins in x-direction
 	 * @return The number of bins in x-direction
 	 */
-    std::size_t getNBinsX() const;
+    [[nodiscard]] std::size_t getNBinsX() const;
 
     /**
 	 * @brief Retrieve the lower boundary of the plot
 	 * @return The lower boundary of the histogram in x-direction
 	 */
-    double getMinX() const;
+    [[nodiscard]] double getMinX() const;
     /**
 	 * @brief Retrieve the upper boundary of the plot
 	 * @return The upper boundary of the histogram in x-direction
 	 */
-    double getMaxX() const;
+    [[nodiscard]] double getMaxX() const;
 
     /**
 	 * @brief Retrieves a unique name for this plotter
 	 * @return A unique name for this plotter
 	 */
-    std::string getPlotterName() const override;
+    [[nodiscard]] std::string getPlotterName() const override;
 
     /**
 	 * @brief Reports this plotter's choice (kind, columns, bins) as a GPlotSpec value
@@ -349,7 +349,7 @@ protected:
 	 * @param indention The indention string prepended to each emitted line
 	 * @return The header section of the ROOT code for this plot
 	 */
-    std::string headerData_(bool is_secondary, std::size_t p_id, std::size_t own_id, const std::string &indent) const override;
+    [[nodiscard]] std::string headerData_(bool is_secondary, std::size_t p_id, std::size_t own_id, const std::string &indent) const override;
 
     /**
 	 * @brief Retrieves the actual data sets
@@ -358,7 +358,7 @@ protected:
 	 * @param indention The indention string prepended to each emitted line
 	 * @return The body section of the ROOT code, holding the actual data
 	 */
-    std::string bodyData_(bool is_secondary, std::size_t p_id, std::size_t own_id, const std::string &indent) const override;
+    [[nodiscard]] std::string bodyData_(bool is_secondary, std::size_t p_id, std::size_t own_id, const std::string &indent) const override;
 
     /**
 	 * @brief Retrieves specific draw commands for this plot
@@ -367,26 +367,26 @@ protected:
 	 * @param indention The indention string prepended to each emitted line
 	 * @return The footer section of the ROOT code, holding the draw commands
 	 */
-    std::string footerData_(bool is_secondary, std::size_t p_id, std::size_t own_id, const std::string &indent) const override;
+    [[nodiscard]] std::string footerData_(bool is_secondary, std::size_t p_id, std::size_t own_id, const std::string &indent) const override;
 
     /**
 	 * @brief Retrieve the current drawing arguments
 	 * @param isSecondary Whether this is a secondary plot drawn into an existing pad
 	 * @return The drawing arguments to be passed to ROOT's Draw() call
 	 */
-    std::string drawingArguments(bool is_secondary) const override;
+    [[nodiscard]] std::string drawingArguments(bool is_secondary) const override;
 
 private:
     /**
 	 * @brief Returns the name of this class
 	 * @return The name of this class as a string
 	 */
-    std::string name_() const override;
+    [[nodiscard]] std::string name_() const override;
     /**
 	 * @brief Creates a deep clone of this object
 	 * @return A deep clone of this object, wrapped into a GBasePlotter pointer
 	 */
-    GBasePlotter *clone_() const override;
+    [[nodiscard]] GBasePlotter *clone_() const override;
 
     /** @brief Applies test-only modifications: the base members plus this histogram's bin count,
      *  value range and an integer sample datum. Never invoked on rendered objects. */
@@ -505,39 +505,39 @@ public:
 	 * @brief Retrieve the number of bins in x-direction
 	 * @return The number of bins in x-direction
 	 */
-    std::size_t getNBinsX() const;
+    [[nodiscard]] std::size_t getNBinsX() const;
     /**
 	 * @brief Retrieve the number of bins in y-direction
 	 * @return The number of bins in y-direction
 	 */
-    std::size_t getNBinsY() const;
+    [[nodiscard]] std::size_t getNBinsY() const;
 
     /**
 	 * @brief Retrieve the lower boundary of the plot in x-direction
 	 * @return The lower boundary in x-direction
 	 */
-    double getMinX() const;
+    [[nodiscard]] double getMinX() const;
     /**
 	 * @brief Retrieve the upper boundary of the plot in x-direction
 	 * @return The upper boundary in x-direction
 	 */
-    double getMaxX() const;
+    [[nodiscard]] double getMaxX() const;
     /**
 	 * @brief Retrieve the lower boundary of the plot in y-direction
 	 * @return The lower boundary in y-direction
 	 */
-    double getMinY() const;
+    [[nodiscard]] double getMinY() const;
     /**
 	 * @brief Retrieve the upper boundary of the plot in y-direction
 	 * @return The upper boundary in y-direction
 	 */
-    double getMaxY() const;
+    [[nodiscard]] double getMaxY() const;
 
     /**
 	 * @brief Retrieves a unique name for this plotter
 	 * @return A unique name for this plotter
 	 */
-    std::string getPlotterName() const override;
+    [[nodiscard]] std::string getPlotterName() const override;
 
     /**
 	 * @brief Reports this plotter's choice (kind, columns, bins) as a GPlotSpec value
@@ -554,7 +554,7 @@ public:
 	 * @brief Allows to retrieve 2d-drawing options
 	 * @return The currently set 2-d drawing option
 	 */
-    tddropt get2DOpt() const;
+    [[nodiscard]] tddropt get2DOpt() const;
 
 protected:
     /**
@@ -564,7 +564,7 @@ protected:
 	 * @param indention The indention string prepended to each emitted line
 	 * @return The header section of the ROOT code for this plot
 	 */
-    std::string headerData_(bool is_secondary, std::size_t p_id, std::size_t own_id, const std::string &indent) const override;
+    [[nodiscard]] std::string headerData_(bool is_secondary, std::size_t p_id, std::size_t own_id, const std::string &indent) const override;
 
     /**
 	 * @brief Retrieves the actual data sets
@@ -573,7 +573,7 @@ protected:
 	 * @param indention The indention string prepended to each emitted line
 	 * @return The body section of the ROOT code, holding the actual data
 	 */
-    std::string bodyData_(bool is_secondary, std::size_t p_id, std::size_t own_id, const std::string &indent) const override;
+    [[nodiscard]] std::string bodyData_(bool is_secondary, std::size_t p_id, std::size_t own_id, const std::string &indent) const override;
 
     /**
 	 * @brief Retrieves specific draw commands for this plot
@@ -582,14 +582,14 @@ protected:
 	 * @param indention The indention string prepended to each emitted line
 	 * @return The footer section of the ROOT code, holding the draw commands
 	 */
-    std::string footerData_(bool is_secondary, std::size_t p_id, std::size_t own_id, const std::string &indent) const override;
+    [[nodiscard]] std::string footerData_(bool is_secondary, std::size_t p_id, std::size_t own_id, const std::string &indent) const override;
 
     /**
 	 * @brief Retrieve the current drawing arguments
 	 * @param isSecondary Whether this is a secondary plot drawn into an existing pad
 	 * @return The drawing arguments to be passed to ROOT's Draw() call
 	 */
-    std::string drawingArguments(bool is_secondary) const override;
+    [[nodiscard]] std::string drawingArguments(bool is_secondary) const override;
 
     /**
 	 * @brief Loads the data of another object
@@ -617,12 +617,12 @@ private:
 	 * @brief Returns the name of this class
 	 * @return The name of this class as a string
 	 */
-    std::string name_() const override;
+    [[nodiscard]] std::string name_() const override;
     /**
 	 * @brief Creates a deep clone of this object
 	 * @return A deep clone of this object, wrapped into a GBasePlotter pointer
 	 */
-    GBasePlotter *clone_() const override;
+    [[nodiscard]] GBasePlotter *clone_() const override;
 
     /** @brief Applies test-only modifications: the base members plus this histogram's per-axis bin
      *  counts, value ranges and a sample datum. Never invoked on rendered objects. */

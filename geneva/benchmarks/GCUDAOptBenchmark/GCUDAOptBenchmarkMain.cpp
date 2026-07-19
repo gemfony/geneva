@@ -153,8 +153,8 @@ int main(int argc, char **argv) {
     // program-options parser, which would otherwise reject the unregistered switch.
     if (Gem::Common::configEmissionRequested(argc, argv)) {
         Gem::Common::beginConfigEmission();
-        Gem::Geneva::GenevaInitializer gi;
-        BenchmarkConfig cfg = loadConfig(configFile);
+        Gem::Geneva::GenevaInitializer const gi;
+        BenchmarkConfig const cfg = loadConfig(configFile);
         GAlgorithmBenchmarkRunner(cfg).emitConfigs();
         auto marshaller = std::make_shared<GBenchmarkGPUMarshaller>();
         Gem::Courtier::GPU::GGPUConsumerT<gen::GOptimizableEntity>("./config/GGPUConsumer.json", marshaller);
@@ -202,7 +202,7 @@ int main(int argc, char **argv) {
               << std::endl;
 
     // Initialize Geneva — must outlive the runner and all optimization.
-    Gem::Geneva::GenevaInitializer gi;
+    Gem::Geneva::GenevaInitializer const gi;
 
     // Build the unified GPU consumer (the SAME GGPUConsumerT example 15 uses) and register it as the
     // process consumer. The whole population is scored in one bulk, runtime-compiled kernel launch; the

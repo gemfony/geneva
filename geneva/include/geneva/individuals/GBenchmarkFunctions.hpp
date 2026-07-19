@@ -179,8 +179,8 @@ G_CALLABLE inline double noisyParabola(const double *x, int n) {
 G_CALLABLE inline double rosenbrock(const double *x, int n) {
     double r = 0.;
     for(int i = 0; i < n - 1; ++i) {
-        double t = x[i + 1] - (x[i] * x[i]);
-        double u = 1. - x[i];
+        double const t = x[i + 1] - (x[i] * x[i]);
+        double const u = 1. - x[i];
         r += (100. * t * t) + (u * u);
     }
     return r;
@@ -199,7 +199,7 @@ G_CALLABLE inline double rosenbrock(const double *x, int n) {
 G_CALLABLE inline double ackley(const double *x, int n) {
     double r = 0.;
     for(int i = 0; i < n - 1; ++i) {
-        double s = (x[i] * x[i]) + (x[i + 1] * x[i + 1]);
+        double const s = (x[i] * x[i]) + (x[i + 1] * x[i + 1]);
         r += (exp(-0.2) * sqrt(s)) + (3. * (cos(2. * x[i]) + sin(2. * x[i + 1])));
     }
     return r;

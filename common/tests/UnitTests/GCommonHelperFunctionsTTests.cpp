@@ -86,8 +86,8 @@ TEST_CASE(
     "ptrDifferenceCheck raw: different pointers do not throw",
     "[common][helper][ptrDifferenceCheck]"
 ) {
-    int a = 1;
-    int b = 2;
+    int const a = 1;
+    int const b = 2;
     REQUIRE_NOTHROW(Gem::Common::ptrDifferenceCheck(&a, &b));
 }
 
@@ -95,7 +95,7 @@ TEST_CASE(
     "ptrDifferenceCheck raw: null first pointer is a no-op",
     "[common][helper][ptrDifferenceCheck]"
 ) {
-    int a = 1;
+    int const a = 1;
     REQUIRE_NOTHROW(Gem::Common::ptrDifferenceCheck<int>(nullptr, &a));
 }
 
@@ -171,7 +171,7 @@ TEST_CASE(
     "g_ptr_conversion shared_ptr: null input returns null",
     "[common][helper][g_ptr_conversion]"
 ) {
-    std::shared_ptr<TBase> null_sp;
+    std::shared_ptr<TBase> const null_sp;
     auto result = Gem::Common::g_ptr_conversion<TBase, TDerived>(null_sp);
     REQUIRE(result == nullptr);
 }
@@ -322,7 +322,7 @@ TEST_CASE("to_string: scoped enum yields its underlying integer", "[common][help
 
 TEST_CASE("erase_if: removes matching elements and returns count", "[common][helper][erase_if]") {
     std::vector<int> v{1, 2, 3, 4, 5, 6};
-    std::size_t n = Gem::Common::erase_if(v, [](int x) { return x % 2 == 0; });
+    std::size_t const n = Gem::Common::erase_if(v, [](int x) { return x % 2 == 0; });
     REQUIRE(n == 3);
     REQUIRE(v == std::vector<int>{1, 3, 5});
 }
@@ -332,21 +332,21 @@ TEST_CASE(
     "[common][helper][erase_if]"
 ) {
     std::vector<int> v{1, 3, 5};
-    std::size_t n = Gem::Common::erase_if(v, [](int x) { return x % 2 == 0; });
+    std::size_t const n = Gem::Common::erase_if(v, [](int x) { return x % 2 == 0; });
     REQUIRE(n == 0);
     REQUIRE(v == std::vector<int>{1, 3, 5});
 }
 
 TEST_CASE("erase_if: empty container is a no-op", "[common][helper][erase_if]") {
     std::vector<int> v;
-    std::size_t n = Gem::Common::erase_if(v, [](int) { return true; });
+    std::size_t const n = Gem::Common::erase_if(v, [](int) { return true; });
     REQUIRE(n == 0);
     REQUIRE(v.empty());
 }
 
 TEST_CASE("erase_if: all elements match clears the container", "[common][helper][erase_if]") {
     std::vector<int> v{2, 4, 6};
-    std::size_t n = Gem::Common::erase_if(v, [](int) { return true; });
+    std::size_t const n = Gem::Common::erase_if(v, [](int) { return true; });
     REQUIRE(n == 3);
     REQUIRE(v.empty());
 }

@@ -65,9 +65,9 @@ public:
     TestPayload() = default;
     TestPayload(int i, double d, std::string s) : i_(i), d_(d), s_(std::move(s)) {}
 
-    int            i() const { return i_; }
-    double         d() const { return d_; }
-    std::string    s() const { return s_; }
+    [[nodiscard]] int            i() const { return i_; }
+    [[nodiscard]] double         d() const { return d_; }
+    [[nodiscard]] std::string    s() const { return s_; }
 
     bool operator==(TestPayload const &o) const = default;
 
@@ -218,7 +218,7 @@ TEST_CASE("GSerializationHelperFunctionsT: chrono::duration<double> round-trips"
         boost::serialization::load(ar, v, ver);
     };
 
-    D in{12.5};
+    D const in{12.5};
     CHECK(round_trip_text  (in, save_d, load_d).count() == in.count());
     CHECK(round_trip_xml   (in, save_d, load_d).count() == in.count());
     CHECK(round_trip_binary(in, save_d, load_d).count() == in.count());
@@ -233,7 +233,7 @@ TEST_CASE("GSerializationHelperFunctionsT: std::atomic<bool> round-trips",
 
     // std::atomic<bool> is non-copyable; build the in-fixture in-place and
     // compare via .load() rather than the helpers' templated value parameter.
-    for(bool val : {false, true}) {
+    for(bool const val : {false, true}) {
         AB in;
         in.store(val);
 
@@ -368,7 +368,7 @@ TEST_CASE("GSerializationHelperFunctionsT: time_point round-trips at millisecond
           "[common][serialization-helpers]") {
     using TP = std::chrono::high_resolution_clock::time_point;
 
-    TP in = std::chrono::high_resolution_clock::now();
+    TP const in = std::chrono::high_resolution_clock::now();
 
     std::stringstream ss_a;
     {

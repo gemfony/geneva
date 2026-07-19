@@ -116,7 +116,7 @@ protected:
     }
 
 private:
-    RecordingPostProcessor *clone_() const override {
+    [[nodiscard]] RecordingPostProcessor *clone_() const override {
         return new RecordingPostProcessor(*this);
     }
 

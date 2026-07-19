@@ -41,6 +41,7 @@
 #include <cstddef>
 #include <memory>
 #include <string>
+#include <utility>
 
 namespace Gem::Geneva::OptimizationAlgorithms {
 
@@ -76,7 +77,7 @@ void GParameterScanFactory::addCLOptions(
  * @param par_str The parameter specification string to store for later use by the created algorithm
  */
 void GParameterScanFactory::setCLParameterSpecs(std::string par_str) {
-    parameter_spec_cl_ = par_str;
+    parameter_spec_cl_ = std::move(par_str);
 }
 
 /******************************************************************************/
@@ -108,7 +109,7 @@ void GParameterScanFactory::resetCLParameterSpecs() {
  */
 void GParameterScanFactory::postProcess_(std::shared_ptr<GOptimizationAlgorithmBase> &p_base) {
     if(parameter_spec_cl_ != "empty") {
-        std::shared_ptr<GParameterScan> p =
+        std::shared_ptr<GParameterScan> const p =
             Gem::Common::convertSmartPointer<GOptimizationAlgorithmBase, GParameterScan>(p_base);
 
         p->setParameterSpecs(parameter_spec_cl_);

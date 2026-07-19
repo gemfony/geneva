@@ -45,6 +45,7 @@
 
 // Geneva headers
 #include "common/GLogger.hpp"
+#include "common/concurrency/GThreadBudget.hpp"
 #include "courtier/GBaseClientT.hpp"
 #include "courtier/GCommandContainerT.hpp"
 #include "courtier/GCourtierEnums.hpp"
@@ -246,6 +247,17 @@ protected:
     boost::asio::steady_timer nodata_timer_{
         io_context_
     }; ///< Backoff timer that retries a GETDATA top-up after a NODATA reply (async, never blocks)
+
+    /// The compute pool's reservation in the process-wide thread budget: Fixed, because the pool
+    /// must hold exactly prefetch_depth_ workers to keep prefetch_depth_ items computing. Declared
+    /// before the pool so it is released only after the pool's threads are joined.
+    Gem::Common::Concurrency::GThreadBudget::Reservation compute_budget_{
+        Gem::Common::Concurrency::threadBudget().reserve(
+            "client:compute",
+            static_cast<unsigned int>(prefetch_depth_),
+            Gem::Common::Concurrency::ThreadElasticity::Fixed
+        )
+    };
 
     /// A thread pool that runs the (possibly long, unbounded) work-item evaluations OFF the io thread,
     /// so the io thread stays free for transport work while items are computed. Sized to the prefetch

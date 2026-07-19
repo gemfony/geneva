@@ -78,7 +78,7 @@ public:
     /**
 	 * Returns the current counter value (net result of increment/decrement calls)
 	 */
-    std::int32_t getCounterValue() const {
+    [[nodiscard]] std::int32_t getCounterValue() const {
         return counter_value_;
     }
 
@@ -86,7 +86,7 @@ public:
     /**
 	 * Retrieves the number of process() calls
 	 */
-    std::uint32_t getProcessCalledValue() const {
+    [[nodiscard]] std::uint32_t getProcessCalledValue() const {
         return process_called_;
     }
 
@@ -156,6 +156,7 @@ private:
  *
  * TODO: Extract futures and check for errors
  */
+// NOLINTNEXTLINE(readability-function-size) -- manual-test main: CLI setup, task submission loop, and result verification form one linear test scenario
 int main(int argc, char **argv) {
     Gem::Hap::GRandom gr; // Instantiates a random number generator
     std::uniform_int_distribution<unsigned int> uniform_int_;
@@ -219,7 +220,7 @@ int main(int argc, char **argv) {
     }
 
     // Submit each task to the pool a number of times
-    double resizeLikelihood = (std::min)(static_cast<double>(nResizeEvents) / static_cast<double>(nIterations), 1.);
+    double const resizeLikelihood = (std::min)(static_cast<double>(nResizeEvents) / static_cast<double>(nIterations), 1.);
     std::bernoulli_distribution weighted_bool(resizeLikelihood);
 
     for(std::size_t n = 0; n < nIterations; n++) {
@@ -234,7 +235,7 @@ int main(int argc, char **argv) {
         }
 
         if(nResizeEvents > 0 && weighted_bool(gr)) {
-            unsigned int nt = uniform_int_(
+            unsigned int const nt = uniform_int_(
                 gr,
                 std::uniform_int_distribution<unsigned int>::param_type(MINTHREADS, MAXTHREADS)
             );

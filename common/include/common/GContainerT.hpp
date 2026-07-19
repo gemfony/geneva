@@ -777,7 +777,7 @@ public:
      * @param last  The past-the-end of the source range.
      */
     template <std::input_iterator InputIt>
-    void assign(InputIt first, InputIt last) {
+    void assign(const InputIt& first, const InputIt& last) {
         data_cnt_.assign(first, last);
     }
 
@@ -1328,7 +1328,7 @@ public:
     void resize_clone(size_type amount, const StoredType &item_ptr)
         requires (!std::same_as<StoredType, ValueType>)
     {
-        std::size_t data_size = data_cnt_.size();
+        std::size_t const data_size = data_cnt_.size();
         if(amount < data_size) {
             data_cnt_.resize(amount);
         }
@@ -1345,7 +1345,7 @@ public:
             // below may reallocate the container, which would leave that reference dangling. The local
             // owning copy is immune to the reallocation. (The by-value parameter used to provide this
             // safety implicitly; a unique_ptr cannot be passed by value, hence the explicit local.)
-            StoredType prototype = clone_into_stored(item_ptr);
+            StoredType const prototype = clone_into_stored(item_ptr);
             data_cnt_.reserve(amount);
             for(std::size_t i = data_size; i < amount; ++i) {
                 data_cnt_.push_back(clone_into_stored(prototype));
@@ -1365,7 +1365,7 @@ public:
     void resize_noclone(size_type amount, StoredType item_ptr)
         requires (!std::same_as<StoredType, ValueType>)
     {
-        std::size_t data_size = data_cnt_.size();
+        std::size_t const data_size = data_cnt_.size();
         if(amount < data_size) {
             data_cnt_.resize(amount);
         }
@@ -1396,7 +1396,7 @@ public:
     void resize_empty(size_type amount)
         requires(!std::same_as<StoredType, ValueType>)
     {
-        std::size_t data_size = data_cnt_.size();
+        std::size_t const data_size = data_cnt_.size();
         if(amount < data_size) {
             data_cnt_.resize(amount);
         }
@@ -1576,7 +1576,7 @@ public:
     void crossOver(GContainerT &cp, const std::size_t &pos)
         requires HasRandomAccess<ContainerType>
     {
-        std::size_t min_size = std::min(this->size(), cp.size());
+        std::size_t const min_size = std::min(this->size(), cp.size());
 
 #ifdef DEBUG
         if(pos >= min_size) {

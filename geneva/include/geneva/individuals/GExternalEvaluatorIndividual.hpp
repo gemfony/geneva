@@ -230,7 +230,7 @@ public:
      * @brief Allows to assign a run-id to this individual
      * @param run_id The unique identifier for this optimization run
      */
-    void setRunId(std::string run_id);
+    void setRunId(const std::string& run_id);
     /**
      * @brief Allows to retrieve the run-id assigned to this individual
      * @return The run-id assigned to this individual

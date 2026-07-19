@@ -45,6 +45,7 @@
 using namespace Gem::Geneva;
 namespace po = boost::program_options;
 
+// NOLINTNEXTLINE(readability-function-size) -- example 14's main(): a single linear setup script (CLI options, Go2 construction, constraint-combiner wiring, adaption-config registration, run); splitting would scatter tightly sequential one-shot setup steps
 int main(int argc, char **argv) {
     //---------------------------------------------------------------------------
     // We want to add additional command line options
@@ -85,7 +86,7 @@ int main(int argc, char **argv) {
     //---------------------------------------------------------------------------
     // Create a factory for GFunctionIndividual objects and perform
     // any necessary initial work.
-    std::shared_ptr<gind::GFunctionIndividualFactory> gfi_ptr(
+    std::shared_ptr<gind::GFunctionIndividualFactory> const gfi_ptr(
         new gind::GFunctionIndividualFactory("./config/GFunctionIndividual.json")
     );
 
@@ -97,7 +98,7 @@ int main(int argc, char **argv) {
     //---------------------------------------------------------------------------
     // Register a progress plotter with the global optimization algorithm factory
     if(monitorSpec != "empty") {
-        std::shared_ptr<GProgressPlotter> progplot_ptr(new GProgressPlotter());
+        std::shared_ptr<GProgressPlotter> const progplot_ptr(new GProgressPlotter());
 
         progplot_ptr->setProfileSpec(monitorSpec);
         progplot_ptr->setObserveBoundaries(observeBoundaries);
@@ -114,21 +115,21 @@ int main(int argc, char **argv) {
     //---------------------------------------------------------------------------
     // Add a number of start values to the go object. We also add some constraint definitions here.
     for(std::size_t i = 0; i < 10; i++) {
-        std::shared_ptr<gind::GFunctionIndividual> p = gfi_ptr->get_as<gind::GFunctionIndividual>();
+        std::shared_ptr<gind::GFunctionIndividual> const p = gfi_ptr->get_as<gind::GFunctionIndividual>();
 
         // Create the constraint objects
-        std::shared_ptr<gind::GDoubleSumConstraint> doublesum_constraint_ptr(
+        std::shared_ptr<gind::GDoubleSumConstraint> const doublesum_constraint_ptr(
             new gind::GDoubleSumConstraint(1.)
         );
-        std::shared_ptr<gind::GSphereConstraint> sphere_constraint_ptr(new gind::GSphereConstraint(3.));
-        std::shared_ptr<gind::GDoubleSumGapConstraint> gap_constraint(
+        std::shared_ptr<gind::GSphereConstraint> const sphere_constraint_ptr(new gind::GSphereConstraint(3.));
+        std::shared_ptr<gind::GDoubleSumGapConstraint> const gap_constraint(
             new gind::GDoubleSumGapConstraint(1., 0.05)
         ); // The sum of all variables must be 1 +/- 0.05
 
         // Create a check combiner and add the constraint objects to it. Constraints are
         // expressed directly as C++ constraint objects (subclasses of GOptimizableEntityConstraint),
         // which is the general, type-safe way to formulate arbitrary dependent constraints.
-        std::shared_ptr<GCheckCombinerT<gen::GOptimizableEntity>> combiner_ptr(
+        std::shared_ptr<GCheckCombinerT<gen::GOptimizableEntity>> const combiner_ptr(
             new GCheckCombinerT<gen::GOptimizableEntity>()
         );
         combiner_ptr->setCombinerPolicy(Gem::Geneva::validityCheckCombinerPolicy::MULTIPLYINVALID);
@@ -160,7 +161,7 @@ int main(int argc, char **argv) {
     }
 
     // Perform the actual optimization
-    std::shared_ptr<gind::GFunctionIndividual> p =
+    std::shared_ptr<gind::GFunctionIndividual> const p =
         go.optimize()->getBestGlobalIndividual<gind::GFunctionIndividual>();
 
     // Here you can do something with the best individual ("p") found.

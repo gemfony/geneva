@@ -95,6 +95,7 @@ const std::size_t DEFAULTMAXRECONNECTS = 10;
 /**
  * Parses the command line
  */
+// NOLINTNEXTLINE(readability-function-size) -- one coherent config-registration block: every GDirectSA CLI option is registered here in sequence
 bool parseCommandLine(
     int argc,
     char **argv,
@@ -237,26 +238,27 @@ bool parseCommandLine(
 /**
  * The main function.
  */
+// NOLINTNEXTLINE(readability-function-size) -- single example main: CLI parsing, Go2 setup and the optimization run all belong to one driver
 int main(int argc, char **argv) {
     std::uint16_t parallelizationMode{};
-    bool serverMode;
+    bool serverMode = false;
     std::string ip;
-    unsigned short port;
-    std::uint16_t nProducerThreads;
-    std::uint16_t nEvaluationThreads;
-    std::size_t populationSize;
-    std::size_t nParents;
-    std::uint32_t maxIterations;
-    long maxMinutes;
-    std::uint32_t reportIteration;
+    unsigned short port = 0;
+    std::uint16_t nProducerThreads = 0;
+    std::uint16_t nEvaluationThreads = 0;
+    std::size_t populationSize = 0;
+    std::size_t nParents = 0;
+    std::uint32_t maxIterations = 0;
+    long maxMinutes = 0;
+    std::uint32_t reportIteration = 0;
     duplicationScheme rScheme;
     Gem::Common::serializationMode serMode;
-    bool addLocalConsumer;
-    std::size_t maxReconnects;
+    bool addLocalConsumer = false;
+    std::size_t maxReconnects = 0;
 
     /****************************************************************************/
     // Initialization of Geneva
-    GenevaInitializer gi;
+    GenevaInitializer const gi;
 
     /****************************************************************************/
     // --update-configs: materialize the configuration files this binary owns, then exit. This
@@ -336,7 +338,7 @@ int main(int argc, char **argv) {
     /****************************************************************************/
 
     // Create an empty population
-    std::shared_ptr<oa::GSimulatedAnnealing> pop_ptr(new oa::GSimulatedAnnealing());
+    std::shared_ptr<oa::GSimulatedAnnealing> const pop_ptr(new oa::GSimulatedAnnealing());
 
     // General settings
     pop_ptr->setPopulationSizes(populationSize, nParents);

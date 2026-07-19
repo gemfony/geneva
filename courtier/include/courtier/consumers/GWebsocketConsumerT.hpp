@@ -93,7 +93,7 @@ protected:
     /** @brief The websocket consumer has a real client-liveness signal (its persistent session +
      *  keep-alive ping/pong), so it reclaims a lost item immediately on disconnect via the session's
      *  CheckoutLease and does NOT use the time lease -- a live-but-slow client keeps its item. */
-    bool usesTimeLease() const override { return false; }
+    [[nodiscard]] bool usesTimeLease() const override { return false; }
 
 private:
     /***************************************************************************/
@@ -109,7 +109,7 @@ private:
         auto lease = std::make_shared<typename GNetworkedConsumerT<processable_type>::CheckoutLease>();
         // The weak pointer is kept at the CONCRETE type: requeue() is protected on the networked
         // base, so it is only accessible through a pointer of this class's own type.
-        std::weak_ptr<GWebsocketConsumerT<processable_type>> w =
+        std::weak_ptr<GWebsocketConsumerT<processable_type>> const w =
             std::static_pointer_cast<GWebsocketConsumerT<processable_type>>(this->shared_from_this());
         lease->on_abandon = [w](Gem::Courtier::CORRELATION_ID_TYPE id) {
             if(auto s = w.lock()) {

@@ -36,6 +36,7 @@
 #include <cstdint>
 #include <ranges>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace Gem::Geneva::Genome {
@@ -66,11 +67,11 @@ namespace {
  * @return A copy of @p s with surrounding whitespace removed, or an empty string if @p s is all whitespace
  */
 std::string trim(const std::string &s) {
-    std::size_t b = s.find_first_not_of(" \t\n\r");
+    std::size_t const b = s.find_first_not_of(" \t\n\r");
     if(b == std::string::npos) {
         return std::string{};
     }
-    std::size_t e = s.find_last_not_of(" \t\n\r");
+    std::size_t const e = s.find_last_not_of(" \t\n\r");
     return s.substr(b, e - b + 1);
 }
 
@@ -85,7 +86,7 @@ std::string trim(const std::string &s) {
 std::vector<std::string> splitOnComma(const std::string &s) {
     std::vector<std::string> out;
     std::string cur;
-    for(char c : s) {
+    for(char const c : s) {
         if(c == ',') {
             out.push_back(trim(cur));
             cur.clear();
@@ -244,7 +245,7 @@ bool GParameterPropertyParser::isParsed() const {
  * @param raw The new raw parameter-property description string to store and parse
  */
 void GParameterPropertyParser::setNewParameterDescription(std::string raw) {
-    raw_ = raw;
+    raw_ = std::move(raw);
 
     s_spec_vec_.clear();
     d_spec_vec_.clear();

@@ -88,7 +88,7 @@ public:
 inline std::string rootEscape(const std::string &in) {
     std::string out;
     out.reserve(in.size());
-    for(char c : in) {
+    for(char const c : in) {
         switch(c) {
             case '\\': out += "\\\\"; break;
             case '"':  out += "\\\""; break;
@@ -151,7 +151,7 @@ inline void emitRootTitle(
 inline std::string backslashEscape(const std::string &in) {
     std::string out;
     out.reserve(in.size());
-    for(char c : in) {
+    for(char const c : in) {
         switch(c) {
             case '\\': out += "\\\\"; break;
             case '"':  out += "\\\""; break;

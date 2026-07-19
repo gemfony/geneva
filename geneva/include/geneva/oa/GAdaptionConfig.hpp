@@ -154,6 +154,7 @@ public:
      * @param max_ad_prob The upper clamp for ad_prob during self-adaption (default 1)
      * @return A reference to this handle, for fluent chaining
      */
+    // NOLINTNEXTLINE(readability-function-size) -- flat field-assignment sweep whose parameter list deliberately mirrors GGenomeBuilder's ParamHandle::gauss() one-for-one; splitting would just relocate the same assignment list without shrinking the mirrored interface
     GroupConfigHandle &gauss(
         adfp sigma,
         adfp sigma_sigma,
@@ -207,6 +208,7 @@ public:
      * @param max_ad_prob The upper clamp for ad_prob during self-adaption (default 1)
      * @return A reference to this handle, for fluent chaining
      */
+    // NOLINTNEXTLINE(readability-function-size) -- flat field-assignment sweep whose parameter list deliberately mirrors GGenomeBuilder's ParamHandle::biGauss() one-for-one; splitting would just relocate the same assignment list without shrinking the mirrored interface
     GroupConfigHandle &biGauss(
         adfp sigma1,
         adfp sigma_sigma1,
@@ -271,6 +273,7 @@ public:
      * @param max_ad_prob The upper clamp for ad_prob during self-adaption (default 1)
      * @return A reference to this handle, for fluent chaining
      */
+    // NOLINTNEXTLINE(readability-function-size) -- flat field-assignment sweep whose parameter list deliberately mirrors GGenomeBuilder's ParamHandle::intGauss() one-for-one; splitting would just relocate the same assignment list without shrinking the mirrored interface
     GroupConfigHandle &intGauss(
         double sigma,
         double sigma_sigma,
@@ -350,7 +353,7 @@ public:
      *
      * @return The count of group specs configured by this handle
      */
-    std::size_t size() const { return groups_.size(); }
+    [[nodiscard]] std::size_t size() const { return groups_.size(); }
 
 private:
     std::vector<GroupSpec<T> *> groups_;
@@ -401,6 +404,7 @@ public:
      * @param max_ad_prob The upper clamp for ad_prob during self-adaption (default 1)
      * @return A reference to this handle, for fluent chaining
      */
+    // NOLINTNEXTLINE(readability-function-size) -- flat forwarding sweep over the labelled FP channels (double + float), whose parameter list mirrors GroupConfigHandle::gauss() one-for-one; splitting would just relocate the same forwarding list
     GLabelConfigHandle &gauss(
         double sigma,
         double sigma_sigma,
@@ -451,6 +455,7 @@ public:
      * @param max_ad_prob The upper clamp for ad_prob during self-adaption (default 1)
      * @return A reference to this handle, for fluent chaining
      */
+    // NOLINTNEXTLINE(readability-function-size) -- flat forwarding sweep over the labelled FP channels (double + float), whose parameter list mirrors GroupConfigHandle::biGauss() one-for-one; splitting would just relocate the same forwarding list
     GLabelConfigHandle &biGauss(
         double sigma1,
         double sigma_sigma1,
@@ -511,6 +516,7 @@ public:
      * @param max_ad_prob The upper clamp for ad_prob during self-adaption (default 1)
      * @return A reference to this handle, for fluent chaining
      */
+    // NOLINTNEXTLINE(readability-function-size) -- flat forwarding sweep to the labelled int32 channel, whose parameter list mirrors GroupConfigHandle::intGauss() one-for-one; splitting would just relocate the same forwarding list
     GLabelConfigHandle &intGauss(
         double sigma,
         double sigma_sigma,
@@ -708,7 +714,7 @@ public:
      * @param name The interned label string to look up
      * @return The label's zero-based id, or -1 if the label is not present
      */
-    std::int32_t labelId(const std::string &name) const {
+    [[nodiscard]] std::int32_t labelId(const std::string &name) const {
         for(std::size_t k = 0; k < labels_.size(); ++k) {
             if(labels_[k] == name) {
                 return static_cast<std::int32_t>(k);
@@ -723,7 +729,7 @@ public:
      * @param name The interned label string to look up
      * @return A vector of GroupRef entries (channel + group index) for every group carrying the label; empty if the label is absent
      */
-    std::vector<GroupRef> groupsForLabel(const std::string &name) const {
+    [[nodiscard]] std::vector<GroupRef> groupsForLabel(const std::string &name) const {
         std::vector<GroupRef> out;
         const std::int32_t id = labelId(name);
         if(id < 0) {
@@ -763,15 +769,15 @@ public:
     // Read access for the adaption free functions.
 
     /** @brief Read access to the double channel's group specs. @return The vector of double group specs. */
-    const std::vector<GroupSpec<double>> &doubleGroups() const { return d_; }
+    [[nodiscard]] const std::vector<GroupSpec<double>> &doubleGroups() const { return d_; }
     /** @brief Read access to the float channel's group specs. @return The vector of float group specs. */
-    const std::vector<GroupSpec<float>> &floatGroups() const { return f_; }
+    [[nodiscard]] const std::vector<GroupSpec<float>> &floatGroups() const { return f_; }
     /** @brief Read access to the int32 channel's group specs. @return The vector of int32 group specs. */
-    const std::vector<GroupSpec<std::int32_t>> &int32Groups() const { return i_; }
+    [[nodiscard]] const std::vector<GroupSpec<std::int32_t>> &int32Groups() const { return i_; }
     /** @brief Read access to the bool channel's group specs. @return The vector of bool group specs. */
-    const std::vector<GroupSpec<bool>> &boolGroups() const { return b_; }
+    [[nodiscard]] const std::vector<GroupSpec<bool>> &boolGroups() const { return b_; }
     /** @brief Read access to the interned label table. @return The vector of label strings (indexed by label id). */
-    const std::vector<std::string> &labels() const { return labels_; }
+    [[nodiscard]] const std::vector<std::string> &labels() const { return labels_; }
 
     /***************************************************************************/
     // Adaption-retry policy (moved off the individual). Bounds adaptIndividual()'s retry loop.
@@ -782,7 +788,7 @@ public:
         max_unsuccessful_adaptions_ = max_unsuccessful_adaptions;
     }
     /** @brief @return The max consecutive unsuccessful adaptions per adaption */
-    std::size_t getMaxUnsuccessfulAdaptions() const { return max_unsuccessful_adaptions_; }
+    [[nodiscard]] std::size_t getMaxUnsuccessfulAdaptions() const { return max_unsuccessful_adaptions_; }
 
     /** @brief Sets the max adaption retries until a valid solution is found (0 disables the check).
      *  @param max_retries_until_valid The maximum number of retries */
@@ -790,7 +796,7 @@ public:
         max_retries_until_valid_ = max_retries_until_valid;
     }
     /** @brief @return The max adaption retries until a valid solution is found */
-    std::size_t getMaxRetriesUntilValid() const { return max_retries_until_valid_; }
+    [[nodiscard]] std::size_t getMaxRetriesUntilValid() const { return max_retries_until_valid_; }
 
     /***************************************************************************/
     // Step-size-control strategy (used by GEvolutionaryAlgorithm; default reproduces the
@@ -804,7 +810,7 @@ public:
         return *this;
     }
     /** @brief The configured step-size-control strategy. @return The strategy currently in effect. */
-    stepControl getStepControl() const { return step_control_; }
+    [[nodiscard]] stepControl getStepControl() const { return step_control_; }
 
     /** @brief Sets the learning-rate constant c used by SELF_ADAPT_SCALED (τ = c/sqrt(2n)).
      *  @param c The constant (≈1 by convention). @return A reference to this config, for chaining. */
@@ -813,7 +819,7 @@ public:
         return *this;
     }
     /** @brief The learning-rate constant c. @return The constant used by the scaled self-adaption rate. */
-    double getLearningRateConstant() const { return learning_rate_c_; }
+    [[nodiscard]] double getLearningRateConstant() const { return learning_rate_c_; }
 
     /**
      * @brief The total number of floating-point parameters that are actually adapted by a Gauss /
@@ -822,7 +828,7 @@ public:
      *
      * @return The number of adapted FP parameters (Σ group length over active Gauss / bi-Gauss groups).
      */
-    std::size_t adaptedDimension() const {
+    [[nodiscard]] std::size_t adaptedDimension() const {
         std::size_t n = 0;
         for(const GroupSpec<double> &g : d_) {
             if((g.has_gauss || g.has_bigauss) && g.active) {
@@ -1024,13 +1030,13 @@ private:
     }
 
     /** @brief True if no double group carries the given label id. @param id The label id to check. @return true if absent from the double channel. */
-    bool d_labelEmpty(std::int32_t id) const { return noneWithLabel(d_, id); }
+    [[nodiscard]] bool d_labelEmpty(std::int32_t id) const { return noneWithLabel(d_, id); }
     /** @brief True if no float group carries the given label id. @param id The label id to check. @return true if absent from the float channel. */
-    bool f_labelEmpty(std::int32_t id) const { return noneWithLabel(f_, id); }
+    [[nodiscard]] bool f_labelEmpty(std::int32_t id) const { return noneWithLabel(f_, id); }
     /** @brief True if no int32 group carries the given label id. @param id The label id to check. @return true if absent from the int32 channel. */
-    bool i_labelEmpty(std::int32_t id) const { return noneWithLabel(i_, id); }
+    [[nodiscard]] bool i_labelEmpty(std::int32_t id) const { return noneWithLabel(i_, id); }
     /** @brief True if no bool group carries the given label id. @param id The label id to check. @return true if absent from the bool channel. */
-    bool b_labelEmpty(std::int32_t id) const { return noneWithLabel(b_, id); }
+    [[nodiscard]] bool b_labelEmpty(std::int32_t id) const { return noneWithLabel(b_, id); }
 
     /**
      * @brief Returns whether no group in the channel carries the given label id.
@@ -1065,12 +1071,12 @@ private:
     static void seedGauss(GAuxiliaryStore &scratch, const std::vector<GroupSpec<T>> &groups, Gem::Geneva::Genome::AuxKey key) {
         using Gem::Geneva::Genome::GaussState;
         using Gem::Geneva::Genome::AuxScope;
-        bool any = std::ranges::any_of(groups, [](const GroupSpec<T> &g) { return g.has_gauss; });
+        bool const any = std::ranges::any_of(groups, [](const GroupSpec<T> &g) { return g.has_gauss; });
         if(not any) {
             return;
         }
         scratch.installAuxBlock<GaussState<adaption_fp_t<T>>>(key, groups.size(), AuxScope::PerIndividual);
-        std::span<GaussState<adaption_fp_t<T>>> states = scratch.metaRecords<GaussState<adaption_fp_t<T>>>(key);
+        std::span<GaussState<adaption_fp_t<T>>> const states = scratch.metaRecords<GaussState<adaption_fp_t<T>>>(key);
         for(auto const &[state, group] : std::views::zip(states, groups)) {
             state.sigma = group.start_sigma;
             state.ad_prob = group.start_ad_prob;
@@ -1090,12 +1096,12 @@ private:
     static void seedBiGauss(GAuxiliaryStore &scratch, const std::vector<GroupSpec<T>> &groups, Gem::Geneva::Genome::AuxKey key) {
         using Gem::Geneva::Genome::BiGaussState;
         using Gem::Geneva::Genome::AuxScope;
-        bool any = std::ranges::any_of(groups, [](const GroupSpec<T> &g) { return g.has_bigauss; });
+        bool const any = std::ranges::any_of(groups, [](const GroupSpec<T> &g) { return g.has_bigauss; });
         if(not any) {
             return;
         }
         scratch.installAuxBlock<BiGaussState<adaption_fp_t<T>>>(key, groups.size(), AuxScope::PerIndividual);
-        std::span<BiGaussState<adaption_fp_t<T>>> states = scratch.metaRecords<BiGaussState<adaption_fp_t<T>>>(key);
+        std::span<BiGaussState<adaption_fp_t<T>>> const states = scratch.metaRecords<BiGaussState<adaption_fp_t<T>>>(key);
         for(auto const &[state, group] : std::views::zip(states, groups)) {
             state.sigma1 = group.start_sigma1;
             state.sigma2 = group.start_sigma2;
@@ -1117,12 +1123,12 @@ private:
     static void seedFlip(GAuxiliaryStore &scratch, const std::vector<GroupSpec<T>> &groups, Gem::Geneva::Genome::AuxKey key) {
         using Gem::Geneva::Genome::FlipState;
         using Gem::Geneva::Genome::AuxScope;
-        bool any = std::ranges::any_of(groups, [](const GroupSpec<T> &g) { return g.has_flip; });
+        bool const any = std::ranges::any_of(groups, [](const GroupSpec<T> &g) { return g.has_flip; });
         if(not any) {
             return;
         }
         scratch.installAuxBlock<FlipState>(key, groups.size(), AuxScope::PerIndividual);
-        std::span<FlipState> states = scratch.metaRecords<FlipState>(key);
+        std::span<FlipState> const states = scratch.metaRecords<FlipState>(key);
         for(auto const &[state, group] : std::views::zip(states, groups)) {
             state.ad_prob = group.start_ad_prob;
         }

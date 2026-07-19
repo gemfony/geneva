@@ -93,7 +93,7 @@ std::string GRootEmitter::emitDocument(const GPlotDesigner &gpd) const {
     const std::filesystem::path &plot_name = gpd.pending_plot_name_;
 
     EmitStream result; // NOLINT(cppcoreguidelines-init-variables)
-    std::size_t max_plots = gpd.c_x_div_ * gpd.c_y_div_;
+    std::size_t const max_plots = gpd.c_x_div_ * gpd.c_y_div_;
 
     warnPadOverflow(
         "GRootEmitter::emitDocument()", gpd.getCanvasLabel(), gpd.plotters_cnt_.size(), max_plots

@@ -109,7 +109,7 @@ protected:
         std::vector<double> v;
         this->streamline<double>(v);
         double s = 0.;
-        for(double x : v) {
+        for(double const x : v) {
             s += x * x;
         }
         return {s};
@@ -140,7 +140,7 @@ protected:
         std::vector<double> v;
         this->streamline<double>(v);
         double s = 0.;
-        for(double x : v) {
+        for(double const x : v) {
             s += x * x;
         }
         return {s};
@@ -177,7 +177,7 @@ protected:
         std::vector<double> v;
         this->streamline<double>(v);
         double s = 0.;
-        for(double x : v) {
+        for(double const x : v) {
             s += x * x;
         }
         return {s};
@@ -212,7 +212,7 @@ protected:
         std::vector<std::int32_t> v;
         this->streamline<std::int32_t>(v);
         double s = 0.;
-        for(std::int32_t x : v) {
+        for(std::int32_t const x : v) {
             s += static_cast<double>(x) * static_cast<double>(x);
         }
         return {s};
@@ -247,7 +247,7 @@ protected:
         std::vector<bool> v;
         this->streamline<bool>(v);
         double false_count = 0.;
-        for(bool x : v) {
+        for(bool const x : v) {
             if(not x) {
                 false_count += 1.;
             }
@@ -277,7 +277,7 @@ protected:
         std::vector<double> v;
         this->streamline<double>(v);
         double s = 0.;
-        for(double x : v) {
+        for(double const x : v) {
             s += x * x;
         }
         return {s};
@@ -308,7 +308,7 @@ protected:
         std::vector<std::int32_t> v;
         this->streamline<std::int32_t>(v);
         {
-            std::lock_guard<std::mutex> lock(g_scan_probe_mutex);
+            std::lock_guard<std::mutex> const lock(g_scan_probe_mutex);
             g_scan_int_samples.push_back(v[0]);
         }
         return {static_cast<double>(v[0]) * static_cast<double>(v[0])};
@@ -330,11 +330,11 @@ protected:
         std::vector<double> v;
         this->streamline<double>(v);
         {
-            std::lock_guard<std::mutex> lock(g_scan_probe_mutex);
+            std::lock_guard<std::mutex> const lock(g_scan_probe_mutex);
             g_scan_pair_samples.emplace_back(v[0], v[1]);
         }
         double s = 0.;
-        for(double x : v) {
+        for(double const x : v) {
             s += x * x;
         }
         return {s};
@@ -377,7 +377,7 @@ protected:
         std::vector<double> v;
         this->streamline<double>(v);
         double s = 0.;
-        for(double x : v) {
+        for(double const x : v) {
             s += x * x;
         }
         return {s};
@@ -404,10 +404,10 @@ protected:
         std::vector<std::int32_t> iv;
         this->streamline<std::int32_t>(iv);
         double s = 0.;
-        for(double x : v) {
+        for(double const x : v) {
             s += x * x;
         }
-        for(std::int32_t x : iv) {
+        for(std::int32_t const x : iv) {
             s += static_cast<double>(x) * static_cast<double>(x);
         }
         return {s};
@@ -419,7 +419,7 @@ double bestSphere(const std::shared_ptr<SphereOA> &best) {
     std::vector<double> v;
     best->streamline<double>(v);
     double s = 0.;
-    for(double x : v) {
+    for(double const x : v) {
         s += x * x;
         CHECK(x >= -5.0);
         CHECK(x < 5.0);
@@ -436,7 +436,7 @@ TEST_CASE("Evolutionary algorithm optimizes a flat individual", "[flat][oa]") {
     pop->setPopulationSizes(18, 6);
     pop->setMaxIteration(120);
     pop->setReportIteration(100000);
-    SphereOA src;
+    SphereOA const src;
     pop->push_back(src.clone_unique());
     pop->setAdaptionConfig(src.buildAdaptionConfig());
     pop->optimize();
@@ -457,7 +457,7 @@ TEST_CASE("EA in a PARETO mode degenerates safely on a single-objective individu
     pop->setMaxIteration(120);
     pop->setReportIteration(100000);
     pop->setSortingScheme(Gem::Geneva::sortingMode::MUPLUSNU_PARETO); // multi-objective mode, single-objective problem
-    SphereOA src;
+    SphereOA const src;
     pop->push_back(src.clone_unique());
     pop->setAdaptionConfig(src.buildAdaptionConfig());
     CHECK_NOTHROW(pop->optimize());
@@ -656,7 +656,7 @@ TEST_CASE("Simulated annealing optimizes a flat individual", "[flat][oa]") {
     pop->setPopulationSizes(18, 6);
     pop->setMaxIteration(120);
     pop->setReportIteration(100000);
-    SphereOA src;
+    SphereOA const src;
     pop->push_back(src.clone_unique());
     pop->setAdaptionConfig(src.buildAdaptionConfig());
     pop->optimize();
@@ -703,7 +703,7 @@ TEST_CASE("Simulated annealing cools geometrically and floors above zero", "[fla
         pop->setMaxIteration(40);
         pop->setMaxStallIteration(0); // run all 40 iterations, so the cooling is fully exercised
         pop->setReportIteration(100000);
-        SphereOA src;
+        SphereOA const src;
         pop->push_back(src.clone_unique());
         pop->setAdaptionConfig(src.buildAdaptionConfig());
         pop->optimize();
@@ -725,7 +725,7 @@ TEST_CASE("Simulated annealing cools geometrically and floors above zero", "[fla
         pop->setMaxIteration(50);
         pop->setMaxStallIteration(0);
         pop->setReportIteration(100000);
-        SphereOA src;
+        SphereOA const src;
         pop->push_back(src.clone_unique());
         pop->setAdaptionConfig(src.buildAdaptionConfig());
         pop->optimize();
@@ -861,7 +861,7 @@ TEST_CASE("Conjugate gradient descent optimizes a flat individual", "[flat][oa]"
     std::vector<double> v;
     best->streamline<double>(v);
     double sphere = 0.;
-    for(double x : v) {
+    for(double const x : v) {
         sphere += x * x;
     }
     // CGD drives the flat individual and descends from f=45; its default finite-difference step
@@ -873,7 +873,7 @@ TEST_CASE("Conjugate gradient descent optimizes a flat individual", "[flat][oa]"
 
 TEST_CASE("Conjugate gradient descent: every beta formula converges", "[flat][oa]") {
     using gm = oa::gradientMethod;
-    for(gm method : {gm::CONJUGATE_PR_PLUS, gm::CONJUGATE_FR, gm::CONJUGATE_HS, gm::CONJUGATE_DY}) {
+    for(gm const method : {gm::CONJUGATE_PR_PLUS, gm::CONJUGATE_FR, gm::CONJUGATE_HS, gm::CONJUGATE_DY}) {
         auto pop = std::make_shared<oa::GConjugateGradientDescent>();
         pop->setNStartingPoints(1);
         pop->setGradientMethod(method);
@@ -887,7 +887,7 @@ TEST_CASE("Conjugate gradient descent: every beta formula converges", "[flat][oa
         std::vector<double> v;
         best->streamline<double>(v);
         double sphere = 0.;
-        for(double x : v) {
+        for(double const x : v) {
             sphere += x * x;
         }
         CHECK(sphere < 10.0); // every conjugate variant (FR / PR+ / HS+ / DY) descends from f=45
@@ -911,7 +911,7 @@ TEST_CASE("Conjugate gradient descent: central-difference gradient converges", "
     std::vector<double> v;
     best->streamline<double>(v);
     double sphere = 0.;
-    for(double x : v) {
+    for(double const x : v) {
         sphere += x * x;
     }
     CHECK(sphere < 10.0);
@@ -920,7 +920,7 @@ TEST_CASE("Conjugate gradient descent: central-difference gradient converges", "
 /******************************************************************************/
 
 TEST_CASE("Conjugate gradient descent: L-BFGS converges", "[flat][oa]") {
-    for(std::size_t m : {std::size_t(3), std::size_t(10)}) { // small and default history sizes
+    for(std::size_t const m : {std::size_t(3), std::size_t(10)}) { // small and default history sizes
         auto pop = std::make_shared<oa::GConjugateGradientDescent>();
         pop->setNStartingPoints(1);
         pop->setGradientMethod(oa::gradientMethod::LBFGS);
@@ -936,7 +936,7 @@ TEST_CASE("Conjugate gradient descent: L-BFGS converges", "[flat][oa]") {
         std::vector<double> v;
         best->streamline<double>(v);
         double sphere = 0.;
-        for(double x : v) {
+        for(double const x : v) {
             sphere += x * x;
         }
         CHECK(sphere < 10.0); // the quasi-Newton direction descends from f=45 like the CG variants
@@ -1051,7 +1051,7 @@ TEST_CASE("Parameter scan random int stays within the inclusive bounds", "[flat]
     // inclusive, so passing upper + 1 let draws exceed the configured upper bound. A random scan over the
     // inclusive range [3, 5] must therefore never produce a 6.
     {
-        std::lock_guard<std::mutex> lock(g_scan_probe_mutex);
+        std::lock_guard<std::mutex> const lock(g_scan_probe_mutex);
         g_scan_int_samples.clear();
     }
 
@@ -1064,10 +1064,10 @@ TEST_CASE("Parameter scan random int stays within the inclusive bounds", "[flat]
     pop->push_back(ScanIntProbe().clone_unique());
     pop->optimize();
 
-    std::lock_guard<std::mutex> lock(g_scan_probe_mutex);
+    std::lock_guard<std::mutex> const lock(g_scan_probe_mutex);
     REQUIRE(g_scan_int_samples.size() >= 3);
     std::set<std::int32_t> seen;
-    for(std::int32_t s : g_scan_int_samples) {
+    for(std::int32_t const s : g_scan_int_samples) {
         CHECK(s >= 3);
         CHECK(s <= 5); // never 6 -- the former upper_ + 1 off-by-one
         seen.insert(s);
@@ -1081,7 +1081,7 @@ TEST_CASE("Parameter scan grid covers exactly the product of the per-dimension s
     // A 3x3 grid over two doubles must evaluate exactly 9 distinct combinations and cover the four
     // corners -- no missing points, no duplicates.
     {
-        std::lock_guard<std::mutex> lock(g_scan_probe_mutex);
+        std::lock_guard<std::mutex> const lock(g_scan_probe_mutex);
         g_scan_pair_samples.clear();
     }
 
@@ -1094,8 +1094,8 @@ TEST_CASE("Parameter scan grid covers exactly the product of the per-dimension s
     pop->push_back(ScanPairProbe().clone_unique());
     pop->optimize();
 
-    std::lock_guard<std::mutex> lock(g_scan_probe_mutex);
-    std::set<std::pair<double, double>> combos(g_scan_pair_samples.begin(), g_scan_pair_samples.end());
+    std::lock_guard<std::mutex> const lock(g_scan_probe_mutex);
+    std::set<std::pair<double, double>> const combos(g_scan_pair_samples.begin(), g_scan_pair_samples.end());
     CHECK(combos.size() == 9);                 // exactly product(n_steps) = 3 * 3
     CHECK(g_scan_pair_samples.size() == 9);    // and each grid point evaluated exactly once (no duplicates)
     // The four corners are present.
@@ -1113,7 +1113,7 @@ TEST_CASE("Parameter scan simple-scan evaluates exactly N random items", "[flat]
     // un-initialized clone). setNSimpleScans(k) must evaluate exactly k random items.
     constexpr std::size_t k = 7;
     {
-        std::lock_guard<std::mutex> lock(g_scan_probe_mutex);
+        std::lock_guard<std::mutex> const lock(g_scan_probe_mutex);
         g_scan_pair_samples.clear();
     }
 
@@ -1127,7 +1127,7 @@ TEST_CASE("Parameter scan simple-scan evaluates exactly N random items", "[flat]
 
     CHECK(pop->getNScansPerformed() == k); // exact count, not k-1 (the former under-count)
 
-    std::lock_guard<std::mutex> lock(g_scan_probe_mutex);
+    std::lock_guard<std::mutex> const lock(g_scan_probe_mutex);
     CHECK(g_scan_pair_samples.size() == k); // exactly k items evaluated, no stale extra
 }
 
@@ -1198,7 +1198,7 @@ TEST_CASE("EA optimizes a flat individual with a BI-GAUSSIAN adaptor", "[flat][o
     pop->setPopulationSizes(18, 6);
     pop->setMaxIteration(150);
     pop->setReportIteration(100000);
-    BiGaussSphereOA src;
+    BiGaussSphereOA const src;
     pop->push_back(src.clone_unique());
     pop->setAdaptionConfig(src.buildAdaptionConfig());
     pop->optimize();
@@ -1208,7 +1208,7 @@ TEST_CASE("EA optimizes a flat individual with a BI-GAUSSIAN adaptor", "[flat][o
     std::vector<double> v;
     best->streamline<double>(v);
     double sphere = 0.;
-    for(double x : v) {
+    for(double const x : v) {
         sphere += x * x;
         CHECK(x >= -5.0);
         CHECK(x < 5.0);
@@ -1223,7 +1223,7 @@ TEST_CASE("EA optimizes a flat INTEGER individual with a FLIP adaptor", "[flat][
     pop->setPopulationSizes(18, 6);
     pop->setMaxIteration(200);
     pop->setReportIteration(100000);
-    IntSphereOA src;
+    IntSphereOA const src;
     pop->push_back(src.clone_unique());
     pop->setAdaptionConfig(src.buildAdaptionConfig());
     pop->optimize();
@@ -1233,7 +1233,7 @@ TEST_CASE("EA optimizes a flat INTEGER individual with a FLIP adaptor", "[flat][
     std::vector<std::int32_t> v;
     best->streamline<std::int32_t>(v);
     double sphere = 0.;
-    for(std::int32_t x : v) {
+    for(std::int32_t const x : v) {
         sphere += static_cast<double>(x) * static_cast<double>(x);
         CHECK(x >= -10);
         CHECK(x <= 10);
@@ -1248,7 +1248,7 @@ TEST_CASE("EA optimizes a flat BOOLEAN OneMax with a FLIP adaptor", "[flat][oa][
     pop->setPopulationSizes(18, 6);
     pop->setMaxIteration(400);
     pop->setReportIteration(100000);
-    OneMaxOA src;
+    OneMaxOA const src;
     pop->push_back(src.clone_unique());
     pop->setAdaptionConfig(src.buildAdaptionConfig());
     pop->optimize();
@@ -1258,7 +1258,7 @@ TEST_CASE("EA optimizes a flat BOOLEAN OneMax with a FLIP adaptor", "[flat][oa][
     std::vector<bool> v;
     best->streamline<bool>(v);
     std::size_t false_count = 0;
-    for(bool x : v) {
+    for(bool const x : v) {
         if(not x) {
             ++false_count;
         }
@@ -1284,7 +1284,7 @@ TEST_CASE("EA fits a line with the migrated (flat) GLineFitIndividual", "[flat][
     pop->setPopulationSizes(18, 6);
     pop->setMaxIteration(400);
     pop->setReportIteration(100000);
-    gind::GLineFitIndividual src(data_points);
+    gind::GLineFitIndividual const src(data_points);
     pop->push_back(src.clone_unique());
     pop->setAdaptionConfig(src.getAdaptionConfig());
     pop->optimize();
@@ -1317,7 +1317,7 @@ public:
     HighDimSphere(const HighDimSphere &) = default;
 
     /** @brief Gauss adaption config for the stock EA (sepcma needs none -- it owns its own distribution). */
-    std::shared_ptr<oa::GAdaptionConfigBase> buildAdaptionConfig() const {
+    [[nodiscard]] std::shared_ptr<oa::GAdaptionConfigBase> buildAdaptionConfig() const {
         auto cfg = oa::makeAdaptionConfig<oa::GAdaptionConfigBase>(*this);
         cfg->groupDouble(0).gauss(0.5, 0.8, 1e-3, 2., 1.);
         return cfg;
@@ -1328,7 +1328,7 @@ protected:
         std::vector<double> v;
         this->template streamline<double>(v);
         double s = 0.;
-        for(double x : v) {
+        for(double const x : v) {
             s += x * x;
         }
         return {s};
@@ -1340,7 +1340,7 @@ double sphereValue(const std::shared_ptr<gen::GOptimizableEntity> &best) {
     std::vector<double> v;
     best->streamline<double>(v);
     double s = 0.;
-    for(double x : v) {
+    for(double const x : v) {
         s += x * x;
     }
     return s;
@@ -1374,7 +1374,7 @@ protected:
         this->streamline<double>(v);
         double f1 = 0.;
         double f2 = 0.;
-        for(double x : v) {
+        for(double const x : v) {
             f1 += x * x;
             f2 += (x - 2.) * (x - 2.);
         }
@@ -1431,7 +1431,7 @@ TEST_CASE("Separable CMA-ES out-converges the stock EA at high dimension", "[fla
         pop->setMaxIteration(120);
         pop->setMaxStallIteration(0);
         pop->setReportIteration(100000);
-        Ind src;
+        Ind const src;
         pop->push_back(src.clone_unique());
         pop->setAdaptionConfig(src.buildAdaptionConfig());
         pop->optimize();
@@ -1479,7 +1479,7 @@ TEST_CASE("Separable CMA-ES tolerates (and warns about) non-FP parameters", "[fl
     std::vector<double> v;
     best->streamline<double>(v);
     double fp_sphere = 0.;
-    for(double x : v) {
+    for(double const x : v) {
         fp_sphere += x * x;
     }
     CHECK(fp_sphere < 1.0); // the FP parameters were driven down from the f=27 (doubles) start
@@ -1509,7 +1509,7 @@ TEST_CASE("Separable CMA-ES Pareto mode runs on a two-objective individual", "[f
     std::vector<double> v;
     best->streamline<double>(v);
     double f1 = 0.;
-    for(double x : v) {
+    for(double const x : v) {
         f1 += x * x;
         CHECK(x >= -5.0);
         CHECK(x < 5.0);
@@ -1558,7 +1558,7 @@ TEST_CASE("ea NSGA-II Pareto selection spreads the survivors across the front", 
         pop->setMaxStallIteration(0);
         pop->setReportIteration(100000);
         pop->setSortingScheme(Gem::Geneva::sortingMode::MUPLUSNU_PARETO);
-        BiObjective src;
+        BiObjective const src;
         pop->push_back(src.clone_unique());
         // Seed the two UNDOMINATABLE corner points of the front, (0,20) at x==0 and (20,0) at x==2:
         // no attainable point can dominate either (f1=0 resp. f2=0 is only reached at that exact x), so

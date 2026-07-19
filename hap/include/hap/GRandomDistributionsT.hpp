@@ -284,7 +284,7 @@ public:
 		   *
 		   * @return The position midway between the two peaks
 		   */
-        fp_type mean() const {
+        [[nodiscard]] fp_type mean() const {
             return mean_;
         }
         /**
@@ -292,7 +292,7 @@ public:
 		   *
 		   * @return The standard deviation (width) of the left peak
 		   */
-        fp_type sigma1() const {
+        [[nodiscard]] fp_type sigma1() const {
             return sigma1_;
         }
         /**
@@ -300,7 +300,7 @@ public:
 		   *
 		   * @return The standard deviation (width) of the right peak
 		   */
-        fp_type sigma2() const {
+        [[nodiscard]] fp_type sigma2() const {
             return sigma2_;
         }
         /**
@@ -308,7 +308,7 @@ public:
 		   *
 		   * @return The distance between the two peaks
 		   */
-        fp_type distance() const {
+        [[nodiscard]] fp_type distance() const {
             return distance_;
         }
 
@@ -367,7 +367,7 @@ public:
      *
      * @return The position midway between the two peaks
      */
-    fp_type mean() const {
+    [[nodiscard]] fp_type mean() const {
         return params_.mean();
     }
     /**
@@ -375,7 +375,7 @@ public:
      *
      * @return The standard deviation (width) of the left peak
      */
-    fp_type sigma1() const {
+    [[nodiscard]] fp_type sigma1() const {
         return params_.sigma1();
     }
     /**
@@ -383,7 +383,7 @@ public:
      *
      * @return The standard deviation (width) of the right peak
      */
-    fp_type sigma2() const {
+    [[nodiscard]] fp_type sigma2() const {
         return params_.sigma2();
     }
     /**
@@ -391,7 +391,7 @@ public:
      *
      * @return The distance between the two peaks
      */
-    fp_type distance() const {
+    [[nodiscard]] fp_type distance() const {
         return params_.distance();
     }
 
@@ -400,7 +400,7 @@ public:
      *
      * @return A const reference to the internally stored distribution parameters
      */
-    const typename bi_normal_distribution<fp_type>::param_type &param() const {
+    [[nodiscard]] const typename bi_normal_distribution<fp_type>::param_type &param() const {
         return params_;
     }
 
@@ -422,7 +422,7 @@ public:
      *
      * @return The lowest representable value of fp_type
      */
-    fp_type(min)() const {
+    [[nodiscard]] fp_type(min)() const {
         return std::numeric_limits<fp_type>::lowest();
     }
 
@@ -435,7 +435,7 @@ public:
       *
       * @return The largest representable value of fp_type
       */
-    fp_type(max)() const {
+    [[nodiscard]] fp_type(max)() const {
         return (std::numeric_limits<fp_type>::max)();
     }
 

@@ -55,13 +55,13 @@ using namespace std::chrono_literals;
 // Construction / configuration.
 
 TEST_CASE("GThreadPool construction and getNThreads", "[common][thread-pool]") {
-    GThreadPool pool(4);
+    GThreadPool const pool(4);
     // Workers start eagerly in the constructor, so getNThreads() reports the live
     // count right away (this is the modernised behaviour: the old ASIO-based pool
     // created threads lazily on the first submission and reported 0 until then).
     REQUIRE(pool.getNThreads() == 4);
 
-    GThreadPool zero(0); // 0 -> hardware default, never 0
+    GThreadPool const zero(0); // 0 -> hardware default, never 0
     REQUIRE(zero.getNThreads() > 0);
 }
 
@@ -319,7 +319,7 @@ TEST_CASE("GThreadPool::blocking_for_each runs the whole batch and blocks until 
     pool.blocking_for_each(std::span<int>(data), [](int &x) { x += 1; });
     // Every element was visited exactly once, and the call blocked until all tasks completed.
     bool all_one = true;
-    for(int v : data) {
+    for(int const v : data) {
         if(v != 1) { all_one = false; }
     }
     CHECK(all_one);

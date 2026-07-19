@@ -158,7 +158,7 @@ TEST_CASE("GGlobalOptionsT: getKeyDescription lists all keys in map order",
 
 TEST_CASE("GGlobalOptionsT::getKeyDescription on an empty map returns an empty string",
           "[common][global-options]") {
-    GGlobalOptionsT<int> opts;
+    GGlobalOptionsT<int> const opts;
     CHECK(opts.getKeyDescription().empty());
 }
 
@@ -212,7 +212,7 @@ TEST_CASE("GGlobalOptionsT::getContentSnapshot returns a fresh value vector",
 
 TEST_CASE("GGlobalOptionsT::getContentSnapshot on an empty map yields an empty vector",
           "[common][global-options]") {
-    GGlobalOptionsT<int> opts;
+    GGlobalOptionsT<int> const opts;
     auto snap = opts.getContentSnapshot();
     CHECK(snap.empty());
 }
@@ -242,6 +242,7 @@ TEST_CASE("GGlobalOptionsT<std::string>: works with non-trivial value types",
 // Concurrency: many writers + many readers must produce a consistent final
 // state — no torn map, no UB, all-or-nothing keys.
 
+// NOLINTNEXTLINE(readability-function-size) -- one coherent concurrency stress-test kernel (spawns writer/reader threads sharing atomics + the store under test, joins, then asserts); splitting would only scatter the tightly-coupled thread lambdas
 TEST_CASE("GGlobalOptionsT: concurrent set/get/snapshot remains consistent",
           "[common][global-options][concurrency]") {
     GGlobalOptionsT<int> opts;
@@ -279,7 +280,7 @@ TEST_CASE("GGlobalOptionsT: concurrent set/get/snapshot remains consistent",
             }
             for(int i = 0; i < kReadPasses; ++i) {
                 auto snap = opts.getContentSnapshot();
-                for(int v : snap) {
+                for(int const v : snap) {
                     if(v < 0 || v >= kMaxValue) {
                         ++out_of_range;
                     }

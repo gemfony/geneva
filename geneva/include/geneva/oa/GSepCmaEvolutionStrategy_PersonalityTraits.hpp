@@ -100,7 +100,7 @@ public:
      * @brief Retrieves the offspring's selection rank in the current generation.
      * @return The stored selection rank (0 == best)
      */
-    std::size_t getRank() const;
+    [[nodiscard]] std::size_t getRank() const;
 
     // The pareto-front tag (isOnParetoFront / resetParetoTag / setIsNotOnParetoFront)
     // is inherited from the GParetoTag mixin; the member is serialized below under
@@ -110,7 +110,7 @@ public:
      * @brief Retrieves the mnemonic of the optimization algorithm.
      * @return The short mnemonic string identifying this personality
      */
-    std::string getMnemonic() const override;
+    [[nodiscard]] std::string getMnemonic() const override;
 
 protected:
     /***************************************************************************/
@@ -154,9 +154,9 @@ protected:
 
 private:
     /** @brief Emits a name for this class / object */
-    std::string name_() const override;
+    [[nodiscard]] std::string name_() const override;
     /** @brief Creates a deep clone of this object */
-    GPersonalityTraits *clone_() const override;
+    [[nodiscard]] GPersonalityTraits *clone_() const override;
 
     /** @brief The offspring's selection rank in the current generation (0 == best) */
     std::size_t rank_ = 0;

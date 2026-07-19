@@ -166,7 +166,7 @@ public:
         break;
         }
 
-        std::unique_ptr<g_class_type> local(raw);
+        std::unique_ptr<g_class_type> const local(raw);
         this->load_(local.get());
     }
 
@@ -374,7 +374,7 @@ public:
      *
      * @return The name of this class / object, as provided by the virtual name_()
      */
-    std::string name() const {
+    [[nodiscard]] std::string name() const {
         return this->name_();
     }
 
@@ -404,7 +404,7 @@ public:
      *
      * @return A deep clone of this object, wrapped into a std::shared_ptr<g_class_type>
      */
-    std::shared_ptr<g_class_type> clone() const {
+    [[nodiscard]] std::shared_ptr<g_class_type> clone() const {
         return std::shared_ptr<g_class_type>(clone_());
     }
 
@@ -419,7 +419,7 @@ public:
      */
     template <typename clone_type>
         requires std::derived_from<clone_type, g_class_type>
-    std::shared_ptr<clone_type> clone() const {
+    [[nodiscard]] [[nodiscard]] [[nodiscard]] [[nodiscard]] std::shared_ptr<clone_type> clone() const {
         return Gem::Common::convertSmartPointer<g_class_type, clone_type>(
             std::shared_ptr<g_class_type>(this->clone_())
         );
@@ -434,7 +434,7 @@ public:
      *
      * @return A deep clone of this object, as a std::unique_ptr<g_class_type>
      */
-    std::unique_ptr<g_class_type> clone_unique() const {
+    [[nodiscard]] std::unique_ptr<g_class_type> clone_unique() const {
         return std::unique_ptr<g_class_type>(this->clone_());
     }
 
@@ -449,7 +449,7 @@ public:
      */
     template <typename clone_type>
         requires std::derived_from<clone_type, g_class_type>
-    std::unique_ptr<clone_type> clone_unique() const {
+    [[nodiscard]] std::unique_ptr<clone_type> clone_unique() const {
         // Take ownership immediately, so the clone is released on every exit path (Inv 21)
         std::unique_ptr<g_class_type> raw(this->clone_());
         if(auto *converted = dynamic_cast<clone_type *>(raw.get()); converted != nullptr) {
@@ -651,7 +651,7 @@ private:
      *
      * @return The name of this class / object
      */
-    virtual std::string name_() const {
+    [[nodiscard]] virtual std::string name_() const {
         return std::string("GCommonInterfaceT<g_class_type>");
     }
 
@@ -661,7 +661,7 @@ private:
      *
      * @return A raw, owning pointer to a deep clone of this object (caller takes ownership)
      */
-    virtual g_class_type *clone_() const = 0;
+    [[nodiscard]] virtual g_class_type *clone_() const = 0;
 };
 
 /******************************************************************************/

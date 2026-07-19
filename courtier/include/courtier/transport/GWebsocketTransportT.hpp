@@ -342,7 +342,7 @@ private:
             ws_.next_layer(),
             results.begin(),
             results.end(),
-            [self](boost::system::error_code ec, [[maybe_unused]] auto unused) { self->when_connected(ec); }
+            [self](boost::system::error_code ec, [[maybe_unused]] const auto& unused) { self->when_connected(ec); }
         );
     }
 
@@ -572,7 +572,7 @@ private:
     void request_more_() {
         while(not this->halt() && (pending_pulls_ + computing_) < prefetch_depth_) {
             ++pending_pulls_;
-            GCommandContainerT<processable_type, networked_consumer_payload_command> getdata{
+            GCommandContainerT<processable_type, networked_consumer_payload_command> const getdata{
                 networked_consumer_payload_command::GETDATA
             };
             send_command_(getdata);

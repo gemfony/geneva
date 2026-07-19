@@ -57,7 +57,7 @@ TEST_CASE("GHesseError: parameter-fixed errors on a separable quadratic", "[gene
     auto f = [a, b](std::vector<double> const &x) { return 0.5 * (a * x[0] * x[0] + b * x[1] * x[1]); };
 
     const std::vector<double> x_min{0., 0.};
-    GHesseError he;
+    GHesseError const he;
     const auto r = he.estimate(batchOf(f), x_min, f(x_min), {1.e-2, 1.e-2});
 
     REQUIRE(r.valid);

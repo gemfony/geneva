@@ -68,7 +68,7 @@ int main(int argc, char **argv) {
 
     //---------------------------------------------------------------------------
     // Supply the (compiled-in) optimization individual: the standard benchmark-function individual.
-    std::shared_ptr<gind::GFunctionIndividualFactory> gfi_ptr(
+    std::shared_ptr<gind::GFunctionIndividualFactory> const gfi_ptr(
         new gind::GFunctionIndividualFactory("./config/GFunctionIndividual.json")
     );
 
@@ -87,7 +87,7 @@ int main(int argc, char **argv) {
 
     //---------------------------------------------------------------------------
     // Run the optimization with the algorithm chosen on the command line (e.g. the loaded "rsearch").
-    std::shared_ptr<gind::GFunctionIndividual> best =
+    std::shared_ptr<gind::GFunctionIndividual> const best =
         go.optimize()->getBestGlobalIndividual<gind::GFunctionIndividual>();
 
     std::cout << "Best result found:" << '\n' << best << '\n';

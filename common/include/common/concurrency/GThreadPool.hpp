@@ -44,6 +44,7 @@
 #include <shared_mutex>
 #include <span>
 #include <stop_token>
+#include <string_view>
 #include <type_traits>
 #include <utility>
 
@@ -55,6 +56,7 @@
 #include "common/GExceptions.hpp"
 #include "common/GLogger.hpp"
 #include "common/concurrency/GCompletionLatchT.hpp"
+#include "common/concurrency/GThreadBudget.hpp"
 #include "common/concurrency/GThreadGroup.hpp"
 
 namespace Gem::Common::Concurrency {
@@ -97,6 +99,17 @@ public:
      * @param n_threads The number of worker threads to start (0 picks a hardware-based default)
      */
     explicit GThreadPool(unsigned int n_threads);
+    /**
+     * @brief Budgeted initialisation: reserves the requested thread count in the process-wide
+     * GThreadBudget under the given source name (holding the reservation for the pool's life)
+     * and starts the granted number of workers. The plain constructor above stays unbudgeted,
+     * so leaf tests/benchmarks are unaffected.
+     *
+     * @param source A short name identifying this pool in the budget (e.g. "oa:tp")
+     * @param n_threads The number of worker threads the pool wants (0 picks a hardware-based default)
+     * @param elasticity Whether the pool could correctly run with fewer workers than requested
+     */
+    GThreadPool(std::string_view source, unsigned int n_threads, ThreadElasticity elasticity);
     /** @brief The destructor drains the queue and joins all workers */
     ~GThreadPool();
 
@@ -294,7 +307,7 @@ private:
      *  graceful "drain and stop", never an abrupt abandon.
      *  @param st The jthread stop token; a stop request closes the task queue so the worker drains
      *   the remaining tasks and then exits */
-    void worker_loop(std::stop_token st);
+    void worker_loop(const std::stop_token& st);
     /**
      * @brief Starts n worker threads draining the (current) queue
      * @param n The number of worker threads to start
@@ -304,6 +317,11 @@ private:
     void drain();
 
     /***************************************************************************/
+    /// The pool's reservation in the process-wide thread budget (empty for the unbudgeted
+    /// constructor). Declared FIRST so it is destroyed LAST -- the reservation must only be
+    /// returned to the budget after the workers below have been joined.
+    GThreadBudget::Reservation budget_reservation_;
+
     // The task queue is held in an optional so setNThreads() can replace it (the
     // queue's close() is terminal). It is unbounded (capacity 0): submission never
     // blocks on fullness. Always engaged after construction.

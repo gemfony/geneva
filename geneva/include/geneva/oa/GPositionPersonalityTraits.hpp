@@ -87,7 +87,7 @@ public:
      * @brief Retrieves the position of the individual in the population.
      * @return The individual's stored position in the population
      */
-    std::size_t getPopulationPosition() const { return pop_pos_; }
+    [[nodiscard]] std::size_t getPopulationPosition() const { return pop_pos_; }
 
 protected:
     /***************************************************************************/

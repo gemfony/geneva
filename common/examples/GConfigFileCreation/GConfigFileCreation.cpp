@@ -35,6 +35,7 @@
 #include <array>
 #include <iostream>
 #include <string>
+#include <utility>
 
 // Boost header files go here
 
@@ -63,10 +64,10 @@ public:
         d_ = d;
     }
 
-    int getInt() const {
+    [[nodiscard]] int getInt() const {
         return i_;
     }
-    double getDouble() const {
+    [[nodiscard]] double getDouble() const {
         return d_;
     }
 
@@ -78,7 +79,7 @@ private:
 // Call back function for a std::vector, plus global std::vector<double>
 std::vector<double> someGlobalDoubleVec;
 void setGlobalDoubleVec(std::vector<double> par) {
-    someGlobalDoubleVec = par;
+    someGlobalDoubleVec = std::move(par);
 }
 
 // Call back function for a std::array object, plus global array object as target
@@ -91,9 +92,10 @@ void setGlobalStdArray(std::array<int, ARRAYSIZE> par) {
 /************************************************************************
  * This example illustrates the usage options of the GParserBuilder class
  */
+// NOLINTNEXTLINE(readability-function-size) -- example main walking through the GParserBuilder registration patterns (examples 1-7) sequentially; splitting would fragment a single linear demonstration
 int main(int argc, char **argv) {
-    int creationSwitcher;
-    bool useOperator;
+    int creationSwitcher = 0;
+    bool useOperator = false;
     std::string fileName;
 
     // Create the parser builder
@@ -157,7 +159,7 @@ int main(int argc, char **argv) {
     // only make sense when set together. Example: Lower and upper boundaries
     // of a random number generator.
 
-    twoVariableFunctionObject tvfo;
+    twoVariableFunctionObject const tvfo;
 
     const int I3DEFAULT = 3;
     const double D3DEFAULT = 3.;
@@ -320,7 +322,7 @@ int main(int argc, char **argv) {
     std::cout << "Got " << gpb.numberOfFileOptions() << " options." << '\n';
 
     // Create a suitable path for the config file
-    std::filesystem::path file_path(fileName);
+    std::filesystem::path const file_path(fileName);
 
     // Depending on the command line argument, write or read a configuration file
     switch(creationSwitcher) {
@@ -332,9 +334,9 @@ int main(int argc, char **argv) {
             std::filesystem::remove(file_path);
         }
 
-        std::string header =
+        std::string const header =
             "This is a not so complicated header;with a second line;and a third line as well";
-        bool writeAll =
+        bool const writeAll =
             true; // If set to false, only essential (but no secondary variables) are written
         gpb.writeConfigFile(file_path, header, writeAll);
     } break;

@@ -69,7 +69,7 @@ int main(int argc, char **argv) {
     //---------------------------------------------------------------------------
     // Create a factory for GFunctionIndividual objects and perform
     // any necessary initial work.
-    std::shared_ptr<gind::GFunctionIndividualFactory> gfif_ptr(
+    std::shared_ptr<gind::GFunctionIndividualFactory> const gfif_ptr(
         new gind::GFunctionIndividualFactory("./config/GFunctionIndividual.json")
     );
 

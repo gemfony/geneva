@@ -131,7 +131,7 @@ public:
             // Prevent concurrent "first" access. Re-check under the lock: another
             // thread may have completed initialisation between our unlocked load
             // and our acquisition of the mutex.
-            std::scoped_lock lk(s.creation_mutex);
+            std::scoped_lock const lk(s.creation_mutex);
             sp = s.p.load();
             if(not sp) {
                 sp = Gem::Common::TFactory_GSingletonT<T>();
@@ -176,7 +176,7 @@ public:
         // Reset must be ordered against any in-flight instance() initialiser:
         // without this lock, an initialiser could store the freshly-built
         // singleton AFTER our reset, silently undoing it.
-        std::scoped_lock lk(s.creation_mutex);
+        std::scoped_lock const lk(s.creation_mutex);
         s.p.store(nullptr);
     }
 

@@ -59,6 +59,7 @@
 #include "common/GErrorStreamer.hpp"
 #include "common/GExceptions.hpp"
 #include "common/GSingletonT.hpp"
+#include "common/concurrency/GThreadBudget.hpp"
 #include "common/concurrency/GThreadGroup.hpp"
 #include "hap/GRandomDefines.hpp"
 #include "hap/GXoshiro256pp.hpp"
@@ -163,7 +164,7 @@ public:
 	  *
 	  * @return The index of the next random number to be handed out
 	  */
-    std::size_t getCurrentPosition() const {
+    [[nodiscard]] std::size_t getCurrentPosition() const {
         return current_pos_;
     }
 
@@ -173,7 +174,7 @@ public:
 	  *
 	  * @return true if every random number in the container has been consumed, false otherwise
 	  */
-    bool empty() const {
+    [[nodiscard]] bool empty() const {
         return (current_pos_ >= DEFAULTARRAYSIZE);
     }
 
@@ -440,6 +441,10 @@ private:
     std::atomic<std::uint16_t> n_producer_threads_{
         autoProducerThreadCount()
     }; ///< The number of threads used to produce random numbers (hardware-derived by default)
+
+    /// The producers' reservation in the process-wide thread budget (taken when the producer
+    /// threads are lazily started, returned after they are joined in finalize()).
+    Gem::Common::Concurrency::GThreadBudget::Reservation producer_budget_;
 
     Gem::Common::Concurrency::GThreadGroup
         producer_threads_; ///< A thread group that holds the raw-random-word producer threads

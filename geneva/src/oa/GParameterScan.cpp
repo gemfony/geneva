@@ -48,6 +48,7 @@
 #include <memory>
 #include <ostream>
 #include <tuple>
+#include <utility>
 #include <vector>
 
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::OptimizationAlgorithms::GBScanPar)     // NOLINT
@@ -424,13 +425,14 @@ std::tuple<double, double> GParameterScan::cycleLogic_() {
  * may resize the population and set the default population size, if there
  * is no sufficient number of data sets to be evaluated left.
  */
+// NOLINTNEXTLINE(readability-function-size) -- single coherent per-item scan-population procedure: for each individual, fill the four typed parameter channels (bool/int32/float/double) from the parSet, snap floating-point grid endpoints into the genome's half-open bounds, write back, then advance/terminate the scan loop; the channels and the loop-continuation logic are tightly coupled around the same work item
 void GParameterScan::updateSelectedParameters() {
     std::size_t ind_pos = 0;
 
     while(true) {
         //------------------------------------------------------------------------
         // Retrieve a work item (all parameters are addressed positionally)
-        std::shared_ptr<parSet> p_s = getParameterSet();
+        std::shared_ptr<parSet> const p_s = getParameterSet();
 
         {
             std::vector<bool> b_data;
@@ -736,7 +738,7 @@ void GParameterScan::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) 
     gpb.registerFileParameter<std::string>(
         "parameter_options",
         std::string("d(0, -10., 10., 100), d(1, -10., 10., 100)"),
-        [this](std::string par_specs) { this->setParameterSpecs(par_specs); }
+        [this](std::string par_specs) { this->setParameterSpecs(std::move(par_specs)); }
     ) << "Specification of the parameters to be used in the parameter scan"
       << '\n';
 
@@ -799,7 +801,7 @@ void GParameterScan::evaluatePopulation_() {
  * @param par_str A specification string describing the parameters to scan (e.g. "d(0, -10., 10., 100)"),
  *                or a simple-scan request; must not be empty
  */
-void GParameterScan::setParameterSpecs(std::string par_str) {
+void GParameterScan::setParameterSpecs(const std::string& par_str) {
     // Check that the parameter string isn't empty
     if(par_str.empty()) {
         throw geneva_exception(
@@ -817,7 +819,7 @@ void GParameterScan::setParameterSpecs(std::string par_str) {
     b_cnt_.clear();
 
     // Parse the parameter string
-    gen::GParameterPropertyParser ppp(par_str);
+    gen::GParameterPropertyParser const ppp(par_str);
 
     //---------------------------------------------------------------------------
     // Assign the parameter definitions to our internal parameter vectors.

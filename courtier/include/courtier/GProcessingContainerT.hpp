@@ -276,7 +276,7 @@ public:
 	  * @param id The id of the stored result to be returned
 	  * @return The stored result at position id in stored_results_vec_
 	  */
-    processing_result_type getStoredResult(std::size_t id = 0) const {
+    [[nodiscard]] processing_result_type getStoredResult(std::size_t id = 0) const {
         if(not this->is_processed()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
@@ -321,7 +321,7 @@ public:
 	  *
 	  * @return true if pre-processing is currently allowed, false if it has been vetoed
 	  */
-    bool mayBePreProcessed() const noexcept {
+    [[nodiscard]] bool mayBePreProcessed() const noexcept {
         return not pre_processing_disabled_;
     }
 
@@ -361,7 +361,7 @@ public:
 	  *
 	  * @return true if post-processing is currently allowed, false if it has been vetoed
 	  */
-    bool mayBePostProcessed() const {
+    [[nodiscard]] bool mayBePostProcessed() const {
         return not post_processing_disabled_;
     }
 
@@ -384,7 +384,7 @@ public:
 	  * @param post_processor_ptr The post-processor function object to register (ignored if empty)
 	  */
     void registerPostProcessor(
-        std::shared_ptr<Gem::Common::GSerializableFunctionObjectT<processable_type>>
+        const std::shared_ptr<Gem::Common::GSerializableFunctionObjectT<processable_type>>&
             post_processor_ptr
     ) {
         if(post_processor_ptr) {
@@ -400,7 +400,7 @@ public:
 	  *
 	  * @return The registered post-processor, or an empty pointer if none is registered
 	  */
-    std::shared_ptr<Gem::Common::GSerializableFunctionObjectT<processable_type>> postProcessor() const {
+    [[nodiscard]] std::shared_ptr<Gem::Common::GSerializableFunctionObjectT<processable_type>> postProcessor() const {
         return post_processor_ptr_;
     }
 
@@ -420,7 +420,7 @@ public:
 	  *
 	  * @return The number of result slots held by this object
 	  */
-    std::size_t getNStoredResults() const {
+    [[nodiscard]] std::size_t getNStoredResults() const {
         return stored_results_cnt_.size();
     }
 

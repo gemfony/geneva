@@ -83,13 +83,13 @@ double objective(BenchFn fn, const std::vector<double> &x) {
     long double s = 0.L;
     switch(fn) {
     case BenchFn::Sphere:
-        for(double v : x) {
+        for(double const v : x) {
             s += static_cast<long double>(v) * static_cast<long double>(v);
         }
         return static_cast<double>(s);
     case BenchFn::Rastrigin:
         s = 10.L * static_cast<long double>(x.size());
-        for(double v : x) {
+        for(double const v : x) {
             const long double lv = v;
             s += lv * lv - 10.L * std::cos(2.L * std::numbers::pi_v<long double> * lv);
         }
@@ -136,7 +136,7 @@ public:
     BenchIndividual(const BenchIndividual &) = default;
 
     /** @brief A Gauss adaption config (only the EA and classic SA consume one; the others own their update). */
-    std::shared_ptr<oa::GAdaptionConfigBase> buildAdaptionConfig() const {
+    [[nodiscard]] std::shared_ptr<oa::GAdaptionConfigBase> buildAdaptionConfig() const {
         auto cfg = oa::makeAdaptionConfig<oa::GAdaptionConfigBase>(*this);
         cfg->groupDouble(0).gauss(0.5, 0.8, 1e-3, 2., 1.);
         return cfg;
@@ -185,9 +185,10 @@ double timedRun(std::shared_ptr<OA> &pop, double budget_s, std::size_t &iteratio
 
 /** @brief Runs all algorithms on one (function, dimension) and prints a table sorted by best fitness. */
 template <std::size_t N, BenchFn FN>
+// NOLINTNEXTLINE(readability-function-size) -- one gate-driven dispatcher running the full algorithm matrix (each `if(want(tag))` block is an independent, self-contained algorithm run); splitting per algorithm would scatter the shared Row/record()/table-printing machinery
 void runMatrix(double budget_s) {
     using Ind = BenchIndividual<N, FN>;
-    Ind proto;
+    Ind const proto;
     std::vector<Row> rows;
 
     auto record = [&](const std::string &name, auto pop) {

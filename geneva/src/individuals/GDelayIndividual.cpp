@@ -161,7 +161,7 @@ std::vector<double> GDelayIndividual::evaluate() {
 
     if(sleep_randomly_) {
         // Calculate the sleep time
-        double sleep_time = uniform_real_distribution(
+        double const sleep_time = uniform_real_distribution(
             gr,
             std::uniform_real_distribution<double>::param_type(
                 std::get<0>(rand_sleep_boundaries_),
@@ -169,7 +169,7 @@ std::vector<double> GDelayIndividual::evaluate() {
             )
         );
 
-        std::chrono::duration<double> random_sleep_time(sleep_time);
+        std::chrono::duration<double> const random_sleep_time(sleep_time);
 
         // Sleep for a random amount of time in a given time window
         std::this_thread::sleep_for(random_sleep_time);
@@ -413,7 +413,7 @@ std::vector<std::tuple<unsigned int, unsigned int>> GDelayIndividual::parseSleep
  */
 std::chrono::duration<double>
 GDelayIndividual::tupleToTime(const std::tuple<unsigned int, unsigned int> &time_tuple) {
-    std::chrono::duration<double> t =
+    std::chrono::duration<double> const t =
         std::chrono::seconds(Gem::Common::narrow<long>(std::get<0>(time_tuple))) +
         std::chrono::milliseconds(Gem::Common::narrow<long>(std::get<1>(time_tuple)));
 

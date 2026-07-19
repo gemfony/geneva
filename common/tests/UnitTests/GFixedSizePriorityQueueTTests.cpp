@@ -53,7 +53,7 @@ public:
     explicit TestItem(double v) : value(v) {}
 
     template <typename U = TestItem>
-    std::shared_ptr<U> clone() const {
+    [[nodiscard]] std::shared_ptr<U> clone() const {
         return std::make_shared<U>(value);
     }
 
@@ -64,7 +64,7 @@ public:
     }
 
     void compare(TestItem const &other, expectation e, [[maybe_unused]] double limit) const {
-        bool eq = (value == other.value);
+        bool const eq = (value == other.value);
         if(e == expectation::INEQUALITY ? eq : not eq) {
             throw g_expectation_violation("TestItem compare mismatch");
         }
@@ -83,11 +83,11 @@ public:
       : GFixedSizePriorityQueueT<TestItem>(maxSize, so) {}
 
 protected:
-    bool   isValid   ([[maybe_unused]] std::shared_ptr<TestItem> const &p) const override { return true; }
-    double evaluation(std::shared_ptr<TestItem> const &p) const override { return p->value; }
+    [[nodiscard]] bool   isValid   ([[maybe_unused]] std::shared_ptr<TestItem> const &p) const override { return true; }
+    [[nodiscard]] double evaluation(std::shared_ptr<TestItem> const &p) const override { return p->value; }
 
 private:
-    TestPQ *clone_() const override {
+    [[nodiscard]] TestPQ *clone_() const override {
         return new TestPQ(*this);
     }
 };
@@ -184,7 +184,7 @@ TEST_CASE("GFixedSizePriorityQueueT: bulk add (vector, replace=true) starts a fr
     TestPQ pq(5);
     pq.add(make_item(99.0), false);   // pre-existing content
 
-    std::vector<std::shared_ptr<TestItem>> items{
+    std::vector<std::shared_ptr<TestItem>> const items{
         make_item(4.0), make_item(1.0), make_item(7.0)
     };
     pq.add(items, /*do_clone*/ false, /*replace*/ true);
@@ -199,7 +199,7 @@ TEST_CASE("GFixedSizePriorityQueueT: bulk add (replace=false) merges with existi
     TestPQ pq(5);
     pq.add(make_item(10.0), false);
 
-    std::vector<std::shared_ptr<TestItem>> items{
+    std::vector<std::shared_ptr<TestItem>> const items{
         make_item(4.0), make_item(20.0)
     };
     pq.add(items, false, /*replace*/ false);
@@ -337,7 +337,7 @@ TEST_CASE("GFixedSizePriorityQueueT: move ctor resets the source to default stat
     src.add(make_item(1.0), false);
     src.add(make_item(9.0), false);
 
-    TestPQ dst(std::move(src));
+    TestPQ const dst(std::move(src));
     CHECK(dst.size() == 2);
     CHECK(dst.getMaxSize() == 7);
     CHECK(dst.getSortOrder() == sortOrder::HIGHERISBETTER);

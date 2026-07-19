@@ -72,7 +72,7 @@ struct SerBase : Gem::Common::gemfony_common_interface_indicator {
         return std::make_shared<TargetType>(*static_cast<const TargetType *>(this));
     }
 
-    void load(std::shared_ptr<SerBase> cp) { v = cp->v; }
+    void load(const std::shared_ptr<SerBase>& cp) { v = cp->v; }
 
     bool operator==(const SerBase &o) const { return v == o.v; }
 
@@ -109,7 +109,7 @@ struct TestBase : Gem::Common::gemfony_common_interface_indicator {
     virtual ~TestBase() = default;
 
     template <typename TargetType = TestBase>
-    std::shared_ptr<TargetType> clone() const {
+    [[nodiscard]] std::shared_ptr<TargetType> clone() const {
         return std::make_shared<TargetType>(*static_cast<const TargetType *>(this));
     }
 
@@ -132,7 +132,7 @@ struct TestBase : Gem::Common::gemfony_common_interface_indicator {
         return std::unique_ptr<TargetType>(converted);
     }
 
-    void load(std::shared_ptr<TestBase> cp) {
+    void load(const std::shared_ptr<TestBase>& cp) {
         val = cp->val;
     }
 
@@ -305,7 +305,7 @@ public:
 
 TEST_CASE("GContainerT: GPodContainerT<int> with std::vector backend", "[GContainerT][pod][vector]") {
     SECTION("Default construction") {
-        ConcretePodVec c;
+        ConcretePodVec const c;
         CHECK(c.empty());
         CHECK(c.empty());
     }
@@ -328,14 +328,14 @@ TEST_CASE("GContainerT: GPodContainerT<int> with std::vector backend", "[GContai
     }
 
     SECTION("Move construction") {
-        ConcretePodVec src(4, 1);
+        ConcretePodVec const src(4, 1);
         ConcretePodVec dst(std::move(src));
         CHECK(dst.size() == 4u);
         CHECK(dst[0] == 1);
     }
 
     SECTION("Copy assignment") {
-        ConcretePodVec src(3, 5);
+        ConcretePodVec const src(3, 5);
         ConcretePodVec dst(2, 0);
         dst = src;
         REQUIRE(dst.size() == 3u);
@@ -343,7 +343,7 @@ TEST_CASE("GContainerT: GPodContainerT<int> with std::vector backend", "[GContai
     }
 
     SECTION("Move assignment") {
-        ConcretePodVec src(3, 5);
+        ConcretePodVec const src(3, 5);
         ConcretePodVec dst;
         dst = std::move(src);
         CHECK(dst.size() == 3u);
@@ -475,7 +475,7 @@ TEST_CASE("GContainerT: GPodContainerT<int> with std::vector backend", "[GContai
 
     SECTION("data() — available and correct type") {
         ConcretePodVec c(3, 7);
-        int *ptr = c.data();
+        int  const*ptr = c.data();
         REQUIRE(ptr != nullptr);
         CHECK(ptr[0] == 7);
         CHECK(ptr[2] == 7);
@@ -701,7 +701,7 @@ TEST_CASE("GContainerT: GPodContainerT<int> with std::vector backend", "[GContai
 
 TEST_CASE("GContainerT: GPodContainerT<int> with std::deque backend", "[GContainerT][pod][deque]") {
     SECTION("Default construction") {
-        ConcretePodDeque c;
+        ConcretePodDeque const c;
         CHECK(c.empty());
     }
 
@@ -844,7 +844,7 @@ TEST_CASE("GContainerT: GPodContainerT<int> with std::deque backend", "[GContain
 
 TEST_CASE("GContainerT: GPtrContainerT<TestBase> with std::vector backend", "[GContainerT][ptr][vector]") {
     SECTION("Default construction") {
-        ConcretePtrVec c;
+        ConcretePtrVec const c;
         CHECK(c.empty());
         CHECK(c.empty());
     }
@@ -866,7 +866,7 @@ TEST_CASE("GContainerT: GPtrContainerT<TestBase> with std::vector backend", "[GC
     SECTION("Move construction") {
         ConcretePtrVec src;
         src.push_back_noclone(std::make_shared<TestBase>(1));
-        ConcretePtrVec dst(std::move(src));
+        ConcretePtrVec const dst(std::move(src));
         CHECK(dst.size() == 1u);
     }
 
@@ -888,13 +888,13 @@ TEST_CASE("GContainerT: GPtrContainerT<TestBase> with std::vector backend", "[GC
 
     SECTION("push_backClone — null pointer throws") {
         ConcretePtrVec c;
-        std::shared_ptr<TestBase> null;
+        std::shared_ptr<TestBase> const null;
         CHECK_THROWS_AS(c.push_back_clone(null), geneva_exception);
     }
 
     SECTION("push_backNoclone — null pointer throws") {
         ConcretePtrVec c;
-        std::shared_ptr<TestBase> null;
+        std::shared_ptr<TestBase> const null;
         CHECK_THROWS_AS(c.push_back_noclone(null), geneva_exception);
     }
 
@@ -925,7 +925,7 @@ TEST_CASE("GContainerT: GPtrContainerT<TestBase> with std::vector backend", "[GC
     SECTION("insertClone — null pointer throws") {
         ConcretePtrVec c;
         c.push_back_noclone(std::make_shared<TestBase>(0));
-        std::shared_ptr<TestBase> null;
+        std::shared_ptr<TestBase> const null;
         CHECK_THROWS_AS(c.insert_clone(c.begin(), null), geneva_exception);
         CHECK_THROWS_AS(c.insert_clone(c.begin(), 2u, null), geneva_exception);
     }
@@ -942,7 +942,7 @@ TEST_CASE("GContainerT: GPtrContainerT<TestBase> with std::vector backend", "[GC
     SECTION("insertNoclone single — null pointer throws") {
         ConcretePtrVec c;
         c.push_back_noclone(std::make_shared<TestBase>(1));
-        std::shared_ptr<TestBase> null;
+        std::shared_ptr<TestBase> const null;
         CHECK_THROWS_AS(c.insert_noclone(c.begin(), null), geneva_exception);
     }
 
@@ -1041,7 +1041,7 @@ TEST_CASE("GContainerT: GPtrContainerT<TestBase> with std::vector backend", "[GC
     SECTION("insertNoclone count — null pointer throws") {
         ConcretePtrVec c;
         c.push_back_noclone(std::make_shared<TestBase>(1));
-        std::shared_ptr<TestBase> null;
+        std::shared_ptr<TestBase> const null;
         CHECK_THROWS_AS(c.insert_noclone(c.begin(), 2u, null), geneva_exception);
     }
 
@@ -1058,7 +1058,7 @@ TEST_CASE("GContainerT: GPtrContainerT<TestBase> with std::vector backend", "[GC
 
     SECTION("resizeClone — null pointer throws on grow") {
         ConcretePtrVec c;
-        std::shared_ptr<TestBase> null;
+        std::shared_ptr<TestBase> const null;
         CHECK_THROWS_AS(c.resize_clone(3u, null), geneva_exception);
     }
 
@@ -1083,7 +1083,7 @@ TEST_CASE("GContainerT: GPtrContainerT<TestBase> with std::vector backend", "[GC
 
     SECTION("resizeNoclone — null pointer throws on grow") {
         ConcretePtrVec c;
-        std::shared_ptr<TestBase> null;
+        std::shared_ptr<TestBase> const null;
         CHECK_THROWS_AS(c.resize_noclone(3u, null), geneva_exception);
     }
 
@@ -1132,14 +1132,14 @@ TEST_CASE("GContainerT: GPtrContainerT<TestBase> with std::vector backend", "[GC
     SECTION("count — null pointer throws") {
         ConcretePtrVec c;
         c.push_back_noclone(std::make_shared<TestBase>(1));
-        std::shared_ptr<TestBase> null;
+        std::shared_ptr<TestBase> const null;
         CHECK_THROWS_AS(c.count<TestBase>(null), geneva_exception);
     }
 
     SECTION("find — null pointer throws") {
         ConcretePtrVec c;
         c.push_back_noclone(std::make_shared<TestBase>(1));
-        std::shared_ptr<TestBase> null;
+        std::shared_ptr<TestBase> const null;
         CHECK_THROWS_AS(c.find<TestBase>(null), geneva_exception);
     }
 
@@ -1209,7 +1209,7 @@ TEST_CASE("GContainerT: GPtrContainerT<TestBase> with std::vector backend", "[GC
     SECTION("compare_base — equality") {
         ConcretePtrVec a;
         a.push_back_noclone(std::make_shared<TestBase>(1));
-        ConcretePtrVec b(a); // deep copy
+        ConcretePtrVec const b(a); // deep copy
         CHECK_NOTHROW(a.compare_base(b, Gem::Common::expectation::EQUALITY, 0.0));
     }
 
@@ -1279,7 +1279,7 @@ TEST_CASE("GContainerT: GPodContainerT<int> with std::list backend", "[GContaine
     // and std::next(begin(), n) rather than operator[].
 
     SECTION("Default construction") {
-        ConcretePodList c;
+        ConcretePodList const c;
         CHECK(c.empty());
         CHECK(c.empty());
     }
@@ -1389,7 +1389,7 @@ TEST_CASE("GContainerT: GPodContainerT<int> with std::list backend", "[GContaine
         CHECK(*c.rbegin() == 3);
         CHECK(*c.crbegin() == 3);
         int sum = 0;
-        for(int & it : c) sum += it;
+        for(int  const& it : c) sum += it;
         CHECK(sum == 6);
     }
 
@@ -1422,7 +1422,7 @@ TEST_CASE("GContainerT: GPodContainerT<int> with std::list backend", "[GContaine
     }
 
     SECTION("max_size") {
-        ConcretePodList c;
+        ConcretePodList const c;
         CHECK(c.max_size() > 0u);
     }
 
@@ -1478,7 +1478,7 @@ TEST_CASE("GContainerT: GPodContainerT<int> with std::list backend", "[GContaine
     SECTION("move construction") {
         ConcretePodList src;
         src.assign({1, 2, 3});
-        ConcretePodList dst(std::move(src));
+        ConcretePodList const dst(std::move(src));
         CHECK(dst.size() == 3u);
     }
 
@@ -1535,7 +1535,7 @@ TEST_CASE("GContainerT: GPodContainerT<int> with std::list backend", "[GContaine
 
 TEST_CASE("GContainerT: edge cases", "[GContainerT][edge]") {
     SECTION("Empty container queries") {
-        ConcretePodVec c;
+        ConcretePodVec const c;
         CHECK(c.empty());
         CHECK(c.empty());
         CHECK(c.cbegin() == c.cend());
@@ -1766,7 +1766,7 @@ TEST_CASE("GContainerT: Boost.Serialization round-trips", "[GContainerT][seriali
     }
 
     SECTION("Empty container round-trip preserves zero size") {
-        ConcretePodVec src;
+        ConcretePodVec const src;
         std::ostringstream oss;
         {
             boost::archive::text_oarchive oa(oss);
@@ -1853,7 +1853,7 @@ TEST_CASE("GContainerT: Boost.Serialization round-trips", "[GContainerT][seriali
     }
 
     SECTION("GPtrContainerT<SerBase> — empty container round-trip") {
-        ConcretePtrSerializable src;
+        ConcretePtrSerializable const src;
         std::ostringstream oss;
         {
             boost::archive::text_oarchive oa(oss);
@@ -1893,18 +1893,18 @@ TEST_CASE("GContainerT: UniquePtrStorage + unique_ptr deep-copy helpers", "[GCon
     }
 
     SECTION("copyCloneableSmartPointer loads in place on a type match, clones otherwise") {
-        std::unique_ptr<TestBase> from = std::make_unique<TestBase>(5);
+        std::unique_ptr<TestBase> const from = std::make_unique<TestBase>(5);
         std::unique_ptr<TestBase> to = std::make_unique<TestBase>(0);
-        TestBase *to_raw = to.get();
+        TestBase  const*to_raw = to.get();
         Gem::Common::copyCloneableSmartPointer(from, to);
         CHECK(to->val == 5);
         CHECK(to.get() == to_raw); // loaded in place, no reallocation
 
-        std::unique_ptr<TestBase> empty;
+        std::unique_ptr<TestBase> const empty;
         Gem::Common::copyCloneableSmartPointer(empty, to);
         CHECK(!to); // null source resets the target
 
-        std::unique_ptr<TestBase> der = std::make_unique<TestDerived>(1, 2);
+        std::unique_ptr<TestBase> const der = std::make_unique<TestDerived>(1, 2);
         Gem::Common::copyCloneableSmartPointer(der, to);
         REQUIRE(to);
         CHECK(dynamic_cast<TestDerived *>(to.get()) != nullptr); // type mismatch -> clone
@@ -1917,7 +1917,7 @@ TEST_CASE("GContainerT: UniquePtrStorage + unique_ptr deep-copy helpers", "[GCon
         Vec to;
         to.push_back(std::make_unique<TestBase>(0));
         to.push_back(std::make_unique<TestBase>(0));
-        TestBase *slot0 = to[0].get();
+        TestBase  const*slot0 = to[0].get();
         Gem::Common::copyCloneableSmartPointerContainer(from, to);
         REQUIRE(to.size() == 2);
         CHECK(to[0]->val == 1);
@@ -1991,7 +1991,7 @@ TEST_CASE("GContainerT: GUniquePtrContainerT populated container", "[GContainerT
 
     SECTION("clone-in keeps the dynamic type (no slicing)") {
         ConcreteUniquePtrVec v;
-        std::unique_ptr<TestBase> base_handle = std::make_unique<TestDerived>(5, 6);
+        std::unique_ptr<TestBase> const base_handle = std::make_unique<TestDerived>(5, 6);
         v.push_back_clone(base_handle);
         REQUIRE(v.size() == 1);
         auto *dv = dynamic_cast<TestDerived *>(v[0].get());
@@ -2027,7 +2027,7 @@ TEST_CASE("GContainerT: GUniquePtrContainerT populated container", "[GContainerT
     SECTION("move construction transfers ownership without cloning") {
         ConcreteUniquePtrVec a;
         a.push_back_noclone(std::make_unique<TestBase>(42));
-        TestBase *raw = a[0].get();
+        TestBase  const*raw = a[0].get();
         ConcreteUniquePtrVec b = std::move(a);
         REQUIRE(b.size() == 1);
         CHECK(b[0].get() == raw); // the very same object, moved, not cloned

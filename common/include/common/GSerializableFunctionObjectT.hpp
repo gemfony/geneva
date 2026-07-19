@@ -196,13 +196,13 @@ private:
 	  * @brief Returns the name of this class.
 	  * @return The class name "GSerializableFunctionObjectT<processable_type>"
 	  */
-    std::string name_() const override {
+    [[nodiscard]] std::string name_() const override {
         return std::string("GSerializableFunctionObjectT<processable_type>");
     }
 
     /***************************************************************************/
     /** @brief Creates a deep clone of this object */
-    GSerializableFunctionObjectT<processable_type> *clone_() const override = 0;
+    [[nodiscard]] GSerializableFunctionObjectT<processable_type> *clone_() const override = 0;
 };
 
 /******************************************************************************/

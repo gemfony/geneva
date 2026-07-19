@@ -113,7 +113,7 @@ public:
      *
      * @return A string describing the dirty-flag status of all items held by the queue
      */
-    std::string getCleanStatus() const;
+    [[nodiscard]] std::string getCleanStatus() const;
 
     /**
      * @brief Adds items in a range to the priority queue
@@ -219,14 +219,14 @@ protected:
      * @param item A constant reference to the work item to be checked
      * @return true if the item is valid (e.g. has no dirty flag set), false otherwise
      */
-    bool isValid(const std::shared_ptr<GOptimizableEntity> & item_ptr) const override;
+    [[nodiscard]] bool isValid(const std::shared_ptr<GOptimizableEntity> & item_ptr) const override;
     /**
      * @brief Evaluates a single work item, so that it can be sorted
      *
      * @param item A constant reference to the work item to be evaluated
      * @return The fitness value of the item used as the sorting criterion within the priority queue
      */
-    double evaluation(const std::shared_ptr<GOptimizableEntity> & item_ptr) const override;
+    [[nodiscard]] double evaluation(const std::shared_ptr<GOptimizableEntity> & item_ptr) const override;
 
     /** @brief Applies modifications to this object. This is needed for testing purposes */
     bool modify_GUnitTests_() override;
@@ -241,13 +241,13 @@ private:
      *
      * @return A string holding the name of this class
      */
-    std::string name_() const override;
+    [[nodiscard]] std::string name_() const override;
     /**
      * @brief Creates a deep clone of this object
      *
      * @return A deep clone of this object, returned as a pointer to the GFixedSizePriorityQueueT base class
      */
-    Gem::Common::GFixedSizePriorityQueueT<GOptimizableEntity> *clone_() const override;
+    [[nodiscard]] Gem::Common::GFixedSizePriorityQueueT<GOptimizableEntity> *clone_() const override;
 };
 
 /******************************************************************************/

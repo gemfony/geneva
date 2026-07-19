@@ -424,11 +424,12 @@ bool GGenome::getVarVal_b_(std::size_t idx) {
  *
  * @return A boost::json::object holding this individual's parameters, metadata and results
  */
+// NOLINTNEXTLINE(readability-function-size) -- one coherent JSON-serialization sweep over the four value channels + metadata + results, sharing the "emit" lambda; splitting would scatter tightly coupled body-object assembly
 boost::json::object GGenome::toJSON() const {
     namespace json = boost::json;
 
-    bool dirty_flag = (Gem::Courtier::processingStatus::DO_PROCESS == this->getProcessingStatus());
-    bool has_errors = this->has_errors();
+    bool const dirty_flag = (Gem::Courtier::processingStatus::DO_PROCESS == this->getProcessingStatus());
+    bool const has_errors = this->has_errors();
 
     json::object body;
     body["iteration"] = this->getAssignedIteration();
@@ -502,6 +503,7 @@ boost::json::object GGenome::toJSON() const {
  * @param show_validity If true, append a trailing validity column
  * @return A string holding the CSV (tab-separated) representation, terminated with a newline
  */
+// NOLINTNEXTLINE(readability-function-size) -- one coherent CSV-serialization sweep over the four value channels + fitness + validity, sharing the "emit"/"joinRow" lambdas; splitting would scatter tightly coupled row assembly
 std::string GGenome::toCSV(
     bool with_name_and_type,
     bool with_commas,
@@ -625,17 +627,18 @@ bool GGenome::modify_GUnitTests_() {
 /**
  * @brief Performs self tests that are expected to succeed. This is needed for testing purposes.
  */
+// NOLINTNEXTLINE(readability-function-size) -- a self-contained unit-test function (Catch2 CHECK blocks); each {} block is an independent assertion group, standard test-function shape
 void GGenome::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
     {
-        std::shared_ptr<GGenome> p_test = this->clone<GGenome>();
+        std::shared_ptr<GGenome> const p_test = this->clone<GGenome>();
         CHECK_NOTHROW(p_test->setMaxMode(maxMode::MAXIMIZE));
         CHECK(p_test->getMaxMode() == maxMode::MAXIMIZE);
         CHECK_NOTHROW(p_test->setMaxMode(maxMode::MINIMIZE));
         CHECK(p_test->getMaxMode() == maxMode::MINIMIZE);
     }
     {
-        std::shared_ptr<GGenome> p_test = this->clone<GGenome>();
+        std::shared_ptr<GGenome> const p_test = this->clone<GGenome>();
         for(std::uint32_t i = 1; i < 10; i++) {
             CHECK_NOTHROW(p_test->setAssignedIteration(i));
             CHECK(p_test->getAssignedIteration() == i);

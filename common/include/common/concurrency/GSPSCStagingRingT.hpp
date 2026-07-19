@@ -32,6 +32,8 @@
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
+#include "common/concurrency/GThreadBudget.hpp"
+
 // Standard headers go here
 #include <atomic>
 #include <chrono>
@@ -259,6 +261,11 @@ private:
     std::atomic<std::uint64_t>              chunk_seq_{0};  ///< monotonic claim cursor (chunk index)
     std::atomic<std::uint64_t>              filled_seq_{0}; ///< highest pool generation filled
     std::atomic<bool>                       stop_{false};   ///< shutdown flag for the producer thread
+    /// This ring's one background refill producer, accounted in the process-wide thread
+    /// budget for the ring's lifetime (Fixed: the design needs exactly one producer).
+    GThreadBudget::Reservation producer_budget_{
+        threadBudget().reserve("staging-ring", 1, ThreadElasticity::Fixed)
+    };
     std::thread                             producer_;      ///< the single refill thread (never waits on readers)
 };
 

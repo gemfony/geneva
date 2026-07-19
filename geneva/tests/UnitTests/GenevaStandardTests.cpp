@@ -90,7 +90,7 @@ TFactory_GUnitTests<gind::GTestIndividual2>() {
 template <>
 inline std::shared_ptr<gind::GLineFitIndividual>
 TFactory_GUnitTests<gind::GLineFitIndividual>() {
-    std::vector<std::tuple<double, double>> data_points{
+    std::vector<std::tuple<double, double>> const data_points{
         {0., 0.}, {1., 1.}, {2., 2.}, {3., 3.}};
     std::shared_ptr<gind::GLineFitIndividual> p;
     CHECK_NOTHROW(p = std::make_shared<gind::GLineFitIndividual>(data_points));
@@ -273,14 +273,14 @@ TEST_CASE(
          {serializationMode::TEXT, serializationMode::XML, serializationMode::BINARY}) {
         // Non-default value so the round-trip actually exercises the member
         // (the default is 1.0; a serialize that dropped it would still pass at 1.0).
-        gind::GDoubleSumConstraint original(3.5);
+        gind::GDoubleSumConstraint const original(3.5);
         gind::GDoubleSumConstraint restored(2.0);
 
         REQUIRE_NOTHROW(
             restored.fromString(original.toString(mode), mode)
         );
 
-        GEqualityPrinter gep(
+        GEqualityPrinter const gep(
             "GDoubleSumConstraint-roundtrip",
             pow(10, -7),
             Gem::Common::CE_WITH_MESSAGES
@@ -299,14 +299,14 @@ TEST_CASE(
          {serializationMode::TEXT, serializationMode::XML, serializationMode::BINARY}) {
         // Non-default value (default 1.0): catches the previously-latent bug where
         // GSphereConstraint::serialize() did not store diameter_ at all.
-        gind::GSphereConstraint original(3.5);
+        gind::GSphereConstraint const original(3.5);
         gind::GSphereConstraint restored(2.0);
 
         REQUIRE_NOTHROW(
             restored.fromString(original.toString(mode), mode)
         );
 
-        GEqualityPrinter gep(
+        GEqualityPrinter const gep(
             "GSphereConstraint-roundtrip",
             pow(10, -7),
             Gem::Common::CE_WITH_MESSAGES
@@ -324,14 +324,14 @@ TEST_CASE(
     for (auto mode :
          {serializationMode::TEXT, serializationMode::XML, serializationMode::BINARY}) {
         // Non-default values (defaults 1.0 / 0.5) so both members are exercised.
-        gind::GDoubleSumGapConstraint original(3.5, 1.25);
+        gind::GDoubleSumGapConstraint const original(3.5, 1.25);
         gind::GDoubleSumGapConstraint restored(2.0, 0.25);
 
         REQUIRE_NOTHROW(
             restored.fromString(original.toString(mode), mode)
         );
 
-        GEqualityPrinter gep(
+        GEqualityPrinter const gep(
             "GDoubleSumGapConstraint-roundtrip",
             pow(10, -7),
             Gem::Common::CE_WITH_MESSAGES
@@ -360,7 +360,7 @@ TEST_CASE(
             restored.fromString(original.toString(mode), mode)
         );
 
-        GEqualityPrinter gep(
+        GEqualityPrinter const gep(
             "GExternalEvaluatorIndividual-runid-roundtrip",
             pow(10, -7),
             Gem::Common::CE_WITH_MESSAGES
@@ -383,6 +383,7 @@ TEST_CASE(
 // oa::GOptimizationAlgorithmBase members -- in particular cp_directory_path_ (the path that forced the
 // former split) -- to NON-DEFAULT values and verifies they survive a round-trip in
 // all three modes, guarding against silently dropping a member.
+// NOLINTNEXTLINE(readability-function-cognitive-complexity) -- one coherent serialization sweep (TEXT/XML/BINARY) for oa::GOptimizationAlgorithmBase's members
 TEST_CASE(
     "oa::GOptimizationAlgorithmBase (via GEvolutionaryAlgorithm) round-trips its members incl. the checkpoint path",
     "[geneva][serialization]"
@@ -418,7 +419,7 @@ TEST_CASE(
         CHECK(restored.getReportIteration() == 13);
         CHECK(restored.getMaxStallIteration() == 99);
 
-        GEqualityPrinter gep(
+        GEqualityPrinter const gep(
             "oa::GOptimizationAlgorithmBase-roundtrip",
             pow(10, -7),
             Gem::Common::CE_WITH_MESSAGES
@@ -450,7 +451,7 @@ TEST_CASE(
 
     // --- in-memory load() (clone path) ---
     {
-        gind::GTestIndividual1 original = make_original();
+        gind::GTestIndividual1 const original = make_original();
         gind::GTestIndividual1 restored; // defaults
 
         REQUIRE_NOTHROW(restored.load(original));
@@ -458,7 +459,7 @@ TEST_CASE(
         CHECK(restored.getAssignedIteration() == 7);
         CHECK(restored.getMaxMode() == maxMode::MAXIMIZE);
 
-        GEqualityPrinter gep(
+        GEqualityPrinter const gep(
             "GGenome-load-roundtrip",
             pow(10, -7),
             Gem::Common::CE_WITH_MESSAGES
@@ -469,7 +470,7 @@ TEST_CASE(
     // --- wire round-trip in all three modes ---
     for (auto mode :
          {serializationMode::TEXT, serializationMode::XML, serializationMode::BINARY}) {
-        gind::GTestIndividual1 original = make_original();
+        gind::GTestIndividual1 const original = make_original();
         gind::GTestIndividual1 restored; // defaults
 
         REQUIRE_NOTHROW(
@@ -479,7 +480,7 @@ TEST_CASE(
         CHECK(restored.getAssignedIteration() == 7);
         CHECK(restored.getMaxMode() == maxMode::MAXIMIZE);
 
-        GEqualityPrinter gep(
+        GEqualityPrinter const gep(
             "GGenome-roundtrip",
             pow(10, -7),
             Gem::Common::CE_WITH_MESSAGES
@@ -494,6 +495,7 @@ TEST_CASE(
 // sets several of the about-to-be-tied members to NON-DEFAULT values and verifies they
 // survive a wire round-trip AND an in-memory load() (clone path), guarding against the
 // default-value masking that hides a dropped member.
+// NOLINTNEXTLINE(readability-function-cognitive-complexity) -- one coherent serialization sweep (load() clone path + TEXT/XML/BINARY wire round-trip) for oa::GSwarmAlgorithm's tied members
 TEST_CASE(
     "oa::GSwarmAlgorithm round-trips its members in TEXT, XML, BINARY and via load()",
     "[geneva][serialization]"
@@ -527,7 +529,7 @@ TEST_CASE(
 
     // --- in-memory load() (clone path) ---
     {
-        oa::GSwarmAlgorithm original = makeOriginal();
+        oa::GSwarmAlgorithm const original = makeOriginal();
         oa::GSwarmAlgorithm restored;
         restored.setCPersonal(0.1);
         restored.setNeighborhoodsRandomFillUp(true);
@@ -535,7 +537,7 @@ TEST_CASE(
         REQUIRE_NOTHROW(restored.load(original));
         checkGetters(restored);
 
-        GEqualityPrinter gep(
+        GEqualityPrinter const gep(
             "GSwarmAlgorithm-load-roundtrip",
             pow(10, -7),
             Gem::Common::CE_WITH_MESSAGES
@@ -546,7 +548,7 @@ TEST_CASE(
     // --- wire round-trip in all three modes ---
     for (auto mode :
          {serializationMode::TEXT, serializationMode::XML, serializationMode::BINARY}) {
-        oa::GSwarmAlgorithm original = makeOriginal();
+        oa::GSwarmAlgorithm const original = makeOriginal();
         oa::GSwarmAlgorithm restored;
         restored.setCPersonal(0.1);
         restored.setNeighborhoodsRandomFillUp(true);
@@ -556,7 +558,7 @@ TEST_CASE(
         );
         checkGetters(restored);
 
-        GEqualityPrinter gep(
+        GEqualityPrinter const gep(
             "GSwarmAlgorithm-roundtrip",
             pow(10, -7),
             Gem::Common::CE_WITH_MESSAGES
@@ -592,14 +594,14 @@ TEST_CASE(
 
     // --- in-memory load() (clone path) ---
     {
-        oa::GParameterScan original = makeOriginal();
+        oa::GParameterScan const original = makeOriginal();
         oa::GParameterScan restored;
         restored.setScanRandomly(true);
 
         REQUIRE_NOTHROW(restored.load(original));
         checkGetters(restored);
 
-        GEqualityPrinter gep(
+        GEqualityPrinter const gep(
             "GParameterScan-load-roundtrip",
             pow(10, -7),
             Gem::Common::CE_WITH_MESSAGES
@@ -610,7 +612,7 @@ TEST_CASE(
     // --- wire round-trip in all three modes ---
     for (auto mode :
          {serializationMode::TEXT, serializationMode::XML, serializationMode::BINARY}) {
-        oa::GParameterScan original = makeOriginal();
+        oa::GParameterScan const original = makeOriginal();
         oa::GParameterScan restored;
         restored.setScanRandomly(true);
 
@@ -619,7 +621,7 @@ TEST_CASE(
         );
         checkGetters(restored);
 
-        GEqualityPrinter gep(
+        GEqualityPrinter const gep(
             "GParameterScan-roundtrip",
             pow(10, -7),
             Gem::Common::CE_WITH_MESSAGES

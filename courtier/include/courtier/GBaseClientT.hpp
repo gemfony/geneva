@@ -116,7 +116,7 @@ public:
 	  *
 	  * @return The maximum number of items to process (0 == unlimited)
 	  */
-    std::uint32_t getProcessMax() const {
+    [[nodiscard]] std::uint32_t getProcessMax() const {
         return process_max_;
     }
 
@@ -126,7 +126,7 @@ public:
 	  *
 	  * @return The count of items processed since construction
 	  */
-    std::uint32_t getNProcessed() const {
+    [[nodiscard]] std::uint32_t getNProcessed() const {
         return processed_;
     }
 
@@ -156,7 +156,7 @@ public:
 	  *
 	  * @return true if an unrecoverable error has been flagged
 	  */
-    bool terminalErrorFlagged() const {
+    [[nodiscard]] bool terminalErrorFlagged() const {
         return terminal_error_.load();
     }
 
@@ -166,7 +166,7 @@ public:
 	  *
 	  * @return true if termination has been requested
 	  */
-    bool closeRequested() const {
+    [[nodiscard]] bool closeRequested() const {
         return close_requested_.load();
     }
 

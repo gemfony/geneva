@@ -271,7 +271,7 @@ TEST_CASE("courtier(clone): unresolved slots are refilled from the supplied temp
 
     CHECK(count_processed(batch) == 12); // no slot left unevaluated
     // The throwing slots must hold clones of the TEMPLATE (not of a surviving sibling).
-    for(std::size_t i : faulty) {
+    for(std::size_t const i : faulty) {
         CHECK(batch[i]->get_stored_number() == TEMPLATE_ID);
         CHECK(batch[i]->is_processed());
     }

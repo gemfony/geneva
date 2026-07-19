@@ -233,7 +233,7 @@ private:
 	  *
 	  * @return The string identifier of this class ("parPropSpec<T>")
 	  */
-    std::string name_() const override {
+    [[nodiscard]] std::string name_() const override {
         return std::string{"parPropSpec<T>"};
     }
 
@@ -243,7 +243,7 @@ private:
 	  *
 	  * @return A pointer to a newly allocated, independent copy of this object (caller takes ownership)
 	  */
-    parPropSpec<par_type> *clone_() const override {
+    [[nodiscard]] parPropSpec<par_type> *clone_() const override {
         return new parPropSpec<par_type>(*this);
     }
 };
@@ -329,10 +329,10 @@ public:
 
     /** @brief Retrieves the raw parameter description
      *  @return The raw, unparsed parameter description string held by this object */
-    std::string getRawParameterDescription() const;
+    [[nodiscard]] std::string getRawParameterDescription() const;
     /** @brief Allows to check whether parsing has already taken place
      *  @return true if the raw string has already been parsed, false otherwise */
-    bool isParsed() const;
+    [[nodiscard]] bool isParsed() const;
 
     /** @brief Allows to reset the internal structures and to parse a new parameter string
      *  @param raw The new raw parameter description string that replaces the current one */
@@ -343,7 +343,7 @@ public:
 
     /** @brief Retrieve the number of "simple scan" items
      *  @return The number of items requested for simple (fully random) parameter scans */
-    std::size_t getNSimpleScanItems() const;
+    [[nodiscard]] std::size_t getNSimpleScanItems() const;
 
     /***************************************************************************/
     /**
@@ -366,7 +366,7 @@ public:
 	  * @return A tuple holding the begin and end const_iterators of the matching spec vector
 	  */
     template <typename par_type>
-    std::tuple<
+    [[nodiscard]] [[nodiscard]] [[nodiscard]] [[nodiscard]] std::tuple<
         typename std::vector<parPropSpec<par_type>>::const_iterator,
         typename std::vector<parPropSpec<par_type>>::const_iterator>
     getIterators() const {

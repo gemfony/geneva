@@ -96,7 +96,7 @@ public:
      * @param raw_fitness The raw fitness value to store
      * @param f The function used to derive the transformed fitness from the raw value
      */
-    individual_processing_result(double raw_fitness, std::function<double(double)> f);
+    individual_processing_result(double raw_fitness, const std::function<double(double)>& f);
 
     /**
      * @brief Copy construction
@@ -131,19 +131,19 @@ public:
      * @brief Access to the raw fitness
      * @return The stored raw fitness value
      */
-    double rawFitness() const;
+    [[nodiscard]] double rawFitness() const;
 
     /**
      * @brief Access to the transformed fitness
      * @return The stored transformed fitness value
      */
-    double transformedFitness() const;
+    [[nodiscard]] double transformedFitness() const;
 
     /**
      * @brief Updates the transformed fitness using an external function
      * @param f The function applied to the raw fitness to obtain the transformed fitness
      */
-    void setTransformedFitnessWith(std::function<double(double)> f);
+    void setTransformedFitnessWith(const std::function<double(double)>& f);
 
     /**
      * @brief Sets the transformed fitness to a user-defined value
@@ -158,7 +158,7 @@ public:
      * @brief Checks whether the transformed fitness was set
      * @return true if a transformed fitness value is available, false otherwise
      */
-    bool transformedFitnessSet() const;
+    [[nodiscard]] bool transformedFitnessSet() const;
 
     /**
      * @brief Resets the object and stores a new raw value in the class
@@ -178,7 +178,7 @@ public:
      * @param raw_fitness The new raw fitness value to store
      * @param f The function used to derive the transformed fitness from the raw value
      */
-    void reset(double raw_fitness, std::function<double(double)> f);
+    void reset(double raw_fitness, const std::function<double(double)>& f);
 
 private:
     /***************************************************************************/

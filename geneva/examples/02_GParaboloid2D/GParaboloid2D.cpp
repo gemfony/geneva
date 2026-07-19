@@ -57,7 +57,7 @@ int main(int argc, char **argv) {
     // Add individuals and algorithms and perform the actual optimization cycle
 
     // Make an individual known to the optimizer
-    std::shared_ptr<GParaboloidIndividual2D> p(new GParaboloidIndividual2D());
+    std::shared_ptr<GParaboloidIndividual2D> const p(new GParaboloidIndividual2D());
     go.push_back(p);
 
     // The genome carries only structure; its Gauss adaptors live on an OA-owned config. Register it for
@@ -68,7 +68,7 @@ int main(int argc, char **argv) {
     go & "ea";
 
     // Perform the actual optimization
-    std::shared_ptr<GParaboloidIndividual2D> bestIndividual_ptr =
+    std::shared_ptr<GParaboloidIndividual2D> const bestIndividual_ptr =
         go.optimize()->getBestGlobalIndividual<GParaboloidIndividual2D>();
 
     // Do something with the best result

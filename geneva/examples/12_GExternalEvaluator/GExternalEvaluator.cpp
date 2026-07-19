@@ -57,7 +57,7 @@ int main(int argc, char **argv) {
 
     // Create a factory for GExternalEvaluatorIndividual objects and perform
     // any necessary initial work.
-    std::shared_ptr<gind::GExternalEvaluatorIndividualFactory> geei_ptr(
+    std::shared_ptr<gind::GExternalEvaluatorIndividualFactory> const geei_ptr(
         new gind::GExternalEvaluatorIndividualFactory("./config/GExternalEvaluatorIndividual.json")
     );
 
@@ -83,11 +83,11 @@ int main(int argc, char **argv) {
     go.registerDefaultAlgorithm("ea");
 
     // Perform the actual optimization
-    std::shared_ptr<gind::GExternalEvaluatorIndividual> p =
+    std::shared_ptr<gind::GExternalEvaluatorIndividual> const p =
         go.optimize()->getBestGlobalIndividual<gind::GExternalEvaluatorIndividual>();
 
     // Extract the best individuals found
-    std::vector<std::shared_ptr<gind::GExternalEvaluatorIndividual>> bestInds =
+    std::vector<std::shared_ptr<gind::GExternalEvaluatorIndividual>> const bestInds =
         go.getBestGlobalIndividuals<gind::GExternalEvaluatorIndividual>();
 
     // Note that the "archive" call is specific to the GExternalEvaluatorIndividual (it is now a static

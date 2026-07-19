@@ -474,36 +474,36 @@ public:
      * @brief Emits a name for this architecture.
      * @return The name of this architecture class
      */
-    std::string name() const override { return "GNeuralNetworkArchitecture"; }
+    [[nodiscard]] std::string name() const override { return "GNeuralNetworkArchitecture"; }
     /**
      * @brief The number of floating-point genome entries this architecture expects.
      * @return The total number of weights across all layers
      */
-    std::size_t expectedFPSize() const override { return total_weights_; }
+    [[nodiscard]] std::size_t expectedFPSize() const override { return total_weights_; }
 
     /**
      * @brief The number of layers (input + hidden + output).
      * @return The number of layers
      */
-    std::size_t nLayers() const { return layer_sizes_.size(); }
+    [[nodiscard]] std::size_t nLayers() const { return layer_sizes_.size(); }
     /**
      * @brief The number of nodes in layer l.
      * @param l The layer index (0 = input layer)
      * @return The number of nodes in layer l
      */
-    std::size_t layerSize(std::size_t l) const { return layer_sizes_.at(l); }
+    [[nodiscard]] std::size_t layerSize(std::size_t l) const { return layer_sizes_.at(l); }
     /**
      * @brief The offset of layer l's weights into the flat genome.
      * @param l The layer index (0 = input layer)
      * @return The offset of layer l's first weight within the flat weight genome
      */
-    std::size_t layerOffset(std::size_t l) const { return offsets_.at(l); }
+    [[nodiscard]] std::size_t layerOffset(std::size_t l) const { return offsets_.at(l); }
     /**
      * @brief The number of weights owned by layer l.
      * @param l The layer index (0 = input layer)
      * @return The number of weights belonging to layer l
      */
-    std::size_t weightCount(std::size_t l) const {
+    [[nodiscard]] std::size_t weightCount(std::size_t l) const {
         return (l == 0) ? (2 * layer_sizes_[0]) : (layer_sizes_[l] * (layer_sizes_[l - 1] + 1));
     }
 
@@ -592,7 +592,7 @@ inline std::shared_ptr<networkData> createNetworkData(
     const std::size_t n_input_nodes = architecture.front();
     const std::size_t n_output_nodes = architecture.back();
     for(std::size_t dat_counter = 0; dat_counter < n_data_sets; dat_counter++) {
-        std::shared_ptr<trainingSet> t_s(new trainingSet(n_input_nodes, n_output_nodes));
+        std::shared_ptr<trainingSet> const t_s(new trainingSet(n_input_nodes, n_output_nodes));
         fillSet(gr_l, *n_d, *t_s);
         n_d->addTrainingSet(t_s, dat_counter);
     }
@@ -769,7 +769,7 @@ public:
             [&](Gem::Hap::GRandom &gr_l, networkData &, trainingSet &t_s) {
                 bool outside = false;
                 for(std::size_t i = 0; i < t_s.Input.size(); i++) {
-                    double one_dim_rnd = uniform_real_distribution(
+                    double const one_dim_rnd = uniform_real_distribution(
                         gr_l,
                         std::uniform_real_distribution<double>::param_type(-edgelength, edgelength)
                     );
@@ -802,6 +802,7 @@ public:
 	  * @param radius The desired radius of the sphere
 	  * @return A copy of the networkData struct that has been created, wrapped in a shared_ptr
 	  */
+    // NOLINTNEXTLINE(readability-function-size) -- one coherent numeric kernel: the hypersphere-to-Cartesian coordinate transform (Wikipedia's n-sphere formula), whose dimension-dispatch switch (1D/2D/general nD) is one mathematical derivation; splitting would scatter tightly coupled coordinate math
     static std::shared_ptr<networkData> createHyperSphereNetworkData(
         const std::vector<std::size_t> &architecture,
         const std::size_t &n_data_sets,
@@ -817,7 +818,7 @@ public:
                 const std::size_t n_dim = t_s.Input.size();
 
                 // Declared at first assignment (the former leading `= 1.` initializer was a dead store).
-                double local_radius = uniform_real_distribution(
+                double const local_radius = uniform_real_distribution(
                     gr_l,
                     std::uniform_real_distribution<double>::param_type(0., 3 * radius)
                 );
@@ -833,7 +834,7 @@ public:
                     break;
 
                 case 2: {
-                    double phi = uniform_real_distribution(
+                    double const phi = uniform_real_distribution(
                         gr_l,
                         std::uniform_real_distribution<double>::param_type(0., 2 * std::numbers::pi)
                     );
@@ -852,7 +853,7 @@ public:
                     //////////////////////////////////////////////////////////////////
                     // Create the required random numbers in spherical coordinates.
                     // n_dim will be at least 3 here.
-                    std::size_t n_angles = n_dim - 1;
+                    std::size_t const n_angles = n_dim - 1;
                     std::vector<double> angle_collection(n_angles);
                     for(std::size_t i = 0; i < (n_angles - 1); i++) { // Angles in range [0,Pi[
                         angle_collection[i] = uniform_real_distribution(
@@ -1020,7 +1021,7 @@ public:
         const std::size_t &n_data_sets
     ) {
         // Split the architecture_string as needed. I
-        std::vector<std::size_t> architecture =
+        std::vector<std::size_t> const architecture =
             Gem::Common::splitStringT<std::size_t>(architecture_string, "-");
         std::shared_ptr<networkData> n_d_ptr;
 

@@ -55,6 +55,7 @@ using namespace Gem::Geneva::Benchmarks;
 
 using xyWE = std::tuple<double, double, double, double>; // xy-values with errors
 
+// NOLINTNEXTLINE(readability-function-size) -- single benchmark main: Go2 setup, the benchmark sweep and the resulting plotting all belong to one run
 int main(int argc, char **argv) {
     // Create the algorithm container
     Go2 go(argc, argv, "./config/Go2.json");
@@ -69,10 +70,10 @@ int main(int argc, char **argv) {
     // Server mode, serial or multi-threaded execution
 
     // Load benchmark configuration options
-    GOptimizationBenchmarkConfig gbc("./config/GOptimizationBenchmark.json");
+    GOptimizationBenchmarkConfig const gbc("./config/GOptimizationBenchmark.json");
 
     // Loop over all dimensions and the number of tests in each dimension
-    std::size_t nTests = gbc.getNTests();
+    std::size_t const nTests = gbc.getNTests();
     std::vector<xyWE> resultVec; // Will hold the results for each dimension
     std::vector<xyWE> timingVec; // Will hold the results for each dimension
     std::vector<std::uint32_t> dimVec =
@@ -109,7 +110,7 @@ int main(int argc, char **argv) {
 
             // Build a fresh individual for this dimension, fully configured the way the factory's get_as<>()
             // would be (base options + demo function from the config file), but with the swept par_dim.
-            std::shared_ptr<gind::GFunctionIndividual> g =
+            std::shared_ptr<gind::GFunctionIndividual> const g =
                 gind::GFunctionIndividual::buildConfigured(gfiCfg, "./config/GFunctionIndividual.json");
 
 #ifdef DEBUG
@@ -147,7 +148,7 @@ int main(int argc, char **argv) {
             startTime = std::chrono::system_clock::now();
 
             // Perform the actual optimization and extract the best individual
-            std::shared_ptr<gind::GFunctionIndividual> p =
+            std::shared_ptr<gind::GFunctionIndividual> const p =
                 go_loop.optimize()->getBestGlobalIndividual<gind::GFunctionIndividual>();
 
             endTime = std::chrono::system_clock::now();
@@ -177,8 +178,8 @@ int main(int argc, char **argv) {
                   << " s" << std::endl
                   << std::endl;
 
-        xyWE resultE(double(*it), 0., std::get<0>(resultY), std::get<1>(resultY));
-        xyWE timingE(double(*it), 0., std::get<0>(timing2), std::get<1>(timing2));
+        xyWE const resultE(double(*it), 0., std::get<0>(resultY), std::get<1>(resultY));
+        xyWE const timingE(double(*it), 0., std::get<0>(timing2), std::get<1>(timing2));
 
         resultVec.push_back(resultE);
         timingVec.push_back(timingE);
@@ -187,13 +188,13 @@ int main(int argc, char **argv) {
     //-------------------------------------------------------------------------
     // Create plots from the result vector
 
-    std::shared_ptr<GGraph2ED> timing_ptr(new GGraph2ED());
+    std::shared_ptr<GGraph2ED> const timing_ptr(new GGraph2ED());
     timing_ptr->setPlotMode(graphPlotMode::CURVE);
     timing_ptr->setPlotLabel("Timings of optimization runs [s]");
     timing_ptr->setXAxisLabel("Function Dimension");
     timing_ptr->setYAxisLabel("Seconds consumed");
 
-    std::shared_ptr<GGraph2ED> gopt_ptr(new GGraph2ED());
+    std::shared_ptr<GGraph2ED> const gopt_ptr(new GGraph2ED());
     gopt_ptr->setPlotMode(graphPlotMode::CURVE);
     gopt_ptr->setPlotLabel("Best measurements and errors");
     gopt_ptr->setXAxisLabel("Function Dimension");
@@ -204,7 +205,7 @@ int main(int argc, char **argv) {
     (*gopt_ptr) & resultVec;
 
     // Create the canvas
-    std::string canvasLabel = "Optimization benchmarks for function " + functionName;
+    std::string const canvasLabel = "Optimization benchmarks for function " + functionName;
     GPlotDesigner gpd(canvasLabel, 1, 2);
     gpd.setCanvasDimensions(800, 1200);
 

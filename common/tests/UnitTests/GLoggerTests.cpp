@@ -51,11 +51,11 @@ namespace {
 class CapturingTarget : public GBaseLogTarget {
 public:
     void log(std::string const &msg) const override {
-        std::scoped_lock lk(m_);
+        std::scoped_lock const lk(m_);
         messages.push_back(msg);
     }
     void logWithSource(std::string const &msg, std::string const &src) const override {
-        std::scoped_lock lk(m_);
+        std::scoped_lock const lk(m_);
         messages.push_back("[" + src + "] " + msg);
     }
     mutable std::mutex m_;
@@ -75,14 +75,14 @@ std::filesystem::path scratch(std::string const &tag) {
 // GManipulator
 
 TEST_CASE("GManipulator: stores log type with no accompanying info", "[common][logger]") {
-    GManipulator m(logType::STDOUT);
+    GManipulator const m(logType::STDOUT);
     CHECK(m.getLogType() == logType::STDOUT);
     CHECK_FALSE(m.hasAccompInfo());
     CHECK(m.getAccompInfo().empty());
 }
 
 TEST_CASE("GManipulator: stores accompanying info when provided", "[common][logger]") {
-    GManipulator m("call-site-info", logType::EXCEPTION);
+    GManipulator const m("call-site-info", logType::EXCEPTION);
     CHECK(m.getLogType() == logType::EXCEPTION);
     CHECK(m.hasAccompInfo());
     CHECK(m.getAccompInfo() == "call-site-info");
@@ -93,7 +93,7 @@ TEST_CASE("GManipulator: stores accompanying info when provided", "[common][logg
 
 TEST_CASE("GLogStreamer: default ctor leaves content/extension/log-file empty",
           "[common][logger]") {
-    GLogStreamer s;
+    GLogStreamer const s;
     CHECK(s.content().empty());
     CHECK_FALSE(s.hasExtension());
     CHECK(s.getExtension().empty());
@@ -104,7 +104,7 @@ TEST_CASE("GLogStreamer: extension ctor populates the extension field",
           "[common][logger]") {
     // Explicit std::string disambiguates against the path ctor (the bare
     // string literal would otherwise be a viable conversion to both).
-    GLogStreamer s{std::string{"module-a"}};
+    GLogStreamer const s{std::string{"module-a"}};
     CHECK(s.hasExtension());
     CHECK(s.getExtension() == "module-a");
     CHECK_FALSE(s.hasOneTimeLogFile());
@@ -115,7 +115,7 @@ TEST_CASE("GLogStreamer: filesystem-path ctor populates the one-time log file",
     // Brace-initialise to avoid most-vexing-parse (the temporary path would
     // otherwise be read as a function declaration).
     std::filesystem::path p{"/tmp/foo.log"};
-    GLogStreamer s{p};
+    GLogStreamer const s{p};
     CHECK(s.hasOneTimeLogFile());
     CHECK(s.getOneTimeLogFile() == p);
     CHECK_FALSE(s.hasExtension());
@@ -152,7 +152,7 @@ TEST_CASE("GLogStreamer::reset() drops the accumulated content",
 TEST_CASE("GConsoleLogger::log: callable", "[common][logger]") {
     // log() writes to std::clog. We can't easily intercept that here without
     // redirecting global streams, so we only assert it does not throw.
-    GConsoleLogger l;
+    GConsoleLogger const l;
     CHECK_NOTHROW(l.log("hello\n"));
     CHECK_NOTHROW(l.logWithSource("hello\n", "source-x"));
 }
@@ -162,13 +162,13 @@ TEST_CASE("GFileLogger::log: appends the message to the configured file",
     auto path = scratch("flog_append.log");
     std::filesystem::remove(path);
 
-    GFileLogger l(path);
+    GFileLogger const l(path);
     l.log("first-line\n");
     l.log("second-line\n");
 
     REQUIRE(std::filesystem::exists(path));
     std::ifstream ifs(path);
-    std::string content{std::istreambuf_iterator<char>(ifs), {}};
+    std::string const content{std::istreambuf_iterator<char>(ifs), {}};
     CHECK(content.contains("first-line"));
     CHECK(content.contains("second-line"));
 
@@ -181,12 +181,12 @@ TEST_CASE("GFileLogger::logWithSource: appends the source suffix to the file nam
     auto src_path  = std::filesystem::path(base_path.string() + "_modA");
     std::filesystem::remove(src_path);
 
-    GFileLogger l(base_path);
+    GFileLogger const l(base_path);
     l.logWithSource("payload-a\n", "modA");
     REQUIRE(std::filesystem::exists(src_path));
 
     std::ifstream ifs(src_path);
-    std::string content{std::istreambuf_iterator<char>(ifs), {}};
+    std::string const content{std::istreambuf_iterator<char>(ifs), {}};
     CHECK(content.contains("payload-a"));
 
     std::filesystem::remove(src_path);
@@ -276,13 +276,13 @@ TEST_CASE("GLogger::throwException: throws geneva_exception with the supplied te
 
 TEST_CASE("GLogger macros: each produces a GManipulator of the expected type",
           "[common][logger][macros]") {
-    GManipulator gex   = GEXCEPTION;     CHECK(gex.getLogType()   == logType::EXCEPTION);
-    GManipulator gterm = GTERMINATION;   CHECK(gterm.getLogType() == logType::TERMINATION);
-    GManipulator gwarn = GWARNING;       CHECK(gwarn.getLogType() == logType::WARNING);
-    GManipulator glog  = GLOGGING;       CHECK(glog.getLogType()  == logType::LOGGING);
-    GManipulator gfile = GFILE;          CHECK(gfile.getLogType() == logType::FILE);
-    GManipulator gso   = GSTDOUT;        CHECK(gso.getLogType()   == logType::STDOUT);
-    GManipulator gse   = GSTDERR;        CHECK(gse.getLogType()   == logType::STDERR);
+    GManipulator const gex   = GEXCEPTION;     CHECK(gex.getLogType()   == logType::EXCEPTION);
+    GManipulator const gterm = GTERMINATION;   CHECK(gterm.getLogType() == logType::TERMINATION);
+    GManipulator const gwarn = GWARNING;       CHECK(gwarn.getLogType() == logType::WARNING);
+    GManipulator const glog  = GLOGGING;       CHECK(glog.getLogType()  == logType::LOGGING);
+    GManipulator const gfile = GFILE;          CHECK(gfile.getLogType() == logType::FILE);
+    GManipulator const gso   = GSTDOUT;        CHECK(gso.getLogType()   == logType::STDOUT);
+    GManipulator const gse   = GSTDERR;        CHECK(gse.getLogType()   == logType::STDERR);
 
     // Macros that include a location string should populate accomp info.
     CHECK(gex.hasAccompInfo());
@@ -351,7 +351,7 @@ TEST_CASE("GLogStreamer << GFILE with a path writes to that file",
     REQUIRE(std::filesystem::exists(path));
 
     std::ifstream ifs(path);
-    std::string content{std::istreambuf_iterator<char>(ifs), {}};
+    std::string const content{std::istreambuf_iterator<char>(ifs), {}};
     CHECK(content.contains("one-time-payload"));
 
     std::filesystem::remove(path);
@@ -402,13 +402,13 @@ TEST_CASE("GFileLogger::logWithSource: header line appears on first write only",
     auto src_path  = std::filesystem::path(base_path.string() + "_chk");
     std::filesystem::remove(src_path);
 
-    GFileLogger l(base_path);
+    GFileLogger const l(base_path);
     l.logWithSource("msg1\n", "chk");
     l.logWithSource("msg2\n", "chk");
 
     REQUIRE(std::filesystem::exists(src_path));
     std::ifstream ifs(src_path);
-    std::string content{std::istreambuf_iterator<char>(ifs), {}};
+    std::string const content{std::istreambuf_iterator<char>(ifs), {}};
 
     // The header "Logging data from source" must appear exactly once.
     auto first_pos = content.find("Logging data from source");

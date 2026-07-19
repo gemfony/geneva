@@ -84,14 +84,14 @@ public:
      *  @param cap Maximum entries held per face; 0 disables the parked (FIFO) face's retention.
      *  @param ttl_rounds An entry is evicted this many epoch advances after it was stored. */
     void configure(std::size_t cap, std::uint64_t ttl_rounds) {
-        std::scoped_lock lk(mtx_);
+        std::scoped_lock const lk(mtx_);
         cap_ = cap;
         ttl_rounds_ = ttl_rounds;
     }
 
     /** @brief @return true iff retention is enabled (cap > 0). */
     [[nodiscard]] bool buffering() const {
-        std::scoped_lock lk(mtx_);
+        std::scoped_lock const lk(mtx_);
         return cap_ > 0;
     }
 
@@ -100,14 +100,14 @@ public:
     /** @brief Retains @p v under @p k, stamped with the current epoch (overwrites any existing entry).
      *  @param k The key. @param v The value to retain (moved in). */
     void retain(const Key &k, Value v) {
-        std::scoped_lock lk(mtx_);
+        std::scoped_lock const lk(mtx_);
         retained_.insert_or_assign(k, std::make_pair(epoch_, std::move(v)));
     }
 
     /** @brief Atomically removes and returns the value retained under @p k, if any.
      *  @param k The key. @return The value (moved out) if present, else std::nullopt. */
     std::optional<Value> takeRetained(const Key &k) {
-        std::scoped_lock lk(mtx_);
+        std::scoped_lock const lk(mtx_);
         auto it = retained_.find(k);
         if(it == retained_.end()) {
             return std::nullopt;
@@ -120,13 +120,13 @@ public:
     /** @brief Drops the entry retained under @p k, if present.
      *  @param k The key. */
     void dropRetained(const Key &k) {
-        std::scoped_lock lk(mtx_);
+        std::scoped_lock const lk(mtx_);
         retained_.erase(k);
     }
 
     /** @brief @return The number of entries currently retained in the keyed face. */
     [[nodiscard]] std::size_t retainedSize() const {
-        std::scoped_lock lk(mtx_);
+        std::scoped_lock const lk(mtx_);
         return retained_.size();
     }
 
@@ -137,7 +137,7 @@ public:
      *  @param v The value to park (moved in).
      *  @return The number of parked entries evicted by this call's bound enforcement. */
     std::uint64_t park(Value v) {
-        std::scoped_lock lk(mtx_);
+        std::scoped_lock const lk(mtx_);
         parked_.emplace_back(epoch_, std::move(v));
         return evictParked_locked();
     }
@@ -146,7 +146,7 @@ public:
      *  arrival (FIFO) order; the face is left empty.
      *  @return The parked values in arrival order. */
     std::vector<Value> drainParked() {
-        std::scoped_lock lk(mtx_);
+        std::scoped_lock const lk(mtx_);
         std::vector<Value> out;
         out.reserve(parked_.size());
         for(auto &entry : parked_) {
@@ -158,7 +158,7 @@ public:
 
     /** @brief @return The number of values currently parked in the FIFO face. */
     [[nodiscard]] std::size_t parkedSize() const {
-        std::scoped_lock lk(mtx_);
+        std::scoped_lock const lk(mtx_);
         return parked_.size();
     }
 
@@ -168,7 +168,7 @@ public:
      *  @return The number of @e parked (FIFO) entries evicted (keyed-face evictions are not counted --
      *          retiring a retained original is not a loss until a late return actually needs it). */
     std::uint64_t advanceEpochAndEvict() {
-        std::scoped_lock lk(mtx_);
+        std::scoped_lock const lk(mtx_);
         ++epoch_;
         const std::uint64_t evicted = evictParked_locked();
         evictRetained_locked();
@@ -177,7 +177,7 @@ public:
 
     /** @brief @return The current epoch value (primarily for tests/diagnostics). */
     [[nodiscard]] std::uint64_t epoch() const {
-        std::scoped_lock lk(mtx_);
+        std::scoped_lock const lk(mtx_);
         return epoch_;
     }
 

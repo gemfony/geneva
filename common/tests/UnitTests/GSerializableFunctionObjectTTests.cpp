@@ -52,7 +52,7 @@ public:
     Doubler() = default;
     explicit Doubler(int marker) : marker_(marker) {}
 
-    int marker() const { return marker_; }
+    [[nodiscard]] int marker() const { return marker_; }
 
 protected:
     bool process_(Item &p) override {
@@ -61,7 +61,7 @@ protected:
     }
 
 private:
-    Doubler *clone_() const override { return new Doubler(*this); }
+    [[nodiscard]] Doubler *clone_() const override { return new Doubler(*this); }
 
     int marker_{0};
 };
@@ -73,7 +73,7 @@ protected:
     bool process_([[maybe_unused]] Item & p) override { return false; }
 
 private:
-    AlwaysFail *clone_() const override { return new AlwaysFail(*this); }
+    [[nodiscard]] AlwaysFail *clone_() const override { return new AlwaysFail(*this); }
 };
 
 } // namespace
@@ -114,8 +114,8 @@ TEST_CASE("GSerializableFunctionObjectT::clone: returns a fresh derived instance
 
 TEST_CASE("GSerializableFunctionObjectT::compare: equal objects + EQUALITY passes",
           "[common][serializable-fobj]") {
-    Doubler a;
-    Doubler b;
+    Doubler const a;
+    Doubler const b;
     CHECK_NOTHROW(a.compare(b, expectation::EQUALITY, 0.));
 }
 
@@ -123,8 +123,8 @@ TEST_CASE("GSerializableFunctionObjectT::compare: equal objects + INEQUALITY vio
           "[common][serializable-fobj]") {
     // The base "has no local data" branch documents that INEQUALITY can
     // never be met between two empty function objects of the same type.
-    Doubler a;
-    Doubler b;
+    Doubler const a;
+    Doubler const b;
     CHECK_THROWS_AS(a.compare(b, expectation::INEQUALITY, 0.), g_expectation_violation);
 }
 
@@ -133,7 +133,7 @@ TEST_CASE("GSerializableFunctionObjectT::compare: equal objects + INEQUALITY vio
 
 TEST_CASE("GSerializableFunctionObjectT::name: non-empty",
           "[common][serializable-fobj]") {
-    Doubler d;
+    Doubler const d;
     CHECK_FALSE(d.name().empty());
 }
 

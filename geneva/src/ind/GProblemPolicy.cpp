@@ -69,7 +69,7 @@ GProblemPolicy &GProblemPolicy::operator=(GProblemPolicy const &cp) {
  * @param c_ptr The validity-check constraint to register (must not be empty)
  */
 void GProblemPolicy::registerConstraint(
-    std::shared_ptr<GPreEvaluationValidityCheckT<GOptimizableEntity>> c_ptr
+    const std::shared_ptr<GPreEvaluationValidityCheckT<GOptimizableEntity>>& c_ptr
 ) {
     if(not c_ptr) {
         throw geneva_exception(

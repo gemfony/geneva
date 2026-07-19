@@ -73,7 +73,7 @@ public:
     /** @brief (Re-)arms the latch to wait for @p n completions. Call only when no count_down/wait of a
      *  previous round is still in flight. @param n The number of completions to await. */
     void arm(std::size_t n) {
-        std::scoped_lock lk(m_);
+        std::scoped_lock const lk(m_);
         remaining_.store(n, std::memory_order_relaxed);
     }
 
@@ -81,7 +81,7 @@ public:
      *  with n). @return true iff this call brought the count to zero (i.e. it was the last completion). */
     bool count_down() {
         if(remaining_.fetch_sub(1) == 1) { // this was the last outstanding completion
-            std::scoped_lock lk(m_);
+            std::scoped_lock const lk(m_);
             cv_.notify_all();
             return true;
         }

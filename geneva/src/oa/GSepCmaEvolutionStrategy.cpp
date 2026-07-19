@@ -297,7 +297,7 @@ void GSepCmaEvolutionStrategy::setUpStrategyParameters() {
     double w_sum = 0.;
     double w_sq_sum = 0.;
     for(std::size_t i = 0; i < mu_; ++i) {
-        double w = std::log(static_cast<double>(mu_) + 0.5) - std::log(static_cast<double>(i + 1));
+        double const w = std::log(static_cast<double>(mu_) + 0.5) - std::log(static_cast<double>(i + 1));
         weights_[i] = w;
         w_sum += w;
     }
@@ -305,7 +305,7 @@ void GSepCmaEvolutionStrategy::setUpStrategyParameters() {
     for(double &w : weights_) {
         w /= w_sum;
     }
-    for(double w : weights_) {
+    for(double const w : weights_) {
         w_sq_sum += w * w;
     }
     // Variance-effective selection mass mu_eff = 1 / sum(w_i^2) .
@@ -322,8 +322,8 @@ void GSepCmaEvolutionStrategy::setUpStrategyParameters() {
     // c_c ~ 4/n -- O(1/n) cumulation rate for the rank-1 path.
     c_c_ = 4. / (n + 4.);
     // Full-CMA learning rates ...
-    double c_1_full = 2. / ((n + 1.3) * (n + 1.3) + mu_eff_);
-    double c_mu_full =
+    double const c_1_full = 2. / ((n + 1.3) * (n + 1.3) + mu_eff_);
+    double const c_mu_full =
         (std::min)(1. - c_1_full,
                    2. * (mu_eff_ - 2. + 1. / mu_eff_) / ((n + 2.) * (n + 2.) + mu_eff_));
     // ... scaled up by the sep-CMA factor (n+2)/3 (Ros & Hansen 2008). This makes the diagonal model
@@ -511,8 +511,8 @@ std::vector<std::size_t> GSepCmaEvolutionStrategy::rankPopulation() const {
 
     const bool maximize = (this->at(0)->getMaxMode() == maxMode::MAXIMIZE);
     std::stable_sort(idx.begin(), idx.end(), [this, maximize](std::size_t a, std::size_t b) -> bool {
-        double fa = this->at(a)->transformed_fitness();
-        double fb = this->at(b)->transformed_fitness();
+        double const fa = this->at(a)->transformed_fitness();
+        double const fb = this->at(b)->transformed_fitness();
         return maximize ? (fa > fb) : (fa < fb);
     });
 
@@ -539,6 +539,7 @@ std::vector<std::size_t> GSepCmaEvolutionStrategy::rankPopulationPareto() const 
 /**
  * Performs the mean / sigma / C / path updates from the ranked offspring.
  */
+// NOLINTNEXTLINE(readability-function-size) -- single coherent numeric kernel: the textbook (sep-)CMA-ES update sequence (weighted-mean recombination -> CSA evolution path -> rank-1 path with h_sigma stall guard -> step-size update -> diagonal covariance update), each phase consuming the previous phase's output (m_new, y_w, sigma_old, ...); splitting would scatter one tightly sequential algorithm
 void GSepCmaEvolutionStrategy::updateDistribution(const std::vector<std::size_t> &ranked) {
     const std::size_t mu = (std::min)(mu_, ranked.size());
     if(mu == 0) {
@@ -559,7 +560,7 @@ void GSepCmaEvolutionStrategy::updateDistribution(const std::vector<std::size_t>
 
     std::vector<double> m_new(n_, 0.);
     for(std::size_t i = 0; i < mu; ++i) {
-        double w = weights_[i] / w_used; // re-normalize in case mu was truncated
+        double const w = weights_[i] / w_used; // re-normalize in case mu was truncated
         for(std::size_t j = 0; j < n_; ++j) {
             m_new[j] += w * selected[i][j];
         }
@@ -586,10 +587,10 @@ void GSepCmaEvolutionStrategy::updateDistribution(const std::vector<std::size_t>
     // --- rank-1 path p_c, with the h_sigma stalling switch ----------------------
     // h_sigma guards the rank-1 update against an over-long step early on.
     const std::uint32_t gen = this->getIteration() + 1;
-    double hsig_threshold =
+    double const hsig_threshold =
         (1.4 + 2. / (static_cast<double>(n_) + 1.)) * chi_n_ *
         std::sqrt(1. - std::pow(1. - c_sigma_, 2. * static_cast<double>(gen)));
-    bool h_sigma = ps_norm < hsig_threshold;
+    bool const h_sigma = ps_norm < hsig_threshold;
 
     const double pc_factor = std::sqrt(c_c_ * (2. - c_c_) * mu_eff_);
     for(std::size_t j = 0; j < n_; ++j) {
@@ -606,12 +607,12 @@ void GSepCmaEvolutionStrategy::updateDistribution(const std::vector<std::size_t>
     // --- diagonal covariance update (rank-1 + rank-mu) --------------------------
     if(use_diagonal_cma_) {
         // Loss-of-variance compensation when h_sigma == 0.
-        double delta_hsig = (1. - (h_sigma ? 1. : 0.)) * c_c_ * (2. - c_c_);
+        double const delta_hsig = (1. - (h_sigma ? 1. : 0.)) * c_c_ * (2. - c_c_);
         for(std::size_t j = 0; j < n_; ++j) {
             double rank_mu = 0.;
             for(std::size_t i = 0; i < mu; ++i) {
-                double w = weights_[i] / w_used;
-                double yj = (selected[i][j] - m_old[j]) / sigma_old;
+                double const w = weights_[i] / w_used;
+                double const yj = (selected[i][j] - m_old[j]) / sigma_old;
                 rank_mu += w * yj * yj;
             }
             C_[j] = ((1. - c_1_ - c_mu_) * C_[j]) +
@@ -643,7 +644,7 @@ std::tuple<double, double> GSepCmaEvolutionStrategy::cycleLogic_() {
 
     if(this->empty()) {
         // All items got dropped (errors / incomplete); report a worst-case value.
-        double wc = std::numeric_limits<double>::max();
+        double const wc = std::numeric_limits<double>::max();
         return std::make_tuple(wc, wc);
     }
 
@@ -701,12 +702,13 @@ bool GSepCmaEvolutionStrategy::modify_GUnitTests_() {
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes.
  */
+// NOLINTNEXTLINE(readability-function-size,readability-function-cognitive-complexity) -- self-test entry point for GSepCmaEvolutionStrategy: a sequence of independent, self-scoped CHECK blocks, one per sep-CMA strategy-parameter scenario; same one-function-per-test-phase convention used identically across every OA self-test in this codebase
 void GSepCmaEvolutionStrategy::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
     GOptimizationAlgorithmT<GSepCmaEvolutionStrategy>::specificTestsNoFailureExpected_GUnitTests_();
 
     { // Test setting and retrieval of basic strategy parameters
-        std::shared_ptr<GSepCmaEvolutionStrategy> p_test = this->clone<GSepCmaEvolutionStrategy>();
+        std::shared_ptr<GSepCmaEvolutionStrategy> const p_test = this->clone<GSepCmaEvolutionStrategy>();
 
         CHECK_NOTHROW(p_test->setLambda(20));
         CHECK(p_test->getLambda() == 20);
@@ -725,7 +727,7 @@ void GSepCmaEvolutionStrategy::specificTestsNoFailureExpected_GUnitTests_() {
     }
 
     { // Setting an invalid initial sigma must throw
-        std::shared_ptr<GSepCmaEvolutionStrategy> p_test = this->clone<GSepCmaEvolutionStrategy>();
+        std::shared_ptr<GSepCmaEvolutionStrategy> const p_test = this->clone<GSepCmaEvolutionStrategy>();
         CHECK_THROWS(p_test->setInitialSigma(-1.));
     }
 #else  /* GEM_TESTING */

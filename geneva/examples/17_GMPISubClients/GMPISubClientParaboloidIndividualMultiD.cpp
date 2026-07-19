@@ -149,7 +149,7 @@ std::vector<double> GMPISubClientParaboloidIndividualMultiD::evaluate() {
     std::optional<std::vector<double>> recvVecOpt{parVec};
 
     // distributed calculation of squares of individual parameters together with sub-clients
-    MPICompletionStatus status = distributedSolveWhile(
+    MPICompletionStatus const status = distributedSolveWhile(
         parVec,
         recvVecOpt,
         nParameters_ / size,
@@ -185,7 +185,7 @@ int GMPISubClientParaboloidIndividualMultiD::subClientJob(MPI_Comm _communicator
     std::optional<std::vector<double>> dummyRecvVec{};
 
     while(true) {
-        MPICompletionStatus status =
+        MPICompletionStatus const status =
             distributedSolveWhile({}, dummyRecvVec, nParameters_ / size, []() {
                 return GMPISubClientIndividual::getClientStatus() == ClientStatus::RUNNING;
             });

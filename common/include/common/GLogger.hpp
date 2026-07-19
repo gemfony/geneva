@@ -282,9 +282,9 @@ public:
 		 *
 		 * @param gblt A shared pointer to the log target to be used as the default (must not be empty)
 		 */
-    void setDefaultLogTarget(std::shared_ptr<GBaseLogTarget> gblt) {
+    void setDefaultLogTarget(const std::shared_ptr<GBaseLogTarget>& gblt) {
         // Serialise with concurrent log() / addLogTarget() etc.
-        std::scoped_lock lk(logger_mutex_);
+        std::scoped_lock const lk(logger_mutex_);
 
         if(gblt) {
             default_logger_ = gblt;
@@ -306,9 +306,9 @@ public:
 		 *
 		 * @param gblt A shared pointer to the log target to be added (must not be empty)
 		 */
-    void addLogTarget(std::shared_ptr<GBaseLogTarget> gblt) {
+    void addLogTarget(const std::shared_ptr<GBaseLogTarget>& gblt) {
         // Serialise with concurrent log() / log_cnt_ readers.
-        std::scoped_lock lk(logger_mutex_);
+        std::scoped_lock const lk(logger_mutex_);
 
         if(gblt) {
             log_cnt_.push_back(gblt);
@@ -331,7 +331,7 @@ public:
     bool hasLogTargets() const {
         // Read of log_cnt_ must be ordered against concurrent addLogTarget /
         // resetLogTargets writers. logger_mutex_ is mutable.
-        std::scoped_lock lk(logger_mutex_);
+        std::scoped_lock const lk(logger_mutex_);
         return not log_cnt_.empty();
     }
 
@@ -341,7 +341,7 @@ public:
 		 */
     void resetLogTargets() {
         // Serialise with concurrent log() / addLogTarget().
-        std::scoped_lock lk(logger_mutex_);
+        std::scoped_lock const lk(logger_mutex_);
         log_cnt_.clear();
     }
 
@@ -358,7 +358,7 @@ public:
 		 */
     void log(std::string const &message) const {
         // Make sure only one entity outputs data
-        std::scoped_lock lk(logger_mutex_);
+        std::scoped_lock const lk(logger_mutex_);
 
         if(not log_cnt_.empty()) {
             // Do the actual logging
@@ -394,7 +394,7 @@ public:
 		 */
     void logWithSource(std::string const &message, std::string const &extension) const {
         // Make sure only one entity outputs data
-        std::scoped_lock lk(logger_mutex_);
+        std::scoped_lock const lk(logger_mutex_);
 
         if(not log_cnt_.empty()) {
             // Do the actual logging
@@ -446,7 +446,7 @@ public:
 		 */
     void terminateApplication(std::string const &error) {
         {
-            std::scoped_lock lk(logger_mutex_);
+            std::scoped_lock const lk(logger_mutex_);
             std::cerr << error;
         }
         std::terminate();
@@ -466,7 +466,7 @@ public:
 			 */
     void exitApplication(std::string const &message, int return_code) {
         {
-            std::scoped_lock lk(logger_mutex_);
+            std::scoped_lock const lk(logger_mutex_);
             std::cerr << message << std::flush;
         }
         // NOLINTNEXTLINE(concurrency-mt-unsafe) -- deliberate: terminating the process is this function's purpose
@@ -484,7 +484,7 @@ public:
 		 */
     void toStdOut(std::string const &message) {
         // Make sure only one entity outputs data
-        std::scoped_lock lk(logger_mutex_);
+        std::scoped_lock const lk(logger_mutex_);
 
         // Flush: std::cout is buffered and may otherwise lose output on an
         // abnormal exit.
@@ -501,7 +501,7 @@ public:
 		 */
     void toStdErr(std::string const &message) {
         // Make sure only one entity outputs data
-        std::scoped_lock lk(logger_mutex_);
+        std::scoped_lock const lk(logger_mutex_);
 
         std::cerr << message;
     }
@@ -566,25 +566,25 @@ public:
      *
      * @return The logging type stored in this manipulator
      */
-    logType getLogType() const;
+    [[nodiscard]] logType getLogType() const;
     /**
      * @brief Retrieves stored accompanying information (if any)
      *
      * @return The accompanying information string (empty if none was stored)
      */
-    std::string getAccompInfo() const;
+    [[nodiscard]] std::string getAccompInfo() const;
     /**
      * @brief Checks whether any accompanying information is available
      *
      * @return true if accompanying information was stored, false otherwise
      */
-    bool hasAccompInfo() const;
+    [[nodiscard]] bool hasAccompInfo() const;
     /**
      * @brief Retrieves the stored process return code (meaningful for logType::EXIT)
      *
      * @return The stored process return code
      */
-    int getReturnCode() const;
+    [[nodiscard]] int getReturnCode() const;
 
 private:
     std::string accomp_info_; ///< Holds accompanying information
@@ -732,7 +732,7 @@ private:
 	  */
     static std::string currentTimeAsString() {
         std::ostringstream oss; // NOLINT(cppcoreguidelines-init-variables)
-        std::time_t now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+        std::time_t const now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
         struct tm time_info{};
 
 #if defined(_MSC_VER) && (_MSC_VER >= 1020)

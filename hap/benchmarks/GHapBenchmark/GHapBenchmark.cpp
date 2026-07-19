@@ -106,7 +106,7 @@ double sustained(unsigned nProxies, std::uint64_t total, Mode mode, double &wall
         });
     }
     for(auto &t : ts) t.join();
-    double secs = std::chrono::duration<double>(clk::now() - t0).count();
+    double const secs = std::chrono::duration<double>(clk::now() - t0).count();
     wall_ms = secs * 1000.0;
     return static_cast<double>(per * nProxies) / secs;
 }
@@ -132,7 +132,7 @@ LatResult burst_latency(unsigned nProxies, std::uint64_t perProxy) {
             gate.arrive_and_wait();
             for(std::uint64_t k = 0; k < perProxy; ++k) {
                 auto a = clk::now();
-                volatile std::uint64_t x = gr();
+                volatile std::uint64_t const x = gr();
                 auto b = clk::now();
                 (void)x;
                 v.push_back(std::chrono::duration_cast<std::chrono::nanoseconds>(b - a).count());
@@ -142,7 +142,7 @@ LatResult burst_latency(unsigned nProxies, std::uint64_t perProxy) {
     gate.arrive_and_wait();
     auto t0 = clk::now();
     for(auto &t : ts) t.join();
-    double secs = std::chrono::duration<double>(clk::now() - t0).count();
+    double const secs = std::chrono::duration<double>(clk::now() - t0).count();
 
     std::vector<long long> all;
     all.reserve(static_cast<std::size_t>(nProxies) * perProxy);
@@ -162,6 +162,7 @@ LatResult burst_latency(unsigned nProxies, std::uint64_t perProxy) {
 
 } // namespace
 
+// NOLINTNEXTLINE(readability-function-size) -- main() of a benchmark program: CLI parsing followed by the sustained-throughput sweep and the burst-latency measurement, printed as one TSV report
 int main(int argc, char **argv) {
     std::setvbuf(stdout, nullptr, _IONBF, 0);
 
@@ -169,7 +170,7 @@ int main(int argc, char **argv) {
     unsigned proxies_override = 0, producers = 0;
     std::uint64_t total_override = 0;
     for(int i = 1; i < argc; ++i) {
-        std::string a = argv[i];
+        std::string const a = argv[i];
         if(a == "--quick") quick = true;
         else if(a == "--proxies" && i + 1 < argc) proxies_override = static_cast<unsigned>(std::stoul(argv[++i]));
         else if(a == "--producers" && i + 1 < argc) producers = static_cast<unsigned>(std::stoul(argv[++i]));
@@ -193,16 +194,16 @@ int main(int argc, char **argv) {
     const unsigned *counts = quick ? counts_quick : counts_full;
     const int n_counts = quick ? 2 : 3;
 
-    for(Mode m : modes) {
+    for(Mode const m : modes) {
         // Distributions cost several raw draws each; scale the work down so every
         // scenario takes a comparable wall time.
         std::uint64_t mode_total = total;
         if(m == Mode::Uniform) mode_total = total / 4;
         else if(m == Mode::Normal || m == Mode::BiNormal) mode_total = total / 8;
         for(int c = 0; c < n_counts; ++c) {
-            unsigned np = proxies_override ? proxies_override : counts[c];
+            unsigned const np = proxies_override ? proxies_override : counts[c];
             double wall = 0.;
-            double tput = sustained(np, mode_total, m, wall);
+            double const tput = sustained(np, mode_total, m, wall);
             std::printf(
                 "S\t%-12s\t%u\t%16.2f\t%8.1f\n", mode_name(m), np, tput / 1e6, wall
             );
@@ -214,7 +215,7 @@ int main(int argc, char **argv) {
     std::printf("\n");
     const unsigned burst_proxies = proxies_override ? proxies_override : (quick ? 16 : 64);
     const std::uint64_t per = quick ? 50'000ULL : 200'000ULL;
-    LatResult lr = burst_latency(burst_proxies, per);
+    LatResult const lr = burst_latency(burst_proxies, per);
     std::printf(
         "burst: %u proxies x %llu raw draws | %.2f Mnum/s | p50=%lld ns  p99=%lld ns  p999=%lld ns\n",
         burst_proxies, static_cast<unsigned long long>(per), lr.throughput / 1e6, lr.p50, lr.p99, lr.p999

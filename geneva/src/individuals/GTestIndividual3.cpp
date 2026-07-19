@@ -254,6 +254,7 @@ bool GTestIndividual3::modify_GUnitTests_() {
 /**
  * @brief Performs self tests that are expected to succeed. This is needed for testing purposes
  */
+// NOLINTNEXTLINE(readability-function-size) -- self-test entry point for GTestIndividual3: a sequence of independent, self-scoped CHECK blocks, one per plain-data-extraction scenario; same one-function-per-test-phase convention used identically across every individual/OA self-test in this codebase
 void GTestIndividual3::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
     using namespace Gem::Geneva;

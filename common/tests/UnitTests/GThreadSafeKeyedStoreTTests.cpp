@@ -143,6 +143,7 @@ TEST_CASE("GThreadSafeKeyedStoreT: clear empties the store", "[common][keyed-sto
 // ---------------------------------------------------------------------------
 // Concurrency: many writers + many readers stay consistent.
 
+// NOLINTNEXTLINE(readability-function-size) -- one coherent concurrency stress-test kernel (spawns writer/reader threads sharing atomics + the store under test, joins, then asserts); splitting would only scatter the tightly-coupled thread lambdas
 TEST_CASE("GThreadSafeKeyedStoreT: concurrent set/get/snapshot remains consistent",
           "[common][keyed-store][concurrency]") {
     Store s;
@@ -172,7 +173,7 @@ TEST_CASE("GThreadSafeKeyedStoreT: concurrent set/get/snapshot remains consisten
                 std::this_thread::yield();
             }
             for(int i = 0; i < kReadPasses; ++i) {
-                for(int v : s.values()) {
+                for(int const v : s.values()) {
                     if(v < 0 || v >= kMaxValue) {
                         ++out_of_range;
                     }

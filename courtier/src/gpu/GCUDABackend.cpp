@@ -87,7 +87,7 @@ void nvrtcCheck(nvrtcResult r, const char *what, const std::string &log = {}) {
  * @return The full contents of the file as a string
  */
 std::string readFile(const std::string &path) {
-    std::ifstream in(path, std::ios::binary);
+    std::ifstream const in(path, std::ios::binary);
     if(not in) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
@@ -244,7 +244,7 @@ void GCUDABackend<scalar_type>::initialize(const KernelSpec &spec) {
         nvrtcProgram prog = nullptr;
         nvrtcCheck(nvrtcCreateProgram(&prog, src.c_str(), path.c_str(), 0, nullptr, nullptr),
                    "nvrtcCreateProgram");
-        const char *opts[] = {arch.c_str(), "--std=c++17"};
+        const char *const opts[] = {arch.c_str(), "--std=c++17"};
         const nvrtcResult cr = nvrtcCompileProgram(prog, 2, opts);
         std::size_t logSize = 0;
         nvrtcGetProgramLogSize(prog, &logSize);

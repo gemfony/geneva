@@ -740,6 +740,7 @@ std::tuple<double, double> GSwarmAlgorithm::cycleLogic_() {
  * neighborhoods after partial returns). It was introduced to avoid adding a separate cycleLogic to
  * GSwarmAlgorithm.
  */
+// NOLINTNEXTLINE(readability-function-size) -- single coherent per-iteration repair pass over the neighborhood topology (surplus-trim / after-first-iteration backfill / first-iteration random backfill are mutually exclusive per-neighborhood branches sharing the sequentially-recomputed first_ni_pos), bookended by DEBUG invariant checks
 void GSwarmAlgorithm::adjustNeighborhoods() {
     std::size_t first_ni_pos = 0; // Will hold the expected first position of a neighborhood
 
@@ -775,7 +776,7 @@ void GSwarmAlgorithm::adjustNeighborhoods() {
         if(n_neighborhood_members_cnt_[n] >
                 default_n_neighborhood_members_) { // Remove surplus items from the end of the neighborhood
             // Find out, how many surplus items there are
-            std::size_t n_surplus =
+            std::size_t const n_surplus =
                 n_neighborhood_members_cnt_[n] -
                 default_n_neighborhood_members_; // NOLINT(cppcoreguidelines-init-variables)
 
@@ -793,7 +794,7 @@ void GSwarmAlgorithm::adjustNeighborhoods() {
             // were already repaired to the default size, first_ni_pos == n * default_n_neighborhood_members_,
             // which aligns with neighborhood n in the (full, default-sized) last-iteration snapshot, so
             // the [first_ni_pos + i] reads are correctly aligned and in bounds (i < n_missing <= default).
-            std::size_t n_missing =
+            std::size_t const n_missing =
                 default_n_neighborhood_members_ -
                 n_neighborhood_members_cnt_[n]; // NOLINT(cppcoreguidelines-init-variables)
 
@@ -888,6 +889,7 @@ bool GSwarmAlgorithm::neighborhoodsHaveNominalValues() const {
  * as individuals have not generally been evaluated then, and we do not want to fill
  * up with "dirty" individuals.
  */
+// NOLINTNEXTLINE(readability-function-size) -- single coherent per-iteration position-update driver (lazily seed missing per-slot velocity blocks, snapshot the previous iteration, then dispatch updateIndividualPositions() per neighborhood member), interleaved with the DEBUG invariant checks that guard each state read before use
 void GSwarmAlgorithm::updatePositions() {
     std::size_t neighborhood_offset = 0;
     auto start = this->begin();
@@ -901,7 +903,7 @@ void GSwarmAlgorithm::updatePositions() {
             slot->scratch().installAuxBlock<double>(
                 AUXKEY_SWARM_VELOCITY, n_fp_parms_, gen::AuxScope::PerIndividual
             );
-            std::span<double> vel = slot->scratch().metaRecords<double>(AUXKEY_SWARM_VELOCITY);
+            std::span<double> const vel = slot->scratch().metaRecords<double>(AUXKEY_SWARM_VELOCITY);
             for(std::size_t i = 0; i < n_fp_parms_; i++) {
                 vel[i] = GOptimizationAlgorithmBase::uniform_real_distribution_(
                     gr_,
@@ -1034,19 +1036,20 @@ void GSwarmAlgorithm::updatePositions() {
  * @param global_best The globally best individual so far
  * @param constants A std::tuple holding the c_personal, c_neighborhood, c_global and c_velocity constants needed for the position update
  */
+// NOLINTNEXTLINE(readability-function-size) -- single coherent numeric kernel: the classic PSO velocity/position update (personal/neighborhood/global attraction terms scaled by the update-rule switch, velocity scaling, pruning, then the repulsion/attraction position step), all operating on the same extracted vectors
 void GSwarmAlgorithm::updateIndividualPositions(
     [[maybe_unused]] const std::size_t & neighborhood
     ,
     const std::unique_ptr<gen::GOptimizableEntity> &ind,
-    std::shared_ptr<gen::GOptimizableEntity> neighborhood_best,
-    std::shared_ptr<gen::GOptimizableEntity> global_best,
+    const std::shared_ptr<gen::GOptimizableEntity>& neighborhood_best,
+    const std::shared_ptr<gen::GOptimizableEntity>& global_best,
     std::tuple<double, double, double, double> constants
 ) {
     // Extract the constants from the tuple
-    double c_personal = std::get<0>(constants);
-    double c_neighborhood = std::get<1>(constants);
-    double c_global = std::get<2>(constants);
-    double c_velocity = std::get<3>(constants);
+    double const c_personal = std::get<0>(constants);
+    double const c_neighborhood = std::get<1>(constants);
+    double const c_global = std::get<2>(constants);
+    double const c_velocity = std::get<3>(constants);
 
 #ifdef DEBUG
     // Do some error checking
@@ -1060,7 +1063,7 @@ void GSwarmAlgorithm::updateIndividualPositions(
 #endif /* DEBUG */
 
     // Extract the personal best
-    std::shared_ptr<gen::GOptimizableEntity> personal_best =
+    std::shared_ptr<gen::GOptimizableEntity> const personal_best =
         ind->getPersonalityTraits<GSwarmAlgorithm_PersonalityTraits>()->getPersonalBest();
 
     // Further error checks
@@ -1092,7 +1095,7 @@ void GSwarmAlgorithm::updateIndividualPositions(
 #endif /* DEBUG */
 
     // The particle's velocity is a per-slot POD double block in its OA scratch (installed in init()).
-    std::span<double> velocity = ind->scratch().metaRecords<double>(AUXKEY_SWARM_VELOCITY);
+    std::span<double> const velocity = ind->scratch().metaRecords<double>(AUXKEY_SWARM_VELOCITY);
 
     // Extract the vectors for the individual, the personal, neighborhood and global bests,
     // as well as the velocity
@@ -1217,7 +1220,7 @@ void GSwarmAlgorithm::pruneVelocity(std::vector<double> &vel_vec) {
     // vector down uniformly so its largest component sits exactly at the cap (preserving its direction).
     double max_percentage = 1.;
     bool overflow_found = false;
-    for(double v : vel_vec) {
+    for(double const v : vel_vec) {
         if(std::abs(v) > vel_max_) {
             overflow_found = true;
             max_percentage = std::max(max_percentage, std::abs(v) / vel_max_);
@@ -1332,8 +1335,8 @@ std::tuple<double, double> GSwarmAlgorithm::findBests() {
     // Sort individuals in all neighborhoods according to their fitness
     for(std::size_t n = 0; n < n_neighborhoods_; n++) {
         // identify the first and last id of the individuals in the current neighborhood
-        std::size_t first_counter = getFirstNIPos(n);
-        std::size_t last_counter = getLastNIPos(n);
+        std::size_t const first_counter = getFirstNIPos(n);
+        std::size_t const last_counter = getLastNIPos(n);
 
         // Only partially sort the arrays
         std::ranges::sort(
@@ -1406,6 +1409,7 @@ std::tuple<double, double> GSwarmAlgorithm::findBests() {
  * Resizes the population to the desired level and does some error checks. This function implements
  * the purely virtual function GOptimizationAlgorithmBase::adjustPopulation() .
  */
+// NOLINTNEXTLINE(readability-function-size) -- switch-driven dispatcher over the initial-population-size cases (empty / single / exactly n_neighborhoods / exactly default_pop_size / arbitrary under or over capacity), each branch already delegating to fillUpNeighborhood1() or a short local loop; the case selection itself is the coherent unit
 void GSwarmAlgorithm::adjustPopulation_() {
     const std::size_t current_size = this->size();
     const std::size_t default_pop_size = getDefaultPopulationSize();
@@ -1533,7 +1537,7 @@ void GSwarmAlgorithm::fillUpNeighborhood1() {
 
     // Starting with the last item, loop over all neighborhoods
     for(std::size_t i = 0; i < n_neighborhoods_; i++) {
-        std::size_t n = n_neighborhoods_ - 1 - i; // Calculate the correct neighborhood
+        std::size_t const n = n_neighborhoods_ - 1 - i; // Calculate the correct neighborhood
 
         // Insert the required number of clones after the existing individual
         for(std::size_t m = 1; m < default_n_neighborhood_members_;

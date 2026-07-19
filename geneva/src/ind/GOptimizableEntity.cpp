@@ -471,7 +471,7 @@ bool GOptimizableEntity::isValid() const {
  * @return true if at least one parameter was changed
  */
 bool GOptimizableEntity::randomInit(activityMode const &am) {
-    bool modifications_made = this->randomInit_(am);
+    bool const modifications_made = this->randomInit_(am);
     if(modifications_made) {
         this->mark_as_due_for_processing();
     }

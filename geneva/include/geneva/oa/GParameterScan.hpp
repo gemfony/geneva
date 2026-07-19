@@ -155,21 +155,21 @@ public:
     virtual ~GScanParInterface() = default;
     /** @brief Retrieves the name and/or position address of the scanned variable
      *  @return The address (name and id) of the variable inside the individual */
-    virtual gen::NAMEANDIDTYPE getVarAddress() const = 0;
+    [[nodiscard]] virtual gen::NAMEANDIDTYPE getVarAddress() const = 0;
     /** @brief Advances to the next grid position, rewinding to the start at the end
      *  @return true if a warp (rewind to the first position) has taken place, false otherwise */
     virtual bool goToNextItem() = 0;
     /** @brief Checks whether the current position is past the last grid item
      *  @return true if the position is at (or beyond) the terminal position, false otherwise */
-    virtual bool isAtTerminalPosition() const = 0;
+    [[nodiscard]] virtual bool isAtTerminalPosition() const = 0;
     /** @brief Checks whether the current position is the first grid item
      *  @return true if the position points to the first item, false otherwise */
-    virtual bool isAtFirstPosition() const = 0;
+    [[nodiscard]] virtual bool isAtFirstPosition() const = 0;
     /** @brief Resets the current position back to the start of the grid */
     virtual void resetPosition() = 0;
     /** @brief Retrieves a textual identifier for the scanned type
      *  @return A string descriptor of the parameter type */
-    virtual std::string getTypeDescriptor() const = 0;
+    [[nodiscard]] virtual std::string getTypeDescriptor() const = 0;
 };
 
 /******************************************************************************/
@@ -556,7 +556,7 @@ public:
     /** @brief Construction from a parameter property specification and a random-scan flag.
      *  @param pps The parameter property specification (variable address, boundaries, steps)
      *  @param random_scan If true, items are drawn randomly; if false, a grid is pre-filled */
-    GScanParT(gen::parPropSpec<T> pps, bool random_scan)
+    GScanParT(const gen::parPropSpec<T>& pps, bool random_scan)
       : GBaseScanParT<T>(pps, random_scan, Derived::scanTypeDescriptor()) { /* nothing */ }
     /** @brief Copy constructor (deep-copies the base, including the pre-computed grid) */
     GScanParT(const GScanParT &) = default;
@@ -816,7 +816,7 @@ public:
 
     /** @brief Fills the parameter vectors from a textual parameter specification
      *  @param par_str The parameter specification string to be parsed */
-    void setParameterSpecs(std::string par_str);
+    void setParameterSpecs(const std::string& par_str);
 
     /** @brief Puts the class in "simple scan" mode
      *  @param simple_scan_items The number of random samples of the whole parameter space to take (0 disables simple-scan mode) */

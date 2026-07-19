@@ -103,6 +103,7 @@ const bool DEFAULTLOGTOFILE = false;
 /**
  * Parses the command line
  */
+// NOLINTNEXTLINE(readability-function-size) -- one coherent CLI-option registration sweep for example 16; splitting would scatter the option list
 bool parseCommandLine(
     int argc,
     char **argv,
@@ -197,20 +198,21 @@ bool parseCommandLine(
 /**
  * The main function.
  */
+// NOLINTNEXTLINE(readability-function-size) -- example 16's main(): a single linear setup script (config parsing, MPI-consumer setup, worker/server branch, population + adaption-config wiring, run); splitting would scatter tightly sequential one-shot setup steps
 int main(int argc, char **argv) {
-    std::uint16_t nProducerThreads;
-    std::size_t populationSize;
-    std::size_t nParents;
-    std::uint32_t maxIterations;
-    long maxMinutes;
-    std::uint32_t reportIteration;
+    std::uint16_t nProducerThreads = 0;
+    std::size_t populationSize = 0;
+    std::size_t nParents = 0;
+    std::uint32_t maxIterations = 0;
+    long maxMinutes = 0;
+    std::uint32_t reportIteration = 0;
     duplicationScheme rScheme;
     sortingMode smode;
-    bool logToFile;
+    bool logToFile = false;
 
     /****************************************************************************/
     // Initialization of Geneva
-    GenevaInitializer gi;
+    GenevaInitializer const gi;
 
     /****************************************************************************/
     // --update-configs: materialize the one config this example owns (the GFunctionIndividual factory's)

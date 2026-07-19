@@ -242,6 +242,7 @@ TEST_CASE("GOptimizableEntity: an external evaluation result is accepted verbati
 }
 
 /******************************************************************************/
+// NOLINTNEXTLINE(readability-function-cognitive-complexity) -- one coherent serialization sweep (TEXT/XML/BINARY) via the shared check_format() helper
 TEST_CASE("GOptimizableEntity: a derived individual round-trips in TEXT, XML and BINARY", "[candidate][serialize]") {
     using Gem::Common::serializationMode;
 
@@ -331,7 +332,7 @@ TEST_CASE("GGenome: countParameters is cached and re-keyed on layout change", "[
     }
 
     SECTION("the cache survives a load_()-based copy") {
-        NewSphere other(1, 1, 1);
+        NewSphere const other(1, 1, 1);
         // Prime both caches with their own structures.
         REQUIRE(other.countParameters<double>() == 1u);
         REQUIRE(ind.countParameters<double>() == 3u);

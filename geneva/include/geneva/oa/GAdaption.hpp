@@ -97,7 +97,7 @@ std::size_t adaptGaussChannel(
     if(not scratch.hasAux(key)) {
         return 0;
     }
-    std::span<GaussState<T>> states = scratch.metaRecords<GaussState<T>>(key);
+    std::span<GaussState<T>> const states = scratch.metaRecords<GaussState<T>>(key);
     std::size_t n = 0;
     for(std::size_t gi = 0; gi < groups.size(); ++gi) {
         const GroupSpec<T> &g = groups[gi];
@@ -140,7 +140,7 @@ std::size_t adaptBiGaussChannel(
     if(not scratch.hasAux(key)) {
         return 0;
     }
-    std::span<BiGaussState<T>> states = scratch.metaRecords<BiGaussState<T>>(key);
+    std::span<BiGaussState<T>> const states = scratch.metaRecords<BiGaussState<T>>(key);
     std::size_t n = 0;
     for(std::size_t gi = 0; gi < groups.size(); ++gi) {
         const GroupSpec<T> &g = groups[gi];
@@ -170,6 +170,7 @@ std::size_t adaptBiGaussChannel(
  * @param gr The per-individual random engine all kernels draw from.
  * @return The total number of values actually adapted across all channels.
  */
+// NOLINTNEXTLINE(readability-function-size) -- one coherent channel sweep that must mirror GGenome::customAdaptions()'s fixed channel order (Gauss double/float, bi-Gauss double/float, int Gauss, int flip, bool flip) exactly, then the write-fold; splitting would risk that order drifting out of lockstep
 inline std::size_t runAdaptionKernels(
     detail::GGenome &ind,
     detail::GAuxiliaryStore &scratch,
@@ -187,8 +188,8 @@ inline std::size_t runAdaptionKernels(
     // Integer Gauss. Integers are NOT normalized (§2.7), so the step is still scaled by the parameter's
     // integer range, taken from the genome's int channel layout (upper-lower constrained, init span plain).
     if(scratch.hasAux(AUXKEY_GAUSS_INT)) {
-        std::span<GaussState<double>> states = scratch.metaRecords<GaussState<double>>(AUXKEY_GAUSS_INT);
-        std::span<std::int32_t> values = ind.internalInt32Values();
+        std::span<GaussState<double>> const states = scratch.metaRecords<GaussState<double>>(AUXKEY_GAUSS_INT);
+        std::span<std::int32_t> const values = ind.internalInt32Values();
         const auto &groups = cfg.int32Groups();
         const ChannelLayout<std::int32_t> &layout_i = ind.getLayout()->i;
         for(std::size_t gi = 0; gi < groups.size(); ++gi) {
@@ -203,8 +204,8 @@ inline std::size_t runAdaptionKernels(
 
     // Flip over the int32 channel.
     if(scratch.hasAux(AUXKEY_FLIP_INT)) {
-        std::span<FlipState> states = scratch.metaRecords<FlipState>(AUXKEY_FLIP_INT);
-        std::span<std::int32_t> values = ind.internalInt32Values();
+        std::span<FlipState> const states = scratch.metaRecords<FlipState>(AUXKEY_FLIP_INT);
+        std::span<std::int32_t> const values = ind.internalInt32Values();
         const auto &groups = cfg.int32Groups();
         for(std::size_t gi = 0; gi < groups.size(); ++gi) {
             const GroupSpec<std::int32_t> &g = groups[gi];
@@ -217,8 +218,8 @@ inline std::size_t runAdaptionKernels(
 
     // Flip over the bool channel.
     if(scratch.hasAux(AUXKEY_FLIP_BOOL)) {
-        std::span<FlipState> states = scratch.metaRecords<FlipState>(AUXKEY_FLIP_BOOL);
-        std::span<std::uint8_t> values = ind.internalBoolValues();
+        std::span<FlipState> const states = scratch.metaRecords<FlipState>(AUXKEY_FLIP_BOOL);
+        std::span<std::uint8_t> const values = ind.internalBoolValues();
         const auto &groups = cfg.boolGroups();
         for(std::size_t gi = 0; gi < groups.size(); ++gi) {
             const GroupSpec<bool> &g = groups[gi];
@@ -302,6 +303,7 @@ inline std::size_t adaptIndividual(
  * @brief Resets an individual's per-group adaption state to the config's seed values (the stall-reset).
  * Mirrors GGenome::updateAdaptorsOnStall(), but driven by the OA-owned config.
  */
+// NOLINTNEXTLINE(readability-function-size) -- one coherent channel sweep (the local resetGauss/resetBiGauss/resetFlip lambdas applied in the fixed channel order used throughout this file), mirroring GGenome::updateAdaptorsOnStall(); splitting would risk that order drifting out of lockstep
 inline void resetAdaptionState(detail::GAuxiliaryStore &scratch, const GAdaptionConfigBase &cfg) {
     using namespace Gem::Geneva::Genome;
 
@@ -309,7 +311,7 @@ inline void resetAdaptionState(detail::GAuxiliaryStore &scratch, const GAdaption
         if(not scratch.hasAux(key)) {
             return;
         }
-        std::span<GaussState<adaption_fp_t<T>>> states = scratch.metaRecords<GaussState<adaption_fp_t<T>>>(key);
+        std::span<GaussState<adaption_fp_t<T>>> const states = scratch.metaRecords<GaussState<adaption_fp_t<T>>>(key);
         for(std::size_t gi = 0; gi < groups.size(); ++gi) {
             if(not groups[gi].has_gauss) {
                 continue;
@@ -323,7 +325,7 @@ inline void resetAdaptionState(detail::GAuxiliaryStore &scratch, const GAdaption
         if(not scratch.hasAux(key)) {
             return;
         }
-        std::span<BiGaussState<adaption_fp_t<T>>> states = scratch.metaRecords<BiGaussState<adaption_fp_t<T>>>(key);
+        std::span<BiGaussState<adaption_fp_t<T>>> const states = scratch.metaRecords<BiGaussState<adaption_fp_t<T>>>(key);
         for(std::size_t gi = 0; gi < groups.size(); ++gi) {
             if(not groups[gi].has_bigauss) {
                 continue;
@@ -339,7 +341,7 @@ inline void resetAdaptionState(detail::GAuxiliaryStore &scratch, const GAdaption
         if(not scratch.hasAux(key)) {
             return;
         }
-        std::span<FlipState> states = scratch.metaRecords<FlipState>(key);
+        std::span<FlipState> const states = scratch.metaRecords<FlipState>(key);
         for(std::size_t gi = 0; gi < groups.size(); ++gi) {
             if(not groups[gi].has_flip) {
                 continue;
@@ -376,7 +378,7 @@ inline std::vector<double> readAdaptionSigmas(
     std::vector<double> out;
 
     if(adaptor_name == "GDoubleGaussAdaptor" && scratch.hasAux(AUXKEY_GAUSS_DOUBLE)) {
-        std::span<const GaussState<double>> states = scratch.metaRecords<GaussState<double>>(AUXKEY_GAUSS_DOUBLE);
+        std::span<const GaussState<double>> const states = scratch.metaRecords<GaussState<double>>(AUXKEY_GAUSS_DOUBLE);
         const auto &groups = cfg.doubleGroups();
         for(std::size_t gi = 0; gi < groups.size(); ++gi) {
             if(groups[gi].has_gauss) {
@@ -385,7 +387,7 @@ inline std::vector<double> readAdaptionSigmas(
         }
     }
     else if(adaptor_name == "GFloatGaussAdaptor" && scratch.hasAux(AUXKEY_GAUSS_FLOAT)) {
-        std::span<const GaussState<float>> states = scratch.metaRecords<GaussState<float>>(AUXKEY_GAUSS_FLOAT);
+        std::span<const GaussState<float>> const states = scratch.metaRecords<GaussState<float>>(AUXKEY_GAUSS_FLOAT);
         const auto &groups = cfg.floatGroups();
         for(std::size_t gi = 0; gi < groups.size(); ++gi) {
             if(groups[gi].has_gauss) {
@@ -394,7 +396,7 @@ inline std::vector<double> readAdaptionSigmas(
         }
     }
     else if(adaptor_name == "GInt32GaussAdaptor" && scratch.hasAux(AUXKEY_GAUSS_INT)) {
-        std::span<const GaussState<double>> states = scratch.metaRecords<GaussState<double>>(AUXKEY_GAUSS_INT);
+        std::span<const GaussState<double>> const states = scratch.metaRecords<GaussState<double>>(AUXKEY_GAUSS_INT);
         const auto &groups = cfg.int32Groups();
         for(std::size_t gi = 0; gi < groups.size(); ++gi) {
             if(groups[gi].has_gauss) {
@@ -439,7 +441,7 @@ inline void writeGlobalSigma(
 ) {
     using namespace Gem::Geneva::Genome;
     if(scratch.hasAux(AUXKEY_GAUSS_DOUBLE)) {
-        std::span<GaussState<double>> st = scratch.metaRecords<GaussState<double>>(AUXKEY_GAUSS_DOUBLE);
+        std::span<GaussState<double>> const st = scratch.metaRecords<GaussState<double>>(AUXKEY_GAUSS_DOUBLE);
         const auto &groups = cfg.doubleGroups();
         for(std::size_t gi = 0; gi < groups.size(); ++gi) {
             if(groups[gi].has_gauss) {
@@ -448,7 +450,7 @@ inline void writeGlobalSigma(
         }
     }
     if(scratch.hasAux(AUXKEY_GAUSS_FLOAT)) {
-        std::span<GaussState<float>> st = scratch.metaRecords<GaussState<float>>(AUXKEY_GAUSS_FLOAT);
+        std::span<GaussState<float>> const st = scratch.metaRecords<GaussState<float>>(AUXKEY_GAUSS_FLOAT);
         const auto &groups = cfg.floatGroups();
         for(std::size_t gi = 0; gi < groups.size(); ++gi) {
             if(groups[gi].has_gauss) {
@@ -477,7 +479,7 @@ inline double readRepresentativeSigma(
 ) {
     using namespace Gem::Geneva::Genome;
     if(scratch.hasAux(AUXKEY_GAUSS_DOUBLE)) {
-        std::span<const GaussState<double>> st = scratch.metaRecords<GaussState<double>>(AUXKEY_GAUSS_DOUBLE);
+        std::span<const GaussState<double>> const st = scratch.metaRecords<GaussState<double>>(AUXKEY_GAUSS_DOUBLE);
         const auto &groups = cfg.doubleGroups();
         for(std::size_t gi = 0; gi < groups.size(); ++gi) {
             if(groups[gi].has_gauss) {
@@ -486,7 +488,7 @@ inline double readRepresentativeSigma(
         }
     }
     if(scratch.hasAux(AUXKEY_GAUSS_FLOAT)) {
-        std::span<const GaussState<float>> st = scratch.metaRecords<GaussState<float>>(AUXKEY_GAUSS_FLOAT);
+        std::span<const GaussState<float>> const st = scratch.metaRecords<GaussState<float>>(AUXKEY_GAUSS_FLOAT);
         const auto &groups = cfg.floatGroups();
         for(std::size_t gi = 0; gi < groups.size(); ++gi) {
             if(groups[gi].has_gauss) {

@@ -78,10 +78,10 @@ TEST_CASE("Hap concurrency: 16 proxies draw distributions", "[hap][concurrency]"
             std::normal_distribution<double>       n;
             bi_normal_distribution<double>         bn(1., 2., 1., 3.);
             for (std::uint64_t i = 0; i < kDistPer; ++i) {
-                double a = u(rng);
+                double const a = u(rng);
                 if (a < 0. || a >= 1.) outOfRange.fetch_add(1, std::memory_order_relaxed);
-                volatile double b = n(rng);
-                volatile double c = bn(rng);
+                volatile double const b = n(rng);
+                volatile double const c = bn(rng);
                 (void)b;
                 (void)c;
             }
@@ -121,7 +121,7 @@ TEST_CASE("Hap concurrency: STAGED dormant proxy keeps a stable private stream",
     GRandomT<randomSource::STAGED>         dormant;
     std::uniform_real_distribution<double> u(0., 1.);
     for (int i = 0; i < 10; ++i) {
-        double a = u(dormant);
+        double const a = u(dormant);
         REQUIRE((a >= 0. && a < 1.));
     }
 
@@ -133,7 +133,7 @@ TEST_CASE("Hap concurrency: STAGED dormant proxy keeps a stable private stream",
             GRandomT<randomSource::STAGED>         rng;
             std::uniform_real_distribution<double> v(0., 1.);
             for (std::uint64_t i = 0; i < kRawPer; ++i) {
-                double a = v(rng);
+                double const a = v(rng);
                 if (a < 0. || a >= 1.) outOfRange.fetch_add(1, std::memory_order_relaxed);
             }
         });
@@ -142,7 +142,7 @@ TEST_CASE("Hap concurrency: STAGED dormant proxy keeps a stable private stream",
 
     // The dormant proxy resumes after the storm; its private stream is unharmed.
     for (int i = 0; i < 100'000; ++i) {
-        double a = u(dormant);
+        double const a = u(dormant);
         REQUIRE((a >= 0. && a < 1.));
     }
     REQUIRE(outOfRange.load() == 0);
@@ -164,7 +164,7 @@ TEST_CASE("Hap concurrency: 16 QUARANTINE proxies draw raw values",
             GRandomT<randomSource::QUARANTINE>     rng;
             std::uniform_real_distribution<double> u(0., 1.);
             for (std::uint64_t i = 0; i < kRawPer; ++i) {
-                double a = u(rng);
+                double const a = u(rng);
                 if (a < 0. || a >= 1.) outOfRange.fetch_add(1, std::memory_order_relaxed);
             }
         });

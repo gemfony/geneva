@@ -204,6 +204,7 @@ bool GTestIndividual1::modify_GUnitTests_() {
 /**
  * @brief Performs self tests that are expected to succeed. This is needed for testing purposes.
  */
+// NOLINTNEXTLINE(readability-function-size,readability-function-cognitive-complexity) -- self-test entry point for GTestIndividual1: a sequence of independent, self-scoped CHECK blocks covering adapt(), dirty-flag/process semantics, clone independence, EA/serial/SWARM process() paths, and personality-trait get/set; splitting per block would break the one-function-per-test-phase convention used identically across every individual/OA self-test in this codebase
 void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
     using namespace Gem::Geneva;
@@ -214,12 +215,12 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
     //------------------------------------------------------------------------------
 
     { // Tests whether calls to adapt() result in changes of the object
-        std::shared_ptr<Gem::Geneva::Individuals::GTestIndividual1> p_test =
+        std::shared_ptr<Gem::Geneva::Individuals::GTestIndividual1> const p_test =
             this->clone<Gem::Geneva::Individuals::GTestIndividual1>();
-        std::shared_ptr<Gem::Geneva::Individuals::GTestIndividual1> p_test_old =
+        std::shared_ptr<Gem::Geneva::Individuals::GTestIndividual1> const p_test_old =
             this->clone<Gem::Geneva::Individuals::GTestIndividual1>();
 
-        std::size_t n_tests = 1000;
+        std::size_t const n_tests = 1000;
 
         // One adapter held across the loop, so the self-adapting sigma persists between iterations
         // exactly as it did when the adaption state lived on the individual.
@@ -234,7 +235,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
     //------------------------------------------------------------------------------
 
     { // Tests customAdaptions, dirty_flag and the effects of the fitness function. Also test setting of server-mode flag
-        std::shared_ptr<Gem::Geneva::Individuals::GTestIndividual1> p_test =
+        std::shared_ptr<Gem::Geneva::Individuals::GTestIndividual1> const p_test =
             this->clone<Gem::Geneva::Individuals::GTestIndividual1>();
 
         // Make sure this individual is not dirty
@@ -243,11 +244,11 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
             CHECK(p_test->is_processed());
         }
 
-        std::size_t n_tests = 1000;
+        std::size_t const n_tests = 1000;
 
         double current_fitness = 0.;
         double old_fitness = current_fitness;
-        bool dirty_flag = false;
+        bool const dirty_flag = false;
 
         // The per-group adaption state + the bare "mutate values without marking dirty" kernel run are
         // OA-owned. runAdaptionKernels() drifts the values but does NOT touch the processing status.
@@ -292,7 +293,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
     //------------------------------------------------------------------------------
 
     { // Tests whether modification of one clone influences another clone
-        std::shared_ptr<Gem::Geneva::Individuals::GTestIndividual1> p_test1 =
+        std::shared_ptr<Gem::Geneva::Individuals::GTestIndividual1> const p_test1 =
             this->clone<Gem::Geneva::Individuals::GTestIndividual1>();
 
         // Make sure the individual is clean
@@ -302,7 +303,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
         }
 
         // Create a clone of p_test1
-        std::shared_ptr<Gem::Geneva::Individuals::GTestIndividual1> p_test2 =
+        std::shared_ptr<Gem::Geneva::Individuals::GTestIndividual1> const p_test2 =
             p_test1->clone<Gem::Geneva::Individuals::GTestIndividual1>();
         // Check that the clone is identical to p_test1;
         CHECK_NOTHROW(*p_test2 == *p_test1);
@@ -323,8 +324,8 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
     //------------------------------------------------------------------------------
 
     { // Check the effects of the process function in EA mode, using the "evaluate" call
-        double current_fitness = 0.;
-        std::shared_ptr<Gem::Geneva::Individuals::GTestIndividual1> p_test =
+        double const current_fitness = 0.;
+        std::shared_ptr<Gem::Geneva::Individuals::GTestIndividual1> const p_test =
             this->clone<Gem::Geneva::Individuals::GTestIndividual1>();
 
         // Make sure the individual is clean
@@ -350,7 +351,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
     //------------------------------------------------------------------------------
 
     { // Check the process() function
-        std::shared_ptr<Gem::Geneva::Individuals::GTestIndividual1> p_test =
+        std::shared_ptr<Gem::Geneva::Individuals::GTestIndividual1> const p_test =
             this->clone<Gem::Geneva::Individuals::GTestIndividual1>();
 
         // Make sure the individual is clean
@@ -372,7 +373,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
     //------------------------------------------------------------------------------
 
     { // Check the effects of the process function in SWARM mode, using the "evaluate" call
-        std::shared_ptr<Gem::Geneva::Individuals::GTestIndividual1> p_test =
+        std::shared_ptr<Gem::Geneva::Individuals::GTestIndividual1> const p_test =
             this->clone<Gem::Geneva::Individuals::GTestIndividual1>();
 
         // Make sure the individual is clean
@@ -394,9 +395,9 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
     //------------------------------------------------------------------------------
 
     { // Check of the GGenome::customAdaptions() function
-        std::shared_ptr<Gem::Geneva::Individuals::GTestIndividual1> p_test1 =
+        std::shared_ptr<Gem::Geneva::Individuals::GTestIndividual1> const p_test1 =
             this->clone<Gem::Geneva::Individuals::GTestIndividual1>();
-        std::shared_ptr<Gem::Geneva::Individuals::GTestIndividual1> p_test2 =
+        std::shared_ptr<Gem::Geneva::Individuals::GTestIndividual1> const p_test2 =
             this->clone<Gem::Geneva::Individuals::GTestIndividual1>();
 
         // Check that both individuals are the same
@@ -564,6 +565,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
 /**
  * @brief Performs self tests that are expected to fail. This is needed for testing purposes.
  */
+// NOLINTNEXTLINE(readability-function-size) -- paired failure-expected self-test entry point for GTestIndividual1: independent, self-scoped CHECK_THROWS_AS blocks covering dirty-evaluation and personality-mismatch error paths; same one-function-per-test-phase convention as specificTestsNoFailureExpected_GUnitTests_
 void GTestIndividual1::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
     using namespace Gem::Geneva;

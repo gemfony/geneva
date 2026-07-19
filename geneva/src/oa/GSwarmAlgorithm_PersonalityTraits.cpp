@@ -160,7 +160,7 @@ bool GSwarmAlgorithm_PersonalityTraits::noPositionUpdate() const {
  * @return The value of the no_position_update_ flag at the time the function was called
  */
 bool GSwarmAlgorithm_PersonalityTraits::checkNoPositionUpdateAndReset() {
-    bool current = no_position_update_;
+    bool const current = no_position_update_;
     if(no_position_update_) {
         no_position_update_ = false;
     }
@@ -180,7 +180,7 @@ bool GSwarmAlgorithm_PersonalityTraits::checkNoPositionUpdateAndReset() {
  *
  * @param p A shared pointer to the personally best individual to be registered
  */
-void GSwarmAlgorithm_PersonalityTraits::registerPersonalBest(std::shared_ptr<gen::GOptimizableEntity> p) {
+void GSwarmAlgorithm_PersonalityTraits::registerPersonalBest(const std::shared_ptr<gen::GOptimizableEntity>& p) {
     // Some error checking
 #ifdef DEBUG
     // Does it point anywhere ?
@@ -352,6 +352,7 @@ bool GSwarmAlgorithm_PersonalityTraits::modify_GUnitTests_() {
 /**
  * @brief Performs self tests that are expected to succeed. This is needed for testing purposes
  */
+// NOLINTNEXTLINE(readability-function-size,readability-function-cognitive-complexity) -- self-test entry point for GSwarmAlgorithm_PersonalityTraits: a sequence of independent, self-scoped CHECK blocks, one per swarm-personality flag/state scenario; same one-function-per-test-phase convention used identically across every OA self-test in this codebase
 void GSwarmAlgorithm_PersonalityTraits::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 
@@ -361,7 +362,7 @@ void GSwarmAlgorithm_PersonalityTraits::specificTestsNoFailureExpected_GUnitTest
     //---------------------------------------------------------------------------
 
     { // Test setting and retrieval of the no_position_update_ flag
-        std::shared_ptr<GSwarmAlgorithm_PersonalityTraits> p_test =
+        std::shared_ptr<GSwarmAlgorithm_PersonalityTraits> const p_test =
             this->clone<GSwarmAlgorithm_PersonalityTraits>();
 
         // Check setting and retrieval
@@ -384,7 +385,7 @@ void GSwarmAlgorithm_PersonalityTraits::specificTestsNoFailureExpected_GUnitTest
     //---------------------------------------------------------------------------
 
     { // Test setting and retrieval of the neighborhood
-        std::shared_ptr<GSwarmAlgorithm_PersonalityTraits> p_test =
+        std::shared_ptr<GSwarmAlgorithm_PersonalityTraits> const p_test =
             this->clone<GSwarmAlgorithm_PersonalityTraits>();
 
         // Setting and retrieval of the neighborhood

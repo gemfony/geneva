@@ -1364,8 +1364,8 @@ private:
          * @brief Adds a session to the (mutex-protected) list of open sessions awaiting completion.
          * @param session The session whose asynchronous response send is still in flight
          */
-    void pushOpenSession(std::shared_ptr<GMPIConsumerSessionT<processable_type>> session) {
-        std::scoped_lock guard(openSessionsMutex_);
+    void pushOpenSession(const std::shared_ptr<GMPIConsumerSessionT<processable_type>>& session) {
+        std::scoped_lock const guard(openSessionsMutex_);
         openSessions_.push_back(session);
     }
 
@@ -1401,7 +1401,7 @@ private:
 
             {
                 // lock access to open sessions vector
-                std::scoped_lock guard(openSessionsMutex_);
+                std::scoped_lock const guard(openSessionsMutex_);
 
                 for(auto sessionIter{openSessions_.begin()}; sessionIter != openSessions_.end();
                     /* no increment */) {
@@ -1435,7 +1435,7 @@ private:
 
         // Release any sessions still open (only reached on the grace-timeout path): cancel their
         // outstanding response sends so no MPI_Request outlives into MPI_Finalize.
-        std::scoped_lock guard(openSessionsMutex_);
+        std::scoped_lock const guard(openSessionsMutex_);
         for(auto &session : openSessions_) {
             session->cancelPendingResponse();
         }

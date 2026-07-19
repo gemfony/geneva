@@ -433,7 +433,7 @@ void GAntColonyOptimization::sortArchive() {
     std::vector<double> sorted_fitness;
     sorted_parms.reserve(n);
     sorted_fitness.reserve(n);
-    for(std::size_t idx : order) {
+    for(std::size_t const idx : order) {
         sorted_parms.push_back(std::move(archive_parms_[idx]));
         sorted_fitness.push_back(archive_fitness_[idx]);
     }
@@ -616,12 +616,13 @@ bool GAntColonyOptimization::modify_GUnitTests_() {
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes.
  */
+// NOLINTNEXTLINE(readability-function-size,readability-function-cognitive-complexity) -- self-test entry point for GAntColonyOptimization: a sequence of independent, self-scoped CHECK blocks, one per ACO strategy-parameter/operator scenario; same one-function-per-test-phase convention used identically across every OA self-test in this codebase
 void GAntColonyOptimization::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
     GOptimizationAlgorithmT<GAntColonyOptimization>::specificTestsNoFailureExpected_GUnitTests_();
 
     { // Test setting and retrieval of basic strategy parameters
-        std::shared_ptr<GAntColonyOptimization> p_test = this->clone<GAntColonyOptimization>();
+        std::shared_ptr<GAntColonyOptimization> const p_test = this->clone<GAntColonyOptimization>();
 
         CHECK_NOTHROW(p_test->setArchiveSize(25));
         CHECK(p_test->getArchiveSize() == 25);
@@ -637,7 +638,7 @@ void GAntColonyOptimization::specificTestsNoFailureExpected_GUnitTests_() {
     }
 
     { // Setting invalid strategy parameters must throw
-        std::shared_ptr<GAntColonyOptimization> p_test = this->clone<GAntColonyOptimization>();
+        std::shared_ptr<GAntColonyOptimization> const p_test = this->clone<GAntColonyOptimization>();
         CHECK_THROWS(p_test->setArchiveSize(1)); // need at least 2 archive members
         CHECK_THROWS(p_test->setNAnts(0));       // need at least 1 ant
         CHECK_THROWS(p_test->setQ(0.));          // q must be > 0

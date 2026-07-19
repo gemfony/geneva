@@ -106,6 +106,7 @@ public:
 
 /******************************************************************************/
 
+// NOLINTNEXTLINE(readability-function-cognitive-complexity) -- one coherent fan-in scenario: spawns a shared client pool plus per-batch submitter threads against one networked consumer, then verifies each batch's own slots come back correctly routed; splitting would scatter the capturing lambdas
 TEST_CASE("courtier(fanin): concurrent submitters to one networked consumer, results not cross-routed",
           "[courtier][concurrency][fanin]") {
     constexpr std::size_t M = 6;  // concurrent submitters (inner algorithms)

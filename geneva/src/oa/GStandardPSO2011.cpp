@@ -377,6 +377,7 @@ std::vector<double> GStandardPSO2011::localBest(std::size_t particle) const {
  * Updates the velocity and position of every particle using the SPSO-2011 hypersphere rule. Positions are
  * contained by the genome's write-fold on assignment (no explicit boundary clamping).
  */
+// NOLINTNEXTLINE(readability-function-size) -- single coherent numeric kernel: the SPSO-2011 hypersphere update per particle (center-of-gravity G, sampling radius, uniform direction draw, in-ball sample x', velocity clamp/position update), each step consuming the previous step's output; splitting would scatter one textbook algorithm
 void GStandardPSO2011::updatePositions() {
     std::normal_distribution<double> gauss(0., 1.);
 
@@ -586,12 +587,13 @@ bool GStandardPSO2011::modify_GUnitTests_() {
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes.
  */
+// NOLINTNEXTLINE(readability-function-size) -- self-test entry point for GStandardPSO2011: a sequence of independent, self-scoped CHECK blocks, one per PSO strategy-parameter scenario; same one-function-per-test-phase convention used identically across every OA self-test in this codebase
 void GStandardPSO2011::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
     GOptimizationAlgorithmT<GStandardPSO2011>::specificTestsNoFailureExpected_GUnitTests_();
 
     { // Test setting and retrieval of basic strategy parameters
-        std::shared_ptr<GStandardPSO2011> p_test = this->clone<GStandardPSO2011>();
+        std::shared_ptr<GStandardPSO2011> const p_test = this->clone<GStandardPSO2011>();
 
         CHECK_NOTHROW(p_test->setSwarmSize(25));
         CHECK(p_test->getSwarmSize() == 25);
@@ -601,7 +603,7 @@ void GStandardPSO2011::specificTestsNoFailureExpected_GUnitTests_() {
     }
 
     { // Setting an invalid swarm size / informant count must throw
-        std::shared_ptr<GStandardPSO2011> p_test = this->clone<GStandardPSO2011>();
+        std::shared_ptr<GStandardPSO2011> const p_test = this->clone<GStandardPSO2011>();
         CHECK_THROWS(p_test->setSwarmSize(1));
         CHECK_THROWS(p_test->setNInformants(0));
     }

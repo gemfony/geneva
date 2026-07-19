@@ -193,11 +193,11 @@ GGraph2D::headerData_(bool is_secondary, std::size_t p_id, std::size_t own_id, c
     EmitStream header_data; // NOLINT(cppcoreguidelines-init-variables)
 
     // Set up suitable arrays for the header
-    std::string base_name = suffix(is_secondary, p_id, own_id);
-    std::string array_base_name = "array_" + base_name;
+    std::string const base_name = suffix(is_secondary, p_id, own_id);
+    std::string const array_base_name = "array_" + base_name;
 
-    std::string x_array_name = "x_" + array_base_name;
-    std::string y_array_name = "y_" + array_base_name;
+    std::string const x_array_name = "x_" + array_base_name;
+    std::string const y_array_name = "y_" + array_base_name;
 
     const std::string comment = dsMarkerComment(ds_marker_);
 
@@ -225,13 +225,13 @@ GGraph2D::bodyData_(bool is_secondary, std::size_t p_id, std::size_t own_id, con
     EmitStream body_data; // NOLINT(cppcoreguidelines-init-variables)
 
     // Set up suitable arrays for the header
-    std::string base_name = suffix(is_secondary, p_id, own_id);
-    std::string array_base_name = "array_" + base_name;
+    std::string const base_name = suffix(is_secondary, p_id, own_id);
+    std::string const array_base_name = "array_" + base_name;
 
-    std::string x_array_name = "x_" + array_base_name;
-    std::string y_array_name = "y_" + array_base_name;
+    std::string const x_array_name = "x_" + array_base_name;
+    std::string const y_array_name = "y_" + array_base_name;
 
-    std::string comment; // NOLINT(cppcoreguidelines-init-variables)
+    std::string const comment; // NOLINT(cppcoreguidelines-init-variables)
     if(!ds_marker_.empty()) {
         body_data << "// " + rootEscape(ds_marker_) << '\n';
     }
@@ -267,21 +267,21 @@ GGraph2D::footerData_(bool is_secondary, std::size_t p_id, std::size_t own_id, c
     EmitStream footer_data; // NOLINT(cppcoreguidelines-init-variables)
 
     // Set up suitable arrays for the header
-    std::string base_name = suffix(is_secondary, p_id, own_id);
-    std::string array_base_name = "array_" + base_name;
+    std::string const base_name = suffix(is_secondary, p_id, own_id);
+    std::string const array_base_name = "array_" + base_name;
 
-    std::string x_array_name = "x_" + array_base_name;
-    std::string y_array_name = "y_" + array_base_name;
+    std::string const x_array_name = "x_" + array_base_name;
+    std::string const y_array_name = "y_" + array_base_name;
 
-    std::string graph_name = std::string("graph") + base_name;
+    std::string const graph_name = std::string("graph") + base_name;
 
-    std::string comment; // NOLINT(cppcoreguidelines-init-variables)
+    std::string const comment; // NOLINT(cppcoreguidelines-init-variables)
     if(!ds_marker_.empty()) {
         footer_data << "// " + rootEscape(ds_marker_) << '\n';
     }
 
     // Retrieve the current drawing arguments
-    std::string d_a = this->drawingArguments(is_secondary);
+    std::string const d_a = this->drawingArguments(is_secondary);
 
     // Fill the data in our columns into a ROOT TGraph object
     footer_data << indent << "TGraph *" << graph_name << " = new TGraph(" << this->currentSize() << ", "
@@ -482,13 +482,13 @@ GGraph2ED::headerData_(bool is_secondary, std::size_t p_id, std::size_t own_id, 
     EmitStream header_data; // NOLINT(cppcoreguidelines-init-variables)
 
     // Set up suitable arrays for the header
-    std::string base_name = suffix(is_secondary, p_id, own_id);
-    std::string array_base_name = "array_" + base_name;
+    std::string const base_name = suffix(is_secondary, p_id, own_id);
+    std::string const array_base_name = "array_" + base_name;
 
-    std::string x_array_name = "x_" + array_base_name;
-    std::string ex_array_name = "ex_" + array_base_name;
-    std::string y_array_name = "y_" + array_base_name;
-    std::string ey_array_name = "ey_" + array_base_name;
+    std::string const x_array_name = "x_" + array_base_name;
+    std::string const ex_array_name = "ex_" + array_base_name;
+    std::string const y_array_name = "y_" + array_base_name;
+    std::string const ey_array_name = "ey_" + array_base_name;
 
     const std::string comment = dsMarkerComment(ds_marker_);
 
@@ -520,15 +520,15 @@ GGraph2ED::bodyData_(bool is_secondary, std::size_t p_id, std::size_t own_id, co
     EmitStream body_data; // NOLINT(cppcoreguidelines-init-variables)
 
     // Set up suitable arrays for the header
-    std::string base_name = suffix(is_secondary, p_id, own_id);
-    std::string array_base_name = "array_" + base_name;
+    std::string const base_name = suffix(is_secondary, p_id, own_id);
+    std::string const array_base_name = "array_" + base_name;
 
-    std::string x_array_name = "x_" + array_base_name;
-    std::string ex_array_name = "ex_" + array_base_name;
-    std::string y_array_name = "y_" + array_base_name;
-    std::string ey_array_name = "ey_" + array_base_name;
+    std::string const x_array_name = "x_" + array_base_name;
+    std::string const ex_array_name = "ex_" + array_base_name;
+    std::string const y_array_name = "y_" + array_base_name;
+    std::string const ey_array_name = "ey_" + array_base_name;
 
-    std::string comment; // NOLINT(cppcoreguidelines-init-variables)
+    std::string const comment; // NOLINT(cppcoreguidelines-init-variables)
     if(!ds_marker_.empty()) {
         body_data << "// " + rootEscape(ds_marker_) << '\n';
     }
@@ -570,24 +570,24 @@ GGraph2ED::footerData_(bool is_secondary, std::size_t p_id, std::size_t own_id, 
     EmitStream footer_data; // NOLINT(cppcoreguidelines-init-variables)
 
     // Set up suitable arrays for the header
-    std::string base_name = suffix(is_secondary, p_id, own_id);
-    std::string array_base_name = "array_" + base_name;
+    std::string const base_name = suffix(is_secondary, p_id, own_id);
+    std::string const array_base_name = "array_" + base_name;
 
-    std::string x_array_name = "x_" + array_base_name;
-    std::string ex_array_name = "ex_" + array_base_name;
-    std::string y_array_name = "y_" + array_base_name;
-    std::string ey_array_name = "ey_" + array_base_name;
+    std::string const x_array_name = "x_" + array_base_name;
+    std::string const ex_array_name = "ex_" + array_base_name;
+    std::string const y_array_name = "y_" + array_base_name;
+    std::string const ey_array_name = "ey_" + array_base_name;
 
-    std::string graph_name = std::string("graph_") + base_name;
+    std::string const graph_name = std::string("graph_") + base_name;
 
-    std::string comment; // NOLINT(cppcoreguidelines-init-variables)
+    std::string const comment; // NOLINT(cppcoreguidelines-init-variables)
     if(!ds_marker_.empty()) {
         footer_data << "// " + rootEscape(ds_marker_) << '\n';
     }
 
     // Check whether custom drawing arguments have been set or whether one
     // of our generic choices has been selected
-    std::string d_a = this->drawingArguments(is_secondary);
+    std::string const d_a = this->drawingArguments(is_secondary);
 
     // Fill the data in our tuple-vector into a ROOT TGraphErrors object
     footer_data << indent << "TGraphErrors *" << graph_name << " = new TGraphErrors("
@@ -764,12 +764,12 @@ GGraph3D::headerData_(bool is_secondary, std::size_t p_id, std::size_t own_id, c
     EmitStream header_data; // NOLINT(cppcoreguidelines-init-variables)
 
     // Set up suitable arrays for the header
-    std::string base_name = suffix(is_secondary, p_id, own_id);
-    std::string array_base_name = "array_" + base_name;
+    std::string const base_name = suffix(is_secondary, p_id, own_id);
+    std::string const array_base_name = "array_" + base_name;
 
-    std::string x_array_name = "x_" + array_base_name;
-    std::string y_array_name = "y_" + array_base_name;
-    std::string z_array_name = "z_" + array_base_name;
+    std::string const x_array_name = "x_" + array_base_name;
+    std::string const y_array_name = "y_" + array_base_name;
+    std::string const z_array_name = "z_" + array_base_name;
 
     const std::string comment = dsMarkerComment(ds_marker_);
 
@@ -799,14 +799,14 @@ GGraph3D::bodyData_(bool is_secondary, std::size_t p_id, std::size_t own_id, con
     EmitStream body_data; // NOLINT(cppcoreguidelines-init-variables)
 
     // Set up suitable arrays for the header
-    std::string base_name = suffix(is_secondary, p_id, own_id);
-    std::string array_base_name = "array_" + base_name;
+    std::string const base_name = suffix(is_secondary, p_id, own_id);
+    std::string const array_base_name = "array_" + base_name;
 
-    std::string x_array_name = "x_" + array_base_name;
-    std::string y_array_name = "y_" + array_base_name;
-    std::string z_array_name = "z_" + array_base_name;
+    std::string const x_array_name = "x_" + array_base_name;
+    std::string const y_array_name = "y_" + array_base_name;
+    std::string const z_array_name = "z_" + array_base_name;
 
-    std::string comment; // NOLINT(cppcoreguidelines-init-variables)
+    std::string const comment; // NOLINT(cppcoreguidelines-init-variables)
     if(!ds_marker_.empty()) {
         body_data << "// " + rootEscape(ds_marker_) << '\n';
     }
@@ -844,23 +844,23 @@ GGraph3D::footerData_(bool is_secondary, std::size_t p_id, std::size_t own_id, c
     EmitStream footer_data; // NOLINT(cppcoreguidelines-init-variables)
 
     // Set up suitable arrays for the header
-    std::string base_name = suffix(is_secondary, p_id, own_id);
-    std::string array_base_name = "array_" + base_name;
+    std::string const base_name = suffix(is_secondary, p_id, own_id);
+    std::string const array_base_name = "array_" + base_name;
 
-    std::string x_array_name = "x_" + array_base_name;
-    std::string y_array_name = "y_" + array_base_name;
-    std::string z_array_name = "z_" + array_base_name;
+    std::string const x_array_name = "x_" + array_base_name;
+    std::string const y_array_name = "y_" + array_base_name;
+    std::string const z_array_name = "z_" + array_base_name;
 
-    std::string graph_name = std::string("graph_") + base_name;
+    std::string const graph_name = std::string("graph_") + base_name;
 
-    std::string comment; // NOLINT(cppcoreguidelines-init-variables)
+    std::string const comment; // NOLINT(cppcoreguidelines-init-variables)
     if(!ds_marker_.empty()) {
         footer_data << "// " + rootEscape(ds_marker_) << '\n';
     }
 
     // Check whether custom drawing arguments have been set or whether one
     // of our generic choices has been selected
-    std::string d_a = this->drawingArguments(is_secondary);
+    std::string const d_a = this->drawingArguments(is_secondary);
 
     // Fill the data in our columns into a ROOT TGraph object
     footer_data << indent << "TGraph2D *" << graph_name << " = new TGraph2D(" << this->currentSize()
@@ -1139,7 +1139,7 @@ void GGraph4D::compare_(
  * @return An empty string, as this 4D graph emits no header code
  */
 std::string GGraph4D::headerData_([[maybe_unused]] bool is_secondary, [[maybe_unused]] std::size_t parent_id, [[maybe_unused]] std::size_t own_id, [[maybe_unused]] std::string const &indent) const {
-    EmitStream header_data; // NOLINT(cppcoreguidelines-init-variables)
+    EmitStream const header_data; // NOLINT(cppcoreguidelines-init-variables)
 
     // nothing
 
@@ -1155,7 +1155,7 @@ std::string GGraph4D::headerData_([[maybe_unused]] bool is_secondary, [[maybe_un
  * @return An empty string, as this 4D graph emits no body data
  */
 std::string GGraph4D::bodyData_([[maybe_unused]] bool is_secondary, [[maybe_unused]] std::size_t parent_id, [[maybe_unused]] std::size_t own_id, [[maybe_unused]] std::string const &indent) const {
-    EmitStream body_data; // NOLINT(cppcoreguidelines-init-variables)
+    EmitStream const body_data; // NOLINT(cppcoreguidelines-init-variables)
 
     // nothing
 
@@ -1173,6 +1173,7 @@ std::string GGraph4D::bodyData_([[maybe_unused]] bool is_secondary, [[maybe_unus
  * @return The footer code creating the 3D frame and per-point poly-markers (sized by the fourth component)
  */
 std::string
+// NOLINTNEXTLINE(readability-function-size) -- one coherent 4D-scatter ROOT rendering kernel: w-ordered permutation, the TH3F frame's min/max bookkeeping and the per-point marker-size/draw emission all share the same ordered data; splitting would scatter tightly coupled state
 GGraph4D::footerData_(bool is_secondary, std::size_t p_id, std::size_t own_id, const std::string &indent) const {
     // Read the four columns directly. Rather than copying the whole data set to
     // sort it on every emission, we sort an index permutation by the w-component
@@ -1183,7 +1184,7 @@ GGraph4D::footerData_(bool is_secondary, std::size_t p_id, std::size_t own_id, c
     const auto &w_col = this->column<3>();
     const std::size_t data_size = this->currentSize();
 
-    std::string base_name = suffix(is_secondary, p_id, own_id);
+    std::string const base_name = suffix(is_secondary, p_id, own_id);
 
     // Build the w-ordered index permutation, so we can select the n_best_ best more easily
     std::vector<std::size_t> order = std::views::iota(0uz, data_size)
@@ -1239,24 +1240,24 @@ GGraph4D::footerData_(bool is_secondary, std::size_t p_id, std::size_t own_id, c
                 << '\n'
                 << indent << frame_name << "->Draw();" << '\n';
 
-    double w_min = std::get<6>(min_max);
-    double w_max = std::get<7>(min_max);
+    double const w_min = std::get<6>(min_max);
+    double const w_max = std::get<7>(min_max);
 
     // Fill data from the columns into the arrays, following the w-ordered permutation
-    double w_range = w_max - w_min;
+    double const w_range = w_max - w_min;
     std::size_t pos = 0;
-    for(std::size_t idx : order) {
-        std::string poly_marker_name =
+    for(std::size_t const idx : order) {
+        std::string const poly_marker_name =
             std::string("pm3d_") + base_name + std::string("_") + to_string(pos);
 
         // create a TPolyMarker3D for a single data point
         footer_data << indent << "TPolyMarker3D *" << poly_marker_name << " = new TPolyMarker3D(1);"
                     << '\n';
 
-        double x = x_col[idx];
-        double y = y_col[idx];
-        double z = z_col[idx];
-        double w = w_col[idx];
+        double const x = x_col[idx];
+        double const y = y_col[idx];
+        double const z = z_col[idx];
+        double const w = w_col[idx];
 
         // Translate the fourth component into a marker size. By default,
         // smaller values will yield the largest value
@@ -1460,7 +1461,7 @@ std::string GFunctionPlotter1D::headerData_(
 
     const std::string comment = dsMarkerComment(ds_marker_);
 
-    std::string function_name = "func1D" + suffix(is_secondary, p_id, own_id);
+    std::string const function_name = "func1D" + suffix(is_secondary, p_id, own_id);
     result << indent << "TF1 *" << function_name << " = new TF1(\"" << function_name << "\", \""
            << rootEscape(function_description_) << "\"," << std::get<0>(x_extremes_) << ", "
            << std::get<1>(x_extremes_) << ");" << comment << '\n';
@@ -1500,7 +1501,7 @@ std::string GFunctionPlotter1D::footerData_(
 
     const std::string comment = dsMarkerComment(ds_marker_);
 
-    std::string function_name = "func1D" + suffix(is_secondary, p_id, own_id);
+    std::string const function_name = "func1D" + suffix(is_secondary, p_id, own_id);
     footer_data << indent << function_name << "->GetXaxis()->SetTitle(\"" << rootEscape(xAxisLabel()) << "\");"
                 << '\n'
                 << indent << function_name << "->GetYaxis()->SetTitle(\"" << rootEscape(yAxisLabel()) << "\");"
@@ -1509,7 +1510,7 @@ std::string GFunctionPlotter1D::footerData_(
 
     emitRootTitle(footer_data, indent, function_name, plot_label_);
 
-    std::string d_a = this->drawingArguments(is_secondary);
+    std::string const d_a = this->drawingArguments(is_secondary);
 
     footer_data << indent << function_name << "->Draw(\"" << d_a << "\");"
                 << comment << '\n'
@@ -1713,7 +1714,7 @@ std::string GFunctionPlotter2D::headerData_(
 
     const std::string comment = dsMarkerComment(ds_marker_);
 
-    std::string function_name = "func2D" + suffix(is_secondary, p_id, own_id);
+    std::string const function_name = "func2D" + suffix(is_secondary, p_id, own_id);
     result << indent << "TF2 *" << function_name << " = new TF2(\"" << function_name << "\", \""
            << rootEscape(function_description_) << "\"," << std::get<0>(x_extremes_) << ", "
            << std::get<1>(x_extremes_) << ", " << std::get<0>(y_extremes_) << ", "
@@ -1754,7 +1755,7 @@ std::string GFunctionPlotter2D::footerData_(
 
     const std::string comment = dsMarkerComment(ds_marker_);
 
-    std::string function_name = "func2D" + suffix(is_secondary, p_id, own_id);
+    std::string const function_name = "func2D" + suffix(is_secondary, p_id, own_id);
     footer_data << indent << function_name << "->GetXaxis()->SetTitle(\"" << rootEscape(xAxisLabel()) << "\");"
                 << '\n'
                 << indent << function_name << "->GetYaxis()->SetTitle(\"" << rootEscape(yAxisLabel()) << "\");"
@@ -1766,7 +1767,7 @@ std::string GFunctionPlotter2D::footerData_(
 
     emitRootTitle(footer_data, indent, function_name, plot_label_);
 
-    std::string d_a = this->drawingArguments(is_secondary);
+    std::string const d_a = this->drawingArguments(is_secondary);
 
     footer_data << indent << function_name << "->Draw(\"" << d_a << "\");"
                 << comment << '\n'

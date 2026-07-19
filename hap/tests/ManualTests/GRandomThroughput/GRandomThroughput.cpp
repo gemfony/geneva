@@ -62,21 +62,22 @@ template <Gem::Hap::randomSource S>
 double run_measurement(std::uint32_t packageSize, std::uint32_t nCycles, double lo, double hi) {
     Gem::Hap::GRandomT<S>                  gr;
     std::vector<double>                    payload(packageSize);
-    std::uniform_real_distribution<double> uniform_real(lo, hi);
+    std::uniform_real_distribution<double>  uniform_real(lo, hi);
 
-    std::chrono::system_clock::time_point startTime = std::chrono::system_clock::now();
+    std::chrono::system_clock::time_point const startTime = std::chrono::system_clock::now();
     for(std::uint32_t c = 0; c < nCycles; c++) {
         for(auto &p : payload) {
             p = uniform_real(gr);
         }
         std::sort(payload.begin(), payload.end());
     }
-    std::chrono::system_clock::time_point endTime = std::chrono::system_clock::now();
-    std::chrono::duration<double>         duration = endTime - startTime;
+    std::chrono::system_clock::time_point const endTime = std::chrono::system_clock::now();
+    std::chrono::duration<double>         const duration = endTime - startTime;
 
     return static_cast<double>(nCycles * packageSize) / duration.count();
 }
 
+// NOLINTNEXTLINE(readability-function-size) -- main() of a manual test: CLI parsing, then a switch selecting which randomSource to benchmark via run_measurement()
 int main(int argc, char **argv) {
     std::uint16_t nProducerThreads = 4;
     std::uint32_t packageSize = 10000;
@@ -180,7 +181,7 @@ int main(int argc, char **argv) {
     }
 
     // Let the audience know
-    double megabytes = 8. * throughput / (1024 * 1024);
+    double const megabytes = 8. * throughput / (1024 * 1024);
     std::cout << "[" << source << "] achieved a throughput of " << throughput
               << " double random numbers/s (equivalent to " << megabytes << " MB/s)" << '\n';
 }

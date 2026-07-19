@@ -40,6 +40,7 @@
 #include <chrono>
 #include <filesystem>
 #include <string>
+#include <utility>
 
 // Boost header files go here
 
@@ -52,6 +53,7 @@
 
 #ifdef GEM_TESTING
 #include <catch2/catch_test_macros.hpp>
+#include <utility>
 #endif /* GEM_TESTING */
 
 namespace Gem::Geneva::OptimizationAlgorithms {
@@ -98,7 +100,7 @@ public:
         std::shared_ptr<Gem::Common::GFactoryT<gen::GOptimizableEntity>> content_creator_ptr
     )
       : Gem::Common::GFactoryT<oa_type>(config_file)
-      , content_creator_ptr_(content_creator_ptr) { /* nothing */
+      , content_creator_ptr_(std::move(content_creator_ptr)) { /* nothing */
     }
 
     /***************************************************************************/
@@ -197,7 +199,7 @@ public:
 	  *
 	  * @param cc_ptr A factory that produces the individuals used to populate the algorithm; must be non-empty
 	  */
-    void registerContentCreator(std::shared_ptr<Gem::Common::GFactoryT<gen::GOptimizableEntity>> cc_ptr) {
+    void registerContentCreator(const std::shared_ptr<Gem::Common::GFactoryT<gen::GOptimizableEntity>>& cc_ptr) {
         if(not cc_ptr) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
@@ -216,7 +218,7 @@ public:
 	  *
 	  * @param pluggable_om The pluggable optimization monitor to register; must be non-empty
 	  */
-    void registerPluggableOM(std::shared_ptr<GBasePluggableOM> pluggable_om) {
+    void registerPluggableOM(const std::shared_ptr<GBasePluggableOM>& pluggable_om) {
         if(pluggable_om) {
             pluggable_om_ = pluggable_om;
         }
@@ -244,7 +246,7 @@ public:
 	  *
 	  * @return The short mnemonic / nickname identifying the algorithm (e.g. "ea")
 	  */
-    virtual std::string getMnemonic() const = 0;
+    [[nodiscard]] virtual std::string getMnemonic() const = 0;
 
     /***************************************************************************/
     /**
@@ -252,7 +254,7 @@ public:
 	  *
 	  * @return A human-readable, clear-text name of the algorithm
 	  */
-    virtual std::string getAlgorithmName() const = 0;
+    [[nodiscard]] virtual std::string getAlgorithmName() const = 0;
 
     /***************************************************************************/
     /**
@@ -270,7 +272,7 @@ public:
 	  *
 	  * @return true if a maximum number of iterations was set, false otherwise
 	  */
-    bool maxIterationsCLSet() const {
+    [[nodiscard]] bool maxIterationsCLSet() const {
         return max_iteration_cl_ != CL_UNSET;
     }
 
@@ -280,7 +282,7 @@ public:
 	  *
 	  * @return The maximum number of iterations set on the command line (throws if it was never set)
 	  */
-    std::uint32_t getMaxIterationCL() const {
+    [[nodiscard]] std::uint32_t getMaxIterationCL() const {
         if(max_iteration_cl_ != CL_UNSET) {
             return Gem::Common::narrow<std::uint32_t>(max_iteration_cl_);
         }
@@ -311,7 +313,7 @@ public:
 	  *
 	  * @return true if a maximum number of stall iterations was set, false otherwise
 	  */
-    bool maxStallIterationsCLSet() const {
+    [[nodiscard]] bool maxStallIterationsCLSet() const {
         return max_stall_iteration_cl_ != CL_UNSET;
     }
 
@@ -321,7 +323,7 @@ public:
 	  *
 	  * @return The maximum number of stall iterations set on the command line (throws if it was never set)
 	  */
-    std::uint32_t getMaxStallIterationCL() const {
+    [[nodiscard]] std::uint32_t getMaxStallIterationCL() const {
         if(max_stall_iteration_cl_ != CL_UNSET) {
             return Gem::Common::narrow<std::uint32_t>(max_stall_iteration_cl_);
         }
@@ -353,7 +355,7 @@ public:
 	  *
 	  * @return true if a maximum run duration was set, false otherwise
 	  */
-    bool maxSecondsCLSet() const {
+    [[nodiscard]] bool maxSecondsCLSet() const {
         return max_seconds_cl_ != CL_UNSET;
     }
 
@@ -363,9 +365,9 @@ public:
 	  *
 	  * @return The maximum run duration set on the command line, as a duration (throws if it was never set)
 	  */
-    std::chrono::duration<double> getMaxTimeCL() const {
+    [[nodiscard]] std::chrono::duration<double> getMaxTimeCL() const {
         if(max_seconds_cl_ != CL_UNSET) {
-            std::chrono::duration<double> max_duration =
+            std::chrono::duration<double> const max_duration =
                 std::chrono::seconds(Gem::Common::narrow<long>(max_seconds_cl_));
             return max_duration;
         }
@@ -395,7 +397,7 @@ protected:
         // If we have been given a factory function for individuals, fill the object with data
         if(content_creator_ptr_) { // Has a content creation object been registered ? If so, add individuals to the population
             for(std::size_t ind = 0; ind < p_alg->getDefaultPopulationSize(); ind++) {
-                std::shared_ptr<gen::GOptimizableEntity> p_ind = (*content_creator_ptr_)();
+                std::shared_ptr<gen::GOptimizableEntity> const p_ind = (*content_creator_ptr_)();
                 if(not p_ind) { // No valid item received, the factory has run empty
                     break;
                 }

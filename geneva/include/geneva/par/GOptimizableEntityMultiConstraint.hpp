@@ -130,7 +130,7 @@ private:
      *
      * @return A deep clone of this object (pure virtual; defined by derived classes)
      */
-    GPreEvaluationValidityCheckT<GOptimizableEntity> *clone_() const override = 0;
+    [[nodiscard]] GPreEvaluationValidityCheckT<GOptimizableEntity> *clone_() const override = 0;
 };
 
 /******************************************************************************/

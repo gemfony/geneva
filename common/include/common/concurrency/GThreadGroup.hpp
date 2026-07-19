@@ -103,7 +103,7 @@ public:
      *
      * @param thread_p A shared pointer to the std::jthread that should be added to the group
      */
-    void add_thread(thread_ptr thrd);
+    void add_thread(const thread_ptr& thrd);
 
     /** @brief Requests all threads to join */
     void join_all();
@@ -132,7 +132,7 @@ public:
         // `new std::jthread(...)` for exception-safe single-allocation.
         auto new_thread =
             std::make_shared<std::jthread>(std::forward<F>(f), std::forward<Args>(args)...);
-        std::scoped_lock guard(mutex_);
+        std::scoped_lock const guard(mutex_);
         threads_.push_back(new_thread);
         return new_thread;
     }

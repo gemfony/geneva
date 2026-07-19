@@ -203,7 +203,7 @@ struct GPlotSpec {
     static std::string jsonEscape(const std::string &in) {
         std::string out;
         out.reserve(in.size() + 2);
-        for(char c : in) {
+        for(char const c : in) {
             switch(c) {
                 case '"':  out += "\\\""; break;
                 case '\\': out += "\\\\"; break;

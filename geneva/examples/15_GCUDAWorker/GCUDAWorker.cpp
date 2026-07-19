@@ -230,6 +230,7 @@ int runParityCheck(const std::shared_ptr<Gem::Common::GFactoryT<gen::GOptimizabl
 
 } // anonymous namespace
 
+// NOLINTNEXTLINE(readability-function-size) -- example 15's main(): the launcher's linear setup script (config parsing, --update-configs, client mode, target-image load, parity-check dispatch, monitor + adaption-config registration, run); splitting would scatter tightly sequential one-shot setup steps
 int main(int argc, char **argv) {
     // ---- example-specific settings, read from a Geneva config file ----------------------------
     // Ordinary config-file parameters parsed through the standard GParserBuilder (which also writes the file

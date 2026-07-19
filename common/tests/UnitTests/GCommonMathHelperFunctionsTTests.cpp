@@ -62,12 +62,12 @@ TEST_CASE(
 ) {
     const double barrier = 10.;
     const double steepness = 1.;
-    double large_pos = Gem::Common::grational_sigmoid(1e6, barrier, steepness);
+    double const large_pos = Gem::Common::grational_sigmoid(1e6, barrier, steepness);
     REQUIRE(large_pos > 0.);
     REQUIRE(large_pos < barrier);
     REQUIRE(large_pos == Approx(barrier).epsilon(0.01));
 
-    double large_neg = Gem::Common::grational_sigmoid(-1e6, barrier, steepness);
+    double const large_neg = Gem::Common::grational_sigmoid(-1e6, barrier, steepness);
     REQUIRE(large_neg < 0.);
     REQUIRE(large_neg > -barrier);
     REQUIRE(large_neg == Approx(-barrier).epsilon(0.01));
@@ -79,12 +79,12 @@ TEST_CASE(
 ) {
     const float barrier = 5.f;
     const float steepness = 1.f;
-    float large_pos = Gem::Common::grational_sigmoid(1e5f, barrier, steepness);
+    float const large_pos = Gem::Common::grational_sigmoid(1e5f, barrier, steepness);
     REQUIRE(large_pos > 0.f);
     REQUIRE(large_pos < barrier);
     REQUIRE(large_pos == Approx(barrier).epsilon(0.01));
 
-    float large_neg = Gem::Common::grational_sigmoid(-1e5f, barrier, steepness);
+    float const large_neg = Gem::Common::grational_sigmoid(-1e5f, barrier, steepness);
     REQUIRE(large_neg < 0.f);
     REQUIRE(large_neg > -barrier);
     REQUIRE(large_neg == Approx(-barrier).epsilon(0.01));
@@ -96,7 +96,7 @@ TEST_CASE(
 ) {
     const double barrier = 10.;
     const double steepness = 1.;
-    for(double v : {0.1, 1.0, 5.0, 100.0}) {
+    for(double const v : {0.1, 1.0, 5.0, 100.0}) {
         REQUIRE(
             Gem::Common::grational_sigmoid(-v, barrier, steepness) ==
             Approx(-Gem::Common::grational_sigmoid(v, barrier, steepness))
@@ -110,7 +110,7 @@ TEST_CASE(
 ) {
     const float barrier = 3.f;
     const float steepness = 2.f;
-    for(float v : {0.1f, 1.0f, 5.0f}) {
+    for(float const v : {0.1f, 1.0f, 5.0f}) {
         REQUIRE(
             Gem::Common::grational_sigmoid(-v, barrier, steepness) ==
             Approx(-Gem::Common::grational_sigmoid(v, barrier, steepness))
@@ -124,8 +124,8 @@ TEST_CASE(
 ) {
     const double barrier = 10.;
     const double v = 5.;
-    double slow = Gem::Common::grational_sigmoid(v, barrier, 10.);
-    double fast = Gem::Common::grational_sigmoid(v, barrier, 1.);
+    double const slow = Gem::Common::grational_sigmoid(v, barrier, 10.);
+    double const fast = Gem::Common::grational_sigmoid(v, barrier, 1.);
     REQUIRE(slow > 0.);
     REQUIRE(fast > 0.);
     REQUIRE(slow < barrier);
@@ -137,7 +137,7 @@ TEST_CASE(
     "grational_sigmoid<double>: known value at v==steepness",
     "[common][math][grational_sigmoid]"
 ) {
-    for(double s : {1., 2., 5.}) {
+    for(double const s : {1., 2., 5.}) {
         REQUIRE(Gem::Common::grational_sigmoid(s, 10., s) == Approx(5.));
     }
 }
@@ -330,14 +330,14 @@ TEST_CASE(
 // --- getMinMax -----------------------------------------------------------
 
 TEST_CASE("getMinMax 1D: returns correct min and max", "[common][math][getMinMax]") {
-    std::vector<double> v{3., 1., 4., 1., 5., 9., 2., 6.};
+    std::vector<double> const v{3., 1., 4., 1., 5., 9., 2., 6.};
     auto [lo, hi] = Gem::Common::getMinMax(v);
     REQUIRE(lo == Approx(1.));
     REQUIRE(hi == Approx(9.));
 }
 
 TEST_CASE("getMinMax 1D: two-element vector", "[common][math][getMinMax]") {
-    std::vector<int> v{7, 3};
+    std::vector<int> const v{7, 3};
     auto [lo, hi] = Gem::Common::getMinMax(v);
     REQUIRE(lo == 3);
     REQUIRE(hi == 7);
@@ -353,7 +353,7 @@ TEST_CASE(
     "[common][math][getMinMax]"
 ) {
     using T = std::tuple<double, double>;
-    std::vector<T> v{{1., 10.}, {3., 2.}, {2., 8.}};
+    std::vector<T> const v{{1., 10.}, {3., 2.}, {2., 8.}};
     auto [minX, maxX, minY, maxY] = Gem::Common::getMinMax(v);
     REQUIRE(minX == Approx(1.));
     REQUIRE(maxX == Approx(3.));
@@ -371,7 +371,7 @@ TEST_CASE(
     "[common][math][getMinMax]"
 ) {
     using T = std::tuple<double, double, double>;
-    std::vector<T> v{{1., 10., 100.}, {3., 2., 50.}, {2., 8., 200.}};
+    std::vector<T> const v{{1., 10., 100.}, {3., 2., 50.}, {2., 8., 200.}};
     auto [minX, maxX, minY, maxY, minZ, maxZ] = Gem::Common::getMinMax(v);
     REQUIRE(minX == Approx(1.));
     REQUIRE(maxX == Approx(3.));
@@ -386,7 +386,7 @@ TEST_CASE(
     "[common][math][getMinMax]"
 ) {
     using T = std::tuple<double, double, double, double>;
-    std::vector<T> v{{1., 10., 100., 1000.}, {3., 2., 50., 500.}, {2., 8., 200., 2000.}};
+    std::vector<T> const v{{1., 10., 100., 1000.}, {3., 2., 50., 500.}, {2., 8., 200., 2000.}};
     auto [minX, maxX, minY, maxY, minZ, maxZ, minW, maxW] = Gem::Common::getMinMax(v);
     REQUIRE(minX == Approx(1.));
     REQUIRE(maxX == Approx(3.));
@@ -401,17 +401,17 @@ TEST_CASE(
 // --- GMean ---------------------------------------------------------------
 
 TEST_CASE("GMean: single element returns that element", "[common][math][GMean]") {
-    std::vector<double> v{7.5};
+    std::vector<double> const v{7.5};
     REQUIRE(Gem::Common::GMean(v) == Approx(7.5));
 }
 
 TEST_CASE("GMean: known arithmetic mean", "[common][math][GMean]") {
-    std::vector<double> v{1., 2., 3., 4., 5.};
+    std::vector<double> const v{1., 2., 3., 4., 5.};
     REQUIRE(Gem::Common::GMean(v) == Approx(3.));
 }
 
 TEST_CASE("GMean: constant vector returns the constant", "[common][math][GMean]") {
-    std::vector<double> v(10, 4.2);
+    std::vector<double> const v(10, 4.2);
     REQUIRE(Gem::Common::GMean(v) == Approx(4.2));
 }
 
@@ -427,7 +427,7 @@ TEST_CASE(
     "GStandardDeviation: single element gives sigma=0",
     "[common][math][GStandardDeviation]"
 ) {
-    std::vector<double> v{3.7};
+    std::vector<double> const v{3.7};
     auto [mean, sigma] = Gem::Common::GStandardDeviation(v);
     REQUIRE(mean == Approx(3.7));
     REQUIRE(sigma == Approx(0.));
@@ -437,14 +437,14 @@ TEST_CASE(
     "GStandardDeviation: constant vector gives sigma=0",
     "[common][math][GStandardDeviation]"
 ) {
-    std::vector<double> v(5, 2.0);
+    std::vector<double> const v(5, 2.0);
     auto [mean, sigma] = Gem::Common::GStandardDeviation(v);
     REQUIRE(mean == Approx(2.0));
     REQUIRE(sigma == Approx(0.));
 }
 
 TEST_CASE("GStandardDeviation: known values {1,2,3,4,5}", "[common][math][GStandardDeviation]") {
-    std::vector<double> v{1., 2., 3., 4., 5.};
+    std::vector<double> const v{1., 2., 3., 4., 5.};
     auto [mean, sigma] = Gem::Common::GStandardDeviation(v);
     REQUIRE(mean == Approx(3.));
     REQUIRE(sigma == Approx(std::sqrt(2.5)));
@@ -469,7 +469,7 @@ TEST_CASE("PowSmallPosInt: compile-time integer powers", "[common][math][PowSmal
 
 TEST_CASE("subtractVec: element-wise subtraction", "[common][math][subtractVec]") {
     std::vector<double> a{5., 7., 9.};
-    std::vector<double> b{1., 2., 3.};
+    std::vector<double> const b{1., 2., 3.};
     Gem::Common::subtractVec(a, b);
     REQUIRE(a[0] == Approx(4.));
     REQUIRE(a[1] == Approx(5.));
@@ -478,7 +478,7 @@ TEST_CASE("subtractVec: element-wise subtraction", "[common][math][subtractVec]"
 
 TEST_CASE("addVec: element-wise addition", "[common][math][addVec]") {
     std::vector<double> a{1., 2., 3.};
-    std::vector<double> b{4., 5., 6.};
+    std::vector<double> const b{4., 5., 6.};
     Gem::Common::addVec(a, b);
     REQUIRE(a[0] == Approx(5.));
     REQUIRE(a[1] == Approx(7.));
@@ -491,7 +491,7 @@ TEST_CASE(
 ) {
     std::vector<double> original{3., 1., 4., 1., 5.};
     std::vector<double> a = original;
-    std::vector<double> b{2., 7., 1., 8., 2.};
+    std::vector<double> const b{2., 7., 1., 8., 2.};
     Gem::Common::addVec(a, b);
     Gem::Common::subtractVec(a, b);
     for(std::size_t i = 0; i < a.size(); ++i) {
@@ -552,7 +552,7 @@ TEST_CASE("assignVecConst: empty vector is a no-op", "[common][math][assignVecCo
 
 TEST_CASE("sumTupleVec: sums x- and y-components independently", "[common][math][sumTupleVec]") {
     using T = std::tuple<double, double>;
-    std::vector<T> v{{1., 2.}, {3., 4.}, {5., 6.}};
+    std::vector<T> const v{{1., 2.}, {3., 4.}, {5., 6.}};
     auto [sx, sy] = Gem::Common::sumTupleVec(v);
     REQUIRE(sx == Approx(9.));
     REQUIRE(sy == Approx(12.));
@@ -563,7 +563,7 @@ TEST_CASE(
     "[common][math][squareSumTupleVec]"
 ) {
     using T = std::tuple<double, double>;
-    std::vector<T> v{{1., 2.}, {3., 4.}};
+    std::vector<T> const v{{1., 2.}, {3., 4.}};
     auto [sqx, sqy] = Gem::Common::squareSumTupleVec(v);
     REQUIRE(sqx == Approx(10.));
     REQUIRE(sqy == Approx(20.));
@@ -571,8 +571,8 @@ TEST_CASE(
 
 TEST_CASE("productSumTupleVec: sums x*y products", "[common][math][productSumTupleVec]") {
     using T = std::tuple<double, double>;
-    std::vector<T> v{{1., 2.}, {3., 4.}};
-    double ps = Gem::Common::productSumTupleVec(v);
+    std::vector<T> const v{{1., 2.}, {3., 4.}};
+    double const ps = Gem::Common::productSumTupleVec(v);
     REQUIRE(ps == Approx(14.));
 }
 
@@ -583,7 +583,7 @@ TEST_CASE(
     "[common][math][squareDeviation]"
 ) {
     using T = std::tuple<double, double>;
-    std::vector<T> pts{{0., 1.}, {1., 3.}, {2., 5.}, {3., 7.}};
+    std::vector<T> const pts{{0., 1.}, {1., 3.}, {2., 5.}, {3., 7.}};
     REQUIRE(Gem::Common::squareDeviation(pts, 1., 2.) == Approx(0.).margin(1e-10));
 }
 
@@ -592,7 +592,7 @@ TEST_CASE(
     "[common][math][squareDeviation]"
 ) {
     using T = std::tuple<double, double>;
-    std::vector<T> pts{{0., 1.}, {1., 2.}, {2., 3.}};
+    std::vector<T> const pts{{0., 1.}, {1., 2.}, {2., 3.}};
     REQUIRE(Gem::Common::squareDeviation(pts, 0., 1.) == Approx(3.));
 }
 
@@ -615,7 +615,7 @@ TEST_CASE(
     "[common][math][getRegressionParameters]"
 ) {
     using T = std::tuple<double, double>;
-    std::vector<T> pts{{0., 1.}, {1., 3.}, {2., 5.}, {3., 7.}};
+    std::vector<T> const pts{{0., 1.}, {1., 3.}, {2., 5.}, {3., 7.}};
     auto [a, sa, b, sb] = Gem::Common::getRegressionParameters(pts);
     REQUIRE(a == Approx(1.).margin(1e-10));
     REQUIRE(b == Approx(2.).margin(1e-10));
@@ -649,15 +649,15 @@ TEST_CASE("getRatioError: mismatched sleep times throws", "[common][math][getRat
 
 TEST_CASE("getRatioErrors: size mismatch throws", "[common][math][getRatioErrors]") {
     using T4 = std::tuple<double, double, double, double>;
-    std::vector<T4> sn{{1., 0., 2., 0.1}};
-    std::vector<T4> pn{{1., 0., 1., 0.1}, {2., 0., 1., 0.1}};
+    std::vector<T4> const sn{{1., 0., 2., 0.1}};
+    std::vector<T4> const pn{{1., 0., 1., 0.1}, {2., 0., 1., 0.1}};
     REQUIRE_THROWS_AS(Gem::Common::getRatioErrors(sn, pn), geneva_exception);
 }
 
 TEST_CASE("getRatioErrors: applies getRatioError element-wise", "[common][math][getRatioErrors]") {
     using T4 = std::tuple<double, double, double, double>;
-    std::vector<T4> sn{{1., 0., 4., 0.}, {1., 0., 4., 0.}};
-    std::vector<T4> pn{{1., 0., 2., 0.}, {1., 0., 2., 0.}};
+    std::vector<T4> const sn{{1., 0., 4., 0.}, {1., 0., 4., 0.}};
+    std::vector<T4> const pn{{1., 0., 2., 0.}, {1., 0., 2., 0.}};
     auto result = Gem::Common::getRatioErrors(sn, pn);
     REQUIRE(result.size() == 2);
     for(const auto &r : result) {

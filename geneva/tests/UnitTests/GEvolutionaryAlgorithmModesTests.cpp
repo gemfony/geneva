@@ -78,7 +78,7 @@ public:
     HighDimSphere(const HighDimSphere &) = default;
 
     /** @brief A Gauss config with the CLASSIC fixed sigma_sigma=0.8 (what the stock EA uses). */
-    std::shared_ptr<oa::GAdaptionConfigBase> buildAdaptionConfig() const {
+    [[nodiscard]] std::shared_ptr<oa::GAdaptionConfigBase> buildAdaptionConfig() const {
         auto cfg = oa::makeAdaptionConfig<oa::GAdaptionConfigBase>(*this);
         // sigma, sigma_sigma, min_sigma, max_sigma, ad_prob. The shared step per dimension is
         // range * N(0, sigma) with range = 10 (the [-5,5) span), so a modest sigma keeps the per-dim
@@ -92,7 +92,7 @@ protected:
         std::vector<double> v;
         this->template streamline<double>(v);
         double s = 0.;
-        for(double x : v) {
+        for(double const x : v) {
             s += x * x;
         }
         return {s};
@@ -110,7 +110,7 @@ double runStockEA(std::size_t pop, std::size_t parents, std::size_t iterations) 
     p->setMaxStallIteration(0);
     p->setReportIteration(100000);
     p->setStepControl(stepControl::SELF_ADAPT); // legacy fixed-sigma-self-adaption behaviour
-    HighDimSphere<N> src;
+    HighDimSphere<N> const src;
     p->push_back(src.clone_unique());
     p->setAdaptionConfig(src.buildAdaptionConfig());
     p->optimize();
@@ -119,7 +119,7 @@ double runStockEA(std::size_t pop, std::size_t parents, std::size_t iterations) 
     std::vector<double> v;
     best->template streamline<double>(v);
     double s = 0.;
-    for(double x : v) {
+    for(double const x : v) {
         s += x * x;
     }
     return s;
@@ -135,7 +135,7 @@ double runAdaptiveEA(std::size_t pop, std::size_t parents, std::size_t iteration
     p->setMaxStallIteration(0);
     p->setReportIteration(100000);
     p->setStepControl(sc);
-    HighDimSphere<N> src;
+    HighDimSphere<N> const src;
     p->push_back(src.clone_unique());
     p->setAdaptionConfig(src.buildAdaptionConfig()); // SAME config the stock EA gets (fixed 0.8)
     p->optimize();
@@ -144,7 +144,7 @@ double runAdaptiveEA(std::size_t pop, std::size_t parents, std::size_t iteration
     std::vector<double> v;
     best->template streamline<double>(v);
     double s = 0.;
-    for(double x : v) {
+    for(double const x : v) {
         s += x * x;
     }
     return s;
@@ -167,7 +167,7 @@ double runEAmode(
     p->setReportIteration(100000);
     p->setStepControl(sc);
     p->setSortingScheme(sm);
-    HighDimSphere<N> src;
+    HighDimSphere<N> const src;
     p->push_back(src.clone_unique());
     p->setAdaptionConfig(src.buildAdaptionConfig());
     p->optimize();
@@ -176,7 +176,7 @@ double runEAmode(
     std::vector<double> v;
     best->template streamline<double>(v);
     double s = 0.;
-    for(double x : v) {
+    for(double const x : v) {
         s += x * x;
     }
     return s;
@@ -236,7 +236,7 @@ TEST_CASE("ea Pareto modes still work on a single-objective problem", "[ea][oa][
         p->setMaxIteration(120);
         p->setReportIteration(100000);
         p->setSortingScheme(mode);
-        HighDimSphere<5> src;
+        HighDimSphere<5> const src;
         p->push_back(src.clone_unique());
         p->setAdaptionConfig(src.buildAdaptionConfig());
         CHECK_NOTHROW(p->optimize());
@@ -267,11 +267,11 @@ TEST_CASE("ea converges under EVERY step_control x sorting mode", "[ea][oa][step
     // modes -- the 4x2 matrix that a healthy EA must pass. It FAILS on the pre-fix ONE_FIFTH / CSA comma
     // combinations (they stall around 0.05+) and passes once the success signal is corrected.
     using Gem::Geneva::sortingMode;
-    for(stepControl sc : {stepControl::SELF_ADAPT,
+    for(stepControl const sc : {stepControl::SELF_ADAPT,
                           stepControl::SELF_ADAPT_SCALED,
                           stepControl::ONE_FIFTH,
                           stepControl::CSA}) {
-        for(sortingMode sm : {sortingMode::MUPLUSNU_SINGLEEVAL, sortingMode::MUCOMMANU_SINGLEEVAL}) {
+        for(sortingMode const sm : {sortingMode::MUPLUSNU_SINGLEEVAL, sortingMode::MUCOMMANU_SINGLEEVAL}) {
             // 2-D sphere, pop 42 / 2 parents (the ex07 shape). A healthy controller anneals sigma and
             // reaches ~1e-8 or better within this budget; a broken global-sigma controller lets sigma run
             // away, after which no sample beats the early best again -- its best-ever FREEZES well above

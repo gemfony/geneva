@@ -115,10 +115,10 @@ void startReferenceMeasurement(
             }
 
             // Do the actual optimization and measure the time
-            std::chrono::system_clock::time_point startTime = std::chrono::system_clock::now();
+            std::chrono::system_clock::time_point const startTime = std::chrono::system_clock::now();
             ea_alg->optimize();
-            std::chrono::system_clock::time_point endTime = std::chrono::system_clock::now();
-            std::chrono::duration<double> duration = endTime - startTime;
+            std::chrono::system_clock::time_point const endTime = std::chrono::system_clock::now();
+            std::chrono::duration<double> const duration = endTime - startTime;
 
             referenceExecutionTimes.push_back(
                 std::tuple<double, double>(gdi_ptr->getFixedSleepTime().count(), duration.count())
@@ -185,10 +185,10 @@ void startParallelMeasurement(
             // the accumulated iteration (passed as the offset) so the absolute
             // max-iteration halt criterion does not fire immediately on the second
             // and later measurements.
-            std::chrono::system_clock::time_point startTime = std::chrono::system_clock::now();
+            std::chrono::system_clock::time_point const startTime = std::chrono::system_clock::now();
             go.optimize(go.getIteration());
-            std::chrono::system_clock::time_point endTime = std::chrono::system_clock::now();
-            std::chrono::duration<double> duration = endTime - startTime;
+            std::chrono::system_clock::time_point const endTime = std::chrono::system_clock::now();
+            std::chrono::duration<double> const duration = endTime - startTime;
 
             delaySummary.push_back(duration.count());
 
@@ -236,12 +236,12 @@ std::vector<std::tuple<double, double, double, double>> getReferenceTimes(
 
     std::vector<std::tuple<double, double, double, double>>::iterator it;
     for(it = referenceExecutionTimes.begin(); it != referenceExecutionTimes.end(); ++it) {
-        double sleepTime = std::get<0>(*it); // Left unmodified, taken from measurementTemplate
+        double const sleepTime = std::get<0>(*it); // Left unmodified, taken from measurementTemplate
 
-        double a = std::get<0>(ab);
-        double a_err = std::get<1>(ab);
-        double b = std::get<2>(ab);
-        double b_err = std::get<3>(ab);
+        double const a = std::get<0>(ab);
+        double const a_err = std::get<1>(ab);
+        double const b = std::get<2>(ab);
+        double const b_err = std::get<3>(ab);
 
         std::get<1>(*it) = 0.;                // No error on the sleep time
         std::get<2>(*it) = a + b * sleepTime; // a line
@@ -302,18 +302,18 @@ int main(int argc, char **argv) {
     referenceExecutionTimes = getReferenceTimes(ab, parallelExecutionTimes);
 
     // Calculate the errors
-    std::vector<std::tuple<double, double, double, double>> ratioWithErrors =
+    std::vector<std::tuple<double, double, double, double>> const ratioWithErrors =
         getRatioErrors(referenceExecutionTimes, parallelExecutionTimes);
 
     //---------------------------------------------------------------------
     // Will hold all plot information
-    std::shared_ptr<GGraph2ED> greference_ptr(new GGraph2ED());
+    std::shared_ptr<GGraph2ED> const greference_ptr(new GGraph2ED());
     greference_ptr->setPlotLabel("Serial execution times and errors");
 
-    std::shared_ptr<GGraph2ED> gparallel_ptr(new GGraph2ED());
+    std::shared_ptr<GGraph2ED> const gparallel_ptr(new GGraph2ED());
     gparallel_ptr->setPlotLabel("Parallel execution times and errors");
 
-    std::shared_ptr<GGraph2ED> gratio_ptr(new GGraph2ED());
+    std::shared_ptr<GGraph2ED> const gratio_ptr(new GGraph2ED());
     gratio_ptr->setPlotLabel("Speedup: serial/parallel execution times and errors");
 
     (*greference_ptr) & referenceExecutionTimes;

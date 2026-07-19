@@ -185,6 +185,11 @@ are in `CHANGES` and `INSTALL`; this file is the practical upgrade guide.
   own API uses are still imported per-name; a consumer that relied on the blanket
   re-export for its *own* unqualified use of common names must now qualify or import
   them itself.
+- **A process-wide thread budget now accounts every pool** (`GThreadBudget` in
+  `common/concurrency/`). The budget does accounting only — every reservation is granted in
+  full; its single behavioral effect is a warning (at most three per process) when the
+  reserved thread total crosses 2x the hardware ceiling, naming the largest reservations —
+  previously oversubscription was silent.
 - **courtier: the socket consumers/clients gained shared bases** — `GAsioConsumerT` /
   `GWebsocketConsumerT` now derive from `GTcpAcceptingConsumerT` (the common TCP server
   shell) and `GAsioConsumerClientT` / `GWebsocketClientT` from `GPrefetchingClientT`

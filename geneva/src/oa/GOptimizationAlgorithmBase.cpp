@@ -166,7 +166,7 @@ void GOptimizationAlgorithmBase::checkpoint(bool is_better) const {
  */
 void GOptimizationAlgorithmBase::loadCheckpoint(std::filesystem::path const &cp_file) {
     // Extract the name of the optimization algorithm used for this file
-    std::string opt_desc = this->extractOptAlgFromPath(cp_file);
+    std::string const opt_desc = this->extractOptAlgFromPath(cp_file);
 
     // Make sure it fits our own algorithm
     if(opt_desc != this->getAlgorithmPersonalityType()) {
@@ -305,8 +305,8 @@ std::size_t GOptimizationAlgorithmBase::requireFloatingPointGenome_(
  * @param cp_base_name The base name used for the checkpoint files
  */
 void GOptimizationAlgorithmBase::setCheckpointBaseName(
-    std::string cp_directory,
-    std::string cp_base_name
+    const std::string& cp_directory,
+    const std::string& cp_base_name
 ) {
     // Do some basic checks
     if(cp_base_name == "empty" || cp_base_name.empty()) {
@@ -524,6 +524,7 @@ void GOptimizationAlgorithmBase::resetToOptimizationStart_() {
  * @param offset Specifies the iteration number to start with (e.g. useful when starting from a checkpoint file)
  * @return A constant pointer to this object
  */
+// NOLINTNEXTLINE(readability-function-size) -- the single top-level optimization lifecycle driver (setup, the init/cycle/checkpoint/halt loop, teardown) shared by every optimization algorithm; splitting the sequenced setup->loop->teardown would scatter one coherent control-flow entry point
 GOptimizationAlgorithmBase const *GOptimizationAlgorithmBase::optimize_(std::uint32_t offset) {
     // Reset the generation counter
     iteration_ = offset;
@@ -553,7 +554,7 @@ GOptimizationAlgorithmBase const *GOptimizationAlgorithmBase::optimize_(std::uin
     }
 
     // We want to know if no better values were found for a longer period of time
-    double worst_case = this->at(0)->getWorstCase();
+    double const worst_case = this->at(0)->getWorstCase();
     best_known_primary_fitness_ = std::make_tuple(worst_case, worst_case);
     best_current_primary_fitness_ = std::make_tuple(worst_case, worst_case);
 
@@ -690,7 +691,7 @@ bool GOptimizationAlgorithmBase::progress() const {
  * @param pluggable_om A shared pointer to the pluggable optimization monitor to be registered (must not be empty)
  */
 void GOptimizationAlgorithmBase::registerPluggableOM(
-    std::shared_ptr<GBasePluggableOM> pluggable_om
+    const std::shared_ptr<GBasePluggableOM>& pluggable_om
 ) {
     if(pluggable_om) {
         pluggable_monitors_cnt_.push_back(pluggable_om);
@@ -1162,6 +1163,7 @@ std::size_t GOptimizationAlgorithmBase::getNProcessableItems_() const {
  *
  * @param gpb The GParserBuilder object to which configuration options should be added
  */
+// NOLINTNEXTLINE(readability-function-size) -- one coherent config-registration sweep binding every base-class optimization option (iteration limits, checkpointing, termination file, quality threshold, ...); splitting would scatter the option list
 void GOptimizationAlgorithmBase::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) {
     // Call our CRTP base class'es function (the category root has no GObject parent)
     Gem::Common::GCommonInterfaceT<GOptimizationAlgorithmBase>::addConfigurationOptions_(gpb);
@@ -1212,7 +1214,7 @@ void GOptimizationAlgorithmBase::addConfigurationOptions_(Gem::Common::GParserBu
         DEFAULTTERMINATIONFILE // The default value
         ,
         false,
-        [this](std::string tf, bool tfa) { this->setTerminationFile(tf, tfa); },
+        [this](std::string tf, bool tfa) { this->setTerminationFile(std::move(tf), tfa); },
         "touched_termination"
     ) << "The name of a file which, when modified after the start of an"
       << '\n'
@@ -1290,7 +1292,7 @@ void GOptimizationAlgorithmBase::addConfigurationOptions_(Gem::Common::GParserBu
         DEFAULTCPBASENAME // Default value for the second variable
         ,
         [this](std::string cp_dir, std::string cp_bn) {
-            this->setCheckpointBaseName(cp_dir, cp_bn);
+            this->setCheckpointBaseName(std::move(cp_dir), std::move(cp_bn));
         },
         "checkpoint_location"
     ) << "The directory where checkpoint files should be stored."
@@ -1335,7 +1337,7 @@ void GOptimizationAlgorithmBase::addConfigurationOptions_(Gem::Common::GParserBu
         ,
         DEFAULTDURATION // The default value
         ,
-        [this](std::string mt_str) { this->setMaxTime(Gem::Common::duration_from_string(mt_str)); }
+        [this](const std::string& mt_str) { this->setMaxTime(Gem::Common::duration_from_string(mt_str)); }
     ) << "The maximum allowed time-frame for the optimization"
       << '\n'
       << "in the format hours:minutes:seconds";
@@ -1345,7 +1347,7 @@ void GOptimizationAlgorithmBase::addConfigurationOptions_(Gem::Common::GParserBu
         ,
         DEFAULTMINDURATION // The default value
         ,
-        [this](std::string mt_str) { this->setMinTime(Gem::Common::duration_from_string(mt_str)); }
+        [this](const std::string& mt_str) { this->setMinTime(Gem::Common::duration_from_string(mt_str)); }
     ) << "The minimum required time-frame for the optimization"
       << '\n'
       << "in the format hours:minutes:seconds";
@@ -1476,7 +1478,7 @@ bool GOptimizationAlgorithmBase::afterFirstIteration() const {
  */
 bool GOptimizationAlgorithmBase::cp_personality_fits(const std::filesystem::path &p) const {
     // Extract the name of the optimization algorithm used for this file
-    std::string opt_desc = this->extractOptAlgFromPath(p);
+    std::string const opt_desc = this->extractOptAlgFromPath(p);
 
     // Make sure it fits our own algorithm
     return opt_desc == this->getAlgorithmPersonalityType();
@@ -1635,7 +1637,7 @@ Gem::Courtier::submission_status_t GOptimizationAlgorithmBase::workOnViaConsumer
     // transport-agnostic: it submits through the one process-wide consumer and gets back a fully
     // reconciled span. The submission policy is the algorithm's choice (clone-on-partial-return vs
     // full-success-or-fatal).
-    std::span<std::unique_ptr<gen::GOptimizableEntity>> sp(work_items.data() + start, end - start);
+    std::span<std::unique_ptr<gen::GOptimizableEntity>> const sp(work_items.data() + start, end - start);
     auto consumer = this->consumerForSubmission_();
     consumer->processBatch(sp, this->getSubmissionPolicy_());
 
@@ -1770,7 +1772,7 @@ void GOptimizationAlgorithmBase::saveCheckpoint(std::filesystem::path const &out
 std::string
 GOptimizationAlgorithmBase::extractOptAlgFromPath(const std::filesystem::path &p) {
     // Extract the filename
-    std::string filename = p.filename().string();
+    std::string const filename = p.filename().string();
 
     // Divide the name into tokens
     std::vector<std::string> tokens = Gem::Common::splitString(filename, "-");
@@ -1797,7 +1799,7 @@ GOptimizationAlgorithmBase::extractOptAlgFromPath(const std::filesystem::path &p
  * @return A cloned shared pointer to the globally best individual found so far
  */
 std::shared_ptr<gen::GOptimizableEntity> GOptimizationAlgorithmBase::getBestGlobalIndividual_() const {
-    std::shared_ptr<gen::GOptimizableEntity> p = best_global_individuals_pq_.best();
+    std::shared_ptr<gen::GOptimizableEntity> const p = best_global_individuals_pq_.best();
 #ifdef DEBUG
     if(!p) {
         throw geneva_exception(
@@ -1837,7 +1839,7 @@ GOptimizationAlgorithmBase::getBestGlobalIndividuals_() const {
  * @return A cloned shared pointer to the best individual found in the current iteration
  */
 std::shared_ptr<gen::GOptimizableEntity> GOptimizationAlgorithmBase::getBestIterationIndividual_() const {
-    std::shared_ptr<gen::GOptimizableEntity> p = best_iteration_individuals_pq_.best();
+    std::shared_ptr<gen::GOptimizableEntity> const p = best_iteration_individuals_pq_.best();
 #ifdef DEBUG
     if(!p) {
         throw geneva_exception(
@@ -1970,7 +1972,11 @@ void GOptimizationAlgorithmBase::init() {
 
     // Create the shared thread pool used for parallel organizational work (adaption,
     // recombination, ...). Derived algorithms that call GOptimizationAlgorithmBase::init() first get it for free.
-    tp_ptr_ = std::make_shared<Gem::Common::Concurrency::GThreadPool>(n_threads_);
+    tp_ptr_ = std::make_shared<Gem::Common::Concurrency::GThreadPool>(
+        "oa:tp",
+        n_threads_,
+        Gem::Common::Concurrency::ThreadElasticity::Elastic
+    );
 }
 
 /******************************************************************************/
@@ -2229,7 +2235,7 @@ bool GOptimizationAlgorithmBase::sigHupHalt() {
  */
 bool GOptimizationAlgorithmBase::touchHalt() const {
     // Create a suitable path object
-    std::filesystem::path p(termination_file_);
+    std::filesystem::path const p(termination_file_);
 
     // Return if the file doesn't exist
     if(not std::filesystem::exists(p)) {
@@ -2293,7 +2299,7 @@ bool GOptimizationAlgorithmBase::customHalt_() const {
  */
 bool GOptimizationAlgorithmBase::halt() const {
     // Retrieve the current time, so all time-based functions act on the same basis
-    std::chrono::system_clock::time_point current_time = std::chrono::system_clock::now();
+    std::chrono::system_clock::time_point const current_time = std::chrono::system_clock::now();
 
     //------------------------------------------------------------------------
     // The following halt criteria are triggered by the user. They override

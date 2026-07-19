@@ -45,7 +45,7 @@ using namespace Gem::Common;
 
 int main(int argc, char **argv) {
     { // Test of the parsing of an integer string
-        std::string in_single = "1, 2, 3, 4";
+        std::string const in_single = "1, 2, 3, 4";
         std::vector<unsigned int> result_single;
         result_single = stringToUIntVec(in_single);
 
@@ -57,7 +57,7 @@ int main(int argc, char **argv) {
     }
 
     { // Test of tuple parsing
-        std::string in_tuple = "(1,2), (3,4 ) , (3    ,  5)";
+        std::string const in_tuple = "(1,2), (3,4 ) , (3    ,  5)";
         std::vector<std::tuple<unsigned int, unsigned int>> result_tuple;
         result_tuple = stringToUIntTupleVec(in_tuple);
 

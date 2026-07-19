@@ -51,6 +51,7 @@ namespace po = boost::program_options;
 /**
  * The main function
  */
+// NOLINTNEXTLINE(readability-function-size) -- single example main: additional CLI options, pluggable-monitor registration, Go2 setup and the optimization run all belong to one driver
 int main(int argc, char **argv) {
     //---------------------------------------------------------------------------
     // We want to add additional command line options
@@ -131,7 +132,7 @@ int main(int argc, char **argv) {
     //---------------------------------------------------------------------------
     // Create a factory for GFunctionIndividual objects and perform
     // any necessary initial work.
-    std::shared_ptr<gind::GFunctionIndividualFactory> gfi_ptr(
+    std::shared_ptr<gind::GFunctionIndividualFactory> const gfi_ptr(
         new gind::GFunctionIndividualFactory("./config/GFunctionIndividual.json")
     );
 
@@ -140,7 +141,7 @@ int main(int argc, char **argv) {
 
     // Register a progress plotter with the global optimization algorithm factory
     if(monitorSpec != "empty") {
-        std::shared_ptr<GProgressPlotter> progplot_ptr(new GProgressPlotter());
+        std::shared_ptr<GProgressPlotter> const progplot_ptr(new GProgressPlotter());
 
         progplot_ptr->setProfileSpec(monitorSpec);
         progplot_ptr->setObserveBoundaries(observeBoundaries);
@@ -161,7 +162,7 @@ int main(int argc, char **argv) {
     }
 
     if(logAll != "empty") {
-        std::shared_ptr<GAllSolutionFileLogger> allSolutionLogger_ptr(
+        std::shared_ptr<GAllSolutionFileLogger> const allSolutionLogger_ptr(
             new GAllSolutionFileLogger(logAll)
         );
 
@@ -186,7 +187,7 @@ int main(int argc, char **argv) {
     }
 
     if(monitorNAdaptions != "empty") {
-        std::shared_ptr<GNAdpationsLogger> nAdaptionsLogger_ptr(
+        std::shared_ptr<GNAdpationsLogger> const nAdaptionsLogger_ptr(
             new GNAdpationsLogger(monitorNAdaptions)
         );
 
@@ -199,7 +200,7 @@ int main(int argc, char **argv) {
     }
 
     if(logSigma != "empty") {
-        std::shared_ptr<GAdaptorPropertyLogger<double>> sigmaLogger_ptr(
+        std::shared_ptr<GAdaptorPropertyLogger<double>> const sigmaLogger_ptr(
             new GAdaptorPropertyLogger<double>(logSigma, "GDoubleGaussAdaptor", "sigma")
         );
 
@@ -210,7 +211,7 @@ int main(int argc, char **argv) {
     }
 
     if(monitorTimings != "empty") {
-        std::shared_ptr<GProcessingTimesLogger> processingTimesLogger_ptr(
+        std::shared_ptr<GProcessingTimesLogger> const processingTimesLogger_ptr(
             new GProcessingTimesLogger(
                 "hist_" + monitorTimings + ".C",
                 "hist2D_" + monitorTimings + ".C",
@@ -252,7 +253,7 @@ int main(int argc, char **argv) {
     go.registerDefaultAlgorithm("ea");
 
     // Perform the actual optimization
-    std::shared_ptr<gind::GFunctionIndividual> p =
+    std::shared_ptr<gind::GFunctionIndividual> const p =
         go.optimize()->getBestGlobalIndividual<gind::GFunctionIndividual>();
 
     // Here you can do something with the best individual ("p") found.

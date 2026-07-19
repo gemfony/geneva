@@ -943,7 +943,7 @@ void GParChild::adjustPopulation_() {
     }
 
     // Check how many individuals have been added already. At least one is required.
-    std::size_t this_sz = this->size();
+    std::size_t const this_sz = this->size();
     if(this_sz == 0) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
@@ -1054,7 +1054,7 @@ void GParChild::valueRecombine(
     const std::vector<double> &threshold
 ) {
     bool done = false;
-    double rand_test // get the test value // NOLINT(cppcoreguidelines-init-variables)
+    double const rand_test // get the test value // NOLINT(cppcoreguidelines-init-variables)
         = GOptimizationAlgorithmBase::uniform_real_distribution_(this->gr_);
 
     for(std::size_t par = 0; par < n_parents_; par++) {

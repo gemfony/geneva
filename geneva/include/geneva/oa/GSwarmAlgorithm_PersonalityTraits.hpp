@@ -115,7 +115,7 @@ public:
      *
      * @return The id of the neighborhood the individual currently belongs to
      */
-    std::size_t getNeighborhood() const;
+    [[nodiscard]] std::size_t getNeighborhood() const;
 
     /** @brief Sets the no_position_update_ flag */
     void setNoPositionUpdate();
@@ -124,7 +124,7 @@ public:
      *
      * @return true if the individual's position is not to be updated, false otherwise
      */
-    bool noPositionUpdate() const;
+    [[nodiscard]] bool noPositionUpdate() const;
     /**
      * @brief Retrieves and resets the current value of the no_position_update_ flag
      *
@@ -137,13 +137,13 @@ public:
      *
      * @param p A shared pointer to the GOptimizableEntity representing the individual's new personal best
      */
-    void registerPersonalBest(std::shared_ptr<gen::GOptimizableEntity> p);
+    void registerPersonalBest(const std::shared_ptr<gen::GOptimizableEntity>& p);
     /**
      * @brief Allows to retrieve the personal best individual
      *
      * @return A shared pointer to the GOptimizableEntity holding the individual's personal best
      */
-    std::shared_ptr<gen::GOptimizableEntity> getPersonalBest() const;
+    [[nodiscard]] std::shared_ptr<gen::GOptimizableEntity> getPersonalBest() const;
     /** @brief Resets the personal best individual */
     void resetPersonalBest();
     /**
@@ -151,14 +151,14 @@ public:
      *
      * @return A tuple holding the raw and transformed fitness of the personally best individual
      */
-    std::tuple<double, double> getPersonalBestQuality() const;
+    [[nodiscard]] std::tuple<double, double> getPersonalBestQuality() const;
 
     /**
      * @brief Retrieves the mnemonic of the optimization algorithm
      *
      * @return The mnemonic (short identifier) associated with the swarm optimization algorithm
      */
-    std::string getMnemonic() const override;
+    [[nodiscard]] std::string getMnemonic() const override;
 
 protected:
     /***************************************************************************/
@@ -208,13 +208,13 @@ private:
      *
      * @return A string holding the name of this class
      */
-    std::string name_() const override;
+    [[nodiscard]] std::string name_() const override;
     /**
      * @brief Creates a deep clone of this object
      *
      * @return A deep clone of this object, returned as a pointer to the GPersonalityTraits base class
      */
-    GPersonalityTraits *clone_() const override;
+    [[nodiscard]] GPersonalityTraits *clone_() const override;
 
     /** @brief Stores the neighborhood id the individual currently belongs to */
     std::size_t neighborhood_ = 0;

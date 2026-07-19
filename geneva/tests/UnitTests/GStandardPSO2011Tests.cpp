@@ -69,7 +69,7 @@ protected:
         std::vector<double> v;
         this->template streamline<double>(v);
         double s = 0.;
-        for(double x : v) {
+        for(double const x : v) {
             s += x * x;
         }
         return {s};
@@ -82,7 +82,7 @@ double bestSphere(const std::shared_ptr<SpherePSO<N_DIM>> &best) {
     std::vector<double> v;
     best->template streamline<double>(v);
     double s = 0.;
-    for(double x : v) {
+    for(double const x : v) {
         s += x * x;
         CHECK(x >= -5.0);
         CHECK(x < 5.0);

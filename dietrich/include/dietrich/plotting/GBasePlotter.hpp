@@ -185,7 +185,7 @@ public:
      * @brief Allows to add secondary plots to be added to the same sub-canvas
      * @param secondary_plotter A plotter whose data should be emitted into the same canvas as this one
      */
-    void registerSecondaryPlotter(std::shared_ptr<GBasePlotter> sp);
+    void registerSecondaryPlotter(const std::shared_ptr<GBasePlotter>& sp);
 
     /**
      * @brief Read-only access to the secondary plotters sharing this plotter's pad
@@ -208,7 +208,7 @@ public:
      * @brief Retrieves a unique name for this plotter
      * @return The plotter type's unique name (implemented in derived classes)
      */
-    virtual std::string getPlotterName() const = 0;
+    [[nodiscard]] virtual std::string getPlotterName() const = 0;
 
     /**
      * @brief Reports this plotter's choice (kind, role, labels, columns, bins) as a
@@ -321,7 +321,7 @@ protected:
      * @param indent The indentation string prepended to each emitted line
      * @return The plotter-specific header section
      */
-    virtual std::string headerData_(bool is_secondary, std::size_t parent_id, std::size_t own_id, const std::string &indent) const = 0;
+    [[nodiscard]] virtual std::string headerData_(bool is_secondary, std::size_t parent_id, std::size_t own_id, const std::string &indent) const = 0;
 
     /**
      * @brief Retrieves the actual data sets
@@ -331,7 +331,7 @@ protected:
      * @param indent The indentation string prepended to each emitted line
      * @return The plotter-specific data / body section
      */
-    virtual std::string bodyData_(bool is_secondary, std::size_t parent_id, std::size_t own_id, const std::string &indent) const = 0;
+    [[nodiscard]] virtual std::string bodyData_(bool is_secondary, std::size_t parent_id, std::size_t own_id, const std::string &indent) const = 0;
 
     /**
      * @brief retrieves specific draw commands for this plot
@@ -341,21 +341,21 @@ protected:
      * @param indent The indentation string prepended to each emitted line
      * @return The plotter-specific footer / draw section
      */
-    virtual std::string footerData_(bool is_secondary, std::size_t parent_id, std::size_t own_id, const std::string &indent) const = 0;
+    [[nodiscard]] virtual std::string footerData_(bool is_secondary, std::size_t parent_id, std::size_t own_id, const std::string &indent) const = 0;
 
     /**
      * @brief Retrieve the current drawing arguments
      * @param is_secondary true if this plotter is a secondary plotter sharing a parent's canvas
      * @return The drawing arguments to be passed to the plotting backend
      */
-    virtual std::string drawingArguments(bool is_secondary) const = 0;
+    [[nodiscard]] virtual std::string drawingArguments(bool is_secondary) const = 0;
 
     /**
      * @brief Check that a given plotter is compatible with us
      * @param other The other plotter whose compatibility with this one is checked
      * @return true if the other plotter is compatible (by default, has the same plotter name)
      */
-    virtual bool isCompatible(std::shared_ptr<GBasePlotter> other) const;
+    [[nodiscard]] virtual bool isCompatible(std::shared_ptr<GBasePlotter> other) const;
 
     /**
      * @brief calculate a suffix from id and parent ids
@@ -364,7 +364,7 @@ protected:
      * @param own_id This plotter's own emit index, threaded in by the caller (replaces the former mutated id_)
      * @return A suffix string built from this plotter's own id (and the parent id for secondary plotters)
      */
-    std::string suffix(bool is_secondary, std::size_t p_id, std::size_t own_id) const;
+    [[nodiscard]] std::string suffix(bool is_secondary, std::size_t p_id, std::size_t own_id) const;
 
     /** @brief Applies modifications to this object. This is needed for testing purposes.
      *  Mutates this base class'es serialized members (the labels, drawing arguments, data-structure
@@ -404,12 +404,12 @@ private:
      * @brief Returns the name of this class
      * @return The string "GBasePlotter"
      */
-    std::string name_() const override;
+    [[nodiscard]] std::string name_() const override;
     /**
      * @brief Creates a deep clone of this object
      * @return A newly allocated deep copy of this plotter (implemented in derived classes)
      */
-    GBasePlotter *clone_() const override = 0;
+    [[nodiscard]] GBasePlotter *clone_() const override = 0;
 
     /***************************************************************************/
     /** @brief A list of plotters that should emit their data into the same canvas */

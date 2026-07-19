@@ -322,7 +322,7 @@ TEST_CASE("GBlockingMPMCQueueT close wakes a blocked producer", "[GBlockingMPMCQ
     std::atomic<bool> pushFailed{false};
 
     std::thread producer([&]() {
-        bool ok = q.push(2); // blocks (full); must wake on close and return false
+        bool const ok = q.push(2); // blocks (full); must wake on close and return false
         pushFailed.store(not ok);
     });
 
@@ -460,7 +460,7 @@ TEST_CASE("GBlockingMPMCQueueT construction and observers across capacities", "[
     STATIC_REQUIRE(GBlockingMPMCQueueT<int, 0>::capacity() == 0);
     STATIC_REQUIRE_FALSE(GBlockingMPMCQueueT<int, 0>::bounded());
 
-    GBlockingMPMCQueueT<int, 10> q;
+    GBlockingMPMCQueueT<int, 10> const q;
     CHECK(q.capacity() == 10);
     CHECK(q.bounded());
     CHECK(q.empty());
@@ -513,7 +513,7 @@ TEST_CASE("GBlockingMPMCQueueT copy vs. move semantics", "[GBlockingMPMCQueueT]"
     GBlockingMPMCQueueT<Tracked, 8> q;
 
     SECTION("lvalue push -> copy into the queue; pop -> move out") {
-        Tracked t(5);
+        Tracked const t(5);
         REQUIRE(q.try_push(t)); // lvalue: must be copied into the queue
         REQUIRE(t.v_ == 5);     // source untouched by a copy
 

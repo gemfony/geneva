@@ -84,7 +84,7 @@ std::string wireEncode(
     const GWireSerializationContext *ctx,
     Gem::Common::serializationMode serMode
 ) {
-    GWireSerializationScope scope(ctx);
+    GWireSerializationScope const scope(ctx);
     return container_to_string(container, serMode);
 }
 
@@ -105,7 +105,7 @@ void wireDecode(
     const GWireSerializationContext *ctx,
     Gem::Common::serializationMode serMode
 ) {
-    GWireSerializationScope scope(ctx);
+    GWireSerializationScope const scope(ctx);
     container_from_string(descr, container, serMode);
 }
 
@@ -128,7 +128,7 @@ std::string buildLayoutRequest(
     GWirePeerId peer,
     Gem::Common::serializationMode serMode
 ) {
-    GWireSerializationScope no_scope(nullptr);
+    GWireSerializationScope const no_scope(nullptr);
     GCommandContainerT<processable_type, networked_consumer_payload_command> request{
         networked_consumer_payload_command::REQUEST_LAYOUT
     };
@@ -155,7 +155,7 @@ std::string parseLayoutReply(
     const std::string &reply_str,
     Gem::Common::serializationMode serMode
 ) {
-    GWireSerializationScope no_scope(nullptr);
+    GWireSerializationScope const no_scope(nullptr);
     GCommandContainerT<processable_type, networked_consumer_payload_command> reply{
         networked_consumer_payload_command::NONE
     };
@@ -189,7 +189,7 @@ std::string buildLayoutReply(
     GWireLayoutRegistry *registry,
     Gem::Common::serializationMode serMode
 ) {
-    GWireSerializationScope no_scope(nullptr);
+    GWireSerializationScope const no_scope(nullptr);
     std::string blob;
     if(registry != nullptr) {
         registry->tryGet(id, blob); // leaves blob empty on a miss

@@ -184,7 +184,7 @@ public:
      * @brief Allows to add a new plotter object
      * @param plotter_ptr The plotter to register with this designer
      */
-    void registerPlotter(std::shared_ptr<GBasePlotter> plotter_ptr);
+    void registerPlotter(const std::shared_ptr<GBasePlotter>& plotter_ptr);
 
     /**
      * @brief Set the dimensions of the output canvas
