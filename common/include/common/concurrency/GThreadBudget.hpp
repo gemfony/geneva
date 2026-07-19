@@ -153,20 +153,31 @@ public:
     /**
      * @brief Reserves threads for a named source
      *
-     * Advisory: never blocks, never throws, never refuses. In the accounting
-     * stage (P0) the grant always equals max(1, desired) regardless of
-     * elasticity -- a pool always gets at least one worker. Crossing the
-     * warning threshold (ceiling x factor) emits one rate-limited warning
-     * naming the largest reservations.
+     * Advisory: never blocks, never throws, never refuses -- with one deliberate
+     * exception to "grant in full": an ELASTIC reservation made from a NESTED
+     * context (a pool constructed inside another pool's worker, i.e. the
+     * meta-optimization shape whose sub-pools would otherwise multiply to
+     * ~hardware^2 threads) is granted only min(desired, remaining budget), but
+     * always at least one worker. A TOP-LEVEL reservation is always granted in
+     * full, whatever its elasticity: shrinking by construction order would starve
+     * a legitimate top-level pool (the OA pool and the consumer pool rightly
+     * overlap). Crossing the warning threshold (ceiling x factor) emits one
+     * rate-limited warning naming the largest reservations.
      *
      * @param source A short name identifying the reserving component (e.g. "oa:tp")
      * @param desired The number of threads the pool wants to start
-     * @param elasticity Whether the pool could correctly run smaller (recorded; used by the later P1 stage)
+     * @param elasticity Whether the pool could correctly run smaller than desired
+     * @param nested Whether this reservation is made from inside another pool's worker
+     *  (see GThreadPool::inWorkerThread()); only a nested Elastic reservation may be shrunk
      * @return An RAII handle holding the reservation; the pool starts granted() threads
      */
-    [[nodiscard]] Reservation
-    reserve(std::string_view source, unsigned int desired, ThreadElasticity elasticity) {
-        const unsigned int granted = std::max(1u, desired);
+    [[nodiscard]] Reservation reserve(
+        std::string_view source,
+        unsigned int desired,
+        ThreadElasticity elasticity,
+        bool nested = false
+    ) {
+        unsigned int granted = std::max(1u, desired);
 
         std::size_t key = 0;
         bool warn = false;
@@ -174,14 +185,22 @@ public:
         std::vector<std::pair<std::string, unsigned int>> top;
         {
             std::scoped_lock lk(mutex_);
+            // Grant computation and insertion form ONE critical section, so concurrent
+            // nested reservations see each other's share (the meta-opt fan-out case).
+            if(nested && elasticity == ThreadElasticity::Elastic) {
+                const unsigned int cl = ceiling();
+                const unsigned int remaining = reserved_ < cl ? cl - reserved_ : 0;
+                granted = std::max(1u, std::min(granted, remaining));
+            }
             key = next_key_++;
             entries_.emplace(key, entry{std::string(source), granted, elasticity});
             reserved_ += granted;
             total = reserved_;
 
             const unsigned int threshold = warnThreshold_();
-            if(reserved_ > threshold && not warned_) {
+            if(reserved_ > threshold && not warned_ && n_warnings_ < MAX_WARNINGS) {
                 warned_ = true;
+                ++n_warnings_;
                 warn = true;
                 top = topReservations_(3);
             }
@@ -276,11 +295,17 @@ private:
     }
 
     /***************************************************************************/
+    /// The warning re-arms when the total drops back below the threshold, but fires at most
+    /// this often per process -- a run whose pool churn oscillates around the threshold (e.g. a
+    /// meta-optimization constructing sub-pools per generation) must not spam the log.
+    static constexpr unsigned int MAX_WARNINGS = 3;
+
     mutable std::mutex mutex_;               ///< Guards all bookkeeping below
     std::map<std::size_t, entry> entries_;   ///< Live reservations by key
     std::size_t next_key_ = 1;               ///< The next registry key to hand out
     unsigned int reserved_ = 0;              ///< Current sum of granted thread counts
     bool warned_ = false;                    ///< Whether the warning has fired for the current excursion
+    unsigned int n_warnings_ = 0;            ///< How often the warning has fired in this process
 };
 
 /******************************************************************************/

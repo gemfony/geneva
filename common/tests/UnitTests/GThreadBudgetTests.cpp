@@ -116,6 +116,57 @@ TEST_CASE("GThreadPool: the budgeted constructor reserves for the pool's lifetim
 }
 
 /******************************************************************************/
+// Elastic granting (P1): only a NESTED elastic reservation may be shrunk
+
+TEST_CASE("GThreadBudget: a nested elastic reservation is granted only the remaining budget",
+          "[common][concurrency][thread-budget]") {
+    auto &budget = threadBudget();
+
+    // Fill the budget to (at least) the ceiling, then ask for a large nested elastic share.
+    auto filler = budget.reserve("test:filler", budget.ceiling(), ThreadElasticity::Fixed);
+    auto nested =
+        budget.reserve("test:nested", budget.ceiling() * 4, ThreadElasticity::Elastic, true);
+
+    // Whatever was reserved before this test, the nested grant cannot exceed the remaining
+    // budget -- and with the filler holding >= ceiling it must have shrunk to the minimum.
+    CHECK(nested.granted() == 1);
+}
+
+TEST_CASE("GThreadBudget: a top-level reservation is always granted in full",
+          "[common][concurrency][thread-budget]") {
+    auto &budget = threadBudget();
+
+    auto filler = budget.reserve("test:filler", budget.ceiling() * 2, ThreadElasticity::Fixed);
+    // Top-level (nested == false): granted in full even though the budget is exhausted --
+    // shrinking by construction order would starve a legitimate top-level pool.
+    auto top = budget.reserve("test:top", 5, ThreadElasticity::Elastic);
+    CHECK(top.granted() == 5);
+}
+
+TEST_CASE("GThreadPool: a budgeted pool built inside another pool's worker is budget-bounded",
+          "[common][concurrency][thread-budget]") {
+    auto &budget = threadBudget();
+
+    // The meta-optimization shape end-to-end: an outer budgeted pool whose worker constructs an
+    // inner budgeted pool. The inner construction happens with inWorkerThread() == true, so its
+    // grant is bounded by the remaining budget.
+    auto filler = budget.reserve("test:filler", budget.ceiling() * 2, ThreadElasticity::Fixed);
+
+    GThreadPool outer("test:outer", 1, ThreadElasticity::Elastic);
+    unsigned int inner_threads = 0;
+    outer
+        .async_schedule([&inner_threads]() {
+            GThreadPool inner("test:inner", 64, ThreadElasticity::Elastic);
+            inner_threads = inner.getNThreads();
+        })
+        .get();
+
+    // The budget was exhausted by the filler, so the nested pool must have shrunk to one worker
+    // (it would have started 64 without the budget -- the hw^2 pathology).
+    CHECK(inner_threads == 1);
+}
+
+/******************************************************************************/
 // The oversubscription warning
 
 namespace {

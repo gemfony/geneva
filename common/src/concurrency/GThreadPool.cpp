@@ -75,7 +75,10 @@ GThreadPool::GThreadPool(
   : budget_reservation_(threadBudget().reserve(
         source,
         n_threads > 0 ? n_threads : DEFAULTNHARDWARETHREADS,
-        elasticity
+        elasticity,
+        // A pool constructed on another pool's worker is NESTED (the meta-optimization
+        // shape); only such a pool may be granted fewer threads than it asked for.
+        inWorkerThread()
     ))
   , n_threads_(budget_reservation_.granted()) {
     task_queue_.emplace(); // construct the (unbounded) task queue

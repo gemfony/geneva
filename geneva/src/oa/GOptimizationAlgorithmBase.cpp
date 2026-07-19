@@ -1171,12 +1171,12 @@ void GOptimizationAlgorithmBase::addConfigurationOptions_(Gem::Common::GParserBu
     gpb.registerFileParameter<std::uint16_t>(
         "n_adaption_threads" // The name of the variable
         ,
-        Gem::Courtier::DEFAULTNSTDTHREADS // The default value
+        std::uint16_t(0) // The default value: automatic (hardware concurrency, budget-bounded)
         ,
         [this](std::uint16_t nt) { this->setNThreads(nt); }
     ) << "The number of threads used to simultaneously adapt and recombine individuals"
       << '\n'
-      << "0 means \"automatic\"";
+      << "0 means \"automatic\" (the hardware concurrency, bounded by the process-wide thread budget)";
 
     // Add local data
     gpb.registerFileParameter<std::uint32_t>(
@@ -1970,9 +1970,12 @@ void GOptimizationAlgorithmBase::init() {
 
     // Create the shared thread pool used for parallel organizational work (adaption,
     // recombination, ...). Derived algorithms that call GOptimizationAlgorithmBase::init() first get it for free.
+    // n_threads_ == 0 means "automatic": size the pool to the hardware. The process-wide
+    // GThreadBudget bounds the total (a NESTED algorithm's pool -- e.g. a meta-optimization's
+    // sub-OA -- is granted only the remaining budget), so hardware-sizing does not multiply.
     tp_ptr_ = std::make_shared<Gem::Common::Concurrency::GThreadPool>(
         "oa:tp",
-        n_threads_,
+        n_threads_ != 0 ? n_threads_ : Gem::Common::getNHardwareThreads(),
         Gem::Common::Concurrency::ThreadElasticity::Elastic
     );
 }
@@ -1992,22 +1995,14 @@ void GOptimizationAlgorithmBase::finalize() {
 /******************************************************************************/
 /**
  * @brief Sets the number of threads used for parallel organizational work (adaption,
- * recombination, ...). If n_threads is 0, the count falls back to the default.
+ * recombination, ...). 0 (the default) means "automatic": the pool is sized to the hardware
+ * concurrency when it is built -- the process-wide GThreadBudget bounds the total, so a
+ * hardware-sized organizational pool no longer multiplies blindly against the other pools.
  *
- * @param n_threads The number of threads to use; 0 selects the default thread count
+ * @param n_threads The number of threads to use; 0 means "automatic" (hardware concurrency)
  */
 void GOptimizationAlgorithmBase::setNThreads(std::uint16_t n_threads) {
-    if(n_threads == 0) {
-        glogger << "In GOptimizationAlgorithmBase::setNThreads(n_threads):" << '\n'
-                << "n_threads == 0 was requested. n_threads_ was reset to the default "
-                << Gem::Courtier::DEFAULTNSTDTHREADS << '\n'
-                << GWARNING;
-
-        n_threads_ = Gem::Courtier::DEFAULTNSTDTHREADS;
-    }
-    else {
-        n_threads_ = n_threads;
-    }
+    n_threads_ = n_threads;
 }
 
 /******************************************************************************/

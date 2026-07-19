@@ -686,7 +686,9 @@ protected:
      */
     std::shared_ptr<Gem::Common::Concurrency::GThreadPool> tp_ptr_;
     /** @brief The number of threads used for parallel organizational work. */
-    std::uint16_t n_threads_ = Gem::Common::DEFAULTNHARDWARETHREADS;
+    /// 0 == "automatic": the organizational pool is sized to the hardware concurrency at
+    /// init(), bounded by the process-wide GThreadBudget.
+    std::uint16_t n_threads_ = 0;
 
     /** @brief Applies modifications to this object */
     bool modify_GUnitTests_() override;
