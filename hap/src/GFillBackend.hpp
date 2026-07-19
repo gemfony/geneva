@@ -35,7 +35,6 @@
 
 // Geneva headers go here
 #include "common/GLogger.hpp"
-#include "common/concurrency/GDeviceRegistry.hpp"
 #include "hap/GRandomDefines.hpp"
 
 // Standard headers go here
@@ -155,25 +154,8 @@ public:
     void generate(result_type *dst, std::size_t n) {
 #if defined(HAP_USE_CUDA)
         if(useCuda_) {
-            // H3 mitigation: while a GPU consumer holds the (default) device -- the process-wide
-            // device registry counts its holders -- the RNG refill yields cuRAND to the CPU/SIMD
-            // engine, so the evaluation kernel and the refill no longer double-book the device.
-            // Checked per bulk refill (one mutex-protected read against thousands of words),
-            // because the consumer may come up only after this backend was constructed. The
-            // policy decision is logged once so the switch never comes as a surprise.
-            if(Gem::Common::Concurrency::deviceRegistry().users(0) > 0) {
-                static std::once_flag yield_logged;
-                std::call_once(yield_logged, []() {
-                    glogger << "In GFillBackend: a GPU consumer holds the device;"
-                            << " random-number refill yields cuRAND to the CPU/SIMD engine." << '\n'
-                            << GLOGGING;
-                });
-                // fall through to the CPU/SIMD engine below
-            }
-            else {
-                cuda_->generate(dst, n);
-                return;
-            }
+            cuda_->generate(dst, n);
+            return;
         }
 #endif
 #if defined(HAP_AVX2_BACKEND) || defined(HAP_NEON_BACKEND)

@@ -186,21 +186,10 @@ are in `CHANGES` and `INSTALL`; this file is the practical upgrade guide.
   re-export for its *own* unqualified use of common names must now qualify or import
   them itself.
 - **A process-wide thread budget now accounts every pool** (`GThreadBudget` in
-  `common/concurrency/`). Two behavioral effects: (1) a warning (at most three per process)
-  when the reserved thread total crosses 2.5x the hardware ceiling, naming the largest
-  reservations — previously oversubscription was silent; (2) a pool constructed INSIDE another
-  pool's worker (the meta-optimization shape) is granted only the remaining budget, so a
-  meta run now starts ~ceiling threads instead of ~hardware². Top-level pools are never shrunk.
-- **On a GPU run, random-number refill yields the device to the evaluation kernel.** A new
-  device registry (`GDeviceRegistry` in `common/concurrency/`) records the GPU consumer as the
-  device's holder; while it is held, Hap's bulk RNG refill uses the CPU/SIMD engine instead of
-  cuRAND (previously both double-booked the device). The switch is logged once; without a GPU
-  consumer, cuRAND behavior is unchanged.
-- **The OA organizational pool defaults to the hardware concurrency.** The
-  `n_adaption_threads` config default changed from 2 to 0 = "automatic" (hardware-sized at
-  pool construction, bounded by the thread budget); an explicit value is honored unchanged,
-  and `setNThreads(0)` now means "automatic" instead of resetting to 2 with a warning
-  (`DEFAULTNSTDTHREADS` was removed).
+  `common/concurrency/`). The budget does accounting only — every reservation is granted in
+  full; its single behavioral effect is a warning (at most three per process) when the
+  reserved thread total crosses 2x the hardware ceiling, naming the largest reservations —
+  previously oversubscription was silent.
 - **courtier: the socket consumers/clients gained shared bases** — `GAsioConsumerT` /
   `GWebsocketConsumerT` now derive from `GTcpAcceptingConsumerT` (the common TCP server
   shell) and `GAsioConsumerClientT` / `GWebsocketClientT` from `GPrefetchingClientT`

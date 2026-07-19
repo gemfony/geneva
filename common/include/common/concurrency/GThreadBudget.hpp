@@ -65,15 +65,12 @@ enum class ThreadElasticity : std::uint8_t { Fixed, Elastic };
  * the one place that sums them.
  *
  * The budget does ACCOUNTING AND ADVICE, not scheduling: reserve() never blocks,
- * never throws and never refuses a request. In the current (P0) stage every
- * reservation is granted in full and the budget's only behavioural surface is a
- * rate-limited warning, naming the largest reservations, when the reserved total
- * crosses a multiple of the hardware ceiling (today: silent oversubscription).
- * The recorded ThreadElasticity is the seam for the later elastic-granting stage
- * (P1), in which a NESTED elastic pool receives min(desired, remaining budget)
- * -- see the design note in the P1 documentation before enabling it: shrinking
- * must be limited to nested reservations, or construction order would starve a
- * legitimate top-level pool.
+ * never throws and never refuses a request. Every reservation is granted in
+ * full and the budget's only behavioural surface is a rate-limited warning,
+ * naming the largest reservations, when the reserved total crosses a multiple
+ * of the hardware ceiling (previously oversubscription was silent). The
+ * recorded ThreadElasticity is advisory metadata: it documents whether a pool
+ * could correctly run smaller than requested, without affecting the grant.
  *
  * Thread-safe; all operations are short mutex-protected critical sections taken
  * at pool construction/teardown, never on a hot path.
@@ -153,31 +150,19 @@ public:
     /**
      * @brief Reserves threads for a named source
      *
-     * Advisory: never blocks, never throws, never refuses -- with one deliberate
-     * exception to "grant in full": an ELASTIC reservation made from a NESTED
-     * context (a pool constructed inside another pool's worker, i.e. the
-     * meta-optimization shape whose sub-pools would otherwise multiply to
-     * ~hardware^2 threads) is granted only min(desired, remaining budget), but
-     * always at least one worker. A TOP-LEVEL reservation is always granted in
-     * full, whatever its elasticity: shrinking by construction order would starve
-     * a legitimate top-level pool (the OA pool and the consumer pool rightly
-     * overlap). Crossing the warning threshold (ceiling x factor) emits one
-     * rate-limited warning naming the largest reservations.
+     * Advisory: never blocks, never throws, never refuses. The grant always
+     * equals max(1, desired) regardless of elasticity -- a pool always gets
+     * at least one worker. Crossing the warning threshold (ceiling x factor)
+     * emits one rate-limited warning naming the largest reservations.
      *
      * @param source A short name identifying the reserving component (e.g. "oa:tp")
      * @param desired The number of threads the pool wants to start
-     * @param elasticity Whether the pool could correctly run smaller than desired
-     * @param nested Whether this reservation is made from inside another pool's worker
-     *  (see GThreadPool::inWorkerThread()); only a nested Elastic reservation may be shrunk
+     * @param elasticity Whether the pool could correctly run smaller (recorded for diagnostics)
      * @return An RAII handle holding the reservation; the pool starts granted() threads
      */
-    [[nodiscard]] Reservation reserve(
-        std::string_view source,
-        unsigned int desired,
-        ThreadElasticity elasticity,
-        bool nested = false
-    ) {
-        unsigned int granted = std::max(1u, desired);
+    [[nodiscard]] Reservation
+    reserve(std::string_view source, unsigned int desired, ThreadElasticity elasticity) {
+        const unsigned int granted = std::max(1u, desired);
 
         std::size_t key = 0;
         bool warn = false;
@@ -185,13 +170,6 @@ public:
         std::vector<std::pair<std::string, unsigned int>> top;
         {
             std::scoped_lock const lk(mutex_);
-            // Grant computation and insertion form ONE critical section, so concurrent
-            // nested reservations see each other's share (the meta-opt fan-out case).
-            if(nested && elasticity == ThreadElasticity::Elastic) {
-                const unsigned int cl = ceiling();
-                const unsigned int remaining = reserved_ < cl ? cl - reserved_ : 0;
-                granted = std::max(1u, std::min(granted, remaining));
-            }
             key = next_key_++;
             entries_.emplace(key, entry{std::string(source), granted, elasticity});
             reserved_ += granted;
@@ -243,10 +221,9 @@ public:
     /***************************************************************************/
     /// The warning fires when the reserved total exceeds ceiling() times this factor. A factor
     /// above 1 is deliberate: a compute pool and an io pool legitimately overlap (io threads
-    /// mostly block), so ~2x the core count is normal. 2.5 (not 2.0) because the DEFAULT local
-    /// run legitimately reserves OA pool + consumer pool + RNG producers (~2.3x once the OA pool
-    /// is hardware-sized) -- the warning should catch pathology, not the default configuration.
-    static constexpr double OVERSUBSCRIPTION_FACTOR = 2.5;
+    /// mostly block), so ~2x the core count is normal -- the warning should catch pathology,
+    /// not the default configuration (~1.3x with the fixed organizational-pool default).
+    static constexpr double OVERSUBSCRIPTION_FACTOR = 2.0;
 
 private:
     /***************************************************************************/
@@ -254,7 +231,7 @@ private:
     struct entry {
         std::string source;          ///< The reserving component's name
         unsigned int count = 0;      ///< The granted thread count
-        ThreadElasticity elasticity; ///< Whether the pool could run smaller (P1 seam)
+        ThreadElasticity elasticity; ///< Whether the pool could run smaller (recorded for diagnostics)
     };
 
     /** @brief Returns a reservation to the budget (called by Reservation only)

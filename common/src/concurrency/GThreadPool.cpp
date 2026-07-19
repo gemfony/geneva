@@ -60,9 +60,8 @@ GThreadPool::GThreadPool(unsigned int n_threads)
 /******************************************************************************/
 /**
  * @brief Budgeted initialisation (see the declaration). Reserves the (normalized) thread count
- * in the process-wide GThreadBudget and starts the granted number of workers. In the budget's
- * accounting stage the grant always equals the request; once elastic granting is enabled an
- * Elastic pool may be started smaller under contention.
+ * in the process-wide GThreadBudget and starts the granted number of workers. The budget does
+ * pure accounting: the grant always equals the request.
  *
  * @param source A short name identifying this pool in the budget (e.g. "oa:tp")
  * @param n_threads The number of worker threads the pool wants (0 picks a hardware-based default)
@@ -76,10 +75,7 @@ GThreadPool::GThreadPool(
   : budget_reservation_(threadBudget().reserve(
         source,
         n_threads > 0 ? n_threads : DEFAULTNHARDWARETHREADS,
-        elasticity,
-        // A pool constructed on another pool's worker is NESTED (the meta-optimization
-        // shape); only such a pool may be granted fewer threads than it asked for.
-        inWorkerThread()
+        elasticity
     ))
   , n_threads_(budget_reservation_.granted()) {
     task_queue_.emplace(); // construct the (unbounded) task queue

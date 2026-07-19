@@ -112,6 +112,9 @@ constexpr std::size_t GBEASTCONSUMERPINGINTERVAL = 15;
 constexpr std::uint32_t GMPICONSUMERWORKERNODERETRYINTERVALLOWERBOUNDARYMSEC = 50;
 constexpr std::uint32_t GMPICONSUMERWORKERNODERETRYINTERVALUPPERBOUNDARYMSEC = 200;
 
+/******************************************************************************/
+/** @brief The default number of threads for parallelization with threads */
+constexpr std::uint16_t DEFAULTNSTDTHREADS = 2;
 
 /******************************************************************************/
 /**
