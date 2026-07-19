@@ -52,12 +52,10 @@ namespace Gem::Courtier {
 
 /******************************************************************************/
 /**
- * The courtier MPI consumer. Unlike the ASIO/websocket consumers -- whose sessions take the
- * get/put functors and so were reused wholesale -- the MPI master node sources/sinks work items
- * through member methods that default to the broker. We therefore reuse the existing, battle-tested
- * Gem::Courtier::Consumers master and worker nodes and inject the courtier per-batch queue into the
- * master via its setPayloadFunctors() seam (a behaviour-neutral addition: with no functors set the
- * old node still uses the broker).
+ * The courtier MPI consumer. It reuses the existing, battle-tested Gem::Courtier::Consumers master
+ * and worker nodes and drives the master from the courtier per-batch queue by injecting the
+ * work-item source/sink callbacks at master-node construction (they are required constructor
+ * parameters -- the master cannot usefully run without them).
  *
  * MPI fixes the process layout at launch: rank 0 is the master (it runs the optimization and serves
  * work) and every other rank is a worker. So usage differs from the socket consumers -- the program
@@ -90,9 +88,11 @@ public:
         MPI_Comm_rank(MPI_COMM_WORLD, &comm_rank_);
 
         if(isMasterNode()) {
-            master_ = std::make_shared<master_node_type>(comm_size_, config_);
-            // Drive the master node from the courtier per-batch queue instead of the broker.
-            master_->setPayloadFunctors(
+            // Drive the master node from the courtier per-batch queue: the work-item source/sink
+            // are required constructor parameters of the master node.
+            master_ = std::make_shared<master_node_type>(
+                comm_size_,
+                config_,
                 [this]() -> std::unique_ptr<processable_type> {
                     return this->checkoutWait(checkout_wait_);
                 },

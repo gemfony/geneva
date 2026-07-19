@@ -63,6 +63,7 @@
 #include "common/GCommonHelperFunctions.hpp"
 #include "common/GCommonHelperFunctionsT.hpp"
 #include "common/GSerializationHelperFunctionsT.hpp"
+#include "common/concurrency/GThreadBudget.hpp"
 #include "common/concurrency/GThreadPool.hpp"
 #include "courtier/GCommandContainerT.hpp"
 #include "courtier/GCourtierEnums.hpp"
@@ -896,9 +897,13 @@ private:
          * @brief Deserializes and acts on the inbound request.
          *
          * On a RESULT command the payload is delivered to the payload sink; a GETDATA command carries no
-         * payload. Unknown commands and deserialization failures are logged.
+         * payload. An unknown command or a deserialization failure is logged and marks the session
+         * REFUSED -- the worker still receives a reply (NODATA, or STOP during shutdown) so it retries
+         * through its normal short NODATA back-off instead of blocking for its full receive timeout and
+         * shutting itself down as if the master had died.
          *
-         * @return true if the request was a valid RESULT or GETDATA, false otherwise
+         * @return true if a response should be sent (also for a refused request), false only when the
+         *  request must stay unanswered
          */
     bool processRequest() {
         try {
@@ -938,14 +943,18 @@ private:
                     << mpiStatus_.MPI_SOURCE << ":" << '\n'
                     << "Got unknown or invalid command "
                     << inboundCommand << '\n'
+                    << "The request is refused and answered with NODATA." << '\n'
                     << GWARNING;
+                refused_ = true;
+                return true;
             }
             }
         }
         catch(const std::exception &ex) {
             // A malformed / truncated request must not unwind the master's session machinery (one bad
-            // worker message would take down the whole master). Log and refuse the request; the worker's
-            // own receive timeout bounds how long it waits for the answer that will not come.
+            // worker message would take down the whole master). Log and REFUSE the request -- but still
+            // answer it (NODATA / STOP via sendResponse), so the worker retries through its short
+            // NODATA back-off instead of blocking for its full receive timeout and then shutting down.
             // (boost archive exceptions derive from std::exception, not geneva_exception, so the wider
             // catch is required to actually contain deserialization failures.)
             glogger
@@ -953,7 +962,10 @@ private:
                 << mpiStatus_.MPI_SOURCE << ":" << '\n'
                 << "Caught exception while deserializing request" << '\n'
                 << ex.what() << '\n'
+                << "The request is refused and answered with NODATA." << '\n'
                 << GWARNING;
+            refused_ = true;
+            return true;
         }
 
         return false;
@@ -1035,9 +1047,15 @@ private:
             return;
         }
 
-        // prepare the correct type of message in the outgoing command
+        // prepare the correct type of message in the outgoing command. A refused request (malformed /
+        // unknown -- see processRequest) is answered with NODATA rather than a fresh work item: the
+        // worker then simply retries after its short NODATA back-off. During shutdown the STOP takes
+        // precedence, so the stop accounting sees the same number of STOP responses either way.
         if(stopRequested_) {
             prepareStopResponse();
+        }
+        else if(refused_) {
+            commandContainer_.reset(networked_consumer_payload_command::NODATA);
         }
         else {
             prepareDataResponse();
@@ -1099,6 +1117,11 @@ private:
          */
     const bool stopRequested_;
     /**
+         * Whether the inbound request was refused (malformed or unknown -- see processRequest); a refused
+         * request is answered with NODATA (or STOP during shutdown) instead of a fresh work item.
+         */
+    bool refused_ = false;
+    /**
          * function to retrieve a work item from the injected payload source
          */
     std::move_only_function<std::unique_ptr<processable_type>()> getPayloadItem_;
@@ -1126,6 +1149,41 @@ private:
     Gem::Courtier::GWireSerializationContext wireCtx_;
     bool isLayoutRequest_ = false;
     Gem::Courtier::GWireLayoutId requestedLayoutId_{0, 0};
+};
+
+/**
+ * @brief The shutdown grace window shared by the master node's receiver and cleanup loops.
+ *
+ * Both loops must keep serving live workers after a stop was requested (the workers' double-buffered
+ * final requests are still inbound), yet neither may wait forever on a worker that died before its
+ * final handshake -- that would wedge shutdown() and MPI_Finalize would never be reached. This class
+ * single-sources that decision: expired() arms a GMPICONSUMERSHUTDOWNGRACE-long deadline on the first
+ * call after the stop flag was set and reports whether it has elapsed. (Formerly this state machine
+ * was hand-written in both loops.)
+ */
+class GShutdownGraceDeadline {
+public:
+    /** @brief Constructor
+     *  @param isToldToStop The master node's stop flag this deadline watches */
+    explicit GShutdownGraceDeadline(const std::atomic_bool &isToldToStop)
+      : isToldToStop_(isToldToStop) { /* nothing */ }
+
+    /** @brief Whether shutdown was requested AND the grace window has since elapsed
+     *  @return true once the calling loop should give up waiting for further worker traffic */
+    [[nodiscard]] bool expired() {
+        if(not isToldToStop_.load()) {
+            return false;
+        }
+        const auto now = std::chrono::steady_clock::now();
+        if(not giveUpAt_) {
+            giveUpAt_ = now + GMPICONSUMERSHUTDOWNGRACE;
+        }
+        return now >= *giveUpAt_;
+    }
+
+private:
+    const std::atomic_bool &isToldToStop_; ///< The master node's stop flag (not owned)
+    std::optional<std::chrono::steady_clock::time_point> giveUpAt_; ///< Armed on the first expired() call after the stop
 };
 
 /**
@@ -1168,13 +1226,37 @@ class GMPIConsumerMasterNodeT // NOLINT(cppcoreguidelines-special-member-functio
 public:
     /**
          * @brief Constructor to instantiate the GMPIConsumerMasterNodeT.
+         *
+         * The payload source/sink are REQUIRED constructor parameters: the master node cannot
+         * usefully run without them (an unset source would silently starve the workers with NODATA,
+         * an unset sink would silently drop every processed result), so the former two-phase
+         * setPayloadFunctors() seam was retired in favour of construction-time injection.
+         *
          * @param commSize number of nodes in the cluster, which is equal to the number of workers + 1
          * @param config configuration for this node specified by the end user
+         * @param getPayloadItemFn Source callback returning the next raw work item (or empty pointer)
+         * @param putPayloadItemFn Sink callback receiving each processed work item
          */
-    explicit GMPIConsumerMasterNodeT(std::int32_t commSize, const MPIConsumerConfig &config)
+    GMPIConsumerMasterNodeT(
+        std::int32_t commSize,
+        const MPIConsumerConfig &config,
+        std::move_only_function<std::unique_ptr<processable_type>()> getPayloadItemFn,
+        std::move_only_function<void(std::unique_ptr<processable_type>)> putPayloadItemFn
+    )
       : commSize_{commSize}
       , config_{config}
-      , isToldToStop_{false} {
+      , reqNumStops_{static_cast<std::uint32_t>(2 * (commSize - 1))}
+      , isToldToStop_{false}
+      , getPayloadItemFn_{std::move(getPayloadItemFn)}
+      , putPayloadItemFn_{std::move(putPayloadItemFn)} {
+        if(not getPayloadItemFn_ || not putPayloadItemFn_) {
+            throw geneva_exception(
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+                << "GMPIConsumerMasterNodeT<>::GMPIConsumerMasterNodeT():" << '\n'
+                << "The payload source/sink callbacks must both be set" << '\n'
+            );
+        }
+
         glogger << "GMPIConsumerMasterNodeT started with " << config_.nHandlerThreads
                 << " handler threads" << '\n'
                 << GLOGGING;
@@ -1201,11 +1283,28 @@ public:
          * To stop the master node and all its threads again the shutdown()-method can be called.
          */
     void async_startProcessing() {
-        handlerThreadPool_ = std::make_unique<Common::Concurrency::GThreadPool>(config_.nHandlerThreads);
+        // The handler pool and the two long-lived loop threads below are accounted in the
+        // process-wide thread budget (the pool via its budgeted constructor, the raw threads via
+        // explicitly held reservations released after their join in shutdown()).
+        handlerThreadPool_ = std::make_unique<Common::Concurrency::GThreadPool>(
+            "mpi:handler",
+            config_.nHandlerThreads,
+            Common::Concurrency::ThreadElasticity::Elastic
+        );
 
         auto self = this->shared_from_this();
+        receiverBudget_ = Common::Concurrency::threadBudget().reserve(
+            "mpi:receiver",
+            1,
+            Common::Concurrency::ThreadElasticity::Fixed
+        );
         receiverThread_ = std::thread([self] { self->listenForRequests(); });
 
+        cleanUpBudget_ = Common::Concurrency::threadBudget().reserve(
+            "mpi:cleanup",
+            1,
+            Common::Concurrency::ThreadElasticity::Fixed
+        );
         cleanUpThread_ = std::thread([self] { self->cleanUpSessionsLoop(); });
     }
 
@@ -1221,12 +1320,14 @@ public:
 
         // wait for the receiver thread to send a stop request to each client
         receiverThread_.join();
+        receiverBudget_.release();
 
         // wait until for threads to finish their work i.e. send the stop requests out to the clients
         handlerThreadPool_->wait();
 
         // wait for the cleanup thread. This thread will close all open sessions before joining
         cleanUpThread_.join();
+        cleanUpBudget_.release();
     }
 
 private:
@@ -1241,11 +1342,8 @@ private:
     void listenForRequests() {
         // number of workers that we have send a stop request to
         uint32_t stopRequestsSendOut{0};
-        // Each client sends out one last request although having receive a stop that has to be answered
-        // by the server since the clients use double buffering
-        const int32_t reqNumStops{2 * (this->commSize_ - 1)};
 
-        while(stopRequestsSendOut < reqNumStops) {
+        while(stopRequestsSendOut < reqNumStops_) {
             // Probe (rather than post a fixed-size receive) so a request of ANY size can be received:
             // MPI_Get_count then tells us the exact length and we allocate to fit. This removes the old
             // fixed message-size cap, which a large genome's first (full-layout) work item
@@ -1254,25 +1352,18 @@ private:
             // is race-free.
             int isAvailable{0};
             MPI_Status status{};
-            std::optional<std::chrono::steady_clock::time_point> giveUpAt;
+            // Do not busy-spin, and make shutdown observable: once a stop has been requested, give
+            // live workers a short grace window (armed per awaited request) to send their final
+            // (double-buffered) requests, then stop listening.
+            GShutdownGraceDeadline grace{isToldToStop_};
 
             while(true) {
                 MPI_Iprobe(MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMMUNICATOR, &isAvailable, &status);
                 if(isAvailable) {
                     break;
                 }
-                // Do not busy-spin, and make shutdown observable: once a stop has been requested, give
-                // live workers a short grace window to send their final (double-buffered) requests, then
-                // stop listening. Otherwise a worker that died before its final handshake would wedge
-                // this loop -- and thus shutdown() -- and MPI_Finalize would never be reached.
-                if(isToldToStop_.load()) {
-                    const auto now = std::chrono::steady_clock::now();
-                    if(not giveUpAt) {
-                        giveUpAt = now + GMPICONSUMERSHUTDOWNGRACE;
-                    }
-                    if(now >= *giveUpAt) {
-                        break; // isAvailable stays 0
-                    }
+                if(grace.expired()) {
+                    break; // isAvailable stays 0
                 }
                 std::this_thread::sleep_for(std::chrono::milliseconds{1});
             }
@@ -1383,15 +1474,13 @@ private:
     void cleanUpSessionsLoop() {
         // track number of stop requests, for which the sending has completed
         uint32_t stopSendOutsCompleted{0};
-        // two stop requests for each client
-        const int32_t reqNumStops{2 * (this->commSize_ - 1)};
-        std::optional<std::chrono::steady_clock::time_point> giveUpAt;
+        GShutdownGraceDeadline grace{isToldToStop_};
 
         // keep running until all stop requests have been sent out (after that no more sessions should
         // be opened because all clients will shut down) -- or, once shutdown was requested, until the
         // grace window elapses, so a session that will never complete (its worker died mid-exchange)
         // cannot wedge this thread and thus shutdown().
-        while(stopSendOutsCompleted < reqNumStops) {
+        while(stopSendOutsCompleted < reqNumStops_) {
             // wait a short amount of time between checking if the sessions have been completed
             if(config_.masterCleanSessIntervalMSec > 0) {
                 std::this_thread::sleep_for(
@@ -1422,14 +1511,8 @@ private:
                 }
             }
 
-            if(isToldToStop_.load()) {
-                const auto now = std::chrono::steady_clock::now();
-                if(not giveUpAt) {
-                    giveUpAt = now + GMPICONSUMERSHUTDOWNGRACE;
-                }
-                if(now >= *giveUpAt) {
-                    break;
-                }
+            if(grace.expired()) {
+                break;
             }
         }
 
@@ -1443,29 +1526,20 @@ private:
     }
 
     /**
-         * @brief Retrieves a raw work item from the injected external source (if any).
+         * @brief Retrieves a raw work item from the injected external source.
          *
-         * Uses the source set via setPayloadFunctors(); with no source set, no item is produced. The
-         * former broker fallback was removed together with the legacy broker.
+         * The source is a required constructor parameter (validated there), so it is always set.
          *
-         * @return A work item, or an empty pointer if no source is set or it produced none
+         * @return A work item, or an empty pointer if the source produced none
          */
-    std::unique_ptr<processable_type> getPayloadItem() {
-        // If an external source has been injected (e.g. the courtier reconcile-the-span path),
-        // use it as the sole work-item source; with no functor set there is nothing to fetch from.
-        // The courtier consumer always injects a source via setPayloadFunctors(); the former broker
-        // fallback was removed together with the legacy broker. An unset source yields no item.
-        if(getPayloadItemFn_) {
-            return getPayloadItemFn_();
-        }
-        return {};
-    }
+    std::unique_ptr<processable_type> getPayloadItem() { return getPayloadItemFn_(); }
 
     //-------------------------------------------------------------------------
     /**
-         * @brief Submits a processed work item to the injected external sink (if any).
+         * @brief Submits a processed work item to the injected external sink.
          *
-         * Throws a geneva_exception if @p p is empty. With no sink set the item is silently dropped.
+         * Throws a geneva_exception if @p p is empty. The sink is a required constructor parameter
+         * (validated there), so it is always set.
          *
          * @param p The processed work item to deliver (must not be empty)
          */
@@ -1478,32 +1552,10 @@ private:
             );
         }
 
-        // The courtier consumer always injects a sink via setPayloadFunctors(); the former broker
-        // fallback was removed together with the legacy broker.
-        if(putPayloadItemFn_) {
-            putPayloadItemFn_(std::move(p));
-        }
+        putPayloadItemFn_(std::move(p));
     }
 
 public:
-    //-------------------------------------------------------------------------
-    /**
-         * Injects the external source/sink for work items. This is the seam the
-         * courtier networked-consumer path uses to drive the MPI master node from a span+policy
-         * batch. The consumer always injects both functors before starting the node; without them the node
-         * has no work-item source or sink (the former broker fallback was removed).
-         *
-         * @param getPayloadItemFn Source callback returning the next raw work item (or empty pointer)
-         * @param putPayloadItemFn Sink callback receiving each processed work item
-         */
-    void setPayloadFunctors(
-        std::move_only_function<std::unique_ptr<processable_type>()> getPayloadItemFn,
-        std::move_only_function<void(std::unique_ptr<processable_type>)> putPayloadItemFn
-    ) {
-        getPayloadItemFn_ = std::move(getPayloadItemFn);
-        putPayloadItemFn_ = std::move(putPayloadItemFn);
-    }
-
     /**
          * @brief The number of distinct genome layouts the master has interned for transport (layout
          * send-once). One per distinct genome structure across all worker ranks.
@@ -1518,16 +1570,31 @@ private:
 
     std::int32_t commSize_;
     const MPIConsumerConfig &config_;
+    /**
+         * Stop responses required for a complete shutdown: each worker sends one final request per
+         * double-buffer slot after receiving its stop, so the master answers 2*(commSize-1) STOPs in
+         * total. Single-sourced here for the receiver and cleanup loops (formerly computed in both).
+         */
+    const std::uint32_t reqNumStops_;
 
     std::unique_ptr<Common::Concurrency::GThreadPool> handlerThreadPool_;
     /**
          * thread that receives new incoming connections and schedules the handling of those to the thread pool
+         *
+         * Deliberately a raw std::thread rather than a pool worker (documented Inv-2 exception,
+         * 2026-07-19): this is a long-lived, single-purpose blocking probe loop -- parking it on the
+         * handler pool would permanently occupy one pool worker for no gain (see cleanUpSessionsLoop's
+         * doc comment for the same reasoning on the reaper). Both loop threads are accounted in the
+         * process-wide GThreadBudget via the reservations below.
          */
     std::thread receiverThread_;
     /*
          * Thread that waits for the completion open sessions
          */
     std::thread cleanUpThread_;
+    /// Thread-budget reservations for the two loop threads above (released after their join in shutdown())
+    Common::Concurrency::GThreadBudget::Reservation receiverBudget_;
+    Common::Concurrency::GThreadBudget::Reservation cleanUpBudget_;
     /*
          * Mutex to protect the vector of open sessions
          */
@@ -1538,8 +1605,7 @@ private:
     std::vector<std::shared_ptr<GMPIConsumerSessionT<processable_type>>> openSessions_{};
     // whether a stop request for the GMPIConsumerT has been received
     std::atomic_bool isToldToStop_;
-    // whether the stop request has been sent to all clients
-    /// External source/sink injected by the courtier consumer via setPayloadFunctors().
+    /// External work-item source/sink injected at construction (required; validated in the constructor).
     std::move_only_function<std::unique_ptr<processable_type>()> getPayloadItemFn_;
     std::move_only_function<void(std::unique_ptr<processable_type>)> putPayloadItemFn_;
 
