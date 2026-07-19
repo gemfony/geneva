@@ -36,6 +36,7 @@
 #include <filesystem>
 #include <memory>
 #include <string>
+#include <utility>
 
 // Geneva headers go here
 #include "common/GParserBuilder.hpp"
@@ -90,7 +91,7 @@ public:
         std::filesystem::path const &config_file,
         std::shared_ptr<Gem::Common::GFactoryT<gen::GOptimizableEntity>> content_creator_ptr
     )
-      : GOAFactoryT<GOptimizationAlgorithmBase>(config_file, content_creator_ptr) { /* nothing */
+      : GOAFactoryT<GOptimizationAlgorithmBase>(config_file, std::move(content_creator_ptr)) { /* nothing */
     }
 
     /**

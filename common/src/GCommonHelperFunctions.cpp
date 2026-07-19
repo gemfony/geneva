@@ -144,7 +144,7 @@ std::filesystem::file_time_type touch_time(
     std::string const &content,
     bool remove_if_not_present
 ) {
-    bool file_already_existed = std::filesystem::exists(path);
+    bool const file_already_existed = std::filesystem::exists(path);
     std::ofstream ofs(path);
     ofs << content;
     auto last_write_time = std::filesystem::last_write_time(path);
@@ -164,7 +164,7 @@ std::filesystem::file_time_type touch_time(
  */
 unsigned int getNHardwareThreads() {
     if(not g_hwt_read) {
-        std::scoped_lock lock(g_hwt_read_mutex);
+        std::scoped_lock const lock(g_hwt_read_mutex);
         if(not g_hwt_read) {
             g_nHardwareThreads.store(std::thread::hardware_concurrency());
 
@@ -295,7 +295,7 @@ int runExternalCommand(
     // If requested by the user, we want to send the command to an external file
     if(not command_output_file_name.empty()) {
         std::filesystem::path p_command_output_file_name = command_output_file_name;
-        std::string localcommand_output_file_name =
+        std::string const localcommand_output_file_name =
             (p_command_output_file_name.make_preferred()).string();
 
         local_command = std::string("(") + local_command + std::string(") > ") +
@@ -312,7 +312,7 @@ int runExternalCommand(
 
     // Run the actual command.
     // NOLINTNEXTLINE(concurrency-mt-unsafe,cert-env33-c) -- deliberate: this IS the external-command runner, invoked from single-threaded orchestration
-    int error_code = system(local_command.c_str());
+    int const error_code = system(local_command.c_str());
 
 #ifdef GEM_COMMON_PRINT_COMMANDLINE
     std::cout << "... done." << '\n';
@@ -491,9 +491,9 @@ std::vector<std::tuple<unsigned int, unsigned int>> stringToUIntTupleVec(std::st
 
     while(true) {
         expect('(');
-        unsigned int a = parseUInt();
+        unsigned int const a = parseUInt();
         expect(',');
-        unsigned int b = parseUInt();
+        unsigned int const b = parseUInt();
         expect(')');
         result.emplace_back(a, b);
 
@@ -556,7 +556,7 @@ std::chrono::duration<double> duration_from_string(std::string const &duration_s
  */
 std::string currentTimeAsString() {
     std::ostringstream oss; // NOLINT(cppcoreguidelines-init-variables)
-    std::time_t now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+    std::time_t const now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
     struct tm timeinfo{};
 
 #if defined(_MSC_VER) && (_MSC_VER >= 1020)
@@ -576,9 +576,9 @@ std::string currentTimeAsString() {
  * @return The number of milliseconds elapsed since the Unix epoch, as a string
  */
 std::string getMSSince1970() {
-    std::chrono::time_point<std::chrono::system_clock> p1; // 1970
-    std::chrono::time_point<std::chrono::system_clock> p2 = std::chrono::system_clock::now();
-    std::chrono::milliseconds ms_since_1970 =
+    std::chrono::time_point<std::chrono::system_clock> const p1; // 1970
+    std::chrono::time_point<std::chrono::system_clock> const p2 = std::chrono::system_clock::now();
+    std::chrono::milliseconds const ms_since_1970 =
         std::chrono::duration_cast<std::chrono::milliseconds>(p2 - p1);
     return std::to_string(
         ms_since_1970.count()

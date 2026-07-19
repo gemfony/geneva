@@ -140,7 +140,7 @@ public:
     ~GPreallocatedMPMCQueueT() {
         try {
             close();
-            std::scoped_lock lock(head_mtx_, tail_mtx_);
+            std::scoped_lock const lock(head_mtx_, tail_mtx_);
             std::size_t idx = head_;
             const std::size_t n = count_.load(std::memory_order_relaxed);
             for(std::size_t k = 0; k < n; ++k) {
@@ -389,7 +389,7 @@ private:
     template <typename U>
     void store_at_tail_(U &&item) {
         {
-            std::scoped_lock lock(tail_mtx_);
+            std::scoped_lock const lock(tail_mtx_);
             try {
                 ::new(static_cast<void *>(std::addressof(ring_[tail_].value_)))
                     T(std::forward<U>(item));
@@ -417,7 +417,7 @@ private:
     [[nodiscard]] std::optional<T> take_after_permit_() {
         std::optional<T> result;
         {
-            std::scoped_lock lock(head_mtx_);
+            std::scoped_lock const lock(head_mtx_);
             T &slot = ring_[head_].value_;
             result.emplace(std::move(slot));
             slot.~T();

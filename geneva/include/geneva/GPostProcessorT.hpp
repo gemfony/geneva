@@ -133,7 +133,7 @@ public:
 	  * @param oa_mnemonic The mnemonic of the querying optimization algorithm
 	  * @return true if the mnemonic is on the allow-list (or "all" was registered), false otherwise
 	  */
-    bool postProcessingAllowedFor(const std::string &oa_mnemonic) const {
+    [[nodiscard]] bool postProcessingAllowedFor(const std::string &oa_mnemonic) const {
         if(allowed_mnemonics_.contains("all")) {
             return true;
         }
@@ -293,7 +293,7 @@ private:
 	  *
 	  * @return The name of this class, as a string
 	  */
-    std::string name_() const override {
+    [[nodiscard]] std::string name_() const override {
         return std::string("GPostProcessorBaseT");
     }
 
@@ -303,7 +303,7 @@ private:
      *
      * @return A deep clone of this object, as a pointer to its base type
      */
-    Gem::Common::GSerializableFunctionObjectT<base_type> *clone_() const override = 0;
+    [[nodiscard]] Gem::Common::GSerializableFunctionObjectT<base_type> *clone_() const override = 0;
 
     /**************************************************************************/
     // Data
@@ -370,7 +370,7 @@ public:
      *
      * @return The name of the configuration file for the evolutionary algorithm
      */
-    std::string getOAConfigFile() const;
+    [[nodiscard]] std::string getOAConfigFile() const;
 
 protected:
     /**************************************************************************/
@@ -439,13 +439,13 @@ private:
      *
      * @return The name of this class, as a string
      */
-    std::string name_() const override;
+    [[nodiscard]] std::string name_() const override;
     /**
      * @brief Creates a deep clone of this object
      *
      * @return A deep clone of this object, as a pointer to its base type
      */
-    Gem::Common::GSerializableFunctionObjectT<gen::GOptimizableEntity> *clone_() const override;
+    [[nodiscard]] Gem::Common::GSerializableFunctionObjectT<gen::GOptimizableEntity> *clone_() const override;
 
     /** @brief The standard constructor */
     GEvolutionaryAlgorithmPostOptimizer();

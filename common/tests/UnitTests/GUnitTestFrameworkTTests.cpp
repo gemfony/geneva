@@ -79,7 +79,7 @@ TEST_CASE("TFactory_GUnitTests<T>: non-geneva exception is wrapped in geneva_exc
         TFactory_GUnitTests<ThrowsOther>();
         FAIL("expected geneva_exception to be thrown");
     } catch(geneva_exception const &g) {
-        std::string what = g.what();
+        std::string const what = g.what();
         CHECK(what.contains("Caught unknown exception"));
     } catch(...) {
         FAIL("threw a non-geneva exception type");

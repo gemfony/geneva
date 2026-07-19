@@ -317,7 +317,7 @@ private:
             *socket_ptr_,
             results.begin(),
             results.end(),
-            [self](boost::system::error_code ec, [[maybe_unused]] auto unused) { self->when_connected(ec); }
+            [self](boost::system::error_code ec, [[maybe_unused]] const auto& unused) { self->when_connected(ec); }
         );
     }
 
@@ -727,6 +727,7 @@ public:
 	  * @param wire_registry The consumer-shared layout send-once registry, or nullptr to disable the feature
 	  * @param session_timeout The per-exchange connection deadline; a non-positive value disables it
 	  */
+    // NOLINTNEXTLINE(readability-function-size) -- one constructor wiring up a session's full collaborator set (socket, timers, four callbacks, serialization mode, wire registry, timeout); the parameter count is the session's dependency set, not splittable
     GAsioConsumerSessionT(
         boost::asio::io_context &io_context,
         boost::asio::ip::tcp::socket socket,

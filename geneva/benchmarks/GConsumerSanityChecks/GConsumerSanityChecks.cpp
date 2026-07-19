@@ -90,7 +90,7 @@ int main(int argc, char **argv) {
     // See example 13 for more monitors
 
     if(monitorTimings != "empty") {
-        std::shared_ptr<GProcessingTimesLogger> processingTimesLogger_ptr(
+        std::shared_ptr<GProcessingTimesLogger> const processingTimesLogger_ptr(
             new GProcessingTimesLogger(
                 "hist_" + monitorTimings + ".C",
                 "hist2D_" + monitorTimings + ".C",
@@ -131,6 +131,6 @@ int main(int argc, char **argv) {
     go.registerDefaultAlgorithm("ea");
 
     // Perform the actual optimization
-    std::shared_ptr<gind::GDelayIndividual> p =
+    std::shared_ptr<gind::GDelayIndividual> const p =
         go.optimize()->getBestGlobalIndividual<gind::GDelayIndividual>();
 }

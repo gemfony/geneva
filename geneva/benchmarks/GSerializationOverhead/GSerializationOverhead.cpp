@@ -63,68 +63,69 @@ using namespace Gem::Dietrich; // plotting types live here now
 using namespace Gem::Geneva;
 using namespace Gem::Geneva::Individuals;
 
+// NOLINTNEXTLINE(readability-function-size) -- single benchmark main measuring adaption and serialization timings for one individual across the configured measurement sweep
 int main(int argc, char **argv) {
-    std::string caption =
+    std::string const caption =
         "Times for adaption and serialization (" + Gem::Common::to_string(NMEASUREMENTS) +
         " measurements each; serialization in " +
         std::string(serializationModeToString(DEFAULTSERMODE)) + ")";
     GPlotDesigner gpd(caption, 2, NPERFOBJECTTYPES);
 
-    std::shared_ptr<GGraph2D> gdo_adapt_ptr(new GGraph2D());
+    std::shared_ptr<GGraph2D> const gdo_adapt_ptr(new GGraph2D());
     gdo_adapt_ptr->setPlotMode(Gem::Dietrich::graphPlotMode::CURVE);
     gdo_adapt_ptr->setPlotLabel("GDoubleObject / Adaption");
     gdo_adapt_ptr->setXAxisLabel("Number of parameters");
     gdo_adapt_ptr->setYAxisLabel("Time (s)");
 
-    std::shared_ptr<GGraph2D> gdo_ser_ptr(new GGraph2D());
+    std::shared_ptr<GGraph2D> const gdo_ser_ptr(new GGraph2D());
     gdo_ser_ptr->setPlotMode(Gem::Dietrich::graphPlotMode::CURVE);
     gdo_ser_ptr->setPlotLabel("GDoubleObject / Serialization");
     gdo_ser_ptr->setXAxisLabel("Number of parameters");
     gdo_ser_ptr->setYAxisLabel("Time (s)");
 
-    std::shared_ptr<GGraph2D> gcdo_adapt_ptr(new GGraph2D());
+    std::shared_ptr<GGraph2D> const gcdo_adapt_ptr(new GGraph2D());
     gcdo_adapt_ptr->setPlotMode(Gem::Dietrich::graphPlotMode::CURVE);
     gcdo_adapt_ptr->setPlotLabel("GConstrainedDoubleObject / Adaption");
     gcdo_adapt_ptr->setXAxisLabel("Number of parameters");
     gcdo_adapt_ptr->setYAxisLabel("Time (s)");
 
-    std::shared_ptr<GGraph2D> gcdo_ser_ptr(new GGraph2D());
+    std::shared_ptr<GGraph2D> const gcdo_ser_ptr(new GGraph2D());
     gcdo_ser_ptr->setPlotMode(Gem::Dietrich::graphPlotMode::CURVE);
     gcdo_ser_ptr->setPlotLabel("GConstrainedDoubleObject / Serialization");
     gcdo_ser_ptr->setXAxisLabel("Number of parameters");
     gcdo_ser_ptr->setYAxisLabel("Time (s)");
 
-    std::shared_ptr<GGraph2D> gcdoc_adapt_ptr(new GGraph2D());
+    std::shared_ptr<GGraph2D> const gcdoc_adapt_ptr(new GGraph2D());
     gcdoc_adapt_ptr->setPlotMode(Gem::Dietrich::graphPlotMode::CURVE);
     gcdoc_adapt_ptr->setPlotLabel("GConstrainedDoubleObjectCollection / Adaption");
     gcdoc_adapt_ptr->setXAxisLabel("Number of parameters");
     gcdoc_adapt_ptr->setYAxisLabel("Time (s)");
 
-    std::shared_ptr<GGraph2D> gcdoc_ser_ptr(new GGraph2D());
+    std::shared_ptr<GGraph2D> const gcdoc_ser_ptr(new GGraph2D());
     gcdoc_ser_ptr->setPlotMode(Gem::Dietrich::graphPlotMode::CURVE);
     gcdoc_ser_ptr->setPlotLabel("GConstrainedDoubleObjectCollection / Serialization");
     gcdoc_ser_ptr->setXAxisLabel("Number of parameters");
     gcdoc_ser_ptr->setYAxisLabel("Time (s)");
 
-    std::shared_ptr<GGraph2D> gdc_adapt_ptr(new GGraph2D());
+    std::shared_ptr<GGraph2D> const gdc_adapt_ptr(new GGraph2D());
     gdc_adapt_ptr->setPlotMode(Gem::Dietrich::graphPlotMode::CURVE);
     gdc_adapt_ptr->setPlotLabel("GDoubleCollection / Adaption");
     gdc_adapt_ptr->setXAxisLabel("Number of parameters");
     gdc_adapt_ptr->setYAxisLabel("Time (s)");
 
-    std::shared_ptr<GGraph2D> gdc_ser_ptr(new GGraph2D());
+    std::shared_ptr<GGraph2D> const gdc_ser_ptr(new GGraph2D());
     gdc_ser_ptr->setPlotMode(Gem::Dietrich::graphPlotMode::CURVE);
     gdc_ser_ptr->setPlotLabel("GDoubleCollection / Serialization");
     gdc_ser_ptr->setXAxisLabel("Number of parameters");
     gdc_ser_ptr->setYAxisLabel("Time (s)");
 
-    std::shared_ptr<GGraph2D> gcdc_adapt_ptr(new GGraph2D());
+    std::shared_ptr<GGraph2D> const gcdc_adapt_ptr(new GGraph2D());
     gcdc_adapt_ptr->setPlotMode(Gem::Dietrich::graphPlotMode::CURVE);
     gcdc_adapt_ptr->setPlotLabel("GConstrainedDoubleCollection / Adaption");
     gcdc_adapt_ptr->setXAxisLabel("Number of parameters");
     gcdc_adapt_ptr->setYAxisLabel("Time (s)");
 
-    std::shared_ptr<GGraph2D> gcdc_ser_ptr(new GGraph2D());
+    std::shared_ptr<GGraph2D> const gcdc_ser_ptr(new GGraph2D());
     gcdc_ser_ptr->setPlotMode(Gem::Dietrich::graphPlotMode::CURVE);
     gcdc_ser_ptr->setPlotLabel("GConstrainedDoubleCollection / Serialization");
     gcdc_ser_ptr->setXAxisLabel("Number of parameters");
@@ -135,7 +136,7 @@ int main(int argc, char **argv) {
 
         for(std::size_t o = 0; o < NPERFOBJECTTYPES; o++) {
             // Create a GTestIndividual2 object of the desired size
-            std::shared_ptr<GTestIndividual2> gti_ptr(new GTestIndividual2(s, PERFOBJECTTYPE(o)));
+            std::shared_ptr<GTestIndividual2> const gti_ptr(new GTestIndividual2(s, PERFOBJECTTYPE(o)));
 
             // One adapter held across the measurement loop (the adaption state + logic are OA-owned;
             // a standalone individual drives them via a self-owned scratch + the config the
@@ -144,15 +145,15 @@ int main(int argc, char **argv) {
 
             // First test the time needed for NMEASUREMENTS
             // consecutive adaptions
-            std::chrono::system_clock::time_point pre_adapt = std::chrono::system_clock::now();
+            std::chrono::system_clock::time_point const pre_adapt = std::chrono::system_clock::now();
             for(std::size_t i = 1; i <= NMEASUREMENTS; i++) {
                 adapter.adapt(*gti_ptr);
             }
-            std::chrono::system_clock::time_point post_adapt = std::chrono::system_clock::now();
+            std::chrono::system_clock::time_point const post_adapt = std::chrono::system_clock::now();
 
             // Now measure the time needed for NMEASUREMENTS
             // consecutive (de-)serializations in the fastest mode (binary)
-            std::chrono::system_clock::time_point pre_serialization =
+            std::chrono::system_clock::time_point const pre_serialization =
                 std::chrono::system_clock::now();
             for(std::size_t i = 1; i <= NMEASUREMENTS; i++) {
                 gti_ptr->fromString(
@@ -160,15 +161,15 @@ int main(int argc, char **argv) {
                     DEFAULTSERMODE
                 );
             }
-            std::chrono::system_clock::time_point post_serialization =
+            std::chrono::system_clock::time_point const post_serialization =
                 std::chrono::system_clock::now();
 
-            std::chrono::duration<double> adaptionTime = post_adapt - pre_adapt;
-            std::chrono::duration<double> serializationTime =
+            std::chrono::duration<double> const adaptionTime = post_adapt - pre_adapt;
+            std::chrono::duration<double> const serializationTime =
                 post_serialization - pre_serialization;
 
-            double adaptionTimeD = adaptionTime.count();
-            double serializationTimeD = serializationTime.count();
+            double const adaptionTimeD = adaptionTime.count();
+            double const serializationTimeD = serializationTime.count();
 
             switch(o) {
             case 0:

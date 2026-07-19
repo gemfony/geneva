@@ -197,7 +197,7 @@ TEST_CASE("getMSSince1970: returns a numeric string with reasonable magnitude",
           "[common][helper-nonT][time]") {
     auto s = getMSSince1970();
     REQUIRE_FALSE(s.empty());
-    for(char c : s) {
+    for(char const c : s) {
         CHECK(std::isdigit(static_cast<unsigned char>(c)));
     }
     // > 1e12 (well past year 2001 in ms)

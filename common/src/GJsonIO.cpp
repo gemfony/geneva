@@ -161,7 +161,7 @@ boost::json::value parseJsonFile(std::filesystem::path const &path) {
             << "Could not open JSON file " << path.string() << " for reading" << '\n'
         );
     }
-    std::string content(
+    std::string const content(
         (std::istreambuf_iterator<char>(ifs)), (std::istreambuf_iterator<char>())
     );
     return parseJsonString(content, path.string());

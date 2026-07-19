@@ -137,7 +137,7 @@ TEST_CASE("function plotters emit a quoted, honoured draw option", "[plotting]")
 /******************************************************************************/
 // BUG-4: an auto-ranged histogram with no data must throw (not dereference end()).
 TEST_CASE("auto-ranged histogram with no data throws instead of UB", "[plotting]") {
-    GHistogram1D h(10); // 10 bins, no data added -> default min==max -> auto-range path
+    GHistogram1D const h(10); // 10 bins, no data added -> default min==max -> auto-range path
     CHECK_THROWS(h.headerData(""));
 }
 
@@ -488,7 +488,7 @@ TEST_CASE("GGraph2D reports a graph_2d GPlotSpec", "[plotting]") {
 /******************************************************************************/
 // GPlotSpec: a GHistogram1D reports kind==hist_1d and carries its bin count in n_bins_x.
 TEST_CASE("GHistogram1D reports a hist_1d GPlotSpec with n_bins_x", "[plotting]") {
-    GHistogram1D h(7, 0.0, 1.0);
+    GHistogram1D const h(7, 0.0, 1.0);
 
     const GPlotSpec spec = h.plotSpec();
     CHECK(spec.kind == plotKind::hist_1d);
@@ -557,7 +557,7 @@ TEST_CASE("dataColumns reports columns generically in storage order", "[plotting
     CHECK((*iv)[1] == 7);
 
     // A function plotter holds no sample columns at all.
-    GFunctionPlotter1D fp(std::string("x^2"), std::tuple<double, double>(-1.0, 1.0));
+    GFunctionPlotter1D const fp(std::string("x^2"), std::tuple<double, double>(-1.0, 1.0));
     CHECK(fp.dataColumns().empty());
 }
 
@@ -589,7 +589,7 @@ TEST_CASE("makePlotter reconstructs a plotter from its GPlotSpec", "[plotting]")
     }
 
     SECTION("auto-ranged histogram round-trips its bin counts (no range)") {
-        GHistogram2D orig(6, 8);
+        GHistogram2D const orig(6, 8);
         const GPlotSpec spec = orig.plotSpec();
         CHECK_FALSE(spec.range_x.has_value()); // auto-ranged -> no fixed range carried
         CHECK_FALSE(spec.range_y.has_value());
@@ -604,7 +604,7 @@ TEST_CASE("makePlotter reconstructs a plotter from its GPlotSpec", "[plotting]")
     }
 
     SECTION("fixed-range 1-d histogram round-trips its bins AND its range") {
-        GHistogram1D orig(7, -2.0, 3.0);
+        GHistogram1D const orig(7, -2.0, 3.0);
         const GPlotSpec spec = orig.plotSpec();
         REQUIRE(spec.range_x.has_value());
         CHECK(std::get<0>(*spec.range_x) == -2.0);
@@ -619,7 +619,7 @@ TEST_CASE("makePlotter reconstructs a plotter from its GPlotSpec", "[plotting]")
     }
 
     SECTION("fixed-range 2-d histogram round-trips both axis ranges") {
-        GHistogram2D orig(5, 9, -4.0, 4.0, 0.0, 10.0);
+        GHistogram2D const orig(5, 9, -4.0, 4.0, 0.0, 10.0);
         const GPlotSpec spec = orig.plotSpec();
         REQUIRE(spec.range_x.has_value());
         REQUIRE(spec.range_y.has_value());
@@ -636,7 +636,7 @@ TEST_CASE("makePlotter reconstructs a plotter from its GPlotSpec", "[plotting]")
     }
 
     SECTION("a fixed-range integer histogram now round-trips through its spec") {
-        GHistogram1I orig(5, 0.0, 10.0);
+        GHistogram1I const orig(5, 0.0, 10.0);
         const GPlotSpec spec = orig.plotSpec();
         REQUIRE(spec.range_x.has_value());
 
@@ -649,10 +649,10 @@ TEST_CASE("makePlotter reconstructs a plotter from its GPlotSpec", "[plotting]")
     }
 
     SECTION("function and range-less integer-histogram kinds cannot be rebuilt from a spec") {
-        GPlotSpec fspec(plotKind::function_1d);
+        GPlotSpec const fspec(plotKind::function_1d);
         CHECK_THROWS(makePlotter(fspec));
         // hist_1i with no range still cannot be reconstructed (no auto-range form).
-        GPlotSpec ispec(plotKind::hist_1i);
+        GPlotSpec const ispec(plotKind::hist_1i);
         CHECK_THROWS(makePlotter(ispec));
     }
 }
@@ -677,6 +677,7 @@ TEST_CASE("GPlotSpec round-trips the graph plot mode", "[plotting]") {
 // legacy plotter-object path: declare specs + push data == build plotters + add data.
 // This is the PoC's core equivalence claim -- it lets production code (monitors) drop the
 // fused plotter objects without changing a single byte of emitted output.
+// NOLINTNEXTLINE(readability-function-cognitive-complexity) -- one coherent byte-identity invariant (legacy plotter-object output == GDataLog output) exercised via SECTIONs across every plot kind; each section is a self-contained legacy-vs-modern comparison, already about as separated as Catch2 sections allow
 TEST_CASE("GDataLog reproduces the legacy plotter-object output byte-for-byte", "[plotting]") {
     SECTION("a 2-d graph with a scatter overlay (plot mode + overlay + labels + data)") {
         // --- Legacy: build plotter objects, set modes/labels, add data, register. ---

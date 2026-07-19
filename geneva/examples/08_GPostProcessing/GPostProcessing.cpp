@@ -53,6 +53,7 @@ namespace po = boost::program_options;
 /**
  * The main function
  */
+// NOLINTNEXTLINE(readability-function-size) -- single example main: additional CLI options, Go2 setup, the optimization run and the post-processing step all belong to one driver
 int main(int argc, char **argv) {
     //---------------------------------------------------------------------------
     // We want to add additional command line options
@@ -94,14 +95,14 @@ int main(int argc, char **argv) {
     //---------------------------------------------------------------------------
     // Create a factory for GFunctionIndividual objects and perform
     // any necessary initial work.
-    std::shared_ptr<gind::GFunctionIndividualFactory> gfi_ptr(
+    std::shared_ptr<gind::GFunctionIndividualFactory> const gfi_ptr(
         new gind::GFunctionIndividualFactory("./config/GFunctionIndividual.json")
     );
 
     //---------------------------------------------------------------------------
     // Register a post-processor, if this was requested by the user
     if(usePostProcessor) {
-        std::shared_ptr<GEvolutionaryAlgorithmPostOptimizer> eaPostOptimizer_ptr(
+        std::shared_ptr<GEvolutionaryAlgorithmPostOptimizer> const eaPostOptimizer_ptr(
             new GEvolutionaryAlgorithmPostOptimizer(
                 "./config/GPostEvolutionaryAlgorithm.json"
             )
@@ -119,7 +120,7 @@ int main(int argc, char **argv) {
     // See example 13 for more monitors
 
     if(monitorTimings != "empty") {
-        std::shared_ptr<GProcessingTimesLogger> processingTimesLogger_ptr(
+        std::shared_ptr<GProcessingTimesLogger> const processingTimesLogger_ptr(
             new GProcessingTimesLogger(
                 "hist_" + monitorTimings + ".C",
                 "hist2D_" + monitorTimings + ".C",
@@ -154,7 +155,7 @@ int main(int argc, char **argv) {
     go.registerDefaultAlgorithm("ea");
 
     // Perform the actual optimization
-    std::shared_ptr<gind::GFunctionIndividual> p =
+    std::shared_ptr<gind::GFunctionIndividual> const p =
         go.optimize()->getBestGlobalIndividual<gind::GFunctionIndividual>();
 
     // Here you can do something with the best individual ("p") found.

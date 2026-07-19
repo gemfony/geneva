@@ -60,6 +60,7 @@ namespace Gem::Geneva {
  * @param userDescriptions Additional user-defined command-line option descriptions forwarded to Go2.
  * @param baseCommunicator The outermost MPI communicator to partition; if MPI_COMM_WORLD, MPI is initialized here, otherwise the user is assumed to have done so.
  */
+// NOLINTNEXTLINE(readability-function-size) -- one coherent MPI topology setup: rank/color computation and the communicator splits are tightly sequential and depend on each other's results (isServer, isSubClient_, subCommColor); splitting would scatter interdependent MPI bootstrap steps
 GMPISubClientOptimizer::GMPISubClientOptimizer(
     int argc,
     char **argv,
@@ -267,7 +268,7 @@ int GMPISubClientOptimizer::clientRun_() {
     }
             GMPISubClientIndividual::setClientMode(ClientMode::CLIENT);
         // run the client until optimization finished
-        int returnValue{Go2::clientRun_()};
+        int const returnValue{Go2::clientRun_()};
         // Tell the sub-clients that the optimization has finished, and wait for the barrier to
         // complete (every sub-client entered it at startup, so this returns promptly) -- the wait
         // both frees the request and guarantees no communication is pending on this rank when the

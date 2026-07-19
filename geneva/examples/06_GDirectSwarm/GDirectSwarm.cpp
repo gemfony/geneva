@@ -42,6 +42,8 @@
  */
 
 // Standard header files go here
+#include <math.h>
+
 #include <chrono>
 #include <cmath>
 #include <iostream>
@@ -93,6 +95,7 @@ const std::size_t DEFAULTMAXRECONNECTS = 10;
 /**
  * Parses the command line
  */
+// NOLINTNEXTLINE(readability-function-size) -- one coherent config-registration block: every GDirectSwarm CLI option is registered here in sequence
 bool parseCommandLine(
     int argc,
     char **argv,
@@ -264,30 +267,31 @@ bool parseCommandLine(
 /**
  * The main function.
  */
+// NOLINTNEXTLINE(readability-function-size) -- single example main: CLI parsing, Go2 setup and the optimization run all belong to one driver
 int main(int argc, char **argv) {
     consumerType cType;
-    bool clientMode;
+    bool clientMode = false;
     std::string ip;
-    unsigned short port;
-    std::uint16_t nProducerThreads;
-    std::uint16_t nEvaluationThreads;
-    std::uint32_t maxIterations;
-    long maxMinutes;
-    std::uint32_t reportIteration;
+    unsigned short port = 0;
+    std::uint16_t nProducerThreads = 0;
+    std::uint16_t nEvaluationThreads = 0;
+    std::uint32_t maxIterations = 0;
+    long maxMinutes = 0;
+    std::uint32_t reportIteration = 0;
     Gem::Common::serializationMode serMode;
-    std::size_t nNeighborhoods;
-    std::size_t nNeighborhoodMembers;
-    double cPersonal;
-    double cNeighborhood;
-    double cGlobal;
-    double cVelocity;
+    std::size_t nNeighborhoods = 0;
+    std::size_t nNeighborhoodMembers = 0;
+    double cPersonal = NAN;
+    double cNeighborhood = NAN;
+    double cGlobal = NAN;
+    double cVelocity = NAN;
     updateRule ur;
-    bool allRandomInit;
-    std::size_t maxReconnects;
+    bool allRandomInit = false;
+    std::size_t maxReconnects = 0;
 
     /****************************************************************************/
     // Initialization of Geneva
-    GenevaInitializer gi;
+    GenevaInitializer const gi;
 
     /****************************************************************************/
     // --update-configs: materialize the configuration files this binary owns, then exit. This
@@ -359,7 +363,7 @@ int main(int argc, char **argv) {
     // We can now start creating populations. We refer to them through the base class
 
     // This smart pointer will hold the different population types
-    std::shared_ptr<oa::GSwarmAlgorithm> pop_ptr(
+    std::shared_ptr<oa::GSwarmAlgorithm> const pop_ptr(
         new oa::GSwarmAlgorithm(nNeighborhoods, nNeighborhoodMembers)
     );
 
@@ -410,7 +414,7 @@ int main(int argc, char **argv) {
     else { // Individuals of the same neighborhood start from the same location
         for(std::size_t n = 0; n < nNeighborhoods; n++) {
             // Initialize the first individual of the neighborhood
-            std::shared_ptr<gind::GFunctionIndividual> functionIndividual_ptr =
+            std::shared_ptr<gind::GFunctionIndividual> const functionIndividual_ptr =
                 gfi.get_as<gind::GFunctionIndividual>();
 
             // Now add the required number of clones to the neighborhood
@@ -445,7 +449,7 @@ int main(int argc, char **argv) {
 
     /****************************************************************************/
     // Do something with the best individual found
-    std::shared_ptr<gind::GFunctionIndividual> p =
+    std::shared_ptr<gind::GFunctionIndividual> const p =
         pop_ptr->getBestGlobalIndividual<gind::GFunctionIndividual>();
 
     // Here you can do something with the best individual ("p") found.

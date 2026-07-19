@@ -40,6 +40,7 @@
 #include <sstream>
 #include <string>
 #include <tuple>
+#include <utility>
 #include <vector>
 
 // Boost header files go here
@@ -247,7 +248,7 @@ public:
      * @param sub_ea_config The path and name of the (sub-)EA configuration file
      */
     void setSubEAConfig(std::string sub_ea_config) {
-        sub_ea_config_ = sub_ea_config;
+        sub_ea_config_ = std::move(sub_ea_config);
     }
 
     /***************************************************************************/
@@ -432,7 +433,7 @@ public:
      * @param manifest The tunable parameters to encode (name, channel, init value and search bounds)
      */
     static void addContent(
-        std::shared_ptr<GMetaOptimizerIndividualT<ind_type>> p,
+        const std::shared_ptr<GMetaOptimizerIndividualT<ind_type>>& p,
         const std::vector<oa::TunableParam> &manifest
     ) {
         gen::GGenomeBuilder b;
@@ -502,8 +503,8 @@ public:
 
         // Stream the results
 
-        bool unprocessed = (not this->is_processed() || this->has_errors());
-        double transformed_primary_fitness =
+        bool const unprocessed = (not this->is_processed() || this->has_errors());
+        double const transformed_primary_fitness =
             unprocessed ? this->getWorstCase() : this->transformed_fitness(0);
 
         result << "================================================================================"
@@ -556,7 +557,7 @@ public:
      *
      * @param factory The sub-individual factory to clone and store (must not be empty)
      */
-    void registerIndividualFactory(std::shared_ptr<typename ind_type::FACTORYTYPE> factory) {
+    void registerIndividualFactory(const std::shared_ptr<typename ind_type::FACTORYTYPE>& factory) {
         if(not factory) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
@@ -623,7 +624,7 @@ protected:
             ,
             GMETAOPT_DEF_SUBEACONFIG // The default value
             ,
-            [this](std::string seac) { this->setSubEAConfig(seac); }
+            [this](std::string seac) { this->setSubEAConfig(std::move(seac)); }
         ) << "Path and name of the configuration file used for the (sub-)evolutionary algorithm";
     }
 
@@ -738,20 +739,20 @@ protected:
         // Derive the sub-individuals' adaptor settings from the meta-optimised parameters. The genome
         // carries RAW knobs (min + range + start percentage) so it always holds valid values; the actual
         // gauss bounds are derived here (max = min + range; start = min + percentage * range).
-        double min_sigma = v.at(n::min_sigma);
-        double sigma_range = v.at(n::sigma_range);
-        double max_sigma = min_sigma + sigma_range;
-        double sigma_range_percentage = v.at(n::sigma_range_pct);
-        double start_sigma = min_sigma + (sigma_range_percentage * sigma_range);
-        double sigma_sigma = v.at(n::sigma_sigma);
+        double const min_sigma = v.at(n::min_sigma);
+        double const sigma_range = v.at(n::sigma_range);
+        double const max_sigma = min_sigma + sigma_range;
+        double const sigma_range_percentage = v.at(n::sigma_range_pct);
+        double const start_sigma = min_sigma + (sigma_range_percentage * sigma_range);
+        double const sigma_sigma = v.at(n::sigma_sigma);
 
-        double min_ad_prob = v.at(n::min_ad_prob);
-        double ad_prob_range = v.at(n::ad_prob_range);
-        double max_ad_prob = min_ad_prob + ad_prob_range;
-        double ad_prob_start_percentage = v.at(n::ad_prob_start_pct);
-        double start_ad_prob = min_ad_prob + (ad_prob_start_percentage * ad_prob_range);
+        double const min_ad_prob = v.at(n::min_ad_prob);
+        double const ad_prob_range = v.at(n::ad_prob_range);
+        double const max_ad_prob = min_ad_prob + ad_prob_range;
+        double const ad_prob_start_percentage = v.at(n::ad_prob_start_pct);
+        double const start_ad_prob = min_ad_prob + (ad_prob_start_percentage * ad_prob_range);
 
-        double adapt_ad_prob = v.at(n::adapt_ad_prob);
+        double const adapt_ad_prob = v.at(n::adapt_ad_prob);
 
         // Set up a population factory for serial execution
         oa::GEvolutionaryAlgorithmFactory ea(sub_ea_config_);
@@ -776,9 +777,9 @@ protected:
 
         auto n_children = static_cast<std::uint32_t>(v.at(n::n_children));
         auto n_parents = static_cast<std::uint32_t>(v.at(n::n_parents));
-        std::uint32_t pop_size = n_parents + n_children;
+        std::uint32_t const pop_size = n_parents + n_children;
         std::uint32_t iterations_consumed = 0;
-        double amalgamation_likelihood = v.at(n::amalgamation);
+        double const amalgamation_likelihood = v.at(n::amalgamation);
 
         std::vector<double> solver_calls_per_optimization;
         std::vector<double> iterations_per_optimization;
@@ -800,7 +801,7 @@ protected:
             // Add the required number of individuals
             for(std::size_t ind = 0; ind < pop_size; ind++) {
                 // Retrieve an individual
-                std::shared_ptr<gen::GOptimizableEntity> gi_ptr = ind_factory_->get();
+                std::shared_ptr<gen::GOptimizableEntity> const gi_ptr = ind_factory_->get();
 
                 ea_ptr->push_back(gi_ptr->clone_unique());
             }
@@ -840,7 +841,7 @@ protected:
             ea_ptr->optimize();
 
             // Retrieve the best individual
-            std::shared_ptr<gen::GOptimizableEntity> best_individual =
+            std::shared_ptr<gen::GOptimizableEntity> const best_individual =
                 ea_ptr->getBestGlobalIndividual<gen::GOptimizableEntity>();
 
             // Retrieve the number of iterations
@@ -1127,7 +1128,7 @@ public:
      *
      * @param factory The sub-individual factory to clone and store (must not be empty)
      */
-    void registerIndividualFactory(std::shared_ptr<typename ind_type::FACTORYTYPE> factory) {
+    void registerIndividualFactory(const std::shared_ptr<typename ind_type::FACTORYTYPE>& factory) {
         if(not factory) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
@@ -1149,6 +1150,7 @@ protected:
      *
      * @param gpb The GParserBuilder object to which configuration options should be added
      */
+    // NOLINTNEXTLINE(readability-function-size) -- one coherent config-registration sweep for the meta-optimizer factory's option list; splitting would scatter the option list
     void describeLocalOptions_(Gem::Common::GParserBuilder &gpb) override {
         // Describe our own options
         using namespace Gem::Courtier;
@@ -1460,7 +1462,7 @@ protected:
      */
     void postProcess_(std::shared_ptr<gen::GOptimizableEntity> &p_base) override {
         // Convert the base pointer to our local type
-        std::shared_ptr<GMetaOptimizerIndividualT<ind_type>> p =
+        std::shared_ptr<GMetaOptimizerIndividualT<ind_type>> const p =
             Gem::Common::convertSmartPointer<gen::GOptimizableEntity, GMetaOptimizerIndividualT<ind_type>>(
                 p_base
             );
@@ -1656,7 +1658,7 @@ public:
      *
      * @param file_name The name of the file the recorded plots are written to
      */
-    GOptOptMonitorT(const std::string file_name)
+    GOptOptMonitorT(const std::string& file_name)
       : file_name_(file_name) { /* nothing -- the progress curves live in a transient data log */
     }
 
@@ -1687,7 +1689,7 @@ public:
      * @param file_name The name of the file the recorded plots are written to
      */
     void setFileName(std::string file_name) {
-        file_name_ = file_name;
+        file_name_ = std::move(file_name);
     }
 
     /***************************************************************************/
@@ -1696,7 +1698,7 @@ public:
      *
      * @return The name of the output file
      */
-    std::string getFileName() const {
+    [[nodiscard]] std::string getFileName() const {
         return file_name_;
     }
 
@@ -1830,7 +1832,7 @@ private:
      *
      * @return The name of this class
      */
-    std::string name_() const override {
+    [[nodiscard]] std::string name_() const override {
         return std::string("GOptOptMonitorT<>");
     }
 
@@ -1840,7 +1842,7 @@ private:
        *
        * @return A deep clone of this object
        */
-    oa::GBasePluggableOM *clone_() const override {
+    [[nodiscard]] oa::GBasePluggableOM *clone_() const override {
         return new GOptOptMonitorT<ind_type>(*this);
     }
 
@@ -1898,7 +1900,7 @@ private:
 
             // Extract the requested data. First retrieve the best individual.
             // It can always be found in the first position with evolutionary algorithms
-            std::shared_ptr<GMetaOptimizerIndividualT<ind_type>> p =
+            std::shared_ptr<GMetaOptimizerIndividualT<ind_type>> const p =
                 ea->at(0)->clone<GMetaOptimizerIndividualT<ind_type>>();
 
             // Retrieve the best fitness and average sigma value and append them to the data log,

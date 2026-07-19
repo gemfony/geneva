@@ -96,7 +96,7 @@ namespace {
 std::string octaveEscape(const std::string &in) {
     std::string out;
     out.reserve(in.size());
-    for(char c : in) {
+    for(char const c : in) {
         switch(c) {
             case '\'':           out += "''"; break;
             case '\n': case '\r': out += ' '; break;

@@ -107,7 +107,7 @@ TEST_CASE("GThreadPool: the budgeted constructor reserves for the pool's lifetim
     const unsigned int base = budget.reserved();
 
     {
-        GThreadPool pool("test:pool", 3, ThreadElasticity::Elastic);
+        GThreadPool const pool("test:pool", 3, ThreadElasticity::Elastic);
         CHECK(pool.getNThreads() == 3);
         CHECK(budget.reserved() == base + 3);
     }
@@ -156,7 +156,7 @@ TEST_CASE("GThreadPool: a budgeted pool built inside another pool's worker is bu
     unsigned int inner_threads = 0;
     outer
         .async_schedule([&inner_threads]() {
-            GThreadPool inner("test:inner", 64, ThreadElasticity::Elastic);
+            GThreadPool const inner("test:inner", 64, ThreadElasticity::Elastic);
             inner_threads = inner.getNThreads();
         })
         .get();

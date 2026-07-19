@@ -668,12 +668,13 @@ bool GGeneralizedSimulatedAnnealing::modify_GUnitTests_() {
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes.
  */
+// NOLINTNEXTLINE(readability-function-size,readability-function-cognitive-complexity) -- self-test entry point for GGeneralizedSimulatedAnnealing: a sequence of independent, self-scoped CHECK blocks, one per SA strategy-parameter/annealing scenario; same one-function-per-test-phase convention used identically across every OA self-test in this codebase
 void GGeneralizedSimulatedAnnealing::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
     GOptimizationAlgorithmT<GGeneralizedSimulatedAnnealing>::specificTestsNoFailureExpected_GUnitTests_();
 
     { // Test setting and retrieval of basic strategy parameters
-        std::shared_ptr<GGeneralizedSimulatedAnnealing> p_test = this->clone<GGeneralizedSimulatedAnnealing>();
+        std::shared_ptr<GGeneralizedSimulatedAnnealing> const p_test = this->clone<GGeneralizedSimulatedAnnealing>();
 
         CHECK_NOTHROW(p_test->setNChains(4));
         CHECK(p_test->getNChains() == 4);
@@ -692,7 +693,7 @@ void GGeneralizedSimulatedAnnealing::specificTestsNoFailureExpected_GUnitTests_(
     }
 
     { // Setting invalid strategy parameters must throw
-        std::shared_ptr<GGeneralizedSimulatedAnnealing> p_test = this->clone<GGeneralizedSimulatedAnnealing>();
+        std::shared_ptr<GGeneralizedSimulatedAnnealing> const p_test = this->clone<GGeneralizedSimulatedAnnealing>();
         CHECK_THROWS(p_test->setNChains(0)); // need at least 1 chain
         CHECK_THROWS(p_test->setQv(1.0));    // q_v must be in ]1,3[
         CHECK_THROWS(p_test->setQv(3.0));    // q_v must be in ]1,3[

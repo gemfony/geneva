@@ -359,7 +359,7 @@ void GType::populationSanityChecks_() const {
         );
     }
 
-    std::size_t pop_size = this->getPopulationSize();
+    std::size_t const pop_size = this->getPopulationSize();
     if(
         ((sorting_mode_ == sortingMode::MUCOMMANU_SINGLEEVAL ||
           sorting_mode_ == sortingMode::MUNU1PRETAIN_SINGLEEVAL ||
@@ -760,10 +760,10 @@ void GType::sortMunu1pretainMode() {
         [](const auto &p) static { return minOnly_transformed_fitness(*p); }
     );
 
-    double best_child = minOnly_transformed_fitness(
+    double const best_child = minOnly_transformed_fitness(
         (*(*(GOptimizationAlgorithmBase::data_cnt_.begin() + n_parents_)))
     );
-    double best_parent =
+    double const best_parent =
         minOnly_transformed_fitness((*(*(GOptimizationAlgorithmBase::data_cnt_.begin()))));
 
     if(best_child < best_parent) {
@@ -804,7 +804,7 @@ void GType::selectParetoParents(bool include_parents) {
     // then -- for mu,nu -- the discarded old parents at the tail (overwritten by the next recombination).
     std::vector<std::unique_ptr<gen::GOptimizableEntity>> reordered;
     reordered.reserve(sz);
-    for(std::size_t local : order) {
+    for(std::size_t const local : order) {
         reordered.push_back(std::move(this->data_cnt_[start + local]));
     }
     if(not include_parents) {
@@ -909,18 +909,19 @@ void GType::fillWithObjects(const std::size_t &n_individuals) {
 
 /******************************************************************************/
 
+// NOLINTNEXTLINE(readability-function-size) -- self-test entry point for GEvolutionaryAlgorithm: a sequence of independent, self-scoped CHECK blocks, one per EA-specific population/recombination scenario; same one-function-per-test-phase convention used identically across every OA self-test in this codebase
 void GType::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
     GParChild::specificTestsNoFailureExpected_GUnitTests_();
 
     {
-        std::shared_ptr<GType> p_test = this->template clone<GType>();
+        std::shared_ptr<GType> const p_test = this->template clone<GType>();
         p_test->fillWithObjects(100);
         p_test->GParChild::specificTestsNoFailureExpected_GUnitTests_();
     }
 
     {
-        std::shared_ptr<GType> p_test = this->template clone<GType>();
+        std::shared_ptr<GType> const p_test = this->template clone<GType>();
         for(std::size_t n_children = 5; n_children < 10; n_children++) {
             for(std::size_t n_parents = 1; n_parents < n_children; n_parents++) {
                 CHECK_NOTHROW(p_test->clear());

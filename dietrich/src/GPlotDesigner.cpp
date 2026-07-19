@@ -162,7 +162,7 @@ GBasePlotter &GBasePlotter::operator=(GBasePlotter const &cp) {
  * @param drawing_arguments The drawing arguments for this plot
  */
 void GBasePlotter::setDrawingArguments(std::string drawing_arguments) {
-    drawing_arguments_ = drawing_arguments;
+    drawing_arguments_ = std::move(drawing_arguments);
 }
 
 /******************************************************************************/
@@ -172,7 +172,7 @@ void GBasePlotter::setDrawingArguments(std::string drawing_arguments) {
  * @param x_axis_label The label to be assigned to the x-axis
  * */
 void GBasePlotter::setXAxisLabel(std::string x_axis_label) {
-    x_axis_label_ = x_axis_label;
+    x_axis_label_ = std::move(x_axis_label);
 }
 
 /******************************************************************************/
@@ -192,7 +192,7 @@ std::string GBasePlotter::xAxisLabel() const {
  * @param y_axis_label The label to be assigned to the y-axis
  */
 void GBasePlotter::setYAxisLabel(std::string y_axis_label) {
-    y_axis_label_ = y_axis_label;
+    y_axis_label_ = std::move(y_axis_label);
 }
 
 /******************************************************************************/
@@ -212,7 +212,7 @@ std::string GBasePlotter::yAxisLabel() const {
  * @param z_axis_label The label to be assigned to the z-axis
  */
 void GBasePlotter::setZAxisLabel(std::string z_axis_label) {
-    z_axis_label_ = z_axis_label;
+    z_axis_label_ = std::move(z_axis_label);
 }
 
 /******************************************************************************/
@@ -232,7 +232,7 @@ std::string GBasePlotter::zAxisLabel() const {
  * @param p_l A label to be assigned to the entire plot
  */
 void GBasePlotter::setPlotLabel(std::string p_l) {
-    plot_label_ = p_l;
+    plot_label_ = std::move(p_l);
 }
 
 /******************************************************************************/
@@ -399,7 +399,7 @@ std::unique_ptr<GBasePlotter> makePlotter(const GPlotSpec &spec) {
  * @param ds_marker A marker that has been assigned to the output data structures
  */
 void GBasePlotter::setDataStructureMarker(std::string ds_marker) {
-    ds_marker_ = ds_marker;
+    ds_marker_ = std::move(ds_marker);
 }
 
 /******************************************************************************/
@@ -419,7 +419,7 @@ std::string GBasePlotter::dsMarker() const {
  * @param sp A shared pointer to the secondary plotter to register; must be
  * non-empty and compatible with this plotter, otherwise an exception is thrown
  */
-void GBasePlotter::registerSecondaryPlotter(std::shared_ptr<GBasePlotter> sp) {
+void GBasePlotter::registerSecondaryPlotter(const std::shared_ptr<GBasePlotter>& sp) {
     // Check that the secondary plot isn't empty
     if(not sp) {
         throw geneva_exception(
@@ -865,7 +865,7 @@ std::string GPlotDesigner::staticHeader(const std::string &indent) const {
  *
  * @param plotter_ptr A pointer to a plotter
  */
-void GPlotDesigner::registerPlotter(std::shared_ptr<GBasePlotter> plotter_ptr) {
+void GPlotDesigner::registerPlotter(const std::shared_ptr<GBasePlotter>& plotter_ptr) {
     if(plotter_ptr) {
         plotter_ptr->setId(plotters_cnt_.size());
         plotters_cnt_.push_back(plotter_ptr);

@@ -76,7 +76,7 @@ constexpr std::size_t N_ITEMS = 8;
 
 /** @brief Serialized size (binary) of one work item, used to prove the payload exceeds the old cap. */
 std::size_t serialized_size_of_one_item() {
-    GRandomNumberContainer probe(DOUBLES_PER_ITEM);
+    GRandomNumberContainer const probe(DOUBLES_PER_ITEM);
     std::ostringstream oss(std::ios_base::binary);
     {
         boost::archive::binary_oarchive oa(oss);

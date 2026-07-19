@@ -96,7 +96,7 @@ public:
     template <typename individual_type>
         requires std::derived_from<individual_type, gen::GOptimizableEntity>
     std::shared_ptr<individual_type> getBestGlobalIndividual() const {
-        std::scoped_lock<std::mutex> iteration_best_lock(get_best_mutex_);
+        std::scoped_lock<std::mutex> const iteration_best_lock(get_best_mutex_);
         auto result = std::dynamic_pointer_cast<individual_type>(this->getBestGlobalIndividual_());
         if(!result) {
             throw geneva_exception(
@@ -121,10 +121,10 @@ public:
     template <typename individual_type>
         requires std::derived_from<individual_type, gen::GOptimizableEntity>
     std::vector<std::shared_ptr<individual_type>> getBestGlobalIndividuals() const {
-        std::scoped_lock<std::mutex> iteration_best_lock(get_best_mutex_);
+        std::scoped_lock<std::mutex> const iteration_best_lock(get_best_mutex_);
 
         std::vector<std::shared_ptr<individual_type>> best_individuals;
-        std::vector<std::shared_ptr<gen::GOptimizableEntity>> best_base_individuals =
+        std::vector<std::shared_ptr<gen::GOptimizableEntity>> const best_base_individuals =
             this->getBestGlobalIndividuals_();
 
         // Cross check that we indeed got a valid set of individuals
@@ -168,7 +168,7 @@ public:
     template <typename individual_type>
         requires std::derived_from<individual_type, gen::GOptimizableEntity>
     std::shared_ptr<individual_type> getBestIterationIndividual() const {
-        std::scoped_lock<std::mutex> iteration_best_lock(get_best_mutex_);
+        std::scoped_lock<std::mutex> const iteration_best_lock(get_best_mutex_);
         auto result = std::dynamic_pointer_cast<individual_type>(getBestIterationIndividual_());
         if(!result) {
             throw geneva_exception(
@@ -193,10 +193,10 @@ public:
     template <typename individual_type>
         requires std::derived_from<individual_type, gen::GOptimizableEntity>
     std::vector<std::shared_ptr<individual_type>> getBestIterationIndividuals() const {
-        std::scoped_lock<std::mutex> iteration_best_lock(get_best_mutex_);
+        std::scoped_lock<std::mutex> const iteration_best_lock(get_best_mutex_);
 
         std::vector<std::shared_ptr<individual_type>> best_individuals;
-        std::vector<std::shared_ptr<gen::GOptimizableEntity>> best_base_individuals =
+        std::vector<std::shared_ptr<gen::GOptimizableEntity>> const best_base_individuals =
             this->getBestIterationIndividuals_();
 
         // Cross check that we indeed got a valid set of individuals

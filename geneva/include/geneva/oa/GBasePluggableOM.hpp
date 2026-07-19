@@ -124,7 +124,7 @@ public:
      *
      * @return true if the true (unmodified) evaluation is requested, false otherwise
      */
-    bool getUseRawEvaluation() const;
+    [[nodiscard]] bool getUseRawEvaluation() const;
 
 protected:
     /************************************************************************/
@@ -196,7 +196,7 @@ private:
      *
      * @return A pointer to a newly allocated deep copy of this object (pure virtual)
      */
-    GBasePluggableOM *clone_() const override = 0;
+    [[nodiscard]] GBasePluggableOM *clone_() const override = 0;
 
     /**
      * @brief Overload this function in derived classes, specifying actions for initialization,

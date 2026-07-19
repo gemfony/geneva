@@ -82,7 +82,7 @@ protected:
         std::vector<double> v;
         this->streamline<double>(v);
         double s = 0.;
-        for(double x : v) {
+        for(double const x : v) {
             s += x * x;
         }
         return {s};
@@ -115,7 +115,7 @@ protected:
         inner->setPopulationSizes(4, 2);
         inner->setMaxIteration(2);
         inner->setReportIteration(100000);
-        InnerSphere src;
+        InnerSphere const src;
         inner->push_back(src.clone_unique());
         inner->setAdaptionConfig(src.buildAdaptionConfig());
         // Deliberately NO setLocalConsumer(): init() defaults to the thread-pool consumer, which is the
@@ -126,7 +126,7 @@ protected:
         std::vector<double> v;
         best->streamline<double>(v);
         double s = 0.;
-        for(double x : v) {
+        for(double const x : v) {
             s += x * x;
         }
         return {s};
@@ -195,7 +195,7 @@ TEST_CASE(
             ea->setPopulationSizes(12, 4);
             ea->setMaxIteration(40);
             ea->setReportIteration(100000);
-            InnerSphere src;
+            InnerSphere const src;
             ea->push_back(src.clone_unique());
             ea->setAdaptionConfig(src.buildAdaptionConfig());
             // No setLocalConsumer(): the default thread-pool consumer is resolved (and shared) via the registry.
@@ -205,7 +205,7 @@ TEST_CASE(
             std::vector<double> v;
             best->streamline<double>(v);
             double s = 0.;
-            for(double x : v) {
+            for(double const x : v) {
                 s += x * x;
             }
             results[t] = s;
@@ -216,7 +216,7 @@ TEST_CASE(
     }
 
     // Assertions on the main thread only (Catch2 macros are not thread-safe).
-    for(double s : results) {
+    for(double const s : results) {
         CHECK(s < 20.0); // every concurrent algorithm converged (well below the f=27 start)
     }
     CHECK(StcConsumer::instances_constructed().load() == 1); // one shared pool for all K algorithms
@@ -245,7 +245,7 @@ TEST_CASE(
     meta->setMaxIteration(1);
     meta->setReportIteration(100000);
     meta->setNOrchestrationThreads(2);
-    MetaSphere src;
+    MetaSphere const src;
     meta->push_back(src.clone_unique());
     meta->setAdaptionConfig(src.buildAdaptionConfig());
     meta->optimize();

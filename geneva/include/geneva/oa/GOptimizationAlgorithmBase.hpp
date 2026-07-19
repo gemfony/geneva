@@ -270,7 +270,7 @@ public:
      * @param cp_directory The directory in which checkpoint files are stored
      * @param cp_base_name The base name of the checkpoint files
      */
-    void setCheckpointBaseName(std::string cp_directory, std::string cp_base_name);
+    void setCheckpointBaseName(const std::string& cp_directory, const std::string& cp_base_name);
     /**
      * @brief Allows to retrieve the base name of the checkpoint file.
      * @return The base name of the checkpoint files
@@ -341,7 +341,7 @@ public:
      * @brief Allows to register a pluggable optimization monitor.
      * @param pluggable_om The pluggable optimization monitor to register
      */
-    void registerPluggableOM(std::shared_ptr<GBasePluggableOM> pluggable_om);
+    void registerPluggableOM(const std::shared_ptr<GBasePluggableOM>& pluggable_om);
     /** @brief Allows to reset the local pluggable optimization monitors */
     void resetPluggableOM();
     /**
@@ -572,7 +572,7 @@ public:
         // individual transiently, so hand back a NON-OWNING shared_ptr view (no-op deleter) of the live
         // individual rather than co-owning or cloning it -- the population element outlives the call.
         // Does error checks on the conversion internally.
-        std::shared_ptr<gen::GOptimizableEntity> view(&(*this->at(pos)), [](gen::GOptimizableEntity *) {});
+        std::shared_ptr<gen::GOptimizableEntity> const view(&(*this->at(pos)), [](gen::GOptimizableEntity *) {});
         return Gem::Common::convertSmartPointer<gen::GOptimizableEntity, target_type>(view);
     }
 

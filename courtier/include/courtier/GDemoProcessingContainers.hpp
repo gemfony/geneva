@@ -242,7 +242,7 @@ private:
 
     /** @brief Whether this container carries results only (its stored id was omitted on the wire).
      *  @return true if the input data is to be grafted from the original */
-    bool inputDataOmitted_() const override { return input_omitted_; }
+    [[nodiscard]] bool inputDataOmitted_() const override { return input_omitted_; }
     /** @brief Grafts the input data (the stored id) from the originally-submitted container.
      *  @param original The originally-submitted container supplying the omitted input data */
     void graftInputDataFrom_(const Gem::Courtier::GProcessable &original_raw) override {

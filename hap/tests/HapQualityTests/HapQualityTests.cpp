@@ -64,8 +64,8 @@ TEST_CASE("Hap quality: uniform Kolmogorov-Smirnov", "[hap][quality]") {
     std::sort(v.begin(), v.end());
     double d = 0.;
     for (std::uint64_t i = 0; i < N; ++i) {
-        double hi = static_cast<double>(i + 1) / static_cast<double>(N);
-        double lo = static_cast<double>(i) / static_cast<double>(N);
+        double const hi = static_cast<double>(i + 1) / static_cast<double>(N);
+        double const lo = static_cast<double>(i) / static_cast<double>(N);
         d = std::max(d, std::max(hi - v[i], v[i] - lo));
     }
     // asymptotic crit at alpha=1e-3 is ~1.95/sqrt(N) ~= 0.00195; allow headroom
@@ -79,7 +79,7 @@ TEST_CASE("Hap quality: chi-squared frequency (256 buckets)", "[hap][quality]") 
     const double expected = static_cast<double>(N) / 256.0;
     double       chi2     = 0.;
     for (auto o : buckets) {
-        double diff = static_cast<double>(o) - expected;
+        double const diff = static_cast<double>(o) - expected;
         chi2 += diff * diff / expected;
     }
     // chi^2_{0.999, 255} ~= 330.5; generous upper bound guards against flakiness
@@ -93,12 +93,12 @@ TEST_CASE("Hap quality: lag-1 serial correlation", "[hap][quality]") {
     v.reserve(N);
     for (std::uint64_t i = 0; i < N; ++i) v.push_back(u(rng));
     double mean = 0.;
-    for (double x : v) mean += x;
+    for (double const x : v) mean += x;
     mean /= static_cast<double>(N);
     double num = 0., den = 0.;
     for (std::uint64_t i = 0; i + 1 < N; ++i) num += (v[i] - mean) * (v[i + 1] - mean);
-    for (double x : v) den += (x - mean) * (x - mean);
-    double r = num / den;
+    for (double const x : v) den += (x - mean) * (x - mean);
+    double const r = num / den;
     // SE ~= 1/sqrt(N) = 1e-3; 0.005 is ~5 sigma
     REQUIRE(std::abs(r) < 0.005);
 }
@@ -108,7 +108,7 @@ TEST_CASE("Hap quality: monobit (global bit balance)", "[hap][quality]") {
     std::uint64_t ones = 0;
     for (std::uint64_t i = 0; i < N; ++i)
         ones += static_cast<std::uint64_t>(__builtin_popcountll(static_cast<unsigned long long>(rng())));
-    double fraction = static_cast<double>(ones) / static_cast<double>(N * 64);
+    double const fraction = static_cast<double>(ones) / static_cast<double>(N * 64);
     // 6.4e7 bits, SE ~= 6.25e-5; 5e-4 is ~8 sigma
     REQUIRE(std::abs(fraction - 0.5) < 0.0005);
 }
@@ -128,8 +128,8 @@ TEST_CASE("Hap quality: STAGED source statistics", "[hap][quality][staged]") {
         std::sort(v.begin(), v.end());
         double d = 0.;
         for (std::uint64_t i = 0; i < N; ++i) {
-            double hi = static_cast<double>(i + 1) / static_cast<double>(N);
-            double lo = static_cast<double>(i) / static_cast<double>(N);
+            double const hi = static_cast<double>(i + 1) / static_cast<double>(N);
+            double const lo = static_cast<double>(i) / static_cast<double>(N);
             d = std::max(d, std::max(hi - v[i], v[i] - lo));
         }
         REQUIRE(d < 0.0040);
@@ -141,7 +141,7 @@ TEST_CASE("Hap quality: STAGED source statistics", "[hap][quality][staged]") {
         const double expected = static_cast<double>(N) / 256.0;
         double       chi2     = 0.;
         for (auto o : buckets) {
-            double diff = static_cast<double>(o) - expected;
+            double const diff = static_cast<double>(o) - expected;
             chi2 += diff * diff / expected;
         }
         REQUIRE(chi2 < 400.0);
@@ -152,7 +152,7 @@ TEST_CASE("Hap quality: STAGED source statistics", "[hap][quality][staged]") {
         for (std::uint64_t i = 0; i < N; ++i)
             ones += static_cast<std::uint64_t>(
                 __builtin_popcountll(static_cast<unsigned long long>(rng())));
-        double fraction = static_cast<double>(ones) / static_cast<double>(N * 64);
+        double const fraction = static_cast<double>(ones) / static_cast<double>(N * 64);
         REQUIRE(std::abs(fraction - 0.5) < 0.0005);
     }
 }
@@ -171,8 +171,8 @@ TEST_CASE("Hap quality: QUARANTINE source statistics", "[hap][quality][quarantin
         std::sort(v.begin(), v.end());
         double d = 0.;
         for (std::uint64_t i = 0; i < N; ++i) {
-            double hi = static_cast<double>(i + 1) / static_cast<double>(N);
-            double lo = static_cast<double>(i) / static_cast<double>(N);
+            double const hi = static_cast<double>(i + 1) / static_cast<double>(N);
+            double const lo = static_cast<double>(i) / static_cast<double>(N);
             d = std::max(d, std::max(hi - v[i], v[i] - lo));
         }
         REQUIRE(d < 0.0040);
@@ -184,7 +184,7 @@ TEST_CASE("Hap quality: QUARANTINE source statistics", "[hap][quality][quarantin
         const double expected = static_cast<double>(N) / 256.0;
         double       chi2     = 0.;
         for (auto o : buckets) {
-            double diff = static_cast<double>(o) - expected;
+            double const diff = static_cast<double>(o) - expected;
             chi2 += diff * diff / expected;
         }
         REQUIRE(chi2 < 400.0);
@@ -195,7 +195,7 @@ TEST_CASE("Hap quality: QUARANTINE source statistics", "[hap][quality][quarantin
         for (std::uint64_t i = 0; i < N; ++i)
             ones += static_cast<std::uint64_t>(
                 __builtin_popcountll(static_cast<unsigned long long>(rng())));
-        double fraction = static_cast<double>(ones) / static_cast<double>(N * 64);
+        double const fraction = static_cast<double>(ones) / static_cast<double>(N * 64);
         REQUIRE(std::abs(fraction - 0.5) < 0.0005);
     }
 }

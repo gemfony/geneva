@@ -121,7 +121,7 @@ public:
     ~GBlockingMPMCQueueT() {
         try {
             close();
-            std::scoped_lock lock(mutex_);
+            std::scoped_lock const lock(mutex_);
             container_.clear();
         } catch(...) { // NOLINT(bugprone-empty-catch) — a destructor must not throw
         }
@@ -141,7 +141,7 @@ public:
         requires std::constructible_from<T, U &&>
     [[nodiscard]] bool try_push(U &&item) {
         {
-            std::scoped_lock lock(mutex_);
+            std::scoped_lock const lock(mutex_);
             if(closed_ || full_unlocked()) {
                 return false;
             }
@@ -220,7 +220,7 @@ public:
     [[nodiscard]] std::optional<T> try_pop() {
         std::optional<T> result;
         {
-            std::scoped_lock lock(mutex_);
+            std::scoped_lock const lock(mutex_);
             if(not container_.empty()) {
                 result.emplace(std::move(container_.back()));
                 container_.pop_back();
@@ -297,7 +297,7 @@ public:
      */
     void close() {
         {
-            std::scoped_lock lock(mutex_);
+            std::scoped_lock const lock(mutex_);
             closed_ = true;
         }
         not_empty_.notify_all();
@@ -307,7 +307,7 @@ public:
     /*************************************************************************/
     /** @brief Returns whether the queue has been closed. */
     [[nodiscard]] bool is_closed() const {
-        std::scoped_lock lock(mutex_);
+        std::scoped_lock const lock(mutex_);
         return closed_;
     }
 
@@ -329,7 +329,7 @@ public:
      * size may change immediately after this returns.
      */
     [[nodiscard]] std::size_t size() const {
-        std::scoped_lock lock(mutex_);
+        std::scoped_lock const lock(mutex_);
         return container_.size();
     }
 
@@ -342,7 +342,7 @@ public:
         if constexpr(t_capacity == 0) {
             return (std::numeric_limits<std::size_t>::max)();
         } else {
-            std::scoped_lock lock(mutex_);
+            std::scoped_lock const lock(mutex_);
             return t_capacity - container_.size();
         }
     }
@@ -350,7 +350,7 @@ public:
     /*************************************************************************/
     /** @brief Whether the queue is currently empty. Only an indication. */
     [[nodiscard]] bool empty() const {
-        std::scoped_lock lock(mutex_);
+        std::scoped_lock const lock(mutex_);
         return container_.empty();
     }
 

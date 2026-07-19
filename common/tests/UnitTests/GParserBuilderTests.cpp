@@ -59,7 +59,7 @@ std::filesystem::path scratch(std::string const &tag) {
 
 TEST_CASE("GParserBuilder: fresh instance reports zero options",
           "[common][parser-builder]") {
-    GParserBuilder gpb;
+    GParserBuilder const gpb;
     CHECK(gpb.numberOfFileOptions() == 0);
     CHECK(gpb.numberOfCLOptions()   == 0);
 }

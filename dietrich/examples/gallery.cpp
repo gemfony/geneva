@@ -45,6 +45,7 @@
 
 using namespace Gem::Dietrich;
 
+// NOLINTNEXTLINE(readability-function-size) -- single demo main assembling the four gallery pads (curve, helix, 1-d and 2-d histograms) and writing all three backend scripts
 int main() {
     std::mt19937 rng(20260623);            // a fixed seed -> reproducible figures
     std::normal_distribution<double> nd(0., 1.);

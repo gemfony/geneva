@@ -81,7 +81,7 @@ TEST_CASE("trainingSet: copy is deep and self-assignment is safe", "[individuals
     CHECK(copy.Output[0] == 3.);
 
     // The retired hand-written operator= was not self-assignment-safe
-    trainingSet &self = t_s;
+    trainingSet  const&self = t_s;
     t_s = self;
     CHECK(t_s.Input[0] == 1.);
     CHECK(t_s.Input[1] == 2.);
@@ -92,7 +92,7 @@ TEST_CASE("networkData: copy and assignment are deep and complete", "[individual
     const networkData n_d = makeSampleData();
 
     // Copy construction: deep training sets, geometry and init range all travel
-    networkData copy(n_d);
+    networkData const copy(n_d);
     CHECK(copy.getNInputNodes() == 2);
     CHECK(copy.getNOutputNodes() == 1);
     REQUIRE(copy.initRangeSet()); // the retired copy path silently dropped init_range_
@@ -109,19 +109,20 @@ TEST_CASE("networkData: copy and assignment are deep and complete", "[individual
     assigned = n_d;
     REQUIRE(assigned.initRangeSet());
     CHECK(assigned.getTrainingSet(2).has_value());
-    networkData &self = assigned;
+    networkData  const&self = assigned;
     assigned = self;
     CHECK(assigned.getTrainingSet(2).has_value());
     CHECK(assigned.getInitRange() == n_d.getInitRange());
 }
 
+// NOLINTNEXTLINE(readability-function-cognitive-complexity) -- one coherent disk round-trip test: save/load/remove plus the per-training-set verification loop over the SAME loaded object
 TEST_CASE("networkData: disk round-trip preserves all data", "[individuals][nn]") {
     const networkData n_d = makeSampleData();
 
     const std::string file =
         (std::filesystem::temp_directory_path() / "geneva-nn-data-roundtrip.xml").string();
     n_d.saveToDisk(file);
-    networkData loaded(file);
+    networkData const loaded(file);
     std::remove(file.c_str());
 
     CHECK(loaded.getNInputNodes() == 2);

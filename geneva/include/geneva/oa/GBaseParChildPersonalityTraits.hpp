@@ -113,13 +113,13 @@ public:
      *
      * @return true if the individual is currently a parent, false if it is a child
      */
-    bool isParent() const;
+    [[nodiscard]] bool isParent() const;
     /**
      * @brief Retrieves the current value of the parent_counter_ variable.
      *
      * @return The number of consecutive generations this individual has been re-elected as parent (0 if it is a child)
      */
-    std::uint32_t getParentCounter() const;
+    [[nodiscard]] std::uint32_t getParentCounter() const;
 
     /**
      * @brief Stores the parent's id with this object.
@@ -132,13 +132,13 @@ public:
      *
      * @return The stored parent id (throws if no parent id has been set)
      */
-    std::size_t getParentId() const;
+    [[nodiscard]] std::size_t getParentId() const;
     /**
      * @brief Checks whether a parent id has been set.
      *
      * @return true if a parent id has been recorded, false otherwise
      */
-    bool parentIdSet() const;
+    [[nodiscard]] bool parentIdSet() const;
     /** @brief Marks the parent id as unset. */
     void unsetParentId();
 
@@ -147,7 +147,7 @@ public:
      *
      * @return The short mnemonic string identifying this personality's optimization algorithm
      */
-    std::string getMnemonic() const override;
+    [[nodiscard]] std::string getMnemonic() const override;
 
 protected:
     /***************************************************************************/
@@ -201,13 +201,13 @@ private:
      *
      * @return The class name as a string
      */
-    std::string name_() const override;
+    [[nodiscard]] std::string name_() const override;
     /**
      * @brief Creates a deep clone of this object.
      *
      * @return A pointer to a newly allocated, deep copy of this object (caller takes ownership)
      */
-    GPersonalityTraits *clone_() const override;
+    [[nodiscard]] GPersonalityTraits *clone_() const override;
 
     /** @brief Allows populations to record how often an individual has been reelected as parent (0 if it is a child) */
     std::uint32_t parent_counter_ = 0;

@@ -48,8 +48,8 @@ public:
       : mnemonic_(std::move(mnemonic)), value_(value) {}
 
     std::shared_ptr<int> provide() override { return std::make_shared<int>(value_); }
-    std::string getMnemonic() const override { return mnemonic_; }
-    std::string getName() const override { return "IntProvider(" + mnemonic_ + ")"; }
+    [[nodiscard]] std::string getMnemonic() const override { return mnemonic_; }
+    [[nodiscard]] std::string getName() const override { return "IntProvider(" + mnemonic_ + ")"; }
     void addCLOptions(
         boost::program_options::options_description & /*visible*/,
         boost::program_options::options_description & /*hidden*/

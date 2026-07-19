@@ -171,34 +171,34 @@ public:
     // Processing status
 
     /** @brief @return The current processing status of this work item */
-    processingStatus getProcessingStatus() const noexcept { return processing_status_; }
+    [[nodiscard]] processingStatus getProcessingStatus() const noexcept { return processing_status_; }
 
     /** @brief @return A string representation of the current processing status (debugging) */
-    std::string getProcessingStatusAsStr() const noexcept { return psToStr(processing_status_); }
+    [[nodiscard]] std::string getProcessingStatusAsStr() const noexcept { return psToStr(processing_status_); }
 
     /** @brief @return true if the item carries the PROCESSED flag */
-    bool is_processed() const noexcept {
+    [[nodiscard]] bool is_processed() const noexcept {
         return (processingStatus::PROCESSED == this->getProcessingStatus());
     }
 
     /** @brief @return true if the item is currently UNPROCESSED */
-    bool is_unprocessed() const noexcept {
+    [[nodiscard]] bool is_unprocessed() const noexcept {
         return (processingStatus::UNPROCESSED == this->getProcessingStatus());
     }
 
     /** @brief @return true if the item is due for processing (DO_PROCESS) */
-    bool is_due_for_processing() const noexcept {
+    [[nodiscard]] bool is_due_for_processing() const noexcept {
         return (processingStatus::DO_PROCESS == this->getProcessingStatus());
     }
 
     /** @brief @return true if processing produced an error (caught exception or user-flagged) */
-    bool has_errors() const noexcept {
+    [[nodiscard]] bool has_errors() const noexcept {
         return (processingStatus::EXCEPTION_CAUGHT == processing_status_) ||
                (processingStatus::ERROR_FLAGGED == processing_status_);
     }
 
     /** @brief @return true if an error was explicitly flagged by the user (ERROR_FLAGGED) */
-    bool error_flagged_by_user() const noexcept {
+    [[nodiscard]] bool error_flagged_by_user() const noexcept {
         return (processingStatus::ERROR_FLAGGED == processing_status_);
     }
 
@@ -277,7 +277,7 @@ public:
      */
     void setCorrelationId(const CORRELATION_ID_TYPE &id) noexcept { correlation_id_ = id; }
     /** @brief @return The transport correlation id stored on this work item (see setCorrelationId()) */
-    CORRELATION_ID_TYPE getCorrelationId() const noexcept { return correlation_id_; }
+    [[nodiscard]] CORRELATION_ID_TYPE getCorrelationId() const noexcept { return correlation_id_; }
 
     /**
      * @brief The stable, per-individual lineage id (D11). Minted once at construction, preserved across
@@ -287,7 +287,7 @@ public:
      * after it has been resubmitted under a new correlation id.
      * @return This work item's 128-bit lineage id
      */
-    SUBMISSION_UUID_TYPE getSubmissionUuid() const noexcept { return submission_uuid_.value; }
+    [[nodiscard]] SUBMISSION_UUID_TYPE getSubmissionUuid() const noexcept { return submission_uuid_.value; }
     /**
      * @brief Overwrites the lineage id. Used only to RESTORE a source's identity onto a retention clone
      * (cloneForRetention): a plain clone mints a fresh id, but a retained original must keep the lineage of
@@ -304,13 +304,13 @@ public:
      */
     void setDispatchState(dispatchState s) noexcept { dispatch_state_ = s; }
     /** @brief @return The current per-batch dispatch/scheduling state (see setDispatchState()) */
-    dispatchState getDispatchState() const noexcept { return dispatch_state_; }
+    [[nodiscard]] dispatchState getDispatchState() const noexcept { return dispatch_state_; }
 
     /***************************************************************************/
     // Timing
 
     /** @brief @return A tuple of (pre-processing, processing, post-processing) times in seconds */
-    std::tuple<double, double, double> getProcessingTimes() const {
+    [[nodiscard]] std::tuple<double, double, double> getProcessingTimes() const {
         return std::make_tuple(pre_processing_time_, processing_time_, post_processing_time_);
     }
 
@@ -329,7 +329,7 @@ public:
     }
 
     /** @brief @return The accumulated error descriptions stored during processing */
-    std::string getStoredErrorDescriptions() const { return stored_error_descriptions_; }
+    [[nodiscard]] std::string getStoredErrorDescriptions() const { return stored_error_descriptions_; }
 
     /***************************************************************************/
     // OA scratch transfer (server-side return reconciliation)
@@ -374,7 +374,7 @@ public:
      * false; a work-item type supporting the lightweight return form overrides the hook.
      * @return true iff the input data was omitted on the wire and must be grafted
      */
-    bool inputDataOmitted() const { return this->inputDataOmitted_(); }
+    [[nodiscard]] bool inputDataOmitted() const { return this->inputDataOmitted_(); }
 
     /**
      * @brief Grafts the input data of @p original onto this (results-only) item. A no-op in the
@@ -533,7 +533,7 @@ protected:
 
     /** @brief Hook behind inputDataOmitted(): whether this item is a results-only return. Default false.
      *  @return false in the base */
-    virtual bool inputDataOmitted_() const { return false; }
+    [[nodiscard]] virtual bool inputDataOmitted_() const { return false; }
 
     /** @brief Hook behind graftInputDataFrom(): grafts @p original's input data onto this item. Default no-op.
      *  @param original The originally-submitted item supplying the input data (unused in the default) */

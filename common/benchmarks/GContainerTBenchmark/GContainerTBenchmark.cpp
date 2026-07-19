@@ -77,11 +77,11 @@ struct BenchObj : Gem::Common::gemfony_common_interface_indicator {
     virtual ~BenchObj() = default;
 
     template <typename TargetType = BenchObj>
-    std::shared_ptr<TargetType> clone() const {
+    [[nodiscard]] std::shared_ptr<TargetType> clone() const {
         return std::make_shared<TargetType>(*this);
     }
 
-    void load(std::shared_ptr<BenchObj> cp) {
+    void load(const std::shared_ptr<BenchObj>& cp) {
         data = cp->data;
     }
 
@@ -97,13 +97,13 @@ struct BenchObj : Gem::Common::gemfony_common_interface_indicator {
     ) const {
         using namespace Gem::Common;
         if(e == expectation::EQUALITY || e == expectation::FP_SIMILARITY) {
-            double diff = (data > cp.data) ? (data - cp.data) : (cp.data - data);
+            double const diff = (data > cp.data) ? (data - cp.data) : (cp.data - data);
             if(diff > limit) {
                 throw g_expectation_violation("BenchObj::compare: values differ");
             }
         }
         else if(e == expectation::INEQUALITY) {
-            double diff = (data > cp.data) ? (data - cp.data) : (cp.data - data);
+            double const diff = (data > cp.data) ? (data - cp.data) : (cp.data - data);
             if(diff <= limit) {
                 throw g_expectation_violation("BenchObj::compare: values are equal");
             }
@@ -203,8 +203,8 @@ BenchResult benchPodVector(std::size_t n) {
     iterations += n / 2;
 
     auto t1 = Clock::now();
-    double totalNs = static_cast<double>(std::chrono::duration_cast<Ns>(t1 - t0).count());
-    double nsPerOp = totalNs / static_cast<double>(iterations);
+    double const totalNs = static_cast<double>(std::chrono::duration_cast<Ns>(t1 - t0).count());
+    double const nsPerOp = totalNs / static_cast<double>(iterations);
 
     BenchResult r;
     r.mode = "pod";
@@ -245,8 +245,8 @@ BenchResult benchPodVectorBaseline(std::size_t n) {
     iterations += n / 2;
 
     auto t1 = Clock::now();
-    double totalNs = static_cast<double>(std::chrono::duration_cast<Ns>(t1 - t0).count());
-    double nsPerOp = totalNs / static_cast<double>(iterations);
+    double const totalNs = static_cast<double>(std::chrono::duration_cast<Ns>(t1 - t0).count());
+    double const nsPerOp = totalNs / static_cast<double>(iterations);
 
     BenchResult r;
     r.mode = "pod";
@@ -284,8 +284,8 @@ BenchResult benchPodDeque(std::size_t n) {
     iterations += c.size();
 
     auto t1 = Clock::now();
-    double totalNs = static_cast<double>(std::chrono::duration_cast<Ns>(t1 - t0).count());
-    double nsPerOp = totalNs / static_cast<double>(iterations);
+    double const totalNs = static_cast<double>(std::chrono::duration_cast<Ns>(t1 - t0).count());
+    double const nsPerOp = totalNs / static_cast<double>(iterations);
 
     BenchResult r;
     r.mode = "pod";
@@ -322,8 +322,8 @@ BenchResult benchPodDequeBaseline(std::size_t n) {
     iterations += c.size();
 
     auto t1 = Clock::now();
-    double totalNs = static_cast<double>(std::chrono::duration_cast<Ns>(t1 - t0).count());
-    double nsPerOp = totalNs / static_cast<double>(iterations);
+    double const totalNs = static_cast<double>(std::chrono::duration_cast<Ns>(t1 - t0).count());
+    double const nsPerOp = totalNs / static_cast<double>(iterations);
 
     BenchResult r;
     r.mode = "pod";
@@ -366,8 +366,8 @@ BenchResult benchPtrVector(std::size_t n) {
     iterations += n;
 
     auto t1 = Clock::now();
-    double totalNs = static_cast<double>(std::chrono::duration_cast<Ns>(t1 - t0).count());
-    double nsPerOp = totalNs / static_cast<double>(iterations);
+    double const totalNs = static_cast<double>(std::chrono::duration_cast<Ns>(t1 - t0).count());
+    double const nsPerOp = totalNs / static_cast<double>(iterations);
 
     BenchResult r;
     r.mode = "ptr";
@@ -406,15 +406,15 @@ BenchResult benchPtrVectorBaseline(std::size_t n) {
     for(std::size_t i = 0; i < n; ++i) {
         c2.push_back(std::make_shared<BenchObj>(static_cast<double>(n - i)));
     }
-    std::size_t mid = n / 2;
+    std::size_t const mid = n / 2;
     for(std::size_t i = mid; i < n; ++i) {
         std::swap(c[i], c2[i]);
     }
     iterations += n;
 
     auto t1 = Clock::now();
-    double totalNs = static_cast<double>(std::chrono::duration_cast<Ns>(t1 - t0).count());
-    double nsPerOp = totalNs / static_cast<double>(iterations);
+    double const totalNs = static_cast<double>(std::chrono::duration_cast<Ns>(t1 - t0).count());
+    double const nsPerOp = totalNs / static_cast<double>(iterations);
 
     BenchResult r;
     r.mode = "ptr";
@@ -428,6 +428,7 @@ BenchResult benchPtrVectorBaseline(std::size_t n) {
 /******************************************************************************/
 // Fuzz / stress-test mode
 
+// NOLINTNEXTLINE(readability-function-size) -- one switch-driven random-operation dispatcher (push/pop/access/erase on both containers) driving the fuzz loop; splitting would scatter the tightly-coupled op-selection logic
 void runFuzz(std::size_t n, int durationSecs, std::uint64_t seed) {
     std::mt19937_64 rng(seed);
     std::uniform_int_distribution<int> opDist(0, 5);
@@ -451,7 +452,7 @@ void runFuzz(std::size_t n, int durationSecs, std::uint64_t seed) {
     double dummy = 0.0; // Prevent optimiser from eliding accesses
 
     while(Clock::now() < deadline) {
-        int op = opDist(rng);
+        int const op = opDist(rng);
         switch(op) {
         case 0: // push_back
             pod.push_back(valDist(rng));
@@ -510,7 +511,7 @@ struct Config {
 Config parseArgs(int argc, char *argv[]) {
     Config cfg;
     for(int i = 1; i < argc; ++i) {
-        std::string arg = argv[i];
+        std::string const arg = argv[i];
         if(arg == "--mode" && i + 1 < argc) {
             cfg.mode = argv[++i];
         }
@@ -555,19 +556,19 @@ Config parseArgs(int argc, char *argv[]) {
 // main
 
 int main(int argc, char *argv[]) {
-    Config cfg = parseArgs(argc, argv);
+    Config const cfg = parseArgs(argc, argv);
 
     std::cout << "GContainerT Benchmark\n";
     std::cout << "  mode=" << cfg.mode << "  container=" << cfg.container
               << "  size=" << cfg.size << "  duration=" << cfg.duration << "s"
               << "  seed=" << cfg.seed << "\n\n";
 
-    bool doPod = (cfg.mode == "pod" || cfg.mode == "all");
-    bool doPtr = (cfg.mode == "ptr" || cfg.mode == "all");
-    bool doFuzz = (cfg.mode == "fuzz" || cfg.mode == "all");
+    bool const doPod = (cfg.mode == "pod" || cfg.mode == "all");
+    bool const doPtr = (cfg.mode == "ptr" || cfg.mode == "all");
+    bool const doFuzz = (cfg.mode == "fuzz" || cfg.mode == "all");
 
-    bool doVec = (cfg.container == "vector" || cfg.container == "all");
-    bool doDeq = (cfg.container == "deque" || cfg.container == "all");
+    bool const doVec = (cfg.container == "vector" || cfg.container == "all");
+    bool const doDeq = (cfg.container == "deque" || cfg.container == "all");
 
     if(doPod || doPtr) {
         printHeader();

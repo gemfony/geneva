@@ -114,9 +114,9 @@ public:
         return std::make_shared<marshaller_type>();
     }
     /** @brief The device target this marshaller is registered under. @return The store key / mnemonic. */
-    std::string getMnemonic() const override { return device_target_; }
+    [[nodiscard]] std::string getMnemonic() const override { return device_target_; }
     /** @brief A human-readable name, for help output. @return The provider's descriptive name. */
-    std::string getName() const override { return std::format("GPU marshaller [{}]", device_target_); }
+    [[nodiscard]] std::string getName() const override { return std::format("GPU marshaller [{}]", device_target_); }
     /** @brief The GPU-consumer config path the kernel needs. @return The registered config-file path. */
     [[nodiscard]] const std::string &gpuConfigFile() const override { return gpu_config_file_; }
 

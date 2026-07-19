@@ -135,17 +135,17 @@ public:
     /** @brief Sets the optimization direction. @param mode MAXIMIZE or MINIMIZE */
     void setMaxMode(maxMode const &mode) { maxmode_ = mode; }
     /** @brief @return The optimization direction (MAXIMIZE or MINIMIZE) */
-    maxMode getMaxMode() const { return maxmode_; }
+    [[nodiscard]] maxMode getMaxMode() const { return maxmode_; }
 
     /** @brief @return The worst-case evaluation value for the current direction
      *  (lowest representable double in MAXIMIZE mode, highest in MINIMIZE mode) */
-    double getWorstCase() const {
+    [[nodiscard]] double getWorstCase() const {
         return (maxMode::MAXIMIZE == maxmode_) ? std::numeric_limits<double>::lowest()
                                                : std::numeric_limits<double>::max();
     }
     /** @brief @return The best-case evaluation value for the current direction
      *  (highest representable double in MAXIMIZE mode, lowest in MINIMIZE mode) */
-    double getBestCase() const {
+    [[nodiscard]] double getBestCase() const {
         return (maxMode::MAXIMIZE == maxmode_) ? std::numeric_limits<double>::max()
                                                : std::numeric_limits<double>::lowest();
     }
@@ -156,13 +156,13 @@ public:
     /** @brief Sets the policy applied to invalid solutions. @param eval_policy The evaluation policy */
     void setEvaluationPolicy(evaluationPolicy eval_policy) { eval_policy_ = eval_policy; }
     /** @brief @return The evaluation policy applied to invalid solutions */
-    evaluationPolicy getEvaluationPolicy() const { return eval_policy_; }
+    [[nodiscard]] evaluationPolicy getEvaluationPolicy() const { return eval_policy_; }
 
     /***************************************************************************/
     // Sigmoid transform parameters
 
     /** @brief @return The sigmoid steepness value */
-    double getSteepness() const { return sigmoid_steepness_; }
+    [[nodiscard]] double getSteepness() const { return sigmoid_steepness_; }
     /**
      * @brief Sets the sigmoid steepness (must be > 0).
      * @param steepness The new sigmoid steepness value
@@ -179,7 +179,7 @@ public:
     }
 
     /** @brief @return The sigmoid barrier (extreme) value */
-    double getBarrier() const { return sigmoid_extremes_; }
+    [[nodiscard]] double getBarrier() const { return sigmoid_extremes_; }
     /**
      * @brief Sets the sigmoid barrier / extreme value (must be > 0).
      * @param barrier The new sigmoid barrier (extreme) value
@@ -202,7 +202,7 @@ public:
      * @param raw_value The raw fitness value to transform
      * @return The sigmoid-transformed fitness value
      */
-    double sigmoidTransform(double raw_value) const {
+    [[nodiscard]] double sigmoidTransform(double raw_value) const {
         return Gem::Common::grational_sigmoid(raw_value, sigmoid_extremes_, sigmoid_steepness_);
     }
 
@@ -214,10 +214,10 @@ public:
      * own copy and distinct policies never share one constraint object. Throws on an empty pointer.
      * @param c_ptr The validity-check constraint to register (must not be empty)
      */
-    void registerConstraint(std::shared_ptr<GPreEvaluationValidityCheckT<GOptimizableEntity>> c_ptr);
+    void registerConstraint(const std::shared_ptr<GPreEvaluationValidityCheckT<GOptimizableEntity>>& c_ptr);
 
     /** @brief @return true if a constraint object is registered with this policy */
-    bool hasConstraint() const { return static_cast<bool>(constraint_ptr_); }
+    [[nodiscard]] bool hasConstraint() const { return static_cast<bool>(constraint_ptr_); }
 
     /**
      * @brief Checks whether a candidate fulfils the registered constraint. If no constraint is

@@ -78,12 +78,12 @@ public:
      * @brief The mnemonic this provider is registered under
      * @return The short mnemonic key used to look this provider up in the global store
      */
-    virtual std::string getMnemonic() const = 0;
+    [[nodiscard]] virtual std::string getMnemonic() const = 0;
     /**
      * @brief A human-readable name, for help output (produces no object)
      * @return The provider's descriptive name
      */
-    virtual std::string getName() const = 0;
+    [[nodiscard]] virtual std::string getName() const = 0;
     /**
      * @brief Adds the provided object's command-line options (produces no object)
      * @param visible The options description collecting user-facing (documented) options

@@ -108,7 +108,7 @@ public:
 	  * @param p A shared pointer to a pre-processor function object to be cloned into each produced individual; must not be empty
 	  */
     void registerPreProcessor(
-        std::shared_ptr<Gem::Common::GSerializableFunctionObjectT<GOptimizableEntity>> p
+        const std::shared_ptr<Gem::Common::GSerializableFunctionObjectT<GOptimizableEntity>>& p
     ) {
         if(p) {
             pre_processor_ = p;
@@ -129,7 +129,7 @@ public:
 	  * @param p A shared pointer to a post-processor function object to be cloned into each produced individual; must not be empty
 	  */
     void registerPostProcessor(
-        std::shared_ptr<Gem::Common::GSerializableFunctionObjectT<GOptimizableEntity>> p
+        const std::shared_ptr<Gem::Common::GSerializableFunctionObjectT<GOptimizableEntity>>& p
     ) {
         if(p) {
             post_processor_ = p;

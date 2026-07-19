@@ -85,6 +85,7 @@ std::vector<double> perturb2(std::vector<double> x, std::size_t i, double di, st
  * @param n_evals Running counter of objective evaluations, incremented by this call
  * @return The minimum of F over the free parameters with parameter jfix pinned to xjval
  */
+// NOLINTNEXTLINE(readability-function-size) -- single coherent numeric kernel: finite-difference steepest-descent inner minimisation reusing GLineSearch's 1D step; the gradient assembly and line-search call are one tightly coupled iteration
 double profileMin(
     GHesseError::eval_fn_t const &eval_fn,
     std::vector<double> x,
@@ -197,6 +198,7 @@ std::optional<double> minosBound(G &&g, double x0, double sigma_step) {
  * @param inv Output parameter receiving the inverse; left untouched if m is singular
  * @return true if the inverse was computed, false if m is singular / too ill-conditioned to invert
  */
+// NOLINTNEXTLINE(readability-function-size) -- single coherent numeric kernel: Gauss-Jordan elimination with partial pivoting on the augmented [m | I] system; the pivot/normalise/eliminate steps share the in-place augmented matrix and splitting would scatter one textbook algorithm
 bool invertMatrix(std::vector<std::vector<double>> const &m, std::vector<std::vector<double>> &inv) {
     const std::size_t n = m.size();
     // Work on an augmented [m | I] system.

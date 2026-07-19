@@ -170,7 +170,7 @@ private:
         if(backend_) {
             return;
         }
-        BackendKind kind = cfg_.backendKind();
+        BackendKind const kind = cfg_.backendKind();
         if(not backendAvailable(kind)) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())

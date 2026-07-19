@@ -56,6 +56,7 @@ namespace po = boost::program_options;
 /**
  * The main function.
  */
+// NOLINTNEXTLINE(readability-function-size) -- single example main: additional CLI options, training-data setup, Go2 setup and the optimization run all belong to one driver
 int main(int argc, char **argv) {
     //---------------------------------------------------------------------------
     // Assemble additional command line options to be passed to Go2
@@ -131,7 +132,7 @@ int main(int argc, char **argv) {
 
     // Create a factory for GNeuralNetworkIndividual objects and perform
     // any necessary initial work.
-    std::shared_ptr<gind::GNeuralNetworkIndividualFactory> gnn_ptr(
+    std::shared_ptr<gind::GNeuralNetworkIndividualFactory> const gnn_ptr(
         new gind::GNeuralNetworkIndividualFactory("./config/GNeuralNetworkIndividual.json")
     );
 
@@ -153,7 +154,7 @@ int main(int argc, char **argv) {
     }
 
     // Perform the actual optimization and retrieve the best individual
-    std::shared_ptr<gind::GNeuralNetworkIndividual> p =
+    std::shared_ptr<gind::GNeuralNetworkIndividual> const p =
         go.optimize()->getBestGlobalIndividual<gind::GNeuralNetworkIndividual>();
 
     //---------------------------------------------------------------------------

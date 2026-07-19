@@ -78,7 +78,7 @@ public:
      *  @param key The key to look up. @param out Receives the value on a hit (untouched on a miss).
      *  @return true on a hit (out written), false on a miss. */
     bool get(const Key &key, Value &out) const {
-        std::scoped_lock guard(mutex_);
+        std::scoped_lock const guard(mutex_);
         if(auto it = kvp_.find(key); it != kvp_.end()) {
             out = it->second;
             return true;
@@ -89,7 +89,7 @@ public:
     /** @brief Retrieves a value as an optional.
      *  @param key The key to look up. @return The value, or std::nullopt on a miss. */
     std::optional<Value> get(const Key &key) const {
-        std::scoped_lock guard(mutex_);
+        std::scoped_lock const guard(mutex_);
         if(auto it = kvp_.find(key); it != kvp_.end()) {
             return it->second;
         }
@@ -99,7 +99,7 @@ public:
     /** @brief Inserts a new entry or overwrites an existing one.
      *  @param key The key. @param value The value to store. */
     void set(const Key &key, Value value) {
-        std::scoped_lock guard(mutex_);
+        std::scoped_lock const guard(mutex_);
         kvp_[key] = std::move(value);
     }
 
@@ -107,7 +107,7 @@ public:
      *  @param key The key. @param value The value to store.
      *  @return true if inserted, false if the key already existed (left unchanged). */
     bool setOnce(const Key &key, Value value) {
-        std::scoped_lock guard(mutex_);
+        std::scoped_lock const guard(mutex_);
         if(kvp_.contains(key)) {
             return false;
         }
@@ -118,31 +118,31 @@ public:
     /** @brief Removes an entry if present.
      *  @param key The key to remove. @return true if an entry was removed, false if it was absent. */
     bool remove(const Key &key) {
-        std::scoped_lock guard(mutex_);
+        std::scoped_lock const guard(mutex_);
         return kvp_.erase(key) != 0;
     }
 
     /** @brief @param key The key to check. @return true iff an entry for the key is present. */
     bool contains(const Key &key) const {
-        std::scoped_lock guard(mutex_);
+        std::scoped_lock const guard(mutex_);
         return kvp_.contains(key);
     }
 
     /** @brief @return The number of entries. */
     std::size_t size() const {
-        std::scoped_lock guard(mutex_);
+        std::scoped_lock const guard(mutex_);
         return kvp_.size();
     }
 
     /** @brief @return true iff the store holds no entries. */
     bool empty() const {
-        std::scoped_lock guard(mutex_);
+        std::scoped_lock const guard(mutex_);
         return kvp_.empty();
     }
 
     /** @brief @return A snapshot of all keys, in key order. */
     std::vector<Key> keys() const {
-        std::scoped_lock guard(mutex_);
+        std::scoped_lock const guard(mutex_);
         std::vector<Key> result;
         result.reserve(kvp_.size());
         for(auto const &[k, _] : kvp_) {
@@ -153,7 +153,7 @@ public:
 
     /** @brief @return A snapshot of all values, in key order (atomic w.r.t. concurrent mutation). */
     std::vector<Value> values() const {
-        std::scoped_lock guard(mutex_);
+        std::scoped_lock const guard(mutex_);
         std::vector<Value> result;
         result.reserve(kvp_.size());
         for(auto const &[_, v] : kvp_) {
@@ -164,7 +164,7 @@ public:
 
     /** @brief Removes all entries. */
     void clear() {
-        std::scoped_lock guard(mutex_);
+        std::scoped_lock const guard(mutex_);
         kvp_.clear();
     }
 

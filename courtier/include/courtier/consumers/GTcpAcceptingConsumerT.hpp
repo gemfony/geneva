@@ -121,7 +121,7 @@ public:
     void startServer() {
         boost::system::error_code ec;
 
-        boost::asio::ip::tcp::endpoint endpoint{boost::asio::ip::tcp::v4(), port_};
+        boost::asio::ip::tcp::endpoint const endpoint{boost::asio::ip::tcp::v4(), port_};
         std::ignore = acceptor_.open(endpoint.protocol(), ec); // returned ec duplicates the checked out-param
         if(ec || not acceptor_.is_open()) {
             throw geneva_exception(

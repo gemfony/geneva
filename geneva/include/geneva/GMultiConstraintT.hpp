@@ -120,7 +120,7 @@ public:
      * @return 0 if the parameters are valid, otherwise a value > 1 indicating the extent of the invalidity
      */
     double check(const ind_type *cp) const {
-        double result = check_(cp);
+        double const result = check_(cp);
 
         if(allow_negative_) {
             if(result <= 1.) { // valid
@@ -182,7 +182,7 @@ public:
      *
      * @return True if negative values are treated as valid, false otherwise
      */
-    bool getAllowNegative() const {
+    [[nodiscard]] bool getAllowNegative() const {
         return allow_negative_;
     }
 
@@ -363,7 +363,7 @@ protected:
 private:
     /***************************************************************************/
     /** @brief Creates a deep clone of this object */
-    GPreEvaluationValidityCheckT<ind_type> *clone_() const override = 0;
+    [[nodiscard]] GPreEvaluationValidityCheckT<ind_type> *clone_() const override = 0;
 
     /***************************************************************************/
 
@@ -466,7 +466,7 @@ public:
      *
      * @param vc_ptr A shared pointer to the validity check to add (must not be null)
      */
-    void addCheck(std::shared_ptr<GPreEvaluationValidityCheckT<ind_type>> vc_ptr) {
+    void addCheck(const std::shared_ptr<GPreEvaluationValidityCheckT<ind_type>>& vc_ptr) {
         if(not vc_ptr) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
@@ -565,7 +565,7 @@ protected:
 private:
     /***************************************************************************/
     /** @brief Creates a deep clone of this object */
-    GPreEvaluationValidityCheckT<ind_type> *clone_() const override = 0;
+    [[nodiscard]] GPreEvaluationValidityCheckT<ind_type> *clone_() const override = 0;
 
     /***************************************************************************/
 };
@@ -661,7 +661,7 @@ public:
      *
      * @return The currently set policy used to combine the individual invalidities
      */
-    validityCheckCombinerPolicy getCombinerPolicy() const {
+    [[nodiscard]] validityCheckCombinerPolicy getCombinerPolicy() const {
         return combiner_policy_;
     }
 
@@ -823,7 +823,7 @@ private:
      *
      * @return A newly allocated deep copy of this GCheckCombinerT, owned by the caller
      */
-    GPreEvaluationValidityCheckT<ind_type> *clone_() const override {
+    [[nodiscard]] GPreEvaluationValidityCheckT<ind_type> *clone_() const override {
         return new GCheckCombinerT<ind_type>(*this);
     }
 

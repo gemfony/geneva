@@ -206,7 +206,7 @@ public:
          * @return A std::shared_ptr to the best item (the front of the queue)
          * @throw geneva_exception if the queue is empty
          */
-    std::shared_ptr<T> best() const {
+    [[nodiscard]] std::shared_ptr<T> best() const {
         if(data_deq_.empty()) {
             // Throw an exception
             throw geneva_exception(
@@ -226,7 +226,7 @@ public:
          * @return A std::shared_ptr to the worst item (the back of the queue)
          * @throw geneva_exception if the queue is empty
          */
-    std::shared_ptr<T> worst() const {
+    [[nodiscard]] std::shared_ptr<T> worst() const {
         if(data_deq_.empty()) {
             // Throw an exception
             throw geneva_exception(
@@ -256,7 +256,7 @@ public:
          *
          * @return The currently configured sort order
          */
-    sortOrder getSortOrder() const {
+    [[nodiscard]] sortOrder getSortOrder() const {
         return sort_order_;
     }
 
@@ -432,7 +432,7 @@ public:
              *
              * @return A std::vector holding the stored items in priority order (best first)
              */
-    std::vector<std::shared_ptr<T>> toVector() const {
+    [[nodiscard]] std::vector<std::shared_ptr<T>> toVector() const {
         return std::ranges::to<std::vector<std::shared_ptr<T>>>(data_deq_);
     }
 
@@ -442,7 +442,7 @@ public:
              *
              * @return The number of items currently held in the queue
              */
-    std::size_t size() const {
+    [[nodiscard]] std::size_t size() const {
         return data_deq_.size();
     }
 
@@ -452,7 +452,7 @@ public:
              *
              * @return A boolean indicating whether the queue holds no items
              */
-    bool empty() const {
+    [[nodiscard]] bool empty() const {
         return data_deq_.empty();
     }
 
@@ -488,7 +488,7 @@ public:
              *
              * @return The maximum number of items the queue may hold (0 means unlimited)
              */
-    std::size_t getMaxSize() const {
+    [[nodiscard]] std::size_t getMaxSize() const {
         return max_size_;
     }
 
@@ -573,7 +573,7 @@ protected:
              * @param old_item_ptr The reference item to compare against
              * @return A boolean indicating whether new_item_ptr is strictly better than old_item_ptr
              */
-    bool
+    [[nodiscard]] bool
     isBetter(std::shared_ptr<T> const &new_item_ptr, std::shared_ptr<T> const &old_item_ptr) const {
         return this->isBetter(this->evaluation(new_item_ptr), this->evaluation(old_item_ptr));
     }
@@ -586,7 +586,7 @@ protected:
              * @param old_item_val The reference evaluation value to compare against
              * @return A boolean indicating whether new_item_ptr is strictly better than old_item_val
              */
-    bool isBetter(std::shared_ptr<T> const &new_item_ptr, double old_item_val) const {
+    [[nodiscard]] bool isBetter(std::shared_ptr<T> const &new_item_ptr, double old_item_val) const {
         return this->isBetter(this->evaluation(new_item_ptr), old_item_val);
     }
 
@@ -598,7 +598,7 @@ protected:
              * @param old_item_ptr The reference item to compare against
              * @return A boolean indicating whether new_item_val is strictly better than old_item_ptr
              */
-    bool isBetter(double new_item_val, std::shared_ptr<T> const &old_item_ptr) const {
+    [[nodiscard]] bool isBetter(double new_item_val, std::shared_ptr<T> const &old_item_ptr) const {
         return this->isBetter(new_item_val, this->evaluation(old_item_ptr));
     }
 
@@ -617,7 +617,7 @@ protected:
          * @return A boolean that is true if new_item_val is strictly better than old_item_val
          *         under the current sort order
          */
-    bool isBetter(double new_item_val, double old_item_val) const {
+    [[nodiscard]] bool isBetter(double new_item_val, double old_item_val) const {
         return (sort_order_ == sortOrder::LOWERISBETTER) ? (new_item_val < old_item_val)
                                                           : (new_item_val > old_item_val);
     }
@@ -629,14 +629,14 @@ protected:
      * @param item_ptr A std::shared_ptr to the work item to be checked
      * @return A boolean indicating whether the item is valid
      */
-    virtual bool isValid(const std::shared_ptr<T> &item_ptr) const = 0;
+    [[nodiscard]] virtual bool isValid(const std::shared_ptr<T> &item_ptr) const = 0;
     /**
      * @brief Evaluates a single work item, so that it can be sorted
      *
      * @param item_ptr A std::shared_ptr to the work item to be evaluated
      * @return The evaluation (priority) value associated with the item
      */
-    virtual double evaluation(const std::shared_ptr<T> &item_ptr) const = 0;
+    [[nodiscard]] virtual double evaluation(const std::shared_ptr<T> &item_ptr) const = 0;
 
     /***************************************************************************/
     /**
@@ -707,13 +707,13 @@ private:
              *
              * @return The string "GFixedSizePriorityQueueT<T>"
              */
-    std::string name_() const override {
+    [[nodiscard]] std::string name_() const override {
         return std::string("GFixedSizePriorityQueueT<T>");
     }
 
     /***************************************************************************/
     /** @brief Creates a deep clone of this object */
-    GFixedSizePriorityQueueT *clone_() const override = 0;
+    [[nodiscard]] GFixedSizePriorityQueueT *clone_() const override = 0;
 };
 
 /******************************************************************************/

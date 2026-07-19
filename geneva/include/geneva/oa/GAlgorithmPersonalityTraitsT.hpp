@@ -101,7 +101,7 @@ public:
      * @brief Retrieves the mnemonic of the optimization algorithm.
      * @return The short mnemonic string (derived_type::nickname) identifying the algorithm
      */
-    std::string getMnemonic() const override {
+    [[nodiscard]] std::string getMnemonic() const override {
         return derived_type::nickname;
     }
 
@@ -110,7 +110,7 @@ private:
      * @brief Emits a name for this class / object.
      * @return The concrete class name (derived_type::class_name)
      */
-    std::string name_() const override {
+    [[nodiscard]] std::string name_() const override {
         return std::string(derived_type::class_name);
     }
 
@@ -118,7 +118,7 @@ private:
      * @brief Creates a deep clone of this object.
      * @return A newly allocated deep copy of the concrete object, as a GPersonalityTraits pointer
      */
-    GPersonalityTraits *clone_() const override {
+    [[nodiscard]] GPersonalityTraits *clone_() const override {
         return new derived_type(static_cast<const derived_type &>(*this));
     }
 };

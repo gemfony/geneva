@@ -320,7 +320,7 @@ int Go2::clientRun_() {
     // Build the networked client for the chosen consumer through the courtier setup layer, from the
     // spec assembled in setupChosenConsumer(). The client is wire-compatible with the courtier socket
     // server. Go2 thus stays free of the concrete consumer/client types and the consumer store.
-    std::shared_ptr<Gem::Courtier::GBaseClientT<gen::GOptimizableEntity>> p =
+    std::shared_ptr<Gem::Courtier::GBaseClientT<gen::GOptimizableEntity>> const p =
         Gem::Geneva::buildConsumerClient(consumer_spec_);
 
     if(not p) {
@@ -762,7 +762,7 @@ std::uint32_t Go2::prepareInitialPopulation(std::uint32_t offset) {
             if(content_creator_ptr_) {
                 for(std::size_t ind = 0; ind < algorithms_cnt_.at(0)->getDefaultPopulationSize();
                     ind++) {
-                    std::shared_ptr<gen::GOptimizableEntity> p_ind = (*content_creator_ptr_)();
+                    std::shared_ptr<gen::GOptimizableEntity> const p_ind = (*content_creator_ptr_)();
                     if(p_ind) {
                         this->push_back(p_ind);
                     }
@@ -1163,7 +1163,7 @@ namespace {
  * @return A newline-separated listing of "mnemonic:  name" for every entry in the store
  */
 template <typename StorePtr>
-std::string listMnemonics(StorePtr store) {
+std::string listMnemonics(const StorePtr& store) {
     std::vector<std::string> keys;
     store->getKeyVector(keys);
     std::string result;
@@ -1183,6 +1183,7 @@ std::string listMnemonics(StorePtr store) {
  * @param argv An array with the arguments
  * @param user_options A program_options object for user-defined command line options
  */
+// NOLINTNEXTLINE(readability-function-size) -- one coherent CLI-option registration sweep (PHASE 1-3: module preload, option-surface assembly, parse + record); splitting would scatter the option list and the ordering invariant between phases
 void Go2::parseCommandLine(
     int argc,
     char **argv,
@@ -1471,7 +1472,7 @@ void Go2::loadRequestedModules_() {
     auto loadOne = [this](std::string const &path) {
         if(path.empty()) { return; }
         if(not loaded_module_paths_.insert(path).second) { return; } // already loaded -> skip
-        LoadedModule loaded = loadModule(path);
+        LoadedModule const loaded = loadModule(path);
         if(loaded.individual) {
             this->claimContentCreator_(loaded.individual, individualSource::LOADED);
         }

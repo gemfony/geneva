@@ -181,7 +181,7 @@ void GSepCmaEvolutionStrategy_PersonalityTraits::specificTestsNoFailureExpected_
     GPersonalityTraits::specificTestsNoFailureExpected_GUnitTests_();
 
     {
-        std::shared_ptr<GSepCmaEvolutionStrategy_PersonalityTraits> p_test =
+        std::shared_ptr<GSepCmaEvolutionStrategy_PersonalityTraits> const p_test =
             this->clone<GSepCmaEvolutionStrategy_PersonalityTraits>();
 
         CHECK_NOTHROW(p_test->setRank(42));

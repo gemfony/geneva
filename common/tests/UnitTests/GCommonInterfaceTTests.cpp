@@ -58,7 +58,7 @@ public:
     TestObj() = default;
     explicit TestObj(int v) : v_(v) {}
 
-    int  v() const { return v_; }
+    [[nodiscard]] int  v() const { return v_; }
     void v(int v) { v_ = v; }
 
 protected:
@@ -78,7 +78,7 @@ protected:
     void specificTestsFailuresExpected_GUnitTests_() override {}
 
 private:
-    TestObj *clone_() const override { return new TestObj(*this); }
+    [[nodiscard]] TestObj *clone_() const override { return new TestObj(*this); }
 
     friend class boost::serialization::access;
     template <class Archive>
@@ -124,7 +124,7 @@ TEST_CASE("GCommonInterfaceT::clone: returns a deep copy as shared_ptr<Self>",
 TEST_CASE("GCommonInterfaceT::clone<T>: returns shared_ptr<T> when T derives from Self",
           "[common][interface][clone]") {
     // clone<Self>() also works — it forwards through convertSmartPointer.
-    TestObj src(11);
+    TestObj const src(11);
     auto cp = src.clone<TestObj>();
     REQUIRE(cp);
     CHECK(cp->v() == 11);
@@ -144,7 +144,7 @@ TEST_CASE("GCommonInterfaceT::load(shared_ptr): copies remote state",
 TEST_CASE("GCommonInterfaceT::load(reference): copies remote state",
           "[common][interface][load]") {
     TestObj a(1);
-    TestObj b(77);
+    TestObj const b(77);
     a.load(b);
     CHECK(a.v() == 77);
 }
@@ -154,22 +154,22 @@ TEST_CASE("GCommonInterfaceT::load(reference): copies remote state",
 
 TEST_CASE("GCommonInterfaceT::compare: EQUALITY on equal objects does not throw",
           "[common][interface][compare]") {
-    TestObj a(5);
-    TestObj b(5);
+    TestObj const a(5);
+    TestObj const b(5);
     CHECK_NOTHROW(a.compare(b, expectation::EQUALITY, 0.));
 }
 
 TEST_CASE("GCommonInterfaceT::compare: INEQUALITY on different objects does not throw",
           "[common][interface][compare]") {
-    TestObj a(5);
-    TestObj b(6);
+    TestObj const a(5);
+    TestObj const b(6);
     CHECK_NOTHROW(a.compare(b, expectation::INEQUALITY, 0.));
 }
 
 TEST_CASE("GCommonInterfaceT::compare: EQUALITY on different objects throws",
           "[common][interface][compare]") {
-    TestObj a(5);
-    TestObj b(6);
+    TestObj const a(5);
+    TestObj const b(6);
     CHECK_THROWS_AS(a.compare(b, expectation::EQUALITY, 0.), g_expectation_violation);
 }
 
@@ -178,7 +178,7 @@ TEST_CASE("GCommonInterfaceT::compare: EQUALITY on different objects throws",
 
 TEST_CASE("GCommonInterfaceT::name: defaults to the templated form when not overridden",
           "[common][interface][name]") {
-    TestObj a;
+    TestObj const a;
     // Default name_() returns "GCommonInterfaceT<g_class_type>" — the base
     // does not see TestObj's type via the virtual dispatch (we do not
     // override name_ in TestObj), but the call must succeed non-empty.
@@ -190,8 +190,8 @@ TEST_CASE("GCommonInterfaceT::name: defaults to the templated form when not over
 
 TEST_CASE("GCommonInterfaceT: toString/fromString round-trip in TEXT mode",
           "[common][interface][serialize]") {
-    TestObj src(42);
-    std::string s = src.toString(serializationMode::TEXT);
+    TestObj const src(42);
+    std::string const s = src.toString(serializationMode::TEXT);
     REQUIRE_FALSE(s.empty());
 
     TestObj dst(0);
@@ -201,8 +201,8 @@ TEST_CASE("GCommonInterfaceT: toString/fromString round-trip in TEXT mode",
 
 TEST_CASE("GCommonInterfaceT: toString/fromString round-trip in XML mode",
           "[common][interface][serialize]") {
-    TestObj src(-9);
-    std::string s = src.toString(serializationMode::XML);
+    TestObj const src(-9);
+    std::string const s = src.toString(serializationMode::XML);
     REQUIRE_FALSE(s.empty());
 
     TestObj dst(0);
@@ -212,8 +212,8 @@ TEST_CASE("GCommonInterfaceT: toString/fromString round-trip in XML mode",
 
 TEST_CASE("GCommonInterfaceT: toString/fromString round-trip in BINARY mode",
           "[common][interface][serialize]") {
-    TestObj src(123);
-    std::string s = src.toString(serializationMode::BINARY);
+    TestObj const src(123);
+    std::string const s = src.toString(serializationMode::BINARY);
     REQUIRE_FALSE(s.empty());
 
     TestObj dst(0);
@@ -231,7 +231,7 @@ TEST_CASE("GCommonInterfaceT: toFile / fromFile round-trip in TEXT mode",
     auto path = base / "obj.txt";
     std::filesystem::remove(path);
 
-    TestObj src(314);
+    TestObj const src(314);
     src.toFile(path, serializationMode::TEXT);
     REQUIRE(std::filesystem::exists(path));
 
@@ -254,7 +254,7 @@ TEST_CASE("GCommonInterfaceT::fromFile: missing file throws",
 
 TEST_CASE("GCommonInterfaceT::report: returns non-empty XML",
           "[common][interface][report]") {
-    TestObj a(5);
+    TestObj const a(5);
     auto r = a.report();
     CHECK_FALSE(r.empty());
     CHECK(r.contains("v_"));

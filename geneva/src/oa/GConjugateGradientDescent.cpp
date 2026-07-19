@@ -500,6 +500,7 @@ void GConjugateGradientDescent::updateChildParameters() {
  * non-positive / numerically unstable denominator triggers an automatic
  * restart (beta = 0), which keeps the method globally convergent.
  */
+// NOLINTNEXTLINE(readability-function-size) -- single coherent numeric kernel implementing the documented 6-step nonlinear-CG/line-search algorithm per starting point; the steps share loop-carried gradient/direction/scratch state and splitting them would scatter one tightly coupled numeric procedure
 void GConjugateGradientDescent::updateParentIndividuals() {
     // The line search's first trial step reproduces the former fixed step (step_size_/finite_step_) and
     // backtracks from there, so the method is never worse than the old fixed step and -- by the Armijo
@@ -517,7 +518,7 @@ void GConjugateGradientDescent::updateParentIndividuals() {
     const bool periodic_restart =
         (n_fp_parms_first_ > 0) && (this->getIteration() % n_fp_parms_first_ == 0);
 
-    GLineSearch line_search;
+    GLineSearch const line_search;
 
     for(std::size_t i = 0; i < n_starting_points_; i++) {
         std::vector<double> parm_vec;
@@ -541,8 +542,8 @@ void GConjugateGradientDescent::updateParentIndividuals() {
         // is missing, so it restarts cleanly with steepest descent.
         auto &cg_scratch = this->at(i)->scratch();
         this->ensureGradientScratch_(cg_scratch);
-        std::span<double> prev_gradient = cg_scratch.metaRecords<double>(AUXKEY_CGD_PREV_GRADIENT);
-        std::span<double> prev_direction = cg_scratch.metaRecords<double>(AUXKEY_CGD_PREV_DIRECTION);
+        std::span<double> const prev_gradient = cg_scratch.metaRecords<double>(AUXKEY_CGD_PREV_GRADIENT);
+        std::span<double> const prev_direction = cg_scratch.metaRecords<double>(AUXKEY_CGD_PREV_DIRECTION);
         auto &cg_valid = cg_scratch.metaScalar<std::uint8_t>(AUXKEY_CGD_HISTORY_VALID);
 
         // 1) Normalised finite-difference (proxy) gradient of this starting point.
@@ -686,6 +687,7 @@ std::vector<double> GConjugateGradientDescent::computeProxyGradient_(
  * @param periodic_restart Whether this iteration performs the classical periodic restart
  * @return The search direction
  */
+// NOLINTNEXTLINE(readability-function-size) -- single coherent numeric kernel implementing the textbook L-BFGS two-loop recursion (Nocedal & Wright, Algorithm 7.4/7.5); the curvature update and the two loops operate on the same ring-buffer history and splitting them would scatter one numeric algorithm
 std::vector<double> GConjugateGradientDescent::lbfgsDirection_(
     gen::GAuxiliaryStore &cg_scratch,
     const std::vector<double> &parm_vec,
@@ -693,10 +695,10 @@ std::vector<double> GConjugateGradientDescent::lbfgsDirection_(
     bool history_valid,
     bool periodic_restart
 ) const {
-    std::span<double> s_hist = cg_scratch.metaRecords<double>(AUXKEY_CGD_LBFGS_S);
-    std::span<double> y_hist = cg_scratch.metaRecords<double>(AUXKEY_CGD_LBFGS_Y);
-    std::span<double> prev_x = cg_scratch.metaRecords<double>(AUXKEY_CGD_LBFGS_PREV_X);
-    std::span<double> prev_gradient = cg_scratch.metaRecords<double>(AUXKEY_CGD_PREV_GRADIENT);
+    std::span<double> const s_hist = cg_scratch.metaRecords<double>(AUXKEY_CGD_LBFGS_S);
+    std::span<double> const y_hist = cg_scratch.metaRecords<double>(AUXKEY_CGD_LBFGS_Y);
+    std::span<double> const prev_x = cg_scratch.metaRecords<double>(AUXKEY_CGD_LBFGS_PREV_X);
+    std::span<double> const prev_gradient = cg_scratch.metaRecords<double>(AUXKEY_CGD_PREV_GRADIENT);
     auto &count = cg_scratch.metaScalar<std::uint32_t>(AUXKEY_CGD_LBFGS_COUNT);
     const std::size_t n = n_fp_parms_first_;
 
@@ -794,6 +796,7 @@ std::vector<double> GConjugateGradientDescent::lbfgsDirection_(
  * @param periodic_restart Whether this iteration performs the classical periodic restart
  * @return The search direction
  */
+// NOLINTNEXTLINE(readability-function-size) -- single coherent numeric kernel computing the conjugate-gradient beta (Powell restart guard, per-variant FR/HS/DY/PR+ formula switch, numerical-stability clamp); the dot-product accumulation, variant switch and stability guard are tightly coupled around one beta value
 std::vector<double> GConjugateGradientDescent::conjugateDirection_(
     const std::vector<double> &gradient,
     std::span<const double> prev_gradient,
@@ -1123,7 +1126,7 @@ void GConjugateGradientDescent::finalize() {
         opts.minos = (error_estimation_ == errorEstimationMode::MINOS);
 
         const std::size_t best_point = best;
-        GHesseError estimator;
+        GHesseError const estimator;
         // The difference-quotient step is uniform across parameters now; the Hesse estimator still takes a
         // per-parameter step vector, so expand the scalar to x_min's dimension.
         const std::vector<double> hesse_step(x_min.size(), adjusted_finite_step_);

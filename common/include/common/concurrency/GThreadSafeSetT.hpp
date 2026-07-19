@@ -63,31 +63,31 @@ public:
 
     /** @brief Inserts @p key. @param key The element to add. @return true iff it was newly inserted. */
     bool insert(const Key &key) {
-        std::scoped_lock lk(mtx_);
+        std::scoped_lock const lk(mtx_);
         return set_.insert(key).second;
     }
 
     /** @brief Removes @p key if present. @param key The element to drop. @return true iff it was present. */
     bool erase(const Key &key) {
-        std::scoped_lock lk(mtx_);
+        std::scoped_lock const lk(mtx_);
         return set_.erase(key) > 0;
     }
 
     /** @brief @param key The element to test. @return true iff @p key is currently a member. */
     [[nodiscard]] bool contains(const Key &key) const {
-        std::scoped_lock lk(mtx_);
+        std::scoped_lock const lk(mtx_);
         return set_.find(key) != set_.end();
     }
 
     /** @brief @return The current number of elements. */
     [[nodiscard]] std::size_t size() const {
-        std::scoped_lock lk(mtx_);
+        std::scoped_lock const lk(mtx_);
         return set_.size();
     }
 
     /** @brief @return true iff the set is currently empty. */
     [[nodiscard]] bool empty() const {
-        std::scoped_lock lk(mtx_);
+        std::scoped_lock const lk(mtx_);
         return set_.empty();
     }
 
@@ -96,7 +96,7 @@ public:
     std::vector<Key> drain() {
         std::set<Key> taken;
         {
-            std::scoped_lock lk(mtx_);
+            std::scoped_lock const lk(mtx_);
             taken.swap(set_);
         }
         return {taken.begin(), taken.end()};
@@ -104,7 +104,7 @@ public:
 
     /** @brief Empties the set. */
     void clear() {
-        std::scoped_lock lk(mtx_);
+        std::scoped_lock const lk(mtx_);
         set_.clear();
     }
 

@@ -688,7 +688,7 @@ operator<<(std::ostream & s, const Gem::Geneva::Individuals::GFunctionIndividual
  * @return A reference to the output stream
  */
 std::ostream &
-operator<<(std::ostream & s, std::shared_ptr<Gem::Geneva::Individuals::GFunctionIndividual> f_ptr);
+operator<<(std::ostream & s, const std::shared_ptr<Gem::Geneva::Individuals::GFunctionIndividual>& f_ptr);
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -791,7 +791,7 @@ private:
      * @brief Creates a deep clone of this object.
      * @return A deep clone of this object, camouflaged as the base constraint type
      */
-    GPreEvaluationValidityCheckT<gen::GOptimizableEntity> *clone_() const override;
+    [[nodiscard]] GPreEvaluationValidityCheckT<gen::GOptimizableEntity> *clone_() const override;
 
     double c_ = 1.; ///< The constant that should not be exceeded by the sum of parameters
 };
@@ -887,7 +887,7 @@ private:
      * @brief Creates a deep clone of this object.
      * @return A deep clone of this object, camouflaged as the base constraint type
      */
-    GPreEvaluationValidityCheckT<gen::GOptimizableEntity> *clone_() const override;
+    [[nodiscard]] GPreEvaluationValidityCheckT<gen::GOptimizableEntity> *clone_() const override;
 
     double c_ = 1.;    ///< The target constant that the sum of parameters should equal (within the gap)
     double gap_ = 0.5; ///< A tolerance around C_ that is still considered to be valid
@@ -983,7 +983,7 @@ private:
      * @brief Creates a deep clone of this object.
      * @return A deep clone of this object, camouflaged as the base constraint type
      */
-    GPreEvaluationValidityCheckT<gen::GOptimizableEntity> *clone_() const override;
+    [[nodiscard]] GPreEvaluationValidityCheckT<gen::GOptimizableEntity> *clone_() const override;
 
     /** @brief The diameter of the sphere */
     double diameter_ = 1.;

@@ -100,9 +100,9 @@ individualCloneFunction() {
  *  local consumer: serial execution is this consumer with one worker thread (nWorkerThreads == 1). */
 class GStdThreadConsumerProvider final : public GConsumerProviderT {
 public:
-    std::string getMnemonic() const override { return "stc"; }
-    std::string getName() const override { return "GStdThreadConsumerT"; }
-    bool needsClient() const override { return false; }
+    [[nodiscard]] std::string getMnemonic() const override { return "stc"; }
+    [[nodiscard]] std::string getName() const override { return "GStdThreadConsumerT"; }
+    [[nodiscard]] bool needsClient() const override { return false; }
 
     ConsumerSetup setup(const ConsumerSpec &spec) override {
         auto consumer = std::make_shared<c2::GStdThreadConsumerT<gen::GOptimizableEntity>>(spec.n_threads);
@@ -112,7 +112,7 @@ public:
         return setup;
     }
 
-    ConsumerSpec specFromCommandLine(const po::variables_map &vm) const override {
+    [[nodiscard]] ConsumerSpec specFromCommandLine(const po::variables_map &vm) const override {
         ConsumerSpec spec;
         if(vm.contains("nWorkerThreads")) {
             spec.n_threads = static_cast<unsigned int>(vm["nWorkerThreads"].as<std::size_t>());
@@ -120,7 +120,7 @@ public:
         return spec;
     }
 
-    std::shared_ptr<c2::GBaseClientT<gen::GOptimizableEntity>>
+    [[nodiscard]] std::shared_ptr<c2::GBaseClientT<gen::GOptimizableEntity>>
     buildClient(const ConsumerSpec & /*spec*/) const override {
         return nullptr; // local-only
     }
@@ -138,10 +138,10 @@ public:
 /** @brief Provider for the Asio (raw socket) networked consumer. */
 class GAsioConsumerProvider final : public GConsumerProviderT {
 public:
-    std::string getMnemonic() const override { return "asio"; }
-    std::string getName() const override { return "GAsioConsumerT"; }
-    bool needsClient() const override { return true; }
-    bool bindsListeningPort() const override { return true; }
+    [[nodiscard]] std::string getMnemonic() const override { return "asio"; }
+    [[nodiscard]] std::string getName() const override { return "GAsioConsumerT"; }
+    [[nodiscard]] bool needsClient() const override { return true; }
+    [[nodiscard]] bool bindsListeningPort() const override { return true; }
 
     ConsumerSetup setup(const ConsumerSpec &spec) override {
         auto consumer = std::make_shared<c2::GAsioConsumerT<gen::GOptimizableEntity>>(
@@ -153,7 +153,7 @@ public:
         return setup;
     }
 
-    ConsumerSpec specFromCommandLine(const po::variables_map &vm) const override {
+    [[nodiscard]] ConsumerSpec specFromCommandLine(const po::variables_map &vm) const override {
         ConsumerSpec spec;
         if(vm.contains("asio_port")) { spec.port = vm["asio_port"].as<unsigned short>(); }
         if(vm.contains("asio_serializationMode")) {
@@ -170,7 +170,7 @@ public:
         return spec;
     }
 
-    std::shared_ptr<c2::GBaseClientT<gen::GOptimizableEntity>>
+    [[nodiscard]] std::shared_ptr<c2::GBaseClientT<gen::GOptimizableEntity>>
     buildClient(const ConsumerSpec &spec) const override {
         return std::make_shared<c2::Consumers::GAsioConsumerClientT<gen::GOptimizableEntity>>(
             spec.ip, spec.port, spec.serialization_mode, spec.max_reconnects, spec.client_prefetch_depth);
@@ -202,10 +202,10 @@ public:
 /** @brief Provider for the Boost.Beast (websocket) networked consumer. */
 class GWebsocketConsumerProvider final : public GConsumerProviderT {
 public:
-    std::string getMnemonic() const override { return "beast"; }
-    std::string getName() const override { return "GWebsocketConsumerT"; }
-    bool needsClient() const override { return true; }
-    bool bindsListeningPort() const override { return true; }
+    [[nodiscard]] std::string getMnemonic() const override { return "beast"; }
+    [[nodiscard]] std::string getName() const override { return "GWebsocketConsumerT"; }
+    [[nodiscard]] bool needsClient() const override { return true; }
+    [[nodiscard]] bool bindsListeningPort() const override { return true; }
 
     ConsumerSetup setup(const ConsumerSpec &spec) override {
         auto consumer = std::make_shared<c2::GWebsocketConsumerT<gen::GOptimizableEntity>>(
@@ -217,7 +217,7 @@ public:
         return setup;
     }
 
-    ConsumerSpec specFromCommandLine(const po::variables_map &vm) const override {
+    [[nodiscard]] ConsumerSpec specFromCommandLine(const po::variables_map &vm) const override {
         ConsumerSpec spec;
         if(vm.contains("beast_port")) { spec.port = vm["beast_port"].as<unsigned short>(); }
         if(vm.contains("beast_serializationMode")) {
@@ -234,7 +234,7 @@ public:
         return spec;
     }
 
-    std::shared_ptr<c2::GBaseClientT<gen::GOptimizableEntity>>
+    [[nodiscard]] std::shared_ptr<c2::GBaseClientT<gen::GOptimizableEntity>>
     buildClient(const ConsumerSpec &spec) const override {
         return std::make_shared<c2::Consumers::GWebsocketClientT<gen::GOptimizableEntity>>(
             spec.ip, spec.port, spec.serialization_mode, spec.verbose_control_frames,
@@ -271,13 +271,13 @@ public:
 /** @brief Provider for the MPI consumer (built on every rank; self-determines master vs worker). */
 class GMPIConsumerProvider final : public GConsumerProviderT {
 public:
-    std::string getMnemonic() const override { return "mpi"; }
-    std::string getName() const override { return "GMPIConsumerT"; }
-    bool needsClient() const override { return true; }
+    [[nodiscard]] std::string getMnemonic() const override { return "mpi"; }
+    [[nodiscard]] std::string getName() const override { return "GMPIConsumerT"; }
+    [[nodiscard]] bool needsClient() const override { return true; }
     // MPI is deliberately NOT a bindsListeningPort() consumer: it is built on every rank and
     // self-determines master/worker, so it is constructed normally rather than reused from the registry.
     // The master/worker role is fixed by the process rank, discovered only when setup() runs on each rank.
-    bool determinesRoleAtRuntime() const override { return true; }
+    [[nodiscard]] bool determinesRoleAtRuntime() const override { return true; }
 
     ConsumerSetup setup(const ConsumerSpec &spec) override {
         // MPI fixes the master/worker split by rank; the consumer is built on every rank and branches.
@@ -305,7 +305,7 @@ public:
         return setup;
     }
 
-    ConsumerSpec specFromCommandLine(const po::variables_map &vm) const override {
+    [[nodiscard]] ConsumerSpec specFromCommandLine(const po::variables_map &vm) const override {
         ConsumerSpec spec;
         if(vm.contains("mpi_asyncReq")) { spec.mpi_async_req = vm["mpi_asyncReq"].as<bool>(); }
         if(vm.contains("mpi_nHandlerThreads")) {
@@ -320,7 +320,7 @@ public:
         return spec;
     }
 
-    std::shared_ptr<c2::GBaseClientT<gen::GOptimizableEntity>>
+    [[nodiscard]] std::shared_ptr<c2::GBaseClientT<gen::GOptimizableEntity>>
     buildClient(const ConsumerSpec & /*spec*/) const override {
         return nullptr; // the mpi worker loop comes from setup().run_worker, not a socket client
     }
@@ -360,9 +360,9 @@ public:
  */
 class GGPUConsumerProvider final : public GConsumerProviderT {
 public:
-    std::string getMnemonic() const override { return "gpu"; }
-    std::string getName() const override { return "GGPUConsumerT"; }
-    bool needsClient() const override { return false; }
+    [[nodiscard]] std::string getMnemonic() const override { return "gpu"; }
+    [[nodiscard]] std::string getName() const override { return "GGPUConsumerT"; }
+    [[nodiscard]] bool needsClient() const override { return false; }
 
     ConsumerSetup setup(const ConsumerSpec & /*spec*/) override {
         // The problem contributes its GPU marshaller into marshallerProviderStore() (compiled-in: before
@@ -394,11 +394,11 @@ public:
         return setup;
     }
 
-    ConsumerSpec specFromCommandLine(const po::variables_map & /*vm*/) const override {
+    [[nodiscard]] ConsumerSpec specFromCommandLine(const po::variables_map & /*vm*/) const override {
         return ConsumerSpec{};
     }
 
-    std::shared_ptr<c2::GBaseClientT<gen::GOptimizableEntity>>
+    [[nodiscard]] std::shared_ptr<c2::GBaseClientT<gen::GOptimizableEntity>>
     buildClient(const ConsumerSpec & /*spec*/) const override {
         return nullptr;
     }

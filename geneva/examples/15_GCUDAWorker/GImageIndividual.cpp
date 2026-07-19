@@ -525,6 +525,7 @@ void GImageIndividual::specificTestsFailuresExpected_GUnitTests_() {
  * Registers the config-file options, binding them to the passed Config. The checkValueRange() guards
  * validate the defaults at registration time.
  */
+// NOLINTNEXTLINE(readability-function-size) -- one coherent config-registration sweep (the Mona-Lisa problem's option list); splitting would scatter the option list across helper functions
 void GImageIndividual::describeConfig(Gem::Common::GParserBuilder &gpb, Config &c) {
     using namespace Gem::Common;
 

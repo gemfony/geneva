@@ -208,7 +208,7 @@ std::ostream &operator<<(std::ostream &s, const Gem::Geneva::GFMinIndividual &f)
 /**
  * Provide an easy way to print the individual's content through a smart-pointer
  */
-std::ostream &operator<<(std::ostream &s, std::shared_ptr<Gem::Geneva::GFMinIndividual> f_ptr) {
+std::ostream &operator<<(std::ostream &s, const std::shared_ptr<Gem::Geneva::GFMinIndividual>& f_ptr) {
     return operator<<(s, *f_ptr);
 }
 

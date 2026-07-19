@@ -184,7 +184,7 @@ public:
         unsigned int total = 0;
         std::vector<std::pair<std::string, unsigned int>> top;
         {
-            std::scoped_lock lk(mutex_);
+            std::scoped_lock const lk(mutex_);
             // Grant computation and insertion form ONE critical section, so concurrent
             // nested reservations see each other's share (the meta-opt fan-out case).
             if(nested && elasticity == ThreadElasticity::Elastic) {
@@ -228,7 +228,7 @@ public:
     /** @brief The current sum of reserved threads across all live reservations
      *  @return The reserved total */
     [[nodiscard]] unsigned int reserved() const noexcept {
-        std::scoped_lock lk(mutex_);
+        std::scoped_lock const lk(mutex_);
         return reserved_;
     }
 
@@ -260,7 +260,7 @@ private:
     /** @brief Returns a reservation to the budget (called by Reservation only)
      *  @param key The registry key handed out by reserve() */
     void release_(std::size_t key) noexcept {
-        std::scoped_lock lk(mutex_);
+        std::scoped_lock const lk(mutex_);
         if(const auto it = entries_.find(key); it != entries_.end()) {
             reserved_ -= it->second.count;
             entries_.erase(it);

@@ -152,7 +152,7 @@ std::size_t GRandomFactory::getBufferSize() {
  * @return A seed taken from a local seed_seq object
  */
 seed_type GRandomFactory::getSeed() {
-    std::unique_lock<std::mutex> sm_lck(seeding_mutex_);
+    std::unique_lock<std::mutex> const sm_lck(seeding_mutex_);
 
     // Refill at the start of seeding or when all seeds have been used
     if(not seeding_has_started_ || seed_cit_ == seed_collection_.end()) {
@@ -161,7 +161,7 @@ seed_type GRandomFactory::getSeed() {
         seeding_has_started_.store(true);
     }
 
-    seed_type result = *seed_cit_;
+    seed_type const result = *seed_cit_;
     ++seed_cit_;
 
     return result;
@@ -200,7 +200,7 @@ void GRandomFactory::returnUsedPackage(std::unique_ptr<random_container> &&p) {
 void GRandomFactory::setNProducerThreads(const std::uint16_t &n_producer_threads) {
     // thread_creation_mutex_ orders this call against the lazy thread start in
     // getNewRandomContainer() and against concurrent setNProducerThreads() calls.
-    std::unique_lock<std::mutex> tc_lk(thread_creation_mutex_);
+    std::unique_lock<std::mutex> const tc_lk(thread_creation_mutex_);
 
     // A request of 0 means "auto-size to the hardware" (not an error) -- see autoProducerThreadCount().
     const std::uint16_t n_producer_threads_local =
@@ -248,7 +248,7 @@ void GRandomFactory::setNProducerThreads(const std::uint16_t &n_producer_threads
 std::unique_ptr<random_container> GRandomFactory::getNewRandomContainer() {
     // Start the producer threads upon first access to this function
     if(not threads_started_) {
-        std::unique_lock<std::mutex> tc_lk(thread_creation_mutex_);
+        std::unique_lock<std::mutex> const tc_lk(thread_creation_mutex_);
         if(not threads_started_) { // double checked locking pattern
             //---------------------------------------------------------
             // Account the producers in the process-wide thread budget for their lifetime.

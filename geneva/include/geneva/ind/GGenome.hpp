@@ -178,6 +178,7 @@ class GGenome // NOLINT(cppcoreguidelines-special-member-functions)
      * @param version The (unused) serialization version number
      */
     template <typename Archive>
+    // NOLINTNEXTLINE(readability-function-size) -- one coherent serialization sweep: the self-describing wire-format tag dispatch (omitted / by-value / interned-by-id, with cache-miss fetch) must stay in lockstep with save()'s tag order; splitting would scatter tightly coupled archive-decode branches
     void load(Archive &ar, [[maybe_unused]] const unsigned int version) {
         using boost::serialization::make_nvp;
         ar &make_nvp("GOptimizableEntity", boost::serialization::base_object<GOptimizableEntity>(*this));
@@ -678,7 +679,7 @@ private:
     template <typename T>
     std::size_t countImpl(ChannelLayout<T> const &ch, activityMode const &am) const {
         std::size_t n = 0;
-        for(std::uint8_t a : ch.active) {
+        for(std::uint8_t const a : ch.active) {
             if(amMatch(a, am)) {
                 ++n;
             }

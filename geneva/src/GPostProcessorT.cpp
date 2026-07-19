@@ -184,7 +184,7 @@ bool GEvolutionaryAlgorithmPostOptimizer::raw_processing_(gen::GOptimizableEntit
     }
 
     // Clone the individual for post-processing
-    std::shared_ptr<gen::GOptimizableEntity> p_unopt_ptr = p.template clone<gen::GOptimizableEntity>();
+    std::shared_ptr<gen::GOptimizableEntity> const p_unopt_ptr = p.template clone<gen::GOptimizableEntity>();
 
     // Make sure the post-optimization does not trigger post-optimization recursively: the sub-EA's
     // population must carry NO post-processor (the optimization algorithm decides post-processing
@@ -238,7 +238,7 @@ bool GEvolutionaryAlgorithmPostOptimizer::raw_processing_(gen::GOptimizableEntit
     ea_ptr->optimize();
 
     // Retrieve the best individual
-    std::shared_ptr<gen::GOptimizableEntity> p_opt_ptr = ea_ptr->getBestGlobalIndividual<gen::GOptimizableEntity>();
+    std::shared_ptr<gen::GOptimizableEntity> const p_opt_ptr = ea_ptr->getBestGlobalIndividual<gen::GOptimizableEntity>();
 
     // Make sure subsequent optimization cycles may generally perform post-optimization again.
     // This needs to be done on the optimized individual, as it will be loaded into the

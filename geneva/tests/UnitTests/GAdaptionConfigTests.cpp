@@ -121,7 +121,7 @@ static oa::GEAAdaptionConfig authoredConfig(const AdaptCfgIndividual &ind) {
 
 /******************************************************************************/
 TEST_CASE("GAdaptionConfig: built from a genome, addresses existing groups", "[flat][adaptcfg]") {
-    AdaptCfgIndividual ind;
+    AdaptCfgIndividual const ind;
     auto cfg = authoredConfig(ind);
 
     // Mirrors the genome's group structure.
@@ -137,7 +137,7 @@ TEST_CASE("GAdaptionConfig: built from a genome, addresses existing groups", "[f
 
 /******************************************************************************/
 TEST_CASE("GAdaptionConfig: label resolution is one-to-many", "[flat][adaptcfg]") {
-    AdaptCfgIndividual ind;
+    AdaptCfgIndividual const ind;
     auto cfg = authoredConfig(ind);
 
     // "position" tags the two FP groups; "count" the one int group; an absent label resolves to none.
@@ -157,7 +157,7 @@ TEST_CASE("GAdaptionConfig: label resolution is one-to-many", "[flat][adaptcfg]"
 
 /******************************************************************************/
 TEST_CASE("GAdaptionConfig: checkConsistency accepts the authoring genome, rejects a different one", "[flat][adaptcfg]") {
-    AdaptCfgIndividual ind;
+    AdaptCfgIndividual const ind;
     auto cfg = authoredConfig(ind);
 
     // Same structure -> ok.
@@ -166,11 +166,12 @@ TEST_CASE("GAdaptionConfig: checkConsistency accepts the authoring genome, rejec
     // A structurally different genome (1 double, no other channels) -> throws.
     GGenomeBuilder other;
     other.addDouble(0., -1., 1.); // structure only
-    std::shared_ptr<const GGenomeLayout> other_layout = other.buildLayout();
+    std::shared_ptr<const GGenomeLayout> const other_layout = other.buildLayout();
     CHECK_THROWS_AS(cfg.checkConsistency(*other_layout), geneva_exception);
 }
 
 /******************************************************************************/
+// NOLINTNEXTLINE(readability-function-cognitive-complexity) -- one coherent stochastic robustness test: the fold/write-fold invariants over the SAME per-rep before/after state are tightly coupled and would only be scattered by splitting
 TEST_CASE("GAdaption: runAdaptionKernels mutates within bounds (config-driven)", "[flat][adaptcfg]") {
     Gem::Hap::GRandomT<Gem::Hap::randomSource::QUEUE> gr;
 
@@ -197,14 +198,14 @@ TEST_CASE("GAdaption: runAdaptionKernels mutates within bounds (config-driven)",
         std::vector<double> after;
         ind.streamline<double>(after);
         REQUIRE(after.size() == before.size());
-        for(double x : after) {
+        for(double const x : after) {
             CHECK(x >= -5.);
             CHECK(x < 5.);
         }
         // Integer values fold into the closed range [-10, 10].
         std::vector<std::int32_t> iv;
         ind.streamline<std::int32_t>(iv);
-        for(std::int32_t x : iv) {
+        for(std::int32_t const x : iv) {
             CHECK(x >= -10);
             CHECK(x <= 10);
         }
@@ -215,7 +216,7 @@ TEST_CASE("GAdaption: runAdaptionKernels mutates within bounds (config-driven)",
         // canonical internal interval [-0.5, 0.5). The external value is its affine image (box [-5, 5):
         // scale = 10, anchor = 0, so external == internal * 10). Verify the raw store is in the canonical
         // interval and maps to the external value.
-        std::span<const double> store_d = ind.internalDoubleValues();
+        std::span<const double> const store_d = ind.internalDoubleValues();
         REQUIRE(store_d.size() == after.size());
         for(std::size_t k = 0; k < after.size(); ++k) {
             CHECK(store_d[k] >= -0.5);
@@ -223,7 +224,7 @@ TEST_CASE("GAdaption: runAdaptionKernels mutates within bounds (config-driven)",
             const double tol = 8. * std::numeric_limits<double>::epsilon() * 10.;
             CHECK(std::abs(after[k] - store_d[k] * 10.) <= tol); // external == internal * scale (anchor 0)
         }
-        std::span<const std::int32_t> store_i = ind.internalInt32Values();
+        std::span<const std::int32_t> const store_i = ind.internalInt32Values();
         REQUIRE(store_i.size() == iv.size());
         for(std::size_t k = 0; k < iv.size(); ++k) {
             CHECK(store_i[k] == iv[k]); // internal == external for ints too
@@ -244,9 +245,9 @@ TEST_CASE("GAdaption: readAdaptionSigmas + resetAdaptionState round-trip", "[fla
     cfg.installInto(scratch);
 
     // One sigma per Gauss group (3 FP groups here); all start at the seed 0.5.
-    std::vector<double> sig0 = oa::readAdaptionSigmas(scratch, cfg, "GDoubleGaussAdaptor");
+    std::vector<double> const sig0 = oa::readAdaptionSigmas(scratch, cfg, "GDoubleGaussAdaptor");
     REQUIRE(sig0.size() == 3);
-    for(double s : sig0) {
+    for(double const s : sig0) {
         CHECK(s == 0.5);
     }
     // The integer Gauss adaptor reports its single group's sigma too.
@@ -256,8 +257,8 @@ TEST_CASE("GAdaption: readAdaptionSigmas + resetAdaptionState round-trip", "[fla
     bool moved = false;
     for(int it = 0; it < 50 && not moved; ++it) {
         oa::runAdaptionKernels(ind, scratch, cfg, gr);
-        std::vector<double> s = oa::readAdaptionSigmas(scratch, cfg, "GDoubleGaussAdaptor");
-        for(double v : s) {
+        std::vector<double> const s = oa::readAdaptionSigmas(scratch, cfg, "GDoubleGaussAdaptor");
+        for(double const v : s) {
             if(v != 0.5) {
                 moved = true;
             }
@@ -266,16 +267,16 @@ TEST_CASE("GAdaption: readAdaptionSigmas + resetAdaptionState round-trip", "[fla
     CHECK(moved); // sigma self-adapted away from the seed
 
     oa::resetAdaptionState(scratch, cfg);
-    std::vector<double> sig_reset = oa::readAdaptionSigmas(scratch, cfg, "GDoubleGaussAdaptor");
+    std::vector<double> const sig_reset = oa::readAdaptionSigmas(scratch, cfg, "GDoubleGaussAdaptor");
     REQUIRE(sig_reset.size() == 3);
-    for(double s : sig_reset) {
+    for(double const s : sig_reset) {
         CHECK(s == 0.5); // back to the configured seed
     }
 }
 
 /******************************************************************************/
 TEST_CASE("GAdaptionConfig: installInto seeds the per-group state", "[flat][adaptcfg]") {
-    AdaptCfgIndividual ind;
+    AdaptCfgIndividual const ind;
     auto cfg = authoredConfig(ind);
 
     // Author a distinct seed, install it into a scratch store, and read it back through the sigma reader.
@@ -295,7 +296,7 @@ TEST_CASE("GAdaptionConfig: installInto seeds the per-group state", "[flat][adap
 // silently missed biGauss, so a labelled bi-Gauss group was unauthorable by name. Pin the
 // forwarding: biGauss through forLabel() must author every FP group carrying the label.
 TEST_CASE("GAdaptionConfig: biGauss is authorable by label", "[flat][adaptcfg]") {
-    AdaptCfgIndividual ind;
+    AdaptCfgIndividual const ind;
     auto cfg = authoredConfig(ind);
 
     CHECK_NOTHROW(cfg.forLabel("position").biGauss(

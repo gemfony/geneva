@@ -174,7 +174,7 @@ bool demo_spsc_staging_ring() {
     // Copy-out read of the next chunk into a private buffer.
     std::uint64_t buf[kChunkWords] = {0};
     ring.copyChunkInto(buf);
-    for(unsigned long long w : buf) {
+    for(unsigned long long const w : buf) {
         ok = ok && w == kSentinel;
     }
 

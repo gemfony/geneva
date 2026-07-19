@@ -69,7 +69,7 @@ int main(int argc, char **argv) {
         {
             // Random numbers with an even distribution of
             // double values in the range [0,1[
-            double d_even_01 = uniform_real_distribution(gr);
+            double const d_even_01 = uniform_real_distribution(gr);
 
             // Note: GRandomBase defines an operator(), hence
             // you could also use gr_() to obtain a random number
@@ -79,8 +79,8 @@ int main(int argc, char **argv) {
         {
             // Random numbers with an even distribution of
             // double values in the range [0.,max[
-            double max = 10.;
-            double d_even_0_max = uniform_real_distribution(
+            double const max = 10.;
+            double const d_even_0_max = uniform_real_distribution(
                 gr,
                 std::uniform_real_distribution<double>::param_type(0., max)
             );
@@ -89,9 +89,9 @@ int main(int argc, char **argv) {
         {
             // Random numbers with an even distribution of
             // double values in the range [min,max[
-            double min = -10.;
-            double max = 10.;
-            double d_even_min_max = uniform_real_distribution(
+            double const min = -10.;
+            double const max = 10.;
+            double const d_even_min_max = uniform_real_distribution(
                 gr,
                 std::uniform_real_distribution<double>::param_type(min, max)
             );
@@ -100,15 +100,15 @@ int main(int argc, char **argv) {
         {
             // A normal ("gaussian") distribution of random numbers
             // with mean 0 and sigma 1
-            double d_std_gauss = normal_distribution(gr);
+            double const d_std_gauss = normal_distribution(gr);
         }
 
         {
             // A normal ("gaussian") distribution of random numbers
             // with mean "mean" and sigma "sigma"
-            double mean = 1.;
-            double sigma = 2.;
-            double d_gauss_mean_sigma =
+            double const mean = 1.;
+            double const sigma = 2.;
+            double const d_gauss_mean_sigma =
                 normal_distribution(gr, std::normal_distribution<double>::param_type(mean, sigma));
         }
 
@@ -119,27 +119,27 @@ int main(int argc, char **argv) {
             // searching with the highest likelihood at a location where we already
             // know a good value exists. Rather we want to shift the highest likelihood
             // for probes a bit further away from the candidate solution.
-            double d_bi_gauss_difsigma = bi_normal_distribution(gr);
-            double d_bi_gauss_difsigma2 =
+            double const d_bi_gauss_difsigma = bi_normal_distribution(gr);
+            double const d_bi_gauss_difsigma2 =
                 bi_normal_distribution(gr, bi_normal_distribution.param());
         }
 
         {
             // This function produces boolean values with a 50% likelihood each for true and false
-            bool bool_rnd = uniform_bool(gr);
+            bool const bool_rnd = uniform_bool(gr);
         }
 
         {
             // This function returns true with a probability "0.25", otherwise false.
-            bool bool_rnd_weight = weighted_bool(gr);
+            bool const bool_rnd_weight = weighted_bool(gr);
         }
 
         {
             // This function produces integer random numbers in the range of [min, max] .
             // Note that max may also be < 0.
-            std::int32_t min = -10;
-            std::int32_t max = 10;
-            std::int32_t int_rand_min_max = uniform_int_distribution(
+            std::int32_t const min = -10;
+            std::int32_t const max = 10;
+            std::int32_t const int_rand_min_max = uniform_int_distribution(
                 gr,
                 std::uniform_int_distribution<std::int32_t>::param_type(min, max)
             );

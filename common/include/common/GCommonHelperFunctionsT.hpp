@@ -275,7 +275,7 @@ std::optional<target_type> environmentVariableAs(std::string const &var) {
     {
         // std::getenv is not thread-safe; serialise access with a local mutex.
         static std::mutex read_env_mutex;
-        std::scoped_lock lk(read_env_mutex);
+        std::scoped_lock const lk(read_env_mutex);
 
 #if defined(_MSC_VER) && (_MSC_VER >= 1020)
         char *env_ptr = 0;
@@ -335,7 +335,7 @@ void ptrDifferenceCheck(const T *p1, const T *p2) {
  * @param p2 The second shared pointer compared against p1 for aliasing
  */
 template <typename T>
-void ptrDifferenceCheck(std::shared_ptr<T> p1, std::shared_ptr<T> p2) {
+void ptrDifferenceCheck(const std::shared_ptr<T>& p1, const std::shared_ptr<T>& p2) {
 #ifdef DEBUG
     if(p1 && p1.get() == p2.get()) {
         throw geneva_exception(
@@ -393,7 +393,7 @@ const target_type *g_ptr_conversion(const base_type *convert_ptr) {
  */
 template <typename base_type, typename target_type>
     requires std::derived_from<target_type, base_type>
-std::shared_ptr<target_type> g_ptr_conversion(std::shared_ptr<base_type> convert_ptr) {
+std::shared_ptr<target_type> g_ptr_conversion(const std::shared_ptr<base_type>& convert_ptr) {
 #ifdef DEBUG
     auto p = std::dynamic_pointer_cast<target_type>(convert_ptr);
     if(nullptr == convert_ptr.get() || p) {
@@ -734,7 +734,7 @@ void copyCloneableObjectsContainer(
  * @throws geneva_exception in DEBUG builds on a null input or a failed conversion
  */
 template <typename source_type, typename target_type>
-std::shared_ptr<target_type> convertSmartPointer(std::shared_ptr<source_type> p_raw) {
+std::shared_ptr<target_type> convertSmartPointer(const std::shared_ptr<source_type>& p_raw) {
 #ifdef DEBUG
     if(not p_raw) {
         throw geneva_exception(
@@ -946,7 +946,7 @@ std::string to_string(enum_type val) {
  */
 template <typename default_type>
     requires (!std::is_enum_v<default_type> && !std::is_arithmetic_v<default_type>)
-std::string to_string(default_type val) {
+std::string to_string(const default_type& val) {
     std::ostringstream oss;
     oss << val;
     return oss.str();

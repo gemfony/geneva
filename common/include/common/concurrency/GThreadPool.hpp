@@ -307,7 +307,7 @@ private:
      *  graceful "drain and stop", never an abrupt abandon.
      *  @param st The jthread stop token; a stop request closes the task queue so the worker drains
      *   the remaining tasks and then exits */
-    void worker_loop(std::stop_token st);
+    void worker_loop(const std::stop_token& st);
     /**
      * @brief Starts n worker threads draining the (current) queue
      * @param n The number of worker threads to start

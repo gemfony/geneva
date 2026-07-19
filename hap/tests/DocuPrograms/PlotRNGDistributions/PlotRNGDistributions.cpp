@@ -66,13 +66,14 @@ enum class distType : Gem::Common::ENUMBASETYPE {
 };
 
 template <class T>
+// NOLINTNEXTLINE(readability-function-size) -- one switch-driven dispatcher, one case per distribution type sampled into the same output vector
 void createRandomVector(
     std::vector<T> &vec_t,
     const distType &dType,
     const std::size_t &nEntries,
-    std::shared_ptr<Gem::Hap::GRandomBase> gr_ptr
+    const std::shared_ptr<Gem::Hap::GRandomBase>& gr_ptr
 ) {
-    std::size_t i;
+    std::size_t i = 0;
 
     std::normal_distribution<double> normal_distribution(0., 0.5);
     Gem::Hap::bi_normal_distribution<double> bi_normal_distribution(0., 0.5, 0.5, 2.);
@@ -152,13 +153,14 @@ void createRandomVector(
     };
 }
 
+// NOLINTNEXTLINE(readability-function-size) -- main() of a doc-program: writes the fixed ROOT-macro header, samples every distribution kind, then emits the per-distribution Fill()/labelling blocks
 int main(int argc, char **argv) {
     std::shared_ptr<Gem::Hap::GRandomBase> gr_ptr;
 
     const std::size_t nEntries = 6000;
     const std::uint16_t nProducerThreads = 4;
 
-    std::size_t i;
+    std::size_t i = 0;
     std::vector<double> gaussian;
     std::vector<double> doublegaussian;
     std::vector<double> even;

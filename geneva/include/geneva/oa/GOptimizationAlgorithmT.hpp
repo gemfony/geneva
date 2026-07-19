@@ -121,14 +121,14 @@ private:
      *
      * @return The concrete algorithm's class name, taken from Derived::oa_class_name.
      */
-    std::string name_() const override { return std::string(Derived::oa_class_name); }
+    [[nodiscard]] std::string name_() const override { return std::string(Derived::oa_class_name); }
 
     /**
      * @brief Creates a deep clone of this object
      *
      * @return A heap-allocated deep copy of this object, as a GOptimizationAlgorithmBase pointer (caller owns it).
      */
-    GOptimizationAlgorithmBase *clone_() const override {
+    [[nodiscard]] GOptimizationAlgorithmBase *clone_() const override {
         return new Derived(static_cast<const Derived &>(*this));
     }
 
@@ -137,14 +137,14 @@ private:
      *
      * @return The algorithm's human-readable name, taken from Derived::oa_algorithm_name.
      */
-    std::string getAlgorithmName_() const override { return std::string(Derived::oa_algorithm_name); }
+    [[nodiscard]] std::string getAlgorithmName_() const override { return std::string(Derived::oa_algorithm_name); }
 
     /**
      * @brief Returns the personality-type tag of this optimization algorithm
      *
      * @return The algorithm's personality-type tag, taken from Derived::oa_personality_type.
      */
-    std::string getAlgorithmPersonalityType_() const override {
+    [[nodiscard]] std::string getAlgorithmPersonalityType_() const override {
         return std::string(Derived::oa_personality_type);
     }
 };

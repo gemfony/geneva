@@ -107,6 +107,7 @@ public:
      * @param clone_template An optional representative item used as the clone source when refilling
      *        unresolved slots (if null, the first successfully evaluated sibling is used instead)
      */
+    // NOLINTNEXTLINE(readability-function-size) -- one coherent reconciliation state machine (dispatch round, per-slot pending/resolved/unresolved classification against the submission policy, then clone/fatal reconciliation) sharing the same per-slot state vectors throughout; splitting would scatter the tightly-coupled loop state
     void processBatch(std::span<item_ptr> items, const GSubmissionPolicy &policy,
                       item_ptr clone_template = nullptr) {
         using Gem::Courtier::processingStatus;
@@ -256,7 +257,7 @@ protected:
      *  refill path and by the networked consumers when handing a session a copy to ship.
      *  @param src The (borrowed) uniquely owned work item to clone from
      *  @return A fresh owning copy of @p src; an empty item_ptr if cloning is impossible (after fatal exit) */
-    item_ptr clone_item_(const item_ptr &src) const {
+    [[nodiscard]] item_ptr clone_item_(const item_ptr &src) const {
         if(clone_fn_) {
             return clone_fn_(src);
         }

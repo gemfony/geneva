@@ -234,7 +234,7 @@ public:
 	  *
 	  * @param configFile The new configuration-file name (interpreted as a filesystem path)
 	  */
-    void setConfigFile(std::string configFile) {
+    void setConfigFile(const std::string& configFile) {
         config_path_ = std::filesystem::path(configFile);
     }
 
@@ -248,7 +248,7 @@ public:
 	  */
     template <typename target_type>
     std::shared_ptr<target_type> get_as() {
-        std::shared_ptr<prod_type> p = this->get();
+        std::shared_ptr<prod_type> const p = this->get();
         if(p) {
             return Gem::Common::convertSmartPointer<prod_type, target_type>(p);
         }
@@ -385,7 +385,7 @@ protected:
         // freshly created object (no disk I/O / JSON re-parse). The file does not
         // change between produce() calls, so this is purely an efficiency win.
         {
-            std::scoped_lock config_lock(init_mutex_);
+            std::scoped_lock const config_lock(init_mutex_);
             if(config_document_cached_) {
                 // Re-apply the cached document to this freshly produced object. The
                 // unknown-key diagnostic already ran on the first (real) parse, so
@@ -428,7 +428,7 @@ private:
 	  * and a fresh post-load flag would re-run init_().)
 	  */
     void globalInit() {
-        std::scoped_lock lk(init_mutex_);
+        std::scoped_lock const lk(init_mutex_);
         if(not initialized_) {
             this->init_();
             initialized_ = true;

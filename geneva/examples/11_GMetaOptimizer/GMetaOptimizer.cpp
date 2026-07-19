@@ -65,13 +65,13 @@ int main(int argc, char **argv) {
     //---------------------------------------------------------------------------
     // Create a factory for GFunctionIndividual objects and perform
     // any necessary initial work.
-    std::shared_ptr<gind::GFunctionIndividualFactory> gfi_ptr(
+    std::shared_ptr<gind::GFunctionIndividualFactory> const gfi_ptr(
         new gind::GFunctionIndividualFactory("./config/GFunctionIndividual.json")
     );
 
     // Create a factory for GMetaOptimizerIndividual objects and perform
     // any necessary initial work.
-    std::shared_ptr<gind::GMetaOptimizerIndividualFactoryT<gind::GFunctionIndividual>> gmoi_ptr(
+    std::shared_ptr<gind::GMetaOptimizerIndividualFactoryT<gind::GFunctionIndividual>> const gmoi_ptr(
         new gind::GMetaOptimizerIndividualFactoryT<gind::GFunctionIndividual>(
             "./config/GMetaOptimizerIndividual.json"
         )
@@ -116,7 +116,7 @@ int main(int argc, char **argv) {
     go.registerDefaultAlgorithm(std::make_shared<oa::GMetaEvolutionaryAlgorithm>());
 
     // Perform the actual optimization
-    std::shared_ptr<gind::GMetaOptimizerIndividualT<gind::GFunctionIndividual>> bestIndividual_ptr =
+    std::shared_ptr<gind::GMetaOptimizerIndividualT<gind::GFunctionIndividual>> const bestIndividual_ptr =
         go.optimize()->getBestGlobalIndividual<gind::GMetaOptimizerIndividualT<gind::GFunctionIndividual>>();
 
     // Do something with the best result. Here we simply print the result to std-out.

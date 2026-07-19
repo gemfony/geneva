@@ -123,7 +123,7 @@ public:
      *  @param device_id The device being used (a plain integer id; 0 is the default device)
      *  @return An RAII handle deregistering the use on destruction */
     [[nodiscard]] DeviceUse acquire(std::string_view source, int device_id = 0) {
-        std::scoped_lock lk(mutex_);
+        std::scoped_lock const lk(mutex_);
         const std::size_t key = next_key_++;
         uses_.emplace(key, use{std::string(source), device_id});
         ++users_[device_id];
@@ -134,7 +134,7 @@ public:
      *  @param device_id The device queried (0 is the default device)
      *  @return The number of live registrations for the device */
     [[nodiscard]] unsigned int users(int device_id = 0) const noexcept {
-        std::scoped_lock lk(mutex_);
+        std::scoped_lock const lk(mutex_);
         const auto it = users_.find(device_id);
         return it != users_.end() ? it->second : 0u;
     }
@@ -155,7 +155,7 @@ private:
     /** @brief Deregisters a device use (called by DeviceUse only)
      *  @param key The registry key handed out by acquire() */
     void release_(std::size_t key) noexcept {
-        std::scoped_lock lk(mutex_);
+        std::scoped_lock const lk(mutex_);
         if(const auto it = uses_.find(key); it != uses_.end()) {
             if(const auto uit = users_.find(it->second.device_id); uit != users_.end()) {
                 if(--uit->second == 0) {

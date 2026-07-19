@@ -109,6 +109,7 @@ struct GaussState {
  * @tparam ValueDelta A callable (g_normal_distribution<T>&, GRandomBase&, T sigma) -> T.
  */
 template <typename T, typename ValueDelta>
+// NOLINTNEXTLINE(readability-function-size) -- one coherent numeric kernel: ad_prob self-adaption, sigma self-adaption + trigger, and the value step share the same GaussState via closures, mirroring GAdaptorT::adapt()'s stages; splitting would scatter tightly coupled mutation math
 std::size_t adaptGaussGroupImpl(
     const GaussConfig<T> &cfg,
     GaussState<T> &st,
@@ -250,6 +251,7 @@ std::size_t adaptGaussGroup(
  * @param gr The per-individual random engine the mutation draws from.
  * @return The number of values that were actually adapted.
  */
+// NOLINTNEXTLINE(readability-function-size) -- one coherent numeric kernel: the integer-Gauss mutation math (ad_prob self-adaption, sigma self-adaption + trigger, truncated-gaussian value step), mirroring GIntGaussAdaptorT::customAdaptions; splitting would scatter tightly coupled mutation math
 inline std::size_t adaptGaussIntGroup(
     const GaussConfig<double> &cfg,
     GaussState<double> &st,
@@ -543,6 +545,7 @@ struct BiGaussState {
  * @return The number of values that were actually adapted.
  */
 template <typename T>
+// NOLINTNEXTLINE(readability-function-size) -- one coherent numeric kernel: the bi-gaussian mutation math (ad_prob self-adaption, sigma1/sigma2/delta self-adaption + trigger, bi-modal value step), mirroring GNumBiGaussAdaptorT/GFPBiGaussAdaptorT; splitting would scatter tightly coupled mutation math
 std::size_t adaptBiGaussGroup(
     const BiGaussConfig<T> &cfg,
     BiGaussState<T> &st,

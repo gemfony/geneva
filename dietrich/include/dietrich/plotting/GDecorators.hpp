@@ -109,7 +109,7 @@ public:
 	  * @param pos A running index that disambiguates the names of the generated plot objects
 	  * @return A string holding the plotting code that renders this decoration
 	  */
-    virtual std::string
+    [[nodiscard]] virtual std::string
     decoratorData(const std::string &indent, const std::size_t &pos) const = 0;
 
     /***************************************************************************/
@@ -126,7 +126,7 @@ public:
 	  * @param pos A running index that disambiguates the names of the generated plot objects
 	  * @return A string holding the plotting code that renders this decoration within the boundaries
 	  */
-    virtual std::string decoratorData(
+    [[nodiscard]] virtual std::string decoratorData(
         const std::tuple<coordinate_type, coordinate_type> &x_axis_range,
         const std::tuple<coordinate_type, coordinate_type> &y_axis_range,
         const std::string &indent,
@@ -198,7 +198,7 @@ private:
 	  *
 	  * @return The mnemonic name of this class
 	  */
-    std::string name_() const override {
+    [[nodiscard]] std::string name_() const override {
         return std::string("GDecorator<Dim2, coordinate_type>");
     }
 
@@ -208,7 +208,7 @@ private:
 	  *
 	  * @return A deep clone of this object, allocated on the heap
 	  */
-    GDecorator<dimensions::Dim2, coordinate_type> *clone_() const override = 0;
+    [[nodiscard]] GDecorator<dimensions::Dim2, coordinate_type> *clone_() const override = 0;
 
     /***************************************************************************/
 };
@@ -291,7 +291,7 @@ public:
 	  * @param pos A running index that disambiguates the names of the generated plot objects
 	  * @return A string holding the plotting code that draws this marker
 	  */
-    std::string decoratorData(const std::string &indent, const std::size_t &pos) const override {
+    [[nodiscard]] std::string decoratorData(const std::string &indent, const std::size_t &pos) const override {
         std::ostringstream data; // NOLINT(cppcoreguidelines-init-variables)
 
         data << indent << "TMarker * tm_" << pos << " = new TMarker("
@@ -319,7 +319,7 @@ public:
 	  * @param pos A running index that disambiguates the names of the generated plot objects
 	  * @return Plotting code for the marker, or an empty string if it falls outside the boundaries
 	  */
-    std::string decoratorData(
+    [[nodiscard]] std::string decoratorData(
         const std::tuple<coordinate_type, coordinate_type> &x_axis_range,
         const std::tuple<coordinate_type, coordinate_type> &y_axis_range,
         const std::string &indent,
@@ -435,7 +435,7 @@ private:
 	  *
 	  * @return The mnemonic name of this class
 	  */
-    std::string name_() const override {
+    [[nodiscard]] std::string name_() const override {
         return std::string("GMarker<coordinate_type>");
     }
 
@@ -445,7 +445,7 @@ private:
 	  *
 	  * @return A deep clone of this object, allocated on the heap
 	  */
-    GMarker<coordinate_type> *clone_() const override {
+    [[nodiscard]] GMarker<coordinate_type> *clone_() const override {
         return new GMarker<coordinate_type>(*this);
     }
 
@@ -520,7 +520,7 @@ public:
 	  * @param pos A running index that disambiguates the names of the generated plot objects
 	  * @return A string holding the plotting code that renders this decoration
 	  */
-    virtual std::string decoratorData(const std::string &indent, const std::size_t &pos) const = 0;
+    [[nodiscard]] virtual std::string decoratorData(const std::string &indent, const std::size_t &pos) const = 0;
 
     /***************************************************************************/
     /**
@@ -537,7 +537,7 @@ public:
 	  * @param pos A running index that disambiguates the names of the generated plot objects
 	  * @return A string holding the plotting code that renders this decoration within the boundaries
 	  */
-    virtual std::string decoratorData(
+    [[nodiscard]] virtual std::string decoratorData(
         const std::tuple<coordinate_type, coordinate_type> &x_axis_range,
         const std::tuple<coordinate_type, coordinate_type> &y_axis_range,
         const std::tuple<coordinate_type, coordinate_type> &z_axis_range,
@@ -610,7 +610,7 @@ private:
 	  *
 	  * @return The mnemonic name of this class
 	  */
-    std::string name_() const override {
+    [[nodiscard]] std::string name_() const override {
         return std::string("GDecorator<dimensions::Dim3, coordinate_type>");
     }
 
@@ -620,7 +620,7 @@ private:
 	  *
 	  * @return A deep clone of this object, allocated on the heap
 	  */
-    GDecorator<dimensions::Dim3, coordinate_type> *clone_() const override = 0;
+    [[nodiscard]] GDecorator<dimensions::Dim3, coordinate_type> *clone_() const override = 0;
 
     /***************************************************************************/
 };
@@ -703,7 +703,7 @@ public:
 	  * @param indent The leading whitespace prepended to each emitted line of plotting code
 	  * @return The concatenated plotting code of all contained decorators
 	  */
-    virtual std::string decoratorData(const std::string &indent) const {
+    [[nodiscard]] virtual std::string decoratorData(const std::string &indent) const {
         std::string result; // NOLINT(cppcoreguidelines-init-variables)
 
         std::size_t pos = 0;
@@ -727,7 +727,7 @@ public:
 	  * @param indent The leading whitespace prepended to each emitted line of plotting code
 	  * @return The concatenated plotting code of all contained decorators, clipped to the boundaries
 	  */
-    virtual std::string decoratorData(
+    [[nodiscard]] virtual std::string decoratorData(
         const std::tuple<coordinate_type, coordinate_type> &x_axis_range,
         const std::tuple<coordinate_type, coordinate_type> &y_axis_range,
         const std::string &indent
@@ -810,7 +810,7 @@ private:
 	  *
 	  * @return The mnemonic name of this class
 	  */
-    std::string name_() const override {
+    [[nodiscard]] std::string name_() const override {
         return std::string("GDecoratorContainer<dimensions::Dim2, coordinate_type>");
     }
 
@@ -820,7 +820,7 @@ private:
 	  *
 	  * @return A deep clone of this object, allocated on the heap
 	  */
-    GDecoratorContainer<dimensions::Dim2, coordinate_type> *clone_() const override = 0;
+    [[nodiscard]] GDecoratorContainer<dimensions::Dim2, coordinate_type> *clone_() const override = 0;
 
     /***************************************************************************/
 };
@@ -946,7 +946,7 @@ private:
 	 *
 	 * @return The mnemonic name of this class
 	 */
-    std::string name_() const override {
+    [[nodiscard]] std::string name_() const override {
         return std::string("GDecoratorContainer_2D<coordinate_type>");
     }
 
@@ -956,7 +956,7 @@ private:
 	  *
 	  * @return A deep clone of this object, allocated on the heap
 	  */
-    GDecoratorContainer<dimensions::Dim2, coordinate_type> *clone_() const override {
+    [[nodiscard]] GDecoratorContainer<dimensions::Dim2, coordinate_type> *clone_() const override {
         return new GDecoratorContainer_2D<coordinate_type>(*this);
     }
 
@@ -1023,7 +1023,7 @@ public:
 	  * @param indent The leading whitespace prepended to each emitted line of plotting code
 	  * @return The concatenated plotting code of all contained decorators
 	  */
-    virtual std::string decoratorData(const std::string &indent) const {
+    [[nodiscard]] virtual std::string decoratorData(const std::string &indent) const {
         std::string result; // NOLINT(cppcoreguidelines-init-variables)
 
         std::size_t pos = 0;
@@ -1048,7 +1048,7 @@ public:
 	  * @param indent The leading whitespace prepended to each emitted line of plotting code
 	  * @return The concatenated plotting code of all contained decorators, clipped to the boundaries
 	  */
-    virtual std::string decoratorData(
+    [[nodiscard]] virtual std::string decoratorData(
         const std::tuple<coordinate_type, coordinate_type> &x_axis_range,
         const std::tuple<coordinate_type, coordinate_type> &y_axis_range,
         const std::tuple<coordinate_type, coordinate_type> &z_axis_range,
@@ -1133,7 +1133,7 @@ private:
 	  *
 	  * @return The mnemonic name of this class
 	  */
-    std::string name_() const override {
+    [[nodiscard]] std::string name_() const override {
         return std::string("GDecoratorContainer<dimensions::Dim3, coordinate_type>");
     }
 
@@ -1143,7 +1143,7 @@ private:
 	 *
 	 * @return A deep clone of this object, allocated on the heap
 	 */
-    GDecoratorContainer<dimensions::Dim3, coordinate_type> *clone_() const override = 0;
+    [[nodiscard]] GDecoratorContainer<dimensions::Dim3, coordinate_type> *clone_() const override = 0;
 
     /***************************************************************************/
 };
@@ -1260,7 +1260,7 @@ private:
 	 *
 	 * @return The mnemonic name of this class
 	 */
-    std::string name_() const override {
+    [[nodiscard]] std::string name_() const override {
         return std::string("GDecoratorContainer_3D<coordinate_type>");
     }
 
@@ -1270,7 +1270,7 @@ private:
 	 *
 	 * @return A deep clone of this object, allocated on the heap
 	 */
-    GDecoratorContainer<dimensions::Dim3, coordinate_type> *clone_() const override {
+    [[nodiscard]] GDecoratorContainer<dimensions::Dim3, coordinate_type> *clone_() const override {
         return new GDecoratorContainer_3D<coordinate_type>(*this);
     }
 

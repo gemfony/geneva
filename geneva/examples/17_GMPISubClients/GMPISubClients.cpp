@@ -65,7 +65,7 @@ int main(int argc, char **argv) {
     // Add individuals and algorithms and perform the actual optimization cycle
 
     // Make an individual known to the optimizer
-    std::shared_ptr<GMPISubClientParaboloidIndividualMultiD> p(
+    std::shared_ptr<GMPISubClientParaboloidIndividualMultiD> const p(
         new GMPISubClientParaboloidIndividualMultiD()
     );
     optimizer.push_back(p);
@@ -83,7 +83,7 @@ int main(int argc, char **argv) {
     auto timeStart{std::chrono::system_clock::now()};
 
     // Perform the actual optimization
-    std::shared_ptr<GMPISubClientParaboloidIndividualMultiD> bestIndividual_ptr =
+    std::shared_ptr<GMPISubClientParaboloidIndividualMultiD> const bestIndividual_ptr =
         optimizer.optimize()->getBestGlobalIndividual<GMPISubClientParaboloidIndividualMultiD>();
 
     auto timeElapsed{std::chrono::system_clock::now() - timeStart};

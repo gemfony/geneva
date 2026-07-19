@@ -61,9 +61,9 @@ namespace Gem::Common::Concurrency {
  *
  * @param thrd A shared pointer to the thread that should be added to the group
  */
-void GThreadGroup::add_thread(thread_ptr thrd) {
+void GThreadGroup::add_thread(const thread_ptr& thrd) {
     if(thrd) {
-        std::scoped_lock guard(mutex_);
+        std::scoped_lock const guard(mutex_);
         threads_.push_back(thrd);
     }
 }
@@ -80,7 +80,7 @@ void GThreadGroup::add_thread(thread_ptr thrd) {
 void GThreadGroup::join_all() {
     thread_vector to_join;
     {
-        std::scoped_lock guard(mutex_);
+        std::scoped_lock const guard(mutex_);
         to_join = threads_; // shared_ptrs — cheap copy, keeps threads alive
     }
     // Request cooperative stop on every thread FIRST, then join. A functor that observes its
@@ -105,7 +105,7 @@ void GThreadGroup::join_all() {
  * @return The number of threads currently held by the group
  */
 std::size_t GThreadGroup::size() const {
-    std::scoped_lock guard(mutex_);
+    std::scoped_lock const guard(mutex_);
     return threads_.size();
 }
 
@@ -118,7 +118,7 @@ std::size_t GThreadGroup::size() const {
  * joined).
  */
 void GThreadGroup::clearThreads() {
-    std::scoped_lock guard(mutex_);
+    std::scoped_lock const guard(mutex_);
     threads_.clear();
 }
 

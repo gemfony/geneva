@@ -96,7 +96,7 @@ public:
      * @brief Retrieves the mnemonic of the optimization algorithm.
      * @return The short mnemonic string identifying the adaptive-evolutionary-algorithm personality
      */
-    std::string getMnemonic() const override;
+    [[nodiscard]] std::string getMnemonic() const override;
 
 protected:
     /***************************************************************************/
@@ -140,9 +140,9 @@ protected:
 
 private:
     /** @brief Emits a name for this class / object */
-    std::string name_() const override;
+    [[nodiscard]] std::string name_() const override;
     /** @brief Creates a deep clone of this object */
-    GPersonalityTraits *clone_() const override;
+    [[nodiscard]] GPersonalityTraits *clone_() const override;
 };
 
 /******************************************************************************/

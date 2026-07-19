@@ -46,6 +46,7 @@
 #include <sstream>
 #include <string>
 #include <type_traits>
+#include <utility>
 #include <vector>
 
 // Boost headers go here
@@ -276,7 +277,7 @@ public:
 
     /** @brief Retrieves the current commentLevel
      *  @return The stored comment level id */
-    std::size_t getCommentLevel() const;
+    [[nodiscard]] std::size_t getCommentLevel() const;
 
 private:
     std::size_t comment_level_; ///< The id of the comment inside of GParsableI
@@ -327,20 +328,20 @@ public:
     /** @brief Retrieves the option name at a given position
      *  @param pos The index of the option name to retrieve (defaults to the first)
      *  @return The option name stored at the given position */
-    std::string optionName(std::size_t pos = 0) const;
+    [[nodiscard]] std::string optionName(std::size_t pos = 0) const;
     /** @brief Retrieves the comment that was assigned to this variable at a given position
      *  @param pos The index of the comment to retrieve (defaults to the first)
      *  @return The comment stored at the given position */
-    std::string comment(std::size_t pos = 0) const;
+    [[nodiscard]] std::string comment(std::size_t pos = 0) const;
     /** @brief Checks whether comments have indeed been registered
      *  @return true if at least one non-empty comment is stored, false otherwise */
-    bool hasComments() const;
+    [[nodiscard]] bool hasComments() const;
     /** @brief Retrieves the number of comments available
      *  @return The number of comment entries stored */
-    std::size_t numberOfComments() const;
+    [[nodiscard]] std::size_t numberOfComments() const;
     /** @brief Retrieves the number of option names registered for this parameter
      *  @return The number of option-name entries stored */
-    std::size_t numberOfOptionNames() const;
+    [[nodiscard]] std::size_t numberOfOptionNames() const;
 
     /***************************************************************************/
     /**
@@ -464,7 +465,7 @@ public:
 
     /** @brief Checks whether this is an essential variable at a given position
      *  @return true if this parameter is essential, false if it is secondary */
-    bool isEssential() const;
+    [[nodiscard]] bool isEssential() const;
 
     /** @brief Executes a stored call-back function */
     void executeCallBackFunction();
@@ -476,7 +477,7 @@ public:
      *  sub-options nest. Used by the unknown-key diagnostic to recognise valid
      *  top-level keys.
      *  @return The top-level configuration-file key occupied by this parameter */
-    virtual std::string topLevelConfigKey() const {
+    [[nodiscard]] virtual std::string topLevelConfigKey() const {
         return GParsableI::optionName(0);
     }
 
@@ -804,7 +805,7 @@ public:
      *  group label, so that label -- not the individual sub-option names -- is the
      *  top-level configuration-file key.
      *  @return The combined JSON group label */
-    std::string topLevelConfigKey() const override {
+    [[nodiscard]] std::string topLevelConfigKey() const override {
         return combined_label_;
     }
 
@@ -1636,7 +1637,7 @@ protected:
 
     /** @brief Returns the content of this object as a std::string
      *  @return A human-readable representation of this option's name and value */
-    virtual std::string content() const = 0;
+    [[nodiscard]] virtual std::string content() const = 0;
 };
 
 /******************************************************************************/
@@ -1678,9 +1679,9 @@ public:
             GCLParsableI::makeVector(comment_var)
         )
       , stored_reference_(stored_reference)
-      , def_val_(def_val)
+      , def_val_(std::move(def_val))
       , implicit_allowed_(implicit_allowed)
-      , impl_val_(impl_val) { /* nothing */
+      , impl_val_(std::move(impl_val)) { /* nothing */
     }
 
     /***************************************************************************/
@@ -1705,9 +1706,9 @@ public:
             GCLParsableI::makeVector(std::string())
         )
       , stored_reference_(stored_reference)
-      , def_val_(def_val)
+      , def_val_(std::move(def_val))
       , implicit_allowed_(implicit_allowed)
-      , impl_val_(impl_val) { /* nothing */
+      , impl_val_(std::move(impl_val)) { /* nothing */
     }
 
     /***************************************************************************/
@@ -1753,7 +1754,7 @@ private:
 	  *
 	  * @return A human-readable representation of this option's name and value
 	  */
-    std::string content() const override {
+    [[nodiscard]] std::string content() const override {
         std::ostringstream result; // NOLINT(cppcoreguidelines-init-variables)
         result << this->optionName() << " :\t" << stored_reference_ << "\t"
                << ((stored_reference_ != def_val_)
@@ -1861,7 +1862,7 @@ public:
     static bool unknownKeyIsError();
     /** @brief Provides information on the number of file configuration options stored in this class
      *  @return The number of registered file configuration options */
-    std::size_t numberOfFileOptions() const;
+    [[nodiscard]] std::size_t numberOfFileOptions() const;
 
     /** @brief Parses the commandline for options
      *  @param argc The number of command-line arguments
@@ -1871,7 +1872,7 @@ public:
     bool parseCommandLine(int argc, char **argv, bool verbose = false);
     /** @brief Provides information on the number of command line configuration options stored in this class
      *  @return The number of registered command-line configuration options */
-    std::size_t numberOfCLOptions() const;
+    [[nodiscard]] std::size_t numberOfCLOptions() const;
 
     /***************************************************************************/
     /**
@@ -1917,7 +1918,7 @@ public:
     template <typename parameter_type>
     GParsableI &registerFileParameter(
         std::string const &option_name,
-        parameter_type def_val,
+        const parameter_type& def_val,
         std::move_only_function<void(parameter_type)> call_back,
         bool is_essential = Gem::Common::VAR_IS_ESSENTIAL,
         std::string const &comment = std::string()
@@ -1968,7 +1969,7 @@ public:
         // outlive this parser builder, as it always had to.
         return registerFileParameter<parameter_type>(
             option_name,
-            def_val,
+            std::move(def_val),
             [&parameter](parameter_type v) { parameter = std::move(v); },
             is_essential,
             comment
@@ -1989,7 +1990,7 @@ public:
     template <typename parameter_type>
     void resetFileParameterDefaults(std::string const &option_name, parameter_type def_val) {
         // Retrieve the parameter object with this name
-        std::shared_ptr<GSingleParmT<parameter_type>> parm_object =
+        std::shared_ptr<GSingleParmT<parameter_type>> const parm_object =
             file_at<GSingleParmT<parameter_type>>(option_name);
 
         // Check that we have indeed received an item
@@ -2027,11 +2028,12 @@ public:
 	  * @return A reference to the registered parameter proxy, to allow further configuration
 	  */
     template <typename par_type1, typename par_type2>
+    // NOLINTNEXTLINE(readability-function-size) -- combined two-parameter file registration needs both parameters' name/default/comment plus the shared call-back and label; the parameter count is the API, not splittable
     GParsableI &registerFileParameter(
         std::string const &option_name1,
         std::string const &option_name2,
-        par_type1 def_val1,
-        par_type2 def_val2,
+        const par_type1& def_val1,
+        const par_type2& def_val2,
         std::move_only_function<void(par_type1, par_type2)> call_back,
         std::string const &combined_label,
         bool is_essential = Gem::Common::VAR_IS_ESSENTIAL,
@@ -2083,7 +2085,7 @@ public:
         par_type2 def_val2
     ) {
         // Retrieve the parameter object with this name
-        std::shared_ptr<GCombinedParT<par_type1, par_type2>> parm_object =
+        std::shared_ptr<GCombinedParT<par_type1, par_type2>> const parm_object =
             file_at<GCombinedParT<par_type1, par_type2>>(option_name1);
 
         // Check that we have indeed received an item
@@ -2190,7 +2192,7 @@ public:
         std::vector<parameter_type> const &def_val
     ) {
         // Retrieve the parameter object with this name
-        std::shared_ptr<GVectorParT<parameter_type>> parm_object =
+        std::shared_ptr<GVectorParT<parameter_type>> const parm_object =
             file_at<GVectorParT<parameter_type>>(option_name);
 
         // Check that we have indeed received an item
@@ -2306,7 +2308,7 @@ public:
         std::array<parameter_type, N> const &def_val
     ) {
         // Retrieve the parameter object with this name
-        std::shared_ptr<GArrayParT<parameter_type, N>> parm_object =
+        std::shared_ptr<GArrayParT<parameter_type, N>> const parm_object =
             file_at<GArrayParT<parameter_type, N>>(option_name);
 
         // Check that we have indeed received an item
@@ -2344,7 +2346,7 @@ public:
         parameter_type const &def_val,
         std::string const &comment = std::string(),
         bool implicit_allowed = GCL_IMPLICIT_NOT_ALLOWED,
-        parameter_type impl_val = GDefaultValueT<parameter_type>::value()
+        const parameter_type& impl_val = GDefaultValueT<parameter_type>::value()
     ) {
 #ifdef DEBUG
         assertNotRegistered_(option_name, cl_parameter_proxies_, "registerCLParameter(ref_parm_ptr)");
@@ -2433,7 +2435,7 @@ private:
      *  @param header The header comment (split on ';' into individual comment lines)
      *  @param write_all Whether to also emit non-essential options
      *  @return The assembled JSON document (a JSON object at the root) */
-    boost::json::value buildConfigDocument_(std::string const &header, bool write_all) const;
+    [[nodiscard]] boost::json::value buildConfigDocument_(std::string const &header, bool write_all) const;
     /** @brief Atomically replaces @p config_file with the pretty-printed serialization of @p document
      *  (writes a temp sibling, then renames it over the target), bypassing the deliberate no-overwrite
      *  guard of writeConfigFile() -- the update path is the one caller that legitimately overwrites a file.

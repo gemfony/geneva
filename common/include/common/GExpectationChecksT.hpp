@@ -104,18 +104,18 @@ public:
      * @brief Allows to retrieve the current state of the success counter.
      * @return The number of tests that have met the expectation so far
      */
-    std::size_t getSuccessCounter() const;
+    [[nodiscard]] std::size_t getSuccessCounter() const;
     /**
      * @brief Allows to retrieve the current state of the test counter.
      * @return The total number of tests performed so far
      */
-    std::size_t getTestCounter() const;
+    [[nodiscard]] std::size_t getTestCounter() const;
 
     /**
      * @brief Allows to check whether the expectation was met.
      * @return true if all recorded tests met the expectation, false otherwise
      */
-    bool expectationMet() const;
+    [[nodiscard]] bool expectationMet() const;
     /**
      * @brief Conversion to a boolean indicating whether the expectation was met.
      * @return true if all recorded tests met the expectation, false otherwise
@@ -126,17 +126,17 @@ public:
      * @brief Allows to retrieve the expectation token.
      * @return The expectation (EQUALITY / FP_SIMILARITY / INEQUALITY) this token enforces
      */
-    Gem::Common::expectation getExpectation() const;
+    [[nodiscard]] Gem::Common::expectation getExpectation() const;
     /**
      * @brief Allows to retrieve the expectation token as a string.
      * @return A human-readable string representation of the enforced expectation
      */
-    std::string getExpectationStr() const;
+    [[nodiscard]] std::string getExpectationStr() const;
     /**
      * @brief Allows to retrieve the name of the caller.
      * @return The name of the calling class passed to the constructor
      */
-    std::string getCallerName() const;
+    [[nodiscard]] std::string getCallerName() const;
 
     /**
      * @brief Allows to register an error message e.g. obtained from a failed check.
@@ -153,13 +153,13 @@ public:
      * @brief Allows to retrieve the currently registered error messages.
      * @return A concatenation of all error messages recorded for failed checks
      */
-    std::string getErrorMessages() const;
+    [[nodiscard]] std::string getErrorMessages() const;
 
     /**
      * @brief Conversion to a string indicating success or failure.
      * @return A human-readable summary of this token's success / failure state
      */
-    std::string toString() const;
+    [[nodiscard]] std::string toString() const;
 
     /** @brief Evaluates the information in this object */
     void evaluate() const;
@@ -654,6 +654,7 @@ void compare(
  */
 template <typename base_type, template <typename, typename> class c_type>
     requires (!std::is_floating_point_v<base_type>)
+// NOLINTNEXTLINE(readability-function-size) -- one coherent expectation-comparison sweep (switch-on-expectation + per-element diff reporting) for non-FP sequence containers; splitting would scatter the tightly-coupled error-message assembly
 void compare(
     c_type<base_type, std::allocator<base_type>> const &x,
     c_type<base_type, std::allocator<base_type>> const &y,
@@ -740,6 +741,7 @@ void compare(
  */
 template <typename base_type, template <typename, typename, typename> class s_type>
     requires (!std::is_floating_point_v<base_type>)
+// NOLINTNEXTLINE(readability-function-size) -- one coherent expectation-comparison sweep (switch-on-expectation + per-element diff reporting) for non-FP set-like containers; splitting would scatter the tightly-coupled error-message assembly
 void compare(
     s_type<base_type, std::less<base_type>, std::allocator<base_type>> const &x,
     s_type<base_type, std::less<base_type>, std::allocator<base_type>> const &y,
@@ -821,6 +823,7 @@ void compare(
  * @param limit The maximum allowed per-element deviation of two floating point values (only used for FP_SIMILARITY)
  */
 template <std::floating_point fp_type, template <typename, typename> class c_type>
+// NOLINTNEXTLINE(readability-function-size) -- one coherent expectation-comparison sweep (switch-on-expectation + per-element FP-similarity/equality diff reporting) for FP sequence containers; splitting would scatter the tightly-coupled error-message assembly
 void compare(
     c_type<fp_type, std::allocator<fp_type>> const &x,
     c_type<fp_type, std::allocator<fp_type>> const &y,
@@ -921,6 +924,7 @@ void compare(
  * @param limit The maximum allowed per-element deviation of two floating point values (only used for FP_SIMILARITY)
  */
 template <std::floating_point fp_type, template <typename, typename, typename> class s_type>
+// NOLINTNEXTLINE(readability-function-size) -- one coherent expectation-comparison sweep (switch-on-expectation + per-element FP-similarity/equality diff reporting) for FP set-like containers; splitting would scatter the tightly-coupled error-message assembly
 void compare(
     s_type<fp_type, std::less<fp_type>, std::allocator<fp_type>> const &x,
     s_type<fp_type, std::less<fp_type>, std::allocator<fp_type>> const &y,
@@ -1244,6 +1248,7 @@ void compare(
  */
 template <typename geneva_type, template <typename, typename> class c_type>
     requires Gem::Common::gemfony_common_interface<geneva_type>
+// NOLINTNEXTLINE(readability-function-size,readability-function-cognitive-complexity) -- one coherent expectation-comparison sweep (switch-on-expectation + per-element null/content diff reporting via nested compare()) for containers of smart pointers to Geneva types; splitting would scatter the tightly-coupled error-message assembly
 void compare(
     c_type<std::shared_ptr<geneva_type>, std::allocator<std::shared_ptr<geneva_type>>> const &x,
     c_type<std::shared_ptr<geneva_type>, std::allocator<std::shared_ptr<geneva_type>>> const &y,

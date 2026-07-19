@@ -258,7 +258,7 @@ void GSimulatedAnnealing::populationSanityChecks_() const {
     }
 
     // We need at least as many children as parents
-    std::size_t pop_size = this->getPopulationSize();
+    std::size_t const pop_size = this->getPopulationSize();
     if(pop_size <= this->n_parents_) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
@@ -383,7 +383,7 @@ void GSimulatedAnnealing::sortSAMode() {
 
     // Check for each parent whether it should be replaced by the corresponding child
     for(std::size_t np = 0; np < this->n_parents_; np++) {
-        double p_pass = saProb(
+        double const p_pass = saProb(
             minOnly_transformed_fitness((*this->at(np))),
             minOnly_transformed_fitness((*this->at(this->n_parents_ + np)))
         );
@@ -391,7 +391,7 @@ void GSimulatedAnnealing::sortSAMode() {
             this->at(np)->load(this->at(this->n_parents_ + np));
         }
         else {
-            double challenge = this->uniform_real_distribution_(
+            double const challenge = this->uniform_real_distribution_(
                 this->gr_,
                 std::uniform_real_distribution<double>::param_type(0., 1.)
             );

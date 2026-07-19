@@ -41,6 +41,7 @@
 #include <string>
 #include <tuple>
 #include <type_traits>
+#include <utility>
 #include <vector>
 
 // Boost header files go here
@@ -234,21 +235,21 @@ public:
      * @param id The position of the stored result to return
      * @return The stored result at position id
      */
-    individual_processing_result getStoredResult(std::size_t id = 0) const;
+    [[nodiscard]] individual_processing_result getStoredResult(std::size_t id = 0) const;
 
     /** @brief @return The number of result slots held by this candidate */
-    std::size_t getNStoredResults() const { return stored_results_cnt_.size(); }
+    [[nodiscard]] std::size_t getNStoredResults() const { return stored_results_cnt_.size(); }
 
     /***************************************************************************/
     // Pre-/post-processing (used by nested / post-optimizing algorithms).
 
     /** @brief @return true if pre-processing is currently allowed (not vetoed) */
-    bool mayBePreProcessed() const noexcept { return not pre_processing_disabled_; }
+    [[nodiscard]] bool mayBePreProcessed() const noexcept { return not pre_processing_disabled_; }
     /** @brief Allow or veto pre-processing. @param veto true to disable, false to allow */
     void vetoPreProcessing(bool veto) noexcept { pre_processing_disabled_ = veto; }
     /** @brief Registers a pre-processor (ignored if empty). @param pre_processor_ptr The processor */
     void registerPreProcessor(
-        std::shared_ptr<Gem::Common::GSerializableFunctionObjectT<GOptimizableEntity>> pre_processor_ptr
+        const std::shared_ptr<Gem::Common::GSerializableFunctionObjectT<GOptimizableEntity>>& pre_processor_ptr
     ) {
         if(pre_processor_ptr) {
             pre_processor_ptr_ = pre_processor_ptr;
@@ -256,19 +257,19 @@ public:
     }
 
     /** @brief @return true if post-processing is currently allowed (not vetoed) */
-    bool mayBePostProcessed() const { return not post_processing_disabled_; }
+    [[nodiscard]] bool mayBePostProcessed() const { return not post_processing_disabled_; }
     /** @brief Allow or veto post-processing. @param veto true to disable, false to allow */
     void vetoPostProcessing(bool veto) { post_processing_disabled_ = veto; }
     /** @brief Registers a post-processor (ignored if empty). @param post_processor_ptr The processor */
     void registerPostProcessor(
-        std::shared_ptr<Gem::Common::GSerializableFunctionObjectT<GOptimizableEntity>> post_processor_ptr
+        const std::shared_ptr<Gem::Common::GSerializableFunctionObjectT<GOptimizableEntity>>& post_processor_ptr
     ) {
         if(post_processor_ptr) {
             post_processor_ptr_ = post_processor_ptr;
         }
     }
     /** @brief @return The registered post-processor, or an empty pointer if none is registered */
-    std::shared_ptr<Gem::Common::GSerializableFunctionObjectT<GOptimizableEntity>>
+    [[nodiscard]] std::shared_ptr<Gem::Common::GSerializableFunctionObjectT<GOptimizableEntity>>
     postProcessor() const {
         return post_processor_ptr_;
     }
@@ -280,7 +281,7 @@ public:
      *  the default is a no-op, a derived type overrides the hook below if it carries such data).
      *  @param cd_ptr A template item whose constant data is loaded into this one */
     void loadConstantData(std::shared_ptr<GOptimizableEntity> cd_ptr) {
-        this->loadConstantData_(cd_ptr);
+        this->loadConstantData_(std::move(cd_ptr));
     }
 
     /***************************************************************************/
@@ -293,13 +294,13 @@ public:
      */
     void setResult(std::size_t id, double value);
     /** @brief @return true if more than one fitness criterion is present */
-    bool hasMultipleFitnessCriteria() const { return this->getNStoredResults() > 1; }
+    [[nodiscard]] bool hasMultipleFitnessCriteria() const { return this->getNStoredResults() > 1; }
     /**
      * @brief Retrieve the (raw, transformed) fitness tuple at a given evaluation position.
      * @param id The evaluation position (fitness criterion index); defaults to 0
      * @return A (raw, transformed) fitness tuple at the requested position
      */
-    std::tuple<double, double> getFitnessTuple(std::uint32_t id = 0) const;
+    [[nodiscard]] std::tuple<double, double> getFitnessTuple(std::uint32_t id = 0) const;
     /**
      * @brief Checks whether this candidate is at least as good as a set of raw boundaries.
      * @param boundaries One boundary value per fitness criterion
@@ -314,39 +315,39 @@ public:
      *  @param policy The shared policy to reference (must not be empty) */
     void setPolicy(std::shared_ptr<GProblemPolicy> policy);
     /** @brief @return The shared problem policy referenced by this candidate */
-    std::shared_ptr<GProblemPolicy> getPolicy() const { return policy_; }
+    [[nodiscard]] std::shared_ptr<GProblemPolicy> getPolicy() const { return policy_; }
 
     /** @brief Sets the optimization direction on the shared policy. @param mode MAXIMIZE or MINIMIZE */
     void setMaxMode(maxMode const &mode) { policy_->setMaxMode(mode); }
     /** @brief @return The optimization direction from the shared policy */
-    maxMode getMaxMode() const { return policy_->getMaxMode(); }
+    [[nodiscard]] maxMode getMaxMode() const { return policy_->getMaxMode(); }
     /** @brief @return The worst-case evaluation value for the current direction */
-    virtual double getWorstCase() const { return policy_->getWorstCase(); }
+    [[nodiscard]] virtual double getWorstCase() const { return policy_->getWorstCase(); }
     /** @brief @return The best-case evaluation value for the current direction */
-    virtual double getBestCase() const { return policy_->getBestCase(); }
+    [[nodiscard]] virtual double getBestCase() const { return policy_->getBestCase(); }
 
     /** @brief Sets the policy for invalid solutions. @param eval_policy The evaluation policy */
     void setEvaluationPolicy(evaluationPolicy eval_policy) { policy_->setEvaluationPolicy(eval_policy); }
     /** @brief @return The evaluation policy for invalid solutions */
-    evaluationPolicy getEvaluationPolicy() const { return policy_->getEvaluationPolicy(); }
+    [[nodiscard]] evaluationPolicy getEvaluationPolicy() const { return policy_->getEvaluationPolicy(); }
 
     /** @brief @return The sigmoid steepness from the shared policy */
-    double getSteepness() const { return policy_->getSteepness(); }
+    [[nodiscard]] double getSteepness() const { return policy_->getSteepness(); }
     /** @brief Sets the sigmoid steepness on the shared policy. @param steepness The steepness (> 0) */
     void setSteepness(double steepness) { policy_->setSteepness(steepness); }
     /** @brief @return The sigmoid barrier from the shared policy */
-    double getBarrier() const { return policy_->getBarrier(); }
+    [[nodiscard]] double getBarrier() const { return policy_->getBarrier(); }
     /** @brief Sets the sigmoid barrier on the shared policy. @param barrier The barrier (> 0) */
     void setBarrier(double barrier) { policy_->setBarrier(barrier); }
 
     /** @brief @return The computed validity level of this candidate (<= 1 means feasible) */
-    double getValidityLevel() const { return validity_level_; }
+    [[nodiscard]] double getValidityLevel() const { return validity_level_; }
     /** @brief @return true if this candidate fulfils its constraints (validity level <= 1) */
-    bool constraintsFulfilled() const { return validity_level_ <= 1.; }
+    [[nodiscard]] bool constraintsFulfilled() const { return validity_level_ <= 1.; }
     /** @brief @return true if this candidate is a valid solution (meant for processed candidates) */
-    bool isValid() const;
+    [[nodiscard]] bool isValid() const;
     /** @brief @return true if this candidate is an invalid solution */
-    bool isInValid() const { return not this->isValid(); }
+    [[nodiscard]] bool isInValid() const { return not this->isValid(); }
 
     /***************************************************************************/
     // Iteration bookkeeping (per individual). The stall count and best-known fitness are OA state and
@@ -358,11 +359,11 @@ public:
         assigned_iteration_ = parent_alg_iteration;
     }
     /** @brief @return The parent algorithm's current iteration */
-    std::uint32_t getAssignedIteration() const { return assigned_iteration_; }
+    [[nodiscard]] std::uint32_t getAssignedIteration() const { return assigned_iteration_; }
 
     /** @brief @return The number of adaptions performed during the last adaption (read from the OA
      *  scratch, where the adaption machinery records it; 0 if no scratch is attached) */
-    std::size_t getNAdaptions() const { return scratch_ ? scratch_->getNAdaptions() : 0; }
+    [[nodiscard]] std::size_t getNAdaptions() const { return scratch_ ? scratch_->getNAdaptions() : 0; }
 
     /**
      * @brief Public constraint check used by the OA-owned adaption retry loop. Feasibility is a concrete
@@ -382,7 +383,7 @@ public:
      * @param c_ptr The validity-check constraint to register (must not be empty)
      */
     void registerConstraint(std::shared_ptr<GPreEvaluationValidityCheckT<GOptimizableEntity>> c_ptr) {
-        policy_->registerConstraint(c_ptr);
+        policy_->registerConstraint(std::move(c_ptr));
     }
 
     /***************************************************************************/
@@ -394,7 +395,7 @@ public:
      *  @return A reference to the scratch store */
     GAuxiliaryStore &scratch() noexcept { return *scratch_; }
     /** @brief The OA-owned scratch (const). @return A const reference to the scratch store */
-    const GAuxiliaryStore &scratch() const noexcept { return *scratch_; }
+    [[nodiscard]] const GAuxiliaryStore &scratch() const noexcept { return *scratch_; }
 
     /**
      * @brief Converts the personality base pointer to the desired type. Only accessible when
@@ -453,7 +454,7 @@ public:
 
     /** @brief A string identifier for the current personality.
      *  @return The personality's name(), or "PERSONALITY_NONE" if no personality is set */
-    std::string getPersonality() const {
+    [[nodiscard]] std::string getPersonality() const {
         if(scratch_->personalityRef()) {
             return scratch_->personalityRef()->name();
         }
@@ -515,7 +516,7 @@ public:
      * @return The number of parameters of the requested type
      */
     template <typename par_type>
-    std::size_t countParameters(activityMode const &am = activityMode::DEFAULTACTIVITYMODE) const {
+    [[nodiscard]] [[nodiscard]] [[nodiscard]] std::size_t countParameters(activityMode const &am = activityMode::DEFAULTACTIVITYMODE) const {
         if constexpr(std::is_same_v<par_type, double>) {
             return countParametersDouble_(am);
         }
@@ -555,7 +556,7 @@ public:
     // here on top of the per-type channels above, so every genome layout gets it for free.
 
     /** @brief @param am The activity mode. @return The combined count of double and float parameters */
-    std::size_t
+    [[nodiscard]] std::size_t
     countFPParameters(activityMode const &am = activityMode::DEFAULTACTIVITYMODE) const {
         return countParameters<double>(am) + countParameters<float>(am);
     }
@@ -594,7 +595,7 @@ public:
 #endif /* DEBUG */
 
         if(n_double > 0) {
-            std::vector<double> double_vec(
+            std::vector<double> const double_vec(
                 par_vec.begin(),
                 par_vec.begin() + static_cast<std::ptrdiff_t>(n_double)
             );
@@ -669,7 +670,7 @@ public:
 #endif /* DEBUG */
 
         if(n_double > 0) {
-            std::vector<double> double_vec(
+            std::vector<double> const double_vec(
                 par_vec.begin(),
                 par_vec.begin() + static_cast<std::ptrdiff_t>(n_double)
             );
@@ -719,7 +720,7 @@ public:
     /** @brief Transformation of the entity's parameters into a JSON object.
      *  @return A boost::json::object holding this entity's parameters, metadata and results (the body only;
      *          callers place it under whatever key they need) */
-    virtual boost::json::object toJSON() const = 0;
+    [[nodiscard]] virtual boost::json::object toJSON() const = 0;
 
     /** @brief Transformation of the entity's parameters into a list of comma-separated values.
      *  @param with_name_and_type Whether to prefix each value with its name and type
@@ -727,7 +728,7 @@ public:
      *  @param use_raw_fitness Whether to emit the raw rather than the transformed fitness
      *  @param show_validity Whether to append the validity flag
      *  @return The CSV representation of this entity */
-    virtual std::string toCSV(
+    [[nodiscard]] virtual std::string toCSV(
         bool with_name_and_type = false,
         bool with_commas = true,
         bool use_raw_fitness = true,
@@ -737,7 +738,7 @@ public:
     /** @brief Perform a cross-over operation between this entity and another.
      *  @param cp The other entity to cross over with
      *  @return A shared pointer to the resulting offspring entity */
-    virtual std::shared_ptr<GOptimizableEntity> crossOverWith(GOptimizableEntity const &cp) const = 0;
+    [[nodiscard]] virtual std::shared_ptr<GOptimizableEntity> crossOverWith(GOptimizableEntity const &cp) const = 0;
 
     /** @brief Retrieves parameters relevant for the evaluation from another GOptimizableEntity.
      *  @param cp The entity whose evaluation-relevant parameters are absorbed into this object */
@@ -788,20 +789,20 @@ protected:
     /** @brief @return A reference to the shared problem policy (for the genome's feasibility check) */
     GProblemPolicy &policy() { return *policy_; }
     /** @brief @return A const reference to the shared problem policy */
-    const GProblemPolicy &policy() const { return *policy_; }
+    [[nodiscard]] const GProblemPolicy &policy() const { return *policy_; }
 
     /***************************************************************************/
     // Secondary-result combiners (the user's evaluate() may return one of these).
 
     /** @brief @return The sum of all stored transformed fitness values */
-    double sumCombiner() const;
+    [[nodiscard]] double sumCombiner() const;
     /** @brief @return The sum of the absolute values of all stored transformed fitness values */
-    double fabsSumCombiner() const;
+    [[nodiscard]] double fabsSumCombiner() const;
     /** @brief @return The square root of the sum of squares of all stored transformed fitness values */
-    double squaredSumCombiner() const;
+    [[nodiscard]] double squaredSumCombiner() const;
     /** @brief @return The square root of the weighed sum of squares of all stored transformed fitness values
      *  @param weights The per-criterion weights (size must match the criteria count) */
-    double weighedSquaredSumCombiner(std::vector<double> const &weights) const;
+    [[nodiscard]] double weighedSquaredSumCombiner(std::vector<double> const &weights) const;
 
     /***************************************************************************/
     // GCommonInterfaceT / configuration contract.
@@ -860,15 +861,15 @@ private:
     // GRateableI surface (read the stored results).
 
     /** @brief @param id The criterion index. @return The stored raw fitness for that criterion */
-    double raw_fitness_(std::size_t id) const final { return this->getStoredResult(id).rawFitness(); }
+    [[nodiscard]] double raw_fitness_(std::size_t id) const final { return this->getStoredResult(id).rawFitness(); }
     /** @brief @param id The criterion index. @return The stored transformed fitness for that criterion */
-    double transformed_fitness_(std::size_t id) const final {
+    [[nodiscard]] double transformed_fitness_(std::size_t id) const final {
         return this->getStoredResult(id).transformedFitness();
     }
     /** @brief @return A vector of all stored raw fitness results */
-    std::vector<double> raw_fitness_vec_() const final;
+    [[nodiscard]] std::vector<double> raw_fitness_vec_() const final;
     /** @brief @return A vector of all stored transformed fitness results */
-    std::vector<double> transformed_fitness_vec_() const final;
+    [[nodiscard]] std::vector<double> transformed_fitness_vec_() const final;
 
     /***************************************************************************/
     // Per-type genome value channels -- the non-template dispatch targets of the public
@@ -895,10 +896,10 @@ private:
     virtual void assignValueVector_(std::vector<std::int32_t> const &, activityMode const &) = 0;
     virtual void assignValueVector_(std::vector<bool> const &, activityMode const &) = 0;
 
-    virtual std::size_t countParametersDouble_(activityMode const &) const = 0;
-    virtual std::size_t countParametersFloat_(activityMode const &) const = 0;
-    virtual std::size_t countParametersInt32_(activityMode const &) const = 0;
-    virtual std::size_t countParametersBool_(activityMode const &) const = 0;
+    [[nodiscard]] virtual std::size_t countParametersDouble_(activityMode const &) const = 0;
+    [[nodiscard]] virtual std::size_t countParametersFloat_(activityMode const &) const = 0;
+    [[nodiscard]] virtual std::size_t countParametersInt32_(activityMode const &) const = 0;
+    [[nodiscard]] virtual std::size_t countParametersBool_(activityMode const &) const = 0;
 
     virtual void boundaries_(std::vector<double> &, std::vector<double> &, activityMode const &) const = 0;
     virtual void boundaries_(std::vector<float> &, std::vector<float> &, activityMode const &) const = 0;
@@ -980,9 +981,9 @@ private:
     void clearStoredResults_() override { this->clear_stored_results_vec(); }
 
     /** @brief Emits a name for this class / object. @return The class / object name */
-    std::string name_() const override { return std::string("GOptimizableEntity"); }
+    [[nodiscard]] std::string name_() const override { return std::string("GOptimizableEntity"); }
     /** @brief Creates a deep clone of this object (supplied by the concrete leaf). @return A heap copy */
-    GOptimizableEntity *clone_() const override = 0;
+    [[nodiscard]] GOptimizableEntity *clone_() const override = 0;
 
     /***************************************************************************/
     // Data.

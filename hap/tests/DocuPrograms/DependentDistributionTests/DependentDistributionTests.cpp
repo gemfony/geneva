@@ -40,6 +40,8 @@
  */
 
 // Standard header files
+#include <math.h>
+
 #include <fstream>
 #include <iostream>
 #include <random>
@@ -61,38 +63,39 @@ const std::size_t NBINS = 100;
 
 std::uniform_real_distribution<double> uniform_real_distribution;
 
+// NOLINTNEXTLINE(readability-function-size) -- main() of a doc-program: builds the fixed set of dependent-distribution histograms, fills them in one sampling loop, and hands them to GPlotDesigner
 int main(int argc, char **argv) {
-    double x1;
-    double x2;
-    double x3;
-    double x4;
-    double sum1;
-    double sum2;
-    double sum3;
-    double sum4;
+    double x1 = NAN;
+    double x2 = NAN;
+    double x3 = NAN;
+    double x4 = NAN;
+    double sum1 = NAN;
+    double sum2 = NAN;
+    double sum3 = NAN;
+    double sum4 = NAN;
 
-    std::shared_ptr<GRandomT<randomSource::QUEUE>> gr_ptr(
+    std::shared_ptr<GRandomT<randomSource::QUEUE>> const gr_ptr(
         new GRandomT<randomSource::QUEUE>()
     );
 
-    std::shared_ptr<GHistogram1D> x1_ptr(new GHistogram1D(NBINS, 0., 1.));
-    std::shared_ptr<GHistogram1D> x2_ptr(new GHistogram1D(NBINS, 0., 1.));
-    std::shared_ptr<GHistogram1D> x3_ptr(new GHistogram1D(NBINS, 0., 1.));
-    std::shared_ptr<GHistogram1D> x4_ptr(new GHistogram1D(NBINS, 0., 1.));
+    std::shared_ptr<GHistogram1D> const x1_ptr(new GHistogram1D(NBINS, 0., 1.));
+    std::shared_ptr<GHistogram1D> const x2_ptr(new GHistogram1D(NBINS, 0., 1.));
+    std::shared_ptr<GHistogram1D> const x3_ptr(new GHistogram1D(NBINS, 0., 1.));
+    std::shared_ptr<GHistogram1D> const x4_ptr(new GHistogram1D(NBINS, 0., 1.));
 
-    std::shared_ptr<GHistogram1D> sum1_extract_ptr(new GHistogram1D(NBINS, 0., 1.)); // 1 - x1
-    std::shared_ptr<GHistogram1D> sum2_extract_ptr(new GHistogram1D(NBINS, 0., 1.)); // 1 - (x1+x2)
-    std::shared_ptr<GHistogram1D> sum3_extract_ptr(
+    std::shared_ptr<GHistogram1D> const sum1_extract_ptr(new GHistogram1D(NBINS, 0., 1.)); // 1 - x1
+    std::shared_ptr<GHistogram1D> const sum2_extract_ptr(new GHistogram1D(NBINS, 0., 1.)); // 1 - (x1+x2)
+    std::shared_ptr<GHistogram1D> const sum3_extract_ptr(
         new GHistogram1D(NBINS, 0., 1.)
     ); // 1 - (x1+x2+x3)
-    std::shared_ptr<GHistogram1D> sum4_extract_ptr(
+    std::shared_ptr<GHistogram1D> const sum4_extract_ptr(
         new GHistogram1D(NBINS, 0., 1.)
     ); // 1 - (x1+x2+x3+x4)
 
-    std::shared_ptr<GHistogram1D> sum1_all_ptr(new GHistogram1D(NBINS, 0., 1.));  // 1 - x1
-    std::shared_ptr<GHistogram1D> sum2_all_ptr(new GHistogram1D(NBINS, -1., 1.)); // 1 - (x1+x2)
-    std::shared_ptr<GHistogram1D> sum3_all_ptr(new GHistogram1D(NBINS, -2., 1.)); // 1 - (x1+x2+x3)
-    std::shared_ptr<GHistogram1D> sum4_all_ptr(
+    std::shared_ptr<GHistogram1D> const sum1_all_ptr(new GHistogram1D(NBINS, 0., 1.));  // 1 - x1
+    std::shared_ptr<GHistogram1D> const sum2_all_ptr(new GHistogram1D(NBINS, -1., 1.)); // 1 - (x1+x2)
+    std::shared_ptr<GHistogram1D> const sum3_all_ptr(new GHistogram1D(NBINS, -2., 1.)); // 1 - (x1+x2+x3)
+    std::shared_ptr<GHistogram1D> const sum4_all_ptr(
         new GHistogram1D(NBINS, -3., 1.)
     ); // 1 - (x1+x2+x3+x4)
 

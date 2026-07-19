@@ -36,7 +36,7 @@
 #include "common/GExceptions.hpp"
 
 TEST_CASE("geneva_exception: basic construction and what()", "[common][exceptions]") {
-    geneva_exception e("custom message");
+    geneva_exception const e("custom message");
     CHECK(std::string{e.what()} == "custom message");
 
     // Inheritance: geneva_exception is a std::runtime_error.
@@ -45,7 +45,7 @@ TEST_CASE("geneva_exception: basic construction and what()", "[common][exception
 }
 
 TEST_CASE("geneva_exception: stream-out operator prints what()", "[common][exceptions]") {
-    geneva_exception e("payload-text");
+    geneva_exception const e("payload-text");
     std::ostringstream oss;
     oss << e;
     CHECK(oss.str() == "payload-text");

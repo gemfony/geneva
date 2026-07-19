@@ -85,7 +85,7 @@ protected:
         std::vector<double> v;
         this->template streamline<double>(v);
         double s = 0.;
-        for(double x : v) {
+        for(double const x : v) {
             s += x * x;
         }
         return {s};
@@ -118,7 +118,7 @@ TEST_CASE("GProgressPlotterT writes a valid ROOT macro when driven by a real EA"
     p->setPopulationSizes(12, 4);
     p->setMaxIteration(5);
     p->setReportIteration(100000);
-    Sphere3 src;
+    Sphere3 const src;
     p->push_back(src.clone_unique());
     p->setAdaptionConfig(src.buildAdaptionConfig());
     p->registerPluggableOM(monitor);
@@ -153,7 +153,7 @@ TEST_CASE("GProgressPlotterT with no profiled variable still writes an (empty) c
     p->setPopulationSizes(8, 2);
     p->setMaxIteration(3);
     p->setReportIteration(100000);
-    Sphere3 src;
+    Sphere3 const src;
     p->push_back(src.clone_unique());
     p->setAdaptionConfig(src.buildAdaptionConfig());
     p->registerPluggableOM(monitor);
@@ -179,7 +179,7 @@ TEST_CASE("GFitnessMonitor accumulates over a real EA without the legacy plotter
     p->setPopulationSizes(12, 4);
     p->setMaxIteration(5);
     p->setReportIteration(100000);
-    Sphere3 src;
+    Sphere3 const src;
     p->push_back(src.clone_unique());
     p->setAdaptionConfig(src.buildAdaptionConfig());
     p->registerPluggableOM(monitor);
@@ -200,7 +200,7 @@ TEST_CASE("GFitnessMonitor survives a Pareto run (varying best count)", "[monito
     p->setMaxIteration(5);
     p->setReportIteration(100000);
     p->setSortingScheme(Gem::Geneva::sortingMode::MUPLUSNU_PARETO);
-    Sphere3 src;
+    Sphere3 const src;
     p->push_back(src.clone_unique());
     p->setAdaptionConfig(src.buildAdaptionConfig());
     p->registerPluggableOM(monitor);
@@ -224,7 +224,7 @@ TEST_CASE("GNAdpationsLogger writes a histogram + fitness ROOT macro (all indivi
     p->setPopulationSizes(12, 4);
     p->setMaxIteration(5);
     p->setReportIteration(100000);
-    Sphere3 src;
+    Sphere3 const src;
     p->push_back(src.clone_unique());
     p->setAdaptionConfig(src.buildAdaptionConfig());
     p->registerPluggableOM(monitor);
@@ -255,7 +255,7 @@ TEST_CASE("GNAdpationsLogger writes a curve + fitness ROOT macro (best only)", "
     p->setPopulationSizes(12, 4);
     p->setMaxIteration(5);
     p->setReportIteration(100000);
-    Sphere3 src;
+    Sphere3 const src;
     p->push_back(src.clone_unique());
     p->setAdaptionConfig(src.buildAdaptionConfig());
     p->registerPluggableOM(monitor);
@@ -289,7 +289,7 @@ TEST_CASE("GAdaptorPropertyLoggerT writes a property histogram + fitness ROOT ma
     p->setPopulationSizes(12, 4);
     p->setMaxIteration(5);
     p->setReportIteration(100000);
-    Sphere3 src;
+    Sphere3 const src;
     p->push_back(src.clone_unique());
     p->setAdaptionConfig(src.buildAdaptionConfig());
     p->registerPluggableOM(monitor);
@@ -308,6 +308,7 @@ TEST_CASE("GAdaptorPropertyLoggerT writes a property histogram + fitness ROOT ma
 
 /******************************************************************************/
 
+// NOLINTNEXTLINE(readability-function-cognitive-complexity) -- one coherent test: a single optimize() run produces the 1-d, 2-d and text outputs together, all checked against that same run
 TEST_CASE("GProcessingTimesLogger writes 1-d and 2-d timing ROOT macros + a text file", "[monitor][plot][oa]") {
     // Two designers: four auto-ranged 1-d timing histograms (TH1D) and four 2-d timing-vs-iteration
     // histograms (TH2D), plus an incremental plain-text dump. Exercises the two-transient-log path.
@@ -327,7 +328,7 @@ TEST_CASE("GProcessingTimesLogger writes 1-d and 2-d timing ROOT macros + a text
     p->setPopulationSizes(12, 4);
     p->setMaxIteration(5);
     p->setReportIteration(100000);
-    Sphere3 src;
+    Sphere3 const src;
     p->push_back(src.clone_unique());
     p->setAdaptionConfig(src.buildAdaptionConfig());
     p->registerPluggableOM(monitor);

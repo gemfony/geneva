@@ -42,11 +42,11 @@ TEST_CASE("g_error_streamer: DO_LOG / NO_LOG constants have the expected values"
 
 TEST_CASE("g_error_streamer: default construction yields an empty content",
           "[common][error-streamer]") {
-    g_error_streamer s;
+    g_error_streamer const s;
     CHECK(s.content().empty());
 
     // Implicit conversion path (without logging) should also be empty.
-    std::string converted = static_cast<std::string>(s);
+    std::string const converted = static_cast<std::string>(s);
     CHECK(converted.empty());
 }
 

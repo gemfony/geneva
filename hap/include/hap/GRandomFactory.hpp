@@ -164,7 +164,7 @@ public:
 	  *
 	  * @return The index of the next random number to be handed out
 	  */
-    std::size_t getCurrentPosition() const {
+    [[nodiscard]] std::size_t getCurrentPosition() const {
         return current_pos_;
     }
 
@@ -174,7 +174,7 @@ public:
 	  *
 	  * @return true if every random number in the container has been consumed, false otherwise
 	  */
-    bool empty() const {
+    [[nodiscard]] bool empty() const {
         return (current_pos_ >= DEFAULTARRAYSIZE);
     }
 

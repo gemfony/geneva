@@ -172,7 +172,7 @@ std::uint32_t GBaseParChildPersonalityTraits::getParentCounter() const {
  * @return true if this individual was already a parent before the call, false if it was a child
  */
 bool GBaseParChildPersonalityTraits::setIsParent() {
-    bool previous = parent_counter_ > 0;
+    bool const previous = parent_counter_ > 0;
     parent_counter_++;
     return previous;
 }
@@ -191,7 +191,7 @@ bool GBaseParChildPersonalityTraits::setIsParent() {
  * @return true if this individual was previously a parent, false if it was already a child
  */
 bool GBaseParChildPersonalityTraits::setIsChild() {
-    bool previous = parent_counter_ > 0;
+    bool const previous = parent_counter_ > 0;
     parent_counter_ = 0;
     return previous;
 }
@@ -305,6 +305,7 @@ bool GBaseParChildPersonalityTraits::modify_GUnitTests_() {
 /**
  * @brief Performs self tests that are expected to succeed. This is needed for testing purposes
  */
+// NOLINTNEXTLINE(readability-function-size,readability-function-cognitive-complexity) -- self-test entry point for GBaseParChildPersonalityTraits: a sequence of independent, self-scoped CHECK blocks, one per parent/child-state and personality-trait scenario; same one-function-per-test-phase convention used identically across every OA self-test in this codebase
 void GBaseParChildPersonalityTraits::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 
@@ -314,7 +315,7 @@ void GBaseParChildPersonalityTraits::specificTestsNoFailureExpected_GUnitTests_(
     // --------------------------------------------------------------------------
 
     { // Check that it is possible to mark this as a parent or child-entity
-        std::shared_ptr<GBaseParChildPersonalityTraits> p_test =
+        std::shared_ptr<GBaseParChildPersonalityTraits> const p_test =
             this->clone<GBaseParChildPersonalityTraits>();
 
         // Mark this object as belonging to a parent and check the correct setting
@@ -329,7 +330,7 @@ void GBaseParChildPersonalityTraits::specificTestsNoFailureExpected_GUnitTests_(
     // --------------------------------------------------------------------------
 
     { // Check that the parent counter is incremented or reset correctly
-        std::shared_ptr<GBaseParChildPersonalityTraits> p_test =
+        std::shared_ptr<GBaseParChildPersonalityTraits> const p_test =
             this->clone<GBaseParChildPersonalityTraits>();
 
         // Mark this object as belonging to a child and check the correct setting
@@ -356,7 +357,7 @@ void GBaseParChildPersonalityTraits::specificTestsNoFailureExpected_GUnitTests_(
     // --------------------------------------------------------------------------
 
     { // Check setting and retrieval of the individual's position in the population
-        std::shared_ptr<GBaseParChildPersonalityTraits> p_test =
+        std::shared_ptr<GBaseParChildPersonalityTraits> const p_test =
             this->clone<GBaseParChildPersonalityTraits>();
 
         for(std::size_t i = 0; i < 10; i++) {
@@ -368,7 +369,7 @@ void GBaseParChildPersonalityTraits::specificTestsNoFailureExpected_GUnitTests_(
     // --------------------------------------------------------------------------
 
     { // Test setting and retrieval of valid parent ids
-        std::shared_ptr<GBaseParChildPersonalityTraits> p_test =
+        std::shared_ptr<GBaseParChildPersonalityTraits> const p_test =
             this->clone<GBaseParChildPersonalityTraits>();
 
         for(std::size_t i = 0; i < 10; i++) {
@@ -403,7 +404,7 @@ void GBaseParChildPersonalityTraits::specificTestsFailuresExpected_GUnitTests_()
     // --------------------------------------------------------------------------
 
     { // Test that retrieval of the parent id throws, if the id isn't set
-        std::shared_ptr<GBaseParChildPersonalityTraits> p_test =
+        std::shared_ptr<GBaseParChildPersonalityTraits> const p_test =
             this->clone<GBaseParChildPersonalityTraits>();
 
         CHECK_NOTHROW(p_test->unsetParentId());

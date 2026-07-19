@@ -32,6 +32,8 @@
  ********************************************************************************/
 
 // Standard header files go here
+#include <math.h>
+
 #include <chrono>
 #include <cmath>
 #include <iostream>
@@ -96,6 +98,7 @@ const double DEFAULTGDAADPROB = 1.0;
 /**
  * A function that parses the command line for all required parameters
  */
+// NOLINTNEXTLINE(readability-function-size) -- one coherent config-registration block: every benchmark CLI option is registered here in sequence
 bool parseCommandLine(
     int argc,
     char **argv,
@@ -307,6 +310,7 @@ bool parseCommandLine(
 /**
  * The main function.
  */
+// NOLINTNEXTLINE(readability-function-size) -- single benchmark main: config setup, consumer registration, workload construction and measurement all belong to one run
 int main(int argc, char **argv) {
     // --update-configs: materialize the one config this benchmark owns (the GFunctionIndividual
     // factory's) from code defaults, then exit without running the benchmark.
@@ -316,29 +320,29 @@ int main(int argc, char **argv) {
         Gem::Common::finishConfigEmission();
     }
 
-    std::string configFile;
+    std::string const configFile;
     std::uint16_t parallelizationMode{};
-    std::string ip;
-    std::uint16_t nProducerThreads;
-    std::uint16_t nEvaluationThreads;
-    std::size_t populationSize;
-    std::size_t nParents;
-    std::uint32_t maxIterations;
-    long maxMinutes;
-    std::uint32_t reportIteration;
+    std::string const ip;
+    std::uint16_t nProducerThreads = 0;
+    std::uint16_t nEvaluationThreads = 0;
+    std::size_t populationSize = 0;
+    std::size_t nParents = 0;
+    std::uint32_t maxIterations = 0;
+    long maxMinutes = 0;
+    std::uint32_t reportIteration = 0;
     duplicationScheme rScheme;
-    std::size_t parDim;
-    double minVar;
-    double maxVar;
+    std::size_t parDim = 0;
+    double minVar = NAN;
+    double maxVar = NAN;
     sortingMode smode;
-    std::uint32_t nProcessingUnits;
+    std::uint32_t nProcessingUnits = 0;
     gind::solverFunction df;
-    std::uint32_t adaptionThreshold;
-    double sigma;
-    double sigmaSigma;
-    double minSigma;
-    double maxSigma;
-    double adProb;
+    std::uint32_t adaptionThreshold = 0;
+    double sigma = NAN;
+    double sigmaSigma = NAN;
+    double minSigma = NAN;
+    double maxSigma = NAN;
+    double adProb = NAN;
 
     // Parse the command line
     if(!parseCommandLine(
@@ -380,7 +384,7 @@ int main(int argc, char **argv) {
     // Create the first set of parent individuals. Initialization of parameters is done randomly.
     std::vector<std::shared_ptr<gen::GOptimizableEntity>> parentIndividuals;
     for(std::size_t p = 0; p < nParents; p++) {
-        std::shared_ptr<gen::GOptimizableEntity> functionIndividual_ptr = gfi();
+        std::shared_ptr<gen::GOptimizableEntity> const functionIndividual_ptr = gfi();
 
         // Give the individual a genome of `parDim` unbounded doubles in [minVar, maxVar[, sharing one
         // Gauss adaptor (the flat-genome equivalent of a GDoubleCollection). This replaces the
@@ -395,7 +399,7 @@ int main(int argc, char **argv) {
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // We can now start creating populations. Executors are registered for different execution modes
 
-    std::shared_ptr<oa::GEvolutionaryAlgorithm> pop_ptr(new oa::GEvolutionaryAlgorithm());
+    std::shared_ptr<oa::GEvolutionaryAlgorithm> const pop_ptr(new oa::GEvolutionaryAlgorithm());
 
     // All three modes are LOCAL here (the "broker" mode used a local thread consumer too); build and
     // register the ONE process-wide consumer. Serial -> stc with one thread, the others -> multithreaded.

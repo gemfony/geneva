@@ -362,6 +362,7 @@ std::size_t GFitnessMonitor::getNMonitorIndividuals() const {
  * @param im The stage of the information cycle (INFOINIT, INFOPROCESSING or INFOEND)
  * @param goa A pointer to the optimization algorithm calling this function; queried for best individuals and the iteration
  */
+// NOLINTNEXTLINE(readability-function-size) -- switch-driven dispatcher over infoMode (INFOINIT/INFOPROCESSING/INFOEND) for GFitnessMonitor; each case is a self-contained stage of the same plot lifecycle
 void GFitnessMonitor::informationFunction_(
     infoMode im,
     oa::GOptimizationAlgorithmBase const *const goa
@@ -381,7 +382,7 @@ void GFitnessMonitor::informationFunction_(
             goa->Interface::GOptimizerIT<oa::GOptimizationAlgorithmBase>::getBestIterationIndividuals<gen::GOptimizableEntity>();
 
         // Retrieve the current iteration in the population
-        std::uint32_t iteration = goa->getIteration();
+        std::uint32_t const iteration = goa->getIteration();
 
         // We expect both sizes to be identical
         if(global_bests.size() != iter_bests.size()) {
@@ -653,7 +654,7 @@ void GCollectiveMonitor::informationFunction_(
  * @param om_ptr A shared pointer to the pluggable monitor to be added; must not be empty (an empty pointer triggers an exception)
  */
 void GCollectiveMonitor::registerPluggableOM(
-    std::shared_ptr<oa::GBasePluggableOM> om_ptr
+    const std::shared_ptr<oa::GBasePluggableOM>& om_ptr
 ) {
     if(om_ptr) {
         pluggable_monitors_.push_back(om_ptr);
@@ -1087,7 +1088,7 @@ void GAllSolutionFileLogger::informationFunction_(
     case Gem::Geneva::infoMode::INFOINIT: {
         // If the file pointed to by file_name_ already exists, make a back-up
         if(std::filesystem::exists(file_name_)) {
-            std::string new_file_name =
+            std::string const new_file_name =
                 file_name_ + ".bak_" +
                 Gem::Common::getMSSince1970(); // NOLINT(cppcoreguidelines-init-variables)
 
@@ -1169,7 +1170,7 @@ void GAllSolutionFileLogger::printPopulation(
 
     // Loop over all individuals of the algorithm.
     for(std::size_t pos = 0; pos < goa->size(); pos++) {
-        std::shared_ptr<gen::GOptimizableEntity> ind = goa->individual_cast<gen::GOptimizableEntity>(pos);
+        std::shared_ptr<gen::GOptimizableEntity> const ind = goa->individual_cast<gen::GOptimizableEntity>(pos);
 
         // Note that isGoodEnough may throw if loop acts on a "dirty" individual
         if(not boundaries_active_ || ind->isGoodEnough(boundaries_)) {
@@ -1387,7 +1388,7 @@ void GIterationResultsFileLogger::informationFunction_(
     case Gem::Geneva::infoMode::INFOINIT: {
         // If the file pointed to by file_name_ already exists, make a back-up
         if(std::filesystem::exists(file_name_)) {
-            std::string new_file_name =
+            std::string const new_file_name =
                 file_name_ + ".bak_" +
                 Gem::Common::getMSSince1970(); // NOLINT(cppcoreguidelines-init-variables)
 
@@ -1689,6 +1690,7 @@ bool GNAdpationsLogger::getAddPrintCommand() const {
  * @param im The stage of the information cycle (INFOINIT, INFOPROCESSING or INFOEND)
  * @param goa A pointer to the optimization algorithm calling this function; queried for its individuals and the current iteration
  */
+// NOLINTNEXTLINE(readability-function-size) -- switch-driven dispatcher over infoMode (INFOINIT/INFOPROCESSING/INFOEND) for GNAdpationsLogger; each case is a self-contained stage of the same log lifecycle
 void GNAdpationsLogger::informationFunction_(
     infoMode im,
     oa::GOptimizationAlgorithmBase const *const goa
@@ -1700,7 +1702,7 @@ void GNAdpationsLogger::informationFunction_(
     case Gem::Geneva::infoMode::INFOINIT: {
         // If the file pointed to by file_name_ already exists, make a back-up
         if(std::filesystem::exists(file_name_)) {
-            std::string new_file_name =
+            std::string const new_file_name =
                 file_name_ + ".bak_" +
                 Gem::Common::getMSSince1970(); // NOLINT(cppcoreguidelines-init-variables)
 
@@ -1719,10 +1721,10 @@ void GNAdpationsLogger::informationFunction_(
     } break;
 
     case Gem::Geneva::infoMode::INFOPROCESSING: {
-        std::uint32_t iteration = goa->getIteration();
+        std::uint32_t const iteration = goa->getIteration();
 
         // Record the current fitness
-        std::shared_ptr<gen::GOptimizableEntity> p =
+        std::shared_ptr<gen::GOptimizableEntity> const p =
             goa->Interface::GOptimizerIT<oa::GOptimizationAlgorithmBase>::getBestGlobalIndividual<gen::GOptimizableEntity>();
         fitness_store_.emplace_back(static_cast<double>(iteration), p->raw_fitness(0));
 
@@ -1732,14 +1734,14 @@ void GNAdpationsLogger::informationFunction_(
 
         // Do the actual logging
         if(monitor_best_only_) {
-            std::shared_ptr<gen::GOptimizableEntity> best =
+            std::shared_ptr<gen::GOptimizableEntity> const best =
                 goa->Interface::GOptimizerIT<oa::GOptimizationAlgorithmBase>::getBestGlobalIndividual<gen::GOptimizableEntity>();
             n_adaptions_store_.emplace_back(static_cast<double>(iteration), static_cast<double>(best->getNAdaptions()));
         }
         else { // Monitor all individuals
             // Loop over all individuals of the algorithm.
             for(std::size_t pos = 0; pos < goa->size(); pos++) {
-                std::shared_ptr<gen::GOptimizableEntity> ind =
+                std::shared_ptr<gen::GOptimizableEntity> const ind =
                     goa->individual_cast<gen::GOptimizableEntity>(pos);
                 n_adaptions_store_.emplace_back(static_cast<double>(iteration), static_cast<double>(ind->getNAdaptions()));
             }
@@ -2171,6 +2173,7 @@ std::size_t GProcessingTimesLogger::getNBinsY() const {
  * @param im The stage of the information cycle (INFOINIT, INFOPROCESSING or INFOEND)
  * @param goa A pointer to the optimization algorithm calling this function; queried for its individuals and the current iteration
  */
+// NOLINTNEXTLINE(readability-function-size) -- switch-driven dispatcher over infoMode (INFOINIT/INFOPROCESSING/INFOEND) for GProcessingTimesLogger; each case is a self-contained stage of the same log lifecycle
 void GProcessingTimesLogger::informationFunction_(
     infoMode im,
     oa::GOptimizationAlgorithmBase const *const goa
@@ -2182,7 +2185,7 @@ void GProcessingTimesLogger::informationFunction_(
 
         // If the file pointed to by file_name_pth_ already exists, make a back-up
         if(std::filesystem::exists(file_name_pth_)) {
-            std::string new_file_name =
+            std::string const new_file_name =
                 file_name_pth_ + ".bak_" +
                 Gem::Common::getMSSince1970(); // NOLINT(cppcoreguidelines-init-variables)
 
@@ -2205,7 +2208,7 @@ void GProcessingTimesLogger::informationFunction_(
                 std::get<0>(canvas_dimensions_pth_), std::get<1>(canvas_dimensions_pth_)
             );
             pth_ids_.clear();
-            const char *x_labels_1d[] = {
+            const char *const x_labels_1d[] = {
                 "Pre-processing time [s]",
                 "Main processing time [s]",
                 "Post-processing time [s]",
@@ -2227,7 +2230,7 @@ void GProcessingTimesLogger::informationFunction_(
 
         // If the file pointed to by file_name_pth2_ already exists, make a back-up
         if(std::filesystem::exists(file_name_pth2_)) {
-            std::string new_file_name =
+            std::string const new_file_name =
                 file_name_pth2_ + ".bak_" +
                 Gem::Common::getMSSince1970(); // NOLINT(cppcoreguidelines-init-variables)
 
@@ -2250,7 +2253,7 @@ void GProcessingTimesLogger::informationFunction_(
                 std::get<0>(canvas_dimensions_pth2_), std::get<1>(canvas_dimensions_pth2_)
             );
             pth2_ids_.clear();
-            const char *y_labels_2d[] = {
+            const char *const y_labels_2d[] = {
                 "Pre-processing time [s]",
                 "Main processing time [s]",
                 "Post-processing time [s]",
@@ -2274,7 +2277,7 @@ void GProcessingTimesLogger::informationFunction_(
 
         // If the file pointed to by file_name_txt_ already exists, make a back-up
         if(std::filesystem::exists(file_name_txt_)) {
-            std::string new_file_name =
+            std::string const new_file_name =
                 file_name_txt_ + ".bak_" +
                 Gem::Common::getMSSince1970(); // NOLINT(cppcoreguidelines-init-variables)
 
@@ -2304,15 +2307,15 @@ void GProcessingTimesLogger::informationFunction_(
         // Loop over all individuals of the algorithm.
         for(std::size_t pos = 0; pos < goa->size(); pos++) {
             // Get access to each individual in sequence
-            std::shared_ptr<gen::GOptimizableEntity> ind = goa->individual_cast<gen::GOptimizableEntity>(pos);
+            std::shared_ptr<gen::GOptimizableEntity> const ind = goa->individual_cast<gen::GOptimizableEntity>(pos);
 
             // Retrieve the processing timings
             std::tuple<double, double, double> processing_times = ind->getProcessingTimes();
 
-            double pre_processing_time = std::get<0>(processing_times);
-            double main_processing_time = std::get<1>(processing_times);
-            double post_processing_time = std::get<2>(processing_times);
-            double all_processing_time =
+            double const pre_processing_time = std::get<0>(processing_times);
+            double const main_processing_time = std::get<1>(processing_times);
+            double const post_processing_time = std::get<2>(processing_times);
+            double const all_processing_time =
                 pre_processing_time + main_processing_time + post_processing_time;
 
             // Fill the timings into the 1-d histograms (one value per series), in the fixed

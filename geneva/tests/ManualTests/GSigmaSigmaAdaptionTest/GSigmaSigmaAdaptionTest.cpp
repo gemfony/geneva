@@ -32,6 +32,8 @@
  ********************************************************************************/
 
 // Standard header files go here
+#include <math.h>
+
 #include <cmath>
 #include <fstream>
 #include <iostream>
@@ -65,7 +67,7 @@ std::normal_distribution<double> normal_distribution;
  * First distribution:
  * std::exp(normal_distribution(*gr_ptr, std::normal_distribution<double>::param_type(0., std::abs(sigmaSigma)))*(uniform_bool(*gr_ptr)?1.:-1.));
  */
-double dist1(std::shared_ptr<Gem::Hap::GRandomBase> gr_ptr, const double &sigmaSigma) {
+double dist1(const std::shared_ptr<Gem::Hap::GRandomBase>& gr_ptr, const double &sigmaSigma) {
     return std::exp(
         normal_distribution(
             *gr_ptr,
@@ -79,7 +81,7 @@ double dist1(std::shared_ptr<Gem::Hap::GRandomBase> gr_ptr, const double &sigmaS
  * Second distribution:
  * std::exp(normal_distribution(*gr_ptr, std::normal_distribution<double>::param_type(0.,std::abs(sigmaSigma))));
  */
-double dist2(std::shared_ptr<Gem::Hap::GRandomBase> gr_ptr, const double &sigmaSigma) {
+double dist2(const std::shared_ptr<Gem::Hap::GRandomBase>& gr_ptr, const double &sigmaSigma) {
     return std::exp(normal_distribution(
         *gr_ptr,
         std::normal_distribution<double>::param_type(0., std::abs(sigmaSigma))
@@ -92,6 +94,7 @@ double dist2(std::shared_ptr<Gem::Hap::GRandomBase> gr_ptr, const double &sigmaS
  * in gauss mutation. It also shows the development of a fixed value over
  * time, as it is repeatedly mutated without selection pressure.
  */
+// NOLINTNEXTLINE(readability-function-size) -- main() of a manual plotting demo: drives the same sigma-adaption random-walk loop over eight (distribution, sigmaSigma) parameter combinations and plots the results; splitting would scatter one linear demo script
 int main() {
     double sigma_1_02 = sigmaStart;
     double sigma_1_04 = sigmaStart;
@@ -102,39 +105,39 @@ int main() {
     double sigma_2_06 = sigmaStart;
     double sigma_2_08 = sigmaStart;
 
-    double fact_1_02;
-    double fact_1_04;
-    double fact_1_06;
-    double fact_1_08;
-    double fact_2_02;
-    double fact_2_04;
-    double fact_2_06;
-    double fact_2_08;
+    double fact_1_02 = NAN;
+    double fact_1_04 = NAN;
+    double fact_1_06 = NAN;
+    double fact_1_08 = NAN;
+    double fact_2_02 = NAN;
+    double fact_2_04 = NAN;
+    double fact_2_06 = NAN;
+    double fact_2_08 = NAN;
 
-    std::shared_ptr<Gem::Hap::GRandomBase> gr_ptr =
+    std::shared_ptr<Gem::Hap::GRandomBase> const gr_ptr =
         std::shared_ptr<GRandomT<randomSource::QUEUE>>(
             new GRandomT<randomSource::QUEUE>()
         );
 
-    std::string caption_dist =
+    std::string const caption_dist =
         "Different random distributions for the adaption of sigma, varying sigmaSigma";
     GPlotDesigner gpd_dist(caption_dist, 2, 4);
     gpd_dist.setCanvasDimensions(1600, 1200);
 
-    std::string caption_devel =
+    std::string const caption_devel =
         "Development of a single sigma upon repeated calls, varying sigmaSigma";
     GPlotDesigner gpd_devel(caption_devel, 2, 4);
     gpd_devel.setCanvasDimensions(1600, 1200);
 
-    std::shared_ptr<GHistogram1D> dist1_02_ptr(new GHistogram1D(NBINS, 0., 3.));
-    std::shared_ptr<GHistogram1D> dist1_04_ptr(new GHistogram1D(NBINS, 0., 3.));
-    std::shared_ptr<GHistogram1D> dist1_06_ptr(new GHistogram1D(NBINS, 0., 3.));
-    std::shared_ptr<GHistogram1D> dist1_08_ptr(new GHistogram1D(NBINS, 0., 3.));
+    std::shared_ptr<GHistogram1D> const dist1_02_ptr(new GHistogram1D(NBINS, 0., 3.));
+    std::shared_ptr<GHistogram1D> const dist1_04_ptr(new GHistogram1D(NBINS, 0., 3.));
+    std::shared_ptr<GHistogram1D> const dist1_06_ptr(new GHistogram1D(NBINS, 0., 3.));
+    std::shared_ptr<GHistogram1D> const dist1_08_ptr(new GHistogram1D(NBINS, 0., 3.));
 
-    std::shared_ptr<GHistogram1D> dist2_02_ptr(new GHistogram1D(NBINS, 0., 3.));
-    std::shared_ptr<GHistogram1D> dist2_04_ptr(new GHistogram1D(NBINS, 0., 3.));
-    std::shared_ptr<GHistogram1D> dist2_06_ptr(new GHistogram1D(NBINS, 0., 3.));
-    std::shared_ptr<GHistogram1D> dist2_08_ptr(new GHistogram1D(NBINS, 0., 3.));
+    std::shared_ptr<GHistogram1D> const dist2_02_ptr(new GHistogram1D(NBINS, 0., 3.));
+    std::shared_ptr<GHistogram1D> const dist2_04_ptr(new GHistogram1D(NBINS, 0., 3.));
+    std::shared_ptr<GHistogram1D> const dist2_06_ptr(new GHistogram1D(NBINS, 0., 3.));
+    std::shared_ptr<GHistogram1D> const dist2_08_ptr(new GHistogram1D(NBINS, 0., 3.));
 
     dist1_02_ptr->setXAxisLabel("Distribution 1 (random sign)");
     dist1_02_ptr->setYAxisLabel("Number of Entries");
@@ -162,15 +165,15 @@ int main() {
     dist2_08_ptr->setYAxisLabel("Number of Entries");
     dist2_08_ptr->setPlotLabel("sigmaSigma = 0.8");
 
-    std::shared_ptr<GGraph2D> devel1_02_ptr(new GGraph2D());
-    std::shared_ptr<GGraph2D> devel1_04_ptr(new GGraph2D());
-    std::shared_ptr<GGraph2D> devel1_06_ptr(new GGraph2D());
-    std::shared_ptr<GGraph2D> devel1_08_ptr(new GGraph2D());
+    std::shared_ptr<GGraph2D> const devel1_02_ptr(new GGraph2D());
+    std::shared_ptr<GGraph2D> const devel1_04_ptr(new GGraph2D());
+    std::shared_ptr<GGraph2D> const devel1_06_ptr(new GGraph2D());
+    std::shared_ptr<GGraph2D> const devel1_08_ptr(new GGraph2D());
 
-    std::shared_ptr<GGraph2D> devel2_02_ptr(new GGraph2D());
-    std::shared_ptr<GGraph2D> devel2_04_ptr(new GGraph2D());
-    std::shared_ptr<GGraph2D> devel2_06_ptr(new GGraph2D());
-    std::shared_ptr<GGraph2D> devel2_08_ptr(new GGraph2D());
+    std::shared_ptr<GGraph2D> const devel2_02_ptr(new GGraph2D());
+    std::shared_ptr<GGraph2D> const devel2_04_ptr(new GGraph2D());
+    std::shared_ptr<GGraph2D> const devel2_06_ptr(new GGraph2D());
+    std::shared_ptr<GGraph2D> const devel2_08_ptr(new GGraph2D());
 
     devel1_02_ptr->setXAxisLabel("Call");
     devel1_02_ptr->setYAxisLabel("Sigma with Distribution 1 (random sign)");

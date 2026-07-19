@@ -99,7 +99,7 @@ protected:
         std::vector<double> v;
         this->streamline<double>(v);
         double s = 0.;
-        for(double x : v) {
+        for(double const x : v) {
             s += x * x;
         }
         return {s};
@@ -143,7 +143,7 @@ protected:
         std::vector<double> v;
         this->streamline<double>(v);
         double s = 0.;
-        for(double x : v) {
+        for(double const x : v) {
             s += x * x;
         }
         return {s};
@@ -181,7 +181,7 @@ protected:
         std::vector<double> v;
         this->streamline<double>(v);
         double s = 0.;
-        for(double x : v) {
+        for(double const x : v) {
             s += x * x;
         }
         return {s};
@@ -232,7 +232,7 @@ TEST_CASE(
 
     // Every out-of-range value folds into the half-open range and is idempotent
     // (external-value-preserving: folding an already-folded value is a no-op).
-    for(double x : {-37.3, -11., 9.999, 100.25, 10.0, 25.0}) {
+    for(double const x : {-37.3, -11., 9.999, 100.25, 10.0, 25.0}) {
         const double f = foldConstrainedFP<double>(x, -10., 10.);
         CHECK(f >= -10.);
         CHECK(f < 10.);
@@ -240,7 +240,7 @@ TEST_CASE(
     }
 
     // Closed integer range, also idempotent.
-    for(std::int32_t x : {-100, -11, 11, 250}) {
+    for(std::int32_t const x : {-100, -11, 11, 250}) {
         const std::int32_t f = foldConstrainedInt<std::int32_t>(x, -10, 10);
         CHECK(f >= -10);
         CHECK(f <= 10);
@@ -310,7 +310,7 @@ TEST_CASE("normalized-genome: randomInit keeps constrained values in range", "[n
     std::vector<double> out;
     ind.streamline<double>(out);
     REQUIRE(out.size() == 64);
-    for(double x : out) {
+    for(double const x : out) {
         CHECK(x >= -3.);
         CHECK(x < 7.);
     }
@@ -337,7 +337,7 @@ TEST_CASE(
     for(const auto &bx : kBoxes) {
         const double scale = bx.hi - bx.lo;
         const double anchor = (bx.lo + bx.hi) / 2.;
-        for(double frac : {-0.5, -0.25, 0.0, 0.25, 0.499}) {
+        for(double const frac : {-0.5, -0.25, 0.0, 0.25, 0.499}) {
             const double x = anchor + frac * scale; // an in-range external value
             const double u = ngExternalToInternal<double>(x, scale, anchor);
             CHECK(u >= -0.5);
@@ -365,7 +365,7 @@ TEST_CASE(
     for(const auto &bx : kBoxes) {
         const double scale = bx.hi - bx.lo;
         const double anchor = (bx.lo + bx.hi) / 2.;
-        for(double frac : fracs) {
+        for(double const frac : fracs) {
             const double x = anchor + frac * scale;
             const double ext_old = foldConstrainedFP<double>(x, bx.lo, bx.hi);
 
@@ -420,12 +420,12 @@ TEST_CASE(
     // interval; after randomInit it must too. GGenome exposes the raw internal span directly.
     NgBoxIndividual ind(32, -3., 7.);
     ind.assignValueVector<double>(std::vector<double>(32, 4.5)); // an interior value
-    for(double u : ind.internalDoubleValues()) {
+    for(double const u : ind.internalDoubleValues()) {
         CHECK(u >= -0.5);
         CHECK(u < 0.5);
     }
     ind.randomInit(activityMode::ALLPARAMETERS);
-    for(double u : ind.internalDoubleValues()) {
+    for(double const u : ind.internalDoubleValues()) {
         CHECK(u >= -0.5);
         CHECK(u < 0.5);
     }
@@ -476,7 +476,7 @@ TEST_CASE(
     GGenomeBuilder b;
     b.addDoubleGroup(std::vector<double>{0.1, 0.4, -0.2}, -1., 1.);  // bounded, n inferred = 3
     b.addDoublePlainGroup(std::vector<double>{5.0, -7.0}, -2., 2.);  // plain: starts beyond the perimeter
-    NgErgoIndividual ind(b.build());
+    NgErgoIndividual const ind(b.build());
     std::vector<double> out;
     ind.streamline<double>(out);
     REQUIRE(out.size() == 5);

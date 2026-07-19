@@ -402,7 +402,7 @@ public:
 	  * @return A 1-d histogram of the data projected onto axis I
 	  */
     template <std::size_t I, typename hist_type = GHistogram1D>
-    std::shared_ptr<GDataCollectorT<axis_t<I>>>
+    [[nodiscard]] [[nodiscard]] [[nodiscard]] [[nodiscard]] std::shared_ptr<GDataCollectorT<axis_t<I>>>
     project(std::size_t nBins, std::tuple<axis_t<I>, axis_t<I>> range) const {
         static_assert(
             I < n_axes,
@@ -459,28 +459,28 @@ public:
     /** @brief Projects the data onto the x-axis (see project<0>()) */
     template <std::size_t I = 0>
         requires((I == 0) && (n_axes >= 1))
-    auto projectX(std::size_t nBins, std::tuple<axis_t<I>, axis_t<I>> range) const {
+    [[nodiscard]] auto projectX(std::size_t nBins, std::tuple<axis_t<I>, axis_t<I>> range) const {
         return this->template project<I>(nBins, range);
     }
 
     /** @brief Projects the data onto the y-axis (see project<1>()) */
     template <std::size_t I = 1>
         requires((I == 1) && (n_axes >= 2))
-    auto projectY(std::size_t nBins, std::tuple<axis_t<I>, axis_t<I>> range) const {
+    [[nodiscard]] auto projectY(std::size_t nBins, std::tuple<axis_t<I>, axis_t<I>> range) const {
         return this->template project<I>(nBins, range);
     }
 
     /** @brief Projects the data onto the z-axis (see project<2>()) */
     template <std::size_t I = 2>
         requires((I == 2) && (n_axes >= 3))
-    auto projectZ(std::size_t nBins, std::tuple<axis_t<I>, axis_t<I>> range) const {
+    [[nodiscard]] auto projectZ(std::size_t nBins, std::tuple<axis_t<I>, axis_t<I>> range) const {
         return this->template project<I>(nBins, range);
     }
 
     /** @brief Projects the data onto the w-axis (see project<3>()) */
     template <std::size_t I = 3>
         requires((I == 3) && (n_axes >= 4))
-    auto projectW(std::size_t nBins, std::tuple<axis_t<I>, axis_t<I>> range) const {
+    [[nodiscard]] auto projectW(std::size_t nBins, std::tuple<axis_t<I>, axis_t<I>> range) const {
         return this->template project<I>(nBins, range);
     }
 
@@ -539,7 +539,7 @@ public:
 	  * @return A const reference to the std::vector holding axis I's values
 	  */
     template <std::size_t I>
-    const std::vector<axis_t<I>> &column() const {
+    [[nodiscard]] [[nodiscard]] [[nodiscard]] [[nodiscard]] const std::vector<axis_t<I>> &column() const {
         return std::get<I>(columns_);
     }
 
@@ -711,7 +711,7 @@ private:
 	  * if constexpr), so each &column pointer is a valid GPlotColumn alternative.
 	  */
     template <std::size_t... Is>
-    std::vector<GPlotColumn> dataColumnsImpl_(std::index_sequence<Is...>) const {
+    [[nodiscard]] std::vector<GPlotColumn> dataColumnsImpl_(std::index_sequence<Is...>) const {
         return {GPlotColumn{&std::get<Is>(columns_)}...};
     }
 
@@ -763,12 +763,12 @@ private:
 	  *
 	  * @return A vector of item tuples reconstructed from the columns
 	  */
-    std::vector<item_t> asTuples() const {
+    [[nodiscard]] std::vector<item_t> asTuples() const {
         return asTuplesImpl(std::make_index_sequence<n_axes>{});
     }
 
     template <std::size_t... Is>
-    std::vector<item_t> asTuplesImpl(std::index_sequence<Is...>) const {
+    [[nodiscard]] std::vector<item_t> asTuplesImpl(std::index_sequence<Is...>) const {
         const std::size_t n = this->currentSize();
         std::vector<item_t> out;
         out.reserve(n);
@@ -823,14 +823,14 @@ private:
 	  * Computes the per-axis (min, max) of a single axis I across the data vector.
 	  */
     template <std::size_t I>
-    std::pair<axis_t<I>, axis_t<I>> minMaxAxis() const {
+    [[nodiscard]] [[nodiscard]] std::pair<axis_t<I>, axis_t<I>> minMaxAxis() const {
         const auto &col = std::get<I>(columns_);
         auto [min_it, max_it] = std::ranges::minmax_element(col);
         return {*min_it, *max_it};
     }
 
     template <std::size_t... Is>
-    auto minMaxImpl(std::index_sequence<Is...>) const {
+    [[nodiscard]] [[nodiscard]] auto minMaxImpl(std::index_sequence<Is...>) const {
         // Interleave the per-axis (min, max) pairs into a single flat tuple
         return std::tuple_cat(
             std::make_tuple(minMaxAxis<Is>().first, minMaxAxis<Is>().second)...
@@ -843,7 +843,7 @@ private:
 	  *
 	  * @return The name of this class as a string
 	  */
-    std::string name_() const override {
+    [[nodiscard]] std::string name_() const override {
         return std::string("GDataCollectorT<Ts...>");
     }
 
@@ -852,7 +852,7 @@ private:
 	  * @brief Creates a deep clone of this object
 	  * @return A deep clone of this object, wrapped into a GBasePlotter pointer
 	  */
-    GBasePlotter *clone_() const override = 0;
+    [[nodiscard]] GBasePlotter *clone_() const override = 0;
 
     /***************************************************************************/
 };
@@ -978,7 +978,7 @@ private:
 	  * @brief Creates a deep clone of this object
 	  * @return A deep clone of this object, wrapped into a GBasePlotter pointer
 	  */
-    GBasePlotter *clone_() const override = 0;
+    [[nodiscard]] GBasePlotter *clone_() const override = 0;
 };
 
 

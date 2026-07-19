@@ -306,7 +306,7 @@ struct ChannelLayout {
     std::vector<GroupStructure<T>> groups;///< contiguous groups tiling [0, size()) -- STRUCTURE only
 
     /** @brief The number of values in this channel. @return The per-value array length. */
-    std::size_t size() const { return lower.size(); }
+    [[nodiscard]] std::size_t size() const { return lower.size(); }
 };
 
 /******************************************************************************/
@@ -559,12 +559,12 @@ private:
          *  @param s The string to absorb. */
         void string(const std::string &s) {
             value<std::uint64_t>(s.size());
-            for(char c : s) {
+            for(char const c : s) {
                 absorb(static_cast<std::uint8_t>(c));
             }
         }
         /** @brief The accumulated 128-bit id. @return The two-lane hash as a LayoutId. */
-        LayoutId id() const { return LayoutId{.hi=h1, .lo=h2}; }
+        [[nodiscard]] LayoutId id() const { return LayoutId{.hi=h1, .lo=h2}; }
     };
 
     /** @brief Folds one channel's full structural content into the hasher (length-prefixed throughout,
@@ -583,11 +583,11 @@ private:
         fp(c.init_lower);
         fp(c.init_upper);
         h.value<std::uint64_t>(c.fold.size());
-        for(std::uint8_t fl : c.fold) {
+        for(std::uint8_t const fl : c.fold) {
             h.value<std::uint8_t>(fl);
         }
         h.value<std::uint64_t>(c.active.size());
-        for(std::uint8_t a : c.active) {
+        for(std::uint8_t const a : c.active) {
             h.value<std::uint8_t>(a);
         }
         h.value<std::uint64_t>(c.groups.size());
@@ -605,7 +605,7 @@ private:
     static void hashChannel(Hasher128 &h, const ChannelLayout<bool> &c) {
         auto bv = [&](const std::vector<bool> &v) {
             h.value<std::uint64_t>(v.size());
-            for(bool x : v) {
+            for(bool const x : v) {
                 h.value<std::uint8_t>(x ? std::uint8_t{1} : std::uint8_t{0});
             }
         };
@@ -614,11 +614,11 @@ private:
         bv(c.init_lower);
         bv(c.init_upper);
         h.value<std::uint64_t>(c.fold.size());
-        for(std::uint8_t fl : c.fold) {
+        for(std::uint8_t const fl : c.fold) {
             h.value<std::uint8_t>(fl);
         }
         h.value<std::uint64_t>(c.active.size());
-        for(std::uint8_t a : c.active) {
+        for(std::uint8_t const a : c.active) {
             h.value<std::uint8_t>(a);
         }
         h.value<std::uint64_t>(c.groups.size());

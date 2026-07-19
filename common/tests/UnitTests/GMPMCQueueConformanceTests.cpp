@@ -153,6 +153,7 @@ TEMPLATE_TEST_CASE("GMPMCQueueT compile-time observers", "[GMPMCQueueT]", MPMC_B
 /******************************************************************************/
 // Basic push/pop and FIFO ordering
 
+// NOLINTNEXTLINE(readability-function-cognitive-complexity) -- one coherent linear push/pop/FIFO-order assertion sequence, macro-instantiated per backend by TEMPLATE_TEST_CASE; there is no seam within a single scenario to split on
 TEMPLATE_TEST_CASE("GMPMCQueueT basic try_push/try_pop and FIFO order", "[GMPMCQueueT]", MPMC_BACKENDS) {
     typename TestType::template queue<int, 8> q;
 
@@ -180,6 +181,7 @@ TEMPLATE_TEST_CASE("GMPMCQueueT basic try_push/try_pop and FIFO order", "[GMPMCQ
 /******************************************************************************/
 // Bounded fullness behaviour (incl. wrap-around across the ring)
 
+// NOLINTNEXTLINE(readability-function-cognitive-complexity) -- one coherent linear fill/drain/wrap-around assertion sequence, macro-instantiated per backend by TEMPLATE_TEST_CASE; there is no seam within a single scenario to split on
 TEMPLATE_TEST_CASE("GMPMCQueueT bounded fullness and wrap-around", "[GMPMCQueueT]", MPMC_BACKENDS) {
     typename TestType::template queue<int, 3> q;
     REQUIRE(q.remaining_space() == 3);
@@ -277,6 +279,7 @@ TEMPLATE_TEST_CASE("GMPMCQueueT blocking push wakes on pop", "[GMPMCQueueT]", MP
 /******************************************************************************/
 // close(): shutdown semantics
 
+// NOLINTNEXTLINE(readability-function-cognitive-complexity) -- one coherent linear close/drain assertion sequence, macro-instantiated per backend by TEMPLATE_TEST_CASE; there is no seam within a single scenario to split on
 TEMPLATE_TEST_CASE("GMPMCQueueT close rejects pushes and drains then ends", "[GMPMCQueueT]", MPMC_BACKENDS) {
     typename TestType::template queue<int, 8> q;
     REQUIRE(q.try_push(1));
@@ -321,7 +324,7 @@ TEMPLATE_TEST_CASE("GMPMCQueueT close wakes a blocked producer", "[GMPMCQueueT]"
     std::atomic<bool> pushFailed{false};
 
     std::thread producer([&]() {
-        bool ok = q.push(2);
+        bool const ok = q.push(2);
         pushFailed.store(not ok);
     });
 
@@ -387,7 +390,7 @@ TEMPLATE_TEST_CASE("GMPMCQueueT copy vs. move semantics", "[GMPMCQueueT]", MPMC_
     typename TestType::template queue<Tracked, 8> q;
 
     SECTION("lvalue push -> copy into the queue; pop -> move out") {
-        Tracked t(5);
+        Tracked const t(5);
         REQUIRE(q.try_push(t));
         REQUIRE(t.v_ == 5);
 
@@ -444,7 +447,7 @@ TEMPLATE_TEST_CASE("GMPMCQueueT a throwing element ctor preserves capacity", "[G
     Thrower::copies.store(0);
     Thrower::throw_on.store(1); // the very next copy throws
 
-    Thrower src(7);
+    Thrower const src(7);
     bool threw = false;
     try {
         (void)q.try_push(src); // lvalue -> copy -> throws inside the queue's placement-new
@@ -458,7 +461,7 @@ TEMPLATE_TEST_CASE("GMPMCQueueT a throwing element ctor preserves capacity", "[G
     Thrower::throw_on.store(-1); // no more throwing
     int accepted = 0;
     for(int i = 0; i < Cap; ++i) {
-        Thrower item(i);
+        Thrower const item(i);
         if(q.try_push(item)) { // copies (no throw now)
             ++accepted;
         }

@@ -427,8 +427,8 @@ protected:
     void updateIndividualPositions(
         const std::size_t &neighborhood,
         const std::unique_ptr<gen::GOptimizableEntity> &ind, // the population slot being moved (borrowed)
-        std::shared_ptr<gen::GOptimizableEntity> neighborhood_best,      // neighborhood best
-        std::shared_ptr<gen::GOptimizableEntity> global_best,      // global best
+        const std::shared_ptr<gen::GOptimizableEntity>& neighborhood_best,      // neighborhood best
+        const std::shared_ptr<gen::GOptimizableEntity>& global_best,      // global best
         std::tuple<double, double, double, double> constants      // c_personal / c_neighborhood / c_global / c_velocity
     );                                                  // (velocity now lives on the slot's OA scratch)
 

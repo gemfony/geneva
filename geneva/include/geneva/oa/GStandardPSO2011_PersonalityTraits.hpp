@@ -62,7 +62,7 @@ public:
     void setParticle(std::size_t particle) { this->setPopulationPosition(particle); }
     /** @brief Retrieves the particle's index in the swarm (PSO-vocabulary alias for getPopulationPosition).
      *  @return The particle's index in the swarm */
-    std::size_t getParticle() const { return this->getPopulationPosition(); }
+    [[nodiscard]] std::size_t getParticle() const { return this->getPopulationPosition(); }
 };
 
 /******************************************************************************/

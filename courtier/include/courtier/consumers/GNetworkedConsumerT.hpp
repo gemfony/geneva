@@ -210,7 +210,7 @@ public:
      *  with no matching retained original to graft from (see setLateReturnBuffer()).
      *  @return The running total of dropped late returns */
     [[nodiscard]] std::uint64_t lateReturnDroppedCount() const {
-        std::scoped_lock lk(mtx_);
+        std::scoped_lock const lk(mtx_);
         return late_dropped_count_;
     }
 
@@ -295,7 +295,7 @@ protected:
      *  correlation rides its (batch_id, slot) id.
      *  @return A clone of the next pending item to ship, or nullptr if no slot is pending */
     item_ptr checkout() {
-        std::scoped_lock lk(mtx_);
+        std::scoped_lock const lk(mtx_);
         return checkout_locked();
     }
 
@@ -323,7 +323,7 @@ protected:
         if(not p) {
             return;
         }
-        std::scoped_lock lk(mtx_);
+        std::scoped_lock const lk(mtx_);
         const Gem::Courtier::CORRELATION_ID_TYPE id = p->getCorrelationId();
         auto it = batches_.find(decodeBatch(id));
         if(it == batches_.end()) {
@@ -375,7 +375,7 @@ protected:
      *  passed correlation id. A no-op if the batch moved on or the slot is no longer in flight.
      *  @param id The (batch_id, slot) correlation id of the item to put back */
     void requeue(Gem::Courtier::CORRELATION_ID_TYPE id) {
-        std::scoped_lock lk(mtx_);
+        std::scoped_lock const lk(mtx_);
         auto it = batches_.find(decodeBatch(id));
         if(it == batches_.end()) {
             return;
@@ -416,6 +416,7 @@ protected:
      *
      * @param items The round's work items, BORROWED (not owned) for the duration of the call; results are written back into their slots in place
      */
+    // NOLINTNEXTLINE(readability-function-size) -- one coherent batch dispatch lifecycle (register under lock, wait with adaptive stall/lease reclamation, then deregister + retain late-return originals) sharing the same locked BatchState across phases; splitting would fragment the locking discipline the comments document
     void dispatch_(std::span<item_ptr> items) override {
         const std::size_t n = items.size();
         if(n == 0) {
@@ -425,7 +426,7 @@ protected:
         const auto start = clock::now();
         typename std::map<batch_key_t, BatchState>::iterator my_it;
         {
-            std::scoped_lock lk(mtx_);
+            std::scoped_lock const lk(mtx_);
             const batch_key_t key = (next_batch_id_++ & BATCH_MASK);
             BatchState b;
             b.items = items;

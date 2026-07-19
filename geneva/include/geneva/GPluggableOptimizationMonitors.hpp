@@ -43,6 +43,7 @@
 #include <ranges>
 #include <string>
 #include <type_traits>
+#include <utility>
 
 // Boost header files go here
 
@@ -136,12 +137,12 @@ private:
      * @brief Emits a name for this class / object
      * @return The human-readable class name of this object
      */
-    std::string name_() const override;
+    [[nodiscard]] std::string name_() const override;
     /**
      * @brief Creates a deep clone of this object
      * @return A pointer to a freshly allocated deep copy of this object (ownership passes to the caller)
      */
-    oa::GBasePluggableOM *clone_() const override;
+    [[nodiscard]] oa::GBasePluggableOM *clone_() const override;
 
     /**
      * @brief Aggregates the work of all registered pluggable monitors
@@ -223,7 +224,7 @@ public:
      * @brief Allows to retrieve the current value of the result file name
      * @return The current name of the result file
      */
-    std::string getResultFileName() const;
+    [[nodiscard]] std::string getResultFileName() const;
 
     /**
      * @brief Allows to set the dimensions of the canvas
@@ -235,17 +236,17 @@ public:
      * @brief Retrieve the dimensions as a tuple
      * @return A tuple holding the canvas dimensions in x- and y-direction
      */
-    std::tuple<std::uint32_t, std::uint32_t> getDims() const;
+    [[nodiscard]] std::tuple<std::uint32_t, std::uint32_t> getDims() const;
     /**
      * @brief Retrieves the dimension of the canvas in x-direction
      * @return The canvas dimension in x-direction
      */
-    std::uint32_t getXDim() const;
+    [[nodiscard]] std::uint32_t getXDim() const;
     /**
      * @brief Retrieves the dimension of the canvas in y-direction
      * @return The canvas dimension in y-direction
      */
-    std::uint32_t getYDim() const;
+    [[nodiscard]] std::uint32_t getYDim() const;
 
     /**
      * @brief Sets the number of individuals in the population that should be monitored
@@ -256,7 +257,7 @@ public:
      * @brief Retrieves the number of individuals that are being monitored
      * @return The number of individuals that are being monitored
      */
-    std::size_t getNMonitorIndividuals() const;
+    [[nodiscard]] std::size_t getNMonitorIndividuals() const;
 
 protected:
     /************************************************************************/
@@ -298,12 +299,12 @@ private:
      * @brief Emits a name for this class / object
      * @return The human-readable class name of this object
      */
-    std::string name_() const override;
+    [[nodiscard]] std::string name_() const override;
     /**
      * @brief Creates a deep clone of this object
      * @return A pointer to a freshly allocated deep copy of this object (ownership passes to the caller)
      */
-    oa::GBasePluggableOM *clone_() const override;
+    [[nodiscard]] oa::GBasePluggableOM *clone_() const override;
 
     /**
      * @brief Aggregates the work of all registered pluggable monitors
@@ -399,12 +400,12 @@ public:
      * @brief Allows to register a new pluggable monitor
      * @param om_ptr A shared pointer to the pluggable optimization monitor to add to this collection
      */
-    void registerPluggableOM(std::shared_ptr<oa::GBasePluggableOM> om_ptr);
+    void registerPluggableOM(const std::shared_ptr<oa::GBasePluggableOM>& om_ptr);
     /**
      * @brief Checks if pluggable monitors have been registered in the collective monitor
      * @return true if at least one pluggable monitor has been registered, false otherwise
      */
-    bool hasOptimizationMonitors() const;
+    [[nodiscard]] bool hasOptimizationMonitors() const;
     /** @brief Allows to clear all registered monitors */
     void resetPluggbleOM();
 
@@ -448,12 +449,12 @@ private:
      * @brief Emits a name for this class / object
      * @return The human-readable class name of this object
      */
-    std::string name_() const override;
+    [[nodiscard]] std::string name_() const override;
     /**
      * @brief Creates a deep clone of this object
      * @return A pointer to a freshly allocated deep copy of this object (ownership passes to the caller)
      */
-    oa::GBasePluggableOM *clone_() const override;
+    [[nodiscard]] oa::GBasePluggableOM *clone_() const override;
 
     /**
      * @brief Aggregates the work of all registered pluggable monitors
@@ -604,7 +605,7 @@ public:
         fp_prof_var_vec_.clear();
 
         // Parse the parameter string
-        gen::GParameterPropertyParser ppp(par_str);
+        gen::GParameterPropertyParser const ppp(par_str);
 
         //---------------------------------------------------------------------------
         // Retrieve the parameters
@@ -632,7 +633,7 @@ public:
 	  *
 	  * @return true if only the best individual(s) are monitored, false otherwise
 	  */
-    bool getMonitorBestOnly() const {
+    [[nodiscard]] bool getMonitorBestOnly() const {
         return monitor_best_only_;
     }
 
@@ -652,7 +653,7 @@ public:
 	  *
 	  * @return true if only valid individuals are monitored, false otherwise
 	  */
-    bool getMonitorValidOnly() const {
+    [[nodiscard]] bool getMonitorValidOnly() const {
         return monitor_valid_only_;
     }
 
@@ -672,7 +673,7 @@ public:
 	  *
 	  * @return true if scan boundaries are observed, false otherwise
 	  */
-    bool getObserveBoundaries() const {
+    [[nodiscard]] bool getObserveBoundaries() const {
         return observe_boundaries_;
     }
 
@@ -682,7 +683,7 @@ public:
 	  *
 	  * @return true if at least one variable has been registered for profiling, false otherwise
 	  */
-    bool parameterProfileCreationRequested() const {
+    [[nodiscard]] bool parameterProfileCreationRequested() const {
         return not fp_prof_var_vec_.empty();
     }
 
@@ -692,7 +693,7 @@ public:
 	  *
 	  * @return The number of registered profiling variables
 	  */
-    std::size_t nProfileVars() const {
+    [[nodiscard]] std::size_t nProfileVars() const {
         return fp_prof_var_vec_.size();
     }
 
@@ -723,7 +724,7 @@ public:
 	  *
 	  * @return A tuple holding the canvas dimensions in x- and y-direction
 	  */
-    std::tuple<std::uint32_t, std::uint32_t> getCanvasDimensions() const {
+    [[nodiscard]] std::tuple<std::uint32_t, std::uint32_t> getCanvasDimensions() const {
         return canvas_dimensions_;
     }
 
@@ -743,7 +744,7 @@ public:
 	  *
 	  * @return true if a print command will be appended to the script, false otherwise
 	  */
-    bool getAddPrintCommand() const {
+    [[nodiscard]] bool getAddPrintCommand() const {
         return add_print_command_;
     }
 
@@ -763,7 +764,7 @@ public:
 	  *
 	  * @return The name of the file to which information will be emitted
 	  */
-    std::string getFileName() const {
+    [[nodiscard]] std::string getFileName() const {
         return file_name_;
     }
 
@@ -783,7 +784,7 @@ public:
 	  *
 	  * @return The current canvas label
 	  */
-    std::string getCanvasLabel() const {
+    [[nodiscard]] std::string getCanvasLabel() const {
         return canvas_label_;
     }
 
@@ -794,7 +795,7 @@ public:
 	  * @param s A parameter-property specification whose variable descriptor is turned into a label
 	  * @return A human-readable label string for the given variable
 	  */
-    std::string getLabel(const gen::parPropSpec<fp_type> &s) const {
+    [[nodiscard]] std::string getLabel(const gen::parPropSpec<fp_type> &s) const {
         // All monitored parameters are addressed positionally (the former by-name addressing
         // modes have been removed).
         const std::size_t var_pos = std::get<2>(s.var);
@@ -933,7 +934,7 @@ private:
 	  *
 	  * @return The class name of this object
 	  */
-    std::string name_() const override {
+    [[nodiscard]] std::string name_() const override {
         return std::string("GProgressPlotterT<fp_type>");
     }
 
@@ -943,7 +944,7 @@ private:
 	  *
 	  * @return A pointer to a freshly allocated deep copy of this object (ownership passes to the caller)
 	  */
-    oa::GBasePluggableOM *clone_() const override {
+    [[nodiscard]] oa::GBasePluggableOM *clone_() const override {
         return new GProgressPlotterT<fp_type>(*this);
     }
 
@@ -955,6 +956,7 @@ private:
      * @param im The information mode (initialization, processing or finalization) for this call
      * @param goa A constant pointer to the optimization algorithm whose state is being monitored
      */
+    // NOLINTNEXTLINE(readability-function-size) -- switch-driven dispatcher over infoMode (INFOINIT/INFOPROCESSING/INFOEND) for GProgressPlotterT; each case is a self-contained stage of the same plot lifecycle
     void informationFunction_(infoMode im, oa::GOptimizationAlgorithmBase const *const goa) override {
         switch(im) {
         case Gem::Geneva::infoMode::INFOINIT: {
@@ -1015,7 +1017,7 @@ private:
 
         case Gem::Geneva::infoMode::INFOPROCESSING: {
             if(monitor_best_only_) { // Monitor the best individual only
-                std::shared_ptr<gen::GOptimizableEntity> p =
+                std::shared_ptr<gen::GOptimizableEntity> const p =
                     goa->Interface::GOptimizerIT<oa::GOptimizationAlgorithmBase>::getBestGlobalIndividual<gen::GOptimizableEntity>();
                 this->logIndividual_(*p);
             }
@@ -1222,7 +1224,7 @@ public:
      * @brief Retrieves the current file name
      * @return The name of the file to which solutions are logged
      */
-    std::string getFileName() const;
+    [[nodiscard]] std::string getFileName() const;
 
     /**
      * @brief Sets the boundaries
@@ -1233,12 +1235,12 @@ public:
      * @brief Allows to retrieve the boundaries
      * @return The value boundaries used to filter which solutions are logged
      */
-    std::vector<double> getBoundaries() const;
+    [[nodiscard]] std::vector<double> getBoundaries() const;
     /**
      * @brief Allows to check whether boundaries are active
      * @return true if boundaries have been set and are active, false otherwise
      */
-    bool boundariesActive() const;
+    [[nodiscard]] bool boundariesActive() const;
     /** @brief Allows to inactivate boundaries */
     void setBoundariesInactive();
 
@@ -1251,7 +1253,7 @@ public:
      * @brief Allows to check whether explanations should be printed for parameter-and fitness values
      * @return true if a header line with variable names and types is prepended, false otherwise
      */
-    bool getPrintWithNameAndType() const;
+    [[nodiscard]] bool getPrintWithNameAndType() const;
 
     /**
      * @brief Allows to specify whether commas should be printed in-between values
@@ -1262,7 +1264,7 @@ public:
      * @brief Allows to check whether commas should be printed in-between values
      * @return true if commas are printed in-between values, false otherwise
      */
-    bool getPrintWithCommas() const;
+    [[nodiscard]] bool getPrintWithCommas() const;
 
     /**
      * @brief Allows to specify whether the true (instead of the transformed) fitness should be shown
@@ -1273,7 +1275,7 @@ public:
      * @brief Allows to retrieve whether the true (instead of the transformed) fitness should be shown
      * @return true if the raw (true) fitness is shown, false if the transformed fitness is shown
      */
-    bool getUseTrueFitness() const;
+    [[nodiscard]] bool getUseTrueFitness() const;
 
     /**
      * @brief Allows to specify whether the validity of a solution should be shown
@@ -1284,7 +1286,7 @@ public:
      * @brief Allows to check whether the validity of a solution will be shown
      * @return true if the validity of each solution is shown, false otherwise
      */
-    bool getShowValidity() const;
+    [[nodiscard]] bool getShowValidity() const;
 
     /**
      * @brief Allows to specify whether the initial population should be printed.
@@ -1295,7 +1297,7 @@ public:
      * @brief Allows to check whether the initial population should be printed.
      * @return true if the initial population is printed, false otherwise
      */
-    bool getPrintInitial() const;
+    [[nodiscard]] bool getPrintInitial() const;
 
     /**
      * @brief Allows to specify whether a comment line should be inserted between iterations
@@ -1306,7 +1308,7 @@ public:
      * @brief Allows to check whether a comment line should be inserted between iterations
      * @return true if a comment line is inserted between iterations, false otherwise
      */
-    bool getShowIterationBoundaries() const;
+    [[nodiscard]] bool getShowIterationBoundaries() const;
 
 protected:
     /************************************************************************/
@@ -1349,12 +1351,12 @@ private:
      * @brief Emits a name for this class / object
      * @return The human-readable class name of this object
      */
-    std::string name_() const override;
+    [[nodiscard]] std::string name_() const override;
     /**
      * @brief Creates a deep clone of this object
      * @return A pointer to a freshly allocated deep copy of this object (ownership passes to the caller)
      */
-    oa::GBasePluggableOM *clone_() const override;
+    [[nodiscard]] oa::GBasePluggableOM *clone_() const override;
 
     /**
      * @brief Allows to emit information in different stages of the information cycle
@@ -1457,7 +1459,7 @@ public:
      * @brief Retrieves the current file name
      * @return The name of the file to which iteration results are logged
      */
-    std::string getFileName() const;
+    [[nodiscard]] std::string getFileName() const;
 
     /**
      * @brief Allows to specify whether commas should be printed in-between values
@@ -1468,7 +1470,7 @@ public:
      * @brief Allows to check whether commas should be printed in-between values
      * @return true if commas are printed in-between values, false otherwise
      */
-    bool getPrintWithCommas() const;
+    [[nodiscard]] bool getPrintWithCommas() const;
 
     /**
      * @brief Allows to specify whether the true (instead of the transformed) fitness should be shown
@@ -1479,7 +1481,7 @@ public:
      * @brief Allows to retrieve whether the true (instead of the transformed) fitness should be shown
      * @return true if the raw (true) fitness is shown, false if the transformed fitness is shown
      */
-    bool getUseTrueFitness() const;
+    [[nodiscard]] bool getUseTrueFitness() const;
 
 protected:
     /************************************************************************/
@@ -1521,12 +1523,12 @@ private:
      * @brief Emits a name for this class / object
      * @return The human-readable class name of this object
      */
-    std::string name_() const override;
+    [[nodiscard]] std::string name_() const override;
     /**
      * @brief Creates a deep clone of this object
      * @return A pointer to a freshly allocated deep copy of this object (ownership passes to the caller)
      */
-    oa::GBasePluggableOM *clone_() const override;
+    [[nodiscard]] oa::GBasePluggableOM *clone_() const override;
 
     /**
      * @brief Allows to emit information in different stages of the information cycle
@@ -1620,7 +1622,7 @@ public:
      * @brief Retrieves the current file name
      * @return The name of the file to which the number of adaptions is logged
      */
-    std::string getFileName() const;
+    [[nodiscard]] std::string getFileName() const;
 
     /**
      * @brief Allows to specify whether only the best individuals should be monitored
@@ -1631,7 +1633,7 @@ public:
      * @brief Allows to check whether only the best individuals should be monitored
      * @return true if only the best individual(s) are monitored, false otherwise
      */
-    bool getMonitorBestOnly() const;
+    [[nodiscard]] bool getMonitorBestOnly() const;
 
     /**
      * @brief Allows to set the canvas dimensions
@@ -1648,7 +1650,7 @@ public:
      * @brief Gives access to the canvas dimensions
      * @return A tuple holding the canvas dimensions in x- and y-direction
      */
-    std::tuple<std::uint32_t, std::uint32_t> getCanvasDimensions() const;
+    [[nodiscard]] std::tuple<std::uint32_t, std::uint32_t> getCanvasDimensions() const;
 
     /**
      * @brief Allows to add a "Print" command to the end of the script so that picture files are created
@@ -1659,7 +1661,7 @@ public:
      * @brief Allows to retrieve the current value of the add_print_command_ variable
      * @return true if a print command will be appended to the script, false otherwise
      */
-    bool getAddPrintCommand() const;
+    [[nodiscard]] bool getAddPrintCommand() const;
 
 protected:
     /************************************************************************/
@@ -1702,7 +1704,7 @@ private:
      * @brief Creates a deep clone of this object
      * @return A pointer to a freshly allocated deep copy of this object (ownership passes to the caller)
      */
-    oa::GBasePluggableOM *clone_() const override;
+    [[nodiscard]] oa::GBasePluggableOM *clone_() const override;
 
     /**
      * @brief Allows to emit information in different stages of the information cycle
@@ -1854,7 +1856,7 @@ public:
 	  *
 	  * @return The name of the file the logged property is written to
 	  */
-    std::string getFileName() const {
+    [[nodiscard]] std::string getFileName() const {
         return file_name_;
     }
 
@@ -1865,7 +1867,7 @@ public:
 	  * @param adaptor_name The name of the adaptor whose property should be logged
 	  */
     void setAdaptorName(std::string adaptor_name) {
-        adaptor_name_ = adaptor_name;
+        adaptor_name_ = std::move(adaptor_name);
     }
 
     /***************************************************************************/
@@ -1874,7 +1876,7 @@ public:
 	  *
 	  * @return The name of the adaptor whose property is logged
 	  */
-    std::string getAdaptorName() const {
+    [[nodiscard]] std::string getAdaptorName() const {
         return adaptor_name_;
     }
 
@@ -1885,7 +1887,7 @@ public:
 	  * @param property The name of the property to be logged (e.g. "sigma")
 	  */
     void setPropertyName(std::string property) {
-        property_ = property;
+        property_ = std::move(property);
     }
 
     /***************************************************************************/
@@ -1894,7 +1896,7 @@ public:
 	  *
 	  * @return The name of the property being logged
 	  */
-    std::string getPropertyName() const {
+    [[nodiscard]] std::string getPropertyName() const {
         return property_;
     }
 
@@ -1914,7 +1916,7 @@ public:
 	  *
 	  * @return true if only the best individual(s) are monitored, false otherwise
 	  */
-    bool getMonitorBestOnly() const {
+    [[nodiscard]] bool getMonitorBestOnly() const {
         return monitor_best_only_;
     }
 
@@ -1945,7 +1947,7 @@ public:
 	  *
 	  * @return A tuple holding the canvas dimensions in x- and y-direction
 	  */
-    std::tuple<std::uint32_t, std::uint32_t> getCanvasDimensions() const {
+    [[nodiscard]] std::tuple<std::uint32_t, std::uint32_t> getCanvasDimensions() const {
         return canvas_dimensions_;
     }
 
@@ -1965,7 +1967,7 @@ public:
 	  *
 	  * @return true if a print command will be appended to the script, false otherwise
 	  */
-    bool getAddPrintCommand() const {
+    [[nodiscard]] bool getAddPrintCommand() const {
         return add_print_command_;
     }
 
@@ -2104,7 +2106,7 @@ private:
 	  *
 	  * @return The class name of this object
 	  */
-    std::string name_() const override {
+    [[nodiscard]] std::string name_() const override {
         return std::string("GAdaptorPropertyLoggerT");
     }
 
@@ -2114,7 +2116,7 @@ private:
 	  *
 	  * @return A pointer to a freshly allocated deep copy of this object (ownership passes to the caller)
 	  */
-    oa::GBasePluggableOM *clone_() const override {
+    [[nodiscard]] oa::GBasePluggableOM *clone_() const override {
         return new GAdaptorPropertyLoggerT<num_type>(*this);
     }
 
@@ -2126,6 +2128,7 @@ private:
      * @param im The information mode (initialization, processing or finalization) for this call
      * @param goa A constant pointer to the optimization algorithm whose state is being monitored
      */
+    // NOLINTNEXTLINE(readability-function-size) -- switch-driven dispatcher over infoMode (INFOINIT/INFOPROCESSING/INFOEND) for GAdaptorPropertyLoggerT; each case is a self-contained stage of the same log lifecycle
     void informationFunction_(infoMode im, oa::GOptimizationAlgorithmBase const *const goa) override {
         using namespace Gem::Common;
         using namespace Gem::Dietrich; // GDataLog / GPlotSpec / plotKind / graphPlotMode
@@ -2134,7 +2137,7 @@ private:
         case Gem::Geneva::infoMode::INFOINIT: {
             // If the file pointed to by file_name_ already exists, make a back-up
             if(std::filesystem::exists(file_name_)) {
-                std::string new_file_name =
+                std::string const new_file_name =
                     file_name_ + ".bak_" +
                     Gem::Common::getMSSince1970(); // NOLINT(cppcoreguidelines-init-variables)
 
@@ -2153,10 +2156,10 @@ private:
         } break;
 
         case Gem::Geneva::infoMode::INFOPROCESSING: {
-            std::uint32_t iteration = goa->getIteration();
+            std::uint32_t const iteration = goa->getIteration();
 
             // Record the current fitness
-            std::shared_ptr<gen::GOptimizableEntity> p =
+            std::shared_ptr<gen::GOptimizableEntity> const p =
                 goa->Interface::GOptimizerIT<oa::GOptimizationAlgorithmBase>::getBestGlobalIndividual<gen::GOptimizableEntity>();
             fitness_store_.emplace_back(static_cast<double>(iteration), p->raw_fitness(0));
 
@@ -2176,7 +2179,7 @@ private:
             // sigma straight from the population slots.
             // The adaptor settings live on the OA-owned config now (the genome is structure-only), so read
             // it from the algorithm. A non-adapting algorithm returns null and no sigma is logged.
-            std::shared_ptr<const oa::GAdaptionConfigBase> cfg_ptr = goa->getAdaptionConfig();
+            std::shared_ptr<const oa::GAdaptionConfigBase> const cfg_ptr = goa->getAdaptionConfig();
 
             if(monitor_best_only_) {
                 if(property_ == "sigma" && cfg_ptr) {
@@ -2184,7 +2187,7 @@ private:
                     // configured SEED sigma read from a freshly seeded scratch.
                     gen::GAuxiliaryStore seed_scratch;
                     cfg_ptr->installInto(seed_scratch);
-                    for(double sigma : oa::readAdaptionSigmas(seed_scratch, *cfg_ptr, adaptor_name_)) {
+                    for(double const sigma : oa::readAdaptionSigmas(seed_scratch, *cfg_ptr, adaptor_name_)) {
                         adaptor_property_store_.emplace_back(static_cast<double>(iteration), sigma);
                     }
                 }
@@ -2194,7 +2197,7 @@ private:
                 // slot's OA-owned scratch.
                 for(const auto & slot : *goa) {
                     if(property_ == "sigma" && cfg_ptr) {
-                        for(double sigma : oa::readAdaptionSigmas(slot->scratch(), *cfg_ptr, adaptor_name_)) {
+                        for(double const sigma : oa::readAdaptionSigmas(slot->scratch(), *cfg_ptr, adaptor_name_)) {
                             adaptor_property_store_.emplace_back(static_cast<double>(iteration), sigma);
                         }
                     }
@@ -2367,7 +2370,7 @@ public:
      * @brief Retrieves the current file name for the processing times histogram
      * @return The file name for the 1D processing-times histograms
      */
-    std::string getFileName_pth() const;
+    [[nodiscard]] std::string getFileName_pth() const;
     /**
      * @brief Sets the file name for the processing times histograms (2D)
      * @param file_name The file name for the 2D processing-times histograms
@@ -2377,7 +2380,7 @@ public:
      * @brief Retrieves the current file name for the processing times histograms (2D)
      * @return The file name for the 2D processing-times histograms
      */
-    std::string getFileName_pth2() const;
+    [[nodiscard]] std::string getFileName_pth2() const;
 
     /**
      * @brief Sets the file name for the text output
@@ -2388,7 +2391,7 @@ public:
      * @brief Retrieves the current file name for the text output
      * @return The file name for the plain-text processing-times output
      */
-    std::string getFileName_txt() const;
+    [[nodiscard]] std::string getFileName_txt() const;
 
     /**
      * @brief Allows to set the canvas dimensions for the processing times histograms
@@ -2406,7 +2409,7 @@ public:
      * @brief Gives access to the canvas dimensions of the processing times histograms
      * @return A tuple holding the canvas dimensions in x- and y-direction
      */
-    std::tuple<std::uint32_t, std::uint32_t> getCanvasDimensions_pth() const;
+    [[nodiscard]] std::tuple<std::uint32_t, std::uint32_t> getCanvasDimensions_pth() const;
     /**
      * @brief Allows to set the canvas dimensions for the processing times histograms (2D)
      * @param canvas_dimensions A tuple holding the canvas dimensions in x- and y-direction
@@ -2423,7 +2426,7 @@ public:
      * @brief Gives access to the canvas dimensions of the processing times histograms (2D)
      * @return A tuple holding the canvas dimensions in x- and y-direction
      */
-    std::tuple<std::uint32_t, std::uint32_t> getCanvasDimensions_pth2() const;
+    [[nodiscard]] std::tuple<std::uint32_t, std::uint32_t> getCanvasDimensions_pth2() const;
 
     /**
      * @brief Sets the number of bins for the processing times histograms in x-direction
@@ -2434,7 +2437,7 @@ public:
      * @brief Retrieves the current number of bins for the processing times histograms in x-direction
      * @return The number of histogram bins in x-direction
      */
-    std::size_t getNBinsX() const;
+    [[nodiscard]] std::size_t getNBinsX() const;
 
     /**
      * @brief Sets the number of bins for the processing times histograms in y-direction
@@ -2445,7 +2448,7 @@ public:
      * @brief Retrieves the current number of bins for the processing times histograms in y-direction
      * @return The number of histogram bins in y-direction
      */
-    std::size_t getNBinsY() const;
+    [[nodiscard]] std::size_t getNBinsY() const;
 
 protected:
     /************************************************************************/
@@ -2488,12 +2491,12 @@ private:
      * @brief Emits a name for this class / object
      * @return The human-readable class name of this object
      */
-    std::string name_() const override;
+    [[nodiscard]] std::string name_() const override;
     /**
      * @brief Creates a deep clone of this object
      * @return A pointer to a freshly allocated deep copy of this object (ownership passes to the caller)
      */
-    oa::GBasePluggableOM *clone_() const override;
+    [[nodiscard]] oa::GBasePluggableOM *clone_() const override;
 
     /**
      * @brief Allows to emit information in different stages of the information cycle

@@ -193,7 +193,7 @@ TEST_CASE("courtier(websocket): a client whose server vanishes terminates on its
     );
     const unsigned short port = acceptor.local_endpoint().port();
 
-    std::jthread server_thread([&acceptor] {
+    std::jthread const server_thread([&acceptor] {
         boost::system::error_code ec;
         tcp::socket sock = acceptor.accept(ec);
         if(ec) {
@@ -214,7 +214,7 @@ TEST_CASE("courtier(websocket): a client whose server vanishes terminates on its
         "127.0.0.1", port, BIN, /*verbose_control_frames=*/false, /*prefetch_depth=*/1
     );
     std::atomic<bool> returned{false};
-    std::jthread client_thread([client, &returned] {
+    std::jthread const client_thread([client, &returned] {
         try {
             client->run();
         }

@@ -49,6 +49,7 @@ namespace Gem::Common {
       * @param outHeight A reference to an integer for the height of the image
       * @return A boolean indicating whether the loading was successful
       */
+// NOLINTNEXTLINE(readability-function-size) -- one coherent libpng read kernel; each step depends on png_ptr/info_ptr state opened above it, with a matching cleanup at every early-return, so splitting would scatter tightly coupled cleanup logic
 bool loadPngToRGB(
     const std::string &filename,
     std::vector<unsigned char> &outData,
@@ -296,7 +297,7 @@ bool loadImageToRGB(
     static int l_height{0};
 
     // Serialize the loading and transfer of images
-    std::lock_guard<std::mutex> lock(image_mutex);
+    std::lock_guard<std::mutex> const lock(image_mutex);
 
     // Loading from disc shall be done but once
     if(first) {
@@ -304,9 +305,9 @@ bool loadImageToRGB(
         l_fileName = fileName;
 
         // Identify the suffix of the filename (trailing characters after the last dot
-        char delimiter = '.';
+        char const delimiter = '.';
         std::string suffix{};
-        std::size_t pos = l_fileName.find_last_of(delimiter);
+        std::size_t const pos = l_fileName.find_last_of(delimiter);
         if(pos == std::string::npos || pos == l_fileName.length() - 1) {
             // No delimiter found, or delimiter is the last character
             suffix = "none";
@@ -408,7 +409,7 @@ bool saveRGBImageToFile(
     // Identify the suffix of the filename (trailing characters after the last dot
     constexpr char delimiter = '.';
     std::string suffix{};
-    std::size_t pos = fileName.find_last_of(delimiter);
+    std::size_t const pos = fileName.find_last_of(delimiter);
     if(pos == std::string::npos || pos == fileName.length() - 1) {
         // No delimiter found, or delimiter is the last character
         suffix = "none";

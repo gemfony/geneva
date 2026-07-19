@@ -141,7 +141,7 @@ std::size_t seriesRows(const dataSeries &s) {
 std::string csvComment(const std::string &in) {
     std::string out;
     out.reserve(in.size());
-    for(char c : in) {
+    for(char const c : in) {
         if(c == '\n' || c == '\r') {
             out += ' ';
         } else {
@@ -168,7 +168,7 @@ std::string emitCsv(const std::vector<dataSeries> &series, const canvasInfo &can
         }
 
         // Comma-list of column names for the header comment.
-        std::string col_list = s.column_names | std::views::join_with(',')
+        std::string const col_list = s.column_names | std::views::join_with(',')
             | std::ranges::to<std::string>();
 
         out << "# series " << si << ": \"" << csvComment(s.name) << "\" kind=" << s.kind
@@ -235,7 +235,7 @@ const std::array<std::uint32_t, 256> &crc32Table() {
 std::uint32_t crc32(const std::string &data) {
     const auto &table = crc32Table();
     std::uint32_t crc = 0xFFFFFFFFu;
-    for(unsigned char byte : data) {
+    for(unsigned char const byte : data) {
         crc = table[(crc ^ byte) & 0xFFu] ^ (crc >> 8);
     }
     return crc ^ 0xFFFFFFFFu;
@@ -265,7 +265,7 @@ std::string buildNpy(const std::vector<GPlotColumn> &columns, std::size_t rows) 
     // The header must be padded with spaces so that magic(6)+version(2)+len(2)+header is a
     // multiple of 64, with the final header byte a newline.
     const std::size_t prefix = 6 + 2 + 2; // magic + version + uint16 length field
-    std::size_t total = prefix + dict.size() + 1; // +1 for the trailing '\n'
+    std::size_t const total = prefix + dict.size() + 1; // +1 for the trailing '\n'
     const std::size_t pad = (64 - (total % 64)) % 64;
     dict.append(pad, ' ');
     dict.push_back('\n');
@@ -303,6 +303,7 @@ struct zipMember {
  *  .npz. Each member gets a local file header + its bytes; a central directory and an
  *  end-of-central-directory record close the archive. DOS date/time are left zero (numpy
  *  ignores them) so the bytes are deterministic. */
+// NOLINTNEXTLINE(readability-function-size) -- one coherent ZIP binary-format kernel (local file headers, central directory, end-of-central-directory record); splitting would scatter the tightly-coupled offset/size bookkeeping across functions
 std::string buildZip(const std::vector<zipMember> &members) {
     std::string out;
     struct cdEntry {

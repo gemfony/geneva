@@ -155,13 +155,14 @@ using Gem::Common::operator>>;
 /************************************************************************************************/
 
 template <class T>
+// NOLINTNEXTLINE(readability-function-size) -- one switch-driven dispatcher, one case per distribution type sampled into the same output vector
 void createRandomVector(
     std::vector<T> &vec_t,
     const distType &dType,
     const std::size_t &nEntries,
-    std::shared_ptr<Gem::Hap::GRandomBase> gr_ptr
+    const std::shared_ptr<Gem::Hap::GRandomBase>& gr_ptr
 ) {
-    std::size_t i;
+    std::size_t i = 0;
 
     std::normal_distribution<double> normal_distribution(-3., 1.);
     Gem::Hap::bi_normal_distribution<double> bi_normal_distribution(-3, 0.5, 0.5, 3.);
@@ -291,19 +292,20 @@ void createRandomVector(
 
 /************************************************************************************************/
 
+// NOLINTNEXTLINE(readability-function-size) -- main() of a manual test: CLI parsing, a switch selecting the RNG source, then the fixed ROOT-macro header + per-distribution sampling/Fill() sections
 int main(int argc, char **argv) {
     std::shared_ptr<Gem::Hap::GRandomBase> gr_ptr;
 
-    std::size_t nEntries;
-    std::uint16_t nProducerThreads;
-    std::uint16_t rnrProductionMode;
+    std::size_t nEntries = 0;
+    std::uint16_t nProducerThreads = 0;
+    std::uint16_t rnrProductionMode = 0;
     std::string resultFile;
 
     if(!parseCommandLine(argc, argv, nEntries, nProducerThreads, rnrProductionMode, resultFile)) {
         exit(1);
     }
 
-    std::size_t i;
+    std::size_t i = 0;
     std::vector<double> gaussian;
     std::vector<double> doublegaussian;
     std::vector<double> even;
@@ -317,7 +319,7 @@ int main(int argc, char **argv) {
     std::vector<std::int32_t> discretebound;
     std::vector<std::int32_t> bitprob;
     std::vector<std::int32_t> bitsimple;
-    std::vector<std::int32_t> charrnd;
+    std::vector<std::int32_t> const charrnd;
     std::vector<double> initCorr;
     std::vector<double> initLFCorr;
 

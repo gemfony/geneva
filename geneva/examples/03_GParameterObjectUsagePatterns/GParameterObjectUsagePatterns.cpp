@@ -112,19 +112,19 @@ BOOST_CLASS_EXPORT(GDemoIndividual) // NOLINT
 void printGenome(const std::string &title, const gen::GenomeData &g) {
     std::cout << title << '\n';
     std::cout << "  double values (" << g.dv.size() << "): ";
-    for(double v : g.dv) {
+    for(double const v : g.dv) {
         std::cout << v << ' ';
     }
     std::cout << "\n  float  values (" << g.fv.size() << "): ";
-    for(float v : g.fv) {
+    for(float const v : g.fv) {
         std::cout << v << ' ';
     }
     std::cout << "\n  int32  values (" << g.iv.size() << "): ";
-    for(std::int32_t v : g.iv) {
+    for(std::int32_t const v : g.iv) {
         std::cout << v << ' ';
     }
     std::cout << "\n  bool   values (" << g.bv.size() << "): ";
-    for(std::uint8_t v : g.bv) {
+    for(std::uint8_t const v : g.bv) {
         std::cout << static_cast<int>(v) << ' ';
     }
     std::cout << "\n  adaption groups -> double: " << g.layout->d.groups.size()
@@ -140,6 +140,7 @@ void printGenome(const std::string &title, const gen::GenomeData &g) {
  * parameters of an individual are declared once via the builder rather than by
  * pushing back individual parameter objects.
  */
+// NOLINTNEXTLINE(readability-function-size) -- single demo main walking through the flat-genome usage patterns end to end (config emission, builder use, inspection)
 int main(int argc, char **argv) {
     // --update-configs: materialize the one configuration file this demo owns (the GFunctionIndividual
     // factory's), then exit. Constructing the factory with GParserBuilder in update-in-place mode
@@ -156,11 +157,11 @@ int main(int argc, char **argv) {
     //    config; toJSON() serialises that genome's parameters.
 
     {
-        std::shared_ptr<gind::GFunctionIndividualFactory> gfi_ptr(
+        std::shared_ptr<gind::GFunctionIndividualFactory> const gfi_ptr(
             new gind::GFunctionIndividualFactory("./config/GFunctionIndividual.json")
         );
 
-        std::shared_ptr<gen::GOptimizableEntity> gfi_test = gfi_ptr->get();
+        std::shared_ptr<gen::GOptimizableEntity> const gfi_test = gfi_ptr->get();
 
         // Make sure the individual is "clean", i.e. the processed flag is set
         gfi_test->set_processing_status(Gem::Courtier::processingStatus::DO_PROCESS);
@@ -281,7 +282,7 @@ int main(int argc, char **argv) {
         std::vector<double> dvals;
         ind.streamline(dvals);
         std::cout << "GDemoIndividual double values: ";
-        for(double v : dvals) {
+        for(double const v : dvals) {
             std::cout << v << ' ';
         }
         std::cout << '\n';
@@ -289,7 +290,7 @@ int main(int argc, char **argv) {
         std::vector<std::int32_t> ivals;
         ind.streamline(ivals);
         std::cout << "GDemoIndividual int32 values: ";
-        for(std::int32_t v : ivals) {
+        for(std::int32_t const v : ivals) {
             std::cout << v << ' ';
         }
         std::cout << '\n';
@@ -310,7 +311,7 @@ int main(int argc, char **argv) {
         std::vector<double> after;
         ind.streamline(after);
         std::cout << "GDemoIndividual double values after adapt(): ";
-        for(double v : after) {
+        for(double const v : after) {
             std::cout << v << ' ';
         }
         std::cout << '\n';

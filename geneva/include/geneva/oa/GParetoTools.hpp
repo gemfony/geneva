@@ -126,8 +126,8 @@ inline std::vector<std::size_t> nonDominatedRank(
     std::size_t fi = 0;
     while(fi < fronts.size() && not fronts[fi].empty()) {
         std::vector<std::size_t> next_front;
-        for(std::size_t p : fronts[fi]) {
-            for(std::size_t q : dominated[p]) {
+        for(std::size_t const p : fronts[fi]) {
+            for(std::size_t const q : dominated[p]) {
                 if(--dom_count[q] == 0) {
                     next_front.push_back(q);
                 }
@@ -167,7 +167,7 @@ inline std::vector<std::size_t> nonDominatedRank(
         std::vector<std::size_t> local_order(fs);
         std::iota(local_order.begin(), local_order.end(), 0);
         std::ranges::sort(local_order, std::ranges::greater{}, [&](std::size_t i) { return crowd[i]; });
-        for(std::size_t local : local_order) {
+        for(std::size_t const local : local_order) {
             order.push_back(front[local]);
         }
     }

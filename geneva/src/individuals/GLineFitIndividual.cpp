@@ -290,8 +290,8 @@ std::vector<double> GLineFitIndividual::evaluate() {
     std::vector<double> par_vec;
     this->streamline(par_vec);
 
-    double a = par_vec.at(0);
-    double b = par_vec.at(1);
+    double const a = par_vec.at(0);
+    double const b = par_vec.at(1);
 
     // Sum up the square deviation of line and data points
     double deviation = 0.;

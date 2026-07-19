@@ -425,6 +425,7 @@ std::tuple<double, double> GNelderMead::cycleLogic_() {
  * candidates are written into the trial slots so they are evaluated in this
  * iteration. The acceptance rules (next iteration) then pick at most one of them.
  */
+// NOLINTNEXTLINE(readability-function-size) -- single coherent numeric kernel: one Nelder-Mead trial-generation step per simplex (worst vertex, centroid, then the four reflect/expand/contract/ocontract candidates derived from that same centroid); splitting would scatter one tightly coupled formula set
 void GNelderMead::proposeTrials() {
     for(std::size_t s = 0; s < n_simplices_; s++) {
         const std::size_t n_vert = n_fp_parms_first_ + 1;
@@ -510,6 +511,7 @@ void GNelderMead::proposeTrials() {
  * inherits the trial's already-known fitness, which keeps proposeTrials() in
  * the same iteration consistent (no stale ranking except after a shrink).
  */
+// NOLINTNEXTLINE(readability-function-size) -- single coherent decision procedure: the standard Nelder-Mead acceptance tree (best/worst/second-worst ranking feeding the reflect/expand/contract/shrink cascade) per simplex; splitting the cascade would scatter one textbook algorithm's decision logic
 void GNelderMead::applyNelderMeadDecision() {
     for(std::size_t s = 0; s < n_simplices_; s++) {
         const std::size_t n_vert = n_fp_parms_first_ + 1;
@@ -761,6 +763,7 @@ void GNelderMead::buildInitialSimplices() {
  *
  * @return true if a restart was performed (i.e. there is at least one simplex), false otherwise
  */
+// NOLINTNEXTLINE(readability-function-size) -- single coherent numeric kernel: one oriented-restart step per simplex (best vertex, descent-orienting centroid, then the per-coordinate perturbation of every non-best vertex derived from that centroid); splitting would scatter one tightly coupled procedure
 bool GNelderMead::restartSimplices() {
     const std::size_t n_vert = n_fp_parms_first_ + 1;
     for(std::size_t s = 0; s < n_simplices_; s++) {

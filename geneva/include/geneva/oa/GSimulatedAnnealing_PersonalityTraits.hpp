@@ -81,7 +81,7 @@ public:
      * @brief Retrieves the mnemonic of the optimization algorithm.
      * @return The short mnemonic string identifying the simulated annealing algorithm
      */
-    std::string getMnemonic() const override;
+    [[nodiscard]] std::string getMnemonic() const override;
 
 protected:
     /***************************************************************************/
@@ -134,12 +134,12 @@ private:
      * @brief Emits a name for this class / object.
      * @return A string holding the name of this class
      */
-    std::string name_() const override;
+    [[nodiscard]] std::string name_() const override;
     /**
      * @brief Creates a deep clone of this object.
      * @return A deep clone of this object, allocated on the heap (caller takes ownership)
      */
-    GPersonalityTraits *clone_() const override;
+    [[nodiscard]] GPersonalityTraits *clone_() const override;
 };
 
 /******************************************************************************/

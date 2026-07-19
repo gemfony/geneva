@@ -104,7 +104,7 @@ public:
 	 * @brief Retrieves the value of the draw_arrows_ variable
 	 * @return Whether arrows are drawn between consecutive points
 	 */
-    bool getDrawArrows() const;
+    [[nodiscard]] bool getDrawArrows() const;
 
     /**
 	 * @brief Determines whether a scatter plot or a curve is created
@@ -115,13 +115,13 @@ public:
 	 * @brief Allows to retrieve the current plotting mode
 	 * @return The currently set plotting mode
 	 */
-    graphPlotMode getPlotMode() const;
+    [[nodiscard]] graphPlotMode getPlotMode() const;
 
     /**
 	 * @brief Retrieves a unique name for this plotter
 	 * @return A unique name for this plotter
 	 */
-    std::string getPlotterName() const override;
+    [[nodiscard]] std::string getPlotterName() const override;
 
     /**
 	 * @brief Reports this plotter's choice (kind, columns, bins) as a GPlotSpec value
@@ -137,7 +137,7 @@ protected:
 	 * @param indention The indention string prepended to each emitted line
 	 * @return The header section of the ROOT code for this plot
 	 */
-    std::string headerData_(bool is_secondary, std::size_t p_id, std::size_t own_id, const std::string &indent) const override;
+    [[nodiscard]] std::string headerData_(bool is_secondary, std::size_t p_id, std::size_t own_id, const std::string &indent) const override;
 
     /**
 	 * @brief Retrieves the actual data sets
@@ -146,7 +146,7 @@ protected:
 	 * @param indention The indention string prepended to each emitted line
 	 * @return The body section of the ROOT code, holding the actual data
 	 */
-    std::string bodyData_(bool is_secondary, std::size_t p_id, std::size_t own_id, const std::string &indent) const override;
+    [[nodiscard]] std::string bodyData_(bool is_secondary, std::size_t p_id, std::size_t own_id, const std::string &indent) const override;
 
     /**
 	 * @brief Retrieves specific draw commands for this plot
@@ -155,14 +155,14 @@ protected:
 	 * @param indention The indention string prepended to each emitted line
 	 * @return The footer section of the ROOT code, holding the draw commands
 	 */
-    std::string footerData_(bool is_secondary, std::size_t p_id, std::size_t own_id, const std::string &indent) const override;
+    [[nodiscard]] std::string footerData_(bool is_secondary, std::size_t p_id, std::size_t own_id, const std::string &indent) const override;
 
     /**
 	 * @brief Retrieve the current drawing arguments
 	 * @param isSecondary Whether this is a secondary plot drawn into an existing pad
 	 * @return The drawing arguments to be passed to ROOT's Draw() call
 	 */
-    std::string drawingArguments(bool is_secondary) const override;
+    [[nodiscard]] std::string drawingArguments(bool is_secondary) const override;
 
     /**
 	 * @brief Loads the data of another object
@@ -190,12 +190,12 @@ private:
 	 * @brief Returns the name of this class
 	 * @return The name of this class as a string
 	 */
-    std::string name_() const override;
+    [[nodiscard]] std::string name_() const override;
     /**
 	 * @brief Creates a deep clone of this object
 	 * @return A deep clone of this object, wrapped into a GBasePlotter pointer
 	 */
-    GBasePlotter *clone_() const override;
+    [[nodiscard]] GBasePlotter *clone_() const override;
 
     graphPlotMode p_m_ =
         DEFPLOTMODE;          ///< Whether to create scatter plots or a curve, connected by lines
@@ -266,13 +266,13 @@ public:
 	 * @brief Allows to retrieve the current plotting mode
 	 * @return The currently set plotting mode
 	 */
-    graphPlotMode getPlotMode() const;
+    [[nodiscard]] graphPlotMode getPlotMode() const;
 
     /**
 	 * @brief Retrieves a unique name for this plotter
 	 * @return A unique name for this plotter
 	 */
-    std::string getPlotterName() const override;
+    [[nodiscard]] std::string getPlotterName() const override;
 
     /**
 	 * @brief Reports this plotter's choice (kind, columns, bins) as a GPlotSpec value
@@ -288,7 +288,7 @@ protected:
 	 * @param indention The indention string prepended to each emitted line
 	 * @return The header section of the ROOT code for this plot
 	 */
-    std::string headerData_(bool is_secondary, std::size_t p_id, std::size_t own_id, const std::string &indent) const override;
+    [[nodiscard]] std::string headerData_(bool is_secondary, std::size_t p_id, std::size_t own_id, const std::string &indent) const override;
 
     /**
 	 * @brief Retrieves the actual data sets
@@ -297,7 +297,7 @@ protected:
 	 * @param indention The indention string prepended to each emitted line
 	 * @return The body section of the ROOT code, holding the actual data
 	 */
-    std::string bodyData_(bool is_secondary, std::size_t p_id, std::size_t own_id, const std::string &indent) const override;
+    [[nodiscard]] std::string bodyData_(bool is_secondary, std::size_t p_id, std::size_t own_id, const std::string &indent) const override;
 
     /**
 	 * @brief Retrieves specific draw commands for this plot
@@ -306,14 +306,14 @@ protected:
 	 * @param indention The indention string prepended to each emitted line
 	 * @return The footer section of the ROOT code, holding the draw commands
 	 */
-    std::string footerData_(bool is_secondary, std::size_t p_id, std::size_t own_id, const std::string &indent) const override;
+    [[nodiscard]] std::string footerData_(bool is_secondary, std::size_t p_id, std::size_t own_id, const std::string &indent) const override;
 
     /**
 	 * @brief Retrieve the current drawing arguments
 	 * @param isSecondary Whether this is a secondary plot drawn into an existing pad
 	 * @return The drawing arguments to be passed to ROOT's Draw() call
 	 */
-    std::string drawingArguments(bool is_secondary) const override;
+    [[nodiscard]] std::string drawingArguments(bool is_secondary) const override;
 
     /**
 	 * @brief Loads the data of another object
@@ -341,12 +341,12 @@ private:
 	 * @brief Returns the name of this class
 	 * @return The name of this class as a string
 	 */
-    std::string name_() const override;
+    [[nodiscard]] std::string name_() const override;
     /**
 	 * @brief Creates a deep clone of this object
 	 * @return A deep clone of this object, wrapped into a GBasePlotter pointer
 	 */
-    GBasePlotter *clone_() const override;
+    [[nodiscard]] GBasePlotter *clone_() const override;
 
     graphPlotMode p_m_ =
         DEFPLOTMODE; ///< Whether to create scatter plots or a curve, connected by lines
@@ -419,13 +419,13 @@ public:
 	 * @brief Retrieves the value of the draw_lines_ variable
 	 * @return Whether lines are drawn between consecutive points
 	 */
-    bool getDrawLines() const;
+    [[nodiscard]] bool getDrawLines() const;
 
     /**
 	 * @brief Retrieves a unique name for this plotter
 	 * @return A unique name for this plotter
 	 */
-    std::string getPlotterName() const override;
+    [[nodiscard]] std::string getPlotterName() const override;
 
     /**
 	 * @brief Reports this plotter's choice (kind, columns, bins) as a GPlotSpec value
@@ -441,7 +441,7 @@ protected:
 	 * @param indention The indention string prepended to each emitted line
 	 * @return The header section of the ROOT code for this plot
 	 */
-    std::string headerData_(bool is_secondary, std::size_t p_id, std::size_t own_id, const std::string &indent) const override;
+    [[nodiscard]] std::string headerData_(bool is_secondary, std::size_t p_id, std::size_t own_id, const std::string &indent) const override;
 
     /**
 	 * @brief Retrieves the actual data sets
@@ -450,7 +450,7 @@ protected:
 	 * @param indention The indention string prepended to each emitted line
 	 * @return The body section of the ROOT code, holding the actual data
 	 */
-    std::string bodyData_(bool is_secondary, std::size_t p_id, std::size_t own_id, const std::string &indent) const override;
+    [[nodiscard]] std::string bodyData_(bool is_secondary, std::size_t p_id, std::size_t own_id, const std::string &indent) const override;
 
     /**
 	 * @brief Retrieves specific draw commands for this plot
@@ -459,14 +459,14 @@ protected:
 	 * @param indention The indention string prepended to each emitted line
 	 * @return The footer section of the ROOT code, holding the draw commands
 	 */
-    std::string footerData_(bool is_secondary, std::size_t p_id, std::size_t own_id, const std::string &indent) const override;
+    [[nodiscard]] std::string footerData_(bool is_secondary, std::size_t p_id, std::size_t own_id, const std::string &indent) const override;
 
     /**
 	 * @brief Retrieve the current drawing arguments
 	 * @param isSecondary Whether this is a secondary plot drawn into an existing pad
 	 * @return The drawing arguments to be passed to ROOT's Draw() call
 	 */
-    std::string drawingArguments(bool is_secondary) const override;
+    [[nodiscard]] std::string drawingArguments(bool is_secondary) const override;
 
     /**
 	 * @brief Loads the data of another object
@@ -494,12 +494,12 @@ private:
 	 * @brief Returns the name of this class
 	 * @return The name of this class as a string
 	 */
-    std::string name_() const override;
+    [[nodiscard]] std::string name_() const override;
     /**
 	 * @brief Creates a deep clone of this object
 	 * @return A deep clone of this object, wrapped into a GBasePlotter pointer
 	 */
-    GBasePlotter *clone_() const override;
+    [[nodiscard]] GBasePlotter *clone_() const override;
 
     bool draw_lines_ = false; ///< When set to true, lines will be drawn between consecutive points
 };
@@ -584,12 +584,12 @@ public:
 	 * @brief Allows to retrieve the minimum marker size
 	 * @return The currently set minimum marker size
 	 */
-    double getMinMarkerSize() const;
+    [[nodiscard]] double getMinMarkerSize() const;
     /**
 	 * @brief Allows to retrieve the maximum marker size
 	 * @return The currently set maximum marker size
 	 */
-    double getMaxMarkerSize() const;
+    [[nodiscard]] double getMaxMarkerSize() const;
 
     /**
 	 * @brief Allows to specify whether small w yield large markers
@@ -600,7 +600,7 @@ public:
 	 * @brief Allows to check whether small w yield large markers
 	 * @return Whether small w-values are mapped to large markers
 	 */
-    bool getSmallWLargeMarker() const;
+    [[nodiscard]] bool getSmallWLargeMarker() const;
 
     /**
 	 * @brief Allows to set the number of solutions the class should show
@@ -611,13 +611,13 @@ public:
 	 * @brief Allows to retrieve the number of solutions the class should show
 	 * @return The number of (best) solutions to display
 	 */
-    std::size_t getNBest() const;
+    [[nodiscard]] std::size_t getNBest() const;
 
     /**
 	 * @brief Retrieves a unique name for this plotter
 	 * @return A unique name for this plotter
 	 */
-    std::string getPlotterName() const override;
+    [[nodiscard]] std::string getPlotterName() const override;
 
     /**
 	 * @brief Reports this plotter's choice (kind, columns, bins) as a GPlotSpec value
@@ -633,7 +633,7 @@ protected:
 	 * @param indention The indention string prepended to each emitted line
 	 * @return The header section of the ROOT code for this plot
 	 */
-    std::string headerData_(bool isSecondary, std::size_t pId, std::size_t ownId, const std::string &indention) const override;
+    [[nodiscard]] std::string headerData_(bool isSecondary, std::size_t pId, std::size_t ownId, const std::string &indention) const override;
 
     /**
 	 * @brief Retrieves the actual data sets
@@ -642,7 +642,7 @@ protected:
 	 * @param indention The indention string prepended to each emitted line
 	 * @return The body section of the ROOT code, holding the actual data
 	 */
-    std::string bodyData_(bool isSecondary, std::size_t pId, std::size_t ownId, const std::string &indention) const override;
+    [[nodiscard]] std::string bodyData_(bool isSecondary, std::size_t pId, std::size_t ownId, const std::string &indention) const override;
 
     /**
 	 * @brief Retrieves specific draw commands for this plot
@@ -651,14 +651,14 @@ protected:
 	 * @param indention The indention string prepended to each emitted line
 	 * @return The footer section of the ROOT code, holding the draw commands
 	 */
-    std::string footerData_(bool is_secondary, std::size_t p_id, std::size_t own_id, const std::string &indent) const override;
+    [[nodiscard]] std::string footerData_(bool is_secondary, std::size_t p_id, std::size_t own_id, const std::string &indent) const override;
 
     /**
 	 * @brief Retrieve the current drawing arguments
 	 * @param isSecondary Whether this is a secondary plot drawn into an existing pad
 	 * @return The drawing arguments to be passed to ROOT's Draw() call
 	 */
-    std::string drawingArguments(bool isSecondary) const override;
+    [[nodiscard]] std::string drawingArguments(bool isSecondary) const override;
 
     /**
 	 * @brief Loads the data of another object
@@ -686,12 +686,12 @@ private:
 	 * @brief Returns the name of this class
 	 * @return The name of this class as a string
 	 */
-    std::string name_() const override;
+    [[nodiscard]] std::string name_() const override;
     /**
 	 * @brief Creates a deep clone of this object
 	 * @return A deep clone of this object, wrapped into a GBasePlotter pointer
 	 */
-    GBasePlotter *clone_() const override;
+    [[nodiscard]] GBasePlotter *clone_() const override;
 
     double min_marker_size_ = DEFMINMARKERSIZE; ///< The minimum allowed size of the marker
     double max_marker_size_ = DEFMAXMARKERSIZE; ///< The maximum allowed size of the marker
@@ -769,7 +769,7 @@ public:
 	 * @brief Retrieves a unique name for this plotter
 	 * @return A unique name for this plotter
 	 */
-    std::string getPlotterName() const override;
+    [[nodiscard]] std::string getPlotterName() const override;
 
     /**
 	 * @brief Reports this plotter's choice (kind, columns, bins) as a GPlotSpec value
@@ -785,7 +785,7 @@ protected:
 	 * @param indention The indention string prepended to each emitted line
 	 * @return The header section of the ROOT code for this plot
 	 */
-    std::string headerData_(bool is_secondary, std::size_t p_id, std::size_t own_id, const std::string &indent) const override;
+    [[nodiscard]] std::string headerData_(bool is_secondary, std::size_t p_id, std::size_t own_id, const std::string &indent) const override;
 
     /**
 	 * @brief Retrieves the actual data sets
@@ -794,7 +794,7 @@ protected:
 	 * @param indention The indention string prepended to each emitted line
 	 * @return The body section of the ROOT code, holding the actual data
 	 */
-    std::string bodyData_(bool isSecondary, std::size_t pId, std::size_t ownId, const std::string &indention) const override;
+    [[nodiscard]] std::string bodyData_(bool isSecondary, std::size_t pId, std::size_t ownId, const std::string &indention) const override;
 
     /**
 	 * @brief Retrieves specific draw commands for this plot
@@ -803,14 +803,14 @@ protected:
 	 * @param indention The indention string prepended to each emitted line
 	 * @return The footer section of the ROOT code, holding the draw commands
 	 */
-    std::string footerData_(bool is_secondary, std::size_t p_id, std::size_t own_id, const std::string &indent) const override;
+    [[nodiscard]] std::string footerData_(bool is_secondary, std::size_t p_id, std::size_t own_id, const std::string &indent) const override;
 
     /**
 	 * @brief Retrieve the current drawing arguments
 	 * @param isSecondary Whether this is a secondary plot drawn into an existing pad
 	 * @return The drawing arguments to be passed to ROOT's Draw() call
 	 */
-    std::string drawingArguments(bool is_secondary) const override;
+    [[nodiscard]] std::string drawingArguments(bool is_secondary) const override;
 
     /**
 	 * @brief Loads the data of another object
@@ -842,12 +842,12 @@ private:
 	 * @brief Returns the name of this class
 	 * @return The name of this class as a string
 	 */
-    std::string name_() const override;
+    [[nodiscard]] std::string name_() const override;
     /**
 	 * @brief Creates a deep clone of this object
 	 * @return A deep clone of this object, wrapped into a GBasePlotter pointer
 	 */
-    GBasePlotter *clone_() const override;
+    [[nodiscard]] GBasePlotter *clone_() const override;
 
     GFunctionPlotter1D() =
         default; ///< The default constructor. Intentionally private, as it is only needed for (de-)serialization
@@ -935,7 +935,7 @@ public:
 	 * @brief Retrieves a unique name for this plotter
 	 * @return A unique name for this plotter
 	 */
-    std::string getPlotterName() const override;
+    [[nodiscard]] std::string getPlotterName() const override;
 
     /**
 	 * @brief Reports this plotter's choice (kind, columns, bins) as a GPlotSpec value
@@ -951,7 +951,7 @@ protected:
 	 * @param indention The indention string prepended to each emitted line
 	 * @return The header section of the ROOT code for this plot
 	 */
-    std::string headerData_(bool is_secondary, std::size_t p_id, std::size_t own_id, const std::string &indent) const override;
+    [[nodiscard]] std::string headerData_(bool is_secondary, std::size_t p_id, std::size_t own_id, const std::string &indent) const override;
 
     /**
 	 * @brief Retrieves the actual data sets
@@ -960,7 +960,7 @@ protected:
 	 * @param indention The indention string prepended to each emitted line
 	 * @return The body section of the ROOT code, holding the actual data
 	 */
-    std::string bodyData_(bool isSecondary, std::size_t pId, std::size_t ownId, const std::string &indention) const override;
+    [[nodiscard]] std::string bodyData_(bool isSecondary, std::size_t pId, std::size_t ownId, const std::string &indention) const override;
 
     /**
 	 * @brief Retrieves specific draw commands for this plot
@@ -969,14 +969,14 @@ protected:
 	 * @param indention The indention string prepended to each emitted line
 	 * @return The footer section of the ROOT code, holding the draw commands
 	 */
-    std::string footerData_(bool is_secondary, std::size_t p_id, std::size_t own_id, const std::string &indent) const override;
+    [[nodiscard]] std::string footerData_(bool is_secondary, std::size_t p_id, std::size_t own_id, const std::string &indent) const override;
 
     /**
 	 * @brief Retrieve the current drawing arguments
 	 * @param isSecondary Whether this is a secondary plot drawn into an existing pad
 	 * @return The drawing arguments to be passed to ROOT's Draw() call
 	 */
-    std::string drawingArguments(bool is_secondary) const override;
+    [[nodiscard]] std::string drawingArguments(bool is_secondary) const override;
 
     /**
 	 * @brief Loads the data of another object
@@ -1008,12 +1008,12 @@ private:
 	 * @brief Returns the name of this class
 	 * @return The name of this class as a string
 	 */
-    std::string name_() const override;
+    [[nodiscard]] std::string name_() const override;
     /**
 	 * @brief Creates a deep clone of this object
 	 * @return A deep clone of this object, wrapped into a GBasePlotter pointer
 	 */
-    GBasePlotter *clone_() const override;
+    [[nodiscard]] GBasePlotter *clone_() const override;
 
     GFunctionPlotter2D() =
         default; ///< The default constructor -- intentionally private, as it is only needed for (de-)serialization

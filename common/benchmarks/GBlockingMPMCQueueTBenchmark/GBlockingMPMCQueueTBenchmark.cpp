@@ -126,8 +126,8 @@ RunResult<Cap> run_mpmc(int producers, int consumers, long long items_per_produc
 template <std::size_t Cap>
 void report(const char *label, int prod, int cons, long long per_prod) {
     auto r = run_mpmc<Cap>(prod, cons, per_prod);
-    double mips = (r.seconds > 0.0) ? (static_cast<double>(r.consumed) / r.seconds / 1e6) : 0.0;
-    bool ok = (r.consumed == r.produced) && (r.checksum == r.expected);
+    double const mips = (r.seconds > 0.0) ? (static_cast<double>(r.consumed) / r.seconds / 1e6) : 0.0;
+    bool const ok = (r.consumed == r.produced) && (r.checksum == r.expected);
     std::printf(
         "%-10s P=%-2d C=%-2d items=%-12lld | %8.2f Mitems/s | %6.3f s | conserve=%s\n",
         label, prod, cons, r.produced, mips, r.seconds, ok ? "OK" : "*** FAIL ***"
@@ -177,7 +177,7 @@ void latency_sketch(long long n) {
 
 // ---- teardown stress: park threads in blocking calls, then close() -----------
 void teardown_stress(int rounds) {
-    int hangs = 0;
+    int const hangs = 0;
     for(int r = 0; r < rounds; ++r) {
         auto q = std::make_unique<GBlockingMPMCQueueT<std::uint64_t, 1>>();
         (void)q->try_push(0); // make it full so producers block
@@ -203,7 +203,7 @@ int main(int argc, char **argv) {
     int producers = 0, consumers = 0;
     long long items = 0;
     for(int i = 1; i < argc; ++i) {
-        std::string a = argv[i];
+        std::string const a = argv[i];
         if(a == "--quick") quick = true;
         else if(a == "--producers" && i + 1 < argc) producers = std::atoi(argv[++i]);
         else if(a == "--consumers" && i + 1 < argc) consumers = std::atoi(argv[++i]);

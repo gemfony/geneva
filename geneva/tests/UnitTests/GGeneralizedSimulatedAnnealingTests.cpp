@@ -74,7 +74,7 @@ protected:
         std::vector<double> v;
         this->template streamline<double>(v);
         double s = 0.;
-        for(double x : v) {
+        for(double const x : v) {
             s += x * x;
         }
         return {s};
@@ -103,7 +103,7 @@ protected:
         std::vector<double> v;
         this->template streamline<double>(v);
         double s = 10. * static_cast<double>(v.size());
-        for(double x : v) {
+        for(double const x : v) {
             s += x * x - 10. * std::cos(2. * std::numbers::pi * x);
         }
         return {s};
@@ -116,7 +116,7 @@ double bestSphere(const std::shared_ptr<SphereGSA<N_DIM>> &best) {
     std::vector<double> v;
     best->template streamline<double>(v);
     double s = 0.;
-    for(double x : v) {
+    for(double const x : v) {
         s += x * x;
         CHECK(x >= -5.0);
         CHECK(x < 5.0);
@@ -130,7 +130,7 @@ double bestRastrigin(const std::shared_ptr<RastriginGSA<N_DIM>> &best) {
     std::vector<double> v;
     best->template streamline<double>(v);
     double s = 10. * static_cast<double>(v.size());
-    for(double x : v) {
+    for(double const x : v) {
         s += x * x - 10. * std::cos(2. * std::numbers::pi * x);
         CHECK(x >= -5.12);
         CHECK(x < 5.12);

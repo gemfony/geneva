@@ -42,7 +42,7 @@ namespace {
 /** @brief A sphere objective f(x) = sum x_i^2 and a batch evaluator over it. */
 double sphere(std::vector<double> const &x) {
     double s = 0.;
-    for(double v : x) {
+    for(double const v : x) {
         s += v * v;
     }
     return s;
@@ -73,7 +73,7 @@ TEST_CASE("GLineSearch: backtracks to a sufficient-decrease step on a sphere", "
     const double f0 = sphere(x0);                       // = 2
     const double g0_dot_dir = 2. * -2. + 2. * -2.;      // grad . dir = -8
 
-    GLineSearch ls;
+    GLineSearch const ls;
     auto r = ls.search(batchOf(sphere), x0, dir, f0, g0_dot_dir);
 
     REQUIRE(r.success);
@@ -87,7 +87,7 @@ TEST_CASE("GLineSearch: backtracks to a sufficient-decrease step on a sphere", "
 
 TEST_CASE("GLineSearch: rejects a non-descent direction", "[geneva][linesearch]") {
     // grad . dir > 0 -- an ascent direction; no positive step can satisfy Armijo.
-    GLineSearch ls;
+    GLineSearch const ls;
     auto r = ls.search(batchOf(sphere), {1., 1.}, {2., 2.}, sphere({1., 1.}), +8.);
 
     CHECK_FALSE(r.success);
@@ -102,7 +102,7 @@ TEST_CASE("GLineSearch: finds a decreasing step along a Rosenbrock ray", "[genev
     const double f0 = rosenbrock(x0); // = 4
     const double g0_dot_dir = -4. * 4. + 0. * 0.; // = -16
 
-    GLineSearch ls;
+    GLineSearch const ls;
     auto r = ls.search(batchOf(rosenbrock), x0, dir, f0, g0_dot_dir);
 
     REQUIRE(r.success);
@@ -121,8 +121,8 @@ TEST_CASE("GLineSearch: accepts the full initial step when it already satisfies 
     const double f0 = sphere(x0);               // 100
     const double g0_dot_dir = 2. * 10. * -1.;   // grad . dir = -20
 
-    GLineSearchOptions opts; // alpha_init = 1
-    GLineSearch ls;
+    GLineSearchOptions const opts; // alpha_init = 1
+    GLineSearch const ls;
     auto r = ls.search(batchOf(sphere), x0, dir, f0, g0_dot_dir, opts);
 
     REQUIRE(r.success);

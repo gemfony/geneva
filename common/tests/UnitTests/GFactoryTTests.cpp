@@ -118,7 +118,7 @@ std::filesystem::path make_config(std::string const &tag,
 TEST_CASE("GFactoryT: stores the config path verbatim",
           "[common][factory]") {
     auto p = make_config("ctor");
-    TestFactory f(p);
+    TestFactory const f(p);
     CHECK(f.getConfigFilePath() == p);
     CHECK(f.getConfigFileName() == p.string());
 }
@@ -212,14 +212,14 @@ TEST_CASE("GFactoryT::get_as: downcasts the produced product to a derived type",
 TEST_CASE("GFactoryT::clone() in the base throws (intentional trap)",
           "[common][factory]") {
     auto p = make_config("clone_trap");
-    TestFactory f(p);
+    TestFactory const f(p);
     CHECK_THROWS_AS(f.clone(), geneva_exception);
 }
 
 TEST_CASE("GFactoryT::clone() in a subclass that overrides it returns a copy",
           "[common][factory]") {
     auto p = make_config("clone_ok");
-    ClonableFactory f(p);
+    ClonableFactory const f(p);
     auto cp = f.clone();
     REQUIRE(cp);
     CHECK(cp->getConfigFilePath() == p);
@@ -251,9 +251,9 @@ TEST_CASE("GFactoryT::load() copies path/initialized from a sibling factory",
 TEST_CASE("GFactoryT: copy construction preserves config path / counters semantics",
           "[common][factory]") {
     auto p = make_config("copy_ctor");
-    TestFactory src(p);
+    TestFactory const src(p);
     // NOLINTNEXTLINE(performance-unnecessary-copy-initialization) -- intentional copy: this test checks copy construction
-    TestFactory dst(src);
+    TestFactory const dst(src);
     CHECK(dst.getConfigFilePath() == p);
 }
 
@@ -261,7 +261,7 @@ TEST_CASE("GFactoryT: move construction transfers the config path",
           "[common][factory]") {
     auto p = make_config("move_ctor");
     TestFactory src(p);
-    TestFactory dst(std::move(src));
+    TestFactory const dst(std::move(src));
     CHECK(dst.getConfigFilePath() == p);
 }
 
@@ -269,7 +269,7 @@ TEST_CASE("GFactoryT: copy assignment is supported",
           "[common][factory]") {
     auto p1 = make_config("assign_a");
     auto p2 = make_config("assign_b");
-    TestFactory a(p1);
+    TestFactory const a(p1);
     TestFactory b(p2);
     b = a;
     CHECK(b.getConfigFilePath() == p1);

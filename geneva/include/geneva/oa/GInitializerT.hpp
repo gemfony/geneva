@@ -82,12 +82,12 @@ public:
      * @brief Retrieves the mnemonic of the wrapped algorithm factory.
      * @return The factory's mnemonic (e.g. "ea", "cgd", "swarm").
      */
-    std::string getMnemonic() const override { return factory_->getMnemonic(); }
+    [[nodiscard]] std::string getMnemonic() const override { return factory_->getMnemonic(); }
     /**
      * @brief Retrieves the human-readable name of the wrapped algorithm factory.
      * @return The factory's algorithm name.
      */
-    std::string getName() const override { return factory_->getAlgorithmName(); }
+    [[nodiscard]] std::string getName() const override { return factory_->getAlgorithmName(); }
     /**
      * @brief Adds the wrapped factory's command-line options to the given option descriptions.
      * @param visible The options-description collecting options shown in the help text.

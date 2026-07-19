@@ -138,6 +138,7 @@ MPICompletionStatus waitForRequestCompletionWhile(
  * @param pollIntervalMSec The time in milliseconds between completion checks
  * @return The completion status of the operation when it terminated
  */
+// NOLINTNEXTLINE(readability-function-size) -- 9 parameters mirror the shared MPI_Iscatter/MPI_Igather call signature plus the poll predicate/interval; splitting would just pass most of them straight back together
 MPICompletionStatus mpiCollectiveWhile(
     decltype(&MPI_Iscatter) collective,
     const void *sendBuf,

@@ -270,7 +270,7 @@ fp_type checkValueRange(
     bool lower_open = false,
     bool upper_open = false,
     bool warn_only = false,
-    std::string var_name = std::string()
+    const std::string& var_name = std::string()
 ) {
     bool in_value_range = true;
 

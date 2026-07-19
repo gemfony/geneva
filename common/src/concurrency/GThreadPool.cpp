@@ -33,6 +33,7 @@
 #include <mutex>
 #include <shared_mutex>
 #include <stop_token>
+#include <utility>
 
 namespace Gem::Common::Concurrency {
 
@@ -113,7 +114,7 @@ GThreadPool::~GThreadPool() {
  * @param n The number of additional worker threads to create
  */
 void GThreadPool::start_workers(unsigned int n) {
-    worker_group_.create_threads([this](std::stop_token st) { this->worker_loop(st); }, n);
+    worker_group_.create_threads([this](std::stop_token st) { this->worker_loop(std::move(st)); }, n);
 }
 
 /******************************************************************************/
@@ -129,9 +130,9 @@ void GThreadPool::start_workers(unsigned int n) {
  *         in which case the in-flight counter is left unchanged
  */
 bool GThreadPool::enqueue(std::move_only_function<void()> task) {
-    std::shared_lock<std::shared_mutex> sub_lck(submission_mutex_);
+    std::shared_lock<std::shared_mutex> const sub_lck(submission_mutex_);
     {
-        std::scoped_lock<std::mutex> cnt_lck(counter_mutex_);
+        std::scoped_lock<std::mutex> const cnt_lck(counter_mutex_);
         ++tasks_in_flight_;
     }
     // task_queue_ is engaged from construction on; setNThreads() re-emplaces it under the
@@ -141,7 +142,7 @@ bool GThreadPool::enqueue(std::move_only_function<void()> task) {
         return true;
     }
     // The queue is closed: undo the speculative increment.
-    std::scoped_lock<std::mutex> cnt_lck(counter_mutex_);
+    std::scoped_lock<std::mutex> const cnt_lck(counter_mutex_);
     if(0 == --tasks_in_flight_) {
         all_done_.notify_all();
     }
@@ -184,7 +185,7 @@ bool GThreadPool::inWorkerThread() noexcept {
  *
  * @param st The cooperative stop token whose stop request closes the task queue
  */
-void GThreadPool::worker_loop(std::stop_token st) {
+void GThreadPool::worker_loop(const std::stop_token& st) {
     // A stop request (e.g. from GThreadGroup::join_all()) closes the task queue. The drain loop
     // below then finishes the remaining tasks and exits once the queue is closed and empty, so
     // pending tasks' futures are still satisfied -- request_stop() is a graceful "drain and
@@ -201,7 +202,7 @@ void GThreadPool::worker_loop(std::stop_token st) {
         // escape, so the in-flight bookkeeping below always runs.
         (*task)();
 
-        std::scoped_lock<std::mutex> cnt_lck(counter_mutex_);
+        std::scoped_lock<std::mutex> const cnt_lck(counter_mutex_);
         if(0 == --tasks_in_flight_) {
             all_done_.notify_all();
         }
@@ -228,7 +229,7 @@ void GThreadPool::drain() {
  * the pool (would deadlock).
  */
 void GThreadPool::wait() {
-    std::unique_lock<std::shared_mutex> sub_lck(submission_mutex_);
+    std::unique_lock<std::shared_mutex> const sub_lck(submission_mutex_);
     drain();
 }
 
@@ -257,7 +258,7 @@ unsigned int GThreadPool::getNThreads() const {
 void GThreadPool::setNThreads(unsigned int n_threads) {
     const unsigned int n = n_threads > 0 ? n_threads : DEFAULTNHARDWARETHREADS;
 
-    std::unique_lock<std::shared_mutex> sub_lck(submission_mutex_);
+    std::unique_lock<std::shared_mutex> const sub_lck(submission_mutex_);
     if(n == n_threads_) {
         return;
     }

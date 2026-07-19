@@ -48,14 +48,14 @@ using namespace Gem::Courtier;
  * hence a GProcessable) exercises the base contract without pulling in geneva.
  */
 TEST_CASE("GProcessable lineage id: fresh on copy, kept on assign, preserved on serialize", "[proc][id]") {
-    GSimpleContainer a(42);
+    GSimpleContainer const a(42);
     GSimpleContainer b(43);
 
     // Every construction mints a distinct id.
     CHECK(a.getSubmissionUuid() != b.getSubmissionUuid());
 
     // COPY CONSTRUCTION == a new individual (offspring / refill) -> a FRESH id, not the source's.
-    GSimpleContainer copy(a);
+    GSimpleContainer const copy(a);
     CHECK(copy.getSubmissionUuid() != a.getSubmissionUuid());
 
     // COPY ASSIGNMENT (the load(other) path) -> the target KEEPS its own lineage.

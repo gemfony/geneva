@@ -64,7 +64,7 @@ int main(int argc, char **argv) {
     // Register a content creator so Go2 can populate the algorithms with
     // GFunctionIndividual objects (no problem-specific individual or factory has
     // to be written for this example -- both come from the Geneva library).
-    std::shared_ptr<gind::GFunctionIndividualFactory> gfi_ptr(
+    std::shared_ptr<gind::GFunctionIndividualFactory> const gfi_ptr(
         new gind::GFunctionIndividualFactory("./config/GFunctionIndividual.json")
     );
     go.registerContentCreator(gfi_ptr);
@@ -85,7 +85,7 @@ int main(int argc, char **argv) {
 
     //---------------------------------------------------------------------------
     // Perform the actual (chained) optimization
-    std::shared_ptr<gind::GFunctionIndividual> p =
+    std::shared_ptr<gind::GFunctionIndividual> const p =
         go.optimize()->getBestGlobalIndividual<gind::GFunctionIndividual>();
 
     std::cout << "Best result found:" << '\n' << p << '\n';

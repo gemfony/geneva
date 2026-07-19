@@ -373,6 +373,7 @@ constexpr std::string_view WARNING_ADVICE =
  *
  * @param gm A GManipulator object (e.g. produced by the GEXCEPTION / GWARNING / GLOGGING macros) whose log type selects the action taken
  */
+// NOLINTNEXTLINE(readability-function-size) -- one switch-driven dispatcher over logType (exception/termination/warning/logging/file/stdout/stderr/exit); each case is a short, self-contained action and splitting would only scatter the dispatch table
 void GLogStreamer::operator<<(GManipulator const &gm) {
     switch(gm.getLogType()) {
     //------------------------------------------------------------------------
@@ -384,7 +385,7 @@ void GLogStreamer::operator<<(GManipulator const &gm) {
         // The logger's routines will in addition try to print on the console. Note
         // that we ignore any "source" information, as this is already contained
         // in the logged message.
-        GFileLogger gfl("GENEVA-EXCEPTION.log");
+        GFileLogger const gfl("GENEVA-EXCEPTION.log");
         gfl.log(error);
 
         // Send the exception out. This done globally, so an exception
@@ -401,7 +402,7 @@ void GLogStreamer::operator<<(GManipulator const &gm) {
         // The logger's routines will in addition try to print on the console. Note
         // that we ignore any "source" information, as this is already contained
         // in the logged message.
-        GFileLogger gfl("GENEVA-TERMINATION.log");
+        GFileLogger const gfl("GENEVA-TERMINATION.log");
         gfl.log(error);
 
         // Initiate the termination sequence.
@@ -436,7 +437,7 @@ void GLogStreamer::operator<<(GManipulator const &gm) {
     //------------------------------------------------------------------------
     case Gem::Common::logType::FILE: {
         if(this->hasOneTimeLogFile()) {
-            GFileLogger gfl(this->getOneTimeLogFile());
+            GFileLogger const gfl(this->getOneTimeLogFile());
             gfl.log(oss_.str());
         }
         else {

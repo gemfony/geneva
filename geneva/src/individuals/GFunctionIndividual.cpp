@@ -621,6 +621,7 @@ std::vector<double> GFunctionIndividual::evaluate() {
  * @param gpb The GParserBuilder object with which the configuration file options are registered
  * @param c The Config struct whose fields are bound to the registered options (filled on parse)
  */
+// NOLINTNEXTLINE(readability-function-size) -- one coherent config-registration sweep binding every GFunctionIndividual::Config field; splitting would scatter the option list
 void GFunctionIndividual::describeConfig(Gem::Common::GParserBuilder &gpb, Config &c) {
     std::string comment; // NOLINT(cppcoreguidelines-init-variables)
 
@@ -984,7 +985,7 @@ std::ostream &operator<<(std::ostream &s, const Gem::Geneva::Individuals::GFunct
  * @param f_ptr A shared pointer to the GFunctionIndividual whose content is printed (dereferenced internally)
  * @return The std::ostream object passed in as @p s
  */
-std::ostream &operator<<(std::ostream &s, std::shared_ptr<Gem::Geneva::Individuals::GFunctionIndividual> f_ptr) {
+std::ostream &operator<<(std::ostream &s, const std::shared_ptr<Gem::Geneva::Individuals::GFunctionIndividual>& f_ptr) {
     return operator<<(s, *f_ptr);
 }
 

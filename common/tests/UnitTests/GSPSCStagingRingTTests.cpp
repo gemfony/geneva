@@ -77,7 +77,7 @@ TEST_CASE("GSPSCStagingRingT: non-copyable, non-movable", "[common][spsc-ring]")
 TEST_CASE("GSPSCStagingRingT: the fill callback populates the initial generations", "[common][spsc-ring]") {
     std::atomic<int> fill_calls{0};
     {
-        Ring ring([&fill_calls](std::uint64_t *dst, std::size_t n) {
+        Ring const ring([&fill_calls](std::uint64_t *dst, std::size_t n) {
             fill_calls.fetch_add(1, std::memory_order_relaxed);
             for(std::size_t i = 0; i < n; ++i) {
                 dst[i] = kSentinel;
@@ -136,6 +136,7 @@ TEST_CASE("GSPSCStagingRingT: consecutive claims advance through distinct chunk 
 // ---------------------------------------------------------------------------
 // Many concurrent readers: every claimed word is valid; the ring never tears or hangs.
 
+// NOLINTNEXTLINE(readability-function-size) -- one coherent concurrency stress-test kernel (spawns reader threads sharing atomics + the ring under test, joins, then asserts); splitting would only scatter the tightly-coupled thread lambdas
 TEST_CASE("GSPSCStagingRingT: concurrent readers only ever see valid words", "[common][spsc-ring][concurrency]") {
     Ring ring(sentinel_fill);
 
@@ -157,7 +158,7 @@ TEST_CASE("GSPSCStagingRingT: concurrent readers only ever see valid words", "[c
             for(int c = 0; c < kClaimsPerReader; ++c) {
                 if(copy_out) {
                     ring.copyChunkInto(buf);
-                    for(unsigned long long w : buf) {
+                    for(unsigned long long const w : buf) {
                         if(w != kSentinel) {
                             bad.fetch_add(1, std::memory_order_relaxed);
                         }
