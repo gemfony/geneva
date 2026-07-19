@@ -208,3 +208,48 @@ TEST_CASE("GThreadBudget: crossing the warning threshold emits one warning namin
 
     glogger.resetLogTargets();
 }
+
+/******************************************************************************/
+// The device registry (a sibling facility; tested here alongside the thread budget)
+
+#include "common/concurrency/GDeviceRegistry.hpp"
+
+TEST_CASE("GDeviceRegistry: acquire/release round-trip per device id",
+          "[common][concurrency][device-registry]") {
+    auto &reg = deviceRegistry();
+    const unsigned int base0 = reg.users(0);
+    const unsigned int base1 = reg.users(1);
+
+    {
+        auto u0 = reg.acquire("test:gpu-consumer", 0);
+        CHECK(reg.users(0) == base0 + 1);
+        CHECK(reg.users(1) == base1);
+
+        auto u0b = reg.acquire("test:rng", 0);
+        CHECK(reg.users(0) == base0 + 2);
+        CHECK(reg.contended(0));
+
+        auto u1 = reg.acquire("test:other-device", 1);
+        CHECK(reg.users(1) == base1 + 1);
+    }
+
+    CHECK(reg.users(0) == base0);
+    CHECK(reg.users(1) == base1);
+}
+
+TEST_CASE("GDeviceRegistry: moved-from handles release exactly once",
+          "[common][concurrency][device-registry]") {
+    auto &reg = deviceRegistry();
+    const unsigned int base = reg.users(0);
+
+    auto u = reg.acquire("test:move", 0);
+    GDeviceRegistry::DeviceUse moved = std::move(u);
+    CHECK(reg.users(0) == base + 1);
+
+    u.release(); // empty handle: no-op
+    CHECK(reg.users(0) == base + 1);
+    moved.release();
+    CHECK(reg.users(0) == base);
+    moved.release(); // idempotent
+    CHECK(reg.users(0) == base);
+}

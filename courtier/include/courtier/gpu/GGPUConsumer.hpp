@@ -39,6 +39,7 @@
 #include "common/GErrorStreamer.hpp"
 #include "common/GExceptions.hpp"
 #include "common/GLogger.hpp"
+#include "common/concurrency/GDeviceRegistry.hpp"
 #include "courtier/GBaseConsumerT.hpp"
 #include "courtier/gpu/GGPUBackendFactory.hpp"
 #include "courtier/gpu/GGPUConsumerConfig.hpp"
@@ -181,6 +182,16 @@ private:
         }
         backend_ = makeBackend<scalar_type>(kind);
         backend_->initialize(cfg_.kernelSpec());
+
+        // Register this consumer as the device's holder for its lifetime (process-wide device
+        // registry). Hap's RNG fill backend consults the registry and yields cuRAND to the
+        // CPU/SIMD engine while the evaluation kernel holds the device, so the two no longer
+        // double-book it.
+        device_use_ = Gem::Common::Concurrency::deviceRegistry().acquire(
+            "consumer:gpu",
+            cfg_.device_id
+        );
+
         glogger << "Gem::Courtier::GPU::GGPUConsumer using the '" << backend_->name()
                 << "' backend (kernel: " << cfg_.kernel_path << ")" << '\n'
                 << GLOGGING;
@@ -195,6 +206,10 @@ private:
     std::vector<scalar_type> fitness_;    ///< Reused host fitness buffer
     std::vector<std::byte> pconst_;  ///< Cached problem-constant blob (built once when static)
     bool pconst_built_ = false;      ///< Whether pconst_ has been built
+
+    /// This consumer's registration as the device's holder (taken when the backend comes up,
+    /// released at destruction). The RNG fill yields the device while this is held.
+    Gem::Common::Concurrency::GDeviceRegistry::DeviceUse device_use_;
 };
 
 /******************************************************************************/
