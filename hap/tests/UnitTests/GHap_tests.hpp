@@ -41,6 +41,7 @@
 // Standard header files go here
 #include <algorithm>
 #include <iostream>
+#include <set>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -80,17 +81,40 @@ public:
 
         { // Check seeding
             // Check that we are running with more seeds than the amount of
-            // pre-fabricated seeds
+            // pre-fabricated seeds, i.e. that we cross at least one batch refill
             CHECK(n_seeds_ > DEFAULTSEEDVECTORSIZE);
 
             // Check that we always get different seeds
             seed_type lastSeed;
             CHECK_NOTHROW(lastSeed = randomFactory()->getSeed());
+
+            // Regression guard: seeds must stay distinct ACROSS batch refills, not merely
+            // between neighbours. The seed collection is (re)generated in batches of
+            // DEFAULTSEEDVECTORSIZE; when a batch was generated from a std::seed_seq that
+            // is not re-entropied, every batch reproduces the previous one verbatim, so the
+            // seeds repeat with a period of DEFAULTSEEDVECTORSIZE while every ADJACENT pair
+            // still differs -- which a neighbour-only comparison cannot see. Collect the
+            // whole run and count distinct values instead.
+            //
+            // Inv 18: this is a behavioural band, not a reproduced sequence. Seeds are drawn
+            // from a 2^32 space, so for n_seeds_ = 1e5 the expected number of birthday
+            // collisions is n^2/2^33 ~ 1.2; the bound below leaves ample room for chance
+            // repeats while the defect (>= 90% duplicates) misses it by orders of magnitude.
+            std::set<seed_type> distinct_seeds;
+            distinct_seeds.insert(lastSeed);
             for(std::size_t s = 0; s < n_seeds_ - 1; s++) {
                 seed_type currentSeed = randomFactory()->getSeed();
                 CHECK(lastSeed != currentSeed);
+                distinct_seeds.insert(currentSeed);
                 lastSeed = currentSeed;
             }
+
+            const std::size_t max_tolerated_repeats = 64;
+            INFO(
+                "distinct seeds: " << distinct_seeds.size() << " out of " << n_seeds_
+                                   << " drawn (batch size " << DEFAULTSEEDVECTORSIZE << ')'
+            );
+            CHECK(distinct_seeds.size() + max_tolerated_repeats >= n_seeds_);
         }
 
         //------------------------------------------------------------------------------

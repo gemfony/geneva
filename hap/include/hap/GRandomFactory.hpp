@@ -464,24 +464,10 @@ private:
     mutable std::mutex
         thread_creation_mutex_; ///< Synchronization of access to the threads_started_ variable
 
-    std::random_device nondet_rng_; ///< Source of non-deterministic random numbers
-    std::seed_seq seed_seq_         ///< A seeding sequence
-        = {nondet_rng_(),
-           nondet_rng_(),
-           nondet_rng_(),
-           nondet_rng_(),
-           nondet_rng_(),
-           nondet_rng_(),
-           nondet_rng_(),
-           nondet_rng_(),
-           nondet_rng_(),
-           nondet_rng_(),
-           nondet_rng_(),
-           nondet_rng_(),
-           nondet_rng_(),
-           nondet_rng_(),
-           nondet_rng_(),
-           nondet_rng_()};
+    /// Source of non-deterministic random numbers. getSeed() draws a fresh set of entropy words
+    /// from it for every seed batch -- a std::seed_seq built once and kept would regenerate the
+    /// same batch each time (see the comment in GRandomFactory::getSeed()).
+    std::random_device nondet_rng_;
 
     mutable std::mutex seeding_mutex_; ///< Regulates start-up of the seeding process
     std::vector<seed_type> seed_collection_ =

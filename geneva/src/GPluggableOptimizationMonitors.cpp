@@ -1087,19 +1087,9 @@ void GAllSolutionFileLogger::informationFunction_(
     switch(im) {
     case Gem::Geneva::infoMode::INFOINIT: {
         // If the file pointed to by file_name_ already exists, make a back-up
-        if(std::filesystem::exists(file_name_)) {
-            std::string const new_file_name =
-                file_name_ + ".bak_" +
-                Gem::Common::getMSSince1970(); // NOLINT(cppcoreguidelines-init-variables)
-
-            glogger << "In GAllSolutionFileLogger::informationFunction_(): Warning!" << '\n'
-                    << "Attempt to output information to file " << file_name_ << '\n'
-                    << "which already exists. We will rename the old file to" << '\n'
-                    << new_file_name << '\n'
-                    << GWARNING;
-
-            std::filesystem::rename(file_name_, new_file_name);
-        }
+        Gem::Common::backupExistingFile(
+            file_name_, "GAllSolutionFileLogger::informationFunction_(): Warning!"
+        );
 
         if(print_initial_) {
             this->printPopulation("Initial population", goa);
@@ -1387,19 +1377,9 @@ void GIterationResultsFileLogger::informationFunction_(
     switch(im) {
     case Gem::Geneva::infoMode::INFOINIT: {
         // If the file pointed to by file_name_ already exists, make a back-up
-        if(std::filesystem::exists(file_name_)) {
-            std::string const new_file_name =
-                file_name_ + ".bak_" +
-                Gem::Common::getMSSince1970(); // NOLINT(cppcoreguidelines-init-variables)
-
-            glogger << "In GIterationResultsFileLogger::informationFunction_(): Warning!" << '\n'
-                    << "Attempt to output information to file " << file_name_ << '\n'
-                    << "which already exists. We will rename the old file to" << '\n'
-                    << new_file_name << '\n'
-                    << GWARNING;
-
-            std::filesystem::rename(file_name_, new_file_name);
-        }
+        Gem::Common::backupExistingFile(
+            file_name_, "GIterationResultsFileLogger::informationFunction_(): Warning!"
+        );
     } break;
 
     case Gem::Geneva::infoMode::INFOPROCESSING: {
@@ -1701,19 +1681,9 @@ void GNAdpationsLogger::informationFunction_(
     switch(im) {
     case Gem::Geneva::infoMode::INFOINIT: {
         // If the file pointed to by file_name_ already exists, make a back-up
-        if(std::filesystem::exists(file_name_)) {
-            std::string const new_file_name =
-                file_name_ + ".bak_" +
-                Gem::Common::getMSSince1970(); // NOLINT(cppcoreguidelines-init-variables)
-
-            glogger << "In GNAdpationsLogger::informationFunction_(): Error!" << '\n'
-                    << "Attempt to output information to file " << file_name_ << '\n'
-                    << "which already exists. We will rename the old file to" << '\n'
-                    << new_file_name << '\n'
-                    << GWARNING;
-
-            std::filesystem::rename(file_name_, new_file_name);
-        }
+        Gem::Common::backupExistingFile(
+            file_name_, "GNAdpationsLogger::informationFunction_(): Error!"
+        );
 
         // The fitness curve is recorded per-run, so start it fresh (the n-adaptions store
         // deliberately accumulates across chained algorithms and is not cleared here).
@@ -2184,19 +2154,9 @@ void GProcessingTimesLogger::informationFunction_(
         // Histograms
 
         // If the file pointed to by file_name_pth_ already exists, make a back-up
-        if(std::filesystem::exists(file_name_pth_)) {
-            std::string const new_file_name =
-                file_name_pth_ + ".bak_" +
-                Gem::Common::getMSSince1970(); // NOLINT(cppcoreguidelines-init-variables)
-
-            glogger << "In GProcessingTimesLogger::informationFunction_(): Warning!" << '\n'
-                    << "Attempt to output information to file " << file_name_pth_ << '\n'
-                    << "which already exists. We will rename the old file to" << '\n'
-                    << new_file_name << '\n'
-                    << GWARNING;
-
-            std::filesystem::rename(file_name_pth_, new_file_name);
-        }
+        Gem::Common::backupExistingFile(
+            file_name_pth_, "GProcessingTimesLogger::informationFunction_(): Warning!"
+        );
 
         // Build the 1-d timing-histogram log and declare its four auto-ranged histograms in the
         // fixed { pre, main, post, all } order, so they land on the same 2x2 pads as before.
@@ -2229,19 +2189,9 @@ void GProcessingTimesLogger::informationFunction_(
         // 2D Histograms
 
         // If the file pointed to by file_name_pth2_ already exists, make a back-up
-        if(std::filesystem::exists(file_name_pth2_)) {
-            std::string const new_file_name =
-                file_name_pth2_ + ".bak_" +
-                Gem::Common::getMSSince1970(); // NOLINT(cppcoreguidelines-init-variables)
-
-            glogger << "In GProcessingTimesLogger::informationFunction_(): Warning!" << '\n'
-                    << "Attempt to output information to file " << file_name_pth2_ << '\n'
-                    << "which already exists. We will rename the old file to" << '\n'
-                    << new_file_name << '\n'
-                    << GWARNING;
-
-            std::filesystem::rename(file_name_pth2_, new_file_name);
-        }
+        Gem::Common::backupExistingFile(
+            file_name_pth2_, "GProcessingTimesLogger::informationFunction_(): Warning!"
+        );
 
         // Build the 2-d timing-vs-iteration log and declare its four auto-ranged histograms in the
         // same fixed { pre, main, post, all } order.
@@ -2276,19 +2226,9 @@ void GProcessingTimesLogger::informationFunction_(
         // Make sure the output file is empty (rename, if it exists)
 
         // If the file pointed to by file_name_txt_ already exists, make a back-up
-        if(std::filesystem::exists(file_name_txt_)) {
-            std::string const new_file_name =
-                file_name_txt_ + ".bak_" +
-                Gem::Common::getMSSince1970(); // NOLINT(cppcoreguidelines-init-variables)
-
-            glogger << "In GProcessingTimesLogger::informationFunction_(): Warning!" << '\n'
-                    << "Attempt to output information to file " << file_name_pth2_ << '\n'
-                    << "which already exists. We will rename the old file to" << '\n'
-                    << new_file_name << '\n'
-                    << GWARNING;
-
-            std::filesystem::rename(file_name_txt_, new_file_name);
-        }
+        Gem::Common::backupExistingFile(
+            file_name_txt_, "GProcessingTimesLogger::informationFunction_(): Warning!"
+        );
 
         //---------------------------------------------------------------
 

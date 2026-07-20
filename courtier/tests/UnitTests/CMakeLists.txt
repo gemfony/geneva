@@ -53,6 +53,7 @@ ENDFUNCTION()
 # labels and install paths are already "courtier".
 geneva_courtier_test(GWireLayoutRegistryTests  GWireLayoutRegistryTests.cpp)
 geneva_courtier_test(GProcessableIdentityTests GProcessableIdentityTests.cpp)
+geneva_courtier_test(GCommandContainerSerializationTests GCommandContainerSerializationTests.cpp)
 geneva_courtier_test(GProcessingStatusTests    GProcessingStatusTests.cpp)
 geneva_courtier_test(GCourtierPolicyTests      GCourtierPolicyTests.cpp)
 geneva_courtier_test(GCourtierTimeoutTests     GCourtierTimeoutTests.cpp)

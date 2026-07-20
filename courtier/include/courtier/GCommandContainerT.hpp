@@ -306,24 +306,37 @@ std::string container_to_string(
     try {
         switch(serMode) {
             using enum Gem::Common::serializationMode;
+        // NOTE: in every arm the archive MUST be destroyed before oss.str() is read. An archive
+        // may append trailing content in its destructor -- boost's xml_oarchive writes the
+        // closing </boost_serialization> root tag there -- and a `return oss.str();` inside the
+        // archive's scope is evaluated BEFORE that destructor runs. Reading the stream too early
+        // therefore yields a truncated document whose later de-serialization makes
+        // ~xml_iarchive throw from a noexcept destructor, i.e. std::terminate, which
+        // container_from_string's try/catch cannot intercept. Hence the explicit inner scopes.
         case TEXT: {
             std::ostringstream oss; // NOLINT(cppcoreguidelines-init-variables)
-            boost::archive::text_oarchive oa(oss);
-            oa << boost::serialization::make_nvp("command_container", container);
+            {
+                boost::archive::text_oarchive oa(oss);
+                oa << boost::serialization::make_nvp("command_container", container);
+            } // archive closed here
             return oss.str();
-        } break; // archive and stream closed at end of scope
+        } break;
 
         case XML: {
             std::ostringstream oss; // NOLINT(cppcoreguidelines-init-variables)
-            boost::archive::xml_oarchive oa(oss);
-            oa << boost::serialization::make_nvp("command_container", container);
+            {
+                boost::archive::xml_oarchive oa(oss);
+                oa << boost::serialization::make_nvp("command_container", container);
+            } // archive closed here -- this is what emits the closing root tag
             return oss.str();
         } break;
 
         case BINARY: {
             std::ostringstream oss(std::ios_base::binary);
-            boost::archive::binary_oarchive oa(oss);
-            oa << boost::serialization::make_nvp("command_container", container);
+            {
+                boost::archive::binary_oarchive oa(oss);
+                oa << boost::serialization::make_nvp("command_container", container);
+            } // archive closed here
             return oss.str();
         } break;
         }

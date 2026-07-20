@@ -32,12 +32,14 @@
 #include <chrono>
 #include <filesystem>
 #include <fstream>
+#include <memory>
 #include <string>
 #include <vector>
 
 #include "common/GCommonEnums.hpp"
 #include "common/GCommonHelperFunctions.hpp"
 #include "common/GExceptions.hpp"
+#include "common/GLogger.hpp"
 
 using namespace Gem::Common;
 
@@ -225,4 +227,110 @@ TEST_CASE("time_point round-trip via ms representation",
 TEST_CASE("condnotset: raises geneva_exception",
           "[common][helper-nonT][condnotset]") {
     CHECK_THROWS_AS(condnotset("SOME_DEFINE", "test-context"), geneva_exception);
+}
+
+// ---------------------------------------------------------------------------
+// backupExistingFile
+//
+// Regression guard. The six output sites in GPluggableOptimizationMonitors used to carry a
+// hand-copied version of this block, and one copy had drifted: it tested and renamed
+// file_name_txt_ while its warning named file_name_pth2_, i.e. it reported a file it had not
+// touched. Routing every site through a single function that takes the name once makes that
+// class of defect unrepresentable; these cases pin the function's contract.
+
+namespace {
+
+/** @brief A log sink that records every message it is handed, so the warning can be inspected */
+struct BackupCapturingTarget : Gem::Common::GBaseLogTarget {
+    void log(const std::string &msg) const override { messages.push_back(msg); }
+    void logWithSource(const std::string &msg, const std::string &) const override {
+        messages.push_back(msg);
+    }
+    mutable std::vector<std::string> messages;
+};
+
+} // anonymous namespace
+
+TEST_CASE("backupExistingFile: renames an existing file out of the way",
+          "[common][helper-nonT][backup]") {
+    const std::filesystem::path dir =
+        std::filesystem::temp_directory_path() / "geneva-backup-existing-file-test";
+    std::filesystem::remove_all(dir);
+    std::filesystem::create_directories(dir);
+
+    const std::filesystem::path target = dir / "results.txt";
+    {
+        std::ofstream ofs(target);
+        ofs << "original content" << std::endl;
+    }
+    REQUIRE(std::filesystem::exists(target));
+
+    // A decoy that must never be named: the original defect was a block that renamed one file
+    // while its warning reported a DIFFERENT member, so the diagnostic sent the user looking at
+    // an untouched file. Pin the message to the file actually acted upon.
+    const std::filesystem::path decoy = dir / "unrelated-other-output.txt";
+    {
+        std::ofstream ofs(decoy);
+        ofs << "decoy" << std::endl;
+    }
+
+    auto capture = std::make_shared<BackupCapturingTarget>();
+    glogger.addLogTarget(capture);
+
+    CHECK(Gem::Common::backupExistingFile(target.string(), "GUnitTest: Warning!"));
+
+    // Match the "which file?" line SPECIFICALLY. Checking only that the target path occurs
+    // somewhere in the message is not enough: the backup name is the target name plus a
+    // suffix, so it contains the target path as a substring and would mask a wrong report.
+    const std::string expected_line = "Attempt to output information to file " + target.string();
+
+    bool names_the_renamed_file = false;
+    for(const auto &m : capture->messages) {
+        if(m.find("GUnitTest: Warning!") != std::string::npos
+           && m.find(expected_line) != std::string::npos) {
+            names_the_renamed_file = true;
+        }
+        // ...and no message may mention a file this call did not touch.
+        CHECK(m.find(decoy.filename().string()) == std::string::npos);
+    }
+    CHECK(names_the_renamed_file);
+
+    glogger.resetLogTargets();
+    std::filesystem::remove(decoy);
+
+    // The original name is free again, and exactly one backup carrying the content exists.
+    CHECK_FALSE(std::filesystem::exists(target));
+
+    std::vector<std::filesystem::path> backups;
+    for(const auto &entry : std::filesystem::directory_iterator(dir)) {
+        if(entry.path().filename().string().starts_with("results.txt.bak_")) {
+            backups.push_back(entry.path());
+        }
+    }
+    REQUIRE(backups.size() == 1);
+
+    std::ifstream ifs(backups.front());
+    std::string content;
+    std::getline(ifs, content);
+    CHECK(content == "original content");
+
+    std::filesystem::remove_all(dir);
+}
+
+TEST_CASE("backupExistingFile: does nothing when the file is absent",
+          "[common][helper-nonT][backup]") {
+    const std::filesystem::path dir =
+        std::filesystem::temp_directory_path() / "geneva-backup-absent-file-test";
+    std::filesystem::remove_all(dir);
+    std::filesystem::create_directories(dir);
+
+    const std::filesystem::path target = dir / "never-written.txt";
+    REQUIRE_FALSE(std::filesystem::exists(target));
+
+    CHECK_FALSE(Gem::Common::backupExistingFile(target.string(), "GUnitTest: Warning!"));
+
+    // No stray backup was invented for a file that was never there.
+    CHECK(std::filesystem::is_empty(dir));
+
+    std::filesystem::remove_all(dir);
 }

@@ -42,6 +42,7 @@
 #include <catch2/catch_test_macros.hpp>
 
 // Geneva headers go here
+#include "common/concurrency/GThreadBudget.hpp"
 #include "common/concurrency/GThreadPool.hpp"
 
 using Gem::Common::Concurrency::GThreadPool;
@@ -340,4 +341,74 @@ TEST_CASE("GThreadPool::blocking_for_each runs the whole batch and blocks until 
     std::vector<int> empty;
     pool.blocking_for_each(std::span<int>(empty), [](int &x) { x += 1; });
     CHECK(empty.empty());
+}
+
+/******************************************************************************/
+/**
+ * Regression guard: a budgeted pool's reservation must follow setNThreads().
+ *
+ * budget_reservation_ is taken once in the budgeted constructor. setNThreads() used to resize
+ * the worker set without touching it, so after pool.setNThreads(6) on a pool built with 2 the
+ * process-wide ledger still counted 2 while 6 workers ran -- making reserved() and the
+ * oversubscription warning derived from it provably wrong for the rest of the pool's life.
+ *
+ * The budget is a process-global shared by every other pool in the test binary, so this asserts
+ * DELTAS against a baseline taken at entry, never absolute totals.
+ */
+TEST_CASE("GThreadPool: a budgeted pool's reservation tracks setNThreads",
+          "[common][concurrency][threadpool][budget]") {
+    using Gem::Common::Concurrency::ThreadElasticity;
+    using Gem::Common::Concurrency::threadBudget;
+
+    const unsigned int baseline = threadBudget().reserved();
+
+    {
+        GThreadPool pool("test:resize", 2, ThreadElasticity::Fixed);
+        CHECK(pool.getNThreads() == 2);
+        CHECK(threadBudget().reserved() == baseline + 2);
+
+        // Grow: the ledger must follow upwards...
+        pool.setNThreads(6);
+        CHECK(pool.getNThreads() == 6);
+        CHECK(threadBudget().reserved() == baseline + 6);
+
+        // ...and the pool must still work after the re-reservation.
+        auto f = pool.async_schedule([]() { return 7; });
+        CHECK(f.get() == 7);
+
+        // Shrink: and downwards (this path recreates the queue, so it is worth its own check).
+        pool.setNThreads(3);
+        CHECK(pool.getNThreads() == 3);
+        CHECK(threadBudget().reserved() == baseline + 3);
+
+        // A no-op resize must not double-count.
+        pool.setNThreads(3);
+        CHECK(threadBudget().reserved() == baseline + 3);
+    }
+
+    // The handle is returned in full when the pool dies -- no leak, no residue.
+    CHECK(threadBudget().reserved() == baseline);
+}
+
+/******************************************************************************/
+/**
+ * The unbudgeted constructor takes no reservation, so resizing such a pool must leave the
+ * ledger completely untouched (an empty handle must not be turned into a live one).
+ */
+TEST_CASE("GThreadPool: an unbudgeted pool never touches the thread budget",
+          "[common][concurrency][threadpool][budget]") {
+    using Gem::Common::Concurrency::threadBudget;
+
+    const unsigned int baseline = threadBudget().reserved();
+
+    {
+        GThreadPool pool(2);
+        CHECK(threadBudget().reserved() == baseline);
+
+        pool.setNThreads(5);
+        CHECK(pool.getNThreads() == 5);
+        CHECK(threadBudget().reserved() == baseline);
+    }
+
+    CHECK(threadBudget().reserved() == baseline);
 }

@@ -2136,19 +2136,9 @@ private:
         switch(im) {
         case Gem::Geneva::infoMode::INFOINIT: {
             // If the file pointed to by file_name_ already exists, make a back-up
-            if(std::filesystem::exists(file_name_)) {
-                std::string const new_file_name =
-                    file_name_ + ".bak_" +
-                    Gem::Common::getMSSince1970(); // NOLINT(cppcoreguidelines-init-variables)
-
-                glogger << "In GAdaptorPropertyLoggerT::informationFunction_(): Error!" << '\n'
-                        << "Attempt to output information to file " << file_name_ << '\n'
-                        << "which already exists. We will rename the old file to" << '\n'
-                        << new_file_name << '\n'
-                        << GWARNING;
-
-                std::filesystem::rename(file_name_, new_file_name);
-            }
+            Gem::Common::backupExistingFile(
+                file_name_, "GAdaptorPropertyLoggerT::informationFunction_(): Error!"
+            );
 
             // The fitness curve is recorded per-run, so start it fresh (the property store
             // deliberately accumulates across chained algorithms and is not cleared here).

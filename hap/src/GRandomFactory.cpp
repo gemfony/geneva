@@ -34,6 +34,7 @@
 #include "common/GLogger.hpp"
 #include "hap/GRandomDefines.hpp"
 #include "GFillBackend.hpp" // library-private engine selection (GPU/SIMD/scalar) + fill seam
+#include <array>
 #include <atomic>
 #include <chrono>
 #include <cstddef>
@@ -41,6 +42,7 @@
 #include <memory>
 #include <mutex>
 #include <new>
+#include <random>
 #include <stdexcept>
 #include <system_error>
 #include <thread>
@@ -145,18 +147,34 @@ std::size_t GRandomFactory::getBufferSize() {
 /**
  * @brief Returns a seed from a pseudo-random sequence.
  *
- * Access is serialised by seeding_mutex_; the local seed collection is
- * (re)generated from the seed_seq_ object on first use and once it has been
- * exhausted.
+ * Access is serialised by seeding_mutex_; the local seed collection is generated in
+ * batches, each batch from freshly drawn non-deterministic entropy (see below), on
+ * first use and once the previous batch has been exhausted.
  *
- * @return A seed taken from a local seed_seq object
+ * @return A seed taken from the current seed batch
  */
 seed_type GRandomFactory::getSeed() {
+    // The number of non-deterministic words the batch's seed sequence is built from
+    constexpr std::size_t SEED_SEQ_ENTROPY_WORDS = 16;
+
     std::unique_lock<std::mutex> const sm_lck(seeding_mutex_);
 
-    // Refill at the start of seeding or when all seeds have been used
+    // Refill at the start of seeding or when all seeds have been used.
+    //
+    // Every batch MUST be generated from freshly drawn entropy: std::seed_seq::generate()
+    // is a pure function of the entropy the sequence was constructed with, and it does not
+    // consume or advance that entropy. A single long-lived seed_seq would therefore write
+    // the very same values into seed_collection_ on every refill, so the seeds handed out
+    // would repeat with a period of seed_collection_.size() -- two RNGs seeded that far
+    // apart would produce identical streams.
     if(not seeding_has_started_ || seed_cit_ == seed_collection_.end()) {
-        seed_seq_.generate(seed_collection_.begin(), seed_collection_.end());
+        std::array<std::random_device::result_type, SEED_SEQ_ENTROPY_WORDS> entropy{};
+        for(auto &entropy_word : entropy) {
+            entropy_word = nondet_rng_();
+        }
+
+        std::seed_seq seed_seq(entropy.begin(), entropy.end());
+        seed_seq.generate(seed_collection_.begin(), seed_collection_.end());
         seed_cit_ = seed_collection_.begin();
         seeding_has_started_.store(true);
     }

@@ -77,6 +77,8 @@ GThreadPool::GThreadPool(
         n_threads > 0 ? n_threads : DEFAULTNHARDWARETHREADS,
         elasticity
     ))
+  , budget_source_(source)
+  , budget_elasticity_(elasticity)
   , n_threads_(budget_reservation_.granted()) {
     task_queue_.emplace(); // construct the (unbounded) task queue
     start_workers(n_threads_);
@@ -274,6 +276,16 @@ void GThreadPool::setNThreads(unsigned int n_threads) {
         start_workers(n);
     }
     n_threads_ = n;
+
+    // Keep the process-wide budget in step with the pool's actual size. A budgeted pool that is
+    // resized must re-reserve, or the budget goes on counting the size the pool was CONSTRUCTED
+    // with -- making reserved() and oversubscribed() wrong for the rest of the pool's life. The
+    // old handle is released first so the two reservations never overlap in the ledger. An
+    // unbudgeted pool (empty handle, granted() == 0) has nothing to keep in step.
+    if(budget_reservation_.granted() != 0) {
+        budget_reservation_.release();
+        budget_reservation_ = threadBudget().reserve(budget_source_, n, budget_elasticity_);
+    }
 }
 
 /******************************************************************************/

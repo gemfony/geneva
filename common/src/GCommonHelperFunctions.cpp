@@ -587,6 +587,33 @@ std::string getMSSince1970() {
 
 /******************************************************************************/
 /**
+ * Moves an existing output file out of the way, so a fresh one can be written. See the
+ * declaration for why this is a shared function rather than a per-site block.
+ *
+ * @param file_name The output file to back up if it exists
+ * @param context The caller's identification, used verbatim as the first line of the warning
+ * @return true if a backup was made, false if there was no such file
+ */
+bool backupExistingFile(const std::string &file_name, std::string_view context) {
+    if(not std::filesystem::exists(file_name)) {
+        return false;
+    }
+
+    std::string const new_file_name = file_name + ".bak_" + getMSSince1970();
+
+    glogger << "In " << context << '\n'
+            << "Attempt to output information to file " << file_name << '\n'
+            << "which already exists. We will rename the old file to" << '\n'
+            << new_file_name << '\n'
+            << GWARNING;
+
+    std::filesystem::rename(file_name, new_file_name);
+
+    return true;
+}
+
+/******************************************************************************/
+/**
  * Converts a std::chrono::high_resolution_clock::time_point into an arithmetic number
  *
  * @param val The time point to convert

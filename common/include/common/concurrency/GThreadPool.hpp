@@ -41,6 +41,7 @@
 #include <future>
 #include <mutex>
 #include <optional>
+#include <string>
 #include <shared_mutex>
 #include <span>
 #include <stop_token>
@@ -321,6 +322,13 @@ private:
     /// constructor). Declared FIRST so it is destroyed LAST -- the reservation must only be
     /// returned to the budget after the workers below have been joined.
     GThreadBudget::Reservation budget_reservation_;
+
+    /// The reservation's source name and elasticity, retained from the budgeted constructor so
+    /// setNThreads() can re-reserve at the new worker count. Without them the budget would keep
+    /// counting the pool's ORIGINAL size for the rest of its life, and the oversubscription
+    /// warning would be computed from a stale total.
+    std::string budget_source_;
+    ThreadElasticity budget_elasticity_ = ThreadElasticity::Fixed;
 
     // The task queue is held in an optional so setNThreads() can replace it (the
     // queue's close() is terminal). It is unbounded (capacity 0): submission never

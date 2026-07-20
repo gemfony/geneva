@@ -231,6 +231,26 @@ std::string getMSSince1970();
 
 /******************************************************************************/
 /**
+ * @brief Moves an existing output file out of the way, so a fresh one can be written.
+ *
+ * If (and only if) @p file_name names an existing file, it is renamed to
+ * "<file_name>.bak_<milliseconds-since-1970>" and a warning naming both the original and the
+ * backup is emitted. Doing nothing when the file is absent is the normal case, not an error.
+ *
+ * This exists as one shared function rather than as a block repeated at each output site: the
+ * hand-copied form let a site test one file name while reporting another (a diagnostic naming
+ * a file it had not touched), which is impossible here because the caller supplies the name
+ * exactly once.
+ *
+ * @param file_name The output file to back up if it exists
+ * @param context The caller's identification, used verbatim as the first line of the warning
+ *                (e.g. "GProcessingTimesLogger::informationFunction_(): Warning!")
+ * @return true if a backup was made, false if there was no such file
+ */
+bool backupExistingFile(const std::string &file_name, std::string_view context);
+
+/******************************************************************************/
+/**
  * @brief Converts a std::chrono::high_resolution_clock::time_point into an arithmetic number.
  *
  * @param val The time point to convert
