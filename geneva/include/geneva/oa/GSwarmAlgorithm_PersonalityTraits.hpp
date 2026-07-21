@@ -48,48 +48,37 @@ namespace Gem::Geneva::OptimizationAlgorithms {
  * to swarm optimization.
  */
 class GSwarmAlgorithm_PersonalityTraits // NOLINT(cppcoreguidelines-special-member-functions)
-  : public GPersonalityTraits {
+  : public Gem::Common::GBoilerplateT<GSwarmAlgorithm_PersonalityTraits, GPersonalityTraits> {
     ///////////////////////////////////////////////////////////////////////
+    // boost::serialization::access default-constructs this concrete type on load;
+    // GBoilerplateAccess lets the base reach localMembers_() for the generated
+    // serialize()/load_()/compare_()/name_()/clone_().
     friend class boost::serialization::access;
+    friend struct Gem::Common::GBoilerplateAccess;
 
     /***************************************************************************/
     /**
-     * Single declaration of this class'es unconditionally-handled local data
-     * members. This drives serialize(), load_() and compare_() from one place.
-     *
-     * Handled manually (NOT in this tuple): personal_best_, a
-     * std::shared_ptr<gen::GOptimizableEntity>. It is deep-cloned on load, but the
-     * load (and the copy constructor) additionally call resetPersonality() on
-     * the clone to avoid building a "chain" of individuals. That extra
-     * post-clone step is asymmetric to a plain make_cloneable_member() deep
-     * clone, so personal_best_ stays in the documented manual tail of
-     * serialize()/load_()/compare_().
+     * Single declaration of this class'es local data members. It drives the
+     * GBoilerplateT-generated serialize()/load_()/compare_() from one place.
+     * personal_best_ (a std::shared_ptr<gen::GOptimizableEntity>) is a deep-cloned
+     * pointer with no post-load transform, so make_cloneable_member handles it
+     * exactly as the former manual tail did (deep clone on load, deep compare).
      */
     template <typename Self>
     auto localMembers_(this Self &self) {
         return std::make_tuple(
             Gem::Common::make_member("neighborhood_", self.neighborhood_),
             Gem::Common::make_member("no_position_update_", self.no_position_update_),
-            Gem::Common::make_member("personal_best_quality_", self.personal_best_quality_)
+            Gem::Common::make_member("personal_best_quality_", self.personal_best_quality_),
+            Gem::Common::make_cloneable_member("personal_best_", self.personal_best_)
         );
-    }
-
-    template <typename Archive>
-    void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
-        using boost::serialization::make_nvp;
-
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GPersonalityTraits);
-
-        // The unconditionally-handled local members, derived from the single
-        // localMembers() declaration.
-        Gem::Common::serialize_members(ar, this->localMembers_());
-
-        // Manual tail: personal_best_ (deep-cloned + personality-reset on load).
-        ar & BOOST_SERIALIZATION_NVP(personal_best_);
     }
     ///////////////////////////////////////////////////////////////////////
 
 public:
+    /** @brief The class name, consumed by the GBoilerplateT-generated name_() / compare token. */
+    static constexpr std::string_view class_name = "GSwarmAlgorithm_PersonalityTraits";
+
     /** @brief An easy identifier for the class */
     static const std::string nickname; // Initialized in the .cpp definition file
 
@@ -164,35 +153,6 @@ protected:
     /***************************************************************************/
     // Virtual or overridden protected functions
 
-    /**
-     * @brief Loads the data of another GSwarmAlgorithm_PersonalityTraits object
-     *
-     * @param cp A pointer to another GPersonalityTraits object (expected to be a GSwarmAlgorithm_PersonalityTraits), camouflaged as a base-class pointer
-     */
-    void load_(const GPersonalityTraits * cp) override;
-
-    /** @brief Allow access to this classes compare_ function */
-    friend void Gem::Common::compare_base_t<GSwarmAlgorithm_PersonalityTraits>(
-        GSwarmAlgorithm_PersonalityTraits const &,
-        GSwarmAlgorithm_PersonalityTraits const &,
-        Gem::Common::GToken &
-    );
-
-    /**
-     * @brief Searches for compliance with expectations with respect to another object of the same type
-     *
-     * @param cp A constant reference to another GPersonalityTraits object (the object to be compared against)
-     * @param e The expectation for this comparison, e.g. equality or inequality
-     * @param limit The maximum allowed deviation of floating point types still considered equal
-     */
-    void compare_(
-        const GPersonalityTraits & cp // the other object
-        ,
-        const Gem::Common::expectation & e // the expectation for this object, e.g. equality
-        ,
-        const double & limit // the limit for allowed deviations of floating point types
-    ) const override;
-
     /** @brief Applies modifications to this object. This is needed for testing purposes */
     bool modify_GUnitTests_() override;
     /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
@@ -203,18 +163,8 @@ protected:
     /***************************************************************************/
 
 private:
-    /**
-     * @brief Emits a name for this class / object
-     *
-     * @return A string holding the name of this class
-     */
-    [[nodiscard]] std::string name_() const override;
-    /**
-     * @brief Creates a deep clone of this object
-     *
-     * @return A deep clone of this object, returned as a pointer to the GPersonalityTraits base class
-     */
-    [[nodiscard]] GPersonalityTraits *clone_() const override;
+    // serialize(), load_(), compare_(), name_() and clone_() are all generated by the
+    // Gem::Common::GBoilerplateT base from class_name and localMembers_().
 
     /** @brief Stores the neighborhood id the individual currently belongs to */
     std::size_t neighborhood_ = 0;

@@ -36,6 +36,7 @@
 #include <cstddef>
 #include <string>
 #include <string_view>
+#include <tuple>
 
 // Geneva headers go here
 #include "geneva/oa/GAlgorithmPersonalityTraitsT.hpp"
@@ -51,6 +52,16 @@ namespace Gem::Geneva::OptimizationAlgorithms {
  */
 class GStandardPSO2011_PersonalityTraits // NOLINT(cppcoreguidelines-special-member-functions)
   : public GAlgorithmPersonalityTraitsT<GStandardPSO2011_PersonalityTraits> {
+    // GBoilerplateAccess lets the GBoilerplateT base (via the generator) reach this
+    // stateless class's explicit empty localMembers_() (required by the mixin's deleted fallback).
+    friend struct Gem::Common::GBoilerplateAccess;
+
+    /** @brief This traits class adds no own state (only its identity). @return An empty member tuple */
+    template <typename Self>
+    auto localMembers_(this Self &) {
+        return std::make_tuple();
+    }
+
 public:
     /** @brief An easy identifier for the class */
     static const std::string nickname; // Initialized in the .cpp definition file
