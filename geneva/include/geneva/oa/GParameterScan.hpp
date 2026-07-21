@@ -184,21 +184,24 @@ template <typename T>
 class GBaseScanParT // NOLINT(cppcoreguidelines-special-member-functions)
   : public Gem::Common::GPodContainerT<T>
   , public GScanParInterface
-  , public Gem::Common::GCommonInterfaceT<GBaseScanParT<T>> {
+  , public Gem::Common::GBoilerplateBaseT<GBaseScanParT<T>, Gem::Common::GCommonInterfaceT<GBaseScanParT<T>>> {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
+    friend struct Gem::Common::GBoilerplateAccess;
 
-    /** @brief Single declaration of this class'es scan-state members, so serialize(), load_() and
-     *  compareScanPar() all derive from one list. var_ (a std::tuple) is listed as its three named
-     *  sub-elements: that lets it be compared (compare_t cannot stream a whole tuple). The pre-computed
-     *  grid lives in the GPodContainerT base and is handled separately via base_object / operator= /
-     *  the data_cnt_ comparison. */
+    /** @brief Single declaration of this class'es members, so the GBoilerplateBaseT-generated
+     *  name_()/load_()/compare_() (and the disambiguating serialize() below) all derive from one list.
+     *  The pre-computed grid held by the GPodContainerT base is tied in here as data_cnt_ (the container's
+     *  only state -- GContainerT serialises just data_cnt_), so the container stays a behaviour-only base
+     *  and needs no base_object handling. var_ (a std::tuple) is listed as its three named sub-elements
+     *  (compare_t cannot stream a whole tuple). GScanParInterface is a stateless pure-virtual interface. */
     // The member list is written ONCE, in the static template helper below. Self is deduced as
     // GBaseScanParT or const GBaseScanParT, so each member binds with the matching const-ness and
     // make_member() deduces accordingly; the two localMembers() overloads are trivial forwarders.
     template <typename Self>
     auto localMembers_(this Self &self) {
         return std::make_tuple(
+            Gem::Common::make_member("data_cnt_", self.data_cnt_),
             Gem::Common::make_member("var_mode", std::get<0>(self.var_)),
             Gem::Common::make_member("var_name", std::get<1>(self.var_)),
             Gem::Common::make_member("var_pos", std::get<2>(self.var_)),
@@ -210,26 +213,25 @@ class GBaseScanParT // NOLINT(cppcoreguidelines-special-member-functions)
             Gem::Common::make_member("type_description_", self.type_description_)
         );
     }
-    /** @brief Serializes this object via Boost.Serialization
+
+    /** @brief Disambiguating serialize(): both stateful bases in the multiple-inheritance set (the mixin
+     *  and GContainerT) declare a serialize(), so this one-liner resolves the ambiguity and emits the
+     *  single member list (which now includes the container's data_cnt_). The stateless GCommonInterfaceT
+     *  root and GScanParInterface contribute nothing.
      *  @tparam Archive The archive type used for (de-)serialization
      *  @param ar The archive to serialize to / from
-     *  @param version The class version supplied by Boost.Serialization */
+     *  @param version The (unused) class version supplied by Boost.Serialization */
     template <typename Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
-        using boost::serialization::make_nvp;
-
-        // The pre-computed grid (GPodContainerT base) ...
-        ar &boost::serialization::make_nvp(
-            "GPodContainerT_T",
-            boost::serialization::base_object<Gem::Common::GPodContainerT<T>>(*this)
-        );
-        // ... and the scan-state members, derived from the single localMembers_() declaration.
         Gem::Common::serialize_members(ar, this->localMembers_());
     }
 
     ///////////////////////////////////////////////////////////////////////
 
 public:
+    /** @brief The class name, consumed by the GBoilerplateBaseT-generated name_() / compare token. */
+    static constexpr std::string_view class_name = "GBaseScanParT";
+
     /***************************************************************************/
     /**
      * @brief The standard constructor.
@@ -318,25 +320,6 @@ public:
 
     /***************************************************************************/
     /**
-     * @brief Compares this scan parameter against another one of the same type.
-     *
-     * Feeds all scan state -- the variable address, the current/total step counts, the boundaries,
-     * the random-scan flag, the type descriptor and the pre-computed grid points -- to the given token,
-     * so a round-trip / clone comparison detects any difference in scan state.
-     *
-     * @param other The other scan parameter to compare against
-     * @param token The comparison token collecting the results
-     */
-    void compareScanPar(const GBaseScanParT<T> &other, Gem::Common::GToken &token) const {
-        using namespace Gem::Common;
-        // The pre-computed grid (held by the GPodContainerT base) ...
-        compare_t(Gem::Common::getIdentity(this->data_cnt_, other.data_cnt_, "this->data_cnt_", "other.data_cnt_"), token);
-        // ... and all the scan-state members, derived from the single localMembers_() declaration.
-        g_compare_members(this->localMembers_(), other.localMembers_(), token);
-    }
-
-    /***************************************************************************/
-    /**
      * @brief Switch to the next position in the vector or rewind
      *
      * @return true if a warp (rewind to the start) has taken place, false otherwise
@@ -386,37 +369,12 @@ public:
 
 protected:
     /***************************************************************************/
-    // Gemfony common interface. Giving each scan-parameter type clone_()/load_()/compare_() lets the
-    // GParameterScan scan-parameter vectors be (de)serialized, deep-copied and compared through the
-    // single-source make_cloneable_container_member() route, instead of a hand-written tail.
-
-    /**
-     * @brief Loads the data of another GBaseScanParT<T> in place (deep-copies the grid + scan state).
-     * @param cp The object to load from (its dynamic type matches this object's)
-     */
-    void load_(const GBaseScanParT<T> *cp) override {
-        // GCommonInterfaceT carries no data of its own; copy the pre-computed grid held by the container
-        // base ...
-        Gem::Common::GPodContainerT<T>::operator=(*cp);
-        // ... and the scan state, derived from the single localMembers_() declaration.
-        Gem::Common::g_load_members(this->localMembers_(), cp->localMembers_());
-    }
-
-    /**
-     * @brief Searches for compliance with expectations with respect to another scan parameter.
-     * @param cp The object to compare against (its dynamic type matches this object's)
-     * @param e The expected outcome of the comparison
-     * @param limit The maximum acceptable deviation (unused -- the scan state compares exactly)
-     */
-    void compare_(
-        const GBaseScanParT<T> &cp,
-        const Gem::Common::expectation &e,
-        [[maybe_unused]] const double &limit
-    ) const override {
-        Gem::Common::GToken token("GBaseScanParT", e);
-        this->compareScanPar(cp, token);
-        token.evaluate();
-    }
+    // Gemfony common interface. name_(), clone_(), load_(), compare_() and serialize() give each
+    // scan-parameter type its identity so the GParameterScan scan-parameter vectors can be
+    // (de)serialized, deep-copied and compared through the single-source make_cloneable_container_member()
+    // route. load_()/compare_()/name_() are generated by the GBoilerplateBaseT base from the single
+    // localMembers_() declaration (which ties in the container's data_cnt_); clone_() is supplied by the
+    // GScanParT scaffold; serialize() is the disambiguating one-liner above.
 
     /** @brief Test hook: applies modifications to this object (no-op for this plain value type). */
     bool modify_GUnitTests_() override { return false; }
