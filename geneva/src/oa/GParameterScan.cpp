@@ -285,43 +285,6 @@ GParameterScan::GParameterScan(const GParameterScan &cp)
 
 /******************************************************************************/
 /**
- * @brief Searches for compliance with expectations with respect to another object
- * of the same type.
- *
- * @param cp A constant reference to another GOptimizationAlgorithmBase object (must actually be a
- *           GParameterScan) to compare against
- * @param e The expected outcome of the comparison (equality, inequality, etc.)
- * @param limit The maximum acceptable deviation for floating-point comparisons (unused here)
- */
-void GParameterScan::compare_(
-    const GOptimizationAlgorithmBase &cp,
-    const Gem::Common::expectation &e,
-    [[maybe_unused]] const double & limit
-) const {
-    using namespace Gem::Common;
-
-    // Check that we are dealing with a GParameterScan reference independent of this object and convert the pointer
-    const GParameterScan *p_load =
-        Gem::Common::g_convert_and_compare<GOptimizationAlgorithmBase, GParameterScan>(cp, this);
-
-    GToken token("GParameterScan", e);
-
-    // Compare our parent data ...
-    Gem::Common::compare_base_t<GOptimizationAlgorithmBase>(*this, *p_load, token);
-
-    // ... and then ALL local data, derived from the single localMembers() declaration. This now also
-    // covers the scan-parameter vectors (cycle_logic_halt_ included): their element types carry the
-    // Gemfony common interface, so g_compare_members() compares them element-by-element through each scan
-    // parameter's compare_() (which feeds the full scan state -- including the pre-computed grid -- to the
-    // token).
-    g_compare_members(this->localMembers_(), p_load->localMembers_(), token);
-
-    // React on deviations from the expectation
-    token.evaluate();
-}
-
-/******************************************************************************/
-/**
  * @brief Resets the settings of this population to what was configured when
  * the optimize()-call was issued.
  */
@@ -341,28 +304,6 @@ void GParameterScan::resetToOptimizationStart_() {
     // There is no more work to be done here, so we simply call the
     // function of the parent class
     GOptimizationAlgorithmBase::resetToOptimizationStart_();
-}
-
-/******************************************************************************/
-/**
- * @brief Loads the data of another population.
- *
- * @param cp A pointer to another GOptimizationAlgorithmBase object (must actually be a
- *           GParameterScan) whose data is copied into this object
- */
-void GParameterScan::load_(const GOptimizationAlgorithmBase *cp) {
-    // Check that we are dealing with a GParameterScan reference independent of this object and convert the pointer
-    const GParameterScan *p_load =
-        Gem::Common::g_convert_and_compare<GOptimizationAlgorithmBase, GParameterScan>(cp, this);
-
-    // First load the parent class'es data.
-    // This will also take care of copying all individuals.
-    GOptimizationAlgorithmBase::load_(cp);
-
-    // ... and then ALL of our own data, derived from the single localMembers() declaration. This now also
-    // deep-copies the scan-parameter vectors (cycle_logic_halt_ included): their element types carry the
-    // Gemfony common interface, so make_cloneable_container_member() clones each element via clone_()/load_().
-    Gem::Common::g_load_members(this->localMembers_(), p_load->localMembers_());
 }
 
 /******************************************************************************/

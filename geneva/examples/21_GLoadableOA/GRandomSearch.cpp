@@ -80,50 +80,6 @@ void GRandomSearch::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) {
 
 /******************************************************************************/
 /**
- * @brief Loads the data of another GRandomSearch object.
- *
- * @param cp A pointer to another GOptimizationAlgorithmBase object (must actually be a GRandomSearch)
- */
-void GRandomSearch::load_(const GOptimizationAlgorithmBase *cp) {
-    // Check that we are dealing with a GRandomSearch reference independent of this object and convert.
-    const GRandomSearch *p_load =
-        Gem::Common::g_convert_and_compare<GOptimizationAlgorithmBase, GRandomSearch>(cp, this);
-
-    // Load the parent class'es data (this also copies all individuals + the population size).
-    GOptimizationAlgorithmBase::load_(cp);
-
-    // This algorithm carries no local data of its own.
-    (void)p_load;
-}
-
-/******************************************************************************/
-/**
- * @brief Searches for compliance with expectations with respect to another object of the same type.
- *
- * @param cp A constant reference to another GOptimizationAlgorithmBase object (must be a GRandomSearch)
- * @param e The expected outcome of the comparison (equality, inequality, etc.)
- * @param limit The maximum acceptable deviation for floating-point comparisons (unused: no local data)
- */
-void GRandomSearch::compare_(
-    const GOptimizationAlgorithmBase &cp,
-    const Gem::Common::expectation &e,
-    [[maybe_unused]] const double &limit
-) const {
-    using namespace Gem::Common;
-
-    const GRandomSearch *p_load =
-        Gem::Common::g_convert_and_compare<GOptimizationAlgorithmBase, GRandomSearch>(cp, this);
-
-    GToken token("GRandomSearch", e);
-
-    // Compare our parent data (this algorithm adds no local data of its own).
-    Gem::Common::compare_base_t<GOptimizationAlgorithmBase>(*this, *p_load, token);
-
-    token.evaluate();
-}
-
-/******************************************************************************/
-/**
  * @brief Random search cannot tolerate a missing/failed evaluation: submit under full-success-or-fatal.
  *
  * @return The full-success-or-fatal submission policy

@@ -90,29 +90,6 @@ GEvolutionaryAlgorithm::GEvolutionaryAlgorithm() {
 }
 
 /******************************************************************************/
-/**
- * @brief Searches for compliance with expectations with respect to another object of the same type.
- */
-void GType::compare_(
-    const GOptimizationAlgorithmBase &cp,
-    const Gem::Common::expectation &e,
-    const double & /*limit*/
-) const {
-    using namespace Gem::Common;
-using namespace Gem::Common::Concurrency;
-
-    const GType *p_load =
-        Gem::Common::g_convert_and_compare<GOptimizationAlgorithmBase, GType>(cp, this);
-
-    GToken token("GEvolutionaryAlgorithm", e);
-
-    Gem::Common::compare_base_t<GParChild>(*this, *p_load, token);
-    g_compare_members(this->localMembers_(), p_load->localMembers_(), token);
-
-    token.evaluate();
-}
-
-/******************************************************************************/
 
 void GType::resetToOptimizationStart_() {
     GParChild::resetToOptimizationStart_();
@@ -336,16 +313,6 @@ void GType::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) {
         true,
         [this](bool r) { this->setSigmaRecombination(r); }
     ) << "Whether to intermediate-recombine the per-individual sigma after recombination";
-}
-
-/******************************************************************************/
-
-void GType::load_(const GOptimizationAlgorithmBase *cp) {
-    const GType *p_load =
-        Gem::Common::g_convert_and_compare<GOptimizationAlgorithmBase, GType>(cp, this);
-
-    GParChild::load_(cp);
-    Gem::Common::g_load_members(this->localMembers_(), p_load->localMembers_());
 }
 
 /******************************************************************************/

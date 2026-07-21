@@ -296,34 +296,6 @@ std::size_t GNelderMead::trialPos(std::size_t s, std::size_t t) const {
 
 /******************************************************************************/
 /**
- * @brief Searches for compliance with expectations with respect to another object of the same type.
- *
- * @param cp A constant reference to another GOptimizationAlgorithmBase, expected to be a GNelderMead
- * @param e The expectation to be checked (e.g. equality or inequality)
- * @param limit The maximum allowed deviation for floating-point comparisons (unused here)
- */
-void GNelderMead::compare_(
-    const GOptimizationAlgorithmBase &cp,
-    const Gem::Common::expectation &e,
-    [[maybe_unused]] const double & limit
-) const {
-    using namespace Gem::Common;
-
-    const GNelderMead *p_load = Gem::Common::g_convert_and_compare<GOptimizationAlgorithmBase, GNelderMead>(cp, this);
-
-    GToken token("GNelderMead", e);
-
-    Gem::Common::compare_base_t<GOptimizationAlgorithmBase>(*this, *p_load, token);
-
-    // Local data, derived from the single localMembers() declaration. trials_pending_ is transient:
-    // reset in init() and not restored in load_(). Comparing it would fail round-trip equality spuriously.
-    g_compare_members(this->localMembers_(), p_load->localMembers_(), token);
-
-    token.evaluate();
-}
-
-/******************************************************************************/
-/**
  * @brief Resets transient state so a fresh optimization run can start.
  *
  * Clears the pending-trials flag, then delegates to the base class.
@@ -332,26 +304,6 @@ void GNelderMead::resetToOptimizationStart_() {
     trials_pending_ = false;
 
     GOptimizationAlgorithmBase::resetToOptimizationStart_();
-}
-
-/******************************************************************************/
-/**
- * @brief Loads the data of another GNelderMead object into this one.
- *
- * The parent class'es data (including all individuals) is loaded first, followed by this class's own
- * serialized members. The transient pending-trials flag is not restored; it is reset in init().
- *
- * @param cp A constant pointer to another GOptimizationAlgorithmBase, expected to be a GNelderMead
- */
-void GNelderMead::load_(const GOptimizationAlgorithmBase *cp) {
-    const GNelderMead *p_load = Gem::Common::g_convert_and_compare<GOptimizationAlgorithmBase, GNelderMead>(cp, this);
-
-    // First load the parent class'es data (this also copies all individuals).
-    GOptimizationAlgorithmBase::load_(cp);
-
-    // ... and then our own (serialized) data, derived from the single localMembers() declaration.
-    // dbl*ParameterBoundaries_ and trials_pending_ are transient and re-set in init().
-    Gem::Common::g_load_members(this->localMembers_(), p_load->localMembers_());
 }
 
 /******************************************************************************/

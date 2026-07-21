@@ -50,7 +50,7 @@ namespace Gem::Geneva::OptimizationAlgorithms {
 /**
  * A CRTP-style scaffold for the per-algorithm factories. It generates the boilerplate every standard
  * optimization-algorithm factory repeats: the three constructors (the default one derives the config
- * path "./config/<oa_class_name>.json"), getMnemonic() (= the personality nickname), getAlgorithmName()
+ * path "./config/<class_name>.json"), getMnemonic() (= the personality nickname), getAlgorithmName()
  * (= the algorithm's human-readable name) and getObject_() (construct the algorithm and register its
  * configuration options). A concrete factory becomes a thin named subclass -- kept so the GInitializerT
  * self-registration has a concrete type and so Go2 / the examples can refer to it by name.
@@ -58,7 +58,7 @@ namespace Gem::Geneva::OptimizationAlgorithms {
  *   class GFooFactory : public GOptimizationAlgorithmFactoryT<GFoo, GFoo_PersonalityTraits> { ... };
  *
  * @tparam oa_type                 The concrete algorithm. Must expose the GOptimizationAlgorithmT
- *                                 identifiers oa_class_name and oa_algorithm_name.
+ *                                 identifiers class_name and oa_algorithm_name.
  * @tparam personality_traits_type The algorithm's personality traits, whose static `nickname` is the
  *                                 command-line mnemonic.
  */
@@ -68,7 +68,7 @@ public:
     /** @brief The default constructor: derives the config-file path from the algorithm's class name. */
     GOptimizationAlgorithmFactoryT()
       : GOAFactoryT<GOptimizationAlgorithmBase>(
-            std::string("./config/") + std::string(oa_type::oa_class_name) + ".json"
+            std::string("./config/") + std::string(oa_type::class_name) + ".json"
         ) { /* nothing */
     }
 

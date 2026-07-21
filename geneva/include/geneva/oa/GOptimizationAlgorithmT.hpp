@@ -37,7 +37,8 @@
 #include <string_view>
 
 // Geneva headers go here
-#include "common/GCommonHelperFunctions.hpp" // Gem::Common::condnotset
+#include "common/GBoilerplateT.hpp"           // Gem::Common::GBoilerplateT
+#include "common/GCommonHelperFunctions.hpp"  // Gem::Common::condnotset
 #include "geneva/oa/GOptimizationAlgorithmBase.hpp"
 
 namespace Gem::Geneva::OptimizationAlgorithms {
@@ -45,30 +46,41 @@ namespace Gem::Geneva::OptimizationAlgorithms {
 /******************************************************************************/
 /**
  * A CRTP scaffold that generates the boilerplate every concrete optimization algorithm otherwise
- * repeats by hand: clone_(), name_(), getAlgorithmName_(), getAlgorithmPersonalityType_(), and the
+ * repeats by hand. The generic quartet -- clone_(), name_(), load_(), compare_() plus the folded
+ * serialize() -- comes from Gem::Common::GBoilerplateT (single-sourced from the class's
+ * localMembers_() and class_name, exactly as everywhere else in the tree); this layer only adds the
+ * three algorithm-specific overriders (getAlgorithmName_(), getAlgorithmPersonalityType_()) and the
  * three default GUnitTests stubs. A concrete algorithm derives as
  *
  *     class GFoo : public GOptimizationAlgorithmT<GFoo>             // direct-from-base algorithms
  *     class GBar : public GOptimizationAlgorithmT<GBar, GParChild>  // mu/lambda algorithms
  *
- * and supplies three static string identifiers (public, so this layer can read them):
+ * and supplies its member list (localMembers_()) plus three static string identifiers (public, so
+ * this layer and the mixin can read them):
  *
- *     static constexpr std::string_view oa_class_name       = "GFoo";
+ *     static constexpr std::string_view class_name          = "GFoo";  // read by GBoilerplateT
  *     static constexpr std::string_view oa_algorithm_name   = "Foo Optimizer";
  *     static constexpr std::string_view oa_personality_type = "PERSONALITY_FOO";
  *
- * This layer holds NO data members and is never serialized directly: the concrete class keeps
- * serializing base_object<GOptimizationAlgorithmBase> (or <GParChild>), so the on-the-wire / on-disk
- * archive structure is identical to the hand-written version. The GUnitTests stubs are ordinary
- * virtuals, so an algorithm with real algorithm-specific tests simply overrides them.
+ * The mixin holds NO data of its own; clone_() returns a GOptimizationAlgorithmBase pointer (the
+ * hierarchy root, the default GBoilerplateT clone-return). The GUnitTests stubs are ordinary
+ * virtuals, so an algorithm with real algorithm-specific tests simply overrides them. An algorithm
+ * whose load_() is more than a member-wise copy (e.g. GSwarmAlgorithm's iteration-dependent
+ * neighbourhood-best handling) overrides the generated load_() in the usual way.
  *
  * @tparam Derived The concrete algorithm (CRTP).
  * @tparam Parent  The class to derive from -- GOptimizationAlgorithmBase by default, or an
  *                 intermediate such as GParChild for the mu/lambda algorithms.
  */
 template <typename Derived, typename Parent = GOptimizationAlgorithmBase>
-class GOptimizationAlgorithmT : public Parent {
+class GOptimizationAlgorithmT : public Gem::Common::GBoilerplateT<Derived, Parent> {
+    /** @brief The mixin base that generates clone_()/name_()/load_()/compare_()/serialize(). */
+    using boilerplate_t = Gem::Common::GBoilerplateT<Derived, Parent>;
+
 public:
+    /** @brief Inherit the mixin's (and thereby the parent's) constructors. */
+    using boilerplate_t::boilerplate_t;
+
     /** @brief The default constructor */
     GOptimizationAlgorithmT() = default;
     /**
@@ -86,7 +98,7 @@ protected:
 #ifdef GEM_TESTING
         return Parent::modify_GUnitTests_();
 #else  /* GEM_TESTING */
-        Gem::Common::condnotset(std::string(Derived::oa_class_name) + "::modify_GUnitTests", "GEM_TESTING");
+        Gem::Common::condnotset(std::string(Derived::class_name) + "::modify_GUnitTests", "GEM_TESTING");
         return false;
 #endif /* GEM_TESTING */
     }
@@ -97,7 +109,7 @@ protected:
         Parent::specificTestsNoFailureExpected_GUnitTests_();
 #else  /* GEM_TESTING */
         Gem::Common::condnotset(
-            std::string(Derived::oa_class_name) + "::specificTestsNoFailureExpected_GUnitTests",
+            std::string(Derived::class_name) + "::specificTestsNoFailureExpected_GUnitTests",
             "GEM_TESTING"
         );
 #endif /* GEM_TESTING */
@@ -109,29 +121,13 @@ protected:
         Parent::specificTestsFailuresExpected_GUnitTests_();
 #else  /* GEM_TESTING */
         Gem::Common::condnotset(
-            std::string(Derived::oa_class_name) + "::specificTestsFailuresExpected_GUnitTests",
+            std::string(Derived::class_name) + "::specificTestsFailuresExpected_GUnitTests",
             "GEM_TESTING"
         );
 #endif /* GEM_TESTING */
     }
 
 private:
-    /**
-     * @brief Emits a name for this class / object
-     *
-     * @return The concrete algorithm's class name, taken from Derived::oa_class_name.
-     */
-    [[nodiscard]] std::string name_() const override { return std::string(Derived::oa_class_name); }
-
-    /**
-     * @brief Creates a deep clone of this object
-     *
-     * @return A heap-allocated deep copy of this object, as a GOptimizationAlgorithmBase pointer (caller owns it).
-     */
-    [[nodiscard]] GOptimizationAlgorithmBase *clone_() const override {
-        return new Derived(static_cast<const Derived &>(*this));
-    }
-
     /**
      * @brief Returns the human-readable name of this optimization algorithm
      *

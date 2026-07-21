@@ -79,41 +79,6 @@ GSimulatedAnnealing::GSimulatedAnnealing() {
 
 /******************************************************************************/
 /**
-  * @brief Searches for compliance with expectations with respect to another object
-  * of the same type
-  *
-  * @param cp A constant reference to another GOptimizationAlgorithmBase, expected to be a GSimulatedAnnealing
-  * @param e The expected outcome of the comparison (e.g. equality or inequality)
- * @param limit The maximum deviation for floating point values (unused here; important for similarity checks)
- */
-void GSimulatedAnnealing::compare_(
-    const GOptimizationAlgorithmBase &cp // the other object
-    ,
-    const Gem::Common::expectation &e // the expectation for this object, e.g. equality
-    ,
-    const double & /*limit*/ // the limit for allowed deviations of floating point types
-) const {
-    using namespace Gem::Common;
-using namespace Gem::Common::Concurrency;
-
-    // Check that we are dealing with a GSimulatedAnnealing reference independent of this object and convert the pointer
-    const GSimulatedAnnealing *p_load =
-        Gem::Common::g_convert_and_compare<GOptimizationAlgorithmBase, GSimulatedAnnealing>(cp, this);
-
-    GToken token("GSimulatedAnnealing", e);
-
-    // Compare our parent data ...
-    Gem::Common::compare_base_t<GParChild>(*this, *p_load, token);
-
-    // ... and then the local data, derived from the single localMembers() declaration
-    g_compare_members(this->localMembers_(), p_load->localMembers_(), token);
-
-    // React on deviations from the expectation
-    token.evaluate();
-}
-
-/******************************************************************************/
-/**
  * @brief Resets the settings of this population to what was configured when
  * the optimize()-call was issued
  */
@@ -220,25 +185,6 @@ double GSimulatedAnnealing::getT0() const {
   */
 double GSimulatedAnnealing::getT() const {
     return t_;
-}
-
-/******************************************************************************/
-/**
-  * @brief Loads the data of another GSimulatedAnnealing object.
-  *
-  * @param cp A pointer to another GOptimizationAlgorithmBase, expected to be a GSimulatedAnnealing
-  */
-void GSimulatedAnnealing::load_(const GOptimizationAlgorithmBase *cp) {
-    // Check that we are dealing with a GSimulatedAnnealing reference independent
-    // of this object and convert the pointer
-    const GSimulatedAnnealing *p_load =
-        Gem::Common::g_convert_and_compare<GOptimizationAlgorithmBase, GSimulatedAnnealing>(cp, this);
-
-    // First load the parent class'es data ...
-    GParChild::load_(cp);
-
-    // ... and then our own data, derived from the single localMembers() declaration
-    Gem::Common::g_load_members(this->localMembers_(), p_load->localMembers_());
 }
 
 /******************************************************************************/

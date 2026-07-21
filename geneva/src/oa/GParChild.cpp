@@ -75,39 +75,6 @@ GParChild::GParChild() {
 
 /******************************************************************************/
 /**
- * @brief Searches for compliance with expectations with respect to another object
- * of the same type
- *
- * @param cp A constant reference to another GOptimizationAlgorithmBase, expected to be a GParChild
- * @param e The expected outcome of the comparison (e.g. equality or inequality)
- * @param limit The maximum deviation for floating point values (unused here; important for similarity checks)
- */
-void GParChild::compare_(
-    const GOptimizationAlgorithmBase &cp,
-    const Gem::Common::expectation &e,
-    [[maybe_unused]] const double & limit
-) const {
-    using namespace Gem::Common;
-using namespace Gem::Common::Concurrency;
-
-    // Check that we are dealing with a GParChild  reference independent of this object and convert the pointer
-    const GParChild *p_load =
-        Gem::Common::g_convert_and_compare<GOptimizationAlgorithmBase, GParChild>(cp, this);
-
-    GToken token("GParChild", e);
-
-    // Compare our parent data ...
-    Gem::Common::compare_base_t<GOptimizationAlgorithmBase>(*this, *p_load, token);
-
-    // ... and then the local data, derived from the single localMembers() declaration
-    g_compare_members(this->localMembers_(), p_load->localMembers_(), token);
-
-    // React on deviations from the expectation
-    token.evaluate();
-}
-
-/******************************************************************************/
-/**
  * @brief Resets the settings of this population to what was configured when
  * the optimize()-call was issued
  */
@@ -703,24 +670,6 @@ void GParChild::fixAfterJobSubmission() {
  */
 std::string GParChild::name_() const {
     return std::string("GParChild");
-}
-
-/******************************************************************************/
-/**
- * @brief Loads the data of another GParChild object.
- *
- * @param cp A pointer to another GOptimizationAlgorithmBase, expected to be a GParChild
- */
-void GParChild::load_(const GOptimizationAlgorithmBase *cp) {
-    // Check that we are dealing with a GParChild  reference independent of this object and convert the pointer
-    const GParChild *p_load =
-        Gem::Common::g_convert_and_compare<GOptimizationAlgorithmBase, GParChild>(cp, this);
-
-    // First load the parent class'es data ...
-    GOptimizationAlgorithmBase::load_(cp);
-
-    // ... and then our own data, derived from the single localMembers() declaration
-    Gem::Common::g_load_members(this->localMembers_(), p_load->localMembers_());
 }
 
 /******************************************************************************/

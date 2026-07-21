@@ -186,46 +186,6 @@ void GSepCmaEvolutionStrategy::addConfigurationOptions_(Gem::Common::GParserBuil
 
 /******************************************************************************/
 /**
- * Loads the data of another GSepCmaEvolutionStrategy object.
- */
-void GSepCmaEvolutionStrategy::load_(const GOptimizationAlgorithmBase *cp) {
-    const GSepCmaEvolutionStrategy *p_load =
-        Gem::Common::g_convert_and_compare<GOptimizationAlgorithmBase, GSepCmaEvolutionStrategy>(cp, this);
-
-    // First load the parent class's data ...
-    GOptimizationAlgorithmT<GSepCmaEvolutionStrategy>::load_(cp);
-
-    // ... and then our own data, derived from the single localMembers() declaration
-    Gem::Common::g_load_members(this->localMembers_(), p_load->localMembers_());
-}
-
-/******************************************************************************/
-/**
- * Searches for compliance with expectations with respect to another object of the same type.
- */
-void GSepCmaEvolutionStrategy::compare_(
-    const GOptimizationAlgorithmBase &cp,
-    const Gem::Common::expectation &e,
-    const double & /*limit*/
-) const {
-    using namespace Gem::Common;
-
-    const GSepCmaEvolutionStrategy *p_load =
-        Gem::Common::g_convert_and_compare<GOptimizationAlgorithmBase, GSepCmaEvolutionStrategy>(cp, this);
-
-    GToken token("GSepCmaEvolutionStrategy", e);
-
-    // Compare our parent data ...
-    Gem::Common::compare_base_t<GOptimizationAlgorithmBase>(*this, *p_load, token);
-
-    // ... and then the local data, derived from the single localMembers() declaration
-    g_compare_members(this->localMembers_(), p_load->localMembers_(), token);
-
-    token.evaluate();
-}
-
-/******************************************************************************/
-/**
  * Resets the settings of this population to what was configured when optimize() was issued.
  */
 void GSepCmaEvolutionStrategy::resetToOptimizationStart_() {

@@ -324,39 +324,6 @@ GHesseErrorResult GConjugateGradientDescent::getLastErrorEstimate() const {
 
 /******************************************************************************/
 /**
- * @brief Searches for compliance with expectations with respect to another object
- * of the same type
- *
- * @param cp A constant reference to another GOptimizationAlgorithmBase object to compare against
- * @param e The expected outcome of the comparison (e.g. equality or inequality)
- * @param limit The maximum acceptable deviation for floating-point comparisons (unused here)
- */
-void GConjugateGradientDescent::compare_(
-    const GOptimizationAlgorithmBase &cp,
-    const Gem::Common::expectation &e,
-    [[maybe_unused]] const double & limit
-) const {
-    using namespace Gem::Common;
-
-    const GConjugateGradientDescent *p_load =
-        Gem::Common::g_convert_and_compare<GOptimizationAlgorithmBase, GConjugateGradientDescent>(cp, this);
-
-    GToken token("GConjugateGradientDescent", e);
-
-    // Compare our parent data ...
-    Gem::Common::compare_base_t<GOptimizationAlgorithmBase>(*this, *p_load, token);
-
-    // ... and then the local data, derived from the single localMembers() declaration.
-    // adjusted_finite_step_ is transient: recomputed in init() from the serialized fields above and not
-    // restored in load_(). Comparing it would cause round-trip equality tests to fail spuriously. (The
-    // conjugate-gradient memory likewise transient now lives on the central slots' OA scratch.)
-    g_compare_members(this->localMembers_(), p_load->localMembers_(), token);
-
-    token.evaluate();
-}
-
-/******************************************************************************/
-/**
  * @brief Resets the settings of this population to what was configured when
  * the optimize()-call was issued
  */
@@ -366,25 +333,6 @@ void GConjugateGradientDescent::resetToOptimizationStart_() {
     // dropped at the optimization-algorithm boundary (resetIndividualPersonalities -> clearScratch).
 
     GOptimizationAlgorithmBase::resetToOptimizationStart_();
-}
-
-/******************************************************************************/
-/**
- * @brief Loads the data of another population
- *
- * @param cp A pointer to another GConjugateGradientDescent object, camouflaged as a GOptimizationAlgorithmBase (not taken over)
- */
-void GConjugateGradientDescent::load_(const GOptimizationAlgorithmBase *cp) {
-    const GConjugateGradientDescent *p_load =
-        Gem::Common::g_convert_and_compare<GOptimizationAlgorithmBase, GConjugateGradientDescent>(cp, this);
-
-    // First load the parent class'es data (this also copies all individuals).
-    GOptimizationAlgorithmBase::load_(cp);
-
-    // ... and then our own (serialized) data, derived from the single localMembers() declaration.
-    // adjusted_finite_step_ is transient and recomputed in init(); the conjugate-gradient memory is
-    // transient too and lives on the central slots' OA scratch.
-    Gem::Common::g_load_members(this->localMembers_(), p_load->localMembers_());
 }
 
 /******************************************************************************/

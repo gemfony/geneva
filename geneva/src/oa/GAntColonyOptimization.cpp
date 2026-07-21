@@ -189,49 +189,6 @@ void GAntColonyOptimization::addConfigurationOptions_(Gem::Common::GParserBuilde
 
 /******************************************************************************/
 /**
- * Loads the data of another GAntColonyOptimization object.
- */
-void GAntColonyOptimization::load_(const GOptimizationAlgorithmBase *cp) {
-    const GAntColonyOptimization *p_load =
-        Gem::Common::g_convert_and_compare<GOptimizationAlgorithmBase, GAntColonyOptimization>(cp, this);
-
-    // First load the parent class's data (this also copies all individuals) ...
-    GOptimizationAlgorithmT<GAntColonyOptimization>::load_(cp);
-
-    // ... and then our own data, derived from the single localMembers() declaration. All other members
-    // are transient and re-set in init().
-    Gem::Common::g_load_members(this->localMembers_(), p_load->localMembers_());
-}
-
-/******************************************************************************/
-/**
- * Searches for compliance with expectations with respect to another object of the same type. Only the
- * scalar configuration is compared; the per-iteration archive state is transient (recomputed in init()
- * and not restored in load_()), so comparing it would cause round-trip equality tests to fail.
- */
-void GAntColonyOptimization::compare_(
-    const GOptimizationAlgorithmBase &cp,
-    const Gem::Common::expectation &e,
-    const double & /*limit*/
-) const {
-    using namespace Gem::Common;
-
-    const GAntColonyOptimization *p_load =
-        Gem::Common::g_convert_and_compare<GOptimizationAlgorithmBase, GAntColonyOptimization>(cp, this);
-
-    GToken token("GAntColonyOptimization", e);
-
-    // Compare our parent data ...
-    Gem::Common::compare_base_t<GOptimizationAlgorithmBase>(*this, *p_load, token);
-
-    // ... and then the local data, derived from the single localMembers() declaration
-    g_compare_members(this->localMembers_(), p_load->localMembers_(), token);
-
-    token.evaluate();
-}
-
-/******************************************************************************/
-/**
  * Resets the settings of this population to what was configured when optimize() was issued.
  */
 void GAntColonyOptimization::resetToOptimizationStart_() {

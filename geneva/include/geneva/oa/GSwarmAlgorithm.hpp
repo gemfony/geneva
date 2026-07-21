@@ -96,13 +96,14 @@ class GSwarmAlgorithm // NOLINT(cppcoreguidelines-special-member-functions)
   : public GOptimizationAlgorithmT<GSwarmAlgorithm> {
 public:
     // Identifiers consumed by the GOptimizationAlgorithmT scaffold.
-    static constexpr std::string_view oa_class_name = "GSwarmAlgorithm";
+    static constexpr std::string_view class_name = "GSwarmAlgorithm";
     static constexpr std::string_view oa_algorithm_name = "Swarm Algorithm";
     static constexpr std::string_view oa_personality_type = "PERSONALITY_SWARM";
 
 private:
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
+    friend struct Gem::Common::GBoilerplateAccess;
 
     /** @brief Single declaration of this class'es UNCONDITIONALLY-handled local data members.
      *
