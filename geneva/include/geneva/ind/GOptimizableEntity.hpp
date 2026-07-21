@@ -101,6 +101,16 @@ namespace Gem::Geneva::Genome {
  * a universal optimization operation; only the storage is genome-specific. This keeps the assembly
  * representation-agnostic: a future non-flat genome would derive GOptimizableEntity directly.
  */
+// NOTE ON GBoilerplateT: this class is a deliberate non-folder for the GCommonInterfaceT boilerplate
+// mixin. Unlike the multiply-inherited classes that fold via the data-tie technique, its second stateful
+// base Gem::Courtier::GProcessable is NOT a container -- it has no single data member to tie into
+// localMembers_(), and it is copied (operator=) / serialized (base_object) whole. Its serialize() is also
+// irreducibly custom (the wire-conditional scratch_ omission and the shared-pointer policy_ dedup). name_()
+// and compare_() would fold trivially -- compare_() is already exactly the generated pattern (localMembers_
+// + compare_base_t) -- but load_() and serialize() cannot, so reparenting the single most-included class in
+// the tree onto the mixin to remove a few lines of already-single-sourced compare_() boilerplate is not
+// worth it. load_()/compare_() are already single-sourced through localMembers_() below, which is the
+// drift-safety the mixin exists to provide.
 class GOptimizableEntity // NOLINT(cppcoreguidelines-special-member-functions)
   : public Gem::Courtier::GProcessable
   , public Gem::Common::GCommonInterfaceT<GOptimizableEntity>
