@@ -139,6 +139,32 @@ struct atomic_member_t {
 };
 
 /**
+ * A load-only member. It carries the same { name, ref } shape as member_t, but participates in
+ * ONLY the in-memory load: g_load_members() plain-assigns it (which SHARES for a std::shared_ptr and
+ * copies for a scalar), while serialize_members() and g_compare_members() both SKIP it. Use it for a
+ * member that is copied when one object is loaded from another, yet is neither part of the object's
+ * comparable identity nor emitted through the folded serialize():
+ *
+ *  - a shared, immutable piece of metadata that several objects reference (identity lives in the
+ *    per-object values, not in the shared handle), and whose wire representation, if any, the owning
+ *    class emits through its OWN hand-written serialize() (e.g. GGenome's structural layout, which
+ *    travels via a bespoke send-once-by-content-id protocol);
+ *  - a transient marker set during (de)serialization that a load_()-based copy must propagate but
+ *    that must not affect equality (e.g. GGenome's input_omitted_ results-only flag).
+ *
+ * Listing such a member here keeps load_()/compare_() fully derived from the single localMembers_()
+ * declaration -- no hand-written tail that can drift -- while leaving serialize() free to treat the
+ * member specially (or omit it).
+ *
+ * @tparam T The type of the referenced member
+ */
+template <typename T>
+struct load_only_member_t {
+    const char* name;
+    T &ref; ///< copied on load; skipped by serialize_members() and g_compare_members()
+};
+
+/**
  * @brief Builds one named, deep-cloned single-pointer member for a localMembers() tuple.
  * @tparam T The (deduced) type of the referenced std::shared_ptr<Cloneable> member
  * @param name The member's name, used as the serialization NVP tag (a static string literal)
@@ -172,6 +198,22 @@ cloneable_container_member_t<T> make_cloneable_container_member(const char* name
 template <typename T>
 atomic_member_t<T> make_atomic_member(const char* name, T &ref) {
     return atomic_member_t<T>{name, ref};
+}
+
+/**
+ * @brief Builds one named load-only member for a localMembers() tuple (see load_only_member_t).
+ *
+ * The member is plain-assigned on load (sharing a std::shared_ptr, copying a scalar) but skipped by
+ * both serialize_members() and g_compare_members().
+ *
+ * @tparam T The (deduced) type of the referenced member
+ * @param name The member's name (kept for symmetry / diagnostics; not emitted, as the member is not serialized here)
+ * @param ref A reference to the data member being described
+ * @return A load_only_member_t pairing @p name with @p ref
+ */
+template <typename T>
+load_only_member_t<T> make_load_only_member(const char* name, T &ref) {
+    return load_only_member_t<T>{name, ref};
 }
 
 /******************************************************************************/
@@ -218,6 +260,17 @@ void g_load_one(cloneable_container_member_t<Dst> &dst, const cloneable_containe
 template <typename Dst, typename Src>
 void g_load_one(atomic_member_t<Dst> &dst, const atomic_member_t<Src> &src) {
     dst.ref.store(src.ref.load()); // atomic load/store (atomics are not copy-assignable)
+}
+/**
+ * @brief Loads a single load-only member by plain assignment (shares a shared_ptr, copies a scalar).
+ * @tparam Dst The destination member type
+ * @tparam Src The source member type
+ * @param dst The destination member descriptor (written to)
+ * @param src The source member descriptor (read from)
+ */
+template <typename Dst, typename Src>
+void g_load_one(load_only_member_t<Dst> &dst, const load_only_member_t<Src> &src) {
+    dst.ref = src.ref; // plain assignment: a shared_ptr is shared (not deep-cloned), a scalar copied
 }
 
 /**
@@ -267,9 +320,33 @@ void g_load_members(DstTuple dst, SrcTuple src) {
  * @param members The localMembers() tuple whose entries are serialized
  * @param seq Index sequence used to expand the pack; its value is unused
  */
+/**
+ * @brief Serializes one member descriptor through the archive by NVP.
+ *
+ * This generic overload handles every archived descriptor kind (plain member_t, the cloneable
+ * variants and atomic_member_t) uniformly: their .ref goes through the archive under their .name.
+ * A load_only_member_t is handled by the no-op overload below instead, so it is skipped.
+ *
+ * @tparam Archive The Boost.Serialization archive type
+ * @tparam Descriptor The member descriptor type
+ * @param ar The archive to serialize through
+ * @param m The member descriptor whose .ref is serialized under its .name
+ */
+template <typename Archive, typename Descriptor>
+void g_serialize_one(Archive& ar, Descriptor& m) {
+    ar & boost::serialization::make_nvp(m.name, m.ref);
+}
+/**
+ * @brief Skips a load-only member: it is excluded from the folded serialize() (see load_only_member_t).
+ * @tparam Archive The Boost.Serialization archive type
+ * @tparam T The referenced member type
+ */
+template <typename Archive, typename T>
+void g_serialize_one(Archive& /*ar*/, [[maybe_unused]] load_only_member_t<T>& m) { /* skipped */ }
+
 template <typename Archive, typename Tuple, std::size_t... I>
 void serialize_members_impl(Archive& ar, Tuple& members, [[maybe_unused]] std::index_sequence<I...> seq) {
-    ((ar & boost::serialization::make_nvp(std::get<I>(members).name, std::get<I>(members).ref)), ...);
+    (g_serialize_one(ar, std::get<I>(members)), ...);
 }
 /**
  * @brief Serializes every entry of a localMembers() tuple through the archive, name by name.

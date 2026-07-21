@@ -1558,6 +1558,21 @@ void g_compare_one(const atomic_member_t<A> &a, const atomic_member_t<B> &b, GTo
     // Compare the loaded values rather than the atomic objects themselves.
     compare_t(getIdentity(a.ref.load(), b.ref.load(), a.name, b.name), token);
 }
+/**
+ * @brief Skips a load-only member in comparisons.
+ *
+ * A load_only_member_t (see GMemberReflectionT.hpp) is copied on load but is deliberately not part of
+ * the object's comparable identity, so this overload compares nothing.
+ *
+ * @tparam A The referenced member type of the first descriptor
+ * @tparam B The referenced member type of the second descriptor
+ */
+template <typename A, typename B>
+void g_compare_one(
+    [[maybe_unused]] const load_only_member_t<A> &a,
+    [[maybe_unused]] const load_only_member_t<B> &b,
+    [[maybe_unused]] GToken &token
+) { /* skipped: excluded from comparable identity */ }
 
 /**
  * @brief Compares two tuples of member descriptors element-by-element via a fold over an index sequence.

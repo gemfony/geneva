@@ -65,7 +65,7 @@ GGenome::GGenome() = default;
  * @param n_fitness_criteria The number of fitness criteria this genome will evaluate to
  */
 GGenome::GGenome(const std::size_t n_fitness_criteria)
-  : GOptimizableEntity(n_fitness_criteria) {
+  : Gem::Common::GBoilerplateBaseT<GGenome, GOptimizableEntity>(n_fitness_criteria) {
     /* nothing */
 }
 
@@ -75,7 +75,7 @@ GGenome::GGenome(const std::size_t n_fitness_criteria)
  * @param cp A constant reference to another GGenome object to be copied
  */
 GGenome::GGenome(GGenome const &cp)
-  : GOptimizableEntity(cp)
+  : Gem::Common::GBoilerplateBaseT<GGenome, GOptimizableEntity>(cp)
   , dv_(cp.dv_)
   , fv_(cp.fv_)
   , iv_(cp.iv_)
@@ -123,52 +123,6 @@ void GGenome::setGenome(GenomeData const &g) {
     bv_ = g.bv;
 
     this->mark_as_due_for_processing();
-}
-
-/******************************************************************************/
-/**
- * @brief Searches for compliance with expectations with respect to another object of the same type.
- * @param cp A constant reference to another GGenome, camouflaged as a GOptimizableEntity
- * @param e The expected outcome of the comparison
- * @param limit The maximum deviation tolerated for floating point comparisons (unused here)
- */
-void GGenome::compare_(
-    GOptimizableEntity const &cp,
-    Gem::Common::expectation const &e,
-    [[maybe_unused]] double const &limit
-) const {
-    using namespace Gem::Common;
-
-    const GGenome *p_load =
-        Gem::Common::g_convert_and_compare<GOptimizableEntity, GGenome>(cp, this);
-
-    GToken token("GGenome", e);
-
-    Gem::Common::compare_base_t<GOptimizableEntity>(*this, *p_load, token);
-
-    // The value channels (the shared layout is problem metadata, not per-individual identity).
-    Gem::Common::g_compare_members(this->localMembers_(), p_load->localMembers_(), token);
-
-    token.evaluate();
-}
-
-/******************************************************************************/
-/**
- * @brief Loads the data of another GGenome object, camouflaged as a GOptimizableEntity.
- * @param cp A pointer to another GGenome object, camouflaged as a GOptimizableEntity
- */
-void GGenome::load_(const GOptimizableEntity *cp) {
-    const GGenome *p_load =
-        Gem::Common::g_convert_and_compare<GOptimizableEntity, GGenome>(cp, this);
-
-    GOptimizableEntity::load_(cp);
-
-    // The value channels, derived from the single localMembers() declaration ...
-    Gem::Common::g_load_members(this->localMembers_(), p_load->localMembers_());
-    // ... and the manual tail: the shared (immutable) layout is shared, not value-copied (re-keys cache).
-    this->setLayout(p_load->layout_);
-    // Propagate the transient results-only marker (a load_()-based copy reflects the pending graft).
-    input_omitted_ = p_load->input_omitted_;
 }
 
 /******************************************************************************/
