@@ -85,6 +85,24 @@ struct GBoilerplateAccess {
     static auto members(T &self) {
         return self.localMembers_();
     }
+
+    /**
+     * @brief Invokes a managed object's post-load hook.
+     *
+     * The mixin's generated load_() calls this once, after all members have been
+     * loaded, to let a class repair cached or derived state that is not itself a
+     * serialized member (e.g. a content-addressed cache keyed on a just-loaded
+     * member). If T declares no postLoad_() of its own this resolves to the no-op
+     * default in GBoilerplateBaseT, so the hook costs nothing for the classes that
+     * do not need it.
+     *
+     * @tparam T The (non-const) managed class type
+     * @param self The object whose post-load hook is invoked
+     */
+    template <typename T>
+    static void postLoad(T &self) {
+        self.postLoad_();
+    }
 };
 
 /******************************************************************************/
@@ -185,7 +203,24 @@ protected:
             GBoilerplateAccess::members(static_cast<Derived &>(*this)),
             GBoilerplateAccess::members(static_cast<Derived const &>(*p_load))
         );
+
+        // Finally, let the class repair any cached/derived state keyed on the members
+        // just loaded (no-op unless the class declares its own postLoad_()).
+        GBoilerplateAccess::postLoad(static_cast<Derived &>(*this));
     }
+
+    /**
+     * @brief Default post-load hook: does nothing.
+     *
+     * A managed class that carries cached or derived state not covered by its
+     * serialized members (for instance a content-addressed cache keyed on a
+     * just-loaded member) declares its own private `void postLoad_()` to rebuild
+     * that state; it hides this default by ordinary name lookup. Classes without
+     * such state inherit this no-op, so the hook is free for them. It is invoked
+     * only through GBoilerplateAccess (a friend of every managed class), the same
+     * routing localMembers_() uses.
+     */
+    void postLoad_() {}
 
 private:
     ///////////////////////////////////////////////////////////////////////
