@@ -86,6 +86,19 @@ class GCommonInterfaceT
 public:
     /***************************************************************************/
     /**
+     * @brief The most-derived public root of this interface hierarchy.
+     *
+     * This is the type through which (de-)serialization, load_() and clone_()
+     * travel (the g_class_type template argument). It is exposed as a typedef so
+     * that generic machinery further down the hierarchy -- notably the
+     * GBoilerplateT / GBoilerplateBaseT mixins in GBoilerplateT.hpp -- can recover
+     * the load_() parameter type and the default clone_() return type from any
+     * derivative without re-templating on it.
+     */
+    using gemfony_common_root_t = g_class_type;
+
+    /***************************************************************************/
+    /**
      * Converts the class(-hierarchy) to a serial representation that is
      * then written to a stream.
      *

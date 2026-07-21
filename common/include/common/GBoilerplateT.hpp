@@ -1,0 +1,321 @@
+/********************************************************************************
+ *
+ * This file is part of the Geneva library collection. The following license
+ * applies to this file:
+ *
+ * ------------------------------------------------------------------------------
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * ------------------------------------------------------------------------------
+ *
+ * Note that other files in the Geneva library collection may use a different
+ * license. Please see the licensing information in each file.
+ *
+ ********************************************************************************
+ *
+ * See the NOTICE file in the top-level directory of the Geneva library
+ * collection for a list of contributors and copyright information.
+ *
+ ********************************************************************************/
+
+#pragma once
+
+// Global checks, defines and includes needed for all of Geneva
+#include "common/GGlobalDefines.hpp"
+
+// Standard header files go here
+#include <concepts>
+#include <string>
+#include <string_view>
+#include <type_traits>
+
+// Boost header files go here
+#include <boost/serialization/access.hpp>
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/nvp.hpp>
+
+// Geneva header files go here
+#include "common/GCommonHelperFunctionsT.hpp" // g_convert_and_compare
+#include "common/GCommonInterfaceT.hpp"       // GCommonInterfaceT, gemfony_common_root_t
+#include "common/GExpectationChecksT.hpp"     // GToken, expectation, compare_base_t, g_compare_members
+#include "common/GMemberReflectionT.hpp"      // g_load_members, serialize_members
+
+namespace Gem::Common {
+
+/******************************************************************************/
+/**
+ * @brief Access shim that lets the GBoilerplate mixins reach a managed class's
+ * private localMembers_() declaration.
+ *
+ * localMembers_() is the single, per-class declaration of a class's own data
+ * members (a tuple of named references). It is kept private in every class,
+ * exactly as the hand-written serialize()/load_()/compare_() were. The mixins
+ * below live in the base class and therefore cannot see a derived class's
+ * private members directly, so each managed class grants friendship to this one
+ * empty struct (a single `friend struct Gem::Common::GBoilerplateAccess;` line,
+ * replacing the `friend class boost::serialization::access;` line the folded
+ * serialize() used to need). Routing every access through this single shim keeps
+ * the friendship declaration short and identical across all managed classes.
+ */
+struct GBoilerplateAccess {
+    /**
+     * @brief Returns a managed object's localMembers_() tuple.
+     *
+     * If T declares its own localMembers_() this resolves to it. If T declares
+     * none, it resolves to the *deleted* localMembers_() inherited from
+     * GBoilerplateBaseT (see below), which makes this call ill-formed -- so a
+     * class that forgets to declare its own member list fails to compile rather
+     * than silently double-serializing its parent's members (amendment: reject a
+     * missing/inherited member list, do not accept it).
+     *
+     * @tparam T The (possibly const-qualified) managed class type
+     * @param self The object whose local members are retrieved
+     * @return The tuple of named local-member references declared by T::localMembers_()
+     */
+    template <typename T>
+    static auto members(T &self) {
+        return self.localMembers_();
+    }
+};
+
+/******************************************************************************/
+/**
+ * @brief A class is managed by the GBoilerplate mixins iff it exposes both a
+ * reachable localMembers_() and a static class_name.
+ *
+ * This is the concept the mixins assert on (amendment: the mixins deliberately
+ * supply *no* default localMembers_() -- a class that fails to declare its own
+ * must fail to compile rather than silently serialize/compare an empty member
+ * set). class_name backs name_() and the compare token label.
+ *
+ * @tparam T The managed class type
+ */
+template <typename T>
+concept BoilerplateManaged =
+    requires(T &t) { GBoilerplateAccess::members(t); } &&
+    requires {
+        { T::class_name } -> std::convertible_to<std::string_view>;
+    };
+
+/******************************************************************************/
+/**
+ * @brief Generates the name_()/load_()/compare_() members (and the folded
+ * serialize()) shared by every class in a GCommonInterfaceT hierarchy.
+ *
+ * This is the base half of the boilerplate mixin, used directly by *abstract*
+ * classes (those whose clone_() stays pure) and inherited by GBoilerplateT for
+ * *concrete* classes. It derives from the class's real Parent and inserts no
+ * data of its own, so it is transparent to Boost.Serialization: the folded
+ * serialize() writes base_object<Parent> (skipping this stateless layer) plus
+ * the class's own members, exactly as the hand-written code did.
+ *
+ * The three overriders and the folded serialize() are single-sourced here from
+ * the managed class's localMembers_() declaration, so a class can no longer
+ * silently drop a member from one of the four (the failure mode Inv 4 exists to
+ * prevent). Everything that varies is a template parameter or is recovered from
+ * the hierarchy:
+ *  - the load_() parameter type / the interface base is Root, recovered from
+ *    Parent::gemfony_common_root_t;
+ *  - the class name comes from Derived::class_name;
+ *  - the member list comes from Derived::localMembers_().
+ *
+ * The root of a hierarchy (Parent == GCommonInterfaceT<Root>) is handled by the
+ * two `if constexpr` guards: it has no serializable/loadable parent slice, but
+ * its compare_() still compares the GCommonInterfaceT base (the non-pure
+ * same-type overload), matching the hand-written root behaviour.
+ *
+ * All member bodies are instantiated lazily (when the vtable is emitted / the
+ * archive is used), by which point Derived is complete -- the same reason the
+ * pre-existing name_/clone_ generators (GGenomeT, GOptimizationAlgorithmT, ...)
+ * can name Derived's constructor from a CRTP base.
+ *
+ * @tparam Derived The managed (CRTP self) class
+ * @tparam Parent  The class's real base (a GCommonInterfaceT derivative, or
+ *                 GCommonInterfaceT<Root> itself for a hierarchy root)
+ */
+template <typename Derived, typename Parent>
+class GBoilerplateBaseT : public Parent {
+protected:
+    /** @brief The most-derived public root of the hierarchy (load_() parameter / clone_() base). */
+    using Root = typename Parent::gemfony_common_root_t;
+
+    /** @brief Inherit the parent's constructors so a managed class keeps its initialization surface. */
+    using Parent::Parent;
+
+    // Inherited constructors never include the default / copy / move members, so
+    // declare them explicitly (the mixin adds no state, hence all defaulted).
+    GBoilerplateBaseT() = default;
+    GBoilerplateBaseT(GBoilerplateBaseT const &) = default;
+    GBoilerplateBaseT(GBoilerplateBaseT &&) = default;
+    ~GBoilerplateBaseT() override = default;
+    GBoilerplateBaseT &operator=(GBoilerplateBaseT const &) = default;
+    GBoilerplateBaseT &operator=(GBoilerplateBaseT &&) = default;
+
+    /**
+     * @brief Loads the data of another object of the same hierarchy into this one.
+     *
+     * Protected (not private) because a subclass's generated load_() invokes its
+     * own Parent::load_() by qualified-id to load the parent slice.
+     *
+     * @param cp The other object, passed as a hierarchy-root pointer
+     */
+    void load_(Root const *cp) override {
+        static_assert(
+            BoilerplateManaged<Derived>,
+            "GBoilerplateBaseT: Derived must declare its own localMembers_() and a static class_name"
+        );
+        auto const *p_load = Gem::Common::g_convert_and_compare(cp, static_cast<Derived const *>(this));
+
+        // Load the parent slice, unless this is the hierarchy root (whose parent is the pure interface).
+        if constexpr (!std::same_as<Parent, Gem::Common::GCommonInterfaceT<Root>>) {
+            Parent::load_(cp);
+        }
+
+        // ... and then this class's own members, from the single localMembers_() declaration.
+        Gem::Common::g_load_members(
+            GBoilerplateAccess::members(static_cast<Derived &>(*this)),
+            GBoilerplateAccess::members(static_cast<Derived const &>(*p_load))
+        );
+    }
+
+private:
+    ///////////////////////////////////////////////////////////////////////
+    friend class boost::serialization::access;
+    friend struct Gem::Common::GBoilerplateAccess;
+
+    /**
+     * @brief Deleted fallback member list.
+     *
+     * A managed class must declare its own localMembers_() (an empty
+     * `return std::make_tuple();` for a stateless class). If it does not, name
+     * lookup from the class finds this deleted declaration -- hidden by any real
+     * one -- so GBoilerplateAccess::members() becomes ill-formed and the
+     * BoilerplateManaged concept turns false, failing the static_assert below.
+     * This is what makes "a stateless class needs an *explicit* empty member
+     * list" a compile-time guarantee rather than a review convention: without it,
+     * an inherited localMembers_() would silently serialize the parent's members
+     * a second time.
+     */
+    template <typename Self>
+    auto localMembers_(this Self &self) = delete;
+
+    /**
+     * @brief Serializes the parent slice (unless this is the hierarchy root) and
+     * this class's own members, derived from the single localMembers_() declaration.
+     * @tparam Archive The Boost.Serialization archive type
+     * @param ar The archive being read from or written to
+     * @param version The (unused) class version supplied by Boost.Serialization
+     */
+    template <typename Archive>
+    void serialize(Archive &ar, [[maybe_unused]] unsigned int const version) {
+        static_assert(
+            BoilerplateManaged<Derived>,
+            "GBoilerplateBaseT: Derived must declare its own localMembers_() and a static class_name"
+        );
+        if constexpr (!std::same_as<Parent, Gem::Common::GCommonInterfaceT<Root>>) {
+            // Cast to Derived& (not the mixin type) so Boost registers the void_cast
+            // between the *concrete* Derived and Parent -- exactly as the hand-written
+            // serialize (base_object<Parent>(*this) with *this a Derived&) did. Passing
+            // the mixin subobject instead leaves Derived<->Parent unregistered and the
+            // polymorphic downcast through the hierarchy root throws "unregistered void cast".
+            ar &boost::serialization::make_nvp(
+                "gemfonyParent",
+                boost::serialization::base_object<Parent>(static_cast<Derived &>(*this))
+            );
+        }
+        Gem::Common::serialize_members(ar, GBoilerplateAccess::members(static_cast<Derived &>(*this)));
+    }
+    ///////////////////////////////////////////////////////////////////////
+
+    /** @brief Grant this class's compare_ to a subclass comparing this slice (friendship is not inherited). */
+    friend void Gem::Common::compare_base_t<Derived>(Derived const &, Derived const &, GToken &);
+
+    /**
+     * @brief Compares this object to another of the same hierarchy against an expectation.
+     * @param cp The other object, passed as a hierarchy-root reference
+     * @param e The expectation (equality / inequality) the comparison should fulfil
+     * @param limit The tolerance for floating-point comparisons (unused: per-member
+     *              tolerance is applied inside g_compare_members / compare_base_t)
+     */
+    void compare_(Root const &cp, Gem::Common::expectation const &e, [[maybe_unused]] double const &limit)
+        const override {
+        static_assert(
+            BoilerplateManaged<Derived>,
+            "GBoilerplateBaseT: Derived must declare its own localMembers_() and a static class_name"
+        );
+        // Convert cp to Derived, guarding against self-comparison.
+        auto const *p_load = Gem::Common::g_convert_and_compare(cp, static_cast<Derived const *>(this));
+
+        GToken token(std::string(Derived::class_name), e);
+
+        // Compare the parent slice (for the root this is the GCommonInterfaceT base's same-type overload) ...
+        Gem::Common::compare_base_t<Parent>(*this, *p_load, token);
+
+        // ... and then this class's own members, from the single localMembers_() declaration.
+        Gem::Common::g_compare_members(
+            GBoilerplateAccess::members(static_cast<Derived const &>(*this)),
+            GBoilerplateAccess::members(static_cast<Derived const &>(*p_load)),
+            token
+        );
+
+        // React on deviations from the expectation.
+        token.evaluate();
+    }
+
+    /**
+     * @brief Emits this class's name.
+     * @return Derived::class_name as a std::string
+     */
+    [[nodiscard]] std::string name_() const override {
+        return std::string(Derived::class_name);
+    }
+};
+
+/******************************************************************************/
+/**
+ * @brief The full boilerplate mixin for a *concrete* class: GBoilerplateBaseT
+ * (name_/load_/compare_/serialize) plus a generated clone_().
+ *
+ * clone_() cannot live in the shared base because its body (`new Derived(...)`)
+ * would be instantiated into the vtable of an abstract class too, so it is added
+ * only here, where a class opting in is asserting it is concrete.
+ *
+ * @tparam Derived The managed (CRTP self) concrete class
+ * @tparam Parent  The class's real base
+ * @tparam CloneReturn The declared clone_() return type. Defaults to Root; a
+ *                 covariant override (e.g. GGenomeT returning GGenome* while the
+ *                 root is GOptimizableEntity) supplies a narrower type here. The
+ *                 return type is not derivable from Parent, hence the parameter.
+ */
+template <
+    typename Derived,
+    typename Parent,
+    typename CloneReturn = typename Parent::gemfony_common_root_t
+>
+class GBoilerplateT : public GBoilerplateBaseT<Derived, Parent> {
+protected:
+    /** @brief Inherit the base mixin's (and thereby the parent's) constructors. */
+    using GBoilerplateBaseT<Derived, Parent>::GBoilerplateBaseT;
+
+private:
+    /**
+     * @brief Creates a deep clone of this object via the Derived copy constructor.
+     * @return A heap-allocated deep copy of this object (caller takes ownership)
+     */
+    [[nodiscard]] CloneReturn *clone_() const override {
+        return new Derived(*static_cast<Derived const *>(this));
+    }
+};
+
+/******************************************************************************/
+
+} /* namespace Gem::Common */
