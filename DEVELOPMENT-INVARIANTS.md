@@ -332,6 +332,29 @@ where it would leak or double-free on an error path far from its cause. This is 
 of Invariant 2 (shared concurrency machinery comes from the shared facilities) and composes with Invariant 4 (a
 resource-owning class states its special members and its serialized members consistently).
 
+## 22. Development runs are short by default; convergence-scale runs are the rare exception
+
+Every optimization run made to exercise or validate a change — in a unit test, a manual test, a demo, a
+benchmark used as a check, or an ad-hoc run — uses **few iterations and a small population** (the smallest
+that still exercises the code path under test). A change is verified by whether the machinery *runs
+correctly* — serializes, compares, clones, adapts, distributes, checkpoints, halts — not by whether it
+*converges*, so a handful of iterations over a handful of individuals is sufficient and is the default.
+
+The **only** exception is a change to an optimization algorithm's own search behaviour (a new or altered
+adaptor, selection rule, step controller, velocity update, constraint handler, …) whose very purpose is
+*convergence quality*. There, and only there, a longer run with a realistic population is warranted — and
+the outcome is still gated **behaviourally** (a tolerance band / best-of-N, per Invariant 18), never by a
+fixed iteration count reproduced for its own sake.
+
+*Why:* full-scale optimizations dominate the wall-clock of the test suite and of every developer gate, yet a
+contract-level change (serialization, comparison, cloning, the consumer transport, the halt logic) is fully
+exercised in a few short iterations — the convergence tail adds minutes and verifies nothing the change
+touched. Keeping runs short by default makes the green-suite precondition (Invariant 9) cheap enough to
+honour on every change; reserving long runs for genuine convergence questions spends that time only where it
+actually buys information. In practice this also means gating a contract-level change on the relevant test
+subset (e.g. the serialization/comparison contract cases) rather than re-running the convergence suites that
+the change cannot affect.
+
 ---
 
 *Add new invariants below as the maintainer establishes them. Keep each rule short, mandatory, and
