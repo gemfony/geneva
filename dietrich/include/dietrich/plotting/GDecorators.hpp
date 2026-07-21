@@ -434,27 +434,48 @@ class GDecoratorContainer { /* nothing */
  */
 template <Gem::Common::arithmetic coordinate_type>
 class GDecoratorContainer<dimensions::Dim2, coordinate_type>
-  : public GCommonInterfaceT<GDecoratorContainer<dimensions::Dim2, coordinate_type>>
+  : public Gem::Common::GBoilerplateBaseT<
+        GDecoratorContainer<dimensions::Dim2, coordinate_type>,
+        GCommonInterfaceT<GDecoratorContainer<dimensions::Dim2, coordinate_type>>
+    >
   , public GPtrContainerT<GDecorator<dimensions::Dim2, coordinate_type>> {
     ///////////////////////////////////////////////////////////////////////
+    // This class multiply-inherits GPtrContainerT for its container BEHAVIOUR, but
+    // that base's entire serialized state is its data_cnt_ vector -- tied into
+    // localMembers_ below via make_cloneable_container_member. So the quartet folds
+    // onto the single-Parent GBoilerplateBaseT (Parent = the GCommonInterfaceT root)
+    // exactly as the hand-written serialize (base_object<GPtrContainerT>), load_
+    // (GPtrContainerT::operator=) and compare_ (compare_t on data_cnt_) did.
+    // GBoilerplateAccess lets the mixin reach localMembers_(); boost access calls the
+    // one-line serialize() below.
     friend class boost::serialization::access;
+    friend struct Gem::Common::GBoilerplateAccess;
 
     /**
-     * Serializes this container (forwarding to the GPtrContainerT base) via Boost.Serialization.
-     *
+     * @brief The GPtrContainerT base's sole state (its data_cnt_ vector) is declared here
+     * so the GBoilerplateBaseT-generated load_()/compare_()/name_()/clone_() handle it uniformly.
+     * @return A tuple tying the container's data vector as a cloneable-pointer container member
+     */
+    template <typename Self>
+    auto localMembers_(this Self &self) {
+        return std::make_tuple(
+            Gem::Common::make_cloneable_container_member("data_cnt_", self.data_cnt_)
+        );
+    }
+
+    /**
+     * @brief One-line serialize(): required only to DISAMBIGUATE the two inherited serialize()s
+     * (GBoilerplateBaseT's generated one and GPtrContainerT's) -- a member declared here hides both.
+     * data_cnt_ rides in localMembers_, so this ties the same single vector the base_object<GPtrContainerT>
+     * form used to (no base_object needed; the GCommonInterfaceT root is stateless). load_/compare_/name_/
+     * clone_ still fold onto the mixin.
      * @tparam Archive The Boost.Serialization archive type
-     * @param ar The archive to serialize the base container to / from
-     * @param version The serialization version (unused)
+     * @param ar The archive to serialize to / from
+     * @param version The (unused) class version supplied by Boost.Serialization
      */
     template <typename Archive>
-    void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
-        using boost::serialization::make_nvp;
-
-        ar &make_nvp(
-            "GStdPtrVectorInterfaceT_GDecorator2",
-            boost::serialization::base_object<
-                GPtrContainerT<GDecorator<dimensions::Dim2, coordinate_type>>>(*this)
-        );
+    void serialize(Archive &ar, [[maybe_unused]] unsigned int const version) {
+        Gem::Common::serialize_members(ar, this->localMembers_());
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -462,6 +483,9 @@ class GDecoratorContainer<dimensions::Dim2, coordinate_type>
     // concept on the template parameter (clearer diagnostics than the former static_assert).
 
 public:
+    /** @brief The class name, consumed by the GBoilerplateBaseT-generated name_() / compare token. */
+    static constexpr std::string_view class_name = "GDecoratorContainer<dimensions::Dim2, coordinate_type>";
+
     /***************************************************************************/
     // Defaulted constructors, destructor and assignment operators
 
@@ -524,85 +548,9 @@ public:
         return result;
     }
 
-protected:
-    /***************************************************************************/
-    /**
-	  * @brief Loads the data of another object
-	  *
-	  * @param cp A pointer to another GDecoratorContainer object, camouflaged as the base type
-	  */
-    void load_(const GDecoratorContainer<dimensions::Dim2, coordinate_type> *cp) override {
-        // Check that we are dealing with a GDecoratorContainer reference independent of this object and convert the pointer
-        const auto *p_load = g_convert_and_compare(cp, this);
-
-        // Load our parent data ...
-        GPtrContainerT<GDecorator<dimensions::Dim2, coordinate_type>>::operator=(*p_load);
-
-        // ... no local data
-    }
-
-    /***************************************************************************/
-    /** @brief Allow access to this classes compare_ function */
-    friend void Gem::Common::compare_base_t<GDecoratorContainer<dimensions::Dim2, coordinate_type>>(
-        GDecoratorContainer<dimensions::Dim2, coordinate_type> const &,
-        GDecoratorContainer<dimensions::Dim2, coordinate_type> const &,
-        GToken &
-    );
-
-    /***************************************************************************/
-    /**
-	  * @brief Searches for compliance with expectations with respect to another object
-	  * of the same type
-	  *
-	  * @param cp A constant reference to another object of the same type
-	  * @param e The expectation for the comparison (e.g. equality or inequality)
-	  * @param limit The maximum allowed deviation for comparisons of floating point types
-	  */
-    void compare_(
-        const GDecoratorContainer<dimensions::Dim2, coordinate_type> &cp // the other object
-        ,
-        const expectation &e // the expectation for this object, e.g. equality
-        ,
-        const double & /*limit*/ // the limit for allowed deviations of floating point types
-    ) const override {
-        // Check that we are dealing with a GDecoratorContainer reference independent of this object and convert the pointer
-        const auto *p_load = g_convert_and_compare(cp, this);
-
-        GToken token("GDecoratorContainer<dimensions::Dim2>", e);
-
-        // Compare our parent data ...
-        Gem::Common::compare_base_t<GCommonInterfaceT<GDecoratorContainer<dimensions::Dim2, coordinate_type>>>(
-            *this,
-            *p_load,
-            token
-        );
-
-        // ... and then the local data. Actually this allows us to compare
-        // the second parent class without directly calling it.
-        compare_t(Gem::Common::getIdentity(this->data_cnt_, p_load->data_cnt_, "this->data_cnt_", "p_load->data_cnt_"), token);
-
-        // React on deviations from the expectation
-        token.evaluate();
-    }
-
-private:
-    /***************************************************************************/
-    /**
-	  * @brief Returns the name of this class
-	  *
-	  * @return The mnemonic name of this class
-	  */
-    [[nodiscard]] std::string name_() const override {
-        return std::string("GDecoratorContainer<dimensions::Dim2, coordinate_type>");
-    }
-
-    /***************************************************************************/
-    /**
-	  * @brief Creates a deep clone of this object.
-	  *
-	  * @return A deep clone of this object, allocated on the heap
-	  */
-    [[nodiscard]] GDecoratorContainer<dimensions::Dim2, coordinate_type> *clone_() const override = 0;
+    // load_(), compare_(), name_() and clone_() are generated by the
+    // Gem::Common::GBoilerplateBaseT base (clone_ stays pure -- this is abstract)
+    // from class_name and the data_cnt_-tied localMembers_() declaration above.
 
     /***************************************************************************/
 };
@@ -685,27 +633,42 @@ protected:
  */
 template <Gem::Common::arithmetic coordinate_type>
 class GDecoratorContainer<dimensions::Dim3, coordinate_type>
-  : public GCommonInterfaceT<GDecoratorContainer<dimensions::Dim3, coordinate_type>>
+  : public Gem::Common::GBoilerplateBaseT<
+        GDecoratorContainer<dimensions::Dim3, coordinate_type>,
+        GCommonInterfaceT<GDecoratorContainer<dimensions::Dim3, coordinate_type>>
+    >
   , public GPtrContainerT<GDecorator<dimensions::Dim3, coordinate_type>> {
     ///////////////////////////////////////////////////////////////////////
+    // Multiply-inherits GPtrContainerT for container BEHAVIOUR; that base's sole
+    // serialized state (data_cnt_) rides in localMembers_, so the quartet folds onto
+    // the single-Parent GBoilerplateBaseT. GBoilerplateAccess lets the mixin reach
+    // localMembers_(); boost access calls the one-line serialize() below.
     friend class boost::serialization::access;
+    friend struct Gem::Common::GBoilerplateAccess;
 
     /**
-     * Serializes this container (forwarding to the GPtrContainerT base) via Boost.Serialization.
-     *
+     * @brief The GPtrContainerT base's sole state (its data_cnt_ vector) is declared here
+     * so the GBoilerplateBaseT-generated load_()/compare_()/name_()/clone_() handle it uniformly.
+     * @return A tuple tying the container's data vector as a cloneable-pointer container member
+     */
+    template <typename Self>
+    auto localMembers_(this Self &self) {
+        return std::make_tuple(
+            Gem::Common::make_cloneable_container_member("data_cnt_", self.data_cnt_)
+        );
+    }
+
+    /**
+     * @brief One-line serialize(): DISAMBIGUATES the two inherited serialize()s
+     * (GBoilerplateBaseT's and GPtrContainerT's); data_cnt_ rides in localMembers_, so it ties the
+     * same single vector base_object<GPtrContainerT> used to. load_/compare_/name_/clone_ fold onto the mixin.
      * @tparam Archive The Boost.Serialization archive type
-     * @param ar The archive to serialize the base container to / from
-     * @param version The serialization version (unused)
+     * @param ar The archive to serialize to / from
+     * @param version The (unused) class version supplied by Boost.Serialization
      */
     template <typename Archive>
-    void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
-        using boost::serialization::make_nvp;
-
-        ar &make_nvp(
-            "GStdPtrVectorInterfaceT_GDecorator3",
-            boost::serialization::base_object<
-                GPtrContainerT<GDecorator<dimensions::Dim3, coordinate_type>>>(*this)
-        );
+    void serialize(Archive &ar, [[maybe_unused]] unsigned int const version) {
+        Gem::Common::serialize_members(ar, this->localMembers_());
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -713,6 +676,9 @@ class GDecoratorContainer<dimensions::Dim3, coordinate_type>
     // concept on the template parameter (clearer diagnostics than the former static_assert).
 
 public:
+    /** @brief The class name, consumed by the GBoilerplateBaseT-generated name_() / compare token. */
+    static constexpr std::string_view class_name = "GDecoratorContainer<dimensions::Dim3, coordinate_type>";
+
     /***************************************************************************/
     // Defaulted constructors, destructor and assignment operators
 
@@ -777,85 +743,9 @@ public:
         return result;
     }
 
-protected:
-    /***************************************************************************/
-    /**
-	  * @brief Loads the data of another object
-	  *
-	  * @param cp A pointer to another GDecoratorContainer object, camouflaged as the base type
-	  */
-    void load_(const GDecoratorContainer<dimensions::Dim3, coordinate_type> *cp) override {
-        // Check that we are dealing with a GDecoratorContainer reference independent of this object and convert the pointer
-        const auto *p_load = g_convert_and_compare(cp, this);
-
-        // Load our parent data ...
-        GPtrContainerT<GDecorator<dimensions::Dim3, coordinate_type>>::operator=(*p_load);
-
-        // ... no local data
-    }
-
-    /***************************************************************************/
-    /** @brief Allow access to this classes compare_ function */
-    friend void Gem::Common::compare_base_t<GDecoratorContainer<dimensions::Dim3, coordinate_type>>(
-        GDecoratorContainer<dimensions::Dim3, coordinate_type> const &,
-        GDecoratorContainer<dimensions::Dim3, coordinate_type> const &,
-        GToken &
-    );
-
-    /***************************************************************************/
-    /**
-	  * @brief Searches for compliance with expectations with respect to another object
-	  * of the same type
-	  *
-	  * @param cp A constant reference to another object of the same type
-	  * @param e The expectation for the comparison (e.g. equality or inequality)
-	  * @param limit The maximum allowed deviation for comparisons of floating point types
-	  */
-    void compare_(
-        const GDecoratorContainer<dimensions::Dim3, coordinate_type> &cp // the other object
-        ,
-        const expectation &e // the expectation for this object, e.g. equality
-        ,
-        const double & /*limit*/ // the limit for allowed deviations of floating point types
-    ) const override {
-        // Check that we are dealing with a GDecoratorContainer reference independent of this object and convert the pointer
-        const auto *p_load = g_convert_and_compare(cp, this);
-
-        GToken token("GDecoratorContainer<dimensions::Dim3>", e);
-
-        // Compare our parent data ...
-        Gem::Common::compare_base_t<GCommonInterfaceT<GDecoratorContainer<dimensions::Dim3, coordinate_type>>>(
-            *this,
-            *p_load,
-            token
-        );
-
-        // ... and then the local data. This allows us to compare
-        // the second parent class without directly calling it.
-        compare_t(Gem::Common::getIdentity(this->data_cnt_, p_load->data_cnt_, "this->data_cnt_", "p_load->data_cnt_"), token);
-
-        // React on deviations from the expectation
-        token.evaluate();
-    }
-
-private:
-    /***************************************************************************/
-    /**
-	  * @brief Returns the name of this class
-	  *
-	  * @return The mnemonic name of this class
-	  */
-    [[nodiscard]] std::string name_() const override {
-        return std::string("GDecoratorContainer<dimensions::Dim3, coordinate_type>");
-    }
-
-    /***************************************************************************/
-    /**
-	 * @brief Creates a deep clone of this object.
-	 *
-	 * @return A deep clone of this object, allocated on the heap
-	 */
-    [[nodiscard]] GDecoratorContainer<dimensions::Dim3, coordinate_type> *clone_() const override = 0;
+    // load_(), compare_(), name_() and clone_() are generated by the
+    // Gem::Common::GBoilerplateBaseT base (clone_ stays pure -- this is abstract)
+    // from class_name and the data_cnt_-tied localMembers_() declaration above.
 
     /***************************************************************************/
 };
