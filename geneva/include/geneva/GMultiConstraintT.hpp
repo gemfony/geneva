@@ -40,6 +40,7 @@
 // Boost header files go here
 
 // Geneva header files go here
+#include "common/GBoilerplateT.hpp"
 #include "common/GCommonInterfaceT.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 
@@ -59,21 +60,14 @@ namespace Genome { class GOptimizableEntity; }
  */
 template <typename ind_type>
 class GPreEvaluationValidityCheckT // NOLINT(cppcoreguidelines-special-member-functions)
-  : public Gem::Common::GCommonInterfaceT<GPreEvaluationValidityCheckT<ind_type>> {
+  : public Gem::Common::GBoilerplateBaseT<
+        GPreEvaluationValidityCheckT<ind_type>,
+        Gem::Common::GCommonInterfaceT<GPreEvaluationValidityCheckT<ind_type>>
+    > {
     ///////////////////////////////////////////////////////////////////////
-    friend class boost::serialization::access;
-
-    template <typename Archive>
-    void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
-        using boost::serialization::make_nvp;
-
-        // This is the CRTP category root. Its CRTP base
-        // (Gem::Common::GCommonInterfaceT<GPreEvaluationValidityCheckT<ind_type>>)
-        // carries no state and is therefore not serialized as a base_object --
-        // mirroring GObject, whose serialize() is likewise empty. The polymorphic
-        // base_object chain bottoms out here; only our own data is serialized.
-        Gem::Common::serialize_members(ar, this->localMembers_());
-    }
+    // GBoilerplateAccess lets the mixin reach localMembers_(); this abstract root is
+    // never Boost-constructed.
+    friend struct Gem::Common::GBoilerplateAccess;
     ///////////////////////////////////////////////////////////////////////
 
     // A constraint reads the candidate's parameter values via the genome value API (streamlineFP), which
@@ -85,6 +79,9 @@ class GPreEvaluationValidityCheckT // NOLINT(cppcoreguidelines-special-member-fu
     );
 
 public:
+    /** @brief The class name, consumed by the GBoilerplateBaseT-generated name_() / compare token. */
+    static constexpr std::string_view class_name = "GPreEvaluationValidityCheckT<ind_type>";
+
     /***************************************************************************/
     /**
      * The default constructor
@@ -240,71 +237,9 @@ protected:
         );
     }
 
-    /***************************************************************************/
-    /**
-     * @brief Loads the data of another GPreEvaluationValidityCheckT<ind_type>.
-     *
-     * @param cp A pointer to another GPreEvaluationValidityCheckT object whose data is loaded into this one
-     */
-    void load_(const GPreEvaluationValidityCheckT<ind_type> *cp) override {
-        // Check that we are dealing with a GPreEvaluationValidityCheckT<ind_type>  reference independent of this object and convert the pointer
-        const auto *p_load =
-            Gem::Common::g_convert_and_compare<
-                GPreEvaluationValidityCheckT<ind_type>,
-                GPreEvaluationValidityCheckT<ind_type>>(
-                cp,
-                this
-            );
-
-        // This is the category root; there is no GObject parent class to load.
-
-        // Our own data, derived from the single localMembers() declaration
-        Gem::Common::g_load_members(this->localMembers_(), p_load->localMembers_());
-    }
-
-    /***************************************************************************/
-    /** @brief Allow access to this classes compare_ function */
-    friend void Gem::Common::compare_base_t<GPreEvaluationValidityCheckT<ind_type>>(
-        GPreEvaluationValidityCheckT<ind_type> const &,
-        GPreEvaluationValidityCheckT<ind_type> const &,
-        Gem::Common::GToken &
-    );
-
-    /***************************************************************************/
-    /**
-     * @brief Searches for compliance with expectations with respect to another object of the same type.
-     *
-     * @param cp A constant reference to another GPreEvaluationValidityCheckT object
-     * @param e The expected outcome of the comparison
-     * @param limit The maximum acceptable deviation for floating point comparisons (unused here)
-     */
-    void compare_(
-        const GPreEvaluationValidityCheckT<ind_type> &cp,
-        const Gem::Common::expectation &e,
-        [[maybe_unused]] const double & limit
-    ) const override {
-        using namespace Gem::Common;
-
-        // Check that we are dealing with a GPreEvaluationValidityCheckT<ind_type>  reference independent of this object and convert the pointer
-        const auto *p_load =
-            Gem::Common::g_convert_and_compare<
-                GPreEvaluationValidityCheckT<ind_type>,
-                GPreEvaluationValidityCheckT<ind_type>>(
-                cp,
-                this
-            );
-
-        GToken token("GPreEvaluationValidityCheckT<ind_type>", e);
-
-        // Compare our parent data ...
-        Gem::Common::compare_base_t<Gem::Common::GCommonInterfaceT<GPreEvaluationValidityCheckT<ind_type>>>(*this, *p_load, token);
-
-        // ... and then the local data, derived from the single localMembers() declaration
-        Gem::Common::g_compare_members(this->localMembers_(), p_load->localMembers_(), token);
-
-        // React on deviations from the expectation
-        token.evaluate();
-    }
+    // load_(), compare_(), name_() and clone_() are generated by the
+    // Gem::Common::GBoilerplateBaseT base (clone_ stays pure -- this is the abstract
+    // category root) from class_name and the localMembers_() declaration above.
 
     /***************************************************************************/
     /**
@@ -362,10 +297,6 @@ protected:
 
 private:
     /***************************************************************************/
-    /** @brief Creates a deep clone of this object */
-    [[nodiscard]] GPreEvaluationValidityCheckT<ind_type> *clone_() const override = 0;
-
-    /***************************************************************************/
 
     bool allow_negative_ = false; ///< Set to true if negative values are considered to be valid
 };
@@ -379,35 +310,28 @@ private:
  * @tparam ind_type The individual type to be checked; must derive from Genome::GOptimizableEntity
  */
 template <typename ind_type>
-class GValidityCheckContainerT : public GPreEvaluationValidityCheckT<ind_type> {
+class GValidityCheckContainerT
+  : public Gem::Common::GBoilerplateBaseT<GValidityCheckContainerT<ind_type>, GPreEvaluationValidityCheckT<ind_type>> {
     ///////////////////////////////////////////////////////////////////////
-    friend class boost::serialization::access;
+    // GBoilerplateAccess lets the mixin reach localMembers_(); this abstract class is
+    // never Boost-constructed.
+    friend struct Gem::Common::GBoilerplateAccess;
 
-    /** @brief Single declaration of this class's local data (the validity checks), feeding
-     *  serialize()/load_()/compare_() from one source. The checks are std::shared_ptr<...> that must be
-     *  deep-cloned on load (make_cloneable_container_member). Defined before serialize() so its deduced
-     *  return type is available there. */
+    /** @brief Single declaration of this class's local data (the validity checks), feeding the
+     *  GBoilerplateBaseT-generated serialize()/load_()/compare_() from one source. The checks are
+     *  std::shared_ptr<...> that must be deep-cloned on load (make_cloneable_container_member). */
     template <typename Self>
     auto localMembers_(this Self &self) {
         return std::make_tuple(
             Gem::Common::make_cloneable_container_member("validity_checks_", self.validity_checks_)
         );
     }
-
-    template <typename Archive>
-    void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
-        using boost::serialization::make_nvp;
-        ar &boost::serialization::make_nvp(
-            "GPreEvaluationValidityCheckT_ind_type",
-            boost::serialization::base_object<GPreEvaluationValidityCheckT<ind_type>>(*this)
-        );
-        // The validity checks, derived from the single localMembers() declaration. (Previously they were
-        // compared and loaded but NOT serialized -- they now travel in checkpoints / on the wire too.)
-        Gem::Common::serialize_members(ar, this->localMembers_());
-    }
     ///////////////////////////////////////////////////////////////////////
 
 public:
+    /** @brief The class name, consumed by the GBoilerplateBaseT-generated name_() / compare token. */
+    static constexpr std::string_view class_name = "GValidityCheckContainerT<ind_type>";
+
     /***************************************************************************/
     /**
      * The default constructor
@@ -433,7 +357,7 @@ public:
      * @param cp Another GValidityCheckContainerT object whose contained checks are deep-copied
      */
     GValidityCheckContainerT(const GValidityCheckContainerT<ind_type> &cp)
-      : GPreEvaluationValidityCheckT<ind_type>(cp) {
+      : Gem::Common::GBoilerplateBaseT<GValidityCheckContainerT<ind_type>, GPreEvaluationValidityCheckT<ind_type>>(cp) {
         Gem::Common::copyCloneableSmartPointerContainer(cp.validity_checks_, validity_checks_);
     }
 
@@ -490,84 +414,13 @@ protected:
      */
     double check_(const ind_type *) const override = 0;
 
-    /***************************************************************************/
-    /**
-     * @brief Loads the data of another GPreEvaluationValidityCheckT<ind_type>.
-     *
-     * @param cp A pointer to another GPreEvaluationValidityCheckT object whose data is loaded into this one
-     */
-    void load_(const GPreEvaluationValidityCheckT<ind_type> *cp) override {
-        // Check that we are dealing with a GValidityCheckContainerT<ind_type>  reference independent of this object and convert the pointer
-        const GValidityCheckContainerT<ind_type> *p_load =
-            Gem::Common::g_convert_and_compare<
-                GPreEvaluationValidityCheckT<ind_type>,
-                GValidityCheckContainerT<ind_type>>(
-                cp,
-                this
-            );
-
-        // Load our parent class'es data ...
-        GPreEvaluationValidityCheckT<ind_type>::load_(cp);
-
-        // and then our local data, derived from the single localMembers() declaration (the checks are
-        // deep-cloned, not pointer-aliased).
-        Gem::Common::g_load_members(this->localMembers_(), p_load->localMembers_());
-    }
-
-    /***************************************************************************/
-    /** @brief Allow access to this classes compare_ function */
-    friend void Gem::Common::compare_base_t<GValidityCheckContainerT<ind_type>>(
-        GValidityCheckContainerT<ind_type> const &,
-        GValidityCheckContainerT<ind_type> const &,
-        Gem::Common::GToken &
-    );
-
-    /***************************************************************************/
-    /**
-     * @brief Searches for compliance with expectations with respect to another object of the same type.
-     *
-     * @param cp A constant reference to another GPreEvaluationValidityCheckT object
-     * @param e The expected outcome of the comparison
-     * @param limit The maximum acceptable deviation for floating point comparisons (unused here)
-     */
-    void compare_(
-        const GPreEvaluationValidityCheckT<ind_type> &cp,
-        const Gem::Common::expectation &e,
-        [[maybe_unused]] const double & limit
-    ) const override {
-        using namespace Gem::Common;
-
-        // Check that we are dealing with a GValidityCheckContainerT<ind_type>  reference independent of this object and convert the pointer
-        const GValidityCheckContainerT<ind_type> *p_load =
-            Gem::Common::g_convert_and_compare<
-                GPreEvaluationValidityCheckT<ind_type>,
-                GValidityCheckContainerT<ind_type>>(
-                cp,
-                this
-            );
-
-        GToken token("GValidityCheckContainerT<ind_type>", e);
-
-        // Compare our parent data ...
-        compare_base_t<GPreEvaluationValidityCheckT<ind_type>>(*this, *p_load, token);
-
-        // ... and then the local data, derived from the single localMembers() declaration
-        Gem::Common::g_compare_members(this->localMembers_(), p_load->localMembers_(), token);
-
-        // React on deviations from the expectation
-        token.evaluate();
-    }
+    // load_(), compare_(), name_() and clone_() are generated by the
+    // Gem::Common::GBoilerplateBaseT base (clone_ stays pure -- this is abstract)
+    // from class_name and the validity_checks_ localMembers_() declaration above.
 
     /***************************************************************************/
     /** @brief Holds all registered validity checks */
     std::vector<std::shared_ptr<GPreEvaluationValidityCheckT<ind_type>>> validity_checks_;
-
-private:
-    /***************************************************************************/
-    /** @brief Creates a deep clone of this object */
-    [[nodiscard]] GPreEvaluationValidityCheckT<ind_type> *clone_() const override = 0;
-
-    /***************************************************************************/
 };
 
 /******************************************************************************/
@@ -580,26 +433,19 @@ private:
  * @tparam ind_type The individual type to be checked; must derive from Genome::GOptimizableEntity
  */
 template <typename ind_type>
-class GCheckCombinerT : public GValidityCheckContainerT<ind_type> {
+class GCheckCombinerT
+  : public Gem::Common::GBoilerplateT<GCheckCombinerT<ind_type>, GValidityCheckContainerT<ind_type>> {
     ///////////////////////////////////////////////////////////////////////
+    // boost::serialization::access default-constructs this concrete type on load;
+    // GBoilerplateAccess lets the mixin reach localMembers_().
     friend class boost::serialization::access;
-
-    template <typename Archive>
-    void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
-        using boost::serialization::make_nvp;
-        // Serialize the DIRECT base GValidityCheckContainerT (not the grandparent
-        // GPreEvaluationValidityCheckT): the container level carries validity_checks_, so skipping
-        // it would drop the combiner's checks on the wire / in checkpoints.
-        ar &boost::serialization::make_nvp(
-            "GValidityCheckContainerT_ind_type",
-            boost::serialization::base_object<GValidityCheckContainerT<ind_type>>(*this)
-        );
-        // ... and then our own data, derived from the single localMembers_() declaration
-        Gem::Common::serialize_members(ar, this->localMembers_());
-    }
+    friend struct Gem::Common::GBoilerplateAccess;
     ///////////////////////////////////////////////////////////////////////
 
 public:
+    /** @brief The class name, consumed by the GBoilerplateT-generated name_() / compare token. */
+    static constexpr std::string_view class_name = "GCheckCombinerT<ind_type>";
+
     /***************************************************************************/
     /**
      * The default constructor
@@ -615,7 +461,7 @@ public:
     explicit GCheckCombinerT(
         const std::vector<std::shared_ptr<GPreEvaluationValidityCheckT<ind_type>>> &validity_checks
     )
-      : GValidityCheckContainerT<ind_type>(validity_checks) { /* nothing */
+      : Gem::Common::GBoilerplateT<GCheckCombinerT<ind_type>, GValidityCheckContainerT<ind_type>>(validity_checks) { /* nothing */
     }
 
     /***************************************************************************/
@@ -754,79 +600,11 @@ protected:
         );
     }
 
-    /***************************************************************************/
-    /**
-     * @brief Loads the data of another GPreEvaluationValidityCheckT<ind_type>.
-     *
-     * @param cp A pointer to another GPreEvaluationValidityCheckT object whose data is loaded into this one
-     */
-    void load_(const GPreEvaluationValidityCheckT<ind_type> *cp) override {
-        // Check that we are dealing with a GCheckCombinerT<ind_type>  reference independent of this object and convert the pointer
-        const GCheckCombinerT<ind_type> *p_load =
-            Gem::Common::g_convert_and_compare<
-                GPreEvaluationValidityCheckT<ind_type>,
-                GCheckCombinerT<ind_type>>(cp, this);
-
-        // Load our DIRECT parent class'es data (GValidityCheckContainerT, which carries
-        // validity_checks_) -- not the grandparent, or the combiner's checks would be dropped.
-        GValidityCheckContainerT<ind_type>::load_(cp);
-
-        // and then our local data, derived from the single localMembers() declaration
-        Gem::Common::g_load_members(this->localMembers_(), p_load->localMembers_());
-    }
-
-    /***************************************************************************/
-    /** @brief Allow access to this classes compare_ function */
-    friend void Gem::Common::compare_base_t<GCheckCombinerT<ind_type>>(
-        GCheckCombinerT<ind_type> const &,
-        GCheckCombinerT<ind_type> const &,
-        Gem::Common::GToken &
-    );
-
-    /***************************************************************************/
-    /**
-     * @brief Searches for compliance with expectations with respect to another object of the same type.
-     *
-     * @param cp A constant reference to another GPreEvaluationValidityCheckT object
-     * @param e The expected outcome of the comparison
-     * @param limit The maximum acceptable deviation for floating point comparisons (unused here)
-     */
-    void compare_(
-        const GPreEvaluationValidityCheckT<ind_type> &cp,
-        const Gem::Common::expectation &e,
-        [[maybe_unused]] const double & limit
-    ) const override {
-        using namespace Gem::Common;
-
-        // Check that we are dealing with a GCheckCombinerT<ind_type>  reference independent of this object and convert the pointer
-        const GCheckCombinerT<ind_type> *p_load =
-            Gem::Common::g_convert_and_compare<
-                GPreEvaluationValidityCheckT<ind_type>,
-                GCheckCombinerT<ind_type>>(cp, this);
-
-        GToken token("GCheckCombinerT<ind_type", e);
-
-        // Compare our parent data ...
-        compare_base_t<GValidityCheckContainerT<ind_type>>(*this, *p_load, token);
-
-        // ... and then the local data, derived from the single localMembers() declaration
-        Gem::Common::g_compare_members(this->localMembers_(), p_load->localMembers_(), token);
-
-        // React on deviations from the expectation
-        token.evaluate();
-    }
+    // load_(), compare_(), name_() and clone_() are generated by the
+    // Gem::Common::GBoilerplateT base from class_name and the combiner_policy_
+    // localMembers_() declaration above.
 
 private:
-    /***************************************************************************/
-    /**
-     * @brief Creates a deep clone of this object.
-     *
-     * @return A newly allocated deep copy of this GCheckCombinerT, owned by the caller
-     */
-    [[nodiscard]] GPreEvaluationValidityCheckT<ind_type> *clone_() const override {
-        return new GCheckCombinerT<ind_type>(*this);
-    }
-
     /***************************************************************************/
     // Local data
 

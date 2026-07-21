@@ -43,6 +43,7 @@
 #include <boost/serialization/nvp.hpp>
 
 // Geneva headers go here
+#include "common/GBoilerplateT.hpp"
 #include "common/GCommonHelperFunctionsT.hpp"
 #include "common/GCommonInterfaceT.hpp"
 #include "common/GCommonMathHelperFunctionsT.hpp"
@@ -71,14 +72,18 @@ constexpr auto GFSPQ_DEF_SORT_ORDER = Gem::Common::sortOrder::LOWERISBETTER;
          * @tparam T The type of the work items stored in the queue
          */
 template <typename T>
-class GFixedSizePriorityQueueT : public GCommonInterfaceT<GFixedSizePriorityQueueT<T>> {
+class GFixedSizePriorityQueueT
+  : public GBoilerplateBaseT<GFixedSizePriorityQueueT<T>, GCommonInterfaceT<GFixedSizePriorityQueueT<T>>> {
     ///////////////////////////////////////////////////////////////////////
-    friend class boost::serialization::access;
+    // GBoilerplateAccess lets the mixin reach localMembers_(); this abstract root is
+    // never Boost-constructed.
+    friend struct GBoilerplateAccess;
 
     /***************************************************************************/
     /**
      * @brief Single declaration of this class'es local data members
-     * @return A tuple of named member references driving serialize(), load_() and compare_()
+     * @return A tuple of named member references driving the GBoilerplateBaseT-generated
+     *         serialize(), load_() and compare_()
      */
     template <typename Self>
     auto localMembers_(this Self &self) {
@@ -88,18 +93,12 @@ class GFixedSizePriorityQueueT : public GCommonInterfaceT<GFixedSizePriorityQueu
             Gem::Common::make_cloneable_container_member("data_deq_", self.data_deq_)
         );
     }
-
-    template <typename Archive>
-    void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
-        using boost::serialization::make_nvp;
-        // The member list is derived from the single localMembers() declaration
-        // so serialize()/load_()/compare_() stay in sync (no silently-dropped member).
-        Gem::Common::serialize_members(ar, this->localMembers_());
-    }
-
     ///////////////////////////////////////////////////////////////////////
 
 public:
+    /** @brief The class name, consumed by the GBoilerplateBaseT-generated name_() / compare token. */
+    static constexpr std::string_view class_name = "GFixedSizePriorityQueueT<T>";
+
     /***************************************************************************/
     /**
          * @brief Initialization with the maximum number of entries
@@ -504,66 +503,8 @@ public:
     }
 
 protected:
-    /***************************************************************************/
-    /**
-             * @brief Loads the data of another GFixedSizePriorityQueueT<T> object
-             *
-             * @param cp A pointer to another GFixedSizePriorityQueueT<T> object whose data is loaded into this object
-             */
-    void load_(const GFixedSizePriorityQueueT *cp) override {
-        // Check that we are dealing with a GFixedSizePriorityQueueT<T> reference independent of this object and convert the pointer
-        const auto *p_load =
-            Common::g_convert_and_compare<GFixedSizePriorityQueueT, GFixedSizePriorityQueueT>(
-                cp,
-                this
-            );
-
-        // Load local data
-        Gem::Common::g_load_members(this->localMembers_(), p_load->localMembers_());
-    }
-
-    /***************************************************************************/
-    /** @brief Allow access to this classes compare_ function */
-    friend void Common::compare_base_t<GFixedSizePriorityQueueT>(
-        GFixedSizePriorityQueueT const &,
-        GFixedSizePriorityQueueT const &,
-        GToken &
-    );
-
-    /***************************************************************************/
-    /**
-             * @brief Checks for compliance with expectations with respect to another object
-             * of the same type
-             *
-             * @param cp A constant reference to another GFixedSizePriorityQueueT<T> object to compare against
-             * @param e The expected outcome of the comparison
-             * @param limit The maximum deviation tolerated for floating point comparisons (unused here)
-             */
-    void compare_(
-        const GFixedSizePriorityQueueT &cp,
-        const expectation &e,
-        [[maybe_unused]] const double & limit
-    ) const override {
-        using namespace Gem::Common;
-
-        // Check that we are dealing with a GFixedSizePriorityQueueT<T> reference independent of this object and convert the pointer
-        const auto *p_load =
-            Common::g_convert_and_compare<GFixedSizePriorityQueueT, GFixedSizePriorityQueueT>(
-                cp,
-                this
-            );
-
-        GToken token("GFixedSizePriorityQueueT<T>", e);
-
-        // Compare our parent data ...
-        Common::compare_base_t<GCommonInterfaceT<GFixedSizePriorityQueueT>>(*this, *p_load, token);
-
-        // ... and then our local data
-        Gem::Common::g_compare_members(this->localMembers_(), p_load->localMembers_(), token);
-
-        // React on deviations from the expectation
-        token.evaluate();
-    }
+    // load_(), compare_(), name_() and clone_() are generated by the GBoilerplateBaseT
+    // base (clone_ stays pure -- this is the abstract root) from class_name and localMembers_().
 
     /***************************************************************************/
     /**
@@ -702,18 +643,6 @@ private:
     }
 
     /***************************************************************************/
-    /**
-             * @brief Returns the name of this class
-             *
-             * @return The string "GFixedSizePriorityQueueT<T>"
-             */
-    [[nodiscard]] std::string name_() const override {
-        return std::string("GFixedSizePriorityQueueT<T>");
-    }
-
-    /***************************************************************************/
-    /** @brief Creates a deep clone of this object */
-    [[nodiscard]] GFixedSizePriorityQueueT *clone_() const override = 0;
 };
 
 /******************************************************************************/
