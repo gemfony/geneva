@@ -343,6 +343,14 @@ protected:
      * @return A tuple holding the best raw and transformed fitness values found
      */
     virtual std::tuple<double, double> findBests();
+    /** @brief findBests() phase 1: (re)computes every individual's personal best. */
+    void updateAllPersonalBests();
+    /** @brief findBests() phase 2: sorts each neighborhood by fitness and refreshes its neighborhood best. */
+    void sortNeighborhoodsAndUpdateBests(maxMode mode);
+    /** @brief findBests() phase 3: picks the best neighborhood best and updates the global best. */
+    void updateGlobalBest(maxMode mode);
+    /** @brief findBests() phase 4: returns the best fitness tuple seen in the current iteration. */
+    [[nodiscard]] std::tuple<double, double> bestIterationFitness(maxMode mode) const;
     /** @brief Triggers an update of all individual's positions */
     virtual void updatePositions();
 

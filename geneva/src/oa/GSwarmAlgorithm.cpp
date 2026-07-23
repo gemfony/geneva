@@ -1135,14 +1135,8 @@ void GSwarmAlgorithm::evaluatePopulation_() {
  * @return The best evaluation found in this iteration
  */
 std::tuple<double, double> GSwarmAlgorithm::findBests() {
-    auto m =
+    auto const mode =
         this->at(0)->getMaxMode(); // We assume that the maxMode is the same for all individuals
-
-    std::size_t best_local_id = 0;
-    std::tuple<double, double> best_local_fitness =
-        std::make_tuple(this->at(0)->getWorstCase(), this->at(0)->getWorstCase());
-    std::tuple<double, double> best_iteration_fitness =
-        std::make_tuple(this->at(0)->getWorstCase(), this->at(0)->getWorstCase());
 
 #ifdef DEBUG
     for(auto const &[pos, ind_ptr] : *this | std::views::enumerate) {
@@ -1160,7 +1154,18 @@ std::tuple<double, double> GSwarmAlgorithm::findBests() {
     }
 #endif /* DEBUG */
 
-    // Update the personal bests of all individuals
+    updateAllPersonalBests();
+    sortNeighborhoodsAndUpdateBests(mode);
+    updateGlobalBest(mode);
+    return bestIterationFitness(mode);
+}
+
+/******************************************************************************/
+/**
+ * findBests() phase 1: (re)computes every individual's personal best -- unconditionally in the first
+ * iteration, otherwise only when the current position improves on the stored personal best.
+ */
+void GSwarmAlgorithm::updateAllPersonalBests() {
     if(inFirstIteration()) {
         for(const auto &ind_ptr : *this) {
             updatePersonalBest(ind_ptr);
@@ -1171,8 +1176,16 @@ std::tuple<double, double> GSwarmAlgorithm::findBests() {
             updatePersonalBestIfBetter(ind_ptr);
         }
     }
+}
 
-    // Sort individuals in all neighborhoods according to their fitness
+/******************************************************************************/
+/**
+ * findBests() phase 2: sorts every neighborhood by (min-only transformed) fitness and refreshes each
+ * neighborhood's stored best -- cloning it in the first iteration, else loading over it when improved.
+ *
+ * @param m The optimization mode (shared by all individuals)
+ */
+void GSwarmAlgorithm::sortNeighborhoodsAndUpdateBests(maxMode m) {
     for(std::size_t n = 0; n < n_neighborhoods_; n++) {
         // identify the first and last id of the individuals in the current neighborhood
         std::size_t const first_counter = getFirstNIPos(n);
@@ -1202,6 +1215,19 @@ std::tuple<double, double> GSwarmAlgorithm::findBests() {
             }
         }
     }
+}
+
+/******************************************************************************/
+/**
+ * findBests() phase 3: identifies the best individual among all neighborhood bests and updates the
+ * globally best individual -- initializing it in the first iteration, else loading over it when improved.
+ *
+ * @param m The optimization mode (shared by all individuals)
+ */
+void GSwarmAlgorithm::updateGlobalBest(maxMode m) {
+    std::size_t best_local_id = 0;
+    std::tuple<double, double> best_local_fitness =
+        std::make_tuple(this->at(0)->getWorstCase(), this->at(0)->getWorstCase());
 
     // Identify the best individuals among all neighborhood bests
     for(std::size_t n = 0; n < n_neighborhoods_; n++) {
@@ -1229,9 +1255,20 @@ std::tuple<double, double> GSwarmAlgorithm::findBests() {
             global_best_ptr_->load(neighborhood_bests_cnt_.at(best_local_id));
         }
     }
+}
 
-    // Identify the best fitness in the current iteration
-    for(auto & i : *this) {
+/******************************************************************************/
+/**
+ * findBests() phase 4: identifies the best fitness among all individuals of the current iteration.
+ *
+ * @param m The optimization mode (shared by all individuals)
+ * @return The best raw/transformed fitness tuple found in the current iteration
+ */
+std::tuple<double, double> GSwarmAlgorithm::bestIterationFitness(maxMode m) const {
+    std::tuple<double, double> best_iteration_fitness =
+        std::make_tuple(this->at(0)->getWorstCase(), this->at(0)->getWorstCase());
+
+    for(auto const & i : *this) {
         if(isBetter(
                std::get<G_TRANSFORMED_FITNESS>(i->getFitnessTuple()),
                std::get<G_TRANSFORMED_FITNESS>(best_iteration_fitness),

@@ -331,17 +331,39 @@ double GParChild::getAmalgamationLikelihood() const {
  * recombination scheme.
  */
 void GParChild::doRecombine() {
-    std::size_t i = 0;
+    std::vector<double> const threshold = buildRecombinationThresholds();
+
+    // Parallel fast path: when no cross-over can occur (amalgamation disabled) and a derived algorithm
+    // supplies a thread pool, run only the heavy load() deep-copies in parallel (see recombineParallel()).
+    Gem::Common::Concurrency::GThreadPool *tp = this->tp_ptr_.get();
+    const std::size_t n_children = GOptimizationAlgorithmBase::data_cnt_.size() - n_parents_;
+    if(tp != nullptr && amalgamation_likelihood_ <= 0. && n_children > 1) {
+        recombineParallel(threshold);
+        return;
+    }
+
+    // Serial path (original behaviour; also covers the cross-over / amalgamation case).
+    recombineSerial(threshold);
+}
+
+/******************************************************************************/
+/**
+ * @brief doRecombine() helper: builds the value-duplication weight (threshold) vector.
+ *
+ * The weights depend only on n_parents_ (a fixed population-structure parameter), so the vector is
+ * identical on every call; recomputing it once per generation is correct and the O(n_parents_) cost is
+ * negligible against an evaluation cycle, so it is not cached.
+ *
+ * @return The normalized cumulative threshold vector (empty of meaning unless the value-duplication scheme is active)
+ */
+std::vector<double> GParChild::buildRecombinationThresholds() const {
     std::vector<double> threshold(n_parents_);
     double threshold_sum = 0.;
-    // Calculate a weight vector. This depends only on n_parents_ (a fixed population-structure
-    // parameter), so it is identical on every call; recomputing it once per generation is correct
-    // and the O(n_parents_) cost is negligible against an evaluation cycle, so it is not cached.
     if(duplicationScheme::VALUEDUPLICATIONSCHEME == recombination_method_ && n_parents_ > 1) {
-        for(i = 0; i < n_parents_; i++) {
+        for(std::size_t i = 0; i < n_parents_; i++) {
             threshold_sum += 1. / (static_cast<double>(i) + 2.);
         }
-        for(i = 0; i < n_parents_ - 1; i++) {
+        for(std::size_t i = 0; i < n_parents_ - 1; i++) {
             // Normalizing the sum to 1
             threshold[i] = (1. / (static_cast<double>(i) + 2.)) / threshold_sum;
 
@@ -352,92 +374,101 @@ void GParChild::doRecombine() {
         }
         threshold[n_parents_ - 1] = 1.; // Necessary due to rounding errors
     }
+    return threshold;
+}
 
+/******************************************************************************/
+/**
+ * @brief doRecombine() fast path: select the parent for every child sequentially first (the draws happen
+ * on the orchestration thread, so there is no concurrent use of the algorithm's RNG) and then run only the
+ * heavy load() deep-copies in parallel. Parents are read only and each child slot is written by exactly one
+ * task, so there are no data races. Only used when amalgamation is disabled and a thread pool is present.
+ *
+ * @param threshold The value-duplication weight vector (see buildRecombinationThresholds())
+ */
+void GParChild::recombineParallel(const std::vector<double> &threshold) {
+    Gem::Common::Concurrency::GThreadPool *tp = this->tp_ptr_.get();
+    const std::size_t n_children = GOptimizationAlgorithmBase::data_cnt_.size() - n_parents_;
+    const bool value_scheme =
+        (duplicationScheme::VALUEDUPLICATIONSCHEME == recombination_method_)
+        && not GOptimizationAlgorithmBase::inFirstIteration();
+
+    // (1) Sequential parent selection (same selection semantics as the serial path; Geneva's
+    // RNG is never deterministic, so no draw-for-draw mirroring of that path is attempted).
+    std::vector<std::size_t> parent_pos(n_children);
+    for(std::size_t c = 0; c < n_children; ++c) {
+        std::size_t pp = 0;
+        if(n_parents_ > 1) {
+            if(value_scheme) {
+                const double rand_test = GOptimizationAlgorithmBase::uniform_real_distribution_(this->gr_);
+                pp = n_parents_ - 1; // threshold[n_parents_-1] == 1, so a match is guaranteed
+                for(std::size_t par = 0; par < n_parents_; ++par) {
+                    if(rand_test < threshold[par]) {
+                        pp = par;
+                        break;
+                    }
+                }
+            }
+            else {
+                pp = this->uniform_int_distribution_(
+                    this->gr_,
+                    std::uniform_int_distribution<std::size_t>::param_type(0, n_parents_ - 1)
+                );
+            }
+        }
+        parent_pos[c] = pp;
+    }
+
+    // (2) Parallel deep-copy of the selected parent into each child.
+    std::vector<std::future<void>> futures_cnt;
+    futures_cnt.reserve(n_children);
+    for(std::size_t c = 0; c < n_children; ++c) {
+        const std::size_t child_idx = n_parents_ + c;
+        const std::size_t pp = parent_pos[c];
+        futures_cnt.push_back(tp->async_schedule([this, child_idx, pp]() {
+            std::unique_ptr<gen::GOptimizableEntity> &child = GOptimizationAlgorithmBase::data_cnt_[child_idx];
+            child->load(GOptimizationAlgorithmBase::data_cnt_[pp]);
+            child->template getPersonalityTraits<GBaseParChildPersonalityTraits>()
+                ->setParentId(pp);
+        }));
+    }
+    tp->wait();
+
+    // Consume futures so worker-thread exceptions are surfaced rather than dropped.
+    for(auto &f : futures_cnt) {
+        try {
+            f.get();
+        }
+        catch(std::exception &e) {
+            throw geneva_exception(
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+                << "In GParChild::doRecombine() (parallel) :" << '\n'
+                << "Got error during thread execution with message:" << '\n'
+                << e.what() << '\n'
+            );
+        }
+        catch(...) {
+            throw geneva_exception(
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+                << "In GParChild::doRecombine() (parallel) :" << '\n'
+                << "Got unknown exception during thread execution" << '\n'
+            );
+        }
+    }
+}
+
+/******************************************************************************/
+/**
+ * @brief doRecombine() serial path: for each child, either cross over the best parent with another random
+ * parent (amalgamation) or duplicate a chosen parent per the recombination scheme. Original behaviour.
+ *
+ * @param threshold The value-duplication weight vector (see buildRecombinationThresholds())
+ */
+void GParChild::recombineSerial(const std::vector<double> &threshold) {
     std::bernoulli_distribution amalgamation_wanted(
         amalgamation_likelihood_
     ); // true with a likelihood of amalgamation_likelihood_
 
-    // ------------------------------------------------------------------------
-    // Parallel fast path: when no cross-over can occur (amalgamation disabled)
-    // and a derived algorithm supplies a thread pool, select the parent for every
-    // child sequentially first (the draws happen on the orchestration thread, so
-    // there is no concurrent use of the algorithm's RNG) and then run only the
-    // heavy load() deep-copies in parallel. Parents are read only and each child
-    // slot is written by exactly one task, so there are no data races.
-    Gem::Common::Concurrency::GThreadPool *tp = this->tp_ptr_.get();
-    const std::size_t n_children = GOptimizationAlgorithmBase::data_cnt_.size() - n_parents_;
-    if(tp != nullptr && amalgamation_likelihood_ <= 0. && n_children > 1) {
-        const bool value_scheme =
-            (duplicationScheme::VALUEDUPLICATIONSCHEME == recombination_method_)
-            && not GOptimizationAlgorithmBase::inFirstIteration();
-
-        // (1) Sequential parent selection (same selection semantics as the serial path; Geneva's
-        // RNG is never deterministic, so no draw-for-draw mirroring of that path is attempted).
-        std::vector<std::size_t> parent_pos(n_children);
-        for(std::size_t c = 0; c < n_children; ++c) {
-            std::size_t pp = 0;
-            if(n_parents_ > 1) {
-                if(value_scheme) {
-                    const double rand_test = GOptimizationAlgorithmBase::uniform_real_distribution_(this->gr_);
-                    pp = n_parents_ - 1; // threshold[n_parents_-1] == 1, so a match is guaranteed
-                    for(std::size_t par = 0; par < n_parents_; ++par) {
-                        if(rand_test < threshold[par]) {
-                            pp = par;
-                            break;
-                        }
-                    }
-                }
-                else {
-                    pp = this->uniform_int_distribution_(
-                        this->gr_,
-                        std::uniform_int_distribution<std::size_t>::param_type(0, n_parents_ - 1)
-                    );
-                }
-            }
-            parent_pos[c] = pp;
-        }
-
-        // (2) Parallel deep-copy of the selected parent into each child.
-        std::vector<std::future<void>> futures_cnt;
-        futures_cnt.reserve(n_children);
-        for(std::size_t c = 0; c < n_children; ++c) {
-            const std::size_t child_idx = n_parents_ + c;
-            const std::size_t pp = parent_pos[c];
-            futures_cnt.push_back(tp->async_schedule([this, child_idx, pp]() {
-                std::unique_ptr<gen::GOptimizableEntity> &child = GOptimizationAlgorithmBase::data_cnt_[child_idx];
-                child->load(GOptimizationAlgorithmBase::data_cnt_[pp]);
-                child->template getPersonalityTraits<GBaseParChildPersonalityTraits>()
-                    ->setParentId(pp);
-            }));
-        }
-        tp->wait();
-
-        // Consume futures so worker-thread exceptions are surfaced rather than dropped.
-        for(auto &f : futures_cnt) {
-            try {
-                f.get();
-            }
-            catch(std::exception &e) {
-                throw geneva_exception(
-                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                    << "In GParChild::doRecombine() (parallel) :" << '\n'
-                    << "Got error during thread execution with message:" << '\n'
-                    << e.what() << '\n'
-                );
-            }
-            catch(...) {
-                throw geneva_exception(
-                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                    << "In GParChild::doRecombine() (parallel) :" << '\n'
-                    << "Got unknown exception during thread execution" << '\n'
-                );
-            }
-        }
-        return;
-    }
-
-    // ------------------------------------------------------------------------
-    // Serial path (original behaviour; also covers the cross-over / amalgamation case).
     std::vector<std::unique_ptr<gen::GOptimizableEntity>>::iterator it;
     for(it = GOptimizationAlgorithmBase::data_cnt_.begin() + n_parents_;
         it != GOptimizationAlgorithmBase::data_cnt_.end();

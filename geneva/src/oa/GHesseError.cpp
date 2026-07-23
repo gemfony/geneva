@@ -290,7 +290,41 @@ GHesseErrorResult GHesseError::estimate(
     }
 
     // --- diagonal of the Hessian (always; O(n) evaluations) -----------------------------------------
-    // H_jj = (f(x + h_j e_j) - 2 f(x) + f(x - h_j e_j)) / h_j^2.
+    std::vector<double> hessian_diag(n, 0.);
+    computeDiagonalHessian(result, eval_fn, x_min, f_min, step_sizes, opts, hessian_diag);
+
+    // --- optional full Hessian -> covariance (small dimension only) ---------------------------------
+    if(opts.full_covariance && n <= opts.max_full_dim && result.valid) {
+        computeCovariance(result, eval_fn, x_min, step_sizes, opts, hessian_diag);
+    }
+
+    // --- optional MINOS asymmetric errors (profiled, low dimension only) ----------------------------
+    if(opts.minos && result.valid && n <= opts.max_full_dim) {
+        computeMinos(result, eval_fn, x_min, f_min, step_sizes, opts);
+    }
+
+    return result;
+}
+
+/******************************************************************************/
+/**
+ * @brief estimate() phase 1 (always): the diagonal of the Hessian and the parameter-fixed errors.
+ *
+ * H_jj = (f(x + h_j e_j) - 2 f(x) + f(x - h_j e_j)) / h_j^2. Fills the parameter-fixed parabolic errors,
+ * the validity flag (at least one positive curvature) and the condition number, and returns the diagonal
+ * curvatures in @p hessian_diag for the optional covariance phase.
+ */
+void GHesseError::computeDiagonalHessian(
+    GHesseErrorResult &result,
+    eval_fn_t const &eval_fn,
+    std::vector<double> const &x_min,
+    double f_min,
+    std::vector<double> const &step_sizes,
+    GHesseErrorOptions const &opts,
+    std::vector<double> &hessian_diag
+) {
+    const std::size_t n = x_min.size();
+
     std::vector<std::vector<double>> diag_points;
     diag_points.reserve(2 * n);
     for(std::size_t j = 0; j < n; ++j) {
@@ -300,7 +334,7 @@ GHesseErrorResult GHesseError::estimate(
     const std::vector<double> diag_values = eval_fn(diag_points);
     result.n_evaluations += diag_points.size();
 
-    std::vector<double> hessian_diag(n, 0.);
+    hessian_diag.assign(n, 0.);
     result.parameter_errors.assign(n, 0.);
     double min_curv = 0.;
     double max_curv = 0.;
@@ -326,111 +360,136 @@ GHesseErrorResult GHesseError::estimate(
     }
     result.valid = any_positive;
     result.condition_number = (min_curv > 0.) ? (max_curv / min_curv) : 0.;
+}
 
-    // --- optional full Hessian -> covariance (small dimension only) ---------------------------------
-    if(opts.full_covariance && n <= opts.max_full_dim && result.valid) {
-        // Off-diagonal mixed second differences:
-        // H_ij = (f(x+hi+hj) - f(x+hi-hj) - f(x-hi+hj) + f(x-hi-hj)) / (4 hi hj).
-        std::vector<std::vector<double>> off_points;
-        std::vector<std::pair<std::size_t, std::size_t>> off_index;
-        for(std::size_t i = 0; i < n; ++i) {
-            for(std::size_t j = i + 1; j < n; ++j) {
-                const double hi = step_sizes[i];
-                const double hj = step_sizes[j];
-                off_index.emplace_back(i, j);
-                off_points.push_back(perturb2(x_min, i, hi, j, hj));
-                off_points.push_back(perturb2(x_min, i, hi, j, -hj));
-                off_points.push_back(perturb2(x_min, i, -hi, j, hj));
-                off_points.push_back(perturb2(x_min, i, -hi, j, -hj));
-            }
-        }
+/******************************************************************************/
+/**
+ * @brief estimate() phase 2 (opt-in, low dimension): the off-diagonal Hessian, its inverse -> covariance,
+ * and the profiled (correlation-aware) errors.
+ *
+ * Off-diagonal mixed second differences:
+ * H_ij = (f(x+hi+hj) - f(x+hi-hj) - f(x-hi+hj) + f(x-hi-hj)) / (4 hi hj).
+ */
+void GHesseError::computeCovariance(
+    GHesseErrorResult &result,
+    eval_fn_t const &eval_fn,
+    std::vector<double> const &x_min,
+    std::vector<double> const &step_sizes,
+    GHesseErrorOptions const &opts,
+    std::vector<double> const &hessian_diag
+) {
+    const std::size_t n = x_min.size();
 
-        std::vector<std::vector<double>> hessian(n, std::vector<double>(n, 0.));
-        for(std::size_t j = 0; j < n; ++j) {
-            hessian[j][j] = hessian_diag[j];
-        }
-
-        if(not off_points.empty()) {
-            const std::vector<double> off_values = eval_fn(off_points);
-            result.n_evaluations += off_points.size();
-            for(std::size_t k = 0; k < off_index.size(); ++k) {
-                const std::size_t i = off_index[k].first;
-                const std::size_t j = off_index[k].second;
-                const double hi = step_sizes[i];
-                const double hj = step_sizes[j];
-                const double v =
-                    (off_values[4 * k] - off_values[(4 * k) + 1] - off_values[(4 * k) + 2] +
-                     off_values[(4 * k) + 3]) /
-                    (4. * hi * hj);
-                hessian[i][j] = v;
-                hessian[j][i] = v;
-            }
-        }
-
-        // Covariance V = 2 * UP * H^-1 (the factor 2 follows from the 1/2 in the quadratic expansion
-        // F ~ F_min + 1/2 dx^T H dx; with UP it matches the MINUIT chi^2 convention).
-        std::vector<std::vector<double>> inv;
-        if(invertMatrix(hessian, inv)) {
-            result.covariance.assign(n, std::vector<double>(n, 0.));
-            for(std::size_t i = 0; i < n; ++i) {
-                for(std::size_t j = 0; j < n; ++j) {
-                    result.covariance[i][j] = 2. * opts.up * inv[i][j];
-                }
-            }
-            // Profiled (correlation-aware) errors from the covariance diagonal.
-            bool all_positive = true;
-            for(std::size_t j = 0; j < n; ++j) {
-                const double var = result.covariance[j][j];
-                if(var > 0.) {
-                    result.parameter_errors[j] = std::sqrt(var);
-                }
-                else {
-                    all_positive = false;
-                }
-            }
-            result.covariance_valid = all_positive;
+    std::vector<std::vector<double>> off_points;
+    std::vector<std::pair<std::size_t, std::size_t>> off_index;
+    for(std::size_t i = 0; i < n; ++i) {
+        for(std::size_t j = i + 1; j < n; ++j) {
+            const double hi = step_sizes[i];
+            const double hj = step_sizes[j];
+            off_index.emplace_back(i, j);
+            off_points.push_back(perturb2(x_min, i, hi, j, hj));
+            off_points.push_back(perturb2(x_min, i, hi, j, -hj));
+            off_points.push_back(perturb2(x_min, i, -hi, j, hj));
+            off_points.push_back(perturb2(x_min, i, -hi, j, -hj));
         }
     }
 
-    // --- optional MINOS asymmetric errors (profiled, low dimension only) ----------------------------
-    // For each parameter j and each side, find the distance from x_min[j] to where the PROFILE of the
-    // objective (re-minimised over all other parameters) rises by UP. Seeded from the symmetric error
-    // parameter_errors[j]. Opt-in and expensive (each bound runs repeated re-minimisations).
-    if(opts.minos && result.valid && n <= opts.max_full_dim) {
-        result.minos_low.assign(n, 0.);
-        result.minos_high.assign(n, 0.);
-        const double target = f_min + opts.up;
-        bool any = false;     // at least one parameter was attempted (had positive curvature)
-        bool all_ok = true;   // every attempted parameter bracketed BOTH sides
-        for(std::size_t j = 0; j < n; ++j) {
-            const double sigma = result.parameter_errors[j];
-            if(sigma <= 0.) {
-                all_ok = false; // a flat direction we could not even attempt -> result not fully valid
-                continue;       // no curvature / flat direction -> cannot bracket
+    std::vector<std::vector<double>> hessian(n, std::vector<double>(n, 0.));
+    for(std::size_t j = 0; j < n; ++j) {
+        hessian[j][j] = hessian_diag[j];
+    }
+
+    if(not off_points.empty()) {
+        const std::vector<double> off_values = eval_fn(off_points);
+        result.n_evaluations += off_points.size();
+        for(std::size_t k = 0; k < off_index.size(); ++k) {
+            const std::size_t i = off_index[k].first;
+            const std::size_t j = off_index[k].second;
+            const double hi = step_sizes[i];
+            const double hj = step_sizes[j];
+            const double v =
+                (off_values[4 * k] - off_values[(4 * k) + 1] - off_values[(4 * k) + 2] +
+                 off_values[(4 * k) + 3]) /
+                (4. * hi * hj);
+            hessian[i][j] = v;
+            hessian[j][i] = v;
+        }
+    }
+
+    // Covariance V = 2 * UP * H^-1 (the factor 2 follows from the 1/2 in the quadratic expansion
+    // F ~ F_min + 1/2 dx^T H dx; with UP it matches the MINUIT chi^2 convention).
+    std::vector<std::vector<double>> inv;
+    if(invertMatrix(hessian, inv)) {
+        result.covariance.assign(n, std::vector<double>(n, 0.));
+        for(std::size_t i = 0; i < n; ++i) {
+            for(std::size_t j = 0; j < n; ++j) {
+                result.covariance[i][j] = 2. * opts.up * inv[i][j];
             }
-            auto gdev = [&](double xj) {
-                return profileMin(eval_fn, x_min, j, xj, step_sizes, result.n_evaluations) - target;
-            };
-            any = true;
-            const std::optional<double> high = minosBound(gdev, x_min[j], sigma);
-            const std::optional<double> low = minosBound(gdev, x_min[j], -sigma);
-            if(high && low) {
-                result.minos_high[j] = *high;
-                result.minos_low[j] = *low;
+        }
+        // Profiled (correlation-aware) errors from the covariance diagonal.
+        bool all_positive = true;
+        for(std::size_t j = 0; j < n; ++j) {
+            const double var = result.covariance[j][j];
+            if(var > 0.) {
+                result.parameter_errors[j] = std::sqrt(var);
             }
             else {
-                // One or both sides could not be bracketed for this parameter: leave its bounds at 0
-                // and invalidate the whole MINOS estimate (the symmetric parameter_errors remain the
-                // usable fallback). We do NOT report a fabricated bound as a valid confidence interval.
-                all_ok = false;
+                all_positive = false;
             }
         }
-        // Valid only if every parameter was attempted AND every attempted bracket succeeded on both
-        // sides. Otherwise the asymmetric errors are incomplete/unreliable and must not be trusted.
-        result.minos_valid = any && all_ok;
+        result.covariance_valid = all_positive;
     }
+}
 
-    return result;
+/******************************************************************************/
+/**
+ * @brief estimate() phase 3 (opt-in, low dimension): the MINOS asymmetric profiled bounds.
+ *
+ * For each parameter j and each side, find the distance from x_min[j] to where the PROFILE of the
+ * objective (re-minimised over all other parameters) rises by UP. Seeded from the symmetric error
+ * parameter_errors[j]. Opt-in and expensive (each bound runs repeated re-minimisations).
+ */
+void GHesseError::computeMinos(
+    GHesseErrorResult &result,
+    eval_fn_t const &eval_fn,
+    std::vector<double> const &x_min,
+    double f_min,
+    std::vector<double> const &step_sizes,
+    GHesseErrorOptions const &opts
+) {
+    const std::size_t n = x_min.size();
+
+    result.minos_low.assign(n, 0.);
+    result.minos_high.assign(n, 0.);
+    const double target = f_min + opts.up;
+    bool any = false;     // at least one parameter was attempted (had positive curvature)
+    bool all_ok = true;   // every attempted parameter bracketed BOTH sides
+    for(std::size_t j = 0; j < n; ++j) {
+        const double sigma = result.parameter_errors[j];
+        if(sigma <= 0.) {
+            all_ok = false; // a flat direction we could not even attempt -> result not fully valid
+            continue;       // no curvature / flat direction -> cannot bracket
+        }
+        auto gdev = [&](double xj) {
+            return profileMin(eval_fn, x_min, j, xj, step_sizes, result.n_evaluations) - target;
+        };
+        any = true;
+        const std::optional<double> high = minosBound(gdev, x_min[j], sigma);
+        const std::optional<double> low = minosBound(gdev, x_min[j], -sigma);
+        if(high && low) {
+            result.minos_high[j] = *high;
+            result.minos_low[j] = *low;
+        }
+        else {
+            // One or both sides could not be bracketed for this parameter: leave its bounds at 0
+            // and invalidate the whole MINOS estimate (the symmetric parameter_errors remain the
+            // usable fallback). We do NOT report a fabricated bound as a valid confidence interval.
+            all_ok = false;
+        }
+    }
+    // Valid only if every parameter was attempted AND every attempted bracket succeeded on both
+    // sides. Otherwise the asymmetric errors are incomplete/unreliable and must not be trusted.
+    result.minos_valid = any && all_ok;
 }
 
 /******************************************************************************/

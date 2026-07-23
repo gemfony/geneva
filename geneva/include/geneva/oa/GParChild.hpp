@@ -362,6 +362,12 @@ private:
 
     /** @brief This function assigns a new value to each child individual */
     void doRecombine();
+    /** @brief doRecombine() helper: builds the value-duplication weight (threshold) vector. */
+    [[nodiscard]] std::vector<double> buildRecombinationThresholds() const;
+    /** @brief doRecombine() fast path: sequential parent selection + parallel deep-copy (no cross-over). */
+    void recombineParallel(const std::vector<double> &threshold);
+    /** @brief doRecombine() serial path: per-child cross-over / duplication (original behaviour). */
+    void recombineSerial(const std::vector<double> &threshold);
 
     /***************************************************************************/
     // Data

@@ -152,6 +152,38 @@ public:
         std::vector<double> const &step_sizes,
         GHesseErrorOptions const &opts = GHesseErrorOptions{}
     );
+
+private:
+    /** @brief estimate() phase 1 (always): the diagonal Hessian, parameter-fixed errors, curvature
+     *  validity and condition number. Fills @p result and the diagonal curvatures @p hessian_diag. */
+    static void computeDiagonalHessian(
+        GHesseErrorResult &result,
+        eval_fn_t const &eval_fn,
+        std::vector<double> const &x_min,
+        double f_min,
+        std::vector<double> const &step_sizes,
+        GHesseErrorOptions const &opts,
+        std::vector<double> &hessian_diag
+    );
+    /** @brief estimate() phase 2 (opt-in, low dimension): the off-diagonal Hessian, its inverse ->
+     *  covariance, and the profiled (correlation-aware) errors. */
+    static void computeCovariance(
+        GHesseErrorResult &result,
+        eval_fn_t const &eval_fn,
+        std::vector<double> const &x_min,
+        std::vector<double> const &step_sizes,
+        GHesseErrorOptions const &opts,
+        std::vector<double> const &hessian_diag
+    );
+    /** @brief estimate() phase 3 (opt-in, low dimension): the MINOS asymmetric profiled bounds. */
+    static void computeMinos(
+        GHesseErrorResult &result,
+        eval_fn_t const &eval_fn,
+        std::vector<double> const &x_min,
+        double f_min,
+        std::vector<double> const &step_sizes,
+        GHesseErrorOptions const &opts
+    );
 };
 
 /******************************************************************************/
