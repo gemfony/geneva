@@ -41,6 +41,7 @@
 #include <limits>
 #include <set>
 #include <span>
+#include <string_view>
 #include <tuple>
 #include <type_traits>
 #include <utility>
@@ -48,6 +49,7 @@
 // Boost header files go here
 
 // Geneva headers go here
+#include "common/GBoilerplateT.hpp"
 #include "common/GCommonHelperFunctions.hpp"
 #include "common/GCommonHelperFunctionsT.hpp"
 #include "common/GCommonInterfaceT.hpp"
@@ -97,37 +99,46 @@ class GAdaptionConfigBase;
  * algorithms, such as a general call to "optimize()".
  */
 class GOptimizationAlgorithmBase // NOLINT(cppcoreguidelines-special-member-functions)
-  : public Gem::Common::GCommonInterfaceT<GOptimizationAlgorithmBase>
+  : public Gem::Common::GBoilerplateBaseT<
+        GOptimizationAlgorithmBase, Gem::Common::GCommonInterfaceT<GOptimizationAlgorithmBase>
+    >
   , public Gem::Common::GUniquePtrContainerT<gen::GOptimizableEntity>
   , public Interface::GOptimizerIT<GOptimizationAlgorithmBase> {
 private:
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
+    friend struct Gem::Common::GBoilerplateAccess;
 
     /***************************************************************************/
     /**
-     * Single declaration of this class'es local data members. This drives serialize(),
-     * load_() and compare_() from one place. Plain members use make_member(); the
-     * cloneable pointer container pluggable_monitors_cnt_ uses make_cloneable_container_member()
-     * (deep-cloned on load); the atomic halted_ uses make_atomic_member() (loaded via
-     * .store(.load()), compared via its loaded value, serialised through the existing
-     * std::atomic<bool> free serialization).
+     * Single declaration of this class'es local data members. This drives the
+     * GBoilerplateBaseT-generated serialize(), load_(), compare_() and name_() from one
+     * place. Plain members use make_member(); the cloneable pointer container
+     * pluggable_monitors_cnt_ uses make_cloneable_container_member() (deep-cloned on load);
+     * the atomic halted_ uses make_atomic_member() (loaded via .store(.load()), compared via
+     * its loaded value, serialised through the std::atomic<bool> free serialization).
      *
-     * Deliberately NOT in this tuple, and handled manually in load_()/compare_() instead:
-     *  - the container base GPtrContainerT<GOptimizableEntity> (a base-object, deep-copied
-     *    on load via operator=);
-     *  - best_iteration_individuals_pq_ (intentionally NOT persisted -- transient per
-     *    iteration; copied in memory by load_() and compared by compare_()).
+     * The two members that are NOT plain-and-serialized are expressed through their own
+     * descriptor kinds, so the whole class still derives from this one list:
+     *  - the population held by the GUniquePtrContainerT<GOptimizableEntity> base is tied in
+     *    as data_cnt_ via make_cloneable_container_member() (deep-cloned on load, element-wise
+     *    compared, serialized as a member) -- so that container stays a behaviour-only base and
+     *    needs no base_object handling, mirroring GBaseScanParT;
+     *  - best_iteration_individuals_pq_ is transient (per iteration) and must never be
+     *    persisted, yet two live algorithms are only equal if they agree on it, so it uses
+     *    make_transient_member() (skipped by serialize, copied on load, still compared).
      *
-     * cp_directory_path_ (std::filesystem::path) is included: it now serialises via the
-     * free serialization in GStdFilesystemPathSerialization.hpp and is plain-assignable
-     * in memory, so it needs no special handling anymore.
+     * cp_directory_path_ (std::filesystem::path) is a plain member: it serialises via the
+     * free serialization in GStdFilesystemPathSerialization.hpp and is plain-assignable in
+     * memory, so it needs no special handling.
      */
     // The member list is written ONCE, in the static template helper below; the two localMembers()
     // overloads are trivial forwarders. Self is deduced as the (const) class type.
     template <typename Self>
     auto localMembers_(this Self &self) {
         return std::make_tuple(
+            // The population held by the GUniquePtrContainerT base, tied in as a member (see above).
+            Gem::Common::make_cloneable_container_member("data_cnt_", self.data_cnt_),
             Gem::Common::make_member("iteration_", self.iteration_),
             Gem::Common::make_member("offset_", self.offset_),
             Gem::Common::make_member("max_iteration_", self.max_iteration_),
@@ -159,34 +170,31 @@ private:
             Gem::Common::make_member("worst_known_valids_cnt_", self.worst_known_valids_cnt_),
             Gem::Common::make_member("n_threads_", self.n_threads_),
             Gem::Common::make_atomic_member("halted_", self.halted_),
-            Gem::Common::make_cloneable_container_member("pluggable_monitors_cnt_", self.pluggable_monitors_cnt_)
+            Gem::Common::make_cloneable_container_member("pluggable_monitors_cnt_", self.pluggable_monitors_cnt_),
+            // Transient per-iteration best set: not persisted, but part of comparable identity (see above).
+            Gem::Common::make_transient_member("best_iteration_individuals_pq_", self.best_iteration_individuals_pq_)
         );
     }
 
+    /** @brief Disambiguating serialize(): both stateful bases in the inheritance set (the GBoilerplateBaseT
+     *  mixin and the GUniquePtrContainerT base) declare a serialize(), so this one-liner resolves the
+     *  ambiguity and emits the single member list -- which now ties in the container's population as
+     *  data_cnt_ and skips the transient best_iteration_individuals_pq_. The stateless GCommonInterfaceT
+     *  root and GOptimizerIT interface contribute nothing.
+     *  @tparam Archive The archive type used for (de-)serialization
+     *  @param ar The archive to serialize to / from
+     *  @param version The (unused) class version supplied by Boost.Serialization */
     template <typename Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
-        using boost::serialization::make_nvp;
-
-        // This is the CRTP category root. Its CRTP base
-        // (Gem::Common::GCommonInterfaceT<GOptimizationAlgorithmBase>) carries no state and is therefore
-        // not serialized as a base_object -- mirroring GObject, whose serialize() is
-        // likewise empty. Only the stateful container base (GPtrContainerT), which is
-        // a base-object rather than a local member, is serialized here.
-        ar &make_nvp(
-                "GStdPtrVectorInterfaceT_T",
-                boost::serialization::base_object<Gem::Common::GUniquePtrContainerT<gen::GOptimizableEntity>>(*this)
-            );
-
-        // All members are derived from the single localMembers() declaration: plain
-        // members serialise directly, the cloneable smart pointers (de)serialise as
-        // polymorphic pointers, and halted_ goes through the std::atomic<bool> free
-        // serialization.
         Gem::Common::serialize_members(ar, this->localMembers_());
     }
 
     ///////////////////////////////////////////////////////////////////////
 
 public:
+    /** @brief The class name, consumed by the GBoilerplateBaseT-generated name_() / compare token. */
+    static constexpr std::string_view class_name = "GOptimizationAlgorithmBase";
+
     // The private split-serialization member load(Archive&, unsigned) below
     // name-hides the public load(const&) / load(shared_ptr<>) inherited from
     // Gem::Common::GCommonInterfaceT<GOptimizationAlgorithmBase>. Re-expose them so callers (and
@@ -644,30 +652,10 @@ protected:
      * @param gpb A reference to the parser-builder that collects this algorithm's configuration options
      */
     void addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) override;
-    /**
-     * @brief Loads the data of another GOptimizationAlgorithm object.
-     * @param cp A pointer to another GOptimizationAlgorithmBase object to load from
-     */
-    void load_(const GOptimizationAlgorithmBase *cp) override;
-
-    /** @brief Allow access to this classes compare_ function */
-    friend void Gem::Common::compare_base_t<GOptimizationAlgorithmBase>(
-        GOptimizationAlgorithmBase const &,
-        GOptimizationAlgorithmBase const &,
-        Gem::Common::GToken &
-    );
-
-    /**
-     * @brief Searches for compliance with expectations with respect to another object of the same type.
-     * @param cp The other GOptimizationAlgorithmBase object to compare against
-     * @param e The expectation for this comparison, e.g. equality
-     * @param limit The limit for allowed deviations of floating point types
-     */
-    void compare_(
-        const GOptimizationAlgorithmBase &cp,
-        const Gem::Common::expectation &e,
-        const double &limit
-    ) const override;
+    // load_(), compare_() and name_() are generated by the Gem::Common::GBoilerplateBaseT base from
+    // class_name and the single localMembers_() declaration (which ties in the container base'es
+    // population as data_cnt_ and the transient best_iteration_individuals_pq_). clone_() stays pure
+    // here -- this is the abstract category root; each concrete algorithm supplies it via GBoilerplateT.
 
     /** @brief Resets the class to the state before the optimize call. */
     virtual void resetToOptimizationStart_();
@@ -875,11 +863,6 @@ private:
      * @return A pointer to this algorithm after the optimization run has completed
      */
     GOptimizationAlgorithmBase const *optimize_(std::uint32_t offset) final;
-    /**
-     * @brief Emits a name for this class / object; this can be a long name with spaces.
-     * @return The name of this class / object
-     */
-    std::string name_() const override = 0;
     /**
      * @brief Creates a deep clone of this object.
      * @return A newly allocated deep copy of this object

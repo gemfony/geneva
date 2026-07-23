@@ -78,17 +78,16 @@ namespace Gem::Geneva::OptimizationAlgorithms {
  * @param cp A constant reference to another GOptimizationAlgorithmBase object
  */
 GOptimizationAlgorithmBase::GOptimizationAlgorithmBase(const GOptimizationAlgorithmBase &cp)
-  : Gem::Common::GCommonInterfaceT<GOptimizationAlgorithmBase>(cp)
-  , Gem::Common::GUniquePtrContainerT<gen::GOptimizableEntity>(cp) {
-    // All local data is copied from the single localMembers_() declaration -- the same
-    // machinery load_() uses -- so this constructor cannot drift from the member list:
-    // plain members are assigned, the cloneable monitor container is deep-cloned and the
-    // atomic halted_ is transferred via .store(.load()).
+  : Gem::Common::GBoilerplateBaseT<
+        GOptimizationAlgorithmBase, Gem::Common::GCommonInterfaceT<GOptimizationAlgorithmBase>
+    >(cp) {
+    // All local data -- including the container base'es population (tied in as data_cnt_) and the
+    // transient best_iteration_individuals_pq_ -- is copied from the single localMembers_() declaration,
+    // the same machinery load_() uses, so this constructor cannot drift from the member list: plain
+    // members are assigned, the cloneable containers are deep-cloned, halted_ is transferred via
+    // .store(.load()) and the transient pq is copied. The container base is left default-constructed
+    // above; g_load_members deep-clones the population into it.
     Gem::Common::g_load_members(this->localMembers_(), cp.localMembers_());
-
-    // best_iteration_individuals_pq_ is transient (per iteration) and deliberately not part
-    // of localMembers_(); it is copied in memory here, mirroring load_().
-    best_iteration_individuals_pq_ = cp.best_iteration_individuals_pq_;
 
     // A copied algorithm starts a NEW run: its iteration offset reverts to the default
     // instead of inheriting a chaining offset from the source.
@@ -420,53 +419,6 @@ void GOptimizationAlgorithmBase::setRemoveCheckpointFiles(bool cp_remove) {
  */
 bool GOptimizationAlgorithmBase::checkpointFilesAreRemoved() const {
     return cp_remove_;
-}
-
-/******************************************************************************/
-/**
- * Searches for compliance with expectations with respect to another object
- * of the same type
- *
- * @param cp A constant reference to another GOptimizationAlgorithmBase object
- * @param e The expected outcome of the comparison
- * @param limit The maximum deviation for floating point values (important for similarity checks)
- */
-void GOptimizationAlgorithmBase::compare_(
-    const GOptimizationAlgorithmBase &cp,
-    const Gem::Common::expectation &e,
-    [[maybe_unused]] const double & limit
-) const {
-    using namespace Gem::Common;
-
-    // Check that we are dealing with a GOptimizationAlgorithmBase reference independent of this object and convert the pointer
-    const auto *p_load =
-        Gem::Common::g_convert_and_compare<GOptimizationAlgorithmBase, GOptimizationAlgorithmBase>(cp, this);
-
-    GToken token("GOptimizationAlgorithmBase", e);
-
-    // Compare our CRTP base data (the category root has no GObject parent) ...
-    Gem::Common::compare_base_t<Gem::Common::GCommonInterfaceT<GOptimizationAlgorithmBase>>(*this, *p_load, token);
-
-    // The container base'es data (the population) -- compared explicitly, as it is a
-    // base-object rather than a local member.
-    compare_t(
-        Gem::Common::getIdentity(this->data_cnt_, p_load->data_cnt_, "this->data_cnt_", "p_load->data_cnt_"),
-        token
-    ); // This allows us to compare the parent class without directly referring to it.
-
-    // ... all the local data (plain members, cloneable pointers, and the atomic
-    // halted_), derived from the single localMembers() declaration ...
-    Gem::Common::g_compare_members(this->localMembers_(), p_load->localMembers_(), token);
-
-    // ... and finally best_iteration_individuals_pq_, which is intentionally not
-    // persisted (so it is not part of localMembers()) but is still compared.
-    compare_t(
-        Gem::Common::getIdentity(best_iteration_individuals_pq_, p_load->best_iteration_individuals_pq_, "best_iteration_individuals_pq_", "p_load->best_iteration_individuals_pq_"),
-        token
-    );
-
-    // React on deviations from the expectation
-    token.evaluate();
 }
 
 /******************************************************************************/
@@ -1482,31 +1434,6 @@ bool GOptimizationAlgorithmBase::cp_personality_fits(const std::filesystem::path
 
     // Make sure it fits our own algorithm
     return opt_desc == this->getAlgorithmPersonalityType();
-}
-
-/******************************************************************************/
-/**
- * Loads the data of another GOptimizationAlgorithm object
- *
- * @param cp Another GOptimizationAlgorithm object
- */
-void GOptimizationAlgorithmBase::load_(const GOptimizationAlgorithmBase *cp) {
-    // Check that we are dealing with a GOptimizationAlgorithmBase reference independent of this object and convert the pointer
-    const auto *p_load =
-        Gem::Common::g_convert_and_compare<GOptimizationAlgorithmBase, GOptimizationAlgorithmBase>(cp, this);
-
-    // This is the category root; there is no GObject parent class to load.
-    // Load the stateful base classes' data
-    Gem::Common::GUniquePtrContainerT<gen::GOptimizableEntity>::operator=(*p_load);
-
-    // All local data, derived from the single localMembers() declaration: plain members
-    // are assigned, the cloneable container pluggable_monitors_cnt_ is deep-cloned, and
-    // halted_ (atomic) is loaded via .store(.load()) -- the tie dispatches on the member kind.
-    Gem::Common::g_load_members(this->localMembers_(), p_load->localMembers_());
-
-    // best_iteration_individuals_pq_ is intentionally not persisted (transient per
-    // iteration), so it is not part of localMembers(); copied in memory here.
-    best_iteration_individuals_pq_ = p_load->best_iteration_individuals_pq_;
 }
 
 /******************************************************************************/
