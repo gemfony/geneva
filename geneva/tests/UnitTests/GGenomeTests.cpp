@@ -93,6 +93,25 @@ namespace oa = Gem::Geneva::OptimizationAlgorithms;
 namespace Gem::Tests {
 
 /******************************************************************************/
+// b2 guard (compile-time regression): GGenomeT's generated empty localMembers_() is gated on the
+// public `gemfony_flat_individual` marker. A tagged genome-only leaf resolves a viable localMembers_();
+// an UNtagged leaf that also declares no own localMembers_() has NONE -- GGenomeT's default is
+// constrained out and the GBoilerplateBaseT fallback is =deleted -- so GBoilerplateAccess::members()
+// is ill-formed and the class cannot compile. This pins the guard so a stateful leaf can never silently
+// drop its state (Inv 15). The unmarked probe is only ever named in an unevaluated context, so its
+// virtuals / vtable are never instantiated and it never hard-errors here.
+namespace {
+struct FlatTaggedProbe : public GGenomeT<FlatTaggedProbe> {
+    using gemfony_flat_individual = void; // opts into the generated empty member list
+};
+struct FlatUntaggedProbe : public GGenomeT<FlatUntaggedProbe> {}; // no marker AND no own localMembers_()
+static_assert(Gem::Common::GBoilerplateAccess::has_members<FlatTaggedProbe>,
+    "b2: a marked genome-only leaf must resolve GGenomeT's generated empty member list");
+static_assert(!Gem::Common::GBoilerplateAccess::has_members<FlatUntaggedProbe>,
+    "b2: an unmarked leaf with no own localMembers_() must NOT resolve a member list (guard rotted)");
+} // namespace
+
+/******************************************************************************/
 /**
  * A minimal flat individual: a sphere over n constrained doubles sharing one Gauss adaptor. It
  * demonstrates the intended authoring effort -- a constructor that builds the genome, a
@@ -100,6 +119,8 @@ namespace Gem::Tests {
  * GGenome.
  */
 class Sphere : public GGenomeT<Sphere> {
+public:
+    using gemfony_flat_individual = void; // b2: genome-only flat leaf -- opt into GGenomeT's empty localMembers_()
 public:
     Sphere() { buildGenome(5); }
     explicit Sphere(std::size_t n) { buildGenome(n); }
@@ -146,6 +167,8 @@ private:
  * constructor leaves the genome empty -- the factory installs it via setGenome() in postProcess_.
  */
 class FactorySphere : public GGenomeT<FactorySphere> {
+public:
+    using gemfony_flat_individual = void; // b2: genome-only flat leaf -- opt into GGenomeT's empty localMembers_()
 public:
     FactorySphere() = default; // the factory installs the genome
     FactorySphere(const FactorySphere &) = default;
@@ -770,6 +793,8 @@ namespace Gem::Tests {
 
 class Mixed : public GGenomeT<Mixed> {
 public:
+    using gemfony_flat_individual = void; // b2: genome-only flat leaf -- opt into GGenomeT's empty localMembers_()
+public:
     Mixed() {
         GGenomeBuilder b;
         b.addDoubleGroup(3, -5., 5.).init(2.0); // structure only; the adaptors live on the OA config
@@ -809,6 +834,8 @@ private:
  * test confirms both int adaptor kinds coexist on the same channel.
  */
 class IntGauss : public GGenomeT<IntGauss> {
+public:
+    using gemfony_flat_individual = void; // b2: genome-only flat leaf -- opt into GGenomeT's empty localMembers_()
 public:
     IntGauss() {
         GGenomeBuilder b;
@@ -850,6 +877,8 @@ private:
  * the first to a peer carries only a 16-byte layout id.
  */
 class ManyGroups : public GGenomeT<ManyGroups> {
+public:
+    using gemfony_flat_individual = void; // b2: genome-only flat leaf -- opt into GGenomeT's empty localMembers_()
 public:
     ManyGroups() { build(64); }
     explicit ManyGroups(std::size_t n) { build(n); }

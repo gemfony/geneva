@@ -64,6 +64,8 @@ namespace oa = Gem::Geneva::OptimizationAlgorithms;
  * evaluate() remain.
  */
 class GDemoIndividual : public gen::GGenomeT<GDemoIndividual> {
+public:
+    using gemfony_flat_individual = void; // b2: genome-only flat leaf -- opt into GGenomeT's empty localMembers_()
     friend class boost::serialization::access;
 
     template <typename Archive>

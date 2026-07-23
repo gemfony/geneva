@@ -103,6 +103,25 @@ struct GBoilerplateAccess {
     static void postLoad(T &self) {
         self.postLoad_();
     }
+
+    /**
+     * @brief SFINAE-safe test of whether T resolves a usable localMembers_().
+     *
+     * Unlike members() -- whose deduced (auto) return type forces the callee's
+     * body to be instantiated, turning a class with NO viable localMembers_() into
+     * a hard error rather than a substitution failure -- this checks only call
+     * *resolvability*. A constrained localMembers_() whose constraint is
+     * unsatisfied (e.g. GGenomeT's marker-gated default without the opt-in marker)
+     * is discarded during overload resolution, and the =deleted GBoilerplateBaseT
+     * fallback is non-viable, so no candidate is selected and this simply yields
+     * false instead of failing to compile. It is routed through this friend shim
+     * so the private localMembers_() is reachable, and it never instantiates a
+     * viable candidate's body beyond what overload resolution already requires.
+     *
+     * @tparam T The (possibly const-qualified) managed class type
+     */
+    template <typename T>
+    static constexpr bool has_members = requires(T &t) { t.localMembers_(); };
 };
 
 /******************************************************************************/

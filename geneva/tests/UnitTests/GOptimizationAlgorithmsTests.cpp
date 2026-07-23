@@ -90,6 +90,8 @@ constexpr std::size_t N_DIM = 5;
  */
 class SphereOA : public gen::GGenomeT<SphereOA> {
 public:
+    using gemfony_flat_individual = void; // b2: genome-only flat leaf -- opt into GGenomeT's empty localMembers_()
+public:
     SphereOA() {
         gen::GGenomeBuilder b;
         b.addDoubleGroup(N_DIM, -5., 5.).init(3.0); // structure only; the adaptor lives on the OA config
@@ -128,6 +130,8 @@ protected:
  */
 class SphereWideOA : public gen::GGenomeT<SphereWideOA> {
 public:
+    using gemfony_flat_individual = void; // b2: genome-only flat leaf -- opt into GGenomeT's empty localMembers_()
+public:
     SphereWideOA() {
         gen::GGenomeBuilder b;
         b.addDoubleGroup(N_DIM, -25., 25.).init(3.0);
@@ -153,6 +157,8 @@ protected:
  * constrained doubles in [-5, 5), started at 3.0. Demonstrates the bi-gauss kernel end-to-end.
  */
 class BiGaussSphereOA : public gen::GGenomeT<BiGaussSphereOA> {
+public:
+    using gemfony_flat_individual = void; // b2: genome-only flat leaf -- opt into GGenomeT's empty localMembers_()
 public:
     BiGaussSphereOA() {
         gen::GGenomeBuilder b;
@@ -193,6 +199,8 @@ constexpr std::size_t N_INT = 5;
 
 class IntSphereOA : public gen::GGenomeT<IntSphereOA> {
 public:
+    using gemfony_flat_individual = void; // b2: genome-only flat leaf -- opt into GGenomeT's empty localMembers_()
+public:
     IntSphereOA() {
         gen::GGenomeBuilder b;
         b.addInt32Group(N_INT, -10, 10).init(7); // structure only; the adaptor lives on the OA config
@@ -227,6 +235,8 @@ protected:
 constexpr std::size_t N_BOOL = 16;
 
 class OneMaxOA : public gen::GGenomeT<OneMaxOA> {
+public:
+    using gemfony_flat_individual = void; // b2: genome-only flat leaf -- opt into GGenomeT's empty localMembers_()
 public:
     OneMaxOA() {
         gen::GGenomeBuilder b;
@@ -264,6 +274,8 @@ protected:
  */
 class FrozenOA : public gen::GGenomeT<FrozenOA> {
 public:
+    using gemfony_flat_individual = void; // b2: genome-only flat leaf -- opt into GGenomeT's empty localMembers_()
+public:
     FrozenOA() {
         gen::GGenomeBuilder b;
         b.addDoubleGroup(2, -5., 5.).init(3.0);
@@ -296,6 +308,8 @@ std::vector<std::pair<double, double>> g_scan_pair_samples; ///< every (x, y) th
 /** @brief A single-int32 probe (genome bound [-10, 10]) recording each evaluated int value. */
 class ScanIntProbe : public gen::GGenomeT<ScanIntProbe> {
 public:
+    using gemfony_flat_individual = void; // b2: genome-only flat leaf -- opt into GGenomeT's empty localMembers_()
+public:
     ScanIntProbe() {
         gen::GGenomeBuilder b;
         b.addInt32Group(1, -10, 10).init(0);
@@ -317,6 +331,8 @@ protected:
 
 /** @brief A two-double probe (genome bounds [-5, 5)) recording each evaluated (x, y) pair. */
 class ScanPairProbe : public gen::GGenomeT<ScanPairProbe> {
+public:
+    using gemfony_flat_individual = void; // b2: genome-only flat leaf -- opt into GGenomeT's empty localMembers_()
 public:
     ScanPairProbe() {
         gen::GGenomeBuilder b;
@@ -345,6 +361,8 @@ protected:
  *  exercise the n_vert == 2 (1-D) Nelder-Mead simplex path. */
 class Sphere1D : public gen::GGenomeT<Sphere1D> {
 public:
+    using gemfony_flat_individual = void; // b2: genome-only flat leaf -- opt into GGenomeT's empty localMembers_()
+public:
     Sphere1D() {
         gen::GGenomeBuilder b;
         b.addDoubleGroup(1, -5., 5.).init(3.0);
@@ -364,6 +382,8 @@ protected:
  *  [5, -5]. The genome builder does not reject this, so it is used to confirm the swarm rejects the
  *  resulting negative velocity range with a clear error instead of hitting undefined behaviour. */
 class InvertedBoundsOA : public gen::GGenomeT<InvertedBoundsOA> {
+public:
+    using gemfony_flat_individual = void; // b2: genome-only flat leaf -- opt into GGenomeT's empty localMembers_()
 public:
     InvertedBoundsOA() {
         gen::GGenomeBuilder b;
@@ -388,6 +408,8 @@ protected:
  *  Used to confirm sep-CMA-ES (an FP-only evolution strategy) optimizes the doubles, leaves the integers
  *  at their start values, and warns rather than crashing on the non-FP parameters. */
 class MixedOA : public gen::GGenomeT<MixedOA> {
+public:
+    using gemfony_flat_individual = void; // b2: genome-only flat leaf -- opt into GGenomeT's empty localMembers_()
 public:
     MixedOA() {
         gen::GGenomeBuilder b;
@@ -1331,6 +1353,8 @@ namespace {
 template <std::size_t N>
 class HighDimSphere : public gen::GGenomeT<HighDimSphere<N>> {
 public:
+    using gemfony_flat_individual = void; // b2: genome-only flat leaf -- opt into GGenomeT's empty localMembers_()
+public:
     HighDimSphere() {
         gen::GGenomeBuilder b;
         b.addDoubleGroup(N, -5., 5.).init(3.0);
@@ -1374,6 +1398,8 @@ double sphereValue(const std::shared_ptr<gen::GOptimizableEntity> &best) {
  * selection smoke test.
  */
 class BiObjective : public gen::GGenomeT<BiObjective> {
+public:
+    using gemfony_flat_individual = void; // b2: genome-only flat leaf -- opt into GGenomeT's empty localMembers_()
 public:
     BiObjective() {
         gen::GGenomeBuilder b;

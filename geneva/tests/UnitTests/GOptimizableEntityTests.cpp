@@ -68,6 +68,8 @@ namespace Gem::Tests {
  */
 class NewSphere : public GGenomeT<NewSphere> {
 public:
+    using gemfony_flat_individual = void; // b2: genome-only flat leaf -- opt into GGenomeT's empty localMembers_()
+public:
     NewSphere() { buildGenome(3, 2, 4); }
     NewSphere(std::size_t nd, std::size_t ni, std::size_t nb) { buildGenome(nd, ni, nb); }
     NewSphere(const NewSphere &) = default;
@@ -122,6 +124,8 @@ namespace Gem::Tests {
  */
 class SeamSphere : public GGenomeT<SeamSphere> {
 public:
+    using gemfony_flat_individual = void; // b2: genome-only flat leaf -- opt into GGenomeT's empty localMembers_()
+public:
     SeamSphere() {
         GGenomeBuilder b;
         b.addDoubleGroup(3, -10., 10.).init(1.0); // structure only
@@ -155,6 +159,8 @@ private:
  * Used to prove the dispatch's secondary-result handling matches the res_vec / virtual paths.
  */
 class SeamMulti : public GGenomeT<SeamMulti> {
+public:
+    using gemfony_flat_individual = void; // b2: genome-only flat leaf -- opt into GGenomeT's empty localMembers_()
 public:
     SeamMulti() {
         GGenomeBuilder b;
@@ -428,6 +434,8 @@ TEST_CASE("GProblemStoreT: loads once and reads immutably", "[candidate][store]"
 namespace Gem::Tests {
 
 class ErrorFlaggingSphere : public GGenomeT<ErrorFlaggingSphere> {
+public:
+    using gemfony_flat_individual = void; // b2: genome-only flat leaf -- opt into GGenomeT's empty localMembers_()
 public:
     ErrorFlaggingSphere() {
         GGenomeBuilder b;

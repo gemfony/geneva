@@ -68,6 +68,8 @@ namespace Gem::Tests {
 /** A minimal flat individual: a sphere over a single double channel. */
 class LRSphere : public GGenomeT<LRSphere> {
 public:
+    using gemfony_flat_individual = void; // b2: genome-only flat leaf -- opt into GGenomeT's empty localMembers_()
+public:
     LRSphere() {
         GGenomeBuilder b;
         b.addDoubleGroup(2, -10., 10.).init(1.0);
@@ -97,6 +99,8 @@ private:
 /******************************************************************************/
 /** A flat individual whose evaluation always throws, used to manufacture an errored work item. */
 class LRThrower : public GGenomeT<LRThrower> {
+public:
+    using gemfony_flat_individual = void; // b2: genome-only flat leaf -- opt into GGenomeT's empty localMembers_()
 public:
     LRThrower() {
         GGenomeBuilder b;

@@ -64,6 +64,8 @@ namespace {
 /** @brief A tiny flat sphere: 3 constrained doubles in [-5, 5), started at 3.0. The inner problem. */
 class InnerSphere : public gen::GGenomeT<InnerSphere> {
 public:
+    using gemfony_flat_individual = void; // b2: genome-only flat leaf -- opt into GGenomeT's empty localMembers_()
+public:
     InnerSphere() {
         gen::GGenomeBuilder b;
         b.addDoubleGroup(3, -5., 5.).init(3.0);
@@ -95,6 +97,8 @@ protected:
  * one constrained double (so the outer EA has something to adapt); the value is unused.
  */
 class MetaSphere : public gen::GGenomeT<MetaSphere> {
+public:
+    using gemfony_flat_individual = void; // b2: genome-only flat leaf -- opt into GGenomeT's empty localMembers_()
 public:
     MetaSphere() {
         gen::GGenomeBuilder b;

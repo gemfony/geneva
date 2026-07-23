@@ -60,6 +60,8 @@ namespace Gem::Tests {
 /** A minimal flat individual: a sphere over a single double group. Fresh instances are DO_PROCESS. */
 class FISphere : public GGenomeT<FISphere> {
 public:
+    using gemfony_flat_individual = void; // b2: genome-only flat leaf -- opt into GGenomeT's empty localMembers_()
+public:
     FISphere() {
         GGenomeBuilder b;
         b.addDoubleGroup(2, -10., 10.).init(1.0);
