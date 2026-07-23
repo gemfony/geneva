@@ -59,7 +59,7 @@ GFMinIndividual::GFMinIndividual() { /* nothing */
  * @param cp A copy of another GFunctionIndidivual
  */
 GFMinIndividual::GFMinIndividual(const GFMinIndividual &cp)
-  : gen::GGenome(cp)
+  : gen::GGenomeT<GFMinIndividual>(cp)
   , targetFunction_(cp.targetFunction_)
   , seed_sigma_(cp.seed_sigma_) { /* nothing */
 }
@@ -106,35 +106,6 @@ double GFMinIndividual::getAverageSigma() const {
     // individual queried in isolation (as here) is detached from its slot, so this reports the configured
     // SEED sigma the factory stamped at construction.
     return seed_sigma_;
-}
-
-/******************************************************************************/
-/**
- * Loads the data of another GFMinIndividual, camouflaged as a GOptimizableEntity
- *
- * @param cp A copy of another GFMinIndividual, camouflaged as a GOptimizableEntity
- */
-void GFMinIndividual::load_(const gen::GOptimizableEntity *cp) {
-    // Check that we are dealing with a GFMinIndividual reference independent of this object and convert the pointer
-    const GFMinIndividual *p_load =
-        Gem::Common::g_convert_and_compare<gen::GOptimizableEntity, GFMinIndividual>(cp, this);
-
-    // Load our parent class'es data ...
-    gen::GGenome::load_(cp);
-
-    // ... and then our local data
-    targetFunction_ = p_load->targetFunction_;
-    seed_sigma_ = p_load->seed_sigma_;
-}
-
-/******************************************************************************/
-/**
- * Creates a deep clone of this object
- *
- * @return A deep clone of this object, camouflaged as a GGenome
- */
-gen::GGenome *GFMinIndividual::clone_() const {
-    return new GFMinIndividual(*this);
 }
 
 /******************************************************************************/

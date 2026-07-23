@@ -282,38 +282,6 @@ GImageIndividual::buildAdaptionConfig(const gen::GGenome &sample, const Config &
     return cfg;
 }
 
-/***************************************************************************/
-/**
-	 * Searches for compliance with expectations with respect to another object
-	 * of the same type
-	 *
-	 * @param cp A constant reference to another GOptimizableEntity object
-	 * @param e The expected outcome of the comparison
-	 * @param limit The maximum deviation for floating point values (important for similarity checks)
-	 */
-void GImageIndividual::compare_(
-    const gen::GOptimizableEntity &cp,
-    const Gem::Common::expectation &e,
-    const double &limit
-) const {
-    using namespace Gem::Common;
-
-    // Check that we are dealing with a GImageIndividual reference independent of this object and convert the pointer
-    const GImageIndividual *p_load =
-        Gem::Common::g_convert_and_compare<gen::GOptimizableEntity, GImageIndividual>(cp, this);
-
-    GToken token("GImageIndividual", e);
-
-    // Compare our parent data ...
-    Gem::Common::compare_base_t<gen::GGenome>(*this, *p_load, token);
-
-    // ... and then the local data
-    Gem::Common::g_compare_members(this->localMembers_(), p_load->localMembers_(), token);
-
-    // React on deviations from the expectation
-    token.evaluate();
-}
-
 /*******************************************************************************************/
 /**
 	 * Retrieves the number of triangles
@@ -396,34 +364,6 @@ std::vector<CircleTriangle> GImageIndividual::getTriangleData() const {
     }
 
     return circle_cnt;
-}
-
-/******************************************************************************/
-/**
-	 * Loads the data of another GImageIndividual, camouflaged as a GGenome.
-	 *
-	 * @param cp A copy of another GImageIndividual, camouflaged as a GGenome
-	 */
-void GImageIndividual::load_(const gen::GOptimizableEntity *cp) {
-    // Check that we are indeed dealing with a GImageIndividual reference
-    const GImageIndividual *p_load =
-        Gem::Common::g_convert_and_compare<gen::GOptimizableEntity, GImageIndividual>(cp, this);
-
-    // Load our parent's data
-    gen::GGenome::load_(cp);
-
-    // Load local data
-    Gem::Common::g_load_members(this->localMembers_(), p_load->localMembers_());
-}
-
-/******************************************************************************/
-/**
-	 * Creates a deep clone of this object
-	 *
-	 * @return A deep clone of this object, camouflaged as a GGenome
-	 */
-gen::GGenome *GImageIndividual::clone_() const {
-    return new GImageIndividual(*this);
 }
 
 /******************************************************************************/

@@ -87,16 +87,6 @@ std::ostream &operator<<(
 
 /******************************************************************************/
 /**
-     * Creates a deep clone of this object
-     *
-     * @return A deep clone of this object, camouflaged as a GGenome
-     */
-gen::GGenome *GMultiCriterionParabolaIndividual::clone_() const {
-    return new GMultiCriterionParabolaIndividual(*this);
-}
-
-/******************************************************************************/
-/**
      * The evaluation hook: one parabola per criterion around its own minimum, with the minima read from the
      * module's load-once store. The first entry is the main result.
      *

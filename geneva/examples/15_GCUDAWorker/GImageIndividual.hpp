@@ -63,6 +63,7 @@
 #include "common/GSingletonT.hpp"
 #include "common/GUnitTestFrameworkT.hpp"
 #include "geneva/ind/GGenome.hpp"
+#include "geneva/ind/GGenomeT.hpp"
 #include "geneva/ind/GIndividualFactory.hpp"
 #include "geneva/ind/GGenomeBuilder.hpp"
 
@@ -137,13 +138,16 @@ std::ostream &operator<<(std::ostream &, const CircleTriangle &);
      * that most closely resembles a given picture. It was developed
      * for evaluation using CUDA on a GPU.
      */
-class GImageIndividual final : public gen::GGenome {
+class GImageIndividual final : public gen::GGenomeT<GImageIndividual> {
     ///////////////////////////////////////////////////////////////////////
+    // Boost still default-constructs the concrete type on load; GBoilerplateAccess lets the mixin reach
+    // the private localMembers_() below (from which serialize/load_/compare_/clone_/name_ are generated).
     friend class boost::serialization::access;
+    friend struct Gem::Common::GBoilerplateAccess;
 
     /**
      * @brief Single declaration of this class'es local data members
-     * @return A tuple of named member references driving serialize(), load_() and compare_()
+     * @return A tuple of named member references driving the generated serialize()/load_()/compare_()
      */
     template <typename Self>
     auto localMembers_(this Self &self) {
@@ -157,21 +161,12 @@ class GImageIndividual final : public gen::GGenome {
         );
     }
 
-    template <typename Archive>
-    void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
-        using boost::serialization::make_nvp;
-        // The member list is derived from the single localMembers() declaration so
-        // serialize()/load_()/compare_() stay in sync. The image dimensions and the
-        // background / alpha mutation flags are now on the wire too (they were
-        // previously dropped, leaving a networked worker or a resumed checkpoint with
-        // default dimensions / flags while load_()/compare_() already carried them).
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gen::GGenome);
-        Gem::Common::serialize_members(ar, this->localMembers_());
-    }
-
     ///////////////////////////////////////////////////////////////////////
 
 public:
+    /** @brief The class name, consumed by the GBoilerplateT-generated name_() and compare token. */
+    static constexpr std::string_view class_name = "GImageIndividual";
+
     /******************************************************************************/
     /** @brief The default constructor. All real work is done in the init()-Function */
     GImageIndividual() = default;
@@ -267,20 +262,6 @@ public:
     }
 
 protected:
-    /******************************************************************************/
-    /** @brief Allow access to this classes compare_ function */
-    friend void Gem::Common::compare_base_t<GImageIndividual>(
-        GImageIndividual const &,
-        GImageIndividual const &,
-        Gem::Common::GToken &
-    );
-
-    /** @brief Searches for compliance with expectations with respect to another object of the same type */
-    void compare_(const gen::GOptimizableEntity &, const Gem::Common::expectation &, const double &) const override;
-
-    /** @brief Loads the data of another GImageIndividual */
-    void load_(const gen::GOptimizableEntity *) override;
-
     /** @brief The evaluation hook: the CPU render+score of the genome's triangles against the process-wide
      *  target image (Gem::Geneva::MonaLisa::scoreAgainstTarget) -- the SAME render+score the GPU kernel uses,
      *  so it doubles as the device cross-check reference. Reads only the genome and the shared target store.
@@ -288,10 +269,6 @@ protected:
     std::vector<double> evaluate() override;
 
 private:
-    /******************************************************************************/
-    /** @brief Creates a deep clone of this object */
-    gen::GGenome *clone_() const override;
-
     /******************************************************************************/
     // Local parameters
     int width_{GII_DEF_IMAGE_WIDTH}, height_{GII_DEF_IMAGE_HEIGHT}; ///< Image dimensions

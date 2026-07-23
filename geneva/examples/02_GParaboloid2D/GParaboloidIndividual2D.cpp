@@ -138,7 +138,7 @@ GParaboloidIndividual2D::buildAdaptionConfig(const gen::GGenome &sample, [[maybe
  * @param cp A copy of another GParaboloidIndividual2D
  */
 GParaboloidIndividual2D::GParaboloidIndividual2D(const GParaboloidIndividual2D &cp)
-  : gen::GGenome(cp)
+  : gen::GGenomeT<GParaboloidIndividual2D>(cp)
   , M_PAR_MIN(-10.)
   , M_PAR_MAX(10) { /* nothing */
 }
@@ -149,34 +149,6 @@ GParaboloidIndividual2D::GParaboloidIndividual2D(const GParaboloidIndividual2D &
  * by the base class; no manual cleanup is required.
  */
 GParaboloidIndividual2D::~GParaboloidIndividual2D() { /* nothing */
-}
-
-/********************************************************************************************/
-/**
- * Loads the data of another GParaboloidIndividual2D, camouflaged as a GOptimizableEntity.
- *
- * @param cp A copy of another GParaboloidIndividual2D, camouflaged as a GOptimizableEntity
- */
-void GParaboloidIndividual2D::load_(const gen::GOptimizableEntity *cp) {
-    // Check that we are dealing with a GParaboloidIndividual2D reference independent of this object and convert the pointer
-    const GParaboloidIndividual2D *p_load =
-        Gem::Common::g_convert_and_compare<gen::GOptimizableEntity, GParaboloidIndividual2D>(cp, this);
-
-    // Load our parent's data
-    gen::GGenome::load_(cp);
-
-    // No local data
-    // sampleVariable = p_load->sampleVariable;
-}
-
-/********************************************************************************************/
-/**
- * Creates a deep clone of this object
- *
- * @return A deep clone of this object, camouflaged as a GGenome
- */
-gen::GGenome *GParaboloidIndividual2D::clone_() const {
-    return new GParaboloidIndividual2D(*this);
 }
 
 /********************************************************************************************/

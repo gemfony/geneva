@@ -98,7 +98,7 @@ GStarterIndividual::GStarterIndividual(
  * @param cp A copy of another GStarterIndividual
  */
 GStarterIndividual::GStarterIndividual(const GStarterIndividual &cp)
-  : gen::GGenome(cp)
+  : gen::GGenomeT<GStarterIndividual>(cp)
   , targetFunction_(cp.targetFunction_) { /* nothing */
 }
 
@@ -107,38 +107,6 @@ GStarterIndividual::GStarterIndividual(const GStarterIndividual &cp)
  * The standard destructor
  */
 GStarterIndividual::~GStarterIndividual() { /* nothing */
-}
-
-/******************************************************************************/
-/**
- * Searches for compliance with expectations with respect to another object
- * of the same type
- *
- * @param cp A constant reference to another GStarterIndividual object
- * @param e The expected outcome of the comparison
- * @param limit The maximum deviation for floating point values (important for similarity checks)
- */
-void GStarterIndividual::compare_(
-    const gen::GOptimizableEntity &cp,
-    const Gem::Common::expectation &e,
-    const double &limit
-) const {
-    using namespace Gem::Common;
-
-    // Check that we are dealing with a GStarterIndividual reference independent of this object and convert the pointer
-    const GStarterIndividual *p_load =
-        Gem::Common::g_convert_and_compare<gen::GOptimizableEntity, GStarterIndividual>(&cp, this);
-
-    Gem::Common::GToken token("GStarterIndividual", e);
-
-    // Compare our parent data ...
-    Gem::Common::compare_base_t<gen::GGenome>(*this, *p_load, token);
-
-    // ... and then the local data
-    Gem::Common::g_compare_members(this->localMembers_(), p_load->localMembers_(), token);
-
-    // React on deviations from the expectation
-    token.evaluate();
 }
 
 /*******************************************************************************************/
@@ -202,34 +170,6 @@ std::string GStarterIndividual::print() {
     }
 
     return result.str();
-}
-
-/******************************************************************************/
-/**
- * Loads the data of another GStarterIndividual, camouflaged as a GGenome
- *
- * @param cp A copy of another GStarterIndividual, camouflaged as a GGenome
- */
-void GStarterIndividual::load_(const gen::GOptimizableEntity *cp) {
-    // Check that we are dealing with a GStarterIndividual reference independent of this object and convert the pointer
-    const GStarterIndividual *p_load =
-        Gem::Common::g_convert_and_compare<gen::GOptimizableEntity, GStarterIndividual>(cp, this);
-
-    // Load our parent class'es data ...
-    gen::GGenome::load_(cp);
-
-    // ... and then our local data
-    Gem::Common::g_load_members(this->localMembers_(), p_load->localMembers_());
-}
-
-/******************************************************************************/
-/**
- * Creates a deep clone of this object
- *
- * @return A deep clone of this object, camouflaged as a GGenome
- */
-gen::GGenome *GStarterIndividual::clone_() const {
-    return new GStarterIndividual(*this);
 }
 
 /******************************************************************************/

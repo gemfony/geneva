@@ -49,6 +49,7 @@
 #include "common/GParserBuilder.hpp"
 #include "common/GSerializationHelperFunctionsT.hpp"
 #include "geneva/ind/GGenome.hpp"
+#include "geneva/ind/GGenomeT.hpp"
 #include "geneva/ind/GIndividualFactory.hpp"
 #include "geneva/ind/GGenomeBuilder.hpp"
 #include <filesystem>
@@ -102,19 +103,30 @@ const targetFunction GO_DEF_TARGETFUNCTION = targetFunction::GFM_PARABOLA;
  * This individual searches for a minimum of a number of predefined functions, each capable
  * of processing their input in multiple dimensions.
  */
-class GFMinIndividual : public gen::GGenome {
+class GFMinIndividual : public gen::GGenomeT<GFMinIndividual> {
     /////////////////////////////////////////////////////////////////////////////
+    // Boost still default-constructs the concrete type on load; GBoilerplateAccess lets the mixin reach
+    // the private localMembers_() below (serialize/load_/compare_/clone_/name_ are all generated from it).
     friend class boost::serialization::access;
+    friend struct Gem::Common::GBoilerplateAccess;
 
-    template <class Archive>
-    void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gen::GGenome) &
-            BOOST_SERIALIZATION_NVP(targetFunction_) & BOOST_SERIALIZATION_NVP(seed_sigma_);
+    /** @brief The single declaration of this class'es local data members, driving the generated
+     *  serialize()/load_()/compare_(). (compare_ now covers these two members, which the former
+     *  hand-written class lacked a compare_ for entirely -- a consistency fix.) */
+    template <typename Self>
+    auto localMembers_(this Self &self) {
+        return std::make_tuple(
+            Gem::Common::make_member("targetFunction_", self.targetFunction_),
+            Gem::Common::make_member("seed_sigma_", self.seed_sigma_)
+        );
     }
 
     /////////////////////////////////////////////////////////////////////////////
 
 public:
+    /** @brief The class name, consumed by the GBoilerplateT-generated name_() and compare token. */
+    static constexpr std::string_view class_name = "GFMinIndividual";
+
     /** @brief The default constructor */
     GFMinIndividual();
     /** @brief A standard copy constructor */
@@ -162,19 +174,12 @@ public:
 
 protected:
     /***************************************************************************/
-    /** @brief Loads the data of another GFMinIndividual */
-    virtual void load_(const gen::GOptimizableEntity *) final;
-
     /** @brief The evaluation hook: the selected target function on the genome (single criterion). */
     std::vector<double> evaluate() final;
 
     /***************************************************************************/
 
 private:
-    /***************************************************************************/
-    /** @brief Creates a deep clone of this object */
-    virtual gen::GGenome *clone_() const final;
-
     /***************************************************************************/
     targetFunction targetFunction_ =
         GO_DEF_TARGETFUNCTION; ///< Specifies which demo function should be used
