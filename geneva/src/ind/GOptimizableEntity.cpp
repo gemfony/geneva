@@ -68,29 +68,13 @@ GOptimizableEntity::GOptimizableEntity(const std::size_t n_fitness_criteria)
  * pre-/post-processors are deep-cloned.
  * @param cp The other candidate whose data is copied
  */
-GOptimizableEntity::GOptimizableEntity(GOptimizableEntity const &cp)
-  : Gem::Courtier::GProcessable(cp)
-  , Gem::Common::GCommonInterfaceT<GOptimizableEntity>(cp)
-  , Interface::GRateableI(cp) {
-    // Copy the local state through the same single sources load_() uses, so a new localMembers_()
-    // entry is copied automatically and the two paths cannot drift (the same rework the
-    // GOptimizationAlgorithmBase copy constructor received when its hand-written member list had
-    // silently dropped fields).
+GOptimizableEntity::GOptimizableEntity(GOptimizableEntity const &cp) {
+    // Every member -- the GProcessable base slice (copy-assigned via its descriptor), the plain members and
+    // the serialized-but-uncompared processors (deep-cloned) / shared policy / result store / OA scratch
+    // (deep-copied) -- is copied from the single localMembers_() declaration, the same machinery load_()
+    // uses, so this constructor cannot drift from the member list. The base classes default-construct; the
+    // GProcessable slice is then copy-assigned by g_load_members through its base-object descriptor.
     Gem::Common::g_load_members(this->localMembers_(), cp.localMembers_());
-
-    // The result store is copied directly (serialized/loaded but not among the compared members).
-    stored_results_cnt_ = cp.stored_results_cnt_;
-
-    // The cloneable pre-/post-processors are deep-cloned; the shared policy is referenced (1:N).
-    Gem::Common::copyCloneableSmartPointer(cp.pre_processor_ptr_, pre_processor_ptr_);
-    Gem::Common::copyCloneableSmartPointer(cp.post_processor_ptr_, post_processor_ptr_);
-    policy_ = cp.policy_;
-
-    // The OA-owned scratch is deep-copied (a clone mid-optimization keeps the live personality +
-    // adaption state, e.g. an EA child inheriting its parent's sigma).
-    if(cp.scratch_) {
-        scratch_ = std::make_unique<GAuxiliaryStore>(*cp.scratch_);
-    }
 }
 
 /******************************************************************************/
@@ -637,38 +621,6 @@ void GOptimizableEntity::addConfigurationOptions_(Gem::Common::GParserBuilder &g
 
 /******************************************************************************/
 /**
- * @brief Loads the data of another GOptimizableEntity.
- * @param cp The source candidate whose data is copied into this one
- */
-void GOptimizableEntity::load_(const GOptimizableEntity *cp) {
-    const auto *p_load =
-        Gem::Common::g_convert_and_compare<GOptimizableEntity, GOptimizableEntity>(cp, this);
-
-    // Copy the non-generic processing lifecycle state (status, errors, routing counters, timing).
-    Gem::Courtier::GProcessable::operator=(*p_load);
-
-    // The plain local members (veto flags, feasibility / best-known state).
-    Gem::Common::g_load_members(this->localMembers_(), p_load->localMembers_());
-
-    // The result store is copied directly (it is serialized/loaded but not among the compared members).
-    stored_results_cnt_ = p_load->stored_results_cnt_;
-
-    // The cloneable pre-/post-processors are deep-cloned; the shared policy is referenced (1:N).
-    Gem::Common::copyCloneableSmartPointer(p_load->pre_processor_ptr_, pre_processor_ptr_);
-    Gem::Common::copyCloneableSmartPointer(p_load->post_processor_ptr_, post_processor_ptr_);
-    policy_ = p_load->policy_;
-
-    // The OA-owned scratch is deep-copied (it is serialized but not among the compared members).
-    if(p_load->scratch_) {
-        scratch_ = std::make_unique<GAuxiliaryStore>(*p_load->scratch_);
-    }
-    else {
-        scratch_.reset();
-    }
-}
-
-/******************************************************************************/
-/**
  * @brief Absorbs a returned item's results + lifecycle in place, keeping this element's genome + scratch.
  *
  * The pointer-preserving counterpart of a networked return: the server keeps the originally-submitted
@@ -688,9 +640,15 @@ void GOptimizableEntity::absorbResultsFrom_(const Gem::Courtier::GProcessable &s
         return; // a non-individual return carries nothing more we can absorb
     }
 
-    // The plain evaluation-derived local members (validity level, …) and the result store -- exactly the
-    // members load_() copies beyond the genome and scratch.
-    Gem::Common::g_load_members(this->localMembers_(), p_load->localMembers_());
+    // The plain evaluation-derived local members and the result store -- the subset of a full load a
+    // networked return legitimately carries (minus the genome, the config processors/policy and the OA
+    // scratch). This subset is hand-listed on purpose: localMembers_() now carries the WHOLE member set to
+    // drive the fold, so reusing it here would over-copy. Whether a newly added member should be absorbed
+    // on a return is a semantic call, not an automatic one -- so it is listed explicitly here.
+    pre_processing_disabled_ = p_load->pre_processing_disabled_;
+    post_processing_disabled_ = p_load->post_processing_disabled_;
+    assigned_iteration_ = p_load->assigned_iteration_;
+    validity_level_ = p_load->validity_level_;
     stored_results_cnt_ = p_load->stored_results_cnt_;
 }
 
@@ -711,35 +669,6 @@ bool GOptimizableEntity::loadContentFrom_(const Gem::Courtier::GProcessable &src
     }
     this->load_(p_load); // full polymorphic deep copy in place (most-derived load_ runs)
     return true;
-}
-
-/******************************************************************************/
-/**
- * @brief Searches for compliance with expectations with respect to another candidate.
- * @param cp The other candidate to compare against
- * @param e The expectation (e.g. equality)
- * @param limit The limit for allowed floating-point deviations
- */
-void GOptimizableEntity::compare_(
-    GOptimizableEntity const &cp,
-    Gem::Common::expectation const &e,
-    [[maybe_unused]] double const &limit
-) const {
-    using namespace Gem::Common;
-
-    const auto *p_load =
-        Gem::Common::g_convert_and_compare<GOptimizableEntity, GOptimizableEntity>(cp, this);
-
-    GToken token("GOptimizableEntity", e);
-
-    // Compare our CRTP base data (the category root has no GObject parent) ...
-    Gem::Common::compare_base_t<Gem::Common::GCommonInterfaceT<GOptimizableEntity>>(*this, *p_load, token);
-
-    // ... and the plain local data, derived from the single localMembers() declaration. The shared policy
-    // is referenced 1:N (compared by configuration is the OA-setup concern, not per-individual equality).
-    Gem::Common::g_compare_members(this->localMembers_(), p_load->localMembers_(), token);
-
-    token.evaluate();
 }
 
 /******************************************************************************/

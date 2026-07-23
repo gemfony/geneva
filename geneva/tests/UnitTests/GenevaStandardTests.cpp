@@ -759,6 +759,94 @@ TEST_CASE(
     }
 }
 
+// A guard for make_base_object_member: a minimal stateful, boost-serializable, copy-assignable base
+// (GProbeBase) carried through a derived that folds onto the mixin. It pins the three axes of a base-object
+// descriptor -- serialize as base_object, load via the base's operator= (base-slice copy), and cmp_skip --
+// which is the tool the GOptimizableEntity fold uses for its GProcessable base.
+namespace {
+struct GProbeBase {
+    int base_val_ = 0;
+    /** @brief Boost serialization of the base slice (public so base_object can reach it). */
+    template <typename Archive>
+    void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
+        ar & boost::serialization::make_nvp("base_val_", base_val_);
+    }
+};
+
+class GBaseObjectProbe
+  : public GProbeBase
+  , public Gem::Common::GBoilerplateT<GBaseObjectProbe, Gem::Common::GCommonInterfaceT<GBaseObjectProbe>> {
+    friend class boost::serialization::access;
+    friend struct Gem::Common::GBoilerplateAccess;
+
+    template <typename Self>
+    auto localMembers_(this Self &self) {
+        return std::make_tuple(
+            Gem::Common::make_base_object_member<GProbeBase>("GProbeBase", self),
+            Gem::Common::make_member("d_", self.d_)
+        );
+    }
+
+    // Disambiguating serialize(): both GProbeBase and the mixin declare serialize().
+    template <typename Archive>
+    void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
+        Gem::Common::serialize_members(ar, this->localMembers_());
+    }
+
+public:
+    static constexpr std::string_view class_name = "GBaseObjectProbe";
+    GBaseObjectProbe() = default;
+
+    int d_ = 0; ///< a plain derived member (serialized + loaded + compared)
+
+protected:
+    bool modify_GUnitTests_() override { return false; }
+    void specificTestsNoFailureExpected_GUnitTests_() override { /* nothing */ }
+    void specificTestsFailuresExpected_GUnitTests_() override { /* nothing */ }
+};
+} // anonymous namespace
+
+TEST_CASE(
+    "member descriptor policies: make_base_object_member carries a stateful base",
+    "[geneva][serialization]"
+) {
+    using Gem::Common::serializationMode;
+
+    GBaseObjectProbe a;
+    a.base_val_ = 7; // in the GProbeBase slice
+    a.d_ = 3;        // in the derived
+
+    // --- load(): both the base slice and the derived member are copied ---
+    {
+        GBaseObjectProbe b;
+        b.load(a);
+        CHECK(b.base_val_ == 7); // base slice loaded via load_base_slice (Base::operator=)
+        CHECK(b.d_ == 3);
+    }
+
+    // --- compare: the base is NOT part of comparable identity (cmp_skip); the derived member IS ---
+    GEqualityPrinter const gep("base-object-probe", 0., Gem::Common::CE_WITH_MESSAGES);
+    {
+        GBaseObjectProbe c = a;
+        c.base_val_ = 999;        // differs only in the base slice ...
+        CHECK(gep.isEqual(c, a)); // ... still equal: the base is cmp_skip
+    }
+    {
+        GBaseObjectProbe c = a;
+        c.d_ = 999;
+        CHECK(not gep.isEqual(c, a)); // the derived member is compared
+    }
+
+    // --- serialize: the base slice travels via base_object ---
+    for (auto mode :
+         {serializationMode::TEXT, serializationMode::XML, serializationMode::BINARY}) {
+        GBaseObjectProbe restored;
+        restored.fromString(a.toString(mode), mode);
+        CHECK(restored.base_val_ == 7); // base slice survived via base_object
+        CHECK(restored.d_ == 3);
+    }
+}
+
 // ============================================================================
 // Meta-optimizer: the search genome is built from the EA tunable manifest and
 // read back by name (no MOT_* index math). This pins that the manifest -> genome

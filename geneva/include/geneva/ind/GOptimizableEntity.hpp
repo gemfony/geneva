@@ -39,6 +39,7 @@
 #include <random>
 #include <ranges>
 #include <string>
+#include <string_view>
 #include <tuple>
 #include <type_traits>
 #include <utility>
@@ -52,6 +53,7 @@
 #include <boost/json.hpp>
 
 // Geneva headers go here
+#include "common/GBoilerplateT.hpp"
 #include "common/GCommonHelperFunctionsT.hpp"
 #include "common/GCommonInterfaceT.hpp"
 #include "common/GExceptions.hpp"
@@ -101,30 +103,34 @@ namespace Gem::Geneva::Genome {
  * a universal optimization operation; only the storage is genome-specific. This keeps the assembly
  * representation-agnostic: a future non-flat genome would derive GOptimizableEntity directly.
  */
-// NOTE ON GBoilerplateT: this class is a deliberate non-folder for the GCommonInterfaceT boilerplate
-// mixin. Unlike the multiply-inherited classes that fold via the data-tie technique, its second stateful
-// base Gem::Courtier::GProcessable is NOT a container -- it has no single data member to tie into
-// localMembers_(), and it is copied (operator=) / serialized (base_object) whole. Its serialize() is also
-// irreducibly custom (the wire-conditional scratch_ omission and the shared-pointer policy_ dedup). name_()
-// and compare_() would fold trivially -- compare_() is already exactly the generated pattern (localMembers_
-// + compare_base_t) -- but load_() and serialize() cannot, so reparenting the single most-included class in
-// the tree onto the mixin to remove a few lines of already-single-sourced compare_() boilerplate is not
-// worth it. load_()/compare_() are already single-sourced through localMembers_() below, which is the
-// drift-safety the mixin exists to provide.
+// This class folds onto the GBoilerplateBaseT mixin (it stays the abstract category root, so clone_()
+// remains pure). Its second stateful base Gem::Courtier::GProcessable is NOT a container -- it has no
+// single data member to tie in -- so it is carried through make_base_object_member<GProcessable>, which
+// serialises it as base_object, copy-assigns its slice on load, and excludes it from comparison. The
+// serialized-but-not-comparable members (result store, shared policy, pre-/post-processors) use the
+// cmp_skip factories, and the OA scratch (whose wire form is irreducibly custom) uses
+// make_owner_serialized_ptr_member so this class's own serialize() below can emit it wire-conditionally.
+// load_(), compare_() and name_() are thus generated from the single localMembers_() declaration; only
+// serialize() stays hand-written, for the scratch wire protocol.
 class GOptimizableEntity // NOLINT(cppcoreguidelines-special-member-functions)
   : public Gem::Courtier::GProcessable
-  , public Gem::Common::GCommonInterfaceT<GOptimizableEntity>
+  , public Gem::Common::GBoilerplateBaseT<GOptimizableEntity, Gem::Common::GCommonInterfaceT<GOptimizableEntity>>
   , public Interface::GRateableI {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
+    friend struct Gem::Common::GBoilerplateAccess;
 
     /**
-     * @brief Single declaration of this class's plain compared/loaded local data members (the
-     * pre-/post-processor veto flags and the per-individual feasibility / best-known state), driving
-     * compare_(), the plain-member half of serialize() and load_() from one source. The result store,
-     * the cloneable pre-/post-processors and the shared policy are handled separately (the result store is
-     * serialized but not compared; the policy is shared 1:N, copied by shared-pointer), so they are NOT
-     * listed here.
+     * @brief Single declaration of ALL this class's data, each entry carrying the participation policy it
+     * needs, so the GBoilerplateBaseT-generated load_(), compare_() and name_() (and the plain half of the
+     * hand-written serialize() below) all derive from this one source.
+     *
+     *  - the GProcessable lifecycle base (a stateful non-container base) rides make_base_object_member<>;
+     *  - the four plain veto/feasibility members are ordinary make_member (serialized + loaded + compared);
+     *  - the cloneable pre-/post-processors, the shared 1:N policy and the result store are state but not
+     *    per-individual identity, so they use the cmp_skip factories (serialized + loaded, not compared);
+     *  - the OA scratch is copy-loaded and not compared, but its wire form is custom, so it is ser_skip
+     *    here (make_owner_serialized_ptr_member) and emitted by the hand-written serialize() below.
      *
      * @tparam Self The (const or non-const) deduced type of *this
      * @param self A reference to *this whose members are tied into the tuple
@@ -133,10 +139,16 @@ class GOptimizableEntity // NOLINT(cppcoreguidelines-special-member-functions)
     template <typename Self>
     auto localMembers_(this Self &self) {
         return std::make_tuple(
+            Gem::Common::make_base_object_member<Gem::Courtier::GProcessable>("GProcessable", self),
             Gem::Common::make_member("pre_processing_disabled_", self.pre_processing_disabled_),
             Gem::Common::make_member("post_processing_disabled_", self.post_processing_disabled_),
             Gem::Common::make_member("assigned_iteration_", self.assigned_iteration_),
-            Gem::Common::make_member("validity_level_", self.validity_level_)
+            Gem::Common::make_member("validity_level_", self.validity_level_),
+            Gem::Common::make_uncompared_cloneable_member("pre_processor_ptr_", self.pre_processor_ptr_),
+            Gem::Common::make_uncompared_cloneable_member("post_processor_ptr_", self.post_processor_ptr_),
+            Gem::Common::make_uncompared_member("policy_", self.policy_),
+            Gem::Common::make_uncompared_member("stored_results_cnt_", self.stored_results_cnt_),
+            Gem::Common::make_owner_serialized_ptr_member("scratch_", self.scratch_)
         );
     }
 
@@ -156,19 +168,9 @@ class GOptimizableEntity // NOLINT(cppcoreguidelines-special-member-functions)
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         using boost::serialization::make_nvp;
 
-        ar &make_nvp(
-            "GProcessable",
-            boost::serialization::base_object<Gem::Courtier::GProcessable>(*this)
-        );
-
-        // The result store is serialized (it travels on the wire) but is deliberately NOT among the
-        // compared members (results are not part of per-individual identity, matching the historical
-        // processing container), so it is handled here rather than in localMembers_().
-        ar &BOOST_SERIALIZATION_NVP(pre_processor_ptr_) &
-            BOOST_SERIALIZATION_NVP(post_processor_ptr_) &
-            BOOST_SERIALIZATION_NVP(policy_) &
-            BOOST_SERIALIZATION_NVP(stored_results_cnt_);
-
+        // The GProcessable base slice (via base_object), the plain members and the serialized-but-uncompared
+        // members (processors / policy / result store) all come from the single localMembers_() declaration;
+        // scratch_ is ser_skip there and emitted below with its wire-conditional protocol.
         Gem::Common::serialize_members(ar, this->localMembers_());
 
         // The OA-owned scratch (the personality OBJECT and the per-group adaption POD blocks) is
@@ -195,6 +197,9 @@ class GOptimizableEntity // NOLINT(cppcoreguidelines-special-member-functions)
     ///////////////////////////////////////////////////////////////////////
 
 public:
+    /** @brief The class name, consumed by the GBoilerplateBaseT-generated name_() / compare token. */
+    static constexpr std::string_view class_name = "GOptimizableEntity";
+
     using payload_type = GOptimizableEntity;
     using result_type = individual_processing_result;
 
@@ -821,25 +826,10 @@ protected:
      *  @param gpb The parser builder the configuration options are registered with */
     void addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) override;
 
-    /** @brief Loads the data of another GOptimizableEntity. @param cp The source candidate */
-    void load_(const GOptimizableEntity *cp) override;
-
-    /** @brief Allow access to this class's compare_ function */
-    friend void Gem::Common::compare_base_t<GOptimizableEntity>(
-        GOptimizableEntity const &,
-        GOptimizableEntity const &,
-        Gem::Common::GToken &
-    );
-
-    /** @brief Searches for compliance with expectations with respect to another candidate.
-     *  @param cp The other candidate to compare against
-     *  @param e The expectation (e.g. equality)
-     *  @param limit The limit for allowed floating-point deviations */
-    void compare_(
-        GOptimizableEntity const &cp,
-        Gem::Common::expectation const &e,
-        double const &limit
-    ) const override;
+    // load_(), compare_() and name_() are generated by the Gem::Common::GBoilerplateBaseT base from
+    // class_name and the single localMembers_() declaration (which carries the GProcessable base slice, the
+    // plain members and the serialized-but-uncompared processors / policy / result store / scratch).
+    // clone_() stays pure here -- this is the abstract category root; each concrete candidate supplies it.
 
     /***************************************************************************/
     // A candidate carries NO random-number state of its own -- it is pure data. Every external
@@ -990,8 +980,6 @@ private:
     /** @brief Bridges the GProcessable status machine to the result store (clears it on a status reset) */
     void clearStoredResults_() override { this->clear_stored_results_vec(); }
 
-    /** @brief Emits a name for this class / object. @return The class / object name */
-    [[nodiscard]] std::string name_() const override { return std::string("GOptimizableEntity"); }
     /** @brief Creates a deep clone of this object (supplied by the concrete leaf). @return A heap copy */
     [[nodiscard]] GOptimizableEntity *clone_() const override = 0;
 

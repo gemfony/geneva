@@ -39,6 +39,7 @@
 #include <type_traits>
 
 // Boost headers go here
+#include <boost/serialization/base_object.hpp>
 #include <boost/serialization/nvp.hpp>
 
 // Gemfony headers go here
@@ -111,6 +112,32 @@ struct ser_skip {
     static void serialize(Archive & /*ar*/, const char * /*name*/, T & /*ref*/) { /* skipped */ }
 };
 
+/**
+ * @brief Serialize policy for a *base subobject*: emit it as boost base_object<Base>.
+ *
+ * Unlike the other serialize policies, the descriptor's referenced value is the *derived* object itself
+ * (not a data member), so base_object<Base>(derived) both serialises the Base slice and registers the
+ * Derived<->Base void-cast Boost needs to (de)serialise the derived type through a Base pointer. Use it
+ * for a stateful, non-container base that cannot be tied in through a single data member.
+ *
+ * @tparam Base The base class whose slice is serialised
+ */
+template <typename Base>
+struct ser_base_object {
+    /**
+     * @brief Serialises the Base slice of @p derived under @p name.
+     * @tparam Archive The Boost.Serialization archive type
+     * @tparam Derived The (deduced) derived type carrying the Base subobject
+     * @param ar The archive to serialize through
+     * @param name The NVP tag
+     * @param derived The derived object whose Base slice is emitted
+     */
+    template <typename Archive, typename Derived>
+    static void serialize(Archive &ar, const char *name, Derived &derived) {
+        ar & boost::serialization::make_nvp(name, boost::serialization::base_object<Base>(derived));
+    }
+};
+
 /******************************************************************************/
 // --- load axis ------------------------------------------------------------
 
@@ -164,6 +191,47 @@ struct load_atomic {
      */
     template <typename Dst, typename Src>
     static void load(Dst &dst, const Src &src) { dst.store(src.load()); }
+};
+
+/** @brief Load policy: deep copy of a smart-pointer pointee via its COPY CONSTRUCTOR (not clone()). */
+struct load_copy_ptr {
+    /**
+     * @brief Copy-constructs a fresh pointee from @p src into @p dst (empty source -> empty destination).
+     *
+     * For a pointer to a plain value type that is copy-constructible but does NOT carry the Gemfony
+     * clone()/load() interface (so load_clone_ptr does not apply). Works for unique_ptr and shared_ptr.
+     *
+     * @tparam Dst The destination smart-pointer type
+     * @tparam Src The source smart-pointer type
+     * @param dst The destination pointer (written to)
+     * @param src The source pointer (read from)
+     */
+    template <typename Dst, typename Src>
+    static void load(Dst &dst, const Src &src) {
+        using element_t = typename Dst::element_type;
+        if(src) { dst = std::make_unique<element_t>(*src); }
+        else { dst.reset(); }
+    }
+};
+
+/** @brief Load policy for a *base subobject*: copy-assign the Base slice (its own operator=). */
+template <typename Base>
+struct load_base_slice {
+    /**
+     * @brief Copy-assigns the Base slice of @p src onto @p dst (Base::operator=).
+     *
+     * The descriptor's referenced value is the derived object; this policy copies exactly the Base slice,
+     * mirroring the hand-written `Base::operator=(other)` a folded load_() would otherwise perform. The
+     * derived members are loaded by their own descriptors.
+     *
+     * @tparam Derived The (deduced) derived type carrying the Base subobject
+     * @param dst The destination derived object (its Base slice is written)
+     * @param src The source derived object (its Base slice is read)
+     */
+    template <typename Derived>
+    static void load(Derived &dst, const Derived &src) {
+        static_cast<Base &>(dst) = static_cast<const Base &>(src);
+    }
 };
 
 /******************************************************************************/
@@ -335,6 +403,82 @@ load_only_member_t<T> make_load_only_member(const char *name, T &ref) {
 template <typename T>
 transient_member_t<T> make_transient_member(const char *name, T &ref) {
     return transient_member_t<T>{name, ref};
+}
+
+/**
+ * @brief Builds a serialized-but-not-compared member (plain assignment on load).
+ *
+ * For state that travels on the wire / to disk and is copied when one object is loaded from another, yet
+ * is deliberately NOT part of the object's comparable identity (e.g. a shared 1:N configuration pointer,
+ * or a result store). It is serialized (ser_emit), plain-assigned on load (sharing a shared_ptr), and
+ * skipped by compare.
+ *
+ * @tparam T The (deduced) type of the referenced member
+ * @param name The member's serialization NVP tag
+ * @param ref A reference to the data member
+ * @return A member_desc composing ser_emit / load_assign / cmp_skip
+ */
+template <typename T>
+member_desc<T, ser_emit, load_assign, cmp_skip> make_uncompared_member(const char *name, T &ref) {
+    return member_desc<T, ser_emit, load_assign, cmp_skip>{name, ref};
+}
+
+/**
+ * @brief Builds a serialized-but-not-compared, deep-cloned single-pointer member.
+ *
+ * As make_uncompared_member, but the std::shared_ptr<Cloneable> pointee is deep-cloned on load (via
+ * copyCloneableSmartPointer) rather than shared.
+ *
+ * @tparam T The (deduced) type of the referenced std::shared_ptr<Cloneable> member
+ * @param name The member's serialization NVP tag
+ * @param ref A reference to the data member
+ * @return A member_desc composing ser_emit / load_clone_ptr / cmp_skip
+ */
+template <typename T>
+member_desc<T, ser_emit, load_clone_ptr, cmp_skip>
+make_uncompared_cloneable_member(const char *name, T &ref) {
+    return member_desc<T, ser_emit, load_clone_ptr, cmp_skip>{name, ref};
+}
+
+/**
+ * @brief Builds a member that the OWNER serialises itself: deep-copied on load, not compared, and NOT
+ * emitted by serialize_members() (ser_skip).
+ *
+ * For a pointer member whose on-wire form is irreducibly custom (e.g. conditionally omitted on the wire),
+ * so the owning class emits it in its own hand-written serialize(); here the descriptor only drives the
+ * load (copy-construct the pointee) and marks it out of comparable identity.
+ *
+ * @tparam T The (deduced) smart-pointer member type
+ * @param name The member's name (comparison / diagnostic label; not emitted here)
+ * @param ref A reference to the data member
+ * @return A member_desc composing ser_skip / load_copy_ptr / cmp_skip
+ */
+template <typename T>
+member_desc<T, ser_skip, load_copy_ptr, cmp_skip>
+make_owner_serialized_ptr_member(const char *name, T &ref) {
+    return member_desc<T, ser_skip, load_copy_ptr, cmp_skip>{name, ref};
+}
+
+/**
+ * @brief Builds a descriptor for a stateful, non-container BASE subobject.
+ *
+ * The base is serialised as boost base_object<Base> (which also registers the Derived<->Base void-cast),
+ * copy-assigned on load via Base::operator= (its own value semantics), and excluded from comparison
+ * (compare the base's state separately if it is part of identity -- for the cases folded so far it is
+ * not). The referenced value is the derived object itself, so pass `self`. This is the general tool for
+ * a stateful base that cannot be tied in through a single data member (unlike a container base, whose
+ * lone data_cnt_ is tied in with make_cloneable_container_member instead).
+ *
+ * @tparam Base The base class whose slice is carried
+ * @tparam Self The (deduced) derived (const or non-const) type of *this
+ * @param name The base's serialization NVP tag
+ * @param self A reference to the derived object (*this)
+ * @return A member_desc composing ser_base_object<Base> / load_base_slice<Base> / cmp_skip
+ */
+template <typename Base, typename Self>
+member_desc<Self, ser_base_object<Base>, load_base_slice<Base>, cmp_skip>
+make_base_object_member(const char *name, Self &self) {
+    return member_desc<Self, ser_base_object<Base>, load_base_slice<Base>, cmp_skip>{name, self};
 }
 
 /******************************************************************************/
