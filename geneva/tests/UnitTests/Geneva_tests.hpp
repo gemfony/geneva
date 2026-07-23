@@ -291,7 +291,7 @@ void StandardTests_no_failure_expected() {
 
         // Modify and check inequality
         if(T_ptr1->modify_GUnitTests()) { // Has the object been modified ?
-            CHECK(gep.isInEqual(*T_ptr1, *T_ptr2));
+            CHECK(not gep.isEqual(*T_ptr1, *T_ptr2));
 
             // Serialize T_ptr1 and load into T_ptr1, check equalities and similarities
             REQUIRE_NOTHROW(T_ptr2->fromString(
@@ -315,7 +315,7 @@ void StandardTests_no_failure_expected() {
 
         // Modify and check inequality
         if(T_ptr1->modify_GUnitTests()) {
-            CHECK(gep.isInEqual(*T_ptr1, *T_ptr2));
+            CHECK(not gep.isEqual(*T_ptr1, *T_ptr2));
 
             // Serialize T_ptr1 and load into T_ptr1, check equalities and similarities
             REQUIRE_NOTHROW(T_ptr2->fromString(
@@ -339,7 +339,7 @@ void StandardTests_no_failure_expected() {
 
         // Modify and check inequality
         if(T_ptr1->modify_GUnitTests()) {
-            CHECK(gep.isInEqual(*T_ptr1, *T_ptr2));
+            CHECK(not gep.isEqual(*T_ptr1, *T_ptr2));
 
             // Serialize T_ptr1 and load into T_ptr1, check equalities and similarities
             REQUIRE_NOTHROW(T_ptr2->fromString(
@@ -367,7 +367,7 @@ void StandardTests_no_failure_expected() {
 
         // Modify and check inequality
         if(T_ptr1->modify_GUnitTests()) { // Has the object been modified ?
-            CHECK(gep.isInEqual(*T_ptr1, *T_ptr2));
+            CHECK(not gep.isEqual(*T_ptr1, *T_ptr2));
 
             // Serialize T_ptr1 and load into T_ptr2, check equalities and similarities
             std::string serializedObject =
@@ -393,7 +393,7 @@ void StandardTests_no_failure_expected() {
 
         // Modify and check inequality
         if(T_ptr1->modify_GUnitTests()) { // Has the object been modified ?
-            CHECK(gep.isInEqual(*T_ptr1, *T_ptr2));
+            CHECK(not gep.isEqual(*T_ptr1, *T_ptr2));
 
             // Serialize T_ptr1 and load into T_ptr2, check equalities and similarities
             std::string serializedObject =
@@ -419,7 +419,7 @@ void StandardTests_no_failure_expected() {
 
         // Modify and check inequality
         if(T_ptr1->modify_GUnitTests()) { // Has the object been modified ?
-            CHECK(gep.isInEqual(*T_ptr1, *T_ptr2));
+            CHECK(not gep.isEqual(*T_ptr1, *T_ptr2));
 
             // Serialize T_ptr1 and load into T_ptr2, check equalities and similarities
             std::string serializedObject =

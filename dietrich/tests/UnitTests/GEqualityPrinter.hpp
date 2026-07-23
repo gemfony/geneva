@@ -124,59 +124,6 @@ public:
 
     /*********************************************************************************************/
     /**
-	 * Checks for inequality, optionally emitting a message. The compared entities must have the
-	 * Geneva interface.
-	 *
-	 * @param x The first parameter to compare
-	 * @param y The second parameter to compare
-	 * @return A boolean indicating whether both parameters are inequal
-	 */
-    template <typename geneva_type>
-        requires Gem::Common::gemfony_common_interface<geneva_type>
-    bool isInEqual(const geneva_type &x, const geneva_type &y) const {
-        using namespace Gem::Common;
-
-        try {
-            x.compare(y, Gem::Common::expectation::INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-            return true;
-        }
-        catch(g_expectation_violation &g) {
-            std::cout << "\n=========================================\n"
-                      << g << "\n=========================================\n";
-            return false;
-        }
-    }
-
-    /*********************************************************************************************/
-    /**
-	 * Checks for inequality of a Geneva container type with a std::vector<T> of its base types,
-	 * optionally emitting a message.
-	 *
-	 * @param x The Geneva container type to compare
-	 * @param y The std::vector used for the comparison
-	 * @return A boolean indicating whether both parameters are inequal
-	 */
-    template <typename geneva_simplecontainer_type>
-        requires std::derived_from<geneva_simplecontainer_type,
-                                   Gem::Common::GPodContainerT<typename geneva_simplecontainer_type::value_type>>
-    bool isInEqual(const geneva_simplecontainer_type &x,
-                   const std::vector<typename geneva_simplecontainer_type::value_type> &y) const {
-        using namespace Gem::Common;
-
-        try {
-            x.Gem::Common::template GPodContainerT<typename geneva_simplecontainer_type::value_type>::
-                compare_base(y,Gem::Common::expectation::INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-            return true;
-        }
-        catch(g_expectation_violation &g) {
-            std::cout << "\n=========================================\n"
-                      << g << "\n=========================================\n";
-            return false;
-        }
-    }
-
-    /*********************************************************************************************/
-    /**
 	 * Checks for similarity, optionally emitting a message. The compared entities must have the
 	 * Geneva interface.
 	 *

@@ -212,7 +212,7 @@ void StandardTests_no_failure_expected() {
         REQUIRE(T_ptr2);
 
         if(T_ptr1->modify_GUnitTests()) {
-            CHECK(gep.isInEqual(*T_ptr1, *T_ptr2));
+            CHECK(not gep.isEqual(*T_ptr1, *T_ptr2));
             REQUIRE_NOTHROW(T_ptr2->fromString(
                 T_ptr1->toString(Gem::Common::serializationMode::TEXT),
                 Gem::Common::serializationMode::TEXT
@@ -233,7 +233,7 @@ void StandardTests_no_failure_expected() {
         REQUIRE(T_ptr2);
 
         if(T_ptr1->modify_GUnitTests()) {
-            CHECK(gep.isInEqual(*T_ptr1, *T_ptr2));
+            CHECK(not gep.isEqual(*T_ptr1, *T_ptr2));
             REQUIRE_NOTHROW(T_ptr2->fromString(
                 T_ptr1->toString(Gem::Common::serializationMode::XML),
                 Gem::Common::serializationMode::XML
@@ -254,7 +254,7 @@ void StandardTests_no_failure_expected() {
         REQUIRE(T_ptr2);
 
         if(T_ptr1->modify_GUnitTests()) {
-            CHECK(gep.isInEqual(*T_ptr1, *T_ptr2));
+            CHECK(not gep.isEqual(*T_ptr1, *T_ptr2));
             REQUIRE_NOTHROW(T_ptr2->fromString(
                 T_ptr1->toString(Gem::Common::serializationMode::BINARY),
                 Gem::Common::serializationMode::BINARY
@@ -278,7 +278,7 @@ void StandardTests_no_failure_expected() {
         REQUIRE(T_ptr2);
 
         if(T_ptr1->modify_GUnitTests()) {
-            CHECK(gep.isInEqual(*T_ptr1, *T_ptr2));
+            CHECK(not gep.isEqual(*T_ptr1, *T_ptr2));
             std::string serializedObject =
                 Gem::Common::sharedPtrToString(T_ptr1, Gem::Common::serializationMode::TEXT);
             T_ptr2 = Gem::Common::sharedPtrFromString<T>(
@@ -301,7 +301,7 @@ void StandardTests_no_failure_expected() {
         REQUIRE(T_ptr2);
 
         if(T_ptr1->modify_GUnitTests()) {
-            CHECK(gep.isInEqual(*T_ptr1, *T_ptr2));
+            CHECK(not gep.isEqual(*T_ptr1, *T_ptr2));
             std::string serializedObject =
                 Gem::Common::sharedPtrToString(T_ptr1, Gem::Common::serializationMode::XML);
             T_ptr2 = Gem::Common::sharedPtrFromString<T>(
@@ -324,7 +324,7 @@ void StandardTests_no_failure_expected() {
         REQUIRE(T_ptr2);
 
         if(T_ptr1->modify_GUnitTests()) {
-            CHECK(gep.isInEqual(*T_ptr1, *T_ptr2));
+            CHECK(not gep.isEqual(*T_ptr1, *T_ptr2));
             std::string serializedObject =
                 Gem::Common::sharedPtrToString(T_ptr1, Gem::Common::serializationMode::BINARY);
             T_ptr2 = Gem::Common::sharedPtrFromString<T>(
