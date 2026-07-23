@@ -950,6 +950,12 @@ private:
      *  adoption + the evaluation-policy transform. @param res_vec Optional pre-computed raw results */
     void runEvaluation_(const std::vector<individual_processing_result> &res_vec);
 
+    /** @brief Adopts the raw results into the result store -- either from a non-empty res_vec (external
+     *  GPU/network path) or from a local evaluate() -- returning the main (index-0) raw result and storing
+     *  the secondary criteria. Worst-cases the whole surface and rethrows on any failure. Extracted from
+     *  runEvaluation_(). @param res_vec Optional pre-computed raw results @return The main raw result */
+    double adoptRawResults_(const std::vector<individual_processing_result> &res_vec);
+
     /** @brief Applies the configured invalidity policy (worst-case, or the sigmoid barrier value)
      *  to the whole quality surface of a constraint-violating candidate. Shared by
      *  runEvaluation_() and setFitness_() (formerly two identical copies). */

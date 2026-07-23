@@ -664,74 +664,24 @@ protected:
      *
      * @return The raw result vector (size == getNStoredResults())
      */
-    std::vector<double> evaluate() override {
-        // Retrieve the parameters from the flat genome by name (see readTuned()).
-        namespace n = oa::ea_tunable;
-        const auto v = readTuned();
-
-        // Check that we have been given a factory. This guard runs in release builds too: without it the
-        // ind_factory_->get() below would dereference a null factory pointer (undefined behaviour) rather
-        // than report the missing registration.
-        if(not ind_factory_) {
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GMetaOptimizerIndividualT<T>::evaluate(): Error!" << '\n'
-                << "No factory class for individuals has been registered" << '\n'
-            );
-        }
-
-        // Derive the sub-individuals' adaptor settings from the meta-optimised parameters. The genome
-        // carries RAW knobs (min + range + start percentage) so it always holds valid values; the actual
-        // gauss bounds are derived here (max = min + range; start = min + percentage * range).
-        double const min_sigma = v.at(n::min_sigma);
-        double const sigma_range = v.at(n::sigma_range);
-        double const max_sigma = min_sigma + sigma_range;
-        double const sigma_range_percentage = v.at(n::sigma_range_pct);
-        double const start_sigma = min_sigma + (sigma_range_percentage * sigma_range);
-        double const sigma_sigma = v.at(n::sigma_sigma);
-
-        double const min_ad_prob = v.at(n::min_ad_prob);
-        double const ad_prob_range = v.at(n::ad_prob_range);
-        double const max_ad_prob = min_ad_prob + ad_prob_range;
-        double const ad_prob_start_percentage = v.at(n::ad_prob_start_pct);
-        double const start_ad_prob = min_ad_prob + (ad_prob_start_percentage * ad_prob_range);
-
-        double const adapt_ad_prob = v.at(n::adapt_ad_prob);
-
-        // Set up a population factory for serial execution
-        oa::GEvolutionaryAlgorithmFactory ea(sub_ea_config_);
-
-        // The sub-individuals' adaptors live on an OA-owned config (their genome is structure-only). The
-        // meta individual OWNS the adaptor parameters it optimises, so it authors that config INLINE here
-        // (the inner individuals are single-Gauss). It is built here from a sample genome rather than via
-        // the factory because GIndividualFactory re-applies its config file on every get_(), so
-        // programmatic setters on the factory would not stick.
-        auto sub_adaption_config = oa::makeAdaptionConfig<oa::GAdaptionConfigBase>(
-            dynamic_cast<const gen::GGenome &>(*ind_factory_->get())
-        );
-        for(std::size_t i = 0; i < sub_adaption_config->doubleGroups().size(); i++) {
-            sub_adaption_config->groupDouble(i).gauss(
-                start_sigma, sigma_sigma, min_sigma, max_sigma, start_ad_prob, adapt_ad_prob, 1,
-                Gem::Geneva::adaptionMode::WITHPROBABILITY, min_ad_prob, max_ad_prob
-            );
-        }
-
-        // Run the required number of optimizations
+    /***************************************************************************/
+    /** @brief Runs one sub-optimization (build population, drive adaption, optimize) and appends this
+     *  run's solver-calls / iterations / best-evaluation to the three accumulators. Extracted verbatim
+     *  from the per-run loop in evaluate(). */
+    void runOneSubOptimization(
+        oa::GEvolutionaryAlgorithmFactory &ea,
+        std::uint32_t pop_size,
+        std::uint32_t n_parents,
+        std::uint32_t n_children,
+        const std::shared_ptr<oa::GAdaptionConfigBase> &sub_adaption_config,
+        double amalgamation_likelihood,
+        std::vector<double> &solver_calls_per_optimization,
+        std::vector<double> &iterations_per_optimization,
+        std::vector<double> &best_evaluations
+    ) {
         std::shared_ptr<oa::GEvolutionaryAlgorithm> ea_ptr;
-
-        auto n_children = static_cast<std::uint32_t>(v.at(n::n_children));
-        auto n_parents = static_cast<std::uint32_t>(v.at(n::n_parents));
-        std::uint32_t const pop_size = n_parents + n_children;
         std::uint32_t iterations_consumed = 0;
-        double const amalgamation_likelihood = v.at(n::amalgamation);
 
-        std::vector<double> solver_calls_per_optimization;
-        std::vector<double> iterations_per_optimization;
-        std::vector<double> best_evaluations;
-
-        for(std::size_t opt = 0; opt < n_runs_per_optimization_; opt++) {
-            std::cout << "Starting measurement " << opt + 1 << " / " << n_runs_per_optimization_
-                      << '\n';
             ea_ptr = ea.get<oa::GEvolutionaryAlgorithm>();
 
             // The inner optimization submits to the one process-wide work consumer (the default). This is
@@ -799,6 +749,77 @@ protected:
             best_evaluations.push_back(
                 best_individual->transformed_fitness(0)
             ); // We use the transformed fitness to avoid MAX_DOUBLE
+    }
+
+    std::vector<double> evaluate() override {
+        // Retrieve the parameters from the flat genome by name (see readTuned()).
+        namespace n = oa::ea_tunable;
+        const auto v = readTuned();
+
+        // Check that we have been given a factory. This guard runs in release builds too: without it the
+        // ind_factory_->get() below would dereference a null factory pointer (undefined behaviour) rather
+        // than report the missing registration.
+        if(not ind_factory_) {
+            throw geneva_exception(
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+                << "In GMetaOptimizerIndividualT<T>::evaluate(): Error!" << '\n'
+                << "No factory class for individuals has been registered" << '\n'
+            );
+        }
+
+        // Derive the sub-individuals' adaptor settings from the meta-optimised parameters. The genome
+        // carries RAW knobs (min + range + start percentage) so it always holds valid values; the actual
+        // gauss bounds are derived here (max = min + range; start = min + percentage * range).
+        double const min_sigma = v.at(n::min_sigma);
+        double const sigma_range = v.at(n::sigma_range);
+        double const max_sigma = min_sigma + sigma_range;
+        double const sigma_range_percentage = v.at(n::sigma_range_pct);
+        double const start_sigma = min_sigma + (sigma_range_percentage * sigma_range);
+        double const sigma_sigma = v.at(n::sigma_sigma);
+
+        double const min_ad_prob = v.at(n::min_ad_prob);
+        double const ad_prob_range = v.at(n::ad_prob_range);
+        double const max_ad_prob = min_ad_prob + ad_prob_range;
+        double const ad_prob_start_percentage = v.at(n::ad_prob_start_pct);
+        double const start_ad_prob = min_ad_prob + (ad_prob_start_percentage * ad_prob_range);
+
+        double const adapt_ad_prob = v.at(n::adapt_ad_prob);
+
+        // Set up a population factory for serial execution
+        oa::GEvolutionaryAlgorithmFactory ea(sub_ea_config_);
+
+        // The sub-individuals' adaptors live on an OA-owned config (their genome is structure-only). The
+        // meta individual OWNS the adaptor parameters it optimises, so it authors that config INLINE here
+        // (the inner individuals are single-Gauss). It is built here from a sample genome rather than via
+        // the factory because GIndividualFactory re-applies its config file on every get_(), so
+        // programmatic setters on the factory would not stick.
+        auto sub_adaption_config = oa::makeAdaptionConfig<oa::GAdaptionConfigBase>(
+            dynamic_cast<const gen::GGenome &>(*ind_factory_->get())
+        );
+        for(std::size_t i = 0; i < sub_adaption_config->doubleGroups().size(); i++) {
+            sub_adaption_config->groupDouble(i).gauss(
+                start_sigma, sigma_sigma, min_sigma, max_sigma, start_ad_prob, adapt_ad_prob, 1,
+                Gem::Geneva::adaptionMode::WITHPROBABILITY, min_ad_prob, max_ad_prob
+            );
+        }
+
+        // Run the required number of optimizations
+        auto n_children = static_cast<std::uint32_t>(v.at(n::n_children));
+        auto n_parents = static_cast<std::uint32_t>(v.at(n::n_parents));
+        std::uint32_t const pop_size = n_parents + n_children;
+        double const amalgamation_likelihood = v.at(n::amalgamation);
+
+        std::vector<double> solver_calls_per_optimization;
+        std::vector<double> iterations_per_optimization;
+        std::vector<double> best_evaluations;
+
+        for(std::size_t opt = 0; opt < n_runs_per_optimization_; opt++) {
+            std::cout << "Starting measurement " << opt + 1 << " / " << n_runs_per_optimization_
+                      << '\n';
+            runOneSubOptimization(
+                ea, pop_size, n_parents, n_children, sub_adaption_config, amalgamation_likelihood,
+                solver_calls_per_optimization, iterations_per_optimization, best_evaluations
+            );
         }
 
         // Calculate the average number of iterations and solver calls

@@ -326,6 +326,19 @@ protected:
 
 private:
     /***************************************************************************/
+    /** @brief Worst-cases the results and flags the individual after the external command failed
+     *  (the command-error branch of evaluate()). */
+    void appendWorstCaseOnCommandError_(
+        const std::string &command,
+        int error_code,
+        const std::string &command_output_file_name,
+        std::vector<double> &results
+    );
+    /** @brief Parses+validates the external result file into the per-criterion result vector, honouring
+     *  the isValid flag (the result-parse branch of evaluate()). */
+    void parseExternalResults_(const std::string &result_file_name, std::vector<double> &results);
+
+    /***************************************************************************/
 
     std::string program_name_; ///< The name of the external program to be executed
     std::string

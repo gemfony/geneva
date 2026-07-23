@@ -201,60 +201,73 @@ GOptimizableEntity::process(const std::vector<individual_processing_result> &res
  * evaluation-policy transform.
  * @param res_vec Optional pre-computed raw results
  */
+double GOptimizableEntity::adoptRawResults_(const std::vector<individual_processing_result> &res_vec) {
+    double main_raw_result = 0.;
+
+    try {
+        if(not res_vec.empty()) {
+            if(res_vec.size() != this->getNStoredResults()) {
+                throw geneva_exception(
+                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+                    << "In GOptimizableEntity::adoptRawResults_(): Error!" << '\n'
+                    << "res_vec has invalid size. Got " << res_vec.size() << '\n'
+                    << "Expected " << this->getNStoredResults() << '\n'
+                );
+            }
+
+            main_raw_result = res_vec.begin()->rawFitness();
+
+            std::size_t pos = 0;
+            for(const auto &res : res_vec) {
+                if(pos == 0) {
+                    ++pos;
+                    continue; // skip the main raw result
+                }
+                this->setResult(pos, res.rawFitness());
+                ++pos;
+            }
+        }
+        else {
+            // Local evaluation: the virtual evaluate() RETURNS the raw result vector (main at index 0,
+            // secondary criteria after) rather than writing into the individual, mirroring the res_vec
+            // path above so the evaluation-policy transform below sees a fully-populated result store.
+            // (External GPU/network results took the res_vec branch; both converge into the one
+            // feasibility + policy + PROCESSED pass in runEvaluation_().)
+            const std::vector<double> raw = this->evaluate();
+            if(raw.size() != this->getNStoredResults()) {
+                throw geneva_exception(
+                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+                    << "In GOptimizableEntity::adoptRawResults_(): Error!" << '\n'
+                    << "evaluate() returned " << raw.size() << " result(s), but " << '\n'
+                    << this->getNStoredResults() << " were expected." << '\n'
+                );
+            }
+            main_raw_result = raw.front();
+            for(std::size_t pos = 1; pos < raw.size(); ++pos) {
+                this->setResult(pos, raw[pos]);
+            }
+        }
+    }
+    catch(...) {
+        this->setAllFitnessTo(this->getWorstCase());
+        throw;
+    }
+
+    return main_raw_result;
+}
+
+/******************************************************************************/
+/**
+ * @brief The evaluation body run inside process(): feasibility check + evaluate()/res_vec adoption + the
+ * evaluation-policy transform.
+ * @param res_vec Optional pre-computed raw results
+ */
 void GOptimizableEntity::runEvaluation_(const std::vector<individual_processing_result> &res_vec) {
     // Find out whether this is a valid solution (must be called first, to fill validity_level_).
     if(this->fulfillsConstraints(validity_level_) ||
        evaluationPolicy::USESIMPLEEVALUATION == this->getEvaluationPolicy()) {
-        double main_raw_result = 0.;
-
-        try {
-            if(not res_vec.empty()) {
-                if(res_vec.size() != this->getNStoredResults()) {
-                    throw geneva_exception(
-                        g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                        << "In GOptimizableEntity::runEvaluation_(): Error!" << '\n'
-                        << "res_vec has invalid size. Got " << res_vec.size() << '\n'
-                        << "Expected " << this->getNStoredResults() << '\n'
-                    );
-                }
-
-                main_raw_result = res_vec.begin()->rawFitness();
-
-                std::size_t pos = 0;
-                for(const auto &res : res_vec) {
-                    if(pos == 0) {
-                        ++pos;
-                        continue; // skip the main raw result
-                    }
-                    this->setResult(pos, res.rawFitness());
-                    ++pos;
-                }
-            }
-            else {
-                // Local evaluation: the virtual evaluate() RETURNS the raw result vector (main at index 0,
-                // secondary criteria after) rather than writing into the individual, mirroring the res_vec
-                // path above so the evaluation-policy transform below sees a fully-populated result store.
-                // (External GPU/network results took the res_vec branch; both converge into the one
-                // feasibility + policy + PROCESSED pass below.)
-                const std::vector<double> raw = this->evaluate();
-                if(raw.size() != this->getNStoredResults()) {
-                    throw geneva_exception(
-                        g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                        << "In GOptimizableEntity::runEvaluation_(): Error!" << '\n'
-                        << "evaluate() returned " << raw.size() << " result(s), but " << '\n'
-                        << this->getNStoredResults() << " were expected." << '\n'
-                    );
-                }
-                main_raw_result = raw.front();
-                for(std::size_t pos = 1; pos < raw.size(); ++pos) {
-                    this->setResult(pos, raw[pos]);
-                }
-            }
-        }
-        catch(...) {
-            this->setAllFitnessTo(this->getWorstCase());
-            throw;
-        }
+        // Adopt the raw results (from res_vec, or from a local evaluate()) into the result store.
+        const double main_raw_result = this->adoptRawResults_(res_vec);
 
         this->setResult(0, main_raw_result);
         this->modifyStoredResult(0).setTransformedFitnessToRaw();

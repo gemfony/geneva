@@ -81,7 +81,14 @@ std::ostream &operator<<(std::ostream &os, const CircleTriangle &ct) {
 	 * and everything else "main", so applyConfig() can author the matching OA-owned Gauss adaptor by label.
 	 * The configured ranges are validated up front.
 	 */
-gen::GenomeData GImageIndividual::buildGenome(const Config &c) {
+/******************************************************************************/
+/**
+ * @brief Validates the size / adaption-probability ranges of a GImageIndividual::Config, throwing a
+ * geneva_exception on any inconsistency. Extracted from buildGenome() (the validation preamble).
+ *
+ * @param c The Config whose size and (local) adaption-probability ranges are validated
+ */
+static void validateBuildGenomeConfig(const GImageIndividual::Config &c) {
     if(c.min_size < 0. || c.max_size > 1. || c.min_size >= c.max_size) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
@@ -146,6 +153,10 @@ gen::GenomeData GImageIndividual::buildGenome(const Config &c) {
             << c.loc_min_ad_prob << " / " << c.loc_max_ad_prob << " / " << c.loc_ad_prob << '\n'
         );
     }
+}
+
+gen::GenomeData GImageIndividual::buildGenome(const Config &c) {
+    validateBuildGenomeConfig(c);
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Build the flat genome via GGenomeBuilder. The streamline order is a positional contract --

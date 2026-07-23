@@ -264,112 +264,149 @@ std::vector<double> GExternalEvaluatorIndividual::evaluate() {
         command
     );
 
-    if(error_code) {                      // Something went wrong
-        std::ostringstream error_message; // NOLINT(cppcoreguidelines-init-variables)
-
-        error_message << "In GExternalEvaluatorIndividual::evaluate():" << '\n'
-                      << "Execution of external command failed." << '\n'
-                      << "Command: " << command << '\n'
-                      << "Error code: " << error_code << '\n'
-                      << "Program output:" << '\n'
-                      << Gem::Common::loadTextDataFromFile(command_output_file_name) << '\n';
-
-#ifdef DEBUG
-        glogger << error_message.str() << GWARNING;
-#endif
-
-        // O.k., so the external application crashed or returned an error.
-        // All we can do here is to return the worst case. As long as crashes
-        // do not happen too often, this will have but little influence on
-        // the optimization.
-        for(double &r : results) {
-            r = this->getWorstCase();
-        }
-
-        // Make sure the individual can be recognized as invalid by Geneva
-        this->force_set_error(error_message.str());
+    if(error_code) { // Something went wrong -- worst-case the results and flag the individual
+        this->appendWorstCaseOnCommandError_(command, error_code, command_output_file_name, results);
     }
-    else { // Everything is o.k., lets retrieve the evaluation
-        // Check that the result file exists
-        if(not std::filesystem::exists(result_file_name)) {
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GExternalEvaluatorIndividual::evaluate(): Error!" << '\n'
-                << "Result file " << result_file_name << " does not seem to exist." << '\n'
-            );
-        }
-
-        // Parse the results (GJsonIO throws a geneva_exception with the file name on a malformed file)
-        json::value result_doc = Gem::Common::parseJsonFile(result_file_name);
-
-        try {
-            json::object const &root = result_doc.as_object();
-
-            // Check that only a single result individual was returned
-            auto n_external_individuals = root.at("n_individuals").to_number<std::size_t>();
-            if(1 != n_external_individuals) {
-                throw geneva_exception(
-                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                    << "In GExternalEvaluatorIndividual::evaluate(): Error!" << '\n'
-                    << "Number of result individuals != 1: " << n_external_individuals << '\n'
-                );
-            }
-
-            json::object const &result_individual = root.at("individuals").as_array().at(0).as_object();
-
-            // Check that the number of results provided by the result file matches the number of expected results
-            auto external_n_results = result_individual.at("n_results").to_number<std::size_t>();
-            if(external_n_results != n_results_) {
-                throw geneva_exception(
-                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                    << "In GExternalEvaluatorIndividual::evaluate(): Error!" << '\n'
-                    << "Result file provides n_results = " << external_n_results << '\n'
-                    << "while we expected " << n_results_ << '\n'
-                );
-            }
-
-            // Check whether the results represent useful values
-            bool const is_valid = result_individual.at("isValid").as_bool();
-            if(not is_valid) {                    // Assign worst-case values to all result
-                std::ostringstream error_message; // NOLINT(cppcoreguidelines-init-variables)
-
-                error_message << "In GExternalEvaluatorIndividual::evaluate():" << '\n'
-                              << "individuals[0].isValid is \"false\"" << '\n';
-
-#ifdef DEBUG
-                glogger << error_message.str() << GWARNING;
-#endif
-
-                for(double &r : results) {
-                    r = this->getWorstCase();
-                }
-
-                // Make sure the individual can be recognized as invalid by Geneva
-                this->force_set_error(error_message.str());
-            }
-            else { // Extract and store all result values
-                json::array const &results_node = result_individual.at("results").as_array();
-
-                for(std::size_t res = 0; res < n_results_; res++) {
-                    results[res] = results_node.at(res).as_object().at("rawResult").to_number<double>();
-                }
-            }
-        }
-        catch(const geneva_exception &) {
-            throw; // re-throw our own diagnostics untouched
-        }
-        catch(const std::exception &e) {
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GExternalEvaluatorIndividual::evaluate(): Error reading "
-                << result_file_name << '\n'
-                << "with message " << e.what() << '\n'
-            );
-        }
+    else { // Everything is o.k., lets retrieve the evaluation from the result file
+        this->parseExternalResults_(result_file_name, results);
     }
 
     // Return the full per-criterion result vector (the caller writes each criterion)
     return results;
+}
+
+/******************************************************************************/
+/**
+ * @brief Fills the result vector with the worst case and flags the individual as invalid after the
+ * external evaluation command failed. Extracted from evaluate() (the command-error branch).
+ *
+ * @param command The command line that was executed
+ * @param error_code The non-zero error code returned by the external command
+ * @param command_output_file_name The file capturing the external program's output (for diagnostics)
+ * @param results The per-criterion result vector to fill with the worst case (modified in place)
+ */
+void GExternalEvaluatorIndividual::appendWorstCaseOnCommandError_(
+    const std::string &command,
+    int error_code,
+    const std::string &command_output_file_name,
+    std::vector<double> &results
+) {
+    std::ostringstream error_message; // NOLINT(cppcoreguidelines-init-variables)
+
+    error_message << "In GExternalEvaluatorIndividual::evaluate():" << '\n'
+                  << "Execution of external command failed." << '\n'
+                  << "Command: " << command << '\n'
+                  << "Error code: " << error_code << '\n'
+                  << "Program output:" << '\n'
+                  << Gem::Common::loadTextDataFromFile(command_output_file_name) << '\n';
+
+#ifdef DEBUG
+    glogger << error_message.str() << GWARNING;
+#endif
+
+    // O.k., so the external application crashed or returned an error.
+    // All we can do here is to return the worst case. As long as crashes
+    // do not happen too often, this will have but little influence on
+    // the optimization.
+    for(double &r : results) {
+        r = this->getWorstCase();
+    }
+
+    // Make sure the individual can be recognized as invalid by Geneva
+    this->force_set_error(error_message.str());
+}
+
+/******************************************************************************/
+/**
+ * @brief Parses the external evaluation result file into the per-criterion result vector, validating the
+ * individual count / result count and honouring the individual's isValid flag (worst-casing + flagging on
+ * an invalid result). Extracted from evaluate() (the result-parse branch).
+ *
+ * @param result_file_name The JSON result file written by the external evaluation program
+ * @param results The per-criterion result vector to fill (modified in place)
+ */
+void GExternalEvaluatorIndividual::parseExternalResults_(
+    const std::string &result_file_name,
+    std::vector<double> &results
+) {
+    namespace json = boost::json;
+
+    // Check that the result file exists
+    if(not std::filesystem::exists(result_file_name)) {
+        throw geneva_exception(
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+            << "In GExternalEvaluatorIndividual::evaluate(): Error!" << '\n'
+            << "Result file " << result_file_name << " does not seem to exist." << '\n'
+        );
+    }
+
+    // Parse the results (GJsonIO throws a geneva_exception with the file name on a malformed file)
+    json::value result_doc = Gem::Common::parseJsonFile(result_file_name);
+
+    try {
+        json::object const &root = result_doc.as_object();
+
+        // Check that only a single result individual was returned
+        auto n_external_individuals = root.at("n_individuals").to_number<std::size_t>();
+        if(1 != n_external_individuals) {
+            throw geneva_exception(
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+                << "In GExternalEvaluatorIndividual::evaluate(): Error!" << '\n'
+                << "Number of result individuals != 1: " << n_external_individuals << '\n'
+            );
+        }
+
+        json::object const &result_individual = root.at("individuals").as_array().at(0).as_object();
+
+        // Check that the number of results provided by the result file matches the number of expected results
+        auto external_n_results = result_individual.at("n_results").to_number<std::size_t>();
+        if(external_n_results != n_results_) {
+            throw geneva_exception(
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+                << "In GExternalEvaluatorIndividual::evaluate(): Error!" << '\n'
+                << "Result file provides n_results = " << external_n_results << '\n'
+                << "while we expected " << n_results_ << '\n'
+            );
+        }
+
+        // Check whether the results represent useful values
+        bool const is_valid = result_individual.at("isValid").as_bool();
+        if(not is_valid) {                    // Assign worst-case values to all result
+            std::ostringstream error_message; // NOLINT(cppcoreguidelines-init-variables)
+
+            error_message << "In GExternalEvaluatorIndividual::evaluate():" << '\n'
+                          << "individuals[0].isValid is \"false\"" << '\n';
+
+#ifdef DEBUG
+            glogger << error_message.str() << GWARNING;
+#endif
+
+            for(double &r : results) {
+                r = this->getWorstCase();
+            }
+
+            // Make sure the individual can be recognized as invalid by Geneva
+            this->force_set_error(error_message.str());
+        }
+        else { // Extract and store all result values
+            json::array const &results_node = result_individual.at("results").as_array();
+
+            for(std::size_t res = 0; res < n_results_; res++) {
+                results[res] = results_node.at(res).as_object().at("rawResult").to_number<double>();
+            }
+        }
+    }
+    catch(const geneva_exception &) {
+        throw; // re-throw our own diagnostics untouched
+    }
+    catch(const std::exception &e) {
+        throw geneva_exception(
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+            << "In GExternalEvaluatorIndividual::evaluate(): Error reading "
+            << result_file_name << '\n'
+            << "with message " << e.what() << '\n'
+        );
+    }
 }
 
 /******************************************************************************/
@@ -480,34 +517,14 @@ void GExternalEvaluatorIndividual::describeConfig(Gem::Common::GParserBuilder &g
 
 /******************************************************************************/
 /**
- * @brief Queries the external evaluator program for the desired structure of the individuals and builds the flat genome from it.
+ * @brief Runs the external evaluator's --init then --setup steps and returns the parsed setup document
+ * (guaranteed to be a JSON object). Extracted from buildGenome() (the external-query / IPC phase).
  *
- * This runs the program with --init then --setup, parses the returned XML, and builds the genome from
- * it. Because the generic factory builds the shared genome exactly once, the (expensive) external query
- * happens once too. The discovered
- * run-id and result count are recorded back into @p c so applyConfig() can hand them to each produced
- * individual.
- *
- * @param c The Config supplying the program name / custom options / init mode; mutated in place with the discovered run-id and expected result count
- * @return The flat genome structure (GenomeData) describing the discovered variables
+ * @param c The Config supplying the program name / custom options / init mode
+ * @return The parsed setup JSON document
  */
-gen::GenomeData GExternalEvaluatorIndividual::buildGenome(Config &c) {
+static boost::json::value queryExternalSetup(const GExternalEvaluatorIndividual::Config &c) {
     namespace json = boost::json;
-
-    if(c.program_name.empty()) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GExternalEvaluatorIndividual::buildGenome(): Error!" << '\n'
-            << "Program name was empty" << '\n'
-        );
-    }
-    if(not std::filesystem::exists(c.program_name)) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GExternalEvaluatorIndividual::buildGenome(): Error!" << '\n'
-            << "External program " << c.program_name << " does not seem to exist" << '\n'
-        );
-    }
 
     json::value setup_doc;
 
@@ -566,6 +583,24 @@ gen::GenomeData GExternalEvaluatorIndividual::buildGenome(Config &c) {
             << "Setup document is empty or not a JSON object." << '\n'
         );
     }
+
+    return setup_doc;
+}
+
+/******************************************************************************/
+/**
+ * @brief Builds the flat genome from the external evaluator's setup document, recording the discovered
+ * run-id and expected result count back into @p c. Extracted from buildGenome() (the authoring phase).
+ *
+ * @param setup_doc The parsed setup document returned by queryExternalSetup()
+ * @param c The Config, mutated in place with the discovered run-id and expected result count
+ * @return The flat genome structure describing the discovered variables
+ */
+static gen::GenomeData authorFlatGenomeFromSetup(
+    const boost::json::value &setup_doc,
+    GExternalEvaluatorIndividual::Config &c
+) {
+    namespace json = boost::json;
 
     // Author the flat genome: each discovered variable becomes one constrained double group. Fixed
     // variables (min == max) are built with adaptionMode::NEVER; active ones get their Gauss/bi-Gauss
@@ -638,6 +673,39 @@ gen::GenomeData GExternalEvaluatorIndividual::buildGenome(Config &c) {
     }
 
     return gb.build();
+}
+
+/******************************************************************************/
+/**
+ * @brief Queries the external evaluator program for the desired structure of the individuals and builds the flat genome from it.
+ *
+ * This runs the program with --init then --setup, parses the returned XML, and builds the genome from
+ * it. Because the generic factory builds the shared genome exactly once, the (expensive) external query
+ * happens once too. The discovered
+ * run-id and result count are recorded back into @p c so applyConfig() can hand them to each produced
+ * individual.
+ *
+ * @param c The Config supplying the program name / custom options / init mode; mutated in place with the discovered run-id and expected result count
+ * @return The flat genome structure (GenomeData) describing the discovered variables
+ */
+gen::GenomeData GExternalEvaluatorIndividual::buildGenome(Config &c) {
+    if(c.program_name.empty()) {
+        throw geneva_exception(
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+            << "In GExternalEvaluatorIndividual::buildGenome(): Error!" << '\n'
+            << "Program name was empty" << '\n'
+        );
+    }
+    if(not std::filesystem::exists(c.program_name)) {
+        throw geneva_exception(
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+            << "In GExternalEvaluatorIndividual::buildGenome(): Error!" << '\n'
+            << "External program " << c.program_name << " does not seem to exist" << '\n'
+        );
+    }
+
+    const boost::json::value setup_doc = queryExternalSetup(c);
+    return authorFlatGenomeFromSetup(setup_doc, c);
 }
 
 /******************************************************************************/
