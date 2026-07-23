@@ -753,6 +753,28 @@ TEST_CASE("Swarm optimization optimizes a flat individual", "[flat][oa]") {
 
 /******************************************************************************/
 
+TEST_CASE("Swarm load() reproduces a POPULATED state (neighborhood + global bests past iteration 0)", "[flat][oa]") {
+    // After the fold, the neighborhood bests (neighborhood_bests_cnt_) and the global best (global_best_ptr_)
+    // are deep-cloned and compared through the generic cloneable-member policies rather than the old
+    // iteration-conditional tail in load_()/compare_(). Run a swarm several iterations so those bests are
+    // populated (afterFirstIteration, non-null), then pin that load() into a fresh swarm reproduces the whole
+    // state and compares EQUAL -- exercising exactly the conditional reconstruction the fold removed. A fresh
+    // swarm (null bests) is already covered by the [serialization] safety-net; this covers the populated path.
+    auto original = std::make_shared<oa::GSwarmAlgorithm>();
+    original->setSwarmSizes(3, 6);
+    original->setMaxIteration(20);
+    original->setReportIteration(100000);
+    original->push_back(SphereOA().clone_unique());
+    original->optimize();
+    REQUIRE(original->getBestGlobalIndividual<SphereOA>()); // it ran -> the bests are populated, non-null
+
+    oa::GSwarmAlgorithm restored;
+    REQUIRE_NOTHROW(restored.load(*original));                             // folded load_: clones the bests
+    CHECK_NOTHROW(restored.compare(*original, Gem::Common::expectation::EQUALITY, 0.)); // folded compare_: bests compared
+}
+
+/******************************************************************************/
+
 TEST_CASE("Swarm tolerates a frozen (equal-bound) parameter", "[flat][oa]") {
     // Regression for the PSO crash on a fixed parameter: a dimension with upper == lower has a velocity
     // range of l*(upper-lower) == 0; pruneVelocity() must clamp it to zero instead of throwing, and the
