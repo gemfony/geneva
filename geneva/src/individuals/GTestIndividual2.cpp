@@ -122,7 +122,7 @@ GTestIndividual2::GTestIndividual2(const std::size_t &n_objects, const PERFOBJEC
  * @param cp A constant reference to another GTestIndividual2 object
  */
 GTestIndividual2::GTestIndividual2(const GTestIndividual2 &cp)
-  : gen::GGenome(cp) { /* nothing */
+  : gen::GGenomeT<GTestIndividual2>(cp) { /* nothing */
 }
 
 /******************************************************************************/
@@ -148,68 +148,6 @@ std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase> GTestIndividual2::g
         cfg->groupDouble(i).gauss(0.025, 0.1, 0., 1., 1.);
     }
     return cfg;
-}
-
-/******************************************************************************/
-/**
- * @brief Searches for compliance with expectations with respect to another object
- * of the same type
- *
- * @param cp A constant reference to another GTestIndividual2 object, camouflaged as a GOptimizableEntity
- * @param e The expected outcome of the comparison
- * @param limit The maximum deviation tolerated for (floating-point) comparisons (unused here)
- */
-void GTestIndividual2::compare_(
-    const gen::GOptimizableEntity &cp,
-    const Gem::Common::expectation &e,
-    [[maybe_unused]] const double & limit
-) const {
-    using namespace Gem::Common;
-    using namespace Gem::Geneva;
-
-    // Check that we are dealing with a GTestIndividual2 reference independent of this object and convert the pointer
-    const GTestIndividual2 *p_load =
-        Gem::Common::g_convert_and_compare<gen::GOptimizableEntity, GTestIndividual2>(cp, this);
-
-    Gem::Common::GToken token("GTestIndividual2", e);
-
-    // Compare our parent data ...
-    Gem::Common::compare_base_t<gen::GGenome>(*this, *p_load, token);
-
-    // ...no local data
-
-    // React on deviations from the expectation
-    token.evaluate();
-}
-
-/******************************************************************************/
-/**
- * @brief Loads the data of another GTestIndividual2, camouflaged as a GOptimizableEntity.
- *
- * @param cp A pointer to another GTestIndividual2, camouflaged as a GOptimizableEntity
- */
-void GTestIndividual2::load_(const gen::GOptimizableEntity *cp) {
-    using namespace Gem::Common;
-    using namespace Gem::Geneva;
-
-    // Check that we are dealing with a GTestIndividual2 reference independent of this object and convert the pointer
-    const GTestIndividual2 *p_load =
-        Gem::Common::g_convert_and_compare<gen::GOptimizableEntity, GTestIndividual2>(cp, this);
-
-    // Load our parent's data
-    gen::GGenome::load_(cp);
-
-    // no local data
-}
-
-/******************************************************************************/
-/**
- * @brief Creates a deep clone of this object
- *
- * @return A deep clone of this object, camouflaged as a GGenome
- */
-gen::GGenome *GTestIndividual2::clone_() const {
-    return new GTestIndividual2(*this);
 }
 
 /******************************************************************************/

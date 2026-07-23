@@ -96,67 +96,6 @@ std::shared_ptr<OptimizationAlgorithms::GAdaptionConfigBase> GTestIndividual1::g
 
 /******************************************************************************/
 /**
- * @brief Searches for compliance with expectations with respect to another object of the same type.
- *
- * @param cp A constant reference to another object, camouflaged as a GOptimizableEntity, to compare against
- * @param e The expected outcome of the comparison (equality, inequality, ...)
- * @param limit The maximum acceptable deviation for (floating point) comparisons (unused here)
- */
-void GTestIndividual1::compare_(
-    const gen::GOptimizableEntity &cp,
-    const Gem::Common::expectation &e,
-    [[maybe_unused]] const double & limit
-) const {
-    using namespace Gem::Common;
-    using namespace Gem::Geneva;
-
-    // Check that we are dealing with a GTestIndividual1 reference independent of this object and convert the pointer
-    const GTestIndividual1 *p_load =
-        Gem::Common::g_convert_and_compare<gen::GOptimizableEntity, GTestIndividual1>(cp, this);
-
-    GToken token("GTestIndividual1", e);
-
-    // Compare our parent data ...
-    Gem::Common::compare_base_t<gen::GGenome>(*this, *p_load, token);
-
-    // ... no local data
-
-    // React on deviations from the expectation
-    token.evaluate();
-}
-
-/******************************************************************************/
-/**
- * @brief Loads the data of another GTestIndividual1, camouflaged as a GOptimizableEntity.
- *
- * @param cp A pointer to another GTestIndividual1, camouflaged as a GOptimizableEntity, to load from
- */
-void GTestIndividual1::load_(const gen::GOptimizableEntity *cp) {
-    using namespace Gem::Common;
-    using namespace Gem::Geneva;
-
-    // Check that we are dealing with a GTestIndividual1 reference independent of this object and convert the pointer
-    const GTestIndividual1 *p_load =
-        Gem::Common::g_convert_and_compare<gen::GOptimizableEntity, GTestIndividual1>(cp, this);
-
-    // Load our parent's data
-    gen::GGenome::load_(cp);
-
-    // No local data
-}
-
-/******************************************************************************/
-/**
- * @brief Creates a deep clone of this object.
- *
- * @return A deep clone of this object, camouflaged as a GGenome pointer
- */
-gen::GGenome *GTestIndividual1::clone_() const {
-    return new GTestIndividual1(*this);
-}
-
-/******************************************************************************/
-/**
  * @brief The actual fitness calculation takes place here; computes a parabola (sum of squares) over the
  * flat double values.
  *

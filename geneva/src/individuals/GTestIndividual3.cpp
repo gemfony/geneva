@@ -94,7 +94,7 @@ GTestIndividual3::GTestIndividual3() {
  * @param cp A constant reference to another GTestIndividual3 object
  */
 GTestIndividual3::GTestIndividual3(const GTestIndividual3 &cp)
-  : gen::GGenome(cp) { /* nothing */
+  : gen::GGenomeT<GTestIndividual3>(cp) { /* nothing */
 }
 
 /******************************************************************************/
@@ -102,68 +102,6 @@ GTestIndividual3::GTestIndividual3(const GTestIndividual3 &cp)
  * @brief The standard destructor
  */
 GTestIndividual3::~GTestIndividual3() { /* nothing */
-}
-
-/******************************************************************************/
-/**
- * @brief Searches for compliance with expectations with respect to another object
- * of the same type
- *
- * @param cp A constant reference to another GTestIndividual3 object, camouflaged as a GOptimizableEntity
- * @param e The expected outcome of the comparison
- * @param limit The maximum deviation tolerated for (floating-point) comparisons (unused here)
- */
-void GTestIndividual3::compare_(
-    const gen::GOptimizableEntity &cp,
-    const Gem::Common::expectation &e,
-    [[maybe_unused]] const double & limit
-) const {
-    using namespace Gem::Common;
-    using namespace Gem::Geneva;
-
-    // Check that we are dealing with a GTestIndividual3 reference independent of this object and convert the pointer
-    const GTestIndividual3 *p_load =
-        Gem::Common::g_convert_and_compare<gen::GOptimizableEntity, GTestIndividual3>(cp, this);
-
-    Gem::Common::GToken token("GTestIndividual3", e);
-
-    // Compare our parent data ...
-    Gem::Common::compare_base_t<gen::GGenome>(*this, *p_load, token);
-
-    // ...no local data
-
-    // React on deviations from the expectation
-    token.evaluate();
-}
-
-/******************************************************************************/
-/**
- * @brief Loads the data of another GTestIndividual3, camouflaged as a GOptimizableEntity.
- *
- * @param cp A pointer to another GTestIndividual3, camouflaged as a GOptimizableEntity
- */
-void GTestIndividual3::load_(const gen::GOptimizableEntity *cp) {
-    using namespace Gem::Common;
-    using namespace Gem::Geneva;
-
-    // Check that we are dealing with a GTestIndividual3 reference independent of this object and convert the pointer
-    const GTestIndividual3 *p_load =
-        Gem::Common::g_convert_and_compare<gen::GOptimizableEntity, GTestIndividual3>(cp, this);
-
-    // Load our parent's data
-    gen::GGenome::load_(cp);
-
-    // no local data
-}
-
-/******************************************************************************/
-/**
- * @brief Creates a deep clone of this object
- *
- * @return A deep clone of this object, camouflaged as a GGenome
- */
-gen::GGenome *GTestIndividual3::clone_() const {
-    return new GTestIndividual3(*this);
 }
 
 /******************************************************************************/
