@@ -255,6 +255,12 @@ public:
     /** @brief @return The number of result slots held by this candidate */
     [[nodiscard]] std::size_t getNStoredResults() const { return stored_results_cnt_.size(); }
 
+    /** @brief Read-only retrieval of the whole result store (no PROCESSED-flag precondition, unlike
+     *  getStoredResult()), used to carry results across a return reconciliation. @return The result store */
+    [[nodiscard]] const std::vector<individual_processing_result> &getStoredResults() const {
+        return stored_results_cnt_;
+    }
+
     /***************************************************************************/
     // Pre-/post-processing (used by nested / post-optimizing algorithms).
 
@@ -800,6 +806,17 @@ protected:
     void registerResult(std::size_t id, const individual_processing_result &r) {
         stored_results_cnt_.at(id) = r;
     }
+    /** @brief Replaces the whole result store WITHOUT touching the processing status (unlike
+     *  markAsProcessedWith(), which forces PROCESSED). Used to carry results across a return
+     *  reconciliation, where the status is set separately from the returned lifecycle.
+     *  @param results The result store to install */
+    void setStoredResults(const std::vector<individual_processing_result> &results) {
+        stored_results_cnt_ = results;
+    }
+    /** @brief Records the feasibility (validity) level -- normally filled by fulfillsConstraints() during
+     *  evaluation; exposed here so a return reconciliation can carry the worker-computed value.
+     *  @param validity_level The validity level (<= 1 == feasible) */
+    void setValidityLevel(double validity_level) { validity_level_ = validity_level; }
 
     /** @brief @return A reference to the shared problem policy (for the genome's feasibility check) */
     GProblemPolicy &policy() { return *policy_; }

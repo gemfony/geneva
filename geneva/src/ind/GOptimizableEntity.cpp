@@ -640,16 +640,14 @@ void GOptimizableEntity::absorbResultsFrom_(const Gem::Courtier::GProcessable &s
         return; // a non-individual return carries nothing more we can absorb
     }
 
-    // The plain evaluation-derived local members and the result store -- the subset of a full load a
-    // networked return legitimately carries (minus the genome, the config processors/policy and the OA
-    // scratch). This subset is hand-listed on purpose: localMembers_() now carries the WHOLE member set to
-    // drive the fold, so reusing it here would over-copy. Whether a newly added member should be absorbed
-    // on a return is a semantic call, not an automatic one -- so it is listed explicitly here.
-    pre_processing_disabled_ = p_load->pre_processing_disabled_;
-    post_processing_disabled_ = p_load->post_processing_disabled_;
-    assigned_iteration_ = p_load->assigned_iteration_;
-    validity_level_ = p_load->validity_level_;
-    stored_results_cnt_ = p_load->stored_results_cnt_;
+    // A results-only return carries exactly the two evaluation OUTPUTS a worker computes: the result store
+    // and the feasibility (validity) level. Everything else the server already holds correctly and keeps:
+    // the genome and OA scratch (kept by not re-copying them), and the config veto flags / assigned
+    // iteration (unchanged by processing, so identical on both sides). Expressed through the public
+    // accessors, this absorb is a fixed, semantic set independent of the member layout -- so the folded
+    // localMembers_() (which now carries the whole member set) does not affect it.
+    this->setStoredResults(p_load->getStoredResults());
+    this->setValidityLevel(p_load->getValidityLevel());
 }
 
 /******************************************************************************/
