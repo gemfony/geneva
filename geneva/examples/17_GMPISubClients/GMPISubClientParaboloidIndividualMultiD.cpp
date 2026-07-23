@@ -53,7 +53,7 @@ using namespace Gem::Courtier;
  * each of which has a constrained value range [-10:10].
  */
 GMPISubClientParaboloidIndividualMultiD::GMPISubClientParaboloidIndividualMultiD()
-  : GMPISubClientIndividual()
+  : Gem::Common::GBoilerplateT<GMPISubClientParaboloidIndividualMultiD, GMPISubClientIndividual, gen::GGenome>()
   , M_PAR_MIN(-10.)
   , M_PAR_MAX(10.) {
     // Build a flat genome of nParameters_ constrained doubles in [M_PAR_MIN, M_PAR_MAX[, each its own
@@ -77,40 +77,9 @@ GMPISubClientParaboloidIndividualMultiD::GMPISubClientParaboloidIndividualMultiD
 GMPISubClientParaboloidIndividualMultiD::GMPISubClientParaboloidIndividualMultiD(
     const GMPISubClientParaboloidIndividualMultiD &cp
 )
-  : GMPISubClientIndividual(cp)
+  : Gem::Common::GBoilerplateT<GMPISubClientParaboloidIndividualMultiD, GMPISubClientIndividual, gen::GGenome>(cp)
   , M_PAR_MIN(-10.)
   , M_PAR_MAX(10) { /* nothing */
-}
-
-/********************************************************************************************/
-/**
- * Loads the data of another GMPISubClientParaboloidIndividualMultiD, camouflaged as a GOptimizableEntity.
- *
- * @param cp A copy of another GMPISubClientParaboloidIndividualMultiD, camouflaged as a GOptimizableEntity
- */
-void GMPISubClientParaboloidIndividualMultiD::load_(const gen::GOptimizableEntity *cp) {
-    // Check that we are dealing with a GMPISubClientParaboloidIndividualMultiD reference independent of this object and convert the pointer
-    const GMPISubClientParaboloidIndividualMultiD *p_load =
-        Gem::Common::g_convert_and_compare<gen::GOptimizableEntity, GMPISubClientParaboloidIndividualMultiD>(
-            cp,
-            this
-        );
-
-    // Load our parent's data
-    GMPISubClientIndividual::load_(cp);
-
-    // No local data
-    // sampleVariable = p_load->sampleVariable;
-}
-
-/********************************************************************************************/
-/**
- * Creates a deep clone of this object
- *
- * @return A deep clone of this object, camouflaged as a GGenome
- */
-gen::GGenome *GMPISubClientParaboloidIndividualMultiD::clone_() const {
-    return new GMPISubClientParaboloidIndividualMultiD(*this);
 }
 
 /********************************************************************************************/
