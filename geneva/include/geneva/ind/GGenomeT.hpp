@@ -45,17 +45,17 @@ namespace Gem::Geneva::Genome {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * The sole CRTP base a concrete flat individual derives. Because GGenome holds all genome state
- * generically, a typical individual adds no extra data members, so its deep-clone is purely mechanical --
- * this base generates it (clone_ = new Derived(*this)). load_ / compare_ are inherited from
- * GGenome unchanged (they copy / compare the value arrays, which is all such an individual has).
- * The result: a minimal flat individual is a constructor that builds its genome plus an
- * evaluate(), with one BOOST_CLASS_EXPORT(Derived) for serialisation.
+ * The sole CRTP base a concrete flat individual derives. It is a thin adaptor over the GBoilerplateT
+ * mixin (with CloneReturn = GGenome so the generated clone_ returns GGenome* covariantly): clone_, name_,
+ * load_, compare_ and serialize are all GENERATED, so a minimal flat individual is just a constructor that
+ * builds its genome, an evaluate(), the opt-in flat tag, and one BOOST_CLASS_EXPORT(Derived).
  *
- * An individual that genuinely carries extra (non-genome) members simply does not use this base and
- * overrides clone_ / load_ / compare_ / serialize itself.
+ * Because GGenome holds all genome state generically, a genome-only individual adds no members of its own
+ * and inherits GGenomeT's empty member list. An individual that genuinely carries extra (non-genome)
+ * members instead declares its OWN localMembers_(), listing them (a documented contract today; see the b2
+ * TODO on GGenomeT::localMembers_() for the planned compile-time enforcement).
  *
- * Usage:
+ * Usage (genome-only):
  * @code
  *   class MyIndividual : public GGenomeT<MyIndividual> {
  *   public:
@@ -65,49 +65,42 @@ namespace Gem::Geneva::Genome {
  *           this->setGenome(b.build());
  *       }
  *       std::vector<double> evaluate() override { ... }
- *   private:
- *       friend class boost::serialization::access;
- *       template <typename Archive> void serialize(Archive& ar, [[maybe_unused]] const unsigned int version) {
- *           ar & boost::serialization::make_nvp(
- *               "GGenomeT",
- *               boost::serialization::base_object<GGenomeT<MyIndividual>>(*this));
- *       }
  *   };
  *   BOOST_CLASS_EXPORT(MyIndividual)
+ * @endcode
+ *
+ * Usage (with extra state): declare localMembers_() listing the extra members, e.g.
+ * @code
+ *   friend struct Gem::Common::GBoilerplateAccess;
+ *   template <typename Self> auto localMembers_(this Self &self) {
+ *       return std::make_tuple(Gem::Common::make_member("my_extra_", self.my_extra_));
+ *   }
  * @endcode
  *
  * @tparam Derived The concrete flat individual type (CRTP), supplying its constructor and evaluate()
  */
 template <class Derived>
-class GGenomeT : public GGenome {
+class GGenomeT : public Gem::Common::GBoilerplateT<Derived, GGenome, GGenome> {
     ///////////////////////////////////////////////////////////////////////
-    friend class boost::serialization::access;
+    friend struct Gem::Common::GBoilerplateAccess;
 
-    /**
-     * @brief Serialises this individual through its GGenome base (no extra members to add).
-     * @tparam Archive The Boost.Serialization archive type
-     * @param ar The archive to read from / write to
-     * @param version The (unused) serialization version number
-     */
-    template <typename Archive>
-    void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
-        ar &boost::serialization::make_nvp(
-            "GGenome",
-            boost::serialization::base_object<GGenome>(*this)
-        );
-    }
+    /** @brief A genome-only leaf carries no data beyond its genome, so it inherits this empty member list
+     *  and the GBoilerplateT mixin generates clone_ / name_ / load_ / compare_ / serialize from it (serialize
+     *  additionally emits base_object<GGenome>; clone_ returns GGenome* covariantly). An individual that
+     *  genuinely adds non-genome members declares its OWN localMembers_(), which hides this one; it MUST do
+     *  so (documented contract), or that state is silently dropped from serialize/compare/load.
+     *
+     *  TODO (b2, deferred): constrain this to an opt-in tag (`requires { typename Self::gemfony_flat_individual; }`)
+     *  so a stateful leaf that forgets its localMembers_() fails to compile instead. That turns the contract
+     *  into a compile-time guard, at the cost of tagging every genome-only leaf (~40 today). Deferred as a
+     *  dedicated sweep; until C++26 reflection can enumerate members, the tag is the only compile-time guard. */
+    template <typename Self>
+    auto localMembers_(this Self &) { return std::make_tuple(); }
     ///////////////////////////////////////////////////////////////////////
 
 public:
-    /** @brief Inherit the GGenome constructors (default + n-fitness-criteria) */
-    using GGenome::GGenome;
-
-private:
-    /** @brief Creates a deep clone of this object via the Derived copy constructor.
-     *  @return A heap-allocated deep copy of this individual (as a GGenome base pointer) */
-    GGenome *clone_() const override {
-        return new Derived(*static_cast<const Derived *>(this));
-    }
+    /** @brief Inherit the GGenome constructors (default + n-fitness-criteria). */
+    using Gem::Common::GBoilerplateT<Derived, GGenome, GGenome>::GBoilerplateT;
 };
 
 /******************************************************************************/
