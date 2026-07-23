@@ -441,25 +441,6 @@ make_uncompared_cloneable_member(const char *name, T &ref) {
 }
 
 /**
- * @brief Builds a member that the OWNER serialises itself: deep-copied on load, not compared, and NOT
- * emitted by serialize_members() (ser_skip).
- *
- * For a pointer member whose on-wire form is irreducibly custom (e.g. conditionally omitted on the wire),
- * so the owning class emits it in its own hand-written serialize(); here the descriptor only drives the
- * load (copy-construct the pointee) and marks it out of comparable identity.
- *
- * @tparam T The (deduced) smart-pointer member type
- * @param name The member's name (comparison / diagnostic label; not emitted here)
- * @param ref A reference to the data member
- * @return A member_desc composing ser_skip / load_copy_ptr / cmp_skip
- */
-template <typename T>
-member_desc<T, ser_skip, load_copy_ptr, cmp_skip>
-make_owner_serialized_ptr_member(const char *name, T &ref) {
-    return member_desc<T, ser_skip, load_copy_ptr, cmp_skip>{name, ref};
-}
-
-/**
  * @brief Builds a descriptor for a stateful, non-container BASE subobject.
  *
  * The base is serialised as boost base_object<Base> (which also registers the Derived<->Base void-cast),

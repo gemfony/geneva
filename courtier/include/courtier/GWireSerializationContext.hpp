@@ -46,7 +46,11 @@
 #include <utility>
 
 // Geneva headers go here
+#include <boost/serialization/nvp.hpp>
+#include <boost/serialization/unique_ptr.hpp> // Boost (de)serialization of std::unique_ptr (null-aware)
+
 #include "common/GCommonEnums.hpp" // Gem::Common::serializationMode
+#include "common/GMemberReflectionT.hpp" // member_desc / load_copy_ptr / cmp_skip (the wire-omitted-ptr descriptor)
 #include "common/concurrency/GContentAddressedStoreT.hpp" // the generic store GWireLayoutRegistry specializes
 
 namespace Gem::Courtier {
@@ -188,6 +192,74 @@ private:
     const GWireSerializationContext *prev_;
     inline static thread_local const GWireSerializationContext *t_current_ = nullptr;
 };
+
+/******************************************************************************/
+/**
+ * @brief Serialize policy for a "server-side, wire-omitted" optional owned pointer -- an owned aggregate
+ * (e.g. an individual's OA scratch) that rides a checkpoint / file but must NOT travel on the wire, so a
+ * remote worker neither receives nor can mutate it.
+ *
+ * Presence is Boost's own smart-pointer null marker (a single NVP), so no separate has-flag is needed:
+ * off the wire the pointer is saved as-is (null-or-object); ON the wire it is saved EMPTY (its null marker
+ * travels, so the member is omitted while the stream stays self-describing and symmetric).
+ *
+ * On LOAD an omitted (null) member must leave the target's existing pointer UNTOUCHED -- a freshly
+ * constructed target already holds a default owned object, and overwriting it with null would break a
+ * non-null invariant the owner may rely on (e.g. an individual's scratch(), dereferenced unguarded). So
+ * the load reads into a temporary and adopts it only when non-null; a genuine value from a checkpoint
+ * replaces the target, a wire-omitted null leaves it as-is. Compose it into a localMembers_() entry via
+ * make_wire_omitted_ptr_member.
+ */
+struct ser_wire_omitted_ptr {
+    /**
+     * @brief (De)serialises the pointer, omitting it (saving null) under an active, enabled wire scope; on
+     * load an omitted (null) member leaves the target pointer untouched.
+     * @tparam Archive The Boost.Serialization archive type
+     * @tparam PtrT The smart-pointer member type (e.g. std::unique_ptr<T>)
+     * @param ar The archive to (de)serialize through
+     * @param name The NVP tag
+     * @param ref The pointer member
+     */
+    template <typename Archive, typename PtrT>
+    static void serialize(Archive &ar, const char *name, PtrT &ref) {
+        if constexpr(Archive::is_saving::value) {
+            const auto *ctx = GWireSerializationScope::current();
+            const bool on_wire = (ctx != nullptr) && ctx->enabled;
+            if(on_wire) {
+                PtrT empty; // a null pointer: on the wire the member is omitted (only its null marker travels)
+                ar & boost::serialization::make_nvp(name, empty);
+            }
+            else {
+                ar & boost::serialization::make_nvp(name, ref);
+            }
+        }
+        else {
+            PtrT loaded;
+            ar & boost::serialization::make_nvp(name, loaded);
+            if(loaded) { ref = std::move(loaded); } // omitted -> null -> leave ref (the default) untouched
+        }
+    }
+};
+
+/**
+ * @brief Builds a localMembers_() descriptor for a server-side, wire-omitted optional owned pointer.
+ *
+ * Serialized via ser_wire_omitted_ptr (by value on disk, omitted on the wire), deep-copied on an in-memory
+ * load via load_copy_ptr (copy-constructing the pointee), and excluded from comparison (cmp_skip) -- OA
+ * scratch is not part of per-individual identity.
+ *
+ * @tparam T The (deduced) smart-pointer member type
+ * @param name The serialization NVP tag
+ * @param ref A reference to the pointer member
+ * @return A member_desc composing ser_wire_omitted_ptr / load_copy_ptr / cmp_skip
+ */
+template <typename T>
+Gem::Common::member_desc<T, ser_wire_omitted_ptr, Gem::Common::load_copy_ptr, Gem::Common::cmp_skip>
+make_wire_omitted_ptr_member(const char *name, T &ref) {
+    return Gem::Common::member_desc<T, ser_wire_omitted_ptr, Gem::Common::load_copy_ptr, Gem::Common::cmp_skip>{
+        name, ref
+    };
+}
 
 /******************************************************************************/
 

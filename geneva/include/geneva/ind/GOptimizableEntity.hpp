@@ -129,8 +129,8 @@ class GOptimizableEntity // NOLINT(cppcoreguidelines-special-member-functions)
      *  - the four plain veto/feasibility members are ordinary make_member (serialized + loaded + compared);
      *  - the cloneable pre-/post-processors, the shared 1:N policy and the result store are state but not
      *    per-individual identity, so they use the cmp_skip factories (serialized + loaded, not compared);
-     *  - the OA scratch is copy-loaded and not compared, but its wire form is custom, so it is ser_skip
-     *    here (make_owner_serialized_ptr_member) and emitted by the hand-written serialize() below.
+     *  - the OA scratch is copy-loaded and not compared, and its wire form (serialized on a checkpoint,
+     *    omitted on the wire) rides make_wire_omitted_ptr_member, so it too is fully single-sourced.
      *
      * @tparam Self The (const or non-const) deduced type of *this
      * @param self A reference to *this whose members are tied into the tuple
@@ -148,17 +148,17 @@ class GOptimizableEntity // NOLINT(cppcoreguidelines-special-member-functions)
             Gem::Common::make_uncompared_cloneable_member("post_processor_ptr_", self.post_processor_ptr_),
             Gem::Common::make_uncompared_member("policy_", self.policy_),
             Gem::Common::make_uncompared_member("stored_results_cnt_", self.stored_results_cnt_),
-            Gem::Common::make_owner_serialized_ptr_member("scratch_", self.scratch_)
+            Gem::Courtier::make_wire_omitted_ptr_member("scratch_", self.scratch_)
         );
     }
 
     /**
-     * @brief Serializes this object to/from a Boost archive.
-     *
-     * The non-generic lifecycle state is serialized through the GProcessable base; the CRTP category
-     * root (GCommonInterfaceT) and GRateableI carry no state. The cloneable pre-/post-processors and the
-     * shared policy are serialized explicitly (boost shared-pointer tracking deduplicates a policy shared
-     * by many candidates within one archive), and the plain local members come from localMembers_().
+     * @brief Disambiguating serialize(): two stateful bases in the inheritance set (the GBoilerplateBaseT
+     * mixin and GProcessable) declare a serialize(), so this one-liner resolves the ambiguity and emits the
+     * single member list. Every member -- the GProcessable base slice (base_object), the plain members, the
+     * serialized-but-uncompared processors / policy / result store, and the OA scratch (serialized on a
+     * checkpoint, omitted on the wire, via make_wire_omitted_ptr_member) -- comes from localMembers_(). The
+     * stateless GCommonInterfaceT root and GRateableI interface contribute nothing.
      *
      * @tparam Archive The Boost.Serialization archive type
      * @param ar The archive to read from or write to
@@ -166,33 +166,7 @@ class GOptimizableEntity // NOLINT(cppcoreguidelines-special-member-functions)
      */
     template <typename Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
-        using boost::serialization::make_nvp;
-
-        // The GProcessable base slice (via base_object), the plain members and the serialized-but-uncompared
-        // members (processors / policy / result store) all come from the single localMembers_() declaration;
-        // scratch_ is ser_skip there and emitted below with its wire-conditional protocol.
         Gem::Common::serialize_members(ar, this->localMembers_());
-
-        // The OA-owned scratch (the personality OBJECT and the per-group adaption POD blocks) is
-        // server-side state: it rides a CHECKPOINT so a resumed algorithm keeps its evolved per-individual
-        // state, but it must NOT travel on the wire -- a remote worker neither needs it nor should mutate
-        // it, and the server keeps the originally-submitted item's scratch to graft results back onto. So
-        // under an active wire-serialisation scope (transport) the scratch is OMITTED (a leading
-        // `has_scratch` flag keeps the stream self-describing and symmetric); with no scope (checkpoint /
-        // file) it travels by value. It is OUT of localMembers_() so it is serialized but never part of
-        // the compared identity (two individuals touched by different algorithms compare equal).
-        const auto *ctx = Gem::Courtier::GWireSerializationScope::current();
-        const bool on_the_wire = (ctx != nullptr) && ctx->enabled;
-        bool has_scratch = (not on_the_wire) && static_cast<bool>(scratch_);
-        ar &make_nvp("has_scratch", has_scratch);
-        if(has_scratch) {
-            if constexpr(Archive::is_loading::value) {
-                if(not scratch_) {
-                    scratch_ = std::make_unique<GAuxiliaryStore>();
-                }
-            }
-            ar &make_nvp("scratch_", *scratch_);
-        }
     }
     ///////////////////////////////////////////////////////////////////////
 
