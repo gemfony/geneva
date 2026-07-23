@@ -89,6 +89,7 @@ geneva_common_test(GLoggerTests                   GLoggerTests.cpp)
 geneva_common_test(GMPMCQueueConformanceTests     GMPMCQueueConformanceTests.cpp)
 geneva_common_test(GMPMCQueueShutdownStressTests  GMPMCQueueShutdownStressTests.cpp)
 geneva_common_test(GParserBuilderTests            GParserBuilderTests.cpp)
+geneva_common_test(GPolymorphicRegistryTests      GPolymorphicRegistryTests.cpp)
 geneva_common_test(GProviderStoreTTests           GProviderStoreTTests.cpp)
 geneva_common_test(GSerializableFunctionObjectTTests
                                                   GSerializableFunctionObjectTTests.cpp)
