@@ -51,99 +51,251 @@ namespace Gem::Common {
  * Single-source-of-truth machinery for a GCommonInterfaceT subclass's local data members.
  *
  * A class declares its local members exactly once through a localMembers() pair
- * (const + non-const) that returns a tuple of member_t entries (a name plus a
- * reference to the member). load_() and compare_() then derive their behaviour
- * from that single declaration via g_load_members() / g_compare_members(),
- * instead of each function enumerating the members separately. This removes the
- * "added a member but forgot to update load_()/compare_()" class of bugs.
+ * (const + non-const) that returns a tuple of descriptors (a name plus a reference
+ * to the member). serialize(), load_() and compare_() then all derive their
+ * behaviour from that single declaration -- via serialize_members(),
+ * g_load_members() and g_compare_members() -- instead of each function enumerating
+ * the members separately. This removes the "added a member but forgot to update
+ * load_()/compare_()" class of bugs.
  *
- * This header holds the member-reflection factories (make_member etc.) plus the
- * load and serialize derivations. The matching compare derivation lives in
- * GExpectationChecksT.hpp (it depends on the comparison DSL), which includes
- * this header.
+ * How a member participates is factored into THREE INDEPENDENT AXES, each chosen by
+ * a small policy:
  *
- * A class may additionally derive its serialize() from the same localMembers() declaration (via
- * serialize_members() below), keeping the on-wire member list in lockstep with load_()/compare_();
- * classes whose wire format is asymmetric to their in-memory layout keep a hand-written serialize().
+ *  - serialize : ser_emit (through the archive by NVP) | ser_skip (omit);
+ *  - load      : load_assign (plain =) | load_clone_ptr | load_clone_container
+ *                (deep clone) | load_atomic (.store(.load()));
+ *  - compare   : cmp_value (compare_t / getIdentity) | cmp_atomic (compare the
+ *                loaded value) | cmp_skip (not part of comparable identity).
  *
- * @tparam T The type of the referenced member
+ * A descriptor (member_desc) composes one policy per axis; the make_* factories
+ * name the combinations actually in use (member_t, cloneable_member_t, atomic_member_t,
+ * load_only_member_t, transient_member_t). Because the axes are orthogonal, a new
+ * participation pattern is a new factory line -- NOT a new descriptor type carrying
+ * a fresh set of g_serialize_one / g_load_one / g_compare_one overloads. The three
+ * g_*_one dispatchers are each written once and forward to the relevant policy.
+ *
+ * This header holds the descriptors, the serialize and load policies (whose
+ * dependencies live here) and the serialize/load derivations. The compare
+ * derivation lives in GExpectationChecksT.hpp (it depends on the comparison DSL);
+ * the compare axis is represented here by opaque tag types only, on which
+ * g_compare_one() there dispatches.
  */
-template <typename T>
-struct member_t {
-    const char* name;
+
+/******************************************************************************/
+// --- serialize axis -------------------------------------------------------
+
+/** @brief Serialize policy: emit the member through the archive under its NVP name. */
+struct ser_emit {
+    /**
+     * @brief Serializes the member by NVP.
+     * @tparam Archive The Boost.Serialization archive type
+     * @tparam T The referenced member type
+     * @param ar The archive to serialize through
+     * @param name The NVP tag (a static string literal with static storage duration)
+     * @param ref The member reference serialized under @p name
+     */
+    template <typename Archive, typename T>
+    static void serialize(Archive &ar, const char *name, T &ref) {
+        ar & boost::serialization::make_nvp(name, ref);
+    }
+};
+
+/** @brief Serialize policy: skip the member (not part of the on-wire / on-disk form). */
+struct ser_skip {
+    /**
+     * @brief Emits nothing: the member is excluded from the folded serialize().
+     * @tparam Archive The Boost.Serialization archive type
+     * @tparam T The referenced member type
+     */
+    template <typename Archive, typename T>
+    static void serialize(Archive & /*ar*/, const char * /*name*/, T & /*ref*/) { /* skipped */ }
+};
+
+/******************************************************************************/
+// --- load axis ------------------------------------------------------------
+
+/** @brief Load policy: plain assignment (copies a scalar; SHARES a std::shared_ptr, not deep-cloned). */
+struct load_assign {
+    /**
+     * @brief Assigns @p src to @p dst.
+     * @tparam Dst The destination member type
+     * @tparam Src The source member type
+     * @param dst The destination member (written to)
+     * @param src The source member (read from)
+     */
+    template <typename Dst, typename Src>
+    static void load(Dst &dst, const Src &src) { dst = src; }
+};
+
+/** @brief Load policy: deep clone of a single std::shared_ptr<Cloneable> (no pointer aliasing). */
+struct load_clone_ptr {
+    /**
+     * @brief Deep-clones the pointee of @p src into @p dst.
+     * @tparam Dst The destination std::shared_ptr<Cloneable> type
+     * @tparam Src The source std::shared_ptr<Cloneable> type
+     * @param dst The destination pointer (written to)
+     * @param src The source pointer (read from)
+     */
+    template <typename Dst, typename Src>
+    static void load(Dst &dst, const Src &src) { Gem::Common::copyCloneableSmartPointer(src, dst); }
+};
+
+/** @brief Load policy: deep clone of every element of a container of std::shared_ptr<Cloneable>. */
+struct load_clone_container {
+    /**
+     * @brief Deep-clones each element of @p src into @p dst.
+     * @tparam Dst The destination pointer-container type
+     * @tparam Src The source pointer-container type
+     * @param dst The destination container (written to)
+     * @param src The source container (read from)
+     */
+    template <typename Dst, typename Src>
+    static void load(Dst &dst, const Src &src) { Gem::Common::copyCloneableSmartPointerContainer(src, dst); }
+};
+
+/** @brief Load policy: atomic load/store (a std::atomic is not copy-assignable). */
+struct load_atomic {
+    /**
+     * @brief Loads the source atomic's value and stores it into the destination atomic.
+     * @tparam Dst The destination std::atomic<...> type
+     * @tparam Src The source std::atomic<...> type
+     * @param dst The destination atomic (written to)
+     * @param src The source atomic (read from)
+     */
+    template <typename Dst, typename Src>
+    static void load(Dst &dst, const Src &src) { dst.store(src.load()); }
+};
+
+/******************************************************************************/
+// --- compare axis (behaviour lives in GExpectationChecksT.hpp) -------------
+// The compare operation depends on the comparison DSL (compare_t / getIdentity /
+// GToken), declared in GExpectationChecksT.hpp -- a header that includes THIS one,
+// not the reverse. So the compare axis is represented here by opaque tag types
+// only; g_compare_one() there dispatches on the tag via if constexpr.
+
+/** @brief Compare policy tag: compare the member's value via compare_t / getIdentity. */
+struct cmp_value {};
+/** @brief Compare policy tag: compare the LOADED value of a std::atomic member. */
+struct cmp_atomic {};
+/** @brief Compare policy tag: skip the member (not part of comparable identity). */
+struct cmp_skip {};
+
+/******************************************************************************/
+/**
+ * @brief A single named data member described for the single-source machinery.
+ *
+ * Carries the member's name (used as the serialization NVP tag) and a reference to
+ * it, plus one policy per axis fixing how it is serialized, loaded and compared.
+ * The name is a compile-time string literal (const char*) with static storage
+ * duration, so the pointer handed to make_nvp is always valid.
+ *
+ * @tparam T    The type of the referenced member (const-qualified in a const context)
+ * @tparam Ser  The serialize policy (ser_emit / ser_skip)
+ * @tparam Load The load policy (load_assign / load_clone_ptr / load_clone_container / load_atomic)
+ * @tparam Cmp  The compare policy tag (cmp_value / cmp_atomic / cmp_skip)
+ */
+template <typename T, typename Ser, typename Load, typename Cmp>
+struct member_desc {
+    const char *name;
     T &ref; // T& in a non-const context, T const& in a const context
 };
 
+/******************************************************************************/
+// Named descriptor kinds, each a fixed policy composition. These aliases are the
+// vocabulary the factories and call sites speak; member_desc keeps the three-axis
+// behaviour explicit and total behind them.
+
+/** @brief A plain member: serialized, plain-assigned on load, value-compared. */
+template <typename T>
+using member_t = member_desc<T, ser_emit, load_assign, cmp_value>;
+/** @brief A single std::shared_ptr<Cloneable>: serialized, deep-cloned on load, value-compared. */
+template <typename T>
+using cloneable_member_t = member_desc<T, ser_emit, load_clone_ptr, cmp_value>;
+/** @brief A container of std::shared_ptr<Cloneable>: serialized, element-wise deep-cloned on load, value-compared. */
+template <typename T>
+using cloneable_container_member_t = member_desc<T, ser_emit, load_clone_container, cmp_value>;
+/** @brief A std::atomic member: serialized via the free atomic serialization, load/store on load, compared by its loaded value. */
+template <typename T>
+using atomic_member_t = member_desc<T, ser_emit, load_atomic, cmp_atomic>;
+/** @brief A load-only member: skipped by BOTH serialize and compare, plain-assigned on load only. */
+template <typename T>
+using load_only_member_t = member_desc<T, ser_skip, load_assign, cmp_skip>;
+/** @brief A transient member: skipped by serialize, plain-assigned on load, yet STILL value-compared. */
+template <typename T>
+using transient_member_t = member_desc<T, ser_skip, load_assign, cmp_value>;
+
+/******************************************************************************/
+// Factories. Each names one policy composition; a class lists ALL of its members
+// -- of whatever kind -- through these in one localMembers() declaration, so
+// serialize()/load_()/compare_() all derive from the same single source.
+
 /**
- * @brief Builds one named member reference for a localMembers() tuple.
+ * @brief Builds one named plain member for a localMembers() tuple.
  * @tparam T The (deduced) type of the referenced member
  * @param name The member's name, used as the serialization NVP tag (a static string literal)
  * @param ref A reference to the data member being described
  * @return A member_t pairing @p name with @p ref
  */
 template <typename T>
-member_t<T> make_member(const char* name, T &ref) {
+member_t<T> make_member(const char *name, T &ref) {
     return member_t<T>{name, ref};
 }
 
-/******************************************************************************/
 /**
- * Tagged member variants for members whose in-memory copy is a deep clone rather
- * than a plain assignment. They carry the same { name, ref } shape as member_t -- so
- * serialize_members() and g_compare_members() treat them identically (a shared_ptr
- * and a container of shared_ptr each have their own serialize / compare support) --
- * but g_load_members() recognises the tag and performs a deep clone instead of a
- * shallow pointer assignment (which would alias shared state).
+ * @brief Builds one named, deep-cloned single-pointer member for a localMembers() tuple.
  *
- *  - cloneable_member_t           : a single std::shared_ptr<Cloneable> member,
- *                                   deep-copied via copyCloneableSmartPointer().
- *  - cloneable_container_member_t : a container (e.g. std::vector) of
- *                                   std::shared_ptr<Cloneable>, deep-copied via
- *                                   copyCloneableSmartPointerContainer().
+ * On load the pointee is deep-cloned via copyCloneableSmartPointer() rather than the shared_ptr
+ * being shared, so no aliasing of shared state occurs.
  *
- * This lets a class list ALL of its data members -- plain and deep-cloned alike -- in
- * one localMembers() declaration, so serialize()/load_()/compare_() all derive from
- * the same single source with no hand-written tail.
- *
- * @tparam T The type of the referenced std::shared_ptr<Cloneable> member
+ * @tparam T The (deduced) type of the referenced std::shared_ptr<Cloneable> member
+ * @param name The member's name, used as the serialization NVP tag (a static string literal)
+ * @param ref A reference to the std::shared_ptr<Cloneable> data member
+ * @return A cloneable_member_t pairing @p name with @p ref
  */
 template <typename T>
-struct cloneable_member_t {
-    const char* name;
-    T &ref; ///< a std::shared_ptr<Cloneable> (const& in a const context)
-};
+cloneable_member_t<T> make_cloneable_member(const char *name, T &ref) {
+    return cloneable_member_t<T>{name, ref};
+}
 
 /**
- * @brief A tagged member variant for a container of std::shared_ptr<Cloneable>, deep-cloned on load.
- * @tparam T The type of the referenced container of std::shared_ptr<Cloneable>
- */
-template <typename T>
-struct cloneable_container_member_t {
-    const char* name;
-    T &ref; ///< a container of std::shared_ptr<Cloneable> (const& in a const context)
-};
-
-/**
- * An atomic member (e.g. std::atomic<bool>). Boost already serialises std::atomic<bool>
- * via a free serialization, so serialize_members() handles it through the common .ref
- * path; but an atomic is neither copy-assignable nor directly comparable through the
- * generic value path, so g_load_members() loads it via .store(.load()) and
- * g_compare_members() compares its loaded value.
+ * @brief Builds one named, deep-cloned pointer-container member for a localMembers() tuple.
  *
- * @tparam T The type of the referenced std::atomic<...> member
+ * On load each element is deep-cloned via copyCloneableSmartPointerContainer().
+ *
+ * @tparam T The (deduced) type of the referenced pointer-container member
+ * @param name The member's name, used as the serialization NVP tag (a static string literal)
+ * @param ref A reference to the container of std::shared_ptr<Cloneable>
+ * @return A cloneable_container_member_t pairing @p name with @p ref
  */
 template <typename T>
-struct atomic_member_t {
-    const char* name;
-    T &ref; ///< a std::atomic<...> (const& in a const context)
-};
+cloneable_container_member_t<T> make_cloneable_container_member(const char *name, T &ref) {
+    return cloneable_container_member_t<T>{name, ref};
+}
 
 /**
- * A load-only member. It carries the same { name, ref } shape as member_t, but participates in
- * ONLY the in-memory load: g_load_members() plain-assigns it (which SHARES for a std::shared_ptr and
- * copies for a scalar), while serialize_members() and g_compare_members() both SKIP it. Use it for a
- * member that is copied when one object is loaded from another, yet is neither part of the object's
- * comparable identity nor emitted through the folded serialize():
+ * @brief Builds one named atomic member for a localMembers() tuple.
+ *
+ * Boost serialises std::atomic<bool> via a free serialization, so it is emitted like any other member;
+ * but an atomic is neither copy-assignable nor directly comparable, so it is loaded via .store(.load())
+ * and compared by its loaded value.
+ *
+ * @tparam T The (deduced) type of the referenced std::atomic<...> member
+ * @param name The member's name, used as the serialization NVP tag (a static string literal)
+ * @param ref A reference to the std::atomic<...> data member
+ * @return An atomic_member_t pairing @p name with @p ref
+ */
+template <typename T>
+atomic_member_t<T> make_atomic_member(const char *name, T &ref) {
+    return atomic_member_t<T>{name, ref};
+}
+
+/**
+ * @brief Builds one named load-only member for a localMembers() tuple.
+ *
+ * The member is plain-assigned on load (sharing a std::shared_ptr, copying a scalar) but skipped by
+ * BOTH serialize_members() and g_compare_members(). Use it for a member that is copied when one object
+ * is loaded from another, yet is neither part of the object's comparable identity nor emitted through
+ * the folded serialize():
  *
  *  - a shared, immutable piece of metadata that several objects reference (identity lives in the
  *    per-object values, not in the shared handle), and whose wire representation, if any, the owning
@@ -152,125 +304,59 @@ struct atomic_member_t {
  *  - a transient marker set during (de)serialization that a load_()-based copy must propagate but
  *    that must not affect equality (e.g. GGenome's input_omitted_ results-only flag).
  *
- * Listing such a member here keeps load_()/compare_() fully derived from the single localMembers_()
- * declaration -- no hand-written tail that can drift -- while leaving serialize() free to treat the
- * member specially (or omit it).
- *
- * @tparam T The type of the referenced member
- */
-template <typename T>
-struct load_only_member_t {
-    const char* name;
-    T &ref; ///< copied on load; skipped by serialize_members() and g_compare_members()
-};
-
-/**
- * @brief Builds one named, deep-cloned single-pointer member for a localMembers() tuple.
- * @tparam T The (deduced) type of the referenced std::shared_ptr<Cloneable> member
- * @param name The member's name, used as the serialization NVP tag (a static string literal)
- * @param ref A reference to the std::shared_ptr<Cloneable> data member
- * @return A cloneable_member_t pairing @p name with @p ref
- */
-template <typename T>
-cloneable_member_t<T> make_cloneable_member(const char* name, T &ref) {
-    return cloneable_member_t<T>{name, ref};
-}
-
-/**
- * @brief Builds one named, deep-cloned pointer-container member for a localMembers() tuple.
- * @tparam T The (deduced) type of the referenced pointer-container member
- * @param name The member's name, used as the serialization NVP tag (a static string literal)
- * @param ref A reference to the container of std::shared_ptr<Cloneable>
- * @return A cloneable_container_member_t pairing @p name with @p ref
- */
-template <typename T>
-cloneable_container_member_t<T> make_cloneable_container_member(const char* name, T &ref) {
-    return cloneable_container_member_t<T>{name, ref};
-}
-
-/**
- * @brief Builds one named atomic member for a localMembers() tuple.
- * @tparam T The (deduced) type of the referenced std::atomic<...> member
- * @param name The member's name, used as the serialization NVP tag (a static string literal)
- * @param ref A reference to the std::atomic<...> data member
- * @return An atomic_member_t pairing @p name with @p ref
- */
-template <typename T>
-atomic_member_t<T> make_atomic_member(const char* name, T &ref) {
-    return atomic_member_t<T>{name, ref};
-}
-
-/**
- * @brief Builds one named load-only member for a localMembers() tuple (see load_only_member_t).
- *
- * The member is plain-assigned on load (sharing a std::shared_ptr, copying a scalar) but skipped by
- * both serialize_members() and g_compare_members().
- *
  * @tparam T The (deduced) type of the referenced member
  * @param name The member's name (kept for symmetry / diagnostics; not emitted, as the member is not serialized here)
  * @param ref A reference to the data member being described
  * @return A load_only_member_t pairing @p name with @p ref
  */
 template <typename T>
-load_only_member_t<T> make_load_only_member(const char* name, T &ref) {
+load_only_member_t<T> make_load_only_member(const char *name, T &ref) {
     return load_only_member_t<T>{name, ref};
+}
+
+/**
+ * @brief Builds one named transient member for a localMembers() tuple.
+ *
+ * A transient member is copied when one object is loaded from another and IS part of the object's
+ * comparable identity, yet is deliberately NOT serialized -- it is per-run / per-iteration state that
+ * must never be persisted to a checkpoint or sent over the wire, but that two live objects are only
+ * equal if they agree on (e.g. an optimization algorithm's transient best-of-this-iteration priority
+ * queue). It differs from a load-only member only on the compare axis: load-only skips comparison,
+ * transient participates in it.
+ *
+ * The member is plain-assigned on load, relying on its own type's operator= (which, for a value-type
+ * holding cloneable pointers, performs the appropriate deep copy).
+ *
+ * @tparam T The (deduced) type of the referenced member
+ * @param name The member's name (used as the comparison label; not emitted, as the member is not serialized)
+ * @param ref A reference to the data member being described
+ * @return A transient_member_t pairing @p name with @p ref
+ */
+template <typename T>
+transient_member_t<T> make_transient_member(const char *name, T &ref) {
+    return transient_member_t<T>{name, ref};
 }
 
 /******************************************************************************/
 /**
- * @brief Loads a single plain member by assignment.
+ * @brief Loads a single member by applying its descriptor's load policy.
+ *
+ * The destination and source descriptors carry the same three policies (they come from the same
+ * localMembers() declaration), but the referenced type differs -- the destination tuple is built in a
+ * non-const context (Dst) and the source tuple in a const one (Src) -- so the two are independent
+ * template parameters.
+ *
  * @tparam Dst The destination member type
  * @tparam Src The source member type
+ * @tparam Ser The (shared) serialize policy
+ * @tparam Load The (shared) load policy, whose Load::load() performs the copy
+ * @tparam Cmp The (shared) compare policy tag
  * @param dst The destination member descriptor (written to)
  * @param src The source member descriptor (read from)
  */
-template <typename Dst, typename Src>
-void g_load_one(member_t<Dst> &dst, const member_t<Src> &src) {
-    dst.ref = src.ref; // plain assignment
-}
-/**
- * @brief Loads a single std::shared_ptr<Cloneable> member by deep clone (no pointer aliasing).
- * @tparam Dst The destination member type
- * @tparam Src The source member type
- * @param dst The destination member descriptor (written to)
- * @param src The source member descriptor (read from)
- */
-template <typename Dst, typename Src>
-void g_load_one(cloneable_member_t<Dst> &dst, const cloneable_member_t<Src> &src) {
-    Gem::Common::copyCloneableSmartPointer(src.ref, dst.ref); // deep clone
-}
-/**
- * @brief Loads a container-of-pointers member by deep-cloning each element.
- * @tparam Dst The destination member type
- * @tparam Src The source member type
- * @param dst The destination member descriptor (written to)
- * @param src The source member descriptor (read from)
- */
-template <typename Dst, typename Src>
-void g_load_one(cloneable_container_member_t<Dst> &dst, const cloneable_container_member_t<Src> &src) {
-    Gem::Common::copyCloneableSmartPointerContainer(src.ref, dst.ref); // deep clone of each element
-}
-/**
- * @brief Loads a single atomic member via load/store (atomics are not copy-assignable).
- * @tparam Dst The destination member type
- * @tparam Src The source member type
- * @param dst The destination member descriptor (written to)
- * @param src The source member descriptor (read from)
- */
-template <typename Dst, typename Src>
-void g_load_one(atomic_member_t<Dst> &dst, const atomic_member_t<Src> &src) {
-    dst.ref.store(src.ref.load()); // atomic load/store (atomics are not copy-assignable)
-}
-/**
- * @brief Loads a single load-only member by plain assignment (shares a shared_ptr, copies a scalar).
- * @tparam Dst The destination member type
- * @tparam Src The source member type
- * @param dst The destination member descriptor (written to)
- * @param src The source member descriptor (read from)
- */
-template <typename Dst, typename Src>
-void g_load_one(load_only_member_t<Dst> &dst, const load_only_member_t<Src> &src) {
-    dst.ref = src.ref; // plain assignment: a shared_ptr is shared (not deep-cloned), a scalar copied
+template <typename Dst, typename Src, typename Ser, typename Load, typename Cmp>
+void g_load_one(member_desc<Dst, Ser, Load, Cmp> &dst, const member_desc<Src, Ser, Load, Cmp> &src) {
+    Load::load(dst.ref, src.ref);
 }
 
 /**
@@ -305,14 +391,27 @@ void g_load_members(DstTuple dst, SrcTuple src) {
 
 /******************************************************************************/
 /**
- * Serializes each local member through the Boost archive, using the member's
- * name (from its member_t) as the NVP tag. This lets a class's serialize()
- * derive its member list from the same single localMembers() declaration that
- * load_() and compare_() already use, keeping the member list in one place.
+ * @brief Serializes one member descriptor by applying its serialize policy.
  *
- * The member names are compile-time string literals (const char*) with static
- * storage duration, so the pointers handed to make_nvp are always valid.
+ * ser_emit puts the member through the archive under its name; ser_skip emits nothing. This lets a
+ * class's serialize() derive its member list from the same single localMembers() declaration that
+ * load_() and compare_() use.
  *
+ * @tparam Archive The Boost.Serialization archive type
+ * @tparam T The referenced member type
+ * @tparam Ser The serialize policy applied
+ * @tparam Load The (unused here) load policy
+ * @tparam Cmp The (unused here) compare policy tag
+ * @param ar The archive to serialize through
+ * @param m The member descriptor whose .ref is (or is not) emitted under its .name
+ */
+template <typename Archive, typename T, typename Ser, typename Load, typename Cmp>
+void g_serialize_one(Archive &ar, member_desc<T, Ser, Load, Cmp> &m) {
+    Ser::serialize(ar, m.name, m.ref);
+}
+
+/**
+ * @brief Serializes each entry of a localMembers() tuple (implementation helper).
  * @tparam Archive The Boost.Serialization archive type
  * @tparam Tuple The localMembers() tuple type
  * @tparam I The compile-time member indices expanded by the fold
@@ -320,34 +419,11 @@ void g_load_members(DstTuple dst, SrcTuple src) {
  * @param members The localMembers() tuple whose entries are serialized
  * @param seq Index sequence used to expand the pack; its value is unused
  */
-/**
- * @brief Serializes one member descriptor through the archive by NVP.
- *
- * This generic overload handles every archived descriptor kind (plain member_t, the cloneable
- * variants and atomic_member_t) uniformly: their .ref goes through the archive under their .name.
- * A load_only_member_t is handled by the no-op overload below instead, so it is skipped.
- *
- * @tparam Archive The Boost.Serialization archive type
- * @tparam Descriptor The member descriptor type
- * @param ar The archive to serialize through
- * @param m The member descriptor whose .ref is serialized under its .name
- */
-template <typename Archive, typename Descriptor>
-void g_serialize_one(Archive& ar, Descriptor& m) {
-    ar & boost::serialization::make_nvp(m.name, m.ref);
-}
-/**
- * @brief Skips a load-only member: it is excluded from the folded serialize() (see load_only_member_t).
- * @tparam Archive The Boost.Serialization archive type
- * @tparam T The referenced member type
- */
-template <typename Archive, typename T>
-void g_serialize_one(Archive& /*ar*/, [[maybe_unused]] load_only_member_t<T>& m) { /* skipped */ }
-
 template <typename Archive, typename Tuple, std::size_t... I>
-void serialize_members_impl(Archive& ar, Tuple& members, [[maybe_unused]] std::index_sequence<I...> seq) {
+void serialize_members_impl(Archive &ar, Tuple &members, [[maybe_unused]] std::index_sequence<I...> seq) {
     (g_serialize_one(ar, std::get<I>(members)), ...);
 }
+
 /**
  * @brief Serializes every entry of a localMembers() tuple through the archive, name by name.
  * @tparam Archive The Boost.Serialization archive type
@@ -356,7 +432,7 @@ void serialize_members_impl(Archive& ar, Tuple& members, [[maybe_unused]] std::i
  * @param members The localMembers() tuple whose entries are serialized (taken by value)
  */
 template <typename Archive, typename Tuple>
-void serialize_members(Archive& ar, Tuple members) {
+void serialize_members(Archive &ar, Tuple members) {
     serialize_members_impl(ar, members, std::make_index_sequence<std::tuple_size_v<Tuple>>{});
 }
 

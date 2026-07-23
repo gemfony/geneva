@@ -1526,53 +1526,43 @@ void compare_base_t(base_type const &x, base_type const &y, GToken &token) {
 
 /******************************************************************************/
 /**
- * @brief Compares a single member pairwise, dispatched on its kind.
+ * @brief Compares a single member descriptor pairwise by applying its compare policy.
  *
- * This overload handles plain (non-atomic) member descriptors by feeding their referenced values
- * and names to compare_t().
+ * The compare axis is represented in GMemberReflectionT.hpp by opaque tag types (the compare
+ * operation depends on the DSL declared in THIS header), so the dispatch happens here:
  *
- * @tparam A The descriptor type of the first member (exposes .ref and .name)
- * @tparam B The descriptor type of the second member (exposes .ref and .name)
+ *  - cmp_value  : feeds the referenced values and names to compare_t() / getIdentity();
+ *  - cmp_atomic : compares the LOADED values of a std::atomic member rather than the atomic objects;
+ *  - cmp_skip   : compares nothing (the member is not part of the object's comparable identity).
+ *
+ * The two descriptors carry the same three policies (they come from the same localMembers()
+ * declaration), but the referenced type differs (const vs non-const context), so A and B are
+ * independent template parameters.
+ *
+ * @tparam A The referenced member type of the first descriptor
+ * @tparam B The referenced member type of the second descriptor
+ * @tparam Ser The (unused here) serialize policy
+ * @tparam Load The (unused here) load policy
+ * @tparam Cmp The compare policy tag dispatched on
  * @param a The first member descriptor (its .ref value and .name are compared)
  * @param b The second member descriptor (its .ref value and .name are compared)
  * @param token The token holding the expectation and recording the comparison result
  */
-template <typename A, typename B>
-void g_compare_one(const A &a, const B &b, GToken &token) {
-    compare_t(getIdentity(a.ref, b.ref, a.name, b.name), token);
-}
-/**
- * @brief Compares a single atomic member pairwise, dispatched on its kind.
- *
- * This overload compares the loaded values of atomic member descriptors rather than the atomic
- * objects themselves.
- *
- * @tparam A The value type wrapped by the first atomic member descriptor
- * @tparam B The value type wrapped by the second atomic member descriptor
- * @param a The first atomic member descriptor (its loaded .ref value and .name are compared)
- * @param b The second atomic member descriptor (its loaded .ref value and .name are compared)
- * @param token The token holding the expectation and recording the comparison result
- */
-template <typename A, typename B>
-void g_compare_one(const atomic_member_t<A> &a, const atomic_member_t<B> &b, GToken &token) {
-    // Compare the loaded values rather than the atomic objects themselves.
-    compare_t(getIdentity(a.ref.load(), b.ref.load(), a.name, b.name), token);
-}
-/**
- * @brief Skips a load-only member in comparisons.
- *
- * A load_only_member_t (see GMemberReflectionT.hpp) is copied on load but is deliberately not part of
- * the object's comparable identity, so this overload compares nothing.
- *
- * @tparam A The referenced member type of the first descriptor
- * @tparam B The referenced member type of the second descriptor
- */
-template <typename A, typename B>
+template <typename A, typename B, typename Ser, typename Load, typename Cmp>
 void g_compare_one(
-    [[maybe_unused]] const load_only_member_t<A> &a,
-    [[maybe_unused]] const load_only_member_t<B> &b,
-    [[maybe_unused]] GToken &token
-) { /* skipped: excluded from comparable identity */ }
+    const member_desc<A, Ser, Load, Cmp> &a,
+    const member_desc<B, Ser, Load, Cmp> &b,
+    GToken &token
+) {
+    if constexpr (std::same_as<Cmp, cmp_skip>) {
+        // skipped: excluded from comparable identity
+    } else if constexpr (std::same_as<Cmp, cmp_atomic>) {
+        // Compare the loaded values rather than the atomic objects themselves.
+        compare_t(getIdentity(a.ref.load(), b.ref.load(), a.name, b.name), token);
+    } else { // cmp_value
+        compare_t(getIdentity(a.ref, b.ref, a.name, b.name), token);
+    }
+}
 
 /**
  * @brief Compares two tuples of member descriptors element-by-element via a fold over an index sequence.
