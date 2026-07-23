@@ -69,50 +69,6 @@ GEvolutionaryAlgorithmPostOptimizer::GEvolutionaryAlgorithmPostOptimizer(
 
 /******************************************************************************/
 /**
- * @brief Returns the name of this class
- *
- * @return The string "GEvolutionaryAlgorithmPostOptimizer", identifying this class
- */
-std::string GEvolutionaryAlgorithmPostOptimizer::name_() const {
-    return std::string("GEvolutionaryAlgorithmPostOptimizer");
-}
-
-/******************************************************************************/
-/**
- * @brief Checks for compliance with expectations with respect to another object
- * of the same type
- *
- * @param cp A constant reference to another object (a GEvolutionaryAlgorithmPostOptimizer, passed via its base type) to compare against
- * @param e The expected outcome of the comparison (e.g. equality or inequality)
- * @param limit The maximum deviation for floating point values (important for similarity checks)
- */
-void GEvolutionaryAlgorithmPostOptimizer::compare_(
-    const Gem::Common::GSerializableFunctionObjectT<gen::GOptimizableEntity> &cp,
-    const Gem::Common::expectation &e,
-    [[maybe_unused]] const double & limit
-) const {
-    using namespace Gem::Common;
-using namespace Gem::Common::Concurrency;
-
-    // Check that we are dealing with a Gem::Common::GSerializableFunctionObjectT<processable_type> reference independent of this object and convert the pointer
-    const GEvolutionaryAlgorithmPostOptimizer *p_load = Gem::Common::g_convert_and_compare<
-        Gem::Common::GSerializableFunctionObjectT<gen::GOptimizableEntity>,
-        GEvolutionaryAlgorithmPostOptimizer>(cp, this);
-
-    GToken token("GEvolutionaryAlgorithmPostOptimizer", e);
-
-    // Compare our parent data ...
-    Gem::Common::compare_base_t<GPostProcessorBaseT<gen::GOptimizableEntity>>(*this, *p_load, token);
-
-    // ... and then our local data
-    g_compare_members(this->localMembers_(), p_load->localMembers_(), token);
-
-    // React on deviations from the expectation
-    token.evaluate();
-}
-
-/******************************************************************************/
-/**
  * @brief Allows to specify the name of a configuration file for the inner optimization algorithm
  *
  * @param oa_config_file The path to the JSON configuration file for the inner evolutionary algorithm
@@ -129,38 +85,6 @@ void GEvolutionaryAlgorithmPostOptimizer::setOAConfigFile(const std::string &oa_
  */
 std::string GEvolutionaryAlgorithmPostOptimizer::getOAConfigFile() const {
     return oa_config_file_;
-}
-
-/******************************************************************************/
-/**
- * @brief Loads the data of another GEvolutionaryAlgorithmPostOptimizer object
- *
- * @param cp A pointer to another object (a GEvolutionaryAlgorithmPostOptimizer, passed via its base type) whose data is loaded into this one
- */
-void GEvolutionaryAlgorithmPostOptimizer::load_(
-    const Gem::Common::GSerializableFunctionObjectT<gen::GOptimizableEntity> *cp
-) {
-    // Check that we are dealing with a GEvolutionaryAlgorithmPostOptimizer reference independent of this object and convert the pointer
-    const GEvolutionaryAlgorithmPostOptimizer *p_load = Gem::Common::g_convert_and_compare<
-        Gem::Common::GSerializableFunctionObjectT<gen::GOptimizableEntity>,
-        GEvolutionaryAlgorithmPostOptimizer>(cp, this);
-
-    // Load our parent class'es data ...
-    GPostProcessorBaseT<gen::GOptimizableEntity>::load_(cp);
-
-    // ... and then our local data, derived from the single localMembers() declaration
-    Gem::Common::g_load_members(this->localMembers_(), p_load->localMembers_());
-}
-
-/******************************************************************************/
-/**
- * @brief Creates a deep clone of this object
- *
- * @return A pointer to a freshly allocated deep copy of this object (caller takes ownership)
- */
-Gem::Common::GSerializableFunctionObjectT<gen::GOptimizableEntity> *
-GEvolutionaryAlgorithmPostOptimizer::clone_() const {
-    return new GEvolutionaryAlgorithmPostOptimizer(*this);
 }
 
 /******************************************************************************/
