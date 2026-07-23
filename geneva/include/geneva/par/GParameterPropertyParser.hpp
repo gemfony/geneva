@@ -341,6 +341,14 @@ public:
     /** @brief Initiates parsing of the raw string */
     void parse();
 
+private:
+    /** @brief Tokenizes raw_ into (type, content) fragments of the form type'('content')'. */
+    std::vector<std::pair<char, std::string>> tokenizeRaw() const;
+    /** @brief Applies one parsed (type, content) fragment to the matching per-type spec vector. */
+    void applyFragment(char type, std::string const &content);
+
+public:
+
     /** @brief Retrieve the number of "simple scan" items
      *  @return The number of items requested for simple (fully random) parameter scans */
     [[nodiscard]] std::size_t getNSimpleScanItems() const;

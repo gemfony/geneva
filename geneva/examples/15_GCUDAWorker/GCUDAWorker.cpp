@@ -129,6 +129,32 @@ namespace {
  * @param consumerConfig The GPU-consumer config file (backend + kernel selection)
  * @return The process exit code: 0 if parity passes, 1 if it fails
  */
+// Summary statistics over the per-item relative errors: logs min/median/mean/max and the within-tolerance
+// fraction, and returns that fraction (which drives the pass/fail decision).
+double reportParitySummary(const std::vector<double> &rel, int n, double rel_tol, double pass_fraction) {
+    std::vector<double> sorted = rel;
+    std::sort(sorted.begin(), sorted.end());
+    const double relMin = sorted.front();
+    const double relMax = sorted.back();
+    const double relMedian = sorted[sorted.size() / 2];
+    const double relMean = std::accumulate(rel.begin(), rel.end(), 0.0) / static_cast<double>(n);
+    const std::size_t within =
+        static_cast<std::size_t>(std::count_if(rel.begin(), rel.end(), [&](double r) { return r <= rel_tol; }));
+    const double withinFraction = static_cast<double>(within) / static_cast<double>(n);
+
+    glogger << std::format(
+                   "Parity relative error over {} items:  min={:.3e}  median={:.3e}  mean={:.3e}  max={:.3e}",
+                   n, relMin, relMedian, relMean, relMax)
+            << '\n'
+            << std::format(
+                   "Within tolerance ({:.1e}):  {}/{} = {:.1f}%  (pass threshold {:.0f}%)",
+                   rel_tol, within, n, 100.0 * withinFraction, 100.0 * pass_fraction)
+            << '\n'
+            << GLOGGING;
+
+    return withinFraction;
+}
+
 int runParityCheck(const std::shared_ptr<Gem::Common::GFactoryT<gen::GOptimizableEntity>> &factory, int n,
                    const std::string &consumerConfig) {
     using gen::GOptimizableEntity;
@@ -201,26 +227,8 @@ int runParityCheck(const std::shared_ptr<Gem::Common::GFactoryT<gen::GOptimizabl
         }
     }
 
-    // Summary statistics over the relative errors.
-    std::vector<double> sorted = rel;
-    std::sort(sorted.begin(), sorted.end());
-    const double relMin = sorted.front();
-    const double relMax = sorted.back();
-    const double relMedian = sorted[sorted.size() / 2];
-    const double relMean = std::accumulate(rel.begin(), rel.end(), 0.0) / static_cast<double>(n);
-    const std::size_t within =
-        static_cast<std::size_t>(std::count_if(rel.begin(), rel.end(), [&](double r) { return r <= kRelTol; }));
-    const double withinFraction = static_cast<double>(within) / static_cast<double>(n);
-
-    glogger << std::format(
-                   "Parity relative error over {} items:  min={:.3e}  median={:.3e}  mean={:.3e}  max={:.3e}",
-                   n, relMin, relMedian, relMean, relMax)
-            << '\n'
-            << std::format(
-                   "Within tolerance ({:.1e}):  {}/{} = {:.1f}%  (pass threshold {:.0f}%)",
-                   kRelTol, within, n, 100.0 * withinFraction, 100.0 * kPassFraction)
-            << '\n'
-            << GLOGGING;
+    // Summary statistics over the relative errors (logs the report, returns the within-tolerance fraction).
+    const double withinFraction = reportParitySummary(rel, n, kRelTol, kPassFraction);
 
     const bool pass = withinFraction >= kPassFraction;
     glogger << (pass ? "PARITY PASS" : "PARITY FAIL") << '\n' << GLOGGING;

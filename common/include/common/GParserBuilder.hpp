@@ -2429,6 +2429,20 @@ private:
         bool do_rewrite,
         std::string const &rewrite_header = ""
     );
+    /** @brief Resolves @p config_file against the configured base directory (creating the directory if
+     *  absent), creates the file from defaults if it does not yet exist, and validates an existing file
+     *  (regular file, ".json" extension). Sets @p file_existed and returns the resolved path. */
+    std::filesystem::path resolveConfigPathAndEnsureFile(
+        std::filesystem::path const &config_file,
+        bool &file_existed
+    );
+    /** @brief Update-in-place rewrite: reports on-disk keys no registered parameter consumes, then rewrites
+     *  @p config_path in canonical form (using @p root's current values / @p rewrite_header). */
+    void reportAndRewriteConfigFile(
+        boost::json::value const &root,
+        std::filesystem::path const &config_path,
+        std::string const &rewrite_header
+    );
     /** @brief Builds the canonical configuration document (header + one entry per registered file
      *  option: value = the current parsed/default value, default = the registered default). Shared by
      *  writeConfigFile() and the update-in-place rewrite.

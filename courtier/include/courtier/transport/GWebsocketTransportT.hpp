@@ -765,11 +765,21 @@ public:
         this->server_sign_on_(true);
 
         // ---------------------------------------------------
-        // Prepare ping cycle. It must start after the handshake, upon whose
-        // completion the when_connection_accepted() function is called.
-        // async_start_ping() is executed from there.
+        // Install the control-frame callback (ping/pong liveness + optional verbose logging) and set the
+        // websocket transfer options. The ping cycle itself must start after the handshake, from
+        // when_connection_accepted() (which calls async_start_ping()).
+        this->installControlFrameCallback();
+        this->configureWebsocketOptions();
 
-        // Set a control-frame callback
+        // ---------------------------------------------------
+    }
+
+    //-------------------------------------------------------------------------
+    /**
+         * @brief Installs the control-frame callback on the websocket: pings/pongs mark the connection
+         * alive, and (when verbose_control_frames_ is set) every close/ping/pong frame is logged.
+         */
+    void installControlFrameCallback() {
         f_when_control_frame_arrived_ = [this](frame_type frame_t, [[maybe_unused]] string_view s) {
             if(
 				 // We might have received a pong as an answer to our own ping,
@@ -804,15 +814,19 @@ public:
 
         // Set the callback to be executed on every incoming control frame.
         ws_.control_callback(f_when_control_frame_arrived_);
+    }
 
-        // ---------------------------------------------------
+    //-------------------------------------------------------------------------
+    /**
+         * @brief Sets the websocket transfer options: auto-fragmentation (so control frames are delivered
+         * timely), the write buffer size, and the binary/text transfer mode per the serialization mode.
+         */
+    void configureWebsocketOptions() {
         // Set the auto_fragment option, so control frames are delivered timely
         ws_.auto_fragment(true);
         ws_.write_buffer_bytes(16384);
 
-        // ---------------------------------------------------
-        // Set the transfer mode according to the defines in CMakeLists.txt
-        // Set the transfer mode
+        // Set the transfer mode according to the serialization mode
         switch(serialization_mode_) {
         case Gem::Common::serializationMode::BINARY:
             ws_.binary(true);
@@ -822,8 +836,6 @@ public:
             ws_.binary(false);
             break;
         }
-
-        // ---------------------------------------------------
     }
 
     //-------------------------------------------------------------------------

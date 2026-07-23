@@ -1488,36 +1488,50 @@ private:
                 );
             }
 
-            {
-                // lock access to open sessions vector
-                std::scoped_lock const guard(openSessionsMutex_);
-
-                for(auto sessionIter{openSessions_.begin()}; sessionIter != openSessions_.end();
-                    /* no increment */) {
-                    if((*sessionIter)->isCompleted()) {
-                        // track the completed stop requests
-                        if((*sessionIter)->getOutCommand() ==
-                           networked_consumer_payload_command::STOP) {
-                            ++stopSendOutsCompleted;
-                        }
-
-                        // erase this session because it has completed
-                        sessionIter = openSessions_.erase(sessionIter);
-                    }
-                    else {
-                        // increment iterator in case no session has been erased
-                        ++sessionIter;
-                    }
-                }
-            }
+            this->reapCompletedSessions(stopSendOutsCompleted);
 
             if(grace.expired()) {
                 break;
             }
         }
 
-        // Release any sessions still open (only reached on the grace-timeout path): cancel their
-        // outstanding response sends so no MPI_Request outlives into MPI_Finalize.
+        this->releaseOpenSessions();
+    }
+
+    //-------------------------------------------------------------------------
+    /**
+         * @brief Erases every completed session from openSessions_, counting the completed STOP requests.
+         *
+         * @param stopSendOutsCompleted Running count of completed STOP requests, incremented in place
+         */
+    void reapCompletedSessions(uint32_t &stopSendOutsCompleted) {
+        // lock access to open sessions vector
+        std::scoped_lock const guard(openSessionsMutex_);
+
+        for(auto sessionIter{openSessions_.begin()}; sessionIter != openSessions_.end();
+            /* no increment */) {
+            if((*sessionIter)->isCompleted()) {
+                // track the completed stop requests
+                if((*sessionIter)->getOutCommand() == networked_consumer_payload_command::STOP) {
+                    ++stopSendOutsCompleted;
+                }
+
+                // erase this session because it has completed
+                sessionIter = openSessions_.erase(sessionIter);
+            }
+            else {
+                // increment iterator in case no session has been erased
+                ++sessionIter;
+            }
+        }
+    }
+
+    //-------------------------------------------------------------------------
+    /**
+         * @brief Releases any sessions still open (only reached on the grace-timeout path): cancels their
+         * outstanding response sends so no MPI_Request outlives into MPI_Finalize, then clears the vector.
+         */
+    void releaseOpenSessions() {
         std::scoped_lock const guard(openSessionsMutex_);
         for(auto &session : openSessions_) {
             session->cancelPendingResponse();

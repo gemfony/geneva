@@ -275,112 +275,9 @@ void GParameterPropertyParser::parse() {
         return;
     }
 
-    // Tokenize the raw string into (type, content) fragments of the form type'('content')'.
-    std::vector<std::pair<char, std::string>> fragments;
-    {
-        const std::string &s = raw_;
-        std::size_t i = 0;
-        const std::size_t n = s.size();
-        auto skipSep = [&]() {
-            while(i < n && (s[i] == ' ' || s[i] == '\t' || s[i] == '\n' || s[i] == '\r' || s[i] == ',')) {
-                ++i;
-            }
-        };
-        skipSep();
-        while(i < n) {
-            const char type = s[i];
-            if(type != 'd' && type != 'f' && type != 'i' && type != 'b' && type != 's') {
-                fail(s.substr(i));
-            }
-            ++i;
-            if(i >= n || s[i] != '(') {
-                fail(s.substr(i));
-            }
-            ++i; // consume '('
-            std::string content;
-            while(i < n && s[i] != ')') {
-                content.push_back(s[i]);
-                ++i;
-            }
-            if(i >= n) { // no closing ')'
-                fail(s);
-            }
-            ++i; // consume ')'
-            fragments.emplace_back(type, content);
-            skipSep();
-        }
-    }
-
-    // Process each fragment.
-    for(const auto &fragment : fragments) {
-        const char type = fragment.first;
-        const std::vector<std::string> tok = splitOnComma(fragment.second);
-
-        if(type == 'd') {
-            d_spec_vec_.push_back(makeNumericSpec<double>(
-                tok,
-                [](const std::string &t, const std::string &raw) { return t.empty() ? (fail(raw), 0.0) : std::stod(t); },
-                fragment.second
-            ));
-        }
-        else if(type == 'f') {
-            f_spec_vec_.push_back(makeNumericSpec<float>(
-                tok,
-                [](const std::string &t, const std::string &raw) { return t.empty() ? (fail(raw), 0.0f) : std::stof(t); },
-                fragment.second
-            ));
-        }
-        else if(type == 'i') {
-            i_spec_vec_.push_back(makeNumericSpec<std::int32_t>(
-                tok,
-                [](const std::string &t, const std::string &raw) { return t.empty() ? (fail(raw), static_cast<std::int32_t>(0)) : static_cast<std::int32_t>(std::stoi(t)); },
-                fragment.second
-            ));
-        }
-        else if(type == 'b') {
-            if(tok.empty() || tok[0].empty()) {
-                fail(fragment.second);
-            }
-            parPropSpec<bool> spec;
-            const std::size_t index = toUnsigned(tok[0], fragment.second);
-            spec.lowerBoundary = false;
-            spec.upperBoundary = true;
-            spec.nSteps = GPP_DEF_NSTEPS;
-            std::string label;
-            if(tok.size() >= 3) {
-                spec.lowerBoundary = toBool(tok[1], fragment.second);
-                spec.upperBoundary = toBool(tok[2], fragment.second);
-                for(std::size_t k = 3; k < tok.size(); ++k) {
-                    if(isUnsigned(tok[k])) {
-                        spec.nSteps = static_cast<std::size_t>(std::stoul(tok[k]));
-                    }
-                    else {
-                        label = tok[k];
-                    }
-                }
-            }
-            else if(tok.size() == 2) {
-                if(isUnsigned(tok[1])) {
-                    spec.nSteps = static_cast<std::size_t>(std::stoul(tok[1]));
-                }
-                else {
-                    label = tok[1];
-                }
-            }
-            spec.var = NAMEANDIDTYPE(label.empty() ? 0 : 2, label, index);
-            b_spec_vec_.push_back(spec);
-        }
-        else if(type == 's') {
-            if(tok.empty()) {
-                fail(fragment.second);
-            }
-            simpleScanSpec spec{};
-            spec.nItems = toUnsigned(tok[0], fragment.second);
-            s_spec_vec_.push_back(spec);
-        }
-        else {
-            fail(fragment.second);
-        }
+    // Tokenize the raw string into (type, content) fragments, then apply each to its per-type spec vector.
+    for(auto const &[type, content] : this->tokenizeRaw()) {
+        this->applyFragment(type, content);
     }
 
     // We only accept a single "simple-scan" entry. Complain, if more than one was found.
@@ -409,6 +306,128 @@ void GParameterPropertyParser::parse() {
 
     // Prevent further use of this function
     parsed_ = true;
+}
+
+/******************************************************************************/
+/**
+ * @brief Tokenizes raw_ into (type, content) fragments of the form type'('content')', separated by
+ * whitespace/commas. Throws (via fail()) on an unknown type char or a missing '('/')'.
+ *
+ * @return The parsed fragments in source order
+ */
+std::vector<std::pair<char, std::string>> GParameterPropertyParser::tokenizeRaw() const {
+    std::vector<std::pair<char, std::string>> fragments;
+
+    const std::string &s = raw_;
+    std::size_t i = 0;
+    const std::size_t n = s.size();
+    auto skipSep = [&]() {
+        while(i < n && (s[i] == ' ' || s[i] == '\t' || s[i] == '\n' || s[i] == '\r' || s[i] == ',')) {
+            ++i;
+        }
+    };
+    skipSep();
+    while(i < n) {
+        const char type = s[i];
+        if(type != 'd' && type != 'f' && type != 'i' && type != 'b' && type != 's') {
+            fail(s.substr(i));
+        }
+        ++i;
+        if(i >= n || s[i] != '(') {
+            fail(s.substr(i));
+        }
+        ++i; // consume '('
+        std::string content;
+        while(i < n && s[i] != ')') {
+            content.push_back(s[i]);
+            ++i;
+        }
+        if(i >= n) { // no closing ')'
+            fail(s);
+        }
+        ++i; // consume ')'
+        fragments.emplace_back(type, content);
+        skipSep();
+    }
+
+    return fragments;
+}
+
+/******************************************************************************/
+/**
+ * @brief Applies one parsed (type, content) fragment to the matching per-type spec vector.
+ *
+ * @param type The fragment's type character (one of d/f/i/b/s)
+ * @param content The fragment's comma-separated content
+ */
+void GParameterPropertyParser::applyFragment(char type, std::string const &content) {
+    const std::vector<std::string> tok = splitOnComma(content);
+
+    if(type == 'd') {
+        d_spec_vec_.push_back(makeNumericSpec<double>(
+            tok,
+            [](const std::string &t, const std::string &raw) { return t.empty() ? (fail(raw), 0.0) : std::stod(t); },
+            content
+        ));
+    }
+    else if(type == 'f') {
+        f_spec_vec_.push_back(makeNumericSpec<float>(
+            tok,
+            [](const std::string &t, const std::string &raw) { return t.empty() ? (fail(raw), 0.0f) : std::stof(t); },
+            content
+        ));
+    }
+    else if(type == 'i') {
+        i_spec_vec_.push_back(makeNumericSpec<std::int32_t>(
+            tok,
+            [](const std::string &t, const std::string &raw) { return t.empty() ? (fail(raw), static_cast<std::int32_t>(0)) : static_cast<std::int32_t>(std::stoi(t)); },
+            content
+        ));
+    }
+    else if(type == 'b') {
+        if(tok.empty() || tok[0].empty()) {
+            fail(content);
+        }
+        parPropSpec<bool> spec;
+        const std::size_t index = toUnsigned(tok[0], content);
+        spec.lowerBoundary = false;
+        spec.upperBoundary = true;
+        spec.nSteps = GPP_DEF_NSTEPS;
+        std::string label;
+        if(tok.size() >= 3) {
+            spec.lowerBoundary = toBool(tok[1], content);
+            spec.upperBoundary = toBool(tok[2], content);
+            for(std::size_t k = 3; k < tok.size(); ++k) {
+                if(isUnsigned(tok[k])) {
+                    spec.nSteps = static_cast<std::size_t>(std::stoul(tok[k]));
+                }
+                else {
+                    label = tok[k];
+                }
+            }
+        }
+        else if(tok.size() == 2) {
+            if(isUnsigned(tok[1])) {
+                spec.nSteps = static_cast<std::size_t>(std::stoul(tok[1]));
+            }
+            else {
+                label = tok[1];
+            }
+        }
+        spec.var = NAMEANDIDTYPE(label.empty() ? 0 : 2, label, index);
+        b_spec_vec_.push_back(spec);
+    }
+    else if(type == 's') {
+        if(tok.empty()) {
+            fail(content);
+        }
+        simpleScanSpec spec{};
+        spec.nItems = toUnsigned(tok[0], content);
+        s_spec_vec_.push_back(spec);
+    }
+    else {
+        fail(content);
+    }
 }
 
 /******************************************************************************/

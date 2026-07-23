@@ -522,81 +522,9 @@ bool GParserBuilder::doParseConfigFile_(
     std::filesystem::path config_path;
 
     try {
-        // Assemble a path object from the config file, possibly adding a base directory
-        if(not config_base_dir_.empty()) {
-            // Make sure the base directory exists, creating it if necessary. As a missing config
-            // file is auto-created below, a missing config directory must be created too, so the
-            // mechanism works in a fresh run directory regardless of which caller runs first.
-            if(not std::filesystem::exists(config_base_dir_)) {
-                std::error_code ec;
-                std::filesystem::create_directories(config_base_dir_, ec);
-                if(ec) {
-                    throw geneva_exception(
-                        g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                        << "In GParserBuilder::parseConfigFile(): Error!" << '\n'
-                        << "Base-directory " << config_base_dir_.string()
-                        << " does not exist and could not be created: " << ec.message() << '\n'
-                    );
-                }
-                glogger << "Note: In GParserBuilder::parseConfigFile():" << '\n'
-                        << "The configuration directory " << config_base_dir_.string()
-                        << " did not exist and was created for you." << '\n'
-                        << GLOGGING;
-            }
-            else if(not std::filesystem::is_directory(config_base_dir_)) {
-                throw geneva_exception(
-                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                    << "In GParserBuilder::parseConfigFile(): Error!" << '\n'
-                    << "Base-directory " << config_base_dir_.string() << " is not a directory"
-                    << '\n'
-                );
-            }
-
-            config_path = config_base_dir_ / config_file;
-        }
-        else {
-            config_path = config_file;
-        }
-
-        // Check that the configuration file exists.
-        // If not, create a default version
-        const bool file_existed = std::filesystem::exists(config_path);
-        if(not file_existed) {
-            glogger << "Note: In GParserBuilder::parseConfigFile():" << '\n'
-                    << "Configuration file " << config_path.string() << " does not exist."
-                    << '\n'
-                    << "We will try to create a file with default values for you." << '\n'
-                    << GLOGGING;
-
-            std::string const header =
-                "This configuration file was automatically created by GParserBuilder;";
-            this->writeConfigFile(
-                config_path,
-                header,
-                true // write_all == true
-            );
-        }
-        else { // config_file exists
-            // Is it a regular file ?
-            if(not std::filesystem::is_regular_file(config_path)) {
-                throw geneva_exception(
-                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                    << "In GParserBuilder::parseConfigFile(): Error!" << '\n'
-                    << config_path.string() << " exists but is no regular file." << '\n'
-                );
-            }
-
-            // We require the file to have the json extension
-            if(not std::filesystem::path(config_path).has_extension() ||
-               std::filesystem::path(config_path).extension() != ".json") {
-                throw geneva_exception(
-                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                    << "In GParserBuilder::parseConfigFile(): Error!" << '\n'
-                    << config_path.string() << " does not have the required extension \".json\""
-                    << '\n'
-                );
-            }
-        }
+        // Resolve the path (creating the base directory if needed) and ensure the file exists.
+        bool file_existed = false;
+        config_path = this->resolveConfigPathAndEnsureFile(config_file, file_existed);
 
         // Parse the configuration document (Boost.JSON's parser does not accept a path directly).
         root = Gem::Common::parseJsonFile(config_path);
@@ -618,34 +546,7 @@ bool GParserBuilder::doParseConfigFile_(
         // fell back to their defaults), rewrite the file in canonical form. Only an existing file is
         // rewritten -- a missing one was just created from defaults above, which is already canonical.
         if(do_rewrite && file_existed) {
-            // Report which on-disk keys are being dropped because no registered parameter consumes them.
-            std::set<std::string> known_keys;
-            for(auto const &proxy_ptr : file_parameter_proxies_) {
-                known_keys.insert(proxy_ptr->topLevelConfigKey());
-            }
-            std::vector<std::string> dropped;
-            if(root.is_object()) {
-                for(auto const &key_value : root.get_object()) {
-                    const std::string key(key_value.key());
-                    if(key != "header" and not known_keys.contains(key)) {
-                        dropped.push_back(key);
-                    }
-                }
-            }
-            if(not dropped.empty()) {
-                glogger << "Note: In GParserBuilder::updateConfigFile(): " << config_path.string() << '\n'
-                        << "dropping " << dropped.size()
-                        << " stale key(s) no registered parameter consumes: "
-                        << (dropped | std::views::join_with(std::string(", ")) | std::ranges::to<std::string>())
-                        << '\n'
-                        << GLOGGING;
-            }
-
-            std::string const header =
-                rewrite_header.empty()
-                    ? std::string("This configuration file was automatically created by GParserBuilder;")
-                    : rewrite_header;
-            this->atomicReplaceConfigFile_(config_path, this->buildConfigDocument_(header, true /* write_all */));
+            this->reportAndRewriteConfigFile(root, config_path, rewrite_header);
         }
 
         return true; // Success! (a caller reads this as "parsed/created without error", not "existed")
@@ -670,6 +571,138 @@ bool GParserBuilder::doParseConfigFile_(
                 << GLOGGING;
         return false;
     }
+}
+
+/******************************************************************************/
+/**
+ * @brief Resolves @p config_file against the configured base directory (creating the directory if absent),
+ * creates the file from defaults if it does not yet exist, and validates an existing file (regular file,
+ * ".json" extension). Sets @p file_existed and returns the resolved path.
+ */
+std::filesystem::path GParserBuilder::resolveConfigPathAndEnsureFile(
+    std::filesystem::path const &config_file,
+    bool &file_existed
+) {
+    std::filesystem::path config_path;
+
+    // Assemble a path object from the config file, possibly adding a base directory
+    if(not config_base_dir_.empty()) {
+        // Make sure the base directory exists, creating it if necessary. As a missing config
+        // file is auto-created below, a missing config directory must be created too, so the
+        // mechanism works in a fresh run directory regardless of which caller runs first.
+        if(not std::filesystem::exists(config_base_dir_)) {
+            std::error_code ec;
+            std::filesystem::create_directories(config_base_dir_, ec);
+            if(ec) {
+                throw geneva_exception(
+                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+                    << "In GParserBuilder::parseConfigFile(): Error!" << '\n'
+                    << "Base-directory " << config_base_dir_.string()
+                    << " does not exist and could not be created: " << ec.message() << '\n'
+                );
+            }
+            glogger << "Note: In GParserBuilder::parseConfigFile():" << '\n'
+                    << "The configuration directory " << config_base_dir_.string()
+                    << " did not exist and was created for you." << '\n'
+                    << GLOGGING;
+        }
+        else if(not std::filesystem::is_directory(config_base_dir_)) {
+            throw geneva_exception(
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+                << "In GParserBuilder::parseConfigFile(): Error!" << '\n'
+                << "Base-directory " << config_base_dir_.string() << " is not a directory"
+                << '\n'
+            );
+        }
+
+        config_path = config_base_dir_ / config_file;
+    }
+    else {
+        config_path = config_file;
+    }
+
+    // Check that the configuration file exists.
+    // If not, create a default version
+    file_existed = std::filesystem::exists(config_path);
+    if(not file_existed) {
+        glogger << "Note: In GParserBuilder::parseConfigFile():" << '\n'
+                << "Configuration file " << config_path.string() << " does not exist."
+                << '\n'
+                << "We will try to create a file with default values for you." << '\n'
+                << GLOGGING;
+
+        std::string const header =
+            "This configuration file was automatically created by GParserBuilder;";
+        this->writeConfigFile(
+            config_path,
+            header,
+            true // write_all == true
+        );
+    }
+    else { // config_file exists
+        // Is it a regular file ?
+        if(not std::filesystem::is_regular_file(config_path)) {
+            throw geneva_exception(
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+                << "In GParserBuilder::parseConfigFile(): Error!" << '\n'
+                << config_path.string() << " exists but is no regular file." << '\n'
+            );
+        }
+
+        // We require the file to have the json extension
+        if(not std::filesystem::path(config_path).has_extension() ||
+           std::filesystem::path(config_path).extension() != ".json") {
+            throw geneva_exception(
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+                << "In GParserBuilder::parseConfigFile(): Error!" << '\n'
+                << config_path.string() << " does not have the required extension \".json\""
+                << '\n'
+            );
+        }
+    }
+
+    return config_path;
+}
+
+/******************************************************************************/
+/**
+ * @brief Update-in-place rewrite: reports on-disk keys that no registered parameter consumes, then
+ * rewrites @p config_path in canonical form (header from @p rewrite_header, values from the registered
+ * options that were just loaded from @p root).
+ */
+void GParserBuilder::reportAndRewriteConfigFile(
+    boost::json::value const &root,
+    std::filesystem::path const &config_path,
+    std::string const &rewrite_header
+) {
+    // Report which on-disk keys are being dropped because no registered parameter consumes them.
+    std::set<std::string> known_keys;
+    for(auto const &proxy_ptr : file_parameter_proxies_) {
+        known_keys.insert(proxy_ptr->topLevelConfigKey());
+    }
+    std::vector<std::string> dropped;
+    if(root.is_object()) {
+        for(auto const &key_value : root.get_object()) {
+            const std::string key(key_value.key());
+            if(key != "header" and not known_keys.contains(key)) {
+                dropped.push_back(key);
+            }
+        }
+    }
+    if(not dropped.empty()) {
+        glogger << "Note: In GParserBuilder::updateConfigFile(): " << config_path.string() << '\n'
+                << "dropping " << dropped.size()
+                << " stale key(s) no registered parameter consumes: "
+                << (dropped | std::views::join_with(std::string(", ")) | std::ranges::to<std::string>())
+                << '\n'
+                << GLOGGING;
+    }
+
+    std::string const header =
+        rewrite_header.empty()
+            ? std::string("This configuration file was automatically created by GParserBuilder;")
+            : rewrite_header;
+    this->atomicReplaceConfigFile_(config_path, this->buildConfigDocument_(header, true /* write_all */));
 }
 
 /******************************************************************************/

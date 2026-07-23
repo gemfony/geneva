@@ -474,6 +474,12 @@ private:
      * @return The first algorithm's iteration offset (carried over from a resumed checkpoint, or the passed-in offset)
      */
     std::uint32_t prepareInitialPopulation(std::uint32_t offset);
+    /** @brief Throws if a configured checkpoint file does not fit the first algorithm in the chain. */
+    void validateCheckpointFitsFirstAlgorithm() const;
+    /** @brief Loads the configured checkpoint into the first algorithm. */
+    void loadFirstAlgorithmCheckpoint();
+    /** @brief Fills the (empty) population from the registered content creator, throwing if none is available. */
+    void fillPopulationFromContentCreator();
     /**
      * @brief Runs the registered algorithms in sequence, threading the individuals between them.
      * @param first_algorithm_offset The iteration offset at which the first algorithm in the chain starts

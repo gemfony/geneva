@@ -734,7 +734,24 @@ void Go2::ensureAlgorithmPresent() {
  *         checkpoint's last iteration when resuming from a checkpoint)
  */
 std::uint32_t Go2::prepareInitialPopulation(std::uint32_t offset) {
-    // Check whether a possible checkpoint file fits the first algorithm in the chain
+    this->validateCheckpointFitsFirstAlgorithm();
+
+    // Load the checkpoint file or create individuals from the content creator
+    if(cp_file_ != "empty") {
+        this->loadFirstAlgorithmCheckpoint();
+        // The first algorithm starts right after the iteration where the checkpoint file ended
+        return algorithms_cnt_[0]->getIteration() + 1;
+    }
+
+    this->fillPopulationFromContentCreator();
+    return offset;
+}
+
+/******************************************************************************/
+/**
+ * @brief Throws if a configured checkpoint file does not fit the first algorithm in the chain.
+ */
+void Go2::validateCheckpointFitsFirstAlgorithm() const {
     if(cp_file_ != "empty" &&
        not algorithms_cnt_[0]->cp_personality_fits(std::filesystem::path(cp_file_))) {
         throw geneva_exception(
@@ -745,59 +762,60 @@ std::uint32_t Go2::prepareInitialPopulation(std::uint32_t offset) {
             << algorithms_cnt_[0]->getAlgorithmPersonalityType() << '\n'
         );
     }
+}
 
-    std::uint32_t first_algorithm_offset = offset;
+/******************************************************************************/
+/**
+ * @brief Loads the configured checkpoint into the first algorithm in the chain.
+ */
+void Go2::loadFirstAlgorithmCheckpoint() {
+    algorithms_cnt_[0]->loadCheckpoint(std::filesystem::path(cp_file_));
+}
 
-    // Load the checkpoint file or create individuals from the content creator
-    if(cp_file_ != "empty") {
-        // Load the external data
-        algorithms_cnt_[0]->loadCheckpoint(std::filesystem::path(cp_file_));
-
-        // Make sure the first algorithm starts right after the iteration where the checkpoint file ended
-        first_algorithm_offset = algorithms_cnt_[0]->getIteration() + 1;
-    }
-    else {
-        // Check that individuals have been registered
-        if(this->empty()) {
-            if(content_creator_ptr_) {
-                for(std::size_t ind = 0; ind < algorithms_cnt_.at(0)->getDefaultPopulationSize();
-                    ind++) {
-                    std::shared_ptr<gen::GOptimizableEntity> const p_ind = (*content_creator_ptr_)();
-                    if(p_ind) {
-                        this->push_back(p_ind);
+/******************************************************************************/
+/**
+ * @brief Fills the (empty) population from the registered content creator, throwing if no creator and no
+ * individuals are available.
+ */
+void Go2::fillPopulationFromContentCreator() {
+    // Check that individuals have been registered
+    if(this->empty()) {
+        if(content_creator_ptr_) {
+            for(std::size_t ind = 0; ind < algorithms_cnt_.at(0)->getDefaultPopulationSize();
+                ind++) {
+                std::shared_ptr<gen::GOptimizableEntity> const p_ind = (*content_creator_ptr_)();
+                if(p_ind) {
+                    this->push_back(p_ind);
+                }
+                else {                  // No valid item received, the factory has run empty
+                    if(this->empty()) { // Still empty?
+                        throw geneva_exception(
+                            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+                            << "In Go2::optimize(): Error!" << '\n'
+                            << "The content creator did not deliver any individuals"
+                            << '\n'
+                            << "and none have been registered so far." << '\n'
+                            << "No way to continue." << '\n'
+                        );
                     }
-                    else {                  // No valid item received, the factory has run empty
-                        if(this->empty()) { // Still empty?
-                            throw geneva_exception(
-                                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                                << "In Go2::optimize(): Error!" << '\n'
-                                << "The content creator did not deliver any individuals"
-                                << '\n'
-                                << "and none have been registered so far." << '\n'
-                                << "No way to continue." << '\n'
-                            );
-                        }
-                        break;
-                    }
+                    break;
                 }
             }
-            else {
-                throw geneva_exception(
-                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                    << "In Go2::optimize(): Error!" << '\n'
-                    << "No optimization problem (individual) is available: no content creator and no"
-                    << '\n'
-                    << "individuals have been registered. Provide exactly one of:" << '\n'
-                    << "  (1) compile an individual in and call registerContentCreator();" << '\n'
-                    << "  (2) add individuals directly via push_back();" << '\n'
-                    << "  (3) load one at runtime with --individual <path>.so (or the" << '\n'
-                    << "      individual_plugin_path config-file setting)." << '\n'
-                );
-            }
+        }
+        else {
+            throw geneva_exception(
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+                << "In Go2::optimize(): Error!" << '\n'
+                << "No optimization problem (individual) is available: no content creator and no"
+                << '\n'
+                << "individuals have been registered. Provide exactly one of:" << '\n'
+                << "  (1) compile an individual in and call registerContentCreator();" << '\n'
+                << "  (2) add individuals directly via push_back();" << '\n'
+                << "  (3) load one at runtime with --individual <path>.so (or the" << '\n'
+                << "      individual_plugin_path config-file setting)." << '\n'
+            );
         }
     }
-
-    return first_algorithm_offset;
 }
 
 /******************************************************************************/
