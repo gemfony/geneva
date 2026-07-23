@@ -621,10 +621,10 @@ class GNeuralNetworkIndividual // NOLINT(cppcoreguidelines-special-member-functi
   : public gen::GGenomeT<GNeuralNetworkIndividual> {
     /////////////////////////////////////////////////////////////////////////////
 
-    // Boost still default-constructs the concrete type on load; GBoilerplateAccess lets the mixin reach
+    // Boost still default-constructs the concrete type on load; GReflectiveInterfaceAccess lets the mixin reach
     // the private localMembers_() below (serialize/load_/compare_/clone_/name_ are all generated).
     friend class boost::serialization::access;
-    friend struct Gem::Common::GBoilerplateAccess;
+    friend struct Gem::Common::GReflectiveInterfaceAccess;
 
     /** @brief The single declaration of this class'es serialised local data members. n_d_ (the training
      *  data) is intentionally NOT listed: every constructor -- including the one Boost invokes before it
@@ -640,7 +640,7 @@ class GNeuralNetworkIndividual // NOLINT(cppcoreguidelines-special-member-functi
     /////////////////////////////////////////////////////////////////////////////
 
 public:
-    /** @brief The class name, consumed by the GBoilerplateT-generated name_() and compare token. */
+    /** @brief The class name, consumed by the GReflectiveInterfaceT-generated name_() and compare token. */
     static constexpr std::string_view class_name = "GNeuralNetworkIndividual";
     /***************************************************************************/
     /** @brief The default constructor */

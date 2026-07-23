@@ -181,12 +181,12 @@ template <typename ind_type = Gem::Geneva::Individuals::GFunctionIndividual>
 class GMetaOptimizerIndividualT // NOLINT(cppcoreguidelines-special-member-functions)
   : public gen::GGenomeT<GMetaOptimizerIndividualT<ind_type>> {
     ///////////////////////////////////////////////////////////////////////
-    // Boost still default-constructs the concrete type on load; GBoilerplateAccess lets the mixin reach
+    // Boost still default-constructs the concrete type on load; GReflectiveInterfaceAccess lets the mixin reach
     // the private localMembers_() below (load_/compare_/clone_/name_ are generated from it). serialize()
     // is kept BY HAND: it also emits ind_factory_, which localMembers_ deliberately omits (the factory is
     // kept-not-copied on load and ignored by compare) -- an asymmetry serialize_members() cannot express.
     friend class boost::serialization::access;
-    friend struct Gem::Common::GBoilerplateAccess;
+    friend struct Gem::Common::GReflectiveInterfaceAccess;
 
     template <class Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
@@ -200,7 +200,7 @@ class GMetaOptimizerIndividualT // NOLINT(cppcoreguidelines-special-member-funct
     ///////////////////////////////////////////////////////////////////////
 
 public:
-    /** @brief The class name, consumed by the GBoilerplateT-generated name_() and compare token. */
+    /** @brief The class name, consumed by the GReflectiveInterfaceT-generated name_() and compare token. */
     static constexpr std::string_view class_name = "GMetaOptimizerIndividualT<ind_type>";
     /***************************************************************************/
     /**

@@ -96,7 +96,7 @@ namespace Gem::Tests {
 // b2 guard (compile-time regression): GGenomeT's generated empty localMembers_() is gated on the
 // public `gemfony_flat_individual` marker. A tagged genome-only leaf resolves a viable localMembers_();
 // an UNtagged leaf that also declares no own localMembers_() has NONE -- GGenomeT's default is
-// constrained out and the GBoilerplateBaseT fallback is =deleted -- so GBoilerplateAccess::members()
+// constrained out and the GReflectiveInterfaceBaseT fallback is =deleted -- so GReflectiveInterfaceAccess::members()
 // is ill-formed and the class cannot compile. This pins the guard so a stateful leaf can never silently
 // drop its state (Inv 15). The unmarked probe is only ever named in an unevaluated context, so its
 // virtuals / vtable are never instantiated and it never hard-errors here.
@@ -105,9 +105,9 @@ struct FlatTaggedProbe : public GGenomeT<FlatTaggedProbe> {
     using gemfony_flat_individual = void; // opts into the generated empty member list
 };
 struct FlatUntaggedProbe : public GGenomeT<FlatUntaggedProbe> {}; // no marker AND no own localMembers_()
-static_assert(Gem::Common::GBoilerplateAccess::has_members<FlatTaggedProbe>,
+static_assert(Gem::Common::GReflectiveInterfaceAccess::has_members<FlatTaggedProbe>,
     "b2: a marked genome-only leaf must resolve GGenomeT's generated empty member list");
-static_assert(!Gem::Common::GBoilerplateAccess::has_members<FlatUntaggedProbe>,
+static_assert(!Gem::Common::GReflectiveInterfaceAccess::has_members<FlatUntaggedProbe>,
     "b2: an unmarked leaf with no own localMembers_() must NOT resolve a member list (guard rotted)");
 } // namespace
 

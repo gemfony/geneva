@@ -78,7 +78,7 @@ namespace Gem::Geneva::OptimizationAlgorithms {
  * @param cp A constant reference to another GOptimizationAlgorithmBase object
  */
 GOptimizationAlgorithmBase::GOptimizationAlgorithmBase(const GOptimizationAlgorithmBase &cp)
-  : Gem::Common::GBoilerplateBaseT<
+  : Gem::Common::GReflectiveInterfaceBaseT<
         GOptimizationAlgorithmBase, Gem::Common::GCommonInterfaceT<GOptimizationAlgorithmBase>
     >(cp) {
     // All local data -- including the container base'es population (tied in as data_cnt_) and the

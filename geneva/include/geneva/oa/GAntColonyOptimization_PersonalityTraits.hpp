@@ -51,10 +51,10 @@ namespace Gem::Geneva::OptimizationAlgorithms {
  */
 class GAntColonyOptimization_PersonalityTraits // NOLINT(cppcoreguidelines-special-member-functions)
   : public GAlgorithmPersonalityTraitsT<GAntColonyOptimization_PersonalityTraits> {
-    // GBoilerplateAccess lets the GBoilerplateT base (via the generator) reach this
+    // GReflectiveInterfaceAccess lets the GReflectiveInterfaceT base (via the generator) reach this
     // stateless class's explicit empty localMembers_() -- required, or the mixin's
     // deleted fallback rejects the class at compile time.
-    friend struct Gem::Common::GBoilerplateAccess;
+    friend struct Gem::Common::GReflectiveInterfaceAccess;
 
     /** @brief This traits class adds no own state (only its identity). @return An empty member tuple */
     template <typename Self>

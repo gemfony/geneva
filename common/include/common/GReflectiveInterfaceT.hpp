@@ -53,7 +53,7 @@ namespace Gem::Common {
 
 /******************************************************************************/
 /**
- * @brief Access shim that lets the GBoilerplate mixins reach a managed class's
+ * @brief Access shim that lets the GReflectiveInterface mixins reach a managed class's
  * private localMembers_() declaration.
  *
  * localMembers_() is the single, per-class declaration of a class's own data
@@ -61,18 +61,18 @@ namespace Gem::Common {
  * exactly as the hand-written serialize()/load_()/compare_() were. The mixins
  * below live in the base class and therefore cannot see a derived class's
  * private members directly, so each managed class grants friendship to this one
- * empty struct (a single `friend struct Gem::Common::GBoilerplateAccess;` line,
+ * empty struct (a single `friend struct Gem::Common::GReflectiveInterfaceAccess;` line,
  * replacing the `friend class boost::serialization::access;` line the folded
  * serialize() used to need). Routing every access through this single shim keeps
  * the friendship declaration short and identical across all managed classes.
  */
-struct GBoilerplateAccess {
+struct GReflectiveInterfaceAccess {
     /**
      * @brief Returns a managed object's localMembers_() tuple.
      *
      * If T declares its own localMembers_() this resolves to it. If T declares
      * none, it resolves to the *deleted* localMembers_() inherited from
-     * GBoilerplateBaseT (see below), which makes this call ill-formed -- so a
+     * GReflectiveInterfaceBaseT (see below), which makes this call ill-formed -- so a
      * class that forgets to declare its own member list fails to compile rather
      * than silently double-serializing its parent's members (amendment: reject a
      * missing/inherited member list, do not accept it).
@@ -93,7 +93,7 @@ struct GBoilerplateAccess {
      * loaded, to let a class repair cached or derived state that is not itself a
      * serialized member (e.g. a content-addressed cache keyed on a just-loaded
      * member). If T declares no postLoad_() of its own this resolves to the no-op
-     * default in GBoilerplateBaseT, so the hook costs nothing for the classes that
+     * default in GReflectiveInterfaceBaseT, so the hook costs nothing for the classes that
      * do not need it.
      *
      * @tparam T The (non-const) managed class type
@@ -112,7 +112,7 @@ struct GBoilerplateAccess {
      * a hard error rather than a substitution failure -- this checks only call
      * *resolvability*. A constrained localMembers_() whose constraint is
      * unsatisfied (e.g. GGenomeT's marker-gated default without the opt-in marker)
-     * is discarded during overload resolution, and the =deleted GBoilerplateBaseT
+     * is discarded during overload resolution, and the =deleted GReflectiveInterfaceBaseT
      * fallback is non-viable, so no candidate is selected and this simply yields
      * false instead of failing to compile. It is routed through this friend shim
      * so the private localMembers_() is reachable, and it never instantiates a
@@ -126,7 +126,7 @@ struct GBoilerplateAccess {
 
 /******************************************************************************/
 /**
- * @brief A class is managed by the GBoilerplate mixins iff it exposes both a
+ * @brief A class is managed by the GReflectiveInterface mixins iff it exposes both a
  * reachable localMembers_() and a static class_name.
  *
  * This is the concept the mixins assert on (amendment: the mixins deliberately
@@ -137,8 +137,8 @@ struct GBoilerplateAccess {
  * @tparam T The managed class type
  */
 template <typename T>
-concept BoilerplateManaged =
-    requires(T &t) { GBoilerplateAccess::members(t); } &&
+concept ReflectiveInterfaceManaged =
+    requires(T &t) { GReflectiveInterfaceAccess::members(t); } &&
     requires {
         { T::class_name } -> std::convertible_to<std::string_view>;
     };
@@ -148,8 +148,8 @@ concept BoilerplateManaged =
  * @brief Generates the name_()/load_()/compare_() members (and the folded
  * serialize()) shared by every class in a GCommonInterfaceT hierarchy.
  *
- * This is the base half of the boilerplate mixin, used directly by *abstract*
- * classes (those whose clone_() stays pure) and inherited by GBoilerplateT for
+ * This is the base half of the reflective-interface mixin, used directly by *abstract*
+ * classes (those whose clone_() stays pure) and inherited by GReflectiveInterfaceT for
  * *concrete* classes. It derives from the class's real Parent and inserts no
  * data of its own, so it is transparent to Boost.Serialization: the folded
  * serialize() writes base_object<Parent> (skipping this stateless layer) plus
@@ -180,7 +180,7 @@ concept BoilerplateManaged =
  *                 GCommonInterfaceT<Root> itself for a hierarchy root)
  */
 template <typename Derived, typename Parent>
-class GBoilerplateBaseT : public Parent {
+class GReflectiveInterfaceBaseT : public Parent {
 protected:
     /** @brief The most-derived public root of the hierarchy (load_() parameter / clone_() base). */
     using Root = typename Parent::gemfony_common_root_t;
@@ -190,12 +190,12 @@ protected:
 
     // Inherited constructors never include the default / copy / move members, so
     // declare them explicitly (the mixin adds no state, hence all defaulted).
-    GBoilerplateBaseT() = default;
-    GBoilerplateBaseT(GBoilerplateBaseT const &) = default;
-    GBoilerplateBaseT(GBoilerplateBaseT &&) = default;
-    ~GBoilerplateBaseT() override = default;
-    GBoilerplateBaseT &operator=(GBoilerplateBaseT const &) = default;
-    GBoilerplateBaseT &operator=(GBoilerplateBaseT &&) = default;
+    GReflectiveInterfaceBaseT() = default;
+    GReflectiveInterfaceBaseT(GReflectiveInterfaceBaseT const &) = default;
+    GReflectiveInterfaceBaseT(GReflectiveInterfaceBaseT &&) = default;
+    ~GReflectiveInterfaceBaseT() override = default;
+    GReflectiveInterfaceBaseT &operator=(GReflectiveInterfaceBaseT const &) = default;
+    GReflectiveInterfaceBaseT &operator=(GReflectiveInterfaceBaseT &&) = default;
 
     /**
      * @brief Loads the data of another object of the same hierarchy into this one.
@@ -207,8 +207,8 @@ protected:
      */
     void load_(Root const *cp) override {
         static_assert(
-            BoilerplateManaged<Derived>,
-            "GBoilerplateBaseT: Derived must declare its own localMembers_() and a static class_name"
+            ReflectiveInterfaceManaged<Derived>,
+            "GReflectiveInterfaceBaseT: Derived must declare its own localMembers_() and a static class_name"
         );
         auto const *p_load = Gem::Common::g_convert_and_compare(cp, static_cast<Derived const *>(this));
 
@@ -219,13 +219,13 @@ protected:
 
         // ... and then this class's own members, from the single localMembers_() declaration.
         Gem::Common::g_load_members(
-            GBoilerplateAccess::members(static_cast<Derived &>(*this)),
-            GBoilerplateAccess::members(static_cast<Derived const &>(*p_load))
+            GReflectiveInterfaceAccess::members(static_cast<Derived &>(*this)),
+            GReflectiveInterfaceAccess::members(static_cast<Derived const &>(*p_load))
         );
 
         // Finally, let the class repair any cached/derived state keyed on the members
         // just loaded (no-op unless the class declares its own postLoad_()).
-        GBoilerplateAccess::postLoad(static_cast<Derived &>(*this));
+        GReflectiveInterfaceAccess::postLoad(static_cast<Derived &>(*this));
     }
 
     /**
@@ -236,7 +236,7 @@ protected:
      * just-loaded member) declares its own private `void postLoad_()` to rebuild
      * that state; it hides this default by ordinary name lookup. Classes without
      * such state inherit this no-op, so the hook is free for them. It is invoked
-     * only through GBoilerplateAccess (a friend of every managed class), the same
+     * only through GReflectiveInterfaceAccess (a friend of every managed class), the same
      * routing localMembers_() uses.
      */
     void postLoad_() {}
@@ -244,7 +244,7 @@ protected:
 private:
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
-    friend struct Gem::Common::GBoilerplateAccess;
+    friend struct Gem::Common::GReflectiveInterfaceAccess;
 
     /**
      * @brief Deleted fallback member list.
@@ -252,8 +252,8 @@ private:
      * A managed class must declare its own localMembers_() (an empty
      * `return std::make_tuple();` for a stateless class). If it does not, name
      * lookup from the class finds this deleted declaration -- hidden by any real
-     * one -- so GBoilerplateAccess::members() becomes ill-formed and the
-     * BoilerplateManaged concept turns false, failing the static_assert below.
+     * one -- so GReflectiveInterfaceAccess::members() becomes ill-formed and the
+     * ReflectiveInterfaceManaged concept turns false, failing the static_assert below.
      * This is what makes "a stateless class needs an *explicit* empty member
      * list" a compile-time guarantee rather than a review convention: without it,
      * an inherited localMembers_() would silently serialize the parent's members
@@ -272,8 +272,8 @@ private:
     template <typename Archive>
     void serialize(Archive &ar, [[maybe_unused]] unsigned int const version) {
         static_assert(
-            BoilerplateManaged<Derived>,
-            "GBoilerplateBaseT: Derived must declare its own localMembers_() and a static class_name"
+            ReflectiveInterfaceManaged<Derived>,
+            "GReflectiveInterfaceBaseT: Derived must declare its own localMembers_() and a static class_name"
         );
         if constexpr (!std::same_as<Parent, Gem::Common::GCommonInterfaceT<Root>>) {
             // Cast to Derived& (not the mixin type) so Boost registers the void_cast
@@ -286,7 +286,7 @@ private:
                 boost::serialization::base_object<Parent>(static_cast<Derived &>(*this))
             );
         }
-        Gem::Common::serialize_members(ar, GBoilerplateAccess::members(static_cast<Derived &>(*this)));
+        Gem::Common::serialize_members(ar, GReflectiveInterfaceAccess::members(static_cast<Derived &>(*this)));
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -303,8 +303,8 @@ private:
     void compare_(Root const &cp, Gem::Common::expectation const &e, [[maybe_unused]] double const &limit)
         const override {
         static_assert(
-            BoilerplateManaged<Derived>,
-            "GBoilerplateBaseT: Derived must declare its own localMembers_() and a static class_name"
+            ReflectiveInterfaceManaged<Derived>,
+            "GReflectiveInterfaceBaseT: Derived must declare its own localMembers_() and a static class_name"
         );
         // Convert cp to Derived, guarding against self-comparison.
         auto const *p_load = Gem::Common::g_convert_and_compare(cp, static_cast<Derived const *>(this));
@@ -316,8 +316,8 @@ private:
 
         // ... and then this class's own members, from the single localMembers_() declaration.
         Gem::Common::g_compare_members(
-            GBoilerplateAccess::members(static_cast<Derived const &>(*this)),
-            GBoilerplateAccess::members(static_cast<Derived const &>(*p_load)),
+            GReflectiveInterfaceAccess::members(static_cast<Derived const &>(*this)),
+            GReflectiveInterfaceAccess::members(static_cast<Derived const &>(*p_load)),
             token
         );
 
@@ -336,7 +336,7 @@ private:
 
 /******************************************************************************/
 /**
- * @brief The full boilerplate mixin for a *concrete* class: GBoilerplateBaseT
+ * @brief The full boilerplate mixin for a *concrete* class: GReflectiveInterfaceBaseT
  * (name_/load_/compare_/serialize) plus a generated clone_().
  *
  * clone_() cannot live in the shared base because its body (`new Derived(...)`)
@@ -355,10 +355,10 @@ template <
     typename Parent,
     typename CloneReturn = typename Parent::gemfony_common_root_t
 >
-class GBoilerplateT : public GBoilerplateBaseT<Derived, Parent> {
+class GReflectiveInterfaceT : public GReflectiveInterfaceBaseT<Derived, Parent> {
 protected:
     /** @brief Inherit the base mixin's (and thereby the parent's) constructors. */
-    using GBoilerplateBaseT<Derived, Parent>::GBoilerplateBaseT;
+    using GReflectiveInterfaceBaseT<Derived, Parent>::GReflectiveInterfaceBaseT;
 
 private:
     /**

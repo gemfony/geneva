@@ -53,7 +53,7 @@ using namespace Gem::Courtier;
  * each of which has a constrained value range [-10:10].
  */
 GMPISubClientParaboloidIndividualMultiD::GMPISubClientParaboloidIndividualMultiD()
-  : Gem::Common::GBoilerplateT<GMPISubClientParaboloidIndividualMultiD, GMPISubClientIndividual, gen::GGenome>()
+  : Gem::Common::GReflectiveInterfaceT<GMPISubClientParaboloidIndividualMultiD, GMPISubClientIndividual, gen::GGenome>()
   , M_PAR_MIN(-10.)
   , M_PAR_MAX(10.) {
     // Build a flat genome of nParameters_ constrained doubles in [M_PAR_MIN, M_PAR_MAX[, each its own
@@ -77,7 +77,7 @@ GMPISubClientParaboloidIndividualMultiD::GMPISubClientParaboloidIndividualMultiD
 GMPISubClientParaboloidIndividualMultiD::GMPISubClientParaboloidIndividualMultiD(
     const GMPISubClientParaboloidIndividualMultiD &cp
 )
-  : Gem::Common::GBoilerplateT<GMPISubClientParaboloidIndividualMultiD, GMPISubClientIndividual, gen::GGenome>(cp)
+  : Gem::Common::GReflectiveInterfaceT<GMPISubClientParaboloidIndividualMultiD, GMPISubClientIndividual, gen::GGenome>(cp)
   , M_PAR_MIN(-10.)
   , M_PAR_MAX(10) { /* nothing */
 }

@@ -140,10 +140,10 @@ std::ostream &operator<<(std::ostream &, const CircleTriangle &);
      */
 class GImageIndividual final : public gen::GGenomeT<GImageIndividual> {
     ///////////////////////////////////////////////////////////////////////
-    // Boost still default-constructs the concrete type on load; GBoilerplateAccess lets the mixin reach
+    // Boost still default-constructs the concrete type on load; GReflectiveInterfaceAccess lets the mixin reach
     // the private localMembers_() below (from which serialize/load_/compare_/clone_/name_ are generated).
     friend class boost::serialization::access;
-    friend struct Gem::Common::GBoilerplateAccess;
+    friend struct Gem::Common::GReflectiveInterfaceAccess;
 
     /**
      * @brief Single declaration of this class'es local data members
@@ -164,7 +164,7 @@ class GImageIndividual final : public gen::GGenomeT<GImageIndividual> {
     ///////////////////////////////////////////////////////////////////////
 
 public:
-    /** @brief The class name, consumed by the GBoilerplateT-generated name_() and compare token. */
+    /** @brief The class name, consumed by the GReflectiveInterfaceT-generated name_() and compare token. */
     static constexpr std::string_view class_name = "GImageIndividual";
 
     /******************************************************************************/

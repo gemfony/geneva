@@ -65,7 +65,7 @@ GGenome::GGenome() = default;
  * @param n_fitness_criteria The number of fitness criteria this genome will evaluate to
  */
 GGenome::GGenome(const std::size_t n_fitness_criteria)
-  : Gem::Common::GBoilerplateBaseT<GGenome, GOptimizableEntity>(n_fitness_criteria) {
+  : Gem::Common::GReflectiveInterfaceBaseT<GGenome, GOptimizableEntity>(n_fitness_criteria) {
     /* nothing */
 }
 
@@ -75,7 +75,7 @@ GGenome::GGenome(const std::size_t n_fitness_criteria)
  * @param cp A constant reference to another GGenome object to be copied
  */
 GGenome::GGenome(GGenome const &cp)
-  : Gem::Common::GBoilerplateBaseT<GGenome, GOptimizableEntity>(cp)
+  : Gem::Common::GReflectiveInterfaceBaseT<GGenome, GOptimizableEntity>(cp)
   , dv_(cp.dv_)
   , fv_(cp.fv_)
   , iv_(cp.iv_)

@@ -67,11 +67,11 @@ class GAdaptionConfigBase;
      * real data would be sent in order to solve the evaluation in a distributed manner.
      */
 class GMPISubClientParaboloidIndividualMultiD
-  : public Gem::Common::GBoilerplateT<GMPISubClientParaboloidIndividualMultiD, GMPISubClientIndividual, gen::GGenome> {
+  : public Gem::Common::GReflectiveInterfaceT<GMPISubClientParaboloidIndividualMultiD, GMPISubClientIndividual, gen::GGenome> {
     /** @brief Make the class accessible to Boost.Serialization */
     friend class boost::serialization::access;
-    /** @brief The GBoilerplateT mixin reaches the (empty) private localMembers_() through this shim. */
-    friend struct Gem::Common::GBoilerplateAccess;
+    /** @brief The GReflectiveInterfaceT mixin reaches the (empty) private localMembers_() through this shim. */
+    friend struct Gem::Common::GReflectiveInterfaceAccess;
 
     /** @brief No serialised per-instance state -- M_PAR_MIN/M_PAR_MAX are const construction constants,
      *  never (de)serialised / loaded / compared -- so the member list is empty and
@@ -80,7 +80,7 @@ class GMPISubClientParaboloidIndividualMultiD
     auto localMembers_(this Self &) { return std::make_tuple(); }
     /**************************************************************/
 public:
-    /** @brief The class name, consumed by the GBoilerplateT-generated name_() and compare token. */
+    /** @brief The class name, consumed by the GReflectiveInterfaceT-generated name_() and compare token. */
     static constexpr std::string_view class_name = "GMPISubClientParaboloidIndividualMultiD";
 
     /** @brief The default constructor */

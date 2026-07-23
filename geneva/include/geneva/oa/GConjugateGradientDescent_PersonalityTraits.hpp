@@ -51,9 +51,9 @@ namespace Gem::Geneva::OptimizationAlgorithms {
  */
 class GConjugateGradientDescent_PersonalityTraits // NOLINT(cppcoreguidelines-special-member-functions)
   : public GAlgorithmPersonalityTraitsT<GConjugateGradientDescent_PersonalityTraits> {
-    // GBoilerplateAccess lets the GBoilerplateT base (via the generator) reach this
+    // GReflectiveInterfaceAccess lets the GReflectiveInterfaceT base (via the generator) reach this
     // stateless class's explicit empty localMembers_() (required by the mixin's deleted fallback).
-    friend struct Gem::Common::GBoilerplateAccess;
+    friend struct Gem::Common::GReflectiveInterfaceAccess;
 
     /** @brief This traits class adds no own state (only its identity). @return An empty member tuple */
     template <typename Self>

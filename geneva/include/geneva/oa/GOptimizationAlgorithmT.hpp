@@ -37,7 +37,7 @@
 #include <string_view>
 
 // Geneva headers go here
-#include "common/GBoilerplateT.hpp"           // Gem::Common::GBoilerplateT
+#include "common/GReflectiveInterfaceT.hpp"           // Gem::Common::GReflectiveInterfaceT
 #include "common/GCommonHelperFunctions.hpp"  // Gem::Common::condnotset
 #include "geneva/oa/GOptimizationAlgorithmBase.hpp"
 
@@ -47,7 +47,7 @@ namespace Gem::Geneva::OptimizationAlgorithms {
 /**
  * A CRTP scaffold that generates the boilerplate every concrete optimization algorithm otherwise
  * repeats by hand. The generic quartet -- clone_(), name_(), load_(), compare_() plus the folded
- * serialize() -- comes from Gem::Common::GBoilerplateT (single-sourced from the class's
+ * serialize() -- comes from Gem::Common::GReflectiveInterfaceT (single-sourced from the class's
  * localMembers_() and class_name, exactly as everywhere else in the tree); this layer only adds the
  * three algorithm-specific overriders (getAlgorithmName_(), getAlgorithmPersonalityType_()) and the
  * three default GUnitTests stubs. A concrete algorithm derives as
@@ -58,12 +58,12 @@ namespace Gem::Geneva::OptimizationAlgorithms {
  * and supplies its member list (localMembers_()) plus three static string identifiers (public, so
  * this layer and the mixin can read them):
  *
- *     static constexpr std::string_view class_name          = "GFoo";  // read by GBoilerplateT
+ *     static constexpr std::string_view class_name          = "GFoo";  // read by GReflectiveInterfaceT
  *     static constexpr std::string_view oa_algorithm_name   = "Foo Optimizer";
  *     static constexpr std::string_view oa_personality_type = "PERSONALITY_FOO";
  *
  * The mixin holds NO data of its own; clone_() returns a GOptimizationAlgorithmBase pointer (the
- * hierarchy root, the default GBoilerplateT clone-return). The GUnitTests stubs are ordinary
+ * hierarchy root, the default GReflectiveInterfaceT clone-return). The GUnitTests stubs are ordinary
  * virtuals, so an algorithm with real algorithm-specific tests simply overrides them. An algorithm
  * whose load_() is more than a member-wise copy (e.g. GSwarmAlgorithm's iteration-dependent
  * neighbourhood-best handling) overrides the generated load_() in the usual way.
@@ -73,13 +73,13 @@ namespace Gem::Geneva::OptimizationAlgorithms {
  *                 intermediate such as GParChild for the mu/lambda algorithms.
  */
 template <typename Derived, typename Parent = GOptimizationAlgorithmBase>
-class GOptimizationAlgorithmT : public Gem::Common::GBoilerplateT<Derived, Parent> {
+class GOptimizationAlgorithmT : public Gem::Common::GReflectiveInterfaceT<Derived, Parent> {
     /** @brief The mixin base that generates clone_()/name_()/load_()/compare_()/serialize(). */
-    using boilerplate_t = Gem::Common::GBoilerplateT<Derived, Parent>;
+    using reflective_interface_t = Gem::Common::GReflectiveInterfaceT<Derived, Parent>;
 
 public:
     /** @brief Inherit the mixin's (and thereby the parent's) constructors. */
-    using boilerplate_t::boilerplate_t;
+    using reflective_interface_t::reflective_interface_t;
 
     /** @brief The default constructor */
     GOptimizationAlgorithmT() = default;

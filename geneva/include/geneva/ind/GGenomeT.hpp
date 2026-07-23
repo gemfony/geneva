@@ -45,7 +45,7 @@ namespace Gem::Geneva::Genome {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * The sole CRTP base a concrete flat individual derives. It is a thin adaptor over the GBoilerplateT
+ * The sole CRTP base a concrete flat individual derives. It is a thin adaptor over the GReflectiveInterfaceT
  * mixin (with CloneReturn = GGenome so the generated clone_ returns GGenome* covariantly): clone_, name_,
  * load_, compare_ and serialize are all GENERATED, so a minimal flat individual is just a constructor that
  * builds its genome, an evaluate(), the opt-in flat tag, and one BOOST_CLASS_EXPORT(Derived).
@@ -74,7 +74,7 @@ namespace Gem::Geneva::Genome {
  * Usage (with extra state): declare localMembers_() listing the extra members (do NOT declare the marker),
  * e.g.
  * @code
- *   friend struct Gem::Common::GBoilerplateAccess;
+ *   friend struct Gem::Common::GReflectiveInterfaceAccess;
  *   template <typename Self> auto localMembers_(this Self &self) {
  *       return std::make_tuple(Gem::Common::make_member("my_extra_", self.my_extra_));
  *   }
@@ -83,20 +83,20 @@ namespace Gem::Geneva::Genome {
  * @tparam Derived The concrete flat individual type (CRTP), supplying its constructor and evaluate()
  */
 template <class Derived>
-class GGenomeT : public Gem::Common::GBoilerplateT<Derived, GGenome, GGenome> {
+class GGenomeT : public Gem::Common::GReflectiveInterfaceT<Derived, GGenome, GGenome> {
     ///////////////////////////////////////////////////////////////////////
-    friend struct Gem::Common::GBoilerplateAccess;
+    friend struct Gem::Common::GReflectiveInterfaceAccess;
 
     /** @brief A genome-only leaf carries no data beyond its genome, so it opts into this generated empty
      *  member list by declaring the public marker `using gemfony_flat_individual = void;` (which satisfies
-     *  the requires-clause below). The GBoilerplateT mixin then generates clone_ / name_ / load_ / compare_ /
+     *  the requires-clause below). The GReflectiveInterfaceT mixin then generates clone_ / name_ / load_ / compare_ /
      *  serialize from it (serialize additionally emits base_object<GGenome>; clone_ returns GGenome*
      *  covariantly). A leaf that genuinely adds non-genome members declares its OWN localMembers_() instead
      *  (which hides this one) and MUST NOT declare the marker.
      *
      *  The requires-clause is the compile-time safety net: a stateful leaf that declares NEITHER the marker
      *  NOR its own localMembers_() finds no viable localMembers_() at all -- this one is constrained out and
-     *  the GBoilerplateBaseT fallback is =deleted -- so GBoilerplateAccess::members() is ill-formed and the
+     *  the GReflectiveInterfaceBaseT fallback is =deleted -- so GReflectiveInterfaceAccess::members() is ill-formed and the
      *  class fails to compile, rather than silently dropping that state from serialize/compare/load. The
      *  marker must be public: this base cannot see a derived-private nested type. Until C++26 member
      *  reflection can enumerate members automatically, this opt-in marker is the only compile-time guard. */
@@ -107,7 +107,7 @@ class GGenomeT : public Gem::Common::GBoilerplateT<Derived, GGenome, GGenome> {
 
 public:
     /** @brief Inherit the GGenome constructors (default + n-fitness-criteria). */
-    using Gem::Common::GBoilerplateT<Derived, GGenome, GGenome>::GBoilerplateT;
+    using Gem::Common::GReflectiveInterfaceT<Derived, GGenome, GGenome>::GReflectiveInterfaceT;
 };
 
 /******************************************************************************/
