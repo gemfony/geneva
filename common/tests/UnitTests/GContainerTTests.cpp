@@ -303,6 +303,7 @@ public:
 /******************************************************************************/
 // ─────────────────────────── [pod][vector] ────────────────────────────────
 
+// NOLINTNEXTLINE(readability-function-cognitive-complexity) -- a flat catalogue of independent, self-contained per-operation micro-checks (each SECTION builds its own fixture); the length is coverage breadth over one backend's contract, not branching complexity, and splitting into standalone TEST_CASEs would only multiply the count with no shared setup to consolidate
 TEST_CASE("GContainerT: GPodContainerT<int> with std::vector backend", "[GContainerT][pod][vector]") {
     SECTION("Default construction") {
         ConcretePodVec const c;
@@ -842,6 +843,7 @@ TEST_CASE("GContainerT: GPodContainerT<int> with std::deque backend", "[GContain
 /******************************************************************************/
 // ─────────────────────────── [ptr][vector] ────────────────────────────────
 
+// NOLINTNEXTLINE(readability-function-cognitive-complexity) -- a flat catalogue of independent, self-contained per-operation micro-checks (each SECTION builds its own fixture); the length is coverage breadth over one backend's contract, not branching complexity, and splitting into standalone TEST_CASEs would only multiply the count with no shared setup to consolidate
 TEST_CASE("GContainerT: GPtrContainerT<TestBase> with std::vector backend", "[GContainerT][ptr][vector]") {
     SECTION("Default construction") {
         ConcretePtrVec const c;
@@ -1272,6 +1274,7 @@ TEST_CASE("GContainerT: GPtrContainerT<TestBase> with std::vector backend", "[GC
 /******************************************************************************/
 // ─────────────────────────── [pod][list] ─────────────────────────────────────
 
+// NOLINTNEXTLINE(readability-function-cognitive-complexity) -- a flat catalogue of independent, self-contained per-operation micro-checks (each SECTION builds its own fixture); the length is coverage breadth over one backend's contract, not branching complexity, and splitting into standalone TEST_CASEs would only multiply the count with no shared setup to consolidate
 TEST_CASE("GContainerT: GPodContainerT<int> with std::list backend", "[GContainerT][pod][list]") {
     // std::list satisfies HasFrontInsertion but not HasRandomAccess,
     // HasContiguousStorage, or HasCapacity. crossOver and operator<=>
@@ -1874,6 +1877,7 @@ TEST_CASE("GContainerT: Boost.Serialization round-trips", "[GContainerT][seriali
 // The UniquePtrStorage policy and the unique_ptr overloads of the deep-copy helpers, exercised in
 // isolation (nothing in geneva uses the unique container yet).
 
+// NOLINTNEXTLINE(readability-function-cognitive-complexity) -- a flat catalogue of independent, self-contained per-operation micro-checks (each SECTION builds its own fixture); the length is coverage breadth, not branching complexity, and splitting into standalone TEST_CASEs would only multiply the count with no shared setup to consolidate
 TEST_CASE("GContainerT: UniquePtrStorage + unique_ptr deep-copy helpers", "[GContainerT][ptr][unique]") {
     using Vec = std::vector<std::unique_ptr<TestBase>>;
 

@@ -285,6 +285,7 @@ TEST_CASE("GGenomeBuilder produces the expected shared layout", "[flat]") {
 }
 
 /******************************************************************************/
+// NOLINTNEXTLINE(readability-function-cognitive-complexity) -- one coherent property (layoutId is a stable, structure-sensitive content hash) checked from several angles against the SAME set of layouts; the checks are tightly coupled and would only be scattered by splitting
 TEST_CASE("GGenomeLayout::layoutId is a stable content hash", "[flat][layoutid]") {
     auto buildLayout = [](std::size_t n, double lo, double hi) {
         GGenomeBuilder b;
@@ -339,6 +340,7 @@ TEST_CASE("GGenomeLayout::layoutId is a stable content hash", "[flat][layoutid]"
 }
 
 /******************************************************************************/
+// NOLINTNEXTLINE(readability-function-cognitive-complexity) -- one coherent wire-blob round-trip (encode -> decode -> re-hash) verified from several angles against the SAME layout; the steps are sequentially coupled and would only be scattered by splitting
 TEST_CASE("GGenomeLayout::layoutId survives the WIRE-BLOB round-trip", "[flat][layoutid][wireblob]") {
     using Gem::Geneva::Genome::layoutToWireBlob;
     using Gem::Geneva::Genome::layoutFromWireBlob;
@@ -576,6 +578,7 @@ TEST_CASE("GGenome: value round-trip (streamline / assignValueVector)", "[flat]"
 }
 
 /******************************************************************************/
+// NOLINTNEXTLINE(readability-function-cognitive-complexity) -- one coherent property (the constrained-fold helpers map values into their range) exercised across many boundary/interior inputs in a tight data-driven loop; the length is input breadth, not branching complexity
 TEST_CASE("Constrained fold helpers map into range", "[flat]") {
     // FP: half-open [lo, hi)
     CHECK(foldConstrainedFP<double>(5., -10., 10.) == 5.);   // in range -> identity
