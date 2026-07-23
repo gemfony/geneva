@@ -52,6 +52,7 @@
 #include "dietrich/GPlotDesigner.hpp"
 #include "geneva/individuals/GFunctionIndividual.hpp"
 #include "geneva/ind/GGenome.hpp"
+#include "geneva/ind/GGenomeT.hpp"
 #include "geneva/ind/GGenomeBuilder.hpp"
 #include "geneva/ind/GOptimizableEntity.hpp"
 #include "geneva/GPluggableOptimizationMonitors.hpp"
@@ -178,9 +179,14 @@ const std::string GMETAOPT_DEF_SUBEACONFIG =
  */
 template <typename ind_type = Gem::Geneva::Individuals::GFunctionIndividual>
 class GMetaOptimizerIndividualT // NOLINT(cppcoreguidelines-special-member-functions)
-  : public gen::GGenome {
+  : public gen::GGenomeT<GMetaOptimizerIndividualT<ind_type>> {
     ///////////////////////////////////////////////////////////////////////
+    // Boost still default-constructs the concrete type on load; GBoilerplateAccess lets the mixin reach
+    // the private localMembers_() below (load_/compare_/clone_/name_ are generated from it). serialize()
+    // is kept BY HAND: it also emits ind_factory_, which localMembers_ deliberately omits (the factory is
+    // kept-not-copied on load and ignored by compare) -- an asymmetry serialize_members() cannot express.
     friend class boost::serialization::access;
+    friend struct Gem::Common::GBoilerplateAccess;
 
     template <class Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
@@ -194,12 +200,14 @@ class GMetaOptimizerIndividualT // NOLINT(cppcoreguidelines-special-member-funct
     ///////////////////////////////////////////////////////////////////////
 
 public:
+    /** @brief The class name, consumed by the GBoilerplateT-generated name_() and compare token. */
+    static constexpr std::string_view class_name = "GMetaOptimizerIndividualT<ind_type>";
     /***************************************************************************/
     /**
      * The default constructor.
      */
     GMetaOptimizerIndividualT()
-      : gen::GGenome()
+      : gen::GGenomeT<GMetaOptimizerIndividualT<ind_type>>()
       , n_runs_per_optimization_(GMETAOPT_DEF_NRUNSPEROPT)
       , fitness_target_(GMETAOPT_DEF_FITNESSTARGET)
       , iteration_threshold_(GMETAOPT_DEF_ITERATIONTHRESHOLD)
@@ -215,7 +223,7 @@ public:
      * @param cp A constant reference to another GMetaOptimizerIndividualT object
      */
     GMetaOptimizerIndividualT(const GMetaOptimizerIndividualT<ind_type> &cp)
-      : gen::GGenome(cp)
+      : gen::GGenomeT<GMetaOptimizerIndividualT<ind_type>>(cp)
       , n_runs_per_optimization_(cp.n_runs_per_optimization_)
       , fitness_target_(cp.fitness_target_)
       , iteration_threshold_(cp.iteration_threshold_)
@@ -650,70 +658,6 @@ protected:
 
     /***************************************************************************/
     /**
-     * Loads the data of another GMetaOptimizerIndividualT<ind_type>
-     *
-     * @param cp A copy of another GMetaOptimizerIndividualT<ind_type>
-     */
-    void load_(const gen::GOptimizableEntity *cp) override {
-        // Check that we are dealing with a GMetaOptimizerIndividualT<ind_type> reference independent of this object and convert the pointer
-        const GMetaOptimizerIndividualT<ind_type> *p_load =
-            Gem::Common::g_convert_and_compare<gen::GOptimizableEntity, GMetaOptimizerIndividualT<ind_type>>(
-                cp,
-                this
-            );
-
-        // Load our parent class'es data ...
-        gen::GGenome::load_(cp);
-
-        // ... and then our local data, derived from the single localMembers() declaration
-        Gem::Common::g_load_members(this->localMembers_(), p_load->localMembers_());
-
-        // We simply keep our local individual factory, as all settings are made inside of evaluate()
-    }
-
-    /***************************************************************************/
-    /** @brief Allow access to this classes compare_ function */
-    friend void Gem::Common::compare_base_t<GMetaOptimizerIndividualT<ind_type>>(
-        GMetaOptimizerIndividualT<ind_type> const &,
-        GMetaOptimizerIndividualT<ind_type> const &,
-        Gem::Common::GToken &
-    );
-
-    /***************************************************************************/
-    /**
-     * Searches for compliance with expectations with respect to another object
-     * of the same type
-     *
-     * @param cp A constant reference to another GMetaOptimizerIndividualT object
-     * @param e The expected outcome of the comparison
-     * @param limit The limit for allowed deviations of floating point types
-     */
-    void compare_(
-        const gen::GOptimizableEntity &cp,
-        const Gem::Common::expectation &e,
-        [[maybe_unused]] const double & limit
-    ) const final {
-        // Check that we are dealing with a GMetaOptimizerIndividualT<ind_type> reference independent of this object and convert the pointer
-        const GMetaOptimizerIndividualT<ind_type> *p_load =
-            Gem::Common::g_convert_and_compare<gen::GOptimizableEntity, GMetaOptimizerIndividualT<ind_type>>(
-                cp,
-                this
-            );
-
-        Gem::Common::GToken token("GMetaOptimizerIndividualT<ind_type>", e);
-
-        // Compare our parent data ...
-        Gem::Common::compare_base_t<gen::GGenome>(*this, *p_load, token);
-
-        // ... and then the local data, derived from the single localMembers() declaration
-        Gem::Common::g_compare_members(this->localMembers_(), p_load->localMembers_(), token);
-
-        // React on deviations from the expectation
-        token.evaluate();
-    }
-
-    /***************************************************************************/
-    /**
      * The evaluation hook: runs the nested optimization(s) and returns the meta-fitness. For the
      * multi-criterion target (MC_MINSOLVER_BESTFITNESS) it returns {best-fitness, average-solver-calls};
      * otherwise a single-element vector.
@@ -1042,16 +986,6 @@ private:
             }
         }
         return out;
-    }
-
-    /***************************************************************************/
-    /**
-     * Creates a deep clone of this object
-     *
-     * @return A deep clone of this object, camouflaged as a GGenome
-     */
-    gen::GGenome *clone_() const final {
-        return new GMetaOptimizerIndividualT<ind_type>(*this);
     }
 
     /***************************************************************************/

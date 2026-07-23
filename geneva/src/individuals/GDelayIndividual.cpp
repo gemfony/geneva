@@ -68,7 +68,7 @@ GDelayIndividual::GDelayIndividual()
  * @param cp A copy of another GDelayIndividual
  */
 GDelayIndividual::GDelayIndividual(const GDelayIndividual &cp)
-  : gen::GGenome(cp)
+  : gen::GGenomeT<GDelayIndividual>(cp)
   , fixed_sleep_time_(cp.fixed_sleep_time_)
   , may_crash_(cp.may_crash_)
   , throw_likelihood_(cp.throw_likelihood_)
@@ -81,65 +81,6 @@ GDelayIndividual::GDelayIndividual(const GDelayIndividual &cp)
  * The standard destructor
  */
 GDelayIndividual::~GDelayIndividual() { /* nothing */
-}
-
-/******************************************************************************/
-/**
- * @brief Searches for compliance with expectations with respect to another object of the same type.
- *
- * @param cp A constant reference to another GDelayIndividual, camouflaged as a GOptimizableEntity
- * @param e The expected outcome of the comparison (equality / inequality)
- * @param limit The maximum deviation for floating-point comparisons (unused here, hence [[maybe_unused]])
- */
-void GDelayIndividual::compare_(
-    const gen::GOptimizableEntity &cp,
-    const Gem::Common::expectation &e,
-    [[maybe_unused]] const double & limit
-) const {
-    using namespace Gem::Common;
-
-    // Check that we are dealing with a GDelayIndividual reference independent of this object and convert the pointer
-    const GDelayIndividual *p_load =
-        Gem::Common::g_convert_and_compare<gen::GOptimizableEntity, GDelayIndividual>(cp, this);
-
-    Gem::Common::GToken token("GDelayIndividual", e);
-
-    // Compare our parent data ...
-    Gem::Common::compare_base_t<gen::GGenome>(*this, *p_load, token);
-
-    // ... and then the local data
-    Gem::Common::g_compare_members(this->localMembers_(), p_load->localMembers_(), token);
-
-    // React on deviations from the expectation
-    token.evaluate();
-}
-
-/******************************************************************************/
-/**
- * @brief Loads the data of another GDelayIndividual, camouflaged as a GOptimizableEntity.
- *
- * @param cp A pointer to another GDelayIndividual, camouflaged as a GOptimizableEntity; its data is copied into this object
- */
-void GDelayIndividual::load_(const gen::GOptimizableEntity *cp) {
-    // Check that we are dealing with a GDelayIndividual reference independent of this object and convert the pointer
-    const GDelayIndividual *p_load =
-        Gem::Common::g_convert_and_compare<gen::GOptimizableEntity, GDelayIndividual>(cp, this);
-
-    // Load our parent class'es data ...
-    gen::GGenome::load_(cp);
-
-    // ... and then our own, derived from the single localMembers() declaration
-    Gem::Common::g_load_members(this->localMembers_(), p_load->localMembers_());
-}
-
-/******************************************************************************/
-/**
- * @brief Creates a deep clone of this object.
- *
- * @return A deep clone of this object, camouflaged as a GGenome pointer
- */
-gen::GGenome *GDelayIndividual::clone_() const {
-    return new GDelayIndividual(*this);
 }
 
 /******************************************************************************/

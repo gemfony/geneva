@@ -49,6 +49,7 @@
 #include "common/GCommonHelperFunctions.hpp"
 #include "common/GParserBuilder.hpp"
 #include "geneva/ind/GGenome.hpp"
+#include "geneva/ind/GGenomeT.hpp"
 #include "geneva/ind/GIndividualFactory.hpp"
 #include "geneva/ind/GGenomeBuilder.hpp"
 #include "geneva/par/GOptimizableEntityMultiConstraint.hpp"
@@ -116,14 +117,17 @@ constexpr bool GEEI_DEF_REMOVETEMPORARIES = true;
  * program needs to read and write this JSON format.
  */
 class GExternalEvaluatorIndividual
-  : public gen::GGenome { // NOLINT(cppcoreguidelines-special-member-functions)
+  : public gen::GGenomeT<GExternalEvaluatorIndividual> { // NOLINT(cppcoreguidelines-special-member-functions)
     ///////////////////////////////////////////////////////////////////////
 
+    // Boost still default-constructs the concrete type on load; GBoilerplateAccess lets the mixin
+    // reach the private localMembers_() below (from which serialize/load_/compare_/clone_/name_ derive).
     friend class boost::serialization::access;
+    friend struct Gem::Common::GBoilerplateAccess;
 
     /**
      * @brief Single declaration of this class'es local data members
-     * @return A tuple of named member references driving serialize(), load_() and compare_()
+     * @return A tuple of named member references driving the generated serialize()/load_()/compare_()
      */
     template <typename Self>
     auto localMembers_(this Self &self) {
@@ -137,25 +141,12 @@ class GExternalEvaluatorIndividual
         );
     }
 
-    /**
-     * @brief Serializes this class to/from a Boost archive
-     * @tparam Archive The Boost.Serialization archive type
-     * @param ar The archive to read from or write to
-     * @param version The serialization version (unused)
-     */
-    template <class Archive>
-    void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
-        using boost::serialization::make_nvp;
-        // run_id_ was previously omitted here and silently lost on
-        // (de)serialization; derive the member list from the single
-        // localMembers() declaration so it stays in sync.
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gen::GGenome);
-        Gem::Common::serialize_members(ar, this->localMembers_());
-    }
-
     ///////////////////////////////////////////////////////////////////////
 
 public:
+    /** @brief The class name, consumed by the GBoilerplateT-generated name_() and compare token. */
+    static constexpr std::string_view class_name = "GExternalEvaluatorIndividual";
+
     /***************************************************************************/
     using FACTORYTYPE =
         Gem::Geneva::Genome::GIndividualFactory<GExternalEvaluatorIndividual>;
@@ -327,35 +318,6 @@ public:
 
 protected:
     /***************************************************************************/
-
-    /***************************************************************************/
-    /**
-     * @brief Loads the data of another GExternalEvaluatorIndividual
-     * @param cp Pointer to the other object (a GExternalEvaluatorIndividual passed as a base-class pointer)
-     */
-    void load_(const gen::GOptimizableEntity *cp) final;
-
-    /** @brief Allow access to this classes compare_ function */
-    friend void Gem::Common::compare_base_t<GExternalEvaluatorIndividual>(
-        GExternalEvaluatorIndividual const &,
-        GExternalEvaluatorIndividual const &,
-        Gem::Common::GToken &
-    );
-
-    /**
-     * @brief Searches for compliance with expectations with respect to another object of the same type
-     * @param cp The other object to compare against (passed as a base-class reference)
-     * @param e The expectation for this object, e.g. equality
-     * @param limit The limit for allowed deviations of floating point types
-     */
-    void compare_(
-        const gen::GOptimizableEntity &cp // the other object
-        ,
-        const Gem::Common::expectation &e // the expectation for this object, e.g. equality
-        ,
-        const double &limit // the limit for allowed deviations of floating point types
-    ) const final;
-
     /**
      * @brief The evaluation hook: runs the external evaluation program and returns its per-criterion results.
      * @return The full per-criterion raw result vector obtained from the external evaluation program
@@ -363,14 +325,6 @@ protected:
     std::vector<double> evaluate() final;
 
 private:
-    /***************************************************************************/
-
-    /**
-     * @brief Creates a deep clone of this object
-     * @return A pointer to a newly allocated deep copy of this object
-     */
-    gen::GGenome *clone_() const final;
-
     /***************************************************************************/
 
     std::string program_name_; ///< The name of the external program to be executed

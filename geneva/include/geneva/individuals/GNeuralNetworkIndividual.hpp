@@ -75,6 +75,7 @@
 #include "common/GSingletonT.hpp"
 #include "common/GUnitTestFrameworkT.hpp"
 #include "geneva/ind/GGenome.hpp"
+#include "geneva/ind/GGenomeT.hpp"
 #include "geneva/ind/GIndividualFactory.hpp"
 #include "geneva/ind/GGenomeArchitecture.hpp"
 #include "geneva/ind/GGenomeBuilder.hpp"
@@ -617,49 +618,30 @@ inline std::shared_ptr<networkData> createNetworkData(
  * standard back-propagation algorithm to train feed-forward neural networks.
  */
 class GNeuralNetworkIndividual // NOLINT(cppcoreguidelines-special-member-functions)
-  : public gen::GGenome {
+  : public gen::GGenomeT<GNeuralNetworkIndividual> {
     /////////////////////////////////////////////////////////////////////////////
 
+    // Boost still default-constructs the concrete type on load; GBoilerplateAccess lets the mixin reach
+    // the private localMembers_() below (serialize/load_/compare_/clone_/name_ are all generated).
     friend class boost::serialization::access;
+    friend struct Gem::Common::GBoilerplateAccess;
 
-    /** @brief The single declaration of this class'es serialised local data
-     *  members. n_d_ is intentionally NOT listed: it is recovered from a global
-     *  singleton in load() (asymmetric) rather than stored. */
+    /** @brief The single declaration of this class'es serialised local data members. n_d_ (the training
+     *  data) is intentionally NOT listed: every constructor -- including the one Boost invokes before it
+     *  deserialises -- sets it from the global nnTrainingDataStore() singleton, so it never needs to travel
+     *  in the archive. (The former split save()/load() reassigned n_d_ in load() redundantly, which is why
+     *  it needed to be asymmetric; a single generated serialize() suffices.) nn_arch_ is a transient cache
+     *  rebuilt from n_d_ on demand. */
     template <typename Self>
     auto localMembers_(this Self &self) {
         return std::make_tuple(Gem::Common::make_member("t_f_", self.t_f_));
     }
 
-    template <typename Archive>
-    void load(Archive &ar, [[maybe_unused]] const unsigned int version) {
-        using boost::serialization::make_nvp;
-
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gen::GGenome);
-        // t_f_ was previously never (de)serialised and silently reset to its
-        // default; read it back via the single localMembers() declaration. In a
-        // split save()/load(), the same serialize_members() drives both -- the
-        // non-const localMembers() overload here yields writable refs to read into.
-        Gem::Common::serialize_members(ar, this->localMembers_());
-
-        // Load the network data from disk
-        n_d_ = nnTrainingDataStore(); // A global singleton
-    }
-
-    template <typename Archive>
-    void save(Archive &ar, [[maybe_unused]] const unsigned int version) const {
-        using boost::serialization::make_nvp;
-
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gen::GGenome);
-        // The const localMembers() overload yields const refs, which the output
-        // archive writes -- the symmetric counterpart to load() above.
-        Gem::Common::serialize_members(ar, this->localMembers_());
-    }
-
-    BOOST_SERIALIZATION_SPLIT_MEMBER()
-
     /////////////////////////////////////////////////////////////////////////////
 
 public:
+    /** @brief The class name, consumed by the GBoilerplateT-generated name_() and compare token. */
+    static constexpr std::string_view class_name = "GNeuralNetworkIndividual";
     /***************************************************************************/
     /** @brief The default constructor */
     GNeuralNetworkIndividual();
@@ -1140,35 +1122,6 @@ public:
 
 protected:
     /***************************************************************************/
-
-    /***************************************************************************/
-    /**
-     * @brief Loads the data of another GNeuralNetworkIndividual.
-     * @param cp A pointer to another GNeuralNetworkIndividual, camouflaged as a GOptimizableEntity
-     */
-    void load_(const gen::GOptimizableEntity *cp) final;
-
-    /** @brief Allow access to this classes compare_ function */
-    friend void Gem::Common::compare_base_t<GNeuralNetworkIndividual>(
-        GNeuralNetworkIndividual const &,
-        GNeuralNetworkIndividual const &,
-        Gem::Common::GToken &
-    );
-
-    /**
-     * @brief Searches for compliance with expectations with respect to another object of the same type.
-     * @param cp The other object to compare against
-     * @param e The expectation for this object, e.g. equality
-     * @param limit The limit for allowed deviations of floating point types
-     */
-    void compare_(
-        const gen::GOptimizableEntity & cp
-        ,
-        const Gem::Common::expectation & e
-        ,
-        const double & limit
-    ) const final;
-
     /**
      * @brief The evaluation hook: the training error of the network encoded by this individual's weights.
      * @return The training error as a one-element vector (single criterion)
@@ -1186,12 +1139,6 @@ public:
 
 private:
     /***************************************************************************/
-    /**
-     * @brief Creates a deep clone of this object.
-     * @return A deep clone of this object, camouflaged as a GGenome
-     */
-    gen::GGenome *clone_() const final;
-
     /**
      * @brief The transfer function.
      * @param value The pre-activation input value

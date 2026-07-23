@@ -241,35 +241,6 @@ GFunctionIndividual::GFunctionIndividual(const solverFunction &d_f)
  */
 /******************************************************************************/
 /**
- * @brief Searches for compliance with expectations with respect to another object of the same type.
- *
- * @param cp A constant reference to another GFunctionIndividual, camouflaged as a GOptimizableEntity
- * @param e The expected outcome of the comparison (equality / inequality)
- * @param limit The maximum deviation for floating point values (unused here, hence [[maybe_unused]])
- */
-void GFunctionIndividual::compare_(
-    const gen::GOptimizableEntity &cp,
-    const Gem::Common::expectation &e,
-    [[maybe_unused]] const double & limit
-) const {
-    // Check that we are dealing with a GFunctionIndividual reference independent of this object and convert the pointer
-    const GFunctionIndividual *p_load =
-        Gem::Common::g_convert_and_compare<gen::GOptimizableEntity, GFunctionIndividual>(cp, this);
-
-    Gem::Common::GToken token("GFunctionIndividual", e);
-
-    // Compare our parent data ...
-    Gem::Common::compare_base_t<gen::GGenome>(*this, *p_load, token);
-
-    // ... and then the local data, derived from the single localMembers() declaration
-    Gem::Common::g_compare_members(this->localMembers_(), p_load->localMembers_(), token);
-
-    // React on deviations from the expectation
-    token.evaluate();
-}
-
-/******************************************************************************/
-/**
  * @brief Adds local configuration options to a GParserBuilder object.
  *
  * @param gpb The GParserBuilder object to which configuration options should be added
@@ -312,34 +283,6 @@ std::size_t GFunctionIndividual::getParameterSize() const {
     std::vector<double> par_vec;
     this->streamline(par_vec);
     return par_vec.size();
-}
-
-/******************************************************************************/
-/**
- * @brief Loads the data of another GFunctionIndividual, camouflaged as a GOptimizableEntity.
- *
- * @param cp A pointer to another GFunctionIndividual, camouflaged as a GOptimizableEntity; its data is copied into this object
- */
-void GFunctionIndividual::load_(const gen::GOptimizableEntity *cp) {
-    // Check that we are dealing with a GFunctionIndividual reference independent of this object and convert the pointer
-    const GFunctionIndividual *p_load =
-        Gem::Common::g_convert_and_compare<gen::GOptimizableEntity, GFunctionIndividual>(cp, this);
-
-    // Load our parent class'es data ...
-    gen::GGenome::load_(cp);
-
-    // ... and then our local data, derived from the single localMembers() declaration
-    Gem::Common::g_load_members(this->localMembers_(), p_load->localMembers_());
-}
-
-/******************************************************************************/
-/**
- * @brief Creates a deep clone of this object.
- *
- * @return A deep clone of this object, camouflaged as a GGenome pointer
- */
-gen::GGenome *GFunctionIndividual::clone_() const {
-    return new GFunctionIndividual(*this);
 }
 
 /******************************************************************************/

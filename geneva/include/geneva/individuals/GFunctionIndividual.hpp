@@ -47,6 +47,7 @@
 #include "common/GBoilerplateT.hpp"
 #include "common/GParserBuilder.hpp"
 #include "geneva/ind/GGenome.hpp"
+#include "geneva/ind/GGenomeT.hpp"
 #include "geneva/ind/GIndividualFactory.hpp"
 #include "geneva/ind/GGenomeBuilder.hpp"
 #include "geneva/par/GOptimizableEntityFactory.hpp"
@@ -319,20 +320,20 @@ const solverFunction GO_DEF_EVALFUNCTION = solverFunction::PARABOLA;
  *       explicitly; the factory default of [-10, 10] is not suitable for that function.
  */
 class GFunctionIndividual
-  : public gen::GGenome // NOLINT(cppcoreguidelines-special-member-functions)
+  : public gen::GGenomeT<GFunctionIndividual> // NOLINT(cppcoreguidelines-special-member-functions)
 {
     ///////////////////////////////////////////////////////////////////////
+    // Boost still default-constructs the concrete type on load; GBoilerplateAccess lets the mixin
+    // reach the private localMembers_() (from which serialize/load_/compare_/clone_/name_ derive).
     friend class boost::serialization::access;
-
-    template <class Archive>
-    void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gen::GGenome) &
-            BOOST_SERIALIZATION_NVP(demo_function_);
-    }
+    friend struct Gem::Common::GBoilerplateAccess;
 
     ///////////////////////////////////////////////////////////////////////
 
 public:
+    /** @brief The class name, consumed by the GBoilerplateT-generated name_() and compare token. */
+    static constexpr std::string_view class_name = "GFunctionIndividual";
+
     using FACTORYTYPE = Gem::Geneva::Genome::GIndividualFactory<GFunctionIndividual>;
 
     /** @brief The default constructor */
@@ -613,33 +614,6 @@ protected:
     }
 
     /**
-     * @brief Loads the data of another GFunctionIndividual.
-     * @param cp A pointer to another GFunctionIndividual, camouflaged as a GOptimizableEntity
-     */
-    void load_(const gen::GOptimizableEntity *cp) final;
-
-    /** @brief Allow access to this classes compare_ function */
-    friend void Gem::Common::compare_base_t<GFunctionIndividual>(
-        GFunctionIndividual const &,
-        GFunctionIndividual const &,
-        Gem::Common::GToken &
-    );
-
-    /**
-     * @brief Searches for compliance with expectations with respect to another object of the same type.
-     * @param cp The other object to compare against
-     * @param e The expectation for this object, e.g. equality
-     * @param limit The limit for allowed deviations of floating point types
-     */
-    void compare_(
-        const gen::GOptimizableEntity & cp
-        ,
-        const Gem::Common::expectation & e
-        ,
-        const double & limit
-    ) const final;
-
-    /**
      * @brief The evaluation hook: evaluates the selected benchmark function on the individual's parameters.
      * @return The raw fitness as a one-element vector (a single-criterion problem)
      */
@@ -658,13 +632,6 @@ protected:
     void specificTestsFailuresExpected_GUnitTests_() override;
 
 private:
-    //---------------------------------------------------------------------------
-    /**
-     * @brief Creates a deep clone of this object.
-     * @return A deep clone of this object, camouflaged as a GGenome
-     */
-    gen::GGenome *clone_() const final;
-
     //---------------------------------------------------------------------------
     // Data
 

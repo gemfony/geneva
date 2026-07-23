@@ -590,7 +590,7 @@ GNeuralNetworkIndividual::GNeuralNetworkIndividual(
  * @param cp A copy of another GNeuralNetworkIndividual object
  */
 GNeuralNetworkIndividual::GNeuralNetworkIndividual(const GNeuralNetworkIndividual &cp)
-  : gen::GGenome(cp)
+  : gen::GGenomeT<GNeuralNetworkIndividual>(cp)
   , t_f_(cp.t_f_)
   , n_d_(nnTrainingDataStore()) // We want a single source for the training data
 {                             /* nothing */
@@ -601,38 +601,6 @@ GNeuralNetworkIndividual::GNeuralNetworkIndividual(const GNeuralNetworkIndividua
  * The standard destructor
  */
 GNeuralNetworkIndividual::~GNeuralNetworkIndividual() { /* nothing */
-}
-
-/******************************************************************************/
-/**
- * @brief Searches for compliance with expectations with respect to another object
- * of the same type
- *
- * @param cp A constant reference to another GNeuralNetworkIndividual (as a GOptimizableEntity) to compare against
- * @param e The expected outcome of the comparison
- * @param limit The acceptable deviation limit, forwarded to the base-class and member comparisons
- */
-void GNeuralNetworkIndividual::compare_(
-    const gen::GOptimizableEntity &cp,
-    const Gem::Common::expectation &e,
-    [[maybe_unused]] const double & limit
-) const {
-    using namespace Gem::Common;
-
-    // Check that we are dealing with a GNeuralNetworkIndividual reference independent of this object and convert the pointer
-    const GNeuralNetworkIndividual *p_load =
-        Gem::Common::g_convert_and_compare<gen::GOptimizableEntity, GNeuralNetworkIndividual>(cp, this);
-
-    GToken token("GNeuralNetworkIndividual", e);
-
-    // Compare our parent data ...
-    Gem::Common::compare_base_t<gen::GGenome>(*this, *p_load, token);
-
-    // ... and then the local data, derived from the single localMembers() declaration
-    g_compare_members(this->localMembers_(), p_load->localMembers_(), token);
-
-    // React on deviations from the expectation
-    token.evaluate();
 }
 
 /******************************************************************************/
@@ -1271,36 +1239,6 @@ void GNeuralNetworkIndividual::writeTrainedNetwork(const std::string &header_fil
 
     // Clean up
     header.close();
-}
-
-/******************************************************************************/
-/**
- * @brief Loads the data of another GNeuralNetworkIndividual, camouflaged as a GOptimizableEntity
- *
- * @param cp A pointer to another GNeuralNetworkIndividual, camouflaged as a GOptimizableEntity
- */
-void GNeuralNetworkIndividual::load_(const gen::GOptimizableEntity *cp) {
-    // Check that we are dealing with a GNeuralNetworkIndividual reference independent of this object and convert the pointer
-    const GNeuralNetworkIndividual *p_load =
-        Gem::Common::g_convert_and_compare<gen::GOptimizableEntity, GNeuralNetworkIndividual>(cp, this);
-
-    // Load the parent class'es data
-    gen::GGenome::load_(cp);
-
-    // Load our local data, derived from the single localMembers() declaration.
-    // We do not copy the network data, as it is always initialized through
-    // the constructors, even in the case of a copy constructor
-    Gem::Common::g_load_members(this->localMembers_(), p_load->localMembers_());
-}
-
-/******************************************************************************/
-/**
- * @brief Creates a deep clone of this object
- *
- * @return A deep clone of this object, camouflaged as a GGenome
- */
-gen::GGenome *GNeuralNetworkIndividual::clone_() const {
-    return new GNeuralNetworkIndividual(*this);
 }
 
 /******************************************************************************/

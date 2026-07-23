@@ -79,7 +79,7 @@ GExternalEvaluatorIndividual::GExternalEvaluatorIndividual()
  * @param cp A constant reference to another GExternalEvaluatorIndividual to be copied
  */
 GExternalEvaluatorIndividual::GExternalEvaluatorIndividual(const GExternalEvaluatorIndividual &cp)
-  : gen::GGenome(cp) // copies the base genome (value channels + layout)
+  : gen::GGenomeT<GExternalEvaluatorIndividual>(cp) // copies the base genome (value channels + layout)
   , program_name_(cp.program_name_)
   , custom_options_(cp.custom_options_)
   , parameter_file_base_name_(cp.parameter_file_base_name_)
@@ -93,35 +93,6 @@ GExternalEvaluatorIndividual::GExternalEvaluatorIndividual(const GExternalEvalua
  * The standard destructor
  */
 GExternalEvaluatorIndividual::~GExternalEvaluatorIndividual() { /* nothing */
-}
-
-/******************************************************************************/
-/**
- * @brief Searches for compliance with expectations with respect to another object of the same type.
- *
- * @param cp A constant reference to another GExternalEvaluatorIndividual, camouflaged as a GOptimizableEntity
- * @param e The expected outcome of the comparison (equality / inequality)
- * @param limit The maximum deviation for floating-point comparisons (unused here, hence [[maybe_unused]])
- */
-void GExternalEvaluatorIndividual::compare_(
-    const gen::GOptimizableEntity &cp,
-    const Gem::Common::expectation &e,
-    [[maybe_unused]] const double & limit
-) const {
-    // Check that we are dealing with a GExternalEvaluatorIndividual reference independent of this object and convert the pointer
-    const GExternalEvaluatorIndividual *p_load =
-        Gem::Common::g_convert_and_compare<gen::GOptimizableEntity, GExternalEvaluatorIndividual>(cp, this);
-
-    Gem::Common::GToken token("GExternalEvaluatorIndividual", e);
-
-    // Compare our parent data ...
-    Gem::Common::compare_base_t<gen::GGenome>(*this, *p_load, token);
-
-    // ... and then the local data
-    Gem::Common::g_compare_members(this->localMembers_(), p_load->localMembers_(), token);
-
-    // React on deviations from the expectation
-    token.evaluate();
 }
 
 /******************************************************************************/
@@ -221,34 +192,6 @@ void GExternalEvaluatorIndividual::setNExpectedResults(const std::size_t &n_resu
  */
 std::size_t GExternalEvaluatorIndividual::getNExpectedResults() const {
     return n_results_;
-}
-
-/******************************************************************************/
-/**
- * @brief Loads the data of another GExternalEvaluatorIndividual, camouflaged as a GOptimizableEntity.
- *
- * @param cp A pointer to another GExternalEvaluatorIndividual, camouflaged as a GOptimizableEntity; its data is copied into this object
- */
-void GExternalEvaluatorIndividual::load_(const gen::GOptimizableEntity *cp) {
-    // Check that we are dealing with a GExternalEvaluatorIndividual reference independent of this object and convert the pointer
-    const GExternalEvaluatorIndividual *p_load =
-        Gem::Common::g_convert_and_compare<gen::GOptimizableEntity, GExternalEvaluatorIndividual>(cp, this);
-
-    // First load the data of our parent class ...
-    gen::GGenome::load_(cp);
-
-    // ... and then our own, derived from the single localMembers() declaration
-    Gem::Common::g_load_members(this->localMembers_(), p_load->localMembers_());
-}
-
-/******************************************************************************/
-/**
- * @brief Creates a deep clone of this object.
- *
- * @return A deep clone of this object, camouflaged as a GGenome pointer
- */
-gen::GGenome *GExternalEvaluatorIndividual::clone_() const {
-    return new GExternalEvaluatorIndividual(*this);
 }
 
 /******************************************************************************/

@@ -191,7 +191,7 @@ void GLineFitIndividual::applyConfig(GLineFitIndividual &ind, const Config &c) {
  * @param cp A constant reference to another GLineFitIndividual object to be copied
  */
 GLineFitIndividual::GLineFitIndividual(const GLineFitIndividual &cp)
-  : gen::GGenome(cp)
+  : gen::GGenomeT<GLineFitIndividual>(cp)
   , data_points_(cp.data_points_) { /* nothing */
 }
 
@@ -204,37 +204,6 @@ GLineFitIndividual::~GLineFitIndividual() { /* nothing */
 
 /******************************************************************************/
 /**
- * @brief Searches for compliance with expectations with respect to another object of the same type.
- *
- * @param cp A constant reference to another object, camouflaged as a GOptimizableEntity, to compare against
- * @param e The expected outcome of the comparison (equality, inequality, ...)
- * @param limit The maximum acceptable deviation for (floating point) comparisons (unused here)
- */
-void GLineFitIndividual::compare_(
-    const gen::GOptimizableEntity &cp,
-    const Gem::Common::expectation &e,
-    [[maybe_unused]] const double & limit
-) const {
-    using namespace Gem::Common;
-
-    // Check that we are dealing with a GLineFitIndividual reference independent of this object and convert the pointer
-    const GLineFitIndividual *p_load =
-        Gem::Common::g_convert_and_compare<gen::GOptimizableEntity, GLineFitIndividual>(cp, this);
-
-    GToken token("GLineFitIndividual", e);
-
-    // Compare our parent data ...
-    Gem::Common::compare_base_t<gen::GGenome>(*this, *p_load, token);
-
-    // ... and then the local data, derived from the single localMembers() declaration
-    g_compare_members(this->localMembers_(), p_load->localMembers_(), token);
-
-    // React on deviations from the expectation
-    token.evaluate();
-}
-
-/******************************************************************************/
-/**
  * @brief Retrieves the tuple (a, b) of the line represented by this object.
  *
  * @return A tuple holding the line's offset a (first parameter) and slope b (second parameter)
@@ -243,37 +212,6 @@ std::tuple<double, double> GLineFitIndividual::getLine() const {
     std::vector<double> par_vec;
     this->streamline(par_vec);
     return std::tuple<double, double>(par_vec.at(0), par_vec.at(1));
-}
-
-/******************************************************************************/
-/**
- * @brief Loads the data of another GLineFitIndividual, camouflaged as a GOptimizableEntity.
- *
- * @param cp A pointer to another GLineFitIndividual, camouflaged as a GOptimizableEntity, to load from
- */
-void GLineFitIndividual::load_(const gen::GOptimizableEntity *cp) {
-    using namespace Gem::Common;
-    using namespace Gem::Geneva;
-
-    // Check that we are dealing with a GLineFitIndividual reference independent of this object and convert the pointer
-    const GLineFitIndividual *p_load =
-        Gem::Common::g_convert_and_compare<gen::GOptimizableEntity, GLineFitIndividual>(cp, this);
-
-    // Load our parent's data
-    gen::GGenome::load_(cp);
-
-    // and then our local data, derived from the single localMembers() declaration
-    Gem::Common::g_load_members(this->localMembers_(), p_load->localMembers_());
-}
-
-/******************************************************************************/
-/**
- * @brief Creates a deep clone of this object.
- *
- * @return A deep clone of this object, camouflaged as a GGenome pointer
- */
-gen::GGenome *GLineFitIndividual::clone_() const {
-    return new GLineFitIndividual(*this);
 }
 
 /******************************************************************************/
