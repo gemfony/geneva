@@ -178,72 +178,77 @@ std::string datasetRows(const GBasePlotter &p, scriptKind k, const std::string &
     return rows.str();
 }
 
-} // anonymous namespace
+/******************************************************************************/
+/**
+ * @brief Emits the `$Dn` datablocks -- one per primary-or-secondary graph, in plot order -- up front.
+ *
+ * gnuplot cannot read an inline `'-'` dataset from inside a `set multiplot` block (it warns "Reading from
+ * '-' inside a multiplot not supported" and renders nothing), so every dataset is emitted here as a named
+ * `$Dn` datablock and referenced from the plot commands later. The datablock counter advances in the SAME
+ * order emitMultiplot() references it, so `$Dn` lines up with its data.
+ *
+ * @param result The script stream to append to
+ * @param plotters The designer's plotters (primary graphs; each may carry secondary plotters)
+ * @param max_plots The pad-grid capacity; plotters beyond it are skipped
+ */
+void emitDatablocks(
+    EmitStream &result,
+    const std::vector<std::shared_ptr<GBasePlotter>> &plotters,
+    std::size_t max_plots
+) {
+    std::size_t db_idx = 0;
+    std::size_t n_plots = 0;
+    for(const auto &p : plotters) {
+        if(n_plots++ >= max_plots) {
+            break;
+        }
+        std::vector<const GBasePlotter *> pad;
+        pad.push_back(p.get());
+        for(const auto &sp : p->secondaryPlotters()) {
+            pad.push_back(sp.get());
+        }
+        for(const auto *dp : pad) {
+            result << "$D" << db_idx << " << EOD" << '\n'
+                   << datasetRows(*dp, classifyForScript(*dp, false, "GnuplotEmitter::emitDocument()", "gnuplot"), "") << "EOD" << '\n';
+            ++db_idx;
+        }
+    }
+}
 
 /******************************************************************************/
 /**
- * Emits a gnuplot script for the graph plotters (GGraph2D / GGraph2ED / GGraph3D /
- * GGraph4D). Any other plotter type triggers a clear geneva_exception. The script
- * is terminal-agnostic (the caller / validity harness prepends `set terminal` and
- * `set output`): it lays the pads out as a `set multiplot` grid and, per pad, sets
- * the axis labels and title and emits a `plot`/`splot` with one inline dataset per
- * primary-or-secondary plotter sharing that pad.
+ * @brief Emits the `set multiplot` grid: the layout header, then per pad the axis labels / title and a
+ * `plot`/`splot` referencing the datablocks emitted by emitDatablocks(), then `unset multiplot`.
  *
- * @param gpd The designer holding the graph plotters and canvas configuration
- * @return The complete gnuplot script as a string
+ * The datablock reference counter advances in the SAME order as emitDatablocks(), so `$Dn` lines up with
+ * its data.
+ *
+ * @param result The script stream to append to
+ * @param plotters The designer's plotters (primary graphs; each may carry secondary plotters)
+ * @param max_plots The pad-grid capacity; plotters beyond it are skipped
+ * @param rows The number of pad rows (c_y_div)
+ * @param cols The number of pad columns (c_x_div)
+ * @param canvas_label The overall canvas title
+ * @param indent The per-line indentation string
  */
-std::string GnuplotEmitter::emitDocument(const GPlotDesigner &gpd) const {
-    const std::size_t cols = gpd.c_x_div_;
-    const std::size_t rows = gpd.c_y_div_;
-    const std::size_t max_plots = cols * rows;
-
-    EmitStream result; // NOLINT(cppcoreguidelines-init-variables)
-
-    // Validate ALL plotters (and their secondaries) up front, so a partial script is
-    // never produced for an unsupported plotter type (the gnuplot backend supports only
-    // the graph plotters); a 2-d and a 3-d graph cannot share one pad.
-    validateScriptPads(gpd.plotters_cnt_, false, "GnuplotEmitter::emitDocument()", "gnuplot");
-    warnPadOverflow(
-        "GnuplotEmitter::emitDocument()", gpd.getCanvasLabel(), gpd.plotters_cnt_.size(), max_plots
-    );
-
-    const std::string &indent = gpd.indent();
-
-    // gnuplot cannot read an inline `'-'` dataset from inside a `set multiplot` block (it warns
-    // "Reading from '-' inside a multiplot not supported" and renders nothing), so every dataset is
-    // emitted up front as a named `$Dn` datablock and referenced from the plot commands below.
-    //
-    // Pass 1 -- the datablocks, one per primary-or-secondary graph, in plot order.
-    std::size_t db_idx = 0;
-    {
-        std::size_t n_plots = 0;
-        for(const auto &p : gpd.plotters_cnt_) {
-            if(n_plots++ >= max_plots) {
-                break;
-            }
-            std::vector<const GBasePlotter *> pad;
-            pad.push_back(p.get());
-            for(const auto &sp : p->secondaryPlotters()) {
-                pad.push_back(sp.get());
-            }
-            for(const auto *dp : pad) {
-                result << "$D" << db_idx << " << EOD" << '\n'
-                       << datasetRows(*dp, classifyForScript(*dp, false, "GnuplotEmitter::emitDocument()", "gnuplot"), "") << "EOD" << '\n';
-                ++db_idx;
-            }
-        }
-    }
-    result << '\n';
-
+void emitMultiplot(
+    EmitStream &result,
+    const std::vector<std::shared_ptr<GBasePlotter>> &plotters,
+    std::size_t max_plots,
+    std::size_t rows,
+    std::size_t cols,
+    const std::string &canvas_label,
+    const std::string &indent
+) {
     // The multiplot grid (rows = c_y_div, cols = c_x_div).
     result << "set multiplot layout " << rows << "," << cols << " title \""
-           << backslashEscape(gpd.getCanvasLabel()) << "\"" << '\n' << '\n';
+           << backslashEscape(canvas_label) << "\"" << '\n' << '\n';
 
-    // Pass 2 -- per pad: axis labels / title, then a plot/splot referencing the datablocks. The
-    // datablock counter advances in the SAME order as pass 1, so $Dn lines up with its data.
+    // Per pad: axis labels / title, then a plot/splot referencing the datablocks. The datablock counter
+    // advances in the SAME order as emitDatablocks(), so $Dn lines up with its data.
     std::size_t db_ref = 0;
     std::size_t n_plots = 0;
-    for(const auto &p : gpd.plotters_cnt_) {
+    for(const auto &p : plotters) {
         if(n_plots++ >= max_plots) {
             break;
         }
@@ -283,6 +288,43 @@ std::string GnuplotEmitter::emitDocument(const GPlotDesigner &gpd) const {
     }
 
     result << "unset multiplot" << '\n';
+}
+
+} // anonymous namespace
+
+/******************************************************************************/
+/**
+ * Emits a gnuplot script for the graph plotters (GGraph2D / GGraph2ED / GGraph3D /
+ * GGraph4D). Any other plotter type triggers a clear geneva_exception. The script
+ * is terminal-agnostic (the caller / validity harness prepends `set terminal` and
+ * `set output`): it lays the pads out as a `set multiplot` grid and, per pad, sets
+ * the axis labels and title and emits a `plot`/`splot` with one inline dataset per
+ * primary-or-secondary plotter sharing that pad.
+ *
+ * @param gpd The designer holding the graph plotters and canvas configuration
+ * @return The complete gnuplot script as a string
+ */
+std::string GnuplotEmitter::emitDocument(const GPlotDesigner &gpd) const {
+    const std::size_t cols = gpd.c_x_div_;
+    const std::size_t rows = gpd.c_y_div_;
+    const std::size_t max_plots = cols * rows;
+
+    EmitStream result; // NOLINT(cppcoreguidelines-init-variables)
+
+    // Validate ALL plotters (and their secondaries) up front, so a partial script is
+    // never produced for an unsupported plotter type (the gnuplot backend supports only
+    // the graph plotters); a 2-d and a 3-d graph cannot share one pad.
+    validateScriptPads(gpd.plotters_cnt_, false, "GnuplotEmitter::emitDocument()", "gnuplot");
+    warnPadOverflow(
+        "GnuplotEmitter::emitDocument()", gpd.getCanvasLabel(), gpd.plotters_cnt_.size(), max_plots
+    );
+
+    // gnuplot cannot read an inline `'-'` dataset from inside a `set multiplot` block, so every dataset
+    // is emitted up front as a named `$Dn` datablock (pass 1) and referenced from the plot commands in
+    // the multiplot grid (pass 2). Both passes walk the plotters in the same order, so `$Dn` lines up.
+    emitDatablocks(result, gpd.plotters_cnt_, max_plots);
+    result << '\n';
+    emitMultiplot(result, gpd.plotters_cnt_, max_plots, rows, cols, gpd.getCanvasLabel(), gpd.indent());
 
     return result.str();
 }
