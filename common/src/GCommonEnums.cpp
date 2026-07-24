@@ -79,6 +79,10 @@ std::string serModeToString(Gem::Common::serializationMode ser_mod) {
         return "XML";
     case Gem::Common::serializationMode::BINARY:
         return "BINARY";
+    case Gem::Common::serializationMode::GEM_BINARY:
+        return "GEM_BINARY";
+    case Gem::Common::serializationMode::GEM_JSON:
+        return "GEM_JSON";
     default:
         return "unknown";
     }

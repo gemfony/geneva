@@ -280,6 +280,10 @@ private:
 BOOST_CLASS_EXPORT(Gem::Tests::Sphere)    // NOLINT
 BOOST_CLASS_EXPORT(Gem::Tests::FactorySphere) // NOLINT
 
+// Register GemSphere for GArchive polymorphic dispatch: toString/fromString serialize the individual
+// through a GOptimizableEntity root pointer, so the GArchive codec arm needs its tag <-> factory entry.
+GEM_REGISTER_ARCHIVABLE(Gem::Tests::GemSphere) // NOLINT
+
 using Gem::Tests::FactorySphere;
 using Gem::Tests::GemSphere;
 using Gem::Tests::Sphere;
@@ -847,6 +851,36 @@ TEST_CASE("GGenome: a derived individual round-trips through the GArchive codecs
         GemSphere restored(5);
         GJsonIArchive ia(oa.str());
         ia &make_nvp("ind", restored);
+
+        CHECK_NOTHROW(restored.compare(
+            ind, Gem::Common::expectation::EQUALITY, Gem::Common::CE_DEF_SIMILARITY_DIFFERENCE));
+        std::vector<double> v;
+        restored.streamline<double>(v);
+        CHECK(v == vals);
+        CHECK(restored.getLayout()->layoutId() == ind.getLayout()->layoutId());
+    }
+}
+
+/******************************************************************************/
+// The GCommonInterfaceT toString/fromString choke point drives the GArchive codec through its full
+// public path: it serializes the individual through a GOptimizableEntity ROOT pointer (the polymorphic
+// dispatch, not a by-value member), reconstructs the dynamic type from the registry on load, and yields
+// a compare()-equal individual -- for both the flat binary and the human-readable JSON codec. The Boost
+// modes remain the default and are exercised by the existing standard tests.
+TEST_CASE("GCommonInterfaceT: an individual round-trips through toString/fromString with the GArchive codecs",
+          "[flat][garchive][individual][tostream]") {
+    const std::vector<double> vals{1., -2., 3., -4., 5.};
+
+    for (const auto mode : {Gem::Common::serializationMode::GEM_BINARY,
+                            Gem::Common::serializationMode::GEM_JSON}) {
+        GemSphere ind(5);
+        ind.assignValueVector<double>(vals);
+
+        const std::string serialized = ind.toString(mode);
+        REQUIRE_FALSE(serialized.empty());
+
+        GemSphere restored(5);
+        REQUIRE_NOTHROW(restored.fromString(serialized, mode));
 
         CHECK_NOTHROW(restored.compare(
             ind, Gem::Common::expectation::EQUALITY, Gem::Common::CE_DEF_SIMILARITY_DIFFERENCE));

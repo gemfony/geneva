@@ -245,9 +245,11 @@ template <> inline constexpr bool numeric_enum_io_v<triboolStates> = true;
  * The serialization modes that are currently allowed
  */
 enum class serializationMode : Gem::Common::ENUMBASETYPE {
-    TEXT = 0,
-    XML = 1,
-    BINARY = 2
+    TEXT = 0,       ///< Boost.Serialization text archive
+    XML = 1,        ///< Boost.Serialization XML archive
+    BINARY = 2,     ///< Boost.Serialization binary archive (the default)
+    GEM_BINARY = 3, ///< GArchive flat little-endian binary codec
+    GEM_JSON = 4    ///< GArchive self-describing JSON codec
 };
 
 /** @brief serializationMode streams as its underlying numeric value (see numeric_enum_io_v) */

@@ -95,6 +95,17 @@ sharedPtrToString(std::shared_ptr<T> gt_ptr, const Gem::Common::serializationMod
     }
 
     break;
+
+    case GEM_BINARY:
+    case GEM_JSON:
+        // This is a Boost.Serialization helper (it assumes a Boost-serializable T). The GArchive
+        // codecs are reached through GCommonInterfaceT::toString/toStream, not here -- routing an
+        // arbitrary shared_ptr<T> through GArchive would force GArchive-serializability on every T.
+        throw geneva_exception(
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+            << "In sharedPtrToString(): the GArchive codecs (GEM_BINARY / GEM_JSON) are not supported "
+            << "by this Boost.Serialization helper; serialize through GCommonInterfaceT::toString instead."
+            << '\n');
     }
 
     return oarchive_stream.str();
@@ -136,6 +147,16 @@ sharedPtrFromString(const std::string &gt_string, const Gem::Common::serializati
             boost::archive::binary_iarchive ia(istr);
             ia >> boost::serialization::make_nvp("classHierarchyFromT_ptr", gt_ptr);
         } break;
+
+        case GEM_BINARY:
+        case GEM_JSON:
+            // See sharedPtrToString(): the GArchive codecs are reached through
+            // GCommonInterfaceT::fromString, not through this Boost.Serialization helper.
+            throw geneva_exception(
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+                << "In sharedPtrFromString(): the GArchive codecs (GEM_BINARY / GEM_JSON) are not "
+                << "supported by this Boost.Serialization helper; deserialize through "
+                << "GCommonInterfaceT::fromString instead." << '\n');
         }
     }
     catch(boost::archive::archive_exception &e) {

@@ -146,6 +146,20 @@ struct GReflectiveInterfaceAccess {
     }
 };
 
+/**
+ * @brief Definition of the codec base's polymorphic-registry construction seam
+ * (declared in @c GArchive.hpp): reconstructs a private-ctor reflection-managed
+ * type through the @c GReflectiveInterfaceAccess friend shim and hands it back as
+ * its hierarchy root. Kept here, in the reflection layer, so
+ * @c GArchivePolymorphic.hpp can call the seam without a reflection-layer include
+ * (see the declaration's note on the broken include cycle).
+ * @tparam T The concrete reflection-managed type to reconstruct.
+ */
+template <typename T>
+std::unique_ptr<typename T::gemfony_common_root_t> archive::gem_registry_construct_reflective() {
+    return GReflectiveInterfaceAccess::template construct<T>();
+}
+
 /******************************************************************************/
 /**
  * @brief A class is managed by the GReflectiveInterface mixins iff it exposes both a

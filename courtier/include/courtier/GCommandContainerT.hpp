@@ -343,6 +343,17 @@ std::string container_to_string(
             } // archive closed here
             return oss.str();
         } break;
+
+        case GEM_BINARY:
+        case GEM_JSON:
+            // The GArchive wire codecs are not yet wired into the networked command-container path
+            // (that step carries the layout send-once scope and its own websocket/asio/mpi e2e
+            // gating); the wire uses Boost until then. Rejected loudly so a mis-selected mode fails
+            // fast rather than silently mis-serializing.
+            throw geneva_exception(
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+                << "In container_to_string(GCommandContainerT<>): the GArchive codecs (GEM_BINARY / "
+                << "GEM_JSON) are not yet supported on the networked command-container path." << '\n');
         }
     }
     catch(const std::exception &e) { // boost::system::system_error derives from std::exception
@@ -407,6 +418,15 @@ void container_from_string(
             boost::archive::binary_iarchive ia(iss);
             ia >> boost::serialization::make_nvp("command_container", container);
         } break;
+
+        case GEM_BINARY:
+        case GEM_JSON:
+            // See container_to_string(): the GArchive wire codecs are not yet wired into the
+            // networked command-container path.
+            throw geneva_exception(
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+                << "In container_from_string(GCommandContainerT<>): the GArchive codecs (GEM_BINARY / "
+                << "GEM_JSON) are not yet supported on the networked command-container path." << '\n');
         }
     }
     catch(const std::exception &e) { // boost::system::system_error derives from std::exception

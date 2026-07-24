@@ -281,6 +281,28 @@ struct access {
 };
 
 /******************************************************************************/
+/**
+ * @brief Construction seam for the polymorphic-registry factory of a
+ * reflection-managed type whose default constructor is private.
+ *
+ * @b Declared here (in the reflection-free codec base) but @b defined in
+ * @c GReflectiveInterfaceT.hpp, which owns the @c GReflectiveInterfaceAccess friend
+ * shim that can reach the private constructor. This indirection is what lets
+ * @c GArchivePolymorphic.hpp call the seam @e without including the reflection
+ * layer -- breaking the otherwise-cyclic
+ * @c GArchivePolymorphic -> @c GReflectiveInterfaceT -> @c GCommonInterfaceT
+ * include chain, so the codec/dispatch layer can be pulled into @c GCommonInterfaceT
+ * (the @c toStream / @c fromStream codec arm). It is only ever instantiated at a
+ * @c GEM_REGISTER_ARCHIVABLE site, which includes the concrete type's header and
+ * hence the definition.
+ *
+ * @tparam T The concrete reflection-managed type to reconstruct.
+ * @return An owning pointer to a freshly default-constructed @p T, as its hierarchy root.
+ */
+template <typename T>
+std::unique_ptr<typename T::gemfony_common_root_t> gem_registry_construct_reflective();
+
+/******************************************************************************/
 // Type traits identifying the finite set of value shapes the codecs handle.
 
 namespace detail {

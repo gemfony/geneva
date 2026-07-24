@@ -132,9 +132,11 @@ int runExternalCommand(
  */
 constexpr std::string_view serializationModeToString(serializationMode s) noexcept {
     switch(s) {
-    case serializationMode::TEXT:   return "text mode";
-    case serializationMode::XML:    return "XML mode";
-    case serializationMode::BINARY: return "binary mode";
+    case serializationMode::TEXT:       return "text mode";
+    case serializationMode::XML:        return "XML mode";
+    case serializationMode::BINARY:     return "binary mode";
+    case serializationMode::GEM_BINARY: return "GArchive binary mode";
+    case serializationMode::GEM_JSON:   return "GArchive JSON mode";
     }
     return {}; // unreachable for valid enumerator inputs
 }

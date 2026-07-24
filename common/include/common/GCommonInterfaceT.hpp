@@ -59,7 +59,9 @@
 #include <boost/serialization/vector.hpp>
 
 // Geneva header files go here
-#include "common/GCommonEnums.hpp" // For the serialization mode
+#include "common/GArchivePolymorphic.hpp" // GArchive codec arm for toStream/fromStream (gem_serialize_pointer)
+#include "common/GBinaryArchive.hpp"      // GArchive flat binary codec
+#include "common/GCommonEnums.hpp"        // For the serialization mode
 #include "common/GCommonHelperFunctionsT.hpp"
 #include "common/GErrorStreamer.hpp"
 #include "common/GExceptions.hpp"
@@ -136,6 +138,28 @@ public:
         } // note: explicit scope here is essential so the oa-destructor gets called
 
         break;
+
+        case Gem::Common::serializationMode::GEM_BINARY: {
+            // GArchive: serialize the polymorphic root pointer through a NON-owning shared_ptr so the
+            // smart-ptr arm's gem_serialize_pointer runs (present flag + dynamic tag + members). The
+            // deleter is a no-op -- `local` is borrowed (it is &self), the archive must not delete it;
+            // the const_cast is safe because saving never mutates.
+            std::shared_ptr<g_class_type> sp(const_cast<g_class_type *>(local), [](g_class_type *) {});
+            Gem::Common::archive::GBinaryOArchive oa;
+            oa &Gem::Common::archive::make_nvp("classhierarchyFromT", sp);
+            oarchive_stream << oa.str();
+        }
+
+        break;
+
+        case Gem::Common::serializationMode::GEM_JSON: {
+            std::shared_ptr<g_class_type> sp(const_cast<g_class_type *>(local), [](g_class_type *) {});
+            Gem::Common::archive::GJsonOArchive oa;
+            oa &Gem::Common::archive::make_nvp("classhierarchyFromT", sp);
+            oarchive_stream << oa.str();
+        }
+
+        break;
         }
     }
 
@@ -175,6 +199,35 @@ public:
             boost::archive::binary_iarchive ia(istr);
             ia >> boost::serialization::make_nvp("classhierarchyFromT", raw);
         } // note: explicit scope here is essential so the ia-destructor gets called
+
+        break;
+
+        case Gem::Common::serializationMode::GEM_BINARY: {
+            // GArchive: read the whole stream, reconstruct the dynamic type via the smart-ptr arm
+            // (gem_serialize_pointer builds it from the identity registry), then hand ownership to
+            // the raw pointer the common tail already adopts. NOTE: GBinaryIArchive holds a
+            // string_view over its input, so the decoded buffer must outlive it (named local, not a
+            // temporary).
+            std::ostringstream ss;
+            ss << istr.rdbuf();
+            const std::string data = ss.str();
+            Gem::Common::archive::GBinaryIArchive ia(data);
+            std::unique_ptr<g_class_type> loaded;
+            ia &Gem::Common::archive::make_nvp("classhierarchyFromT", loaded);
+            raw = loaded.release();
+        }
+
+        break;
+
+        case Gem::Common::serializationMode::GEM_JSON: {
+            std::ostringstream ss;
+            ss << istr.rdbuf();
+            const std::string data = ss.str();
+            Gem::Common::archive::GJsonIArchive ia(data);
+            std::unique_ptr<g_class_type> loaded;
+            ia &Gem::Common::archive::make_nvp("classhierarchyFromT", loaded);
+            raw = loaded.release();
+        }
 
         break;
         }

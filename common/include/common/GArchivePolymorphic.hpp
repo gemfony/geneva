@@ -51,7 +51,13 @@
 #include "common/GExceptions.hpp"
 #include "common/GJsonArchive.hpp"
 #include "common/GPolymorphicRegistry.hpp"
-#include "common/GReflectiveInterfaceT.hpp" // GReflectiveInterfaceAccess::construct (private-ctor factory seam)
+// NOTE: deliberately does NOT include GReflectiveInterfaceT.hpp. The private-ctor construction seam
+// is reached through the forward-declared archive::gem_registry_construct_reflective (declared in
+// GArchive.hpp, defined in GReflectiveInterfaceT.hpp), so this header stays free of the reflection
+// layer -- otherwise GArchivePolymorphic -> GReflectiveInterfaceT -> GCommonInterfaceT would be a
+// cycle, blocking the codec/dispatch layer from being pulled into GCommonInterfaceT (the toStream
+// codec arm). Registration sites instantiate register_archivable and include the type's header
+// (hence the seam's definition).
 
 namespace Gem::Common::archive {
 
@@ -329,7 +335,7 @@ inline bool register_archivable(std::string_view tag) {
         // registration site lacks.
         GPolymorphicRegistry<Root>::reg(
             tag, std::type_index(typeid(T)),
-            +[]() -> std::unique_ptr<Root> { return GReflectiveInterfaceAccess::template construct<T>(); });
+            +[]() -> std::unique_ptr<Root> { return gem_registry_construct_reflective<T>(); });
     }
     GArchivePointerDispatch<Root>::template add<T>(tag);
     return true;

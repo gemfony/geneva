@@ -166,10 +166,12 @@ public:
         // Set the transfer mode
         switch(serialization_mode_) {
         case Gem::Common::serializationMode::BINARY:
+        case Gem::Common::serializationMode::GEM_BINARY: // GArchive binary -> binary websocket frames
             ws_.binary(true);
             break;
         case Gem::Common::serializationMode::XML:
         case Gem::Common::serializationMode::TEXT:
+        case Gem::Common::serializationMode::GEM_JSON: // GArchive JSON -> text websocket frames
             ws_.binary(false);
             break;
         }
@@ -829,10 +831,12 @@ public:
         // Set the transfer mode according to the serialization mode
         switch(serialization_mode_) {
         case Gem::Common::serializationMode::BINARY:
+        case Gem::Common::serializationMode::GEM_BINARY: // GArchive binary -> binary websocket frames
             ws_.binary(true);
             break;
         case Gem::Common::serializationMode::XML:
         case Gem::Common::serializationMode::TEXT:
+        case Gem::Common::serializationMode::GEM_JSON: // GArchive JSON -> text websocket frames
             ws_.binary(false);
             break;
         }
