@@ -37,6 +37,7 @@
 #include <cstdint>
 #include <cstdio>
 #include <cstdlib>
+#include <cstring>
 #include <string>
 #include <string_view>
 #include <type_traits>
@@ -47,6 +48,8 @@
 
 // Geneva headers go here
 #include "common/GArchive.hpp"
+#include "common/GErrorStreamer.hpp"
+#include "common/GExceptions.hpp"
 
 namespace Gem::Common::archive {
 
@@ -135,7 +138,26 @@ public:
     void begin_elem() {}
     void end_elem() {}
 
+    // Raw caller-managed range framing: an array of elements (make_array) or a
+    // hex string (make_binary). The count is implicit in the JSON structure.
+    void begin_raw(std::size_t /*n*/) { open(boost::json::value(boost::json::array{})); }
+    void end_raw() { close(); }
+    /** @brief Stores @p n opaque bytes as a lowercase hex string. @param p The block. @param n The byte count. */
+    void put_bytes(const void *p, std::size_t n) { place(boost::json::value(to_hex(p, n))); }
+
 private:
+    static std::string to_hex(const void *p, std::size_t n) {
+        static constexpr char digits[] = "0123456789abcdef";
+        const auto *b = static_cast<const unsigned char *>(p);
+        std::string out;
+        out.resize(2 * n);
+        for (std::size_t i = 0; i < n; ++i) {
+            out[2 * i] = digits[b[i] >> 4];
+            out[2 * i + 1] = digits[b[i] & 0x0F];
+        }
+        return out;
+    }
+
     struct Frame {
         boost::json::value node;
         std::string key; // the key this node occupies in its parent (if the parent is an object)
@@ -244,7 +266,39 @@ public:
     void begin_elem() {}
     void end_elem() {}
 
+    // Raw caller-managed range framing (make_array / make_binary).
+    void begin_raw() {
+        const boost::json::value &s = slot();
+        stack_.push_back(Cursor{&s, 0});
+    }
+    void end_raw() { stack_.pop_back(); }
+    /** @brief Reads a hex string of @p n bytes into @p p. @param p The pre-sized destination. @param n The byte count. */
+    void get_bytes(void *p, std::size_t n) {
+        const boost::json::string &s = slot().as_string();
+        from_hex(std::string_view{s.data(), s.size()}, p, n);
+    }
+
 private:
+    static void from_hex(std::string_view hex, void *p, std::size_t n) {
+        if (hex.size() != 2 * n) {
+            throw geneva_exception(
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+                << "In GJsonIArchive::get_bytes(): hex string of length " << hex.size()
+                << " does not match the expected " << (2 * n) << " (for " << n << " bytes)." << '\n'
+            );
+        }
+        auto nibble = [](char c) -> unsigned {
+            if (c >= '0' && c <= '9') return static_cast<unsigned>(c - '0');
+            if (c >= 'a' && c <= 'f') return static_cast<unsigned>(c - 'a' + 10);
+            if (c >= 'A' && c <= 'F') return static_cast<unsigned>(c - 'A' + 10);
+            return 0;
+        };
+        auto *b = static_cast<unsigned char *>(p);
+        for (std::size_t i = 0; i < n; ++i) {
+            b[i] = static_cast<unsigned char>((nibble(hex[2 * i]) << 4) | nibble(hex[2 * i + 1]));
+        }
+    }
+
     struct Cursor {
         const boost::json::value *node;
         std::size_t idx; // next array index to read (unused for objects)

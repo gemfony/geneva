@@ -161,6 +161,13 @@ public:
     void begin_elem() {}
     void end_elem() {}
 
+    // Raw caller-managed range framing (make_array / make_binary): the count is
+    // caller-managed and NOT written, so these carry no bytes in binary.
+    void begin_raw(std::size_t /*n*/) {}
+    void end_raw() {}
+    /** @brief Writes @p n opaque bytes verbatim. @param p The block address. @param n The byte count. */
+    void put_bytes(const void *p, std::size_t n) { append_raw(p, n); }
+
 private:
     void append_raw(const void *p, std::size_t n) {
         const char *bytes = static_cast<const char *>(p);
@@ -246,6 +253,12 @@ public:
     void end_seq() {}
     void begin_elem() {}
     void end_elem() {}
+
+    // Raw caller-managed range framing (make_array / make_binary): no count read.
+    void begin_raw() {}
+    void end_raw() {}
+    /** @brief Reads @p n opaque bytes verbatim into @p p. @param p The pre-sized destination. @param n The byte count. */
+    void get_bytes(void *p, std::size_t n) { read_raw(p, n); }
 
 private:
     void require(std::size_t n) const {

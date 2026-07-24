@@ -62,6 +62,7 @@ ENDFUNCTION()
 # Test executables — one per production file, alphabetical.
 
 geneva_common_test(GAgingStoreTTests              GAgingStoreTTests.cpp)
+geneva_common_test(GArchiveCoverageTests          GArchiveCoverageTests.cpp)
 geneva_common_test(GArchiveIntegrationTests       GArchiveIntegrationTests.cpp)
 geneva_common_test(GArchivePolymorphicTests       GArchivePolymorphicTests.cpp)
 geneva_common_test(GBinaryArchiveTests            GBinaryArchiveTests.cpp)

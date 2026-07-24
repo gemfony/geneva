@@ -35,13 +35,18 @@
 // Standard headers go here
 #include <array>
 #include <atomic>
+#include <bitset>
+#include <complex>
 #include <cstddef>
 #include <cstdint>
 #include <deque>
 #include <memory>
 #include <filesystem>
+#include <forward_list>
+#include <iterator>
 #include <list>
 #include <map>
+#include <optional>
 #include <set>
 #include <string>
 #include <string_view>
@@ -50,6 +55,7 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <utility>
+#include <variant>
 #include <vector>
 
 // Boost headers go here
@@ -164,6 +170,75 @@ struct gem_archive_tag {};
 template <typename Archive>
 inline constexpr bool is_gem_archive_v = std::is_base_of_v<gem_archive_tag, std::remove_cvref_t<Archive>>;
 
+/******************************************************************************/
+/**
+ * @brief A caller-managed raw range of @p count contiguous @c T elements (the
+ * @c GArchive analogue of @c boost::serialization::make_array). The count is
+ * @b not stored -- the caller serializes/recovers it separately and the buffer
+ * is pre-sized on load -- so the same value count must be supplied both ways.
+ * @tparam T The element type (possibly const on save).
+ */
+template <typename T>
+struct array_wrapper_t {
+    T *data;
+    std::size_t count;
+};
+
+/** @brief Builds an @ref array_wrapper_t. @param data Pointer to the first element. @param count The element count. */
+template <typename T>
+array_wrapper_t<T> make_array(T *data, std::size_t count) {
+    return array_wrapper_t<T>{data, count};
+}
+
+/**
+ * @brief A caller-managed raw block of @p bytes opaque bytes (the @c GArchive
+ * analogue of @c boost::serialization::make_binary_object). Like @ref make_array
+ * the length is caller-managed; the block is stored verbatim (binary) or as a
+ * hex string (JSON).
+ */
+struct binary_wrapper_t {
+    void *data;
+    std::size_t bytes;
+};
+
+/** @brief Builds a @ref binary_wrapper_t. @param data The block address. @param bytes The block length. */
+inline binary_wrapper_t make_binary(void *data, std::size_t bytes) {
+    return binary_wrapper_t{data, bytes};
+}
+
+/******************************************************************************/
+/**
+ * @par Type coverage vs Boost.Serialization's out-of-the-box catalogue
+ * The @c GArchive family aims for parity with the std types Boost.Serialization
+ * ships support for. Status of every Boost-native serializer:
+ *
+ *  Supported (value dispatch in @ref GOArchiveT / @ref GIArchiveT):
+ *    - all arithmetic types, @c bool, @c enum, @c float / @c double / @c long double
+ *    - @c std::string, @c std::filesystem::path
+ *    - @c std::atomic<T>
+ *    - @c std::pair, @c std::tuple, @c std::array, @c std::optional, @c std::variant,
+ *      @c std::complex<T>, @c std::bitset<N>
+ *    - @c std::vector, @c std::deque, @c std::list, @c std::forward_list
+ *    - @c std::set / @c std::multiset, @c std::unordered_set / @c std::unordered_multiset
+ *    - @c std::map / @c std::multimap, @c std::unordered_map / @c std::unordered_multimap
+ *    - @c std::unique_ptr / @c std::shared_ptr (polymorphic; see GArchivePolymorphic.hpp)
+ *    - @c make_array / @c make_binary (caller-managed raw ranges; the two above)
+ *
+ *  Deliberately NOT pre-built (add on demand -- each is a trait + a process()
+ *  arm of a few lines -- rather than ship untested code no consumer exercises):
+ *    - @c std::wstring / @c std::u16string / @c std::u32string -- no serialized
+ *      consumer; needs a fixed code-unit wire encoding first.
+ *    - @c std::valarray -- semantically a @c std::vector; use that.
+ *    - C-style arrays @c T[N] -- use @c std::array or @ref make_array.
+ *
+ *  Intentionally unsupported (incompatible with the design, not an omission):
+ *    - @c std::weak_ptr and Boost's shared-pointer @e tracking -- these express a
+ *      shared object graph. Geneva serializes @b trees (deep-clone on load, zero
+ *      object tracking); a weak_ptr has no owning tree edge to reconstruct.
+ *    - @c boost::scoped_ptr and other Boost-only wrappers -- deprecated / use std.
+ */
+/******************************************************************************/
+
 /**
  * @brief Access shim invoking a class's (often private) @c serialize member.
  * A serializable class grants access with
@@ -197,15 +272,22 @@ struct is_std_array : std::false_type {};
 template <typename T, std::size_t N>
 struct is_std_array<std::array<T, N>> : std::true_type {};
 
+// Key/value associative containers, including the multi-key flavours (whose
+// emplace always inserts, so duplicate keys survive a round trip).
 template <typename T>
 struct is_map : std::false_type {};
 template <typename K, typename V, typename... R>
 struct is_map<std::map<K, V, R...>> : std::true_type {};
 template <typename K, typename V, typename... R>
+struct is_map<std::multimap<K, V, R...>> : std::true_type {};
+template <typename K, typename V, typename... R>
 struct is_map<std::unordered_map<K, V, R...>> : std::true_type {};
+template <typename K, typename V, typename... R>
+struct is_map<std::unordered_multimap<K, V, R...>> : std::true_type {};
 
 // Sequence and set-like containers: a size, a value_type, iterable, and
-// (for load) clearable + able to grow one element at a time.
+// (for load) clearable + able to grow one element at a time. std::forward_list
+// is handled on its own arm (no size(), front insertion) -- not here.
 template <typename T>
 struct is_sequence : std::false_type {};
 template <typename T, typename... R>
@@ -217,7 +299,36 @@ struct is_sequence<std::list<T, R...>> : std::true_type {};
 template <typename T, typename... R>
 struct is_sequence<std::set<T, R...>> : std::true_type {};
 template <typename T, typename... R>
+struct is_sequence<std::multiset<T, R...>> : std::true_type {};
+template <typename T, typename... R>
 struct is_sequence<std::unordered_set<T, R...>> : std::true_type {};
+template <typename T, typename... R>
+struct is_sequence<std::unordered_multiset<T, R...>> : std::true_type {};
+
+template <typename T>
+struct is_optional : std::false_type {};
+template <typename T>
+struct is_optional<std::optional<T>> : std::true_type {};
+
+template <typename T>
+struct is_variant : std::false_type {};
+template <typename... Ts>
+struct is_variant<std::variant<Ts...>> : std::true_type {};
+
+template <typename T>
+struct is_complex : std::false_type {};
+template <typename T>
+struct is_complex<std::complex<T>> : std::true_type {};
+
+template <typename T>
+struct is_bitset : std::false_type {};
+template <std::size_t N>
+struct is_bitset<std::bitset<N>> : std::true_type {};
+
+template <typename T>
+struct is_forward_list : std::false_type {};
+template <typename T, typename... R>
+struct is_forward_list<std::forward_list<T, R...>> : std::true_type {};
 
 template <typename T>
 inline constexpr bool is_string_v = std::is_same_v<T, std::string>;
@@ -245,14 +356,18 @@ struct is_smart_ptr<std::shared_ptr<T>> : std::true_type {};
 template <typename Archive, typename T>
 concept serializable_class = requires(Archive &ar, T &t) { access::serialize(ar, t); };
 
-// std::set / std::unordered_set grow via insert(), std::vector/deque/list via
+// set-family containers grow via insert(), std::vector/deque/list via
 // push_back(); distinguish so the load base picks the right insertion.
 template <typename T>
 inline constexpr bool is_set_like_v = false;
 template <typename T, typename... R>
 inline constexpr bool is_set_like_v<std::set<T, R...>> = true;
 template <typename T, typename... R>
+inline constexpr bool is_set_like_v<std::multiset<T, R...>> = true;
+template <typename T, typename... R>
 inline constexpr bool is_set_like_v<std::unordered_set<T, R...>> = true;
+template <typename T, typename... R>
+inline constexpr bool is_set_like_v<std::unordered_multiset<T, R...>> = true;
 
 } // namespace detail
 
@@ -300,6 +415,25 @@ public:
         return d();
     }
 
+    /** @brief Serializes a caller-managed raw element range (no stored count). @param a The array wrapper. */
+    template <typename T>
+    Derived &operator&(const array_wrapper_t<T> &a) {
+        d().begin_raw(a.count);
+        for (std::size_t i = 0; i < a.count; ++i) {
+            d().begin_elem();
+            process(a.data[i]);
+            d().end_elem();
+        }
+        d().end_raw();
+        return d();
+    }
+
+    /** @brief Serializes a caller-managed raw byte block. @param b The binary wrapper. */
+    Derived &operator&(const binary_wrapper_t &b) {
+        d().put_bytes(b.data, b.bytes);
+        return d();
+    }
+
     /** @brief Serializes an unnamed value. @param v The value to save. */
     template <typename T>
     Derived &operator&(const T &v) {
@@ -334,6 +468,45 @@ private:
         } else if constexpr (detail::is_atomic<U>::value) {
             typename U::value_type held = v.load();
             process(held);
+        } else if constexpr (detail::is_optional<U>::value) {
+            d().begin_object();
+            bool present = v.has_value();
+            d().member("present");
+            process(present);
+            if (present) {
+                d().member("value");
+                process(*v);
+            }
+            d().end_object();
+        } else if constexpr (detail::is_complex<U>::value) {
+            typename U::value_type re = v.real();
+            typename U::value_type im = v.imag();
+            d().begin_object();
+            d().member("re");
+            process(re);
+            d().member("im");
+            process(im);
+            d().end_object();
+        } else if constexpr (detail::is_bitset<U>::value) {
+            std::string bits = v.to_string();
+            process(bits);
+        } else if constexpr (detail::is_variant<U>::value) {
+            std::size_t idx = v.index();
+            d().begin_object();
+            d().member("index");
+            process(idx);
+            d().member("value");
+            std::visit([this](auto &alt) { process(alt); }, v);
+            d().end_object();
+        } else if constexpr (detail::is_forward_list<U>::value) {
+            std::size_t n = static_cast<std::size_t>(std::distance(v.begin(), v.end()));
+            d().begin_seq(n);
+            for (auto &e : v) {
+                d().begin_elem();
+                process(e);
+                d().end_elem();
+            }
+            d().end_seq();
         } else if constexpr (detail::is_pair<U>::value) {
             d().begin_object();
             d().member("first");
@@ -441,6 +614,25 @@ public:
         return d();
     }
 
+    /** @brief Loads a caller-managed raw element range into a pre-sized buffer. @param a The array wrapper. */
+    template <typename T>
+    Derived &operator&(const array_wrapper_t<T> &a) {
+        d().begin_raw();
+        for (std::size_t i = 0; i < a.count; ++i) {
+            d().begin_elem();
+            process(a.data[i]);
+            d().end_elem();
+        }
+        d().end_raw();
+        return d();
+    }
+
+    /** @brief Loads a caller-managed raw byte block into a pre-sized buffer. @param b The binary wrapper. */
+    Derived &operator&(const binary_wrapper_t &b) {
+        d().get_bytes(b.data, b.bytes);
+        return d();
+    }
+
     /** @brief Loads an unnamed value. @param v The value to fill. */
     template <typename T>
     Derived &operator&(T &v) {
@@ -479,6 +671,62 @@ private:
             typename U::value_type held{};
             process(held);
             v.store(held);
+        } else if constexpr (detail::is_optional<U>::value) {
+            d().enter_object();
+            bool present = false;
+            d().member("present");
+            process(present);
+            if (present) {
+                typename U::value_type tmp{};
+                d().member("value");
+                process(tmp);
+                v = std::move(tmp);
+            } else {
+                v.reset();
+            }
+            d().leave_object();
+        } else if constexpr (detail::is_complex<U>::value) {
+            typename U::value_type re{};
+            typename U::value_type im{};
+            d().enter_object();
+            d().member("re");
+            process(re);
+            d().member("im");
+            process(im);
+            d().leave_object();
+            v = U{re, im};
+        } else if constexpr (detail::is_bitset<U>::value) {
+            std::string bits;
+            process(bits);
+            v = U{bits};
+        } else if constexpr (detail::is_variant<U>::value) {
+            d().enter_object();
+            std::size_t idx = 0;
+            d().member("index");
+            process(idx);
+            d().member("value");
+            // Runtime index -> compile-time alternative: read the alternative that
+            // matches the stored index and assign it into the variant.
+            [&]<std::size_t... Is>(std::index_sequence<Is...>) {
+                (((Is == idx) ? (void)([&] {
+                     std::variant_alternative_t<Is, U> alt{};
+                     process(alt);
+                     v = std::move(alt);
+                 }()) : (void)0), ...);
+            }(std::make_index_sequence<std::variant_size_v<U>>{});
+            d().leave_object();
+        } else if constexpr (detail::is_forward_list<U>::value) {
+            std::size_t n = d().begin_seq();
+            v.clear();
+            auto it = v.before_begin();
+            for (std::size_t i = 0; i < n; ++i) {
+                d().begin_elem();
+                typename U::value_type e{};
+                process(e);
+                d().end_elem();
+                it = v.insert_after(it, std::move(e));
+            }
+            d().end_seq();
         } else if constexpr (detail::is_pair<U>::value) {
             d().enter_object();
             d().member("first");
