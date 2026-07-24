@@ -262,6 +262,22 @@ struct access {
         -> decltype(std::declval<T &>().serialize(std::declval<Archive &>(), 0u), std::true_type{});
     template <typename Archive, typename T>
     static std::false_type has_member_probe(...);
+
+    /**
+     * @brief Default-constructs a @p T on the heap through this friend shim,
+     * reaching a *private* default constructor (the analogue of Boost's
+     * @c access::construct). A concrete pointee kept default-constructible only for
+     * de-serialization grants access with @c "friend struct Gem::Common::archive::access;";
+     * the non-polymorphic owned-pointer load path calls this when the pointee is
+     * not publicly default-constructible. (Hierarchy types instead reconstruct
+     * through @c GReflectiveInterfaceAccess::construct via the registry.)
+     * @tparam T The concrete pointee to construct.
+     * @return A raw owning pointer, adopted by the caller's smart pointer.
+     */
+    template <typename T>
+    static T *construct_raw() {
+        return new T();
+    }
 };
 
 /******************************************************************************/
@@ -904,10 +920,15 @@ private:
                 process(present);
                 if (present) {
                     using Pointee = typename U::element_type;
-                    static_assert(std::is_default_constructible_v<Pointee>,
-                                  "GIArchiveT: a non-polymorphic owned pointer needs an accessible "
-                                  "default-constructible pointee to reconstruct on load");
-                    v.reset(new Pointee()); // reset(ptr) serves unique_ptr and shared_ptr alike
+                    // reset(ptr) serves unique_ptr and shared_ptr alike. A publicly
+                    // default-constructible pointee is built inline; one whose default ctor is
+                    // private (kept only for de-serialization) is built through the access shim
+                    // it befriends -- the concrete-pointer analogue of the polymorphic factory seam.
+                    if constexpr (std::is_default_constructible_v<Pointee>) {
+                        v.reset(new Pointee());
+                    } else {
+                        v.reset(access::construct_raw<Pointee>());
+                    }
                     d().member("value");
                     process(*v);
                 } else {

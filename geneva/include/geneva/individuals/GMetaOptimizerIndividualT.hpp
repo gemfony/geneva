@@ -1587,6 +1587,9 @@ class GOptOptMonitorT // NOLINT(cppcoreguidelines-special-member-functions)
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
     friend struct Gem::Common::archive::access;
+    // The GArchive registry factory reconstructs this (private default ctor) through the
+    // GReflectiveInterfaceAccess construct shim, so it needs reach to the private constructor.
+    friend struct Gem::Common::GReflectiveInterfaceAccess;
 
     template <typename Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {

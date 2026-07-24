@@ -229,6 +229,25 @@ TEST_CASE("GArchive coverage: non-intrusive free gem_archive_serialize round-tri
 
 namespace {
 
+// A concrete pointee whose default constructor is PRIVATE (kept only for de-serialization),
+// befriending archive::access exactly as GIndividualFactory does. The non-polymorphic owned-pointer
+// load path must reconstruct it through access::construct_raw, not a public new.
+class PrivateCtorPod {
+    friend struct Gem::Common::archive::access;
+    template <typename Archive>
+    void serialize(Archive &ar, [[maybe_unused]] unsigned int version) {
+        ar &make_nvp("v", v_);
+    }
+
+public:
+    explicit PrivateCtorPod(int v) : v_(v) {}
+    bool operator==(const PrivateCtorPod &) const = default;
+    int v_ = 0;
+
+private:
+    PrivateCtorPod() = default; ///< Reachable only through the befriended access shim.
+};
+
 template <typename OArchive, typename IArchive, typename Ptr>
 void check_concrete_ptr(const Ptr &in) {
     OArchive oa;
@@ -259,4 +278,14 @@ TEST_CASE("GArchive coverage: non-polymorphic owned pointer (unique_ptr / shared
     check_concrete_ptr<GJsonOArchive, GJsonIArchive>(std::make_shared<PodPoint>(PodPoint{-3, 4.5, "s"}));
     check_concrete_ptr<GBinaryOArchive, GBinaryIArchive>(std::shared_ptr<PodPoint>{});
     check_concrete_ptr<GJsonOArchive, GJsonIArchive>(std::shared_ptr<PodPoint>{});
+}
+
+TEST_CASE("GArchive coverage: non-polymorphic owned pointer to a PRIVATE-ctor concrete pointee",
+          "[common][archive][coverage]") {
+    // The load path reconstructs the pointee through access::construct_raw (the concrete-pointer
+    // analogue of the polymorphic factory seam) -- the shape of the meta-optimizer's ind_factory_.
+    check_concrete_ptr<GBinaryOArchive, GBinaryIArchive>(std::make_shared<PrivateCtorPod>(77));
+    check_concrete_ptr<GJsonOArchive, GJsonIArchive>(std::make_shared<PrivateCtorPod>(77));
+    check_concrete_ptr<GBinaryOArchive, GBinaryIArchive>(std::make_unique<PrivateCtorPod>(-5));
+    check_concrete_ptr<GJsonOArchive, GJsonIArchive>(std::make_unique<PrivateCtorPod>(-5));
 }
