@@ -27,7 +27,7 @@
  *
  ********************************************************************************/
 
-#include "geneva/par/GOptimizableEntityMultiConstraint.hpp"
+#include "geneva/ind/GOptimizableEntityMultiConstraint.hpp"
 #include "common/GCommonInterfaceT.hpp"
 #include "common/GExpectationChecksT.hpp"
 #include "common/GParserBuilder.hpp"

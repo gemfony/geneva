@@ -44,8 +44,8 @@
 #include "geneva/ind/GGenomeBuilder.hpp"
 #include "geneva/oa/GAdaption.hpp"
 #include "geneva/oa/GAdaptionConfig.hpp"
-#include "geneva/par/GOptimizableEntityFactory.hpp"
-#include "geneva/par/GOptimizableEntityMultiConstraint.hpp"
+#include "geneva/ind/GOptimizableEntityFactory.hpp"
+#include "geneva/ind/GOptimizableEntityMultiConstraint.hpp"
 #include "hap/GRandomT.hpp"
 #include <algorithm>
 #include <cmath>

@@ -35,7 +35,9 @@
 #     *.hpp                              top-level (Go2.hpp, GSigHupHandler.hpp,
 #                                        GMultiConstraintT.hpp,
 #                                        GPluggableOptimizationMonitors.hpp, ...)
-#     par/*.hpp                          parameter objects, adaptors, traits
+#     ind/*.hpp                          genome / entity infrastructure (GGenome,
+#                                        GOptimizableEntity, factories, constraints,
+#                                        priority queue, parameter-property parser)
 #     oa/*.hpp                           optimization algorithms (EA, SA,
 #                                        Swarm, GD, CGD, NelderMead, PS)
 #     individuals/*.hpp                  reusable problem definitions

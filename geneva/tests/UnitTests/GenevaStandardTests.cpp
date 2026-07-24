@@ -57,7 +57,7 @@
 #include "geneva/oa/GParameterScan.hpp"
 #include "geneva/oa/GNelderMead.hpp"
 // Constraints
-#include "geneva/par/GOptimizableEntityMultiConstraint.hpp"
+#include "geneva/ind/GOptimizableEntityMultiConstraint.hpp"
 // Pluggable optimization monitors
 #include "geneva/GPluggableOptimizationMonitors.hpp"
 

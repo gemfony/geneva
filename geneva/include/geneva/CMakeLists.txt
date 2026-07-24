@@ -18,10 +18,10 @@ SET ( OPTIMIZATIONINCLUDES
 # Parameter / adaptor object hierarchy (namespace Gem::Geneva::Genome),
 # installed under geneva/par to mirror the `gen` alias.
 SET ( PARAM_INCLUDES
-    par/GParameterPropertyParser.hpp
-    par/GOptimizableEntityFactory.hpp
-    par/GOptimizableEntityFixedSizePriorityQueue.hpp
-    par/GOptimizableEntityMultiConstraint.hpp
+    ind/GParameterPropertyParser.hpp
+    ind/GOptimizableEntityFactory.hpp
+    ind/GOptimizableEntityFixedSizePriorityQueue.hpp
+    ind/GOptimizableEntityMultiConstraint.hpp
 )
 
 # Individual / genome headers (namespace Gem::Geneva::Genome), installed

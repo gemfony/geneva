@@ -50,8 +50,8 @@
 #include "geneva/ind/GGenomeT.hpp"
 #include "geneva/ind/GIndividualFactory.hpp"
 #include "geneva/ind/GGenomeBuilder.hpp"
-#include "geneva/par/GOptimizableEntityFactory.hpp"
-#include "geneva/par/GOptimizableEntityMultiConstraint.hpp"
+#include "geneva/ind/GOptimizableEntityFactory.hpp"
+#include "geneva/ind/GOptimizableEntityMultiConstraint.hpp"
 
 namespace Gem::Geneva::OptimizationAlgorithms {
 class GAdaptionConfigBase;

@@ -52,7 +52,7 @@
 #include "geneva/oa/GParetoTools.hpp"
 #include "geneva/ind/GOptimizableEntity.hpp"
 #include "geneva/ind/GGenome.hpp"
-#include "geneva/par/GOptimizableEntityFixedSizePriorityQueue.hpp"
+#include "geneva/ind/GOptimizableEntityFixedSizePriorityQueue.hpp"
 #include <algorithm>
 #include <cmath>
 #include <cstddef>

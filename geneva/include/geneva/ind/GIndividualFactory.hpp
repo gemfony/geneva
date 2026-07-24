@@ -51,7 +51,7 @@
 #include "geneva/ind/GGenome.hpp"
 #include "geneva/ind/GGenomeBuilder.hpp"
 #include "geneva/ind/GOptimizableEntity.hpp"
-#include "geneva/par/GOptimizableEntityFactory.hpp"
+#include "geneva/ind/GOptimizableEntityFactory.hpp"
 
 namespace Gem::Geneva::OptimizationAlgorithms {
 // The OA-owned adaption configuration produced (optionally) by a flat individual's

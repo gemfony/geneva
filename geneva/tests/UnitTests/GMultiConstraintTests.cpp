@@ -36,7 +36,7 @@
 #include "common/GExpectationChecksT.hpp"
 #include "geneva/GMultiConstraintT.hpp"
 #include "geneva/GIndividualMultiConstraint.hpp"
-#include "geneva/par/GOptimizableEntityMultiConstraint.hpp"
+#include "geneva/ind/GOptimizableEntityMultiConstraint.hpp"
 #include "geneva/individuals/GFunctionIndividual.hpp"
 #include "geneva/ind/GOptimizableEntity.hpp"
 

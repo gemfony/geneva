@@ -61,13 +61,13 @@ SET ( OPTIMIZATIONSOURCES
     oa/GGeneralizedSimulatedAnnealing_PersonalityTraits.cpp
 	GSigHupHandler.cpp
 	GModuleLoader.cpp
-	par/GParameterPropertyParser.cpp
+	ind/GParameterPropertyParser.cpp
 	ind/GIndividualProcessingResult.cpp
 	ind/GProblemPolicy.cpp
 	ind/GOptimizableEntity.cpp
 	ind/GGenome.cpp
-	par/GOptimizableEntityFixedSizePriorityQueue.cpp
-	par/GOptimizableEntityMultiConstraint.cpp
+	ind/GOptimizableEntityFixedSizePriorityQueue.cpp
+	ind/GOptimizableEntityMultiConstraint.cpp
 	GPersonalityTraits.cpp
     GPluggableOptimizationMonitors.cpp
     GPostProcessorT.cpp

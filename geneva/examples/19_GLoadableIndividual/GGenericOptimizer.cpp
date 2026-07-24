@@ -50,7 +50,7 @@
 // Geneva headers
 #include "geneva/Go2.hpp"
 #include "geneva/ind/GGenome.hpp"
-#include "geneva/par/GOptimizableEntityFactory.hpp"
+#include "geneva/ind/GOptimizableEntityFactory.hpp"
 
 using namespace Gem::Geneva;
 

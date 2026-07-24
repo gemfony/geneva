@@ -38,7 +38,7 @@
 // Boost header files go here
 
 // Geneva header files go here
-#include "geneva/par/GParameterPropertyParser.hpp"
+#include "geneva/ind/GParameterPropertyParser.hpp"
 
 using namespace Gem::Geneva;
 

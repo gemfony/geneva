@@ -27,7 +27,7 @@
  *
  ********************************************************************************/
 
-#include "geneva/par/GOptimizableEntityFixedSizePriorityQueue.hpp"
+#include "geneva/ind/GOptimizableEntityFixedSizePriorityQueue.hpp"
 #include "common/GArchivePolymorphic.hpp" // GEM_REGISTER_ARCHIVABLE (GArchive polymorphic-pointer dispatch)
 #include "common/GCommonMathHelperFunctionsT.hpp"
 #include "common/GExceptions.hpp"

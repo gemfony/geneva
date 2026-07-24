@@ -53,7 +53,7 @@
 #include "common/GCommonHelperFunctions.hpp"
 #include "common/GLogger.hpp"
 #include "dietrich/GPlotDesigner.hpp"
-#include "geneva/par/GParameterPropertyParser.hpp"
+#include "geneva/ind/GParameterPropertyParser.hpp"
 #include "geneva/ind/GOptimizableEntity.hpp"
 #include "geneva/oa/GOptimizationAlgorithmBase.hpp"
 #include "geneva/oa/GAdaption.hpp"
