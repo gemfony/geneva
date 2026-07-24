@@ -38,7 +38,7 @@
 #include <boost/program_options.hpp>
 
 // Geneva header files go here
-#include "geneva/GPluggableOptimizationMonitors.hpp"
+#include "geneva/oa/GPluggableOptimizationMonitors.hpp"
 #include "geneva/Go2.hpp"
 
 // The individual that should be optimized

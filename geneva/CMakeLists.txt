@@ -32,14 +32,17 @@
 #
 # Layout (per the 2026-05-28 repo-layout reorganisation):
 #   geneva/include/geneva/             public headers (install layout 1:1)
-#     *.hpp                              top-level (Go2.hpp,
-#                                        GMultiConstraintT.hpp,
-#                                        GPluggableOptimizationMonitors.hpp, ...)
+#     *.hpp                              top-level orchestration / cross-layer
+#                                        (Go2.hpp, GConsumerSetup.hpp,
+#                                        GPersonalityTraits.hpp, ...)
 #     genome/*.hpp                       genome / entity infrastructure (GGenome,
-#                                        GOptimizableEntity, factories, constraints,
+#                                        GOptimizableEntity, factories, constraints
+#                                        (GMultiConstraintT / GIndividualMultiConstraint),
 #                                        priority queue, parameter-property parser)
-#     oa/*.hpp                           optimization algorithms (EA, SA,
-#                                        Swarm, GD, CGD, NelderMead, PS)
+#     oa/*.hpp                           optimization algorithms (EA, SA, Swarm, GD,
+#                                        CGD, NelderMead, PS) + OA monitors
+#                                        (GPluggableOptimizationMonitors) and the
+#                                        nested-EA refiner (GPostProcessorT)
 #     individuals/*.hpp                  reusable problem definitions
 #     Interface/*.hpp                    abstract interfaces
 #   geneva/src/*.cpp                   implementation (flat, mirrors the

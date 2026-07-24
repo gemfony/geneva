@@ -37,7 +37,7 @@
 #include "common/GJsonIO.hpp"
 #include "common/GLogger.hpp"
 #include "common/GParserBuilder.hpp"
-#include "geneva/GMultiConstraintT.hpp"
+#include "geneva/genome/GMultiConstraintT.hpp"
 #include "geneva/genome/GGenome.hpp"
 #include "geneva/genome/GGenomeBuilder.hpp"
 #include "geneva/oa/GAdaption.hpp"

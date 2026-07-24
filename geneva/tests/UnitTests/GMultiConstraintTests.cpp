@@ -34,8 +34,8 @@
 
 #include "common/GExceptions.hpp"
 #include "common/GExpectationChecksT.hpp"
-#include "geneva/GMultiConstraintT.hpp"
-#include "geneva/GIndividualMultiConstraint.hpp"
+#include "geneva/genome/GMultiConstraintT.hpp"
+#include "geneva/genome/GIndividualMultiConstraint.hpp"
 #include "geneva/genome/GOptimizableEntityMultiConstraint.hpp"
 #include "geneva/individuals/GFunctionIndividual.hpp"
 #include "geneva/genome/GOptimizableEntity.hpp"

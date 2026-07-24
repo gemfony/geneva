@@ -59,7 +59,7 @@
 // Constraints
 #include "geneva/genome/GOptimizableEntityMultiConstraint.hpp"
 // Pluggable optimization monitors
-#include "geneva/GPluggableOptimizationMonitors.hpp"
+#include "geneva/oa/GPluggableOptimizationMonitors.hpp"
 
 #include "Geneva_tests.hpp"
 

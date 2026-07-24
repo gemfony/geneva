@@ -27,18 +27,12 @@
  *
  ********************************************************************************/
 
-#pragma once
+#include "geneva/genome/GIndividualMultiConstraint.hpp"
 
-// Global checks, defines and includes needed for all of Geneva
-#include "common/GGlobalDefines.hpp"
+#include "common/GArchivePolymorphic.hpp" // GEM_REGISTER_ARCHIVABLE (GArchive polymorphic-pointer dispatch)
 
-// Standard header files go here
-
-// Boost header files go here
-
-// Geneva header files go here
-#include "geneva/GMultiConstraintT.hpp"
-#include "geneva/genome/GOptimizableEntity.hpp"
-
-// Make sure the instantiation with GOptimizableEntity as template argument can be serialized
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GCheckCombinerT<gen::GOptimizableEntity>) // NOLINT
+// Make sure the instantiation with GOptimizableEntity as template argument can be serialized -- through a
+// Boost archive (BOOST_CLASS_EXPORT_IMPLEMENT) and through a GArchive codec (GEM_REGISTER_ARCHIVABLE); both
+// register the same concrete type in one translation unit.
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GCheckCombinerT<gen::GOptimizableEntity>) // NOLINT
+GEM_REGISTER_ARCHIVABLE(Gem::Geneva::GCheckCombinerT<gen::GOptimizableEntity>)       // NOLINT

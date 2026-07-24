@@ -1,17 +1,13 @@
 SET ( OPTIMIZATIONINCLUDES
     GenevaHelperFunctions.hpp
 	GenevaInitializer.hpp
-	GIndividualMultiConstraint.hpp
 	GOptimizableEntityCommandContainerExport.hpp
-    GMultiConstraintT.hpp
 	Go2.hpp
 	GConsumerSetup.hpp
 	GMarshallerSetup.hpp
 	GModuleLoader.hpp
     GOptimizationEnums.hpp
 	GPersonalityTraits.hpp
-    GPluggableOptimizationMonitors.hpp
-    GPostProcessorT.hpp
 )
 
 # Parameter / adaptor object hierarchy (namespace Gem::Geneva::Genome),
@@ -44,6 +40,8 @@ SET ( IND_INCLUDES
     genome/GGenome.hpp
     genome/GIndividualFactory.hpp
     genome/GIndividualPlugin.hpp
+    genome/GMultiConstraintT.hpp
+    genome/GIndividualMultiConstraint.hpp
 )
 
 # Optimization-algorithm headers (namespace Gem::Geneva::OptimizationAlgorithms),
@@ -52,6 +50,8 @@ SET ( OA_INCLUDES
     oa/GOptimizationAlgorithmBase.hpp
     oa/GOptimizationAlgorithmT.hpp
     oa/GOptimizationAlgorithmFactoryT.hpp
+    oa/GPluggableOptimizationMonitors.hpp
+    oa/GPostProcessorT.hpp
     oa/GParChild.hpp
     oa/GAdaptionConfig.hpp
     oa/GParetoTools.hpp

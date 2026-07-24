@@ -48,7 +48,7 @@
 #include "common/GCommonHelperFunctionsT.hpp"
 #include "common/GFactoryT.hpp"
 #include "courtier/GCourtierEnums.hpp"
-#include "geneva/GPluggableOptimizationMonitors.hpp"
+#include "geneva/oa/GPluggableOptimizationMonitors.hpp"
 #include "geneva/genome/GOptimizableEntity.hpp"
 
 #ifdef GEM_TESTING

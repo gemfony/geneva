@@ -27,7 +27,7 @@
  *
  ********************************************************************************/
 
-#include "geneva/GPostProcessorT.hpp"
+#include "geneva/oa/GPostProcessorT.hpp"
 #include "common/GArchivePolymorphic.hpp" // GEM_REGISTER_ARCHIVABLE (GArchive polymorphic-pointer dispatch)
 #include "common/GCommonInterfaceT.hpp"
 #include "common/GExceptions.hpp"

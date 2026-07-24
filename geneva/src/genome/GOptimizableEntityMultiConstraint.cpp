@@ -31,7 +31,7 @@
 #include "common/GCommonInterfaceT.hpp"
 #include "common/GExpectationChecksT.hpp"
 #include "common/GParserBuilder.hpp"
-#include "geneva/GMultiConstraintT.hpp"
+#include "geneva/genome/GMultiConstraintT.hpp"
 #include "geneva/genome/GOptimizableEntity.hpp"
 
 namespace Gem::Geneva::Genome {

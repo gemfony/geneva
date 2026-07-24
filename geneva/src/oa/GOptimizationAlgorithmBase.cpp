@@ -45,7 +45,7 @@
 #include "courtier/GSubmissionStatusT.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/oa/GPositionPersonalityTraits.hpp"
-#include "geneva/GPostProcessorT.hpp"
+#include "geneva/oa/GPostProcessorT.hpp"
 #include "geneva/GenevaHelperFunctions.hpp"
 #include <algorithm>
 #include <chrono>

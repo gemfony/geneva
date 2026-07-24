@@ -40,8 +40,8 @@
 // Geneva header files go here
 #include "common/GReflectiveInterfaceT.hpp"
 #include "common/GCommonHelperFunctionsT.hpp"
-#include "geneva/GIndividualMultiConstraint.hpp"
-#include "geneva/GMultiConstraintT.hpp"
+#include "geneva/genome/GIndividualMultiConstraint.hpp"
+#include "geneva/genome/GMultiConstraintT.hpp"
 #include "geneva/genome/GOptimizableEntity.hpp"
 
 namespace Gem::Geneva::Genome {

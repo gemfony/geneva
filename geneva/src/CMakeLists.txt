@@ -33,10 +33,11 @@ SET ( OPTIMIZATIONSOURCES
 	GConsumerSetup.cpp
 	GFaultInjector.cpp
 	GenevaInitializer.cpp
-	GIndividualMultiConstraint.cpp
 	GOptimizableEntityCommandContainerExport.cpp
 	Go2.cpp
     oa/GBasePluggableOM.cpp
+    oa/GPluggableOptimizationMonitors.cpp
+    oa/GPostProcessorT.cpp
     oa/GOptimizationAlgorithmBase.cpp
     oa/GLineSearch.cpp
     oa/GHesseError.cpp
@@ -67,9 +68,8 @@ SET ( OPTIMIZATIONSOURCES
 	genome/GGenome.cpp
 	genome/GOptimizableEntityFixedSizePriorityQueue.cpp
 	genome/GOptimizableEntityMultiConstraint.cpp
+	genome/GIndividualMultiConstraint.cpp
 	GPersonalityTraits.cpp
-    GPluggableOptimizationMonitors.cpp
-    GPostProcessorT.cpp
 )
 
 # GTestIndividual1 is a LIBRARY-INTERNAL test fixture: GEvolutionaryAlgorithm's GEM_TESTING self-test

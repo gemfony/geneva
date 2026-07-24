@@ -63,7 +63,7 @@
 #include "common/GSerializeTupleT.hpp"               // Boost serialization of std::tuple (result / fitness tuples across the geneva graph)
 #include "courtier/GProcessable.hpp" // the non-generic processing-lifecycle base
 #include "courtier/GWireSerializationContext.hpp" // the wire scope: scratch is skipped on transport
-#include "geneva/GMultiConstraintT.hpp" // GPreEvaluationValidityCheckT (registered on the shared policy)
+#include "geneva/genome/GMultiConstraintT.hpp" // GPreEvaluationValidityCheckT (registered on the shared policy)
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/Interface/GRateableI.hpp"
 #include "geneva/genome/GAuxiliaryStore.hpp" // the OA-owned scratch (personality + per-group adaption PODs)

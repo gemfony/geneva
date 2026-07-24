@@ -47,7 +47,7 @@
 #include "common/GCommonMathHelperFunctionsT.hpp"  // grational_sigmoid
 #include "common/GExceptions.hpp"
 #include "common/GLogger.hpp"
-#include "geneva/GMultiConstraintT.hpp"            // GPreEvaluationValidityCheckT
+#include "geneva/genome/GMultiConstraintT.hpp"            // GPreEvaluationValidityCheckT
 #include "geneva/GOptimizationEnums.hpp"           // maxMode, evaluationPolicy, the sigmoid constants
 
 namespace Gem::Geneva::Genome {

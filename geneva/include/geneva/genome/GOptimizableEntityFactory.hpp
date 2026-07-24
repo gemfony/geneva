@@ -39,7 +39,7 @@
 #include "common/GFactoryT.hpp"
 #include "common/GLogger.hpp"
 #include "geneva/genome/GOptimizableEntity.hpp"
-#include "geneva/GPostProcessorT.hpp"
+#include "geneva/oa/GPostProcessorT.hpp"
 
 // Forward declarations (kept light so this header carries no OA / flat-genome dependency): the base
 // getAdaptionConfig() hook below refers to them only by shared_ptr / const-ref.

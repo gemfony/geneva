@@ -47,7 +47,7 @@
 #include <vector>
 
 // Geneva headers go here
-#include "geneva/GPluggableOptimizationMonitors.hpp"
+#include "geneva/oa/GPluggableOptimizationMonitors.hpp"
 #include "geneva/genome/GGenome.hpp"
 
 // Example-local headers
