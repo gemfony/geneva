@@ -32,7 +32,9 @@
 // Global checks, defines and includes needed for all of Geneva
 
 // Standard headers go here
+#include <array>
 #include <bit>
+#include <cstddef>
 #include <cstdint>
 #include <cstring>
 #include <string>
@@ -56,21 +58,21 @@ namespace Gem::Weft {
  * @par Format
  * Scalars are stored at their natural width, little-endian (byte-swapped on a
  * big-endian host so the stream is canonical LE). @c bool is one byte;
- * @c float / @c double are the little-endian IEEE-754 bit patterns; @c long
- * @c double is stored as its raw platform bytes (see the portability note).
- * A string and every container are length-prefixed by a 64-bit count.
- * Object/element framing carries no bytes -- structure is implicit in the
- * fixed member walk, which is identical on save and load.
+ * @c float / @c double are the little-endian IEEE-754 binary32 / binary64 bit
+ * patterns; @c long @c double is a little-endian IEEE-754 binary128 (16 bytes,
+ * see the portability note). A string and every container are length-prefixed by
+ * a 64-bit count. Object/element framing carries no bytes -- structure is implicit
+ * in the fixed member walk, which is identical on save and load.
  *
  * @par Portability
- * Integer and @c float / @c double encodings are endian-canonical (LE) and thus
- * portable across architectures of the same width. @c long @c double is written
- * raw (no byte-swap, platform width): a save and load within one binary on one
- * architecture round-trips it bit-exactly -- the only guarantee Geneva's clean
- * break requires (Inv 4) -- but a cross-architecture @c long @c double on the
- * wire is @b not yet canonical. Fixing a canonical @c long @c double wire
- * encoding is deferred to the wire-hardening step (see the Boost-replacement
- * design doc, "own-the-codec risk").
+ * All floating-point and integer encodings are endian-canonical (LE) and
+ * architecture-portable. @c long @c double is widened to and stored as IEEE-754
+ * binary128, so x86-64's 80-bit extended format and AArch64's native binary128
+ * encode identically on the wire (the 80->128 widening is lossless), and the
+ * encoding carries none of the indeterminate padding an 80-bit @c long @c double
+ * holds in its 16-byte slot. On a toolchain with no 128-bit float type
+ * (@c __SIZEOF_FLOAT128__ undefined) the codec falls back to raw platform bytes,
+ * which round-trip bit-exactly only within one architecture (Inv 4).
  */
 /******************************************************************************/
 
@@ -86,6 +88,45 @@ constexpr UInt to_le(UInt u) noexcept {
         return u;
     }
 }
+
+#if defined(__SIZEOF_FLOAT128__)
+static_assert(sizeof(__float128) == 16, "binary128 must be 16 bytes");
+
+/** @brief Reverses a 16-byte block in place (used to canonicalise binary128 to LE on a BE host). */
+inline void reverse16(std::array<std::byte, 16> &b) noexcept {
+    for (std::size_t i = 0; i < 8; ++i) {
+        std::byte t = b[i];
+        b[i] = b[15 - i];
+        b[15 - i] = t;
+    }
+}
+
+/**
+ * @brief Encodes a @c long @c double as a little-endian IEEE-754 binary128 (16 bytes).
+ *
+ * The value is widened to @c __float128 (IEEE binary128) and its bytes canonicalised to
+ * little-endian order. This makes the @c long @c double encoding portable across
+ * architectures (x86-64's 80-bit extended, AArch64's native binary128) AND free of the
+ * indeterminate padding bytes an 80-bit @c long @c double carries in its 16-byte storage
+ * slot. The 80->128 widening is lossless (binary128's 113-bit significand holds the 80-bit
+ * format's 64-bit significand exactly).
+ */
+inline std::array<std::byte, 16> long_double_to_le128(long double v) noexcept {
+    auto raw = std::bit_cast<std::array<std::byte, 16>>(static_cast<__float128>(v));
+    if constexpr (std::endian::native == std::endian::big) {
+        reverse16(raw);
+    }
+    return raw;
+}
+
+/** @brief The inverse of @ref long_double_to_le128: decodes a LE binary128 back to @c long @c double. */
+inline long double le128_to_long_double(std::array<std::byte, 16> raw) noexcept {
+    if constexpr (std::endian::native == std::endian::big) {
+        reverse16(raw);
+    }
+    return static_cast<long double>(std::bit_cast<__float128>(raw));
+}
+#endif
 
 } // namespace detail
 
@@ -117,7 +158,8 @@ public:
         append_raw(&le, sizeof(le));
     }
 
-    /** @brief Writes a floating-point value (LE IEEE bits for float/double; raw platform bytes for long double). */
+    /** @brief Writes a floating-point value as a canonical LE IEEE-754 bit pattern (binary32/64, or
+     *  binary128 for long double). @param v The value. */
     template <typename Float>
     void put_fp(Float v) {
         static_assert(std::is_floating_point_v<Float>);
@@ -128,17 +170,18 @@ public:
             std::uint64_t le = detail::to_le(std::bit_cast<std::uint64_t>(v));
             append_raw(&le, sizeof(le));
         } else {
-            // long double: written as raw platform bytes (native width, native byte order), NOT
-            // endian/width-canonicalised like the integer and float/double cases above. This
-            // round-trips bit-exactly for a save+load within one binary on one architecture -- the
-            // only guarantee Geneva's clean break requires (Inv 4) -- but a long double is therefore
-            // NOT portable across architectures that differ in long double width (80-bit x87 vs
-            // 128-bit) or endianness. DEFERRED: a canonical cross-arch long double wire encoding
-            // (e.g. fixed-width mantissa/exponent decomposition) is left to the wire-hardening step;
-            // see the file-level "Portability" note and the Boost-replacement design doc
-            // ("own-the-codec risk"). Until then, a heterogeneous-arch cluster must not put long
-            // double on the wire. (The normalized-genome long double values are same-arch here.)
+#if defined(__SIZEOF_FLOAT128__)
+            // long double: canonicalised to a little-endian IEEE-754 binary128 (16 bytes), so it is
+            // portable across architectures (x86-64's 80-bit extended and AArch64's native binary128
+            // both encode identically) and carries none of the indeterminate padding bytes an 80-bit
+            // long double has in its 16-byte slot. See detail::long_double_to_le128.
+            auto raw = detail::long_double_to_le128(v);
+            append_raw(raw.data(), raw.size());
+#else
+            // No 128-bit float type on this toolchain: fall back to raw platform bytes. Round-trips
+            // bit-exactly within one binary on one architecture (Inv 4), but is not cross-arch portable.
             append_raw(&v, sizeof(v));
+#endif
         }
     }
 
@@ -220,11 +263,16 @@ public:
             read_raw(&le, sizeof(le));
             v = std::bit_cast<double>(detail::to_le(le));
         } else {
-            // long double: read back as raw platform bytes -- the exact inverse of put_fp's raw
-            // write, so it round-trips bit-exactly only on the same architecture/width the bytes
-            // were written on (see the put_fp long double branch and the file-level portability
-            // note; canonical cross-arch encoding is deferred to the wire-hardening step).
+#if defined(__SIZEOF_FLOAT128__)
+            // long double: decode the little-endian binary128 written by put_fp (see
+            // detail::le128_to_long_double). The 128->native narrowing is exact for the value ranges an
+            // 80-bit or binary128 long double can represent.
+            std::array<std::byte, 16> raw{};
+            read_raw(raw.data(), raw.size());
+            v = detail::le128_to_long_double(raw);
+#else
             read_raw(&v, sizeof(v));
+#endif
         }
     }
 

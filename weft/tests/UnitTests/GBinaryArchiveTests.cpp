@@ -186,6 +186,25 @@ TEST_CASE("GBinaryArchive: long double round-trips bit-exactly (normalized-genom
     CHECK(roundtrip<long double>(d) == d);
 }
 
+// long double is encoded as a canonical, architecture-portable IEEE-754 binary128 (16 bytes),
+// NOT as the platform's raw long double slot (which is 80-bit-in-16-with-padding on x86-64 and
+// not cross-arch portable). The encoded width proves the canonical form.
+TEST_CASE("GBinaryArchive: long double is a canonical 16-byte binary128", "[common][archive][binary]") {
+    const long double v = 3.14159265358979323846264338327950288L;
+    GBinaryOArchive oa;
+    oa &v;
+    CHECK(oa.str().size() == 16); // exactly one binary128, regardless of the platform long double format
+
+    long double back{};
+    GBinaryIArchive ia(oa.str());
+    ia &back;
+    CHECK(back == v);
+
+    // The full 64-bit significand of an x86-80-bit value survives the 80->128->80 round trip.
+    const long double e = std::nextafter(1.0L, 2.0L); // 1 + 1 ULP: exercises the low significand bit
+    CHECK(roundtrip<long double>(e) == e);
+}
+
 // ---------------------------------------------------------------------------
 // Strings and paths.
 
