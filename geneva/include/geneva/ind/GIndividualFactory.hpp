@@ -43,6 +43,7 @@
 #include <boost/serialization/nvp.hpp>
 
 // Geneva headers go here
+#include "common/GArchiveNamed.hpp" // archive_named_base (boost-vs-GArchive base emitter)
 #include "common/GExceptions.hpp"
 #include "common/GLogger.hpp"
 #include "common/GParserBuilder.hpp"
@@ -137,11 +138,12 @@ class GIndividualFactory // NOLINT(cppcoreguidelines-special-member-functions)
   : public GOptimizableEntityFactory {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
+    friend struct Gem::Common::archive::access;
 
     /**
      * @brief Serialises only the factory base; Config and the genome cache are transient.
      *
-     * @tparam Archive The Boost.Serialization archive type
+     * @tparam Archive The archive type (Boost.Serialization or a GArchive codec)
      * @param ar The archive to read from / write to
      * @param version The (unused) serialization version number
      */
@@ -150,10 +152,7 @@ class GIndividualFactory // NOLINT(cppcoreguidelines-special-member-functions)
         // Only the base is serialised. The Config is transient -- re-read from the (still known)
         // config file on the first get_() after deserialisation -- and the built-genome cache is a
         // transient optimisation that is rebuilt lazily.
-        ar &boost::serialization::make_nvp(
-            "GOptimizableEntityFactory",
-            boost::serialization::base_object<GOptimizableEntityFactory>(*this)
-        );
+        Gem::Common::archive_named_base<GOptimizableEntityFactory>(ar, "GOptimizableEntityFactory", *this);
     }
     ///////////////////////////////////////////////////////////////////////
 

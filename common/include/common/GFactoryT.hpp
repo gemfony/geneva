@@ -58,6 +58,7 @@
 #include <boost/serialization/vector.hpp>
 
 // Geneva header files go here
+#include "common/GArchiveNamed.hpp" // archive_named (boost-vs-GArchive member emitter)
 #include "common/GCommonHelperFunctionsT.hpp"
 #include "common/GErrorStreamer.hpp"
 #include "common/GExceptions.hpp"
@@ -79,42 +80,56 @@ template <typename prod_type>
 class GFactoryT {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
+    friend struct Gem::Common::archive::access;
 
     /**
-     * @brief Loads the factory's persistent state from a Boost archive
-     * @tparam Archive The Boost.Serialization archive type being read from
+     * @brief Loads the factory's persistent state, from a Boost archive or a GArchive codec
+     * @tparam Archive The input archive type being read from
      * @param ar The input archive supplying the serialized data
-     * @param version The (unused) class version supplied by Boost.Serialization
+     * @param version The (unused) class version
      */
     template <typename Archive>
     void load(Archive &ar, [[maybe_unused]] const unsigned int version) {
-        using boost::serialization::make_nvp;
-
         std::string configFile{};
-
-        ar &BOOST_SERIALIZATION_NVP(configFile) & BOOST_SERIALIZATION_NVP(initialized_);
-
+        Gem::Common::archive_named(ar, "configFile", configFile);
+        Gem::Common::archive_named(ar, "initialized_", initialized_);
         // Transfer the string to the path
         config_path_ = std::filesystem::path(configFile);
     }
 
     /**
-     * @brief Saves the factory's persistent state to a Boost archive
-     * @tparam Archive The Boost.Serialization archive type being written to
+     * @brief Saves the factory's persistent state, to a Boost archive or a GArchive codec
+     * @tparam Archive The output archive type being written to
      * @param ar The output archive receiving the serialized data
-     * @param version The (unused) class version supplied by Boost.Serialization
+     * @param version The (unused) class version
      */
     template <typename Archive>
     void save(Archive &ar, [[maybe_unused]] const unsigned int version) const {
-        using boost::serialization::make_nvp;
-
         // Transfer the path to the string
         std::string configFile = config_path_.string(); // NOLINT(cppcoreguidelines-init-variables)
-
-        ar &BOOST_SERIALIZATION_NVP(configFile) & BOOST_SERIALIZATION_NVP(initialized_);
+        Gem::Common::archive_named(ar, "configFile", configFile);
+        Gem::Common::archive_named(ar, "initialized_", initialized_);
     }
 
-    BOOST_SERIALIZATION_SPLIT_MEMBER()
+    /**
+     * @brief The single (de)serialization entry point, split by direction: dispatched here for a GArchive
+     * codec (no Boost is_saving trait), or via Boost's split_member for a Boost archive.
+     * @tparam Archive The archive type (Boost.Serialization or a GArchive codec)
+     * @param ar The archive to read from / write to
+     * @param version The serialization format version, forwarded to the split
+     */
+    template <typename Archive>
+    void serialize(Archive &ar, const unsigned int version) {
+        if constexpr (Gem::Common::archive::is_gem_archive_v<Archive>) {
+            if constexpr (Archive::is_saving) {
+                save(ar, version);
+            } else {
+                load(ar, version);
+            }
+        } else {
+            boost::serialization::split_member(ar, *this, version);
+        }
+    }
 
     ///////////////////////////////////////////////////////////////////////
 

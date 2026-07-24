@@ -40,6 +40,7 @@
 #include <vector>
 
 // Geneva headers go here
+#include "common/GArchiveNamed.hpp" // archive_named (boost-vs-GArchive member emitter)
 #include "common/GCommonInterfaceT.hpp"
 #include "common/GErrorStreamer.hpp"
 #include "common/GExceptions.hpp"
@@ -71,14 +72,15 @@ class parPropSpec // NOLINT(cppcoreguidelines-special-member-functions)
   : public Gem::Common::GCommonInterfaceT<parPropSpec<par_type>> {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
+    friend struct Gem::Common::archive::access;
 
     template <typename Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
-        using boost::serialization::make_nvp;
-        using namespace Gem::Common;
-
-        ar &BOOST_SERIALIZATION_NVP(var) & BOOST_SERIALIZATION_NVP(lowerBoundary) &
-            BOOST_SERIALIZATION_NVP(upperBoundary) & BOOST_SERIALIZATION_NVP(nSteps);
+        using Gem::Common::archive_named;
+        archive_named(ar, "var", var);
+        archive_named(ar, "lowerBoundary", lowerBoundary);
+        archive_named(ar, "upperBoundary", upperBoundary);
+        archive_named(ar, "nSteps", nSteps);
     }
     ///////////////////////////////////////////////////////////////////////
 

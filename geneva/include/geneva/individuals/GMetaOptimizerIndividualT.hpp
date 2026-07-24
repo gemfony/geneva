@@ -186,15 +186,19 @@ class GMetaOptimizerIndividualT // NOLINT(cppcoreguidelines-special-member-funct
     // is kept BY HAND: it also emits ind_factory_, which localMembers_ deliberately omits (the factory is
     // kept-not-copied on load and ignored by compare) -- an asymmetry serialize_members() cannot express.
     friend class boost::serialization::access;
+    friend struct Gem::Common::archive::access;
     friend struct Gem::Common::GReflectiveInterfaceAccess;
 
     template <class Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(gen::GGenome) &
-            BOOST_SERIALIZATION_NVP(n_runs_per_optimization_) &
-            BOOST_SERIALIZATION_NVP(fitness_target_) & BOOST_SERIALIZATION_NVP(iteration_threshold_) &
-            BOOST_SERIALIZATION_NVP(mo_target_) & BOOST_SERIALIZATION_NVP(sub_ea_config_) &
-            BOOST_SERIALIZATION_NVP(ind_factory_);
+        using Gem::Common::archive_named;
+        Gem::Common::archive_named_base<gen::GGenome>(ar, "gen::GGenome", *this);
+        archive_named(ar, "n_runs_per_optimization_", n_runs_per_optimization_);
+        archive_named(ar, "fitness_target_", fitness_target_);
+        archive_named(ar, "iteration_threshold_", iteration_threshold_);
+        archive_named(ar, "mo_target_", mo_target_);
+        archive_named(ar, "sub_ea_config_", sub_ea_config_);
+        archive_named(ar, "ind_factory_", ind_factory_);
     }
 
     ///////////////////////////////////////////////////////////////////////
@@ -1582,15 +1586,11 @@ class GOptOptMonitorT // NOLINT(cppcoreguidelines-special-member-functions)
 
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
+    friend struct Gem::Common::archive::access;
 
     template <typename Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
-        using boost::serialization::make_nvp;
-
-        ar &make_nvp(
-            "GBasePluggableOM",
-            boost::serialization::base_object<oa::GBasePluggableOM>(*this)
-        );
+        Gem::Common::archive_named_base<oa::GBasePluggableOM>(ar, "GBasePluggableOM", *this);
         // All local members, derived from the single localMembers() declaration (same NVP tags as before).
         Gem::Common::serialize_members(ar, this->localMembers_());
     }

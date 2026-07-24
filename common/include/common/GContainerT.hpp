@@ -66,6 +66,7 @@
 #include <boost/serialization/vector.hpp>
 
 // Geneva headers go here
+#include "common/GArchiveNamed.hpp" // archive_named (boost-vs-GArchive member emitter)
 #include "common/GCommonHelperFunctionsT.hpp"
 #include "common/GErrorStreamer.hpp"
 #include "common/GExceptions.hpp"
@@ -272,20 +273,19 @@ template <typename T, typename StoragePolicy = PodStorage<T>>
 class GContainerT {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
+    friend struct Gem::Common::archive::access;
 
     /**
-     * @brief Boost.Serialization hook — (de)serialises the underlying data container.
+     * @brief (De)serialises the underlying data container, against a Boost archive or a GArchive codec.
      *
-     * The trailing unsigned int is the class version supplied by
-     * Boost.Serialization; it is intentionally unnamed and unused.
+     * The trailing unsigned int is the class version; it is intentionally unnamed and unused.
      *
-     * @tparam Archive The Boost.Serialization archive type (input or output).
+     * @tparam Archive The archive type (Boost.Serialization or a GArchive codec).
      * @param ar The archive to read from or write to.
      */
     template <typename Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
-        using boost::serialization::make_nvp;
-        ar &BOOST_SERIALIZATION_NVP(data_cnt_);
+        Gem::Common::archive_named(ar, "data_cnt_", data_cnt_);
     }
     ///////////////////////////////////////////////////////////////////////
 

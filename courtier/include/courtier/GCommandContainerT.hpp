@@ -58,6 +58,7 @@
 #include <boost/serialization/vector.hpp>
 
 // Geneva headers go here
+#include "common/GArchiveNamed.hpp" // archive_named (boost-vs-GArchive member emitter)
 #include "courtier/GCourtierEnums.hpp"
 #include "courtier/GProcessable.hpp"
 #include "courtier/GWireSerializationContext.hpp" // GWireLayoutId / GWirePeerId for the layout-fetch commands
@@ -78,6 +79,7 @@ template <typename processable_type, typename command_type>
 class GCommandContainerT {
     ///////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
+    friend struct Gem::Common::archive::access;
 
     /**
      * @brief Boost.Serialization hook that (de-)serializes the command and the payload pointer, plus the
@@ -97,11 +99,13 @@ class GCommandContainerT {
      */
     template <class Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
-        ar &BOOST_SERIALIZATION_NVP(command_) & BOOST_SERIALIZATION_NVP(payload_ptr_);
-        ar &BOOST_SERIALIZATION_NVP(peer_id_);
-        ar &boost::serialization::make_nvp("layout_id_hi", layout_id_[0]);
-        ar &boost::serialization::make_nvp("layout_id_lo", layout_id_[1]);
-        ar &BOOST_SERIALIZATION_NVP(layout_blob_);
+        using Gem::Common::archive_named;
+        archive_named(ar, "command_", command_);
+        archive_named(ar, "payload_ptr_", payload_ptr_);
+        archive_named(ar, "peer_id_", peer_id_);
+        archive_named(ar, "layout_id_hi", layout_id_[0]);
+        archive_named(ar, "layout_id_lo", layout_id_[1]);
+        archive_named(ar, "layout_blob_", layout_blob_);
     }
     ///////////////////////////////////////////////////////////////
 

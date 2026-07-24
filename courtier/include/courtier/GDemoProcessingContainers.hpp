@@ -56,6 +56,7 @@
 #include <boost/serialization/vector.hpp>
 
 // Geneva headers go here
+#include "common/GArchiveNamed.hpp" // archive_named / archive_named_base (boost-vs-GArchive emitters)
 #include "common/GSerializeTupleT.hpp"
 #include "courtier/GProcessingContainerT.hpp"
 #include "hap/GRandomT.hpp"
@@ -71,16 +72,13 @@ class GSimpleContainer
   : public Gem::Courtier::GProcessingContainerT<GSimpleContainer, bool> {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
+    friend struct Gem::Common::archive::access;
 
     template <typename Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
-        using boost::serialization::make_nvp;
-
-        ar &make_nvp(
-            "GProcessingContainerT_GSimpleContainer",
-            boost::serialization::base_object<
-                Gem::Courtier::GProcessingContainerT<GSimpleContainer, bool>>(*this)
-        ) & BOOST_SERIALIZATION_NVP(stored_number_);
+        Gem::Common::archive_named_base<Gem::Courtier::GProcessingContainerT<GSimpleContainer, bool>>(
+            ar, "GProcessingContainerT_GSimpleContainer", *this);
+        Gem::Common::archive_named(ar, "stored_number_", stored_number_);
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -120,16 +118,13 @@ class GRandomNumberContainer
   : public Gem::Courtier::GProcessingContainerT<GRandomNumberContainer, bool> {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
+    friend struct Gem::Common::archive::access;
 
     template <typename Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
-        using boost::serialization::make_nvp;
-
-        ar &make_nvp(
-            "GProcessingContainerT_GRandomNumberContainer",
-            boost::serialization::base_object<
-                Gem::Courtier::GProcessingContainerT<GRandomNumberContainer, bool>>(*this)
-        ) & BOOST_SERIALIZATION_NVP(random_numbers_);
+        Gem::Common::archive_named_base<Gem::Courtier::GProcessingContainerT<GRandomNumberContainer, bool>>(
+            ar, "GProcessingContainerT_GRandomNumberContainer", *this);
+        Gem::Common::archive_named(ar, "random_numbers_", random_numbers_);
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -191,17 +186,17 @@ class GFaultyContainer
   : public Gem::Courtier::GProcessingContainerT<GFaultyContainer, bool> {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
+    friend struct Gem::Common::archive::access;
 
     template <typename Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
-        using boost::serialization::make_nvp;
-
-        ar &make_nvp(
-            "GProcessingContainerT_GFaultyContainer",
-            boost::serialization::base_object<
-                Gem::Courtier::GProcessingContainerT<GFaultyContainer, bool>>(*this)
-        ) & BOOST_SERIALIZATION_NVP(stored_number_) & BOOST_SERIALIZATION_NVP(fault_mode_) &
-            BOOST_SERIALIZATION_NVP(sleep_ms_) & BOOST_SERIALIZATION_NVP(input_omitted_);
+        using Gem::Common::archive_named;
+        Gem::Common::archive_named_base<Gem::Courtier::GProcessingContainerT<GFaultyContainer, bool>>(
+            ar, "GProcessingContainerT_GFaultyContainer", *this);
+        archive_named(ar, "stored_number_", stored_number_);
+        archive_named(ar, "fault_mode_", fault_mode_);
+        archive_named(ar, "sleep_ms_", sleep_ms_);
+        archive_named(ar, "input_omitted_", input_omitted_);
     }
     ///////////////////////////////////////////////////////////////////////
 

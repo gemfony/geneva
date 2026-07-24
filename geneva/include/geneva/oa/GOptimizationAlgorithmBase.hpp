@@ -107,6 +107,7 @@ class GOptimizationAlgorithmBase // NOLINT(cppcoreguidelines-special-member-func
 private:
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
+    friend struct Gem::Common::archive::access;
     friend struct Gem::Common::GReflectiveInterfaceAccess;
 
     /***************************************************************************/

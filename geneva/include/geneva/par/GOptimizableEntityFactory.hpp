@@ -34,6 +34,7 @@
 // Boosrt headers go here
 
 // Geneva headers go here
+#include "common/GArchiveNamed.hpp" // archive_named / archive_named_base (boost-vs-GArchive emitters)
 #include "common/GExceptions.hpp"
 #include "common/GFactoryT.hpp"
 #include "common/GLogger.hpp"
@@ -61,16 +62,15 @@ class GOptimizableEntityFactory // NOLINT(cppcoreguidelines-special-member-funct
   : public Gem::Common::GFactoryT<GOptimizableEntity> {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
+    friend struct Gem::Common::archive::access;
 
     template <typename Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
-        using boost::serialization::make_nvp;
-
-        ar &boost::serialization::make_nvp(
-            "GFactoryT_GOptimizableEntity",
-            boost::serialization::base_object<Gem::Common::GFactoryT<GOptimizableEntity>>(*this)
-        ) &
-            BOOST_SERIALIZATION_NVP(pre_processor_) & BOOST_SERIALIZATION_NVP(post_processor_);
+        using Gem::Common::archive_named;
+        Gem::Common::archive_named_base<Gem::Common::GFactoryT<GOptimizableEntity>>(
+            ar, "GFactoryT_GOptimizableEntity", *this);
+        archive_named(ar, "pre_processor_", pre_processor_);
+        archive_named(ar, "post_processor_", post_processor_);
     }
     ///////////////////////////////////////////////////////////////////////
 

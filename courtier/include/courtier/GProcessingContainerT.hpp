@@ -60,6 +60,7 @@
 #include <boost/serialization/utility.hpp>
 #include <boost/serialization/vector.hpp>
 // Geneva headers go here
+#include "common/GArchiveNamed.hpp" // archive_named / archive_named_base (boost-vs-GArchive emitters)
 #include "common/GCommonHelperFunctionsT.hpp"
 #include "common/GErrorStreamer.hpp"
 #include "common/GExceptions.hpp"
@@ -108,20 +109,20 @@ template <
 class GProcessingContainerT : public GProcessable {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
+    friend struct Gem::Common::archive::access;
 
     template <typename Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
-        using boost::serialization::make_nvp;
-
+        using Gem::Common::archive_named;
         // The non-generic lifecycle state (status, errors, routing ids, timing) is serialised by
         // the GProcessable base; this class adds only the result store and the (typed) pre-/post-
         // processors plus their veto flags.
-        ar &make_nvp("GProcessable", boost::serialization::base_object<GProcessable>(*this)) &
-            BOOST_SERIALIZATION_NVP(pre_processing_disabled_) &
-            BOOST_SERIALIZATION_NVP(post_processing_disabled_) &
-            BOOST_SERIALIZATION_NVP(pre_processor_ptr_) &
-            BOOST_SERIALIZATION_NVP(post_processor_ptr_) &
-            BOOST_SERIALIZATION_NVP(stored_results_cnt_);
+        Gem::Common::archive_named_base<GProcessable>(ar, "GProcessable", *this);
+        archive_named(ar, "pre_processing_disabled_", pre_processing_disabled_);
+        archive_named(ar, "post_processing_disabled_", post_processing_disabled_);
+        archive_named(ar, "pre_processor_ptr_", pre_processor_ptr_);
+        archive_named(ar, "post_processor_ptr_", post_processor_ptr_);
+        archive_named(ar, "stored_results_cnt_", stored_results_cnt_);
     }
 
     ///////////////////////////////////////////////////////////////////////
