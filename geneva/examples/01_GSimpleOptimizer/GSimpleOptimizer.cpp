@@ -56,7 +56,7 @@ int main(int argc, char **argv) {
     //---------------------------------------------------------------------------
     // As we are dealing with a server, register a signal handler that allows us
     // to interrupt execution "on the run"
-    signal(G_SIGHUP, Gem::Geneva::sigHupHandler);
+    signal(G_SIGHUP, Gem::Common::sigHupHandler);
 
     //---------------------------------------------------------------------------
     // Create a factory for GFunctionIndividual objects and perform

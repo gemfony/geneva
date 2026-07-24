@@ -66,7 +66,7 @@ int main(int argc, char **argv) {
     if(go.clientMode()) {
         return go.clientRun();
     }
-    signal(G_SIGHUP, Gem::Geneva::sigHupHandler);
+    signal(G_SIGHUP, Gem::Common::sigHupHandler);
 
     //---------------------------------------------------------------------------
     // The optimization problem came from the loaded plugin (or, if you compiled one in, from

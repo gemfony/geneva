@@ -27,42 +27,39 @@
  *
  ********************************************************************************/
 
-#include "geneva/GSigHupHandler.hpp"
-#include "common/GCommonEnums.hpp"
+#pragma once
+
+// Global checks, defines and includes needed for all of Geneva
+#include "common/GGlobalDefines.hpp"
+
+// Standard header files go here
 #include <csignal>
 
-namespace Gem::Geneva {
+// Geneva header files go here
+// G_SIGHUP (SIGHUP / CTRL_CLOSE_EVENT) is defined here
+#include "common/GCommonEnums.hpp"
 
-/******************************************************************************/
-// Needed to allow catching of a SIGHUP or CTRL_CLOSE_EVENT event.
-// Note that "volatile" is needed in order for the signal handler to work.
-namespace {
-volatile std::sig_atomic_t GenevaSigHupSent = 0;
-} // namespace
+namespace Gem::Common {
 
 /******************************************************************************/
 /**
  * @brief A handler for SIGHUP or CTRL_CLOSE_EVENT signals. This function works both
- * for Windows and Unix systems.
+ * for Windows and Unix systems. Register it with e.g.
+ * `signal(G_SIGHUP, Gem::Common::sigHupHandler)` to allow interruption of an
+ * optimization run without loss of data.
  *
- * @param signum The number of the signal that was raised; the internal flag is set only when it matches G_SIGHUP
+ * @param signum The number of the signal that was raised
  */
-void sigHupHandler(int signum) {
-    if(G_SIGHUP == signum) {
-        GenevaSigHupSent = 1;
-    }
-}
+void sigHupHandler(int signum);
 
 /******************************************************************************/
 /**
  * @brief Checks whether a SIGHUP or CTRL_CLOSE_EVENT signal has been sent.
  *
- * @return true if a SIGHUP (or CTRL_CLOSE_EVENT) signal has been received since program start, false otherwise
+ * @return A boolean indicating whether a SIGHUP / CTRL_CLOSE_EVENT signal was received
  */
-bool G_SIGHUP_SENT() {
-    return (1 == GenevaSigHupSent);
-}
+bool G_SIGHUP_SENT();
 
 /******************************************************************************/
 
-} /* namespace Gem::Geneva */
+} /* namespace Gem::Common */

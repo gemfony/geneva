@@ -9,7 +9,6 @@ SET ( OPTIMIZATIONINCLUDES
 	GMarshallerSetup.hpp
 	GModuleLoader.hpp
     GOptimizationEnums.hpp
-    GSigHupHandler.hpp
 	GPersonalityTraits.hpp
     GPluggableOptimizationMonitors.hpp
     GPostProcessorT.hpp

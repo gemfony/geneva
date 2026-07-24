@@ -59,7 +59,6 @@ SET ( OPTIMIZATIONSOURCES
     oa/GGeneralizedSimulatedAnnealing.cpp
     oa/GGeneralizedSimulatedAnnealingFactory.cpp
     oa/GGeneralizedSimulatedAnnealing_PersonalityTraits.cpp
-	GSigHupHandler.cpp
 	GModuleLoader.cpp
 	genome/GParameterPropertyParser.cpp
 	genome/GIndividualProcessingResult.cpp

@@ -76,7 +76,7 @@ int main(int argc, char **argv) {
     if(go.clientMode()) {
         return go.clientRun();
     }
-    signal(G_SIGHUP, Gem::Geneva::sigHupHandler);
+    signal(G_SIGHUP, Gem::Common::sigHupHandler);
 
     // Pull the loaded problem's OA-owned adaption config from its factory through the base interface (the
     // launcher never needs the concrete type) and hand it to the adapting algorithms (EA / SA). Skipping this

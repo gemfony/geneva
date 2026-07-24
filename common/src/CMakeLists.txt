@@ -36,6 +36,7 @@ SET ( COMMONSOURCES
 	GJsonIO.cpp
 	GLogger.cpp
 	GParserBuilder.cpp
+	GSigHupHandler.cpp
 	concurrency/GThreadGroup.cpp
 	concurrency/GThreadPool.cpp
 )

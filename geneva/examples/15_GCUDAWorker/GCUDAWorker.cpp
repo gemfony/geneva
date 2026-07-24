@@ -322,7 +322,7 @@ int main(int argc, char **argv) {
     }
 
     // ---- as this is a server, allow interrupting the run "on the fly" -------------------------
-    signal(G_SIGHUP, Gem::Geneva::sigHupHandler);
+    signal(G_SIGHUP, Gem::Common::sigHupHandler);
 
     // ---- register the image-emitting pluggable optimization monitor --------------------------
     if(logImages) {

@@ -32,7 +32,7 @@
 #
 # Layout (per the 2026-05-28 repo-layout reorganisation):
 #   geneva/include/geneva/             public headers (install layout 1:1)
-#     *.hpp                              top-level (Go2.hpp, GSigHupHandler.hpp,
+#     *.hpp                              top-level (Go2.hpp,
 #                                        GMultiConstraintT.hpp,
 #                                        GPluggableOptimizationMonitors.hpp, ...)
 #     genome/*.hpp                       genome / entity infrastructure (GGenome,

@@ -252,7 +252,7 @@ int main(int argc, char **argv) {
     }
 
     // ---- as this is a server, allow interrupting the run "on the fly" -------------------------
-    signal(G_SIGHUP, Gem::Geneva::sigHupHandler);
+    signal(G_SIGHUP, Gem::Common::sigHupHandler);
 
     // ---- create the individual factory and wire the optimization ------------------------------
     auto gfi_ptr = std::make_shared<gind::GFunctionIndividualFactory>("./config/GFunctionIndividual.json");

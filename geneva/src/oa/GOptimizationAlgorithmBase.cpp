@@ -30,7 +30,7 @@
 #include "geneva/oa/GOptimizationAlgorithmBase.hpp"
 
 // Needed for the G_SIGHUP_SENT() signal-state query in sigHupHalt().
-#include "geneva/GSigHupHandler.hpp"
+#include "common/GSigHupHandler.hpp"
 #include "common/GCommonHelperFunctions.hpp"
 #include "common/GCommonHelperFunctionsT.hpp"
 #include "common/GCommonInterfaceT.hpp"
@@ -2132,12 +2132,12 @@ bool GOptimizationAlgorithmBase::minIterationPassed() const {
 /******************************************************************************/
 /**
  * This function returns true if a SIGHUP / CTRL_CLOSE_EVENT signal was sent (provided the user
- * has registered the Gem::Geneva::sigHupHandler signal handler
+ * has registered the Gem::Common::sigHupHandler signal handler
  *
  * @return A boolean indicating whether the program was interrupted with a SIGHUP or CTRL_CLOSE_EVENT signal
  */
 bool GOptimizationAlgorithmBase::sigHupHalt() {
-    if(G_SIGHUP_SENT()) {
+    if(Gem::Common::G_SIGHUP_SENT()) {
 #if defined(_MSC_VER) && (_MSC_VER >= 1020)
         std::cout
             << "Terminating optimization run because a CTRL_CLOSE_EVENT signal has been received"

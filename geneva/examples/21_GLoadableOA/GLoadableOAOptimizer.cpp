@@ -64,7 +64,7 @@ int main(int argc, char **argv) {
 
     //---------------------------------------------------------------------------
     // As this is a server, register a signal handler that allows interrupting execution "on the run".
-    signal(G_SIGHUP, Gem::Geneva::sigHupHandler);
+    signal(G_SIGHUP, Gem::Common::sigHupHandler);
 
     //---------------------------------------------------------------------------
     // Supply the (compiled-in) optimization individual: the standard benchmark-function individual.
