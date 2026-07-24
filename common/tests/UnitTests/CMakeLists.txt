@@ -63,6 +63,7 @@ ENDFUNCTION()
 
 geneva_common_test(GAgingStoreTTests              GAgingStoreTTests.cpp)
 geneva_common_test(GArchiveIntegrationTests       GArchiveIntegrationTests.cpp)
+geneva_common_test(GArchivePolymorphicTests       GArchivePolymorphicTests.cpp)
 geneva_common_test(GBinaryArchiveTests            GBinaryArchiveTests.cpp)
 geneva_common_test(GBlockingMPMCQueueTTests           GBlockingMPMCQueueTTests.cpp)
 geneva_common_test(GCommonEnumsTests              GCommonEnumsTests.cpp)

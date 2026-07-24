@@ -38,6 +38,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <deque>
+#include <memory>
 #include <filesystem>
 #include <list>
 #include <map>
@@ -229,6 +230,15 @@ struct is_atomic : std::false_type {};
 template <typename T>
 struct is_atomic<std::atomic<T>> : std::true_type {};
 
+// Owning smart pointers, dispatched polymorphically through the registry (see
+// GArchivePolymorphic.hpp). Only the shapes Geneva serializes are matched.
+template <typename T>
+struct is_smart_ptr : std::false_type {};
+template <typename T, typename D>
+struct is_smart_ptr<std::unique_ptr<T, D>> : std::true_type {};
+template <typename T>
+struct is_smart_ptr<std::shared_ptr<T>> : std::true_type {};
+
 // A "value class" is anything not covered above that exposes a serialize member
 // through the access shim (checked structurally so a private serialize + friend
 // access still qualifies).
@@ -368,10 +378,19 @@ private:
                 d().end_elem();
             }
             d().end_seq();
+        } else if constexpr (detail::is_smart_ptr<U>::value) {
+            // Polymorphic owning pointer: dispatched through the registry by
+            // gem_serialize_pointer, an ADL customization point defined in
+            // GArchivePolymorphic.hpp. Kept out of this base so the base never
+            // depends on the registry/codecs -- the include-cycle break of the
+            // "codec layer owns pointer dispatch" layering. Found at instantiation
+            // via ADL on the archive type; a TU serializing a pointer must include
+            // GArchivePolymorphic.hpp (the registration sites and choke points do).
+            gem_serialize_pointer(d(), v);
         } else {
             static_assert(detail::serializable_class<Derived, U>,
-                          "GOArchiveT: type is neither a supported primitive/container nor a serializable class "
-                          "(needs a serialize(Archive&, unsigned) reachable via archive::access)");
+                          "GOArchiveT: type is neither a supported primitive/container/pointer nor a serializable "
+                          "class (needs a serialize(Archive&, unsigned) reachable via archive::access)");
             d().begin_object();
             access::serialize(d(), v);
             d().end_object();
@@ -515,10 +534,13 @@ private:
                 }
             }
             d().end_seq();
+        } else if constexpr (detail::is_smart_ptr<U>::value) {
+            // Polymorphic owning pointer -- see the matching note in GOArchiveT.
+            gem_serialize_pointer(d(), v);
         } else {
             static_assert(detail::serializable_class<Derived, U>,
-                          "GIArchiveT: type is neither a supported primitive/container nor a serializable class "
-                          "(needs a serialize(Archive&, unsigned) reachable via archive::access)");
+                          "GIArchiveT: type is neither a supported primitive/container/pointer nor a serializable "
+                          "class (needs a serialize(Archive&, unsigned) reachable via archive::access)");
             d().enter_object();
             access::serialize(d(), v);
             d().leave_object();
