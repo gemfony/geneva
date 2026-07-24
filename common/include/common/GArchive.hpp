@@ -250,6 +250,17 @@ struct access {
     static void serialize(Archive &ar, T &obj) {
         obj.serialize(ar, 0u);
     }
+
+    // Immediate-context detection of a reachable serialize MEMBER. Because these
+    // overloads are members of access -- the type serializable classes befriend --
+    // the decltype probe can see a PRIVATE serialize + friend access; a plain
+    // external requires-expression could not. A type without the member (or that
+    // does not grant access friendship) drops to the varargs overload.
+    template <typename Archive, typename T>
+    static auto has_member_probe(int)
+        -> decltype(std::declval<T &>().serialize(std::declval<Archive &>(), 0u), std::true_type{});
+    template <typename Archive, typename T>
+    static std::false_type has_member_probe(...);
 };
 
 /******************************************************************************/
@@ -350,11 +361,24 @@ struct is_smart_ptr<std::unique_ptr<T, D>> : std::true_type {};
 template <typename T>
 struct is_smart_ptr<std::shared_ptr<T>> : std::true_type {};
 
-// A "value class" is anything not covered above that exposes a serialize member
-// through the access shim (checked structurally so a private serialize + friend
-// access still qualifies).
+// A "value class" is anything not covered above that is (de)serializable in one
+// of two ways, mirroring Boost's intrusive/non-intrusive split:
+//   - INTRUSIVE: a serialize member reachable via the access shim (checked
+//     structurally, so a private serialize + friend access still qualifies) --
+//     the reflective-mixin classes;
+//   - NON-INTRUSIVE: a free gem_archive_serialize(Archive&, T&) found by ADL in
+//     the type's own namespace -- the analogue of a Boost non-intrusive free
+//     serialize(), for the POD-clean structs kept free of a serialize member.
+// The class dispatch below prefers the member form and otherwise takes the free
+// form; a type offering neither trips the static_assert.
 template <typename Archive, typename T>
-concept serializable_class = requires(Archive &ar, T &t) { access::serialize(ar, t); };
+concept has_member_serialize = decltype(access::has_member_probe<Archive, T>(0))::value;
+
+template <typename Archive, typename T>
+concept has_free_serialize = requires(Archive &ar, T &t) { gem_archive_serialize(ar, t); };
+
+template <typename Archive, typename T>
+concept serializable_class = has_member_serialize<Archive, T> || has_free_serialize<Archive, T>;
 
 // set-family containers grow via insert(), std::vector/deque/list via
 // push_back(); distinguish so the load base picks the right insertion.
@@ -563,9 +587,14 @@ private:
         } else {
             static_assert(detail::serializable_class<Derived, U>,
                           "GOArchiveT: type is neither a supported primitive/container/pointer nor a serializable "
-                          "class (needs a serialize(Archive&, unsigned) reachable via archive::access)");
+                          "class (needs a serialize member reachable via archive::access, or a non-intrusive free "
+                          "gem_archive_serialize(Archive&, T&) in the type's namespace)");
             d().begin_object();
-            access::serialize(d(), v);
+            if constexpr (detail::has_member_serialize<Derived, U>) {
+                access::serialize(d(), v);
+            } else {
+                gem_archive_serialize(d(), v); // ADL: non-intrusive free serializer in U's namespace
+            }
             d().end_object();
         }
         return d();
@@ -788,9 +817,14 @@ private:
         } else {
             static_assert(detail::serializable_class<Derived, U>,
                           "GIArchiveT: type is neither a supported primitive/container/pointer nor a serializable "
-                          "class (needs a serialize(Archive&, unsigned) reachable via archive::access)");
+                          "class (needs a serialize member reachable via archive::access, or a non-intrusive free "
+                          "gem_archive_serialize(Archive&, T&) in the type's namespace)");
             d().enter_object();
-            access::serialize(d(), v);
+            if constexpr (detail::has_member_serialize<Derived, U>) {
+                access::serialize(d(), v);
+            } else {
+                gem_archive_serialize(d(), v); // ADL: non-intrusive free serializer in U's namespace
+            }
             d().leave_object();
         }
         return d();

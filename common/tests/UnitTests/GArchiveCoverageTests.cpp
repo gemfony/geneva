@@ -174,3 +174,38 @@ TEST_CASE("GArchive coverage: make_array writes no length prefix (binary is raw)
     oa &make_array(src.data(), src.size());
     CHECK(oa.str().size() == src.size() * sizeof(double));
 }
+
+// ---------------------------------------------------------------------------
+// Non-intrusive class support: a POD-clean struct that carries NO serialize
+// member and instead supplies a free gem_archive_serialize() in its namespace,
+// found by ADL from the class dispatch arm (the analogue of a Boost
+// non-intrusive free serialize()). This is the entry point the layout structs
+// (GaussConfig / ChannelLayout / GGenomeLayout) use.
+
+namespace {
+
+struct PodPoint {
+    int x = 0;
+    double y = 0.0;
+    std::string tag;
+    bool operator==(const PodPoint &) const = default;
+};
+
+// The free serializer, in the SAME namespace as PodPoint so ADL finds it.
+template <typename Archive>
+void gem_archive_serialize(Archive &ar, PodPoint &p) {
+    ar &make_nvp("x", p.x);
+    ar &make_nvp("y", p.y);
+    ar &make_nvp("tag", p.tag);
+}
+
+} // namespace
+
+TEST_CASE("GArchive coverage: non-intrusive free gem_archive_serialize round-trips", "[common][archive][coverage]") {
+    both_codecs(PodPoint{-7, 3.5, "hello"});
+
+    // Also exercise it nested inside a container (vector of non-intrusive structs).
+    std::vector<PodPoint> v{{1, 1.5, "a"}, {2, -2.5, "b"}, {3, 0.0, ""}};
+    CHECK((rt<GBinaryOArchive, GBinaryIArchive>(v)) == v);
+    CHECK((rt<GJsonOArchive, GJsonIArchive>(v)) == v);
+}
