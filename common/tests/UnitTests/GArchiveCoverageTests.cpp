@@ -41,6 +41,7 @@
 #include <cstdint>
 #include <forward_list>
 #include <map>
+#include <memory>
 #include <optional>
 #include <set>
 #include <string>
@@ -208,4 +209,46 @@ TEST_CASE("GArchive coverage: non-intrusive free gem_archive_serialize round-tri
     std::vector<PodPoint> v{{1, 1.5, "a"}, {2, -2.5, "b"}, {3, 0.0, ""}};
     CHECK((rt<GBinaryOArchive, GBinaryIArchive>(v)) == v);
     CHECK((rt<GJsonOArchive, GJsonIArchive>(v)) == v);
+}
+
+// ---------------------------------------------------------------------------
+// Owning smart pointers to a CONCRETE, non-hierarchy pointee (no
+// gemfony_common_root_t): serialized inline by value (present flag + pointee),
+// the analogue of Boost serializing a shared_ptr<Concrete>. This is the shape of
+// the individual's non-polymorphic owned members (GProblemPolicy, GAuxiliaryStore).
+// The polymorphic-pointer path (hierarchy pointee via the registry) is covered by
+// GArchivePolymorphicTests.
+
+namespace {
+
+template <typename OArchive, typename IArchive, typename Ptr>
+void check_concrete_ptr(const Ptr &in) {
+    OArchive oa;
+    oa &make_nvp("p", const_cast<Ptr &>(in));
+    Ptr out;
+    IArchive ia(oa.str());
+    ia &make_nvp("p", out);
+    if (in) {
+        REQUIRE(static_cast<bool>(out));
+        CHECK(*out == *in);
+    } else {
+        CHECK_FALSE(static_cast<bool>(out));
+    }
+}
+
+} // namespace
+
+TEST_CASE("GArchive coverage: non-polymorphic owned pointer (unique_ptr / shared_ptr to concrete)",
+          "[common][archive][coverage]") {
+    // unique_ptr, engaged and null.
+    check_concrete_ptr<GBinaryOArchive, GBinaryIArchive>(std::make_unique<PodPoint>(PodPoint{9, -1.25, "u"}));
+    check_concrete_ptr<GJsonOArchive, GJsonIArchive>(std::make_unique<PodPoint>(PodPoint{9, -1.25, "u"}));
+    check_concrete_ptr<GBinaryOArchive, GBinaryIArchive>(std::unique_ptr<PodPoint>{});
+    check_concrete_ptr<GJsonOArchive, GJsonIArchive>(std::unique_ptr<PodPoint>{});
+
+    // shared_ptr, engaged and null.
+    check_concrete_ptr<GBinaryOArchive, GBinaryIArchive>(std::make_shared<PodPoint>(PodPoint{-3, 4.5, "s"}));
+    check_concrete_ptr<GJsonOArchive, GJsonIArchive>(std::make_shared<PodPoint>(PodPoint{-3, 4.5, "s"}));
+    check_concrete_ptr<GBinaryOArchive, GBinaryIArchive>(std::shared_ptr<PodPoint>{});
+    check_concrete_ptr<GJsonOArchive, GJsonIArchive>(std::shared_ptr<PodPoint>{});
 }

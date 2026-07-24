@@ -52,6 +52,7 @@
 
 #include "common/GBinaryArchive.hpp" // GArchive binary codec (3d-A GGenome gem round-trip)
 #include "common/GJsonArchive.hpp"   // GArchive JSON codec (3d-A GGenome gem round-trip)
+#include "common/GArchivePolymorphic.hpp" // gem_serialize_pointer (owned-pointer members of the individual)
 #include "common/GCommonEnums.hpp"
 #include "common/GExceptions.hpp"
 #include "common/GExpectationChecksT.hpp"
@@ -164,6 +165,44 @@ private:
 
 /******************************************************************************/
 /**
+ * The same minimal sphere, but its serialize is ARCHIVE-GENERIC: it routes the GGenomeT base slice
+ * through Gem::Common::archive_named_base, so the individual (de)serializes through a Boost archive OR a
+ * GArchive codec identically. Exercises the whole ported individual serialization tree (GGenome +
+ * GGenomeLayout + GOptimizableEntity + GProcessable + the result store + the null-by-default polymorphic
+ * owned members) through a GArchive codec end to end.
+ */
+class GemSphere : public GGenomeT<GemSphere> {
+public:
+    using gemfony_flat_individual = void; // b2: genome-only flat leaf
+    GemSphere() { buildGenome(5); }
+    explicit GemSphere(std::size_t n) { buildGenome(n); }
+    GemSphere(const GemSphere &) = default;
+
+protected:
+    std::vector<double> evaluate() override {
+        std::vector<double> v;
+        this->streamline<double>(v);
+        return {std::ranges::fold_left(
+            v | std::views::transform([](double x) { return x * x; }), 0., std::plus{})};
+    }
+
+private:
+    void buildGenome(std::size_t n) {
+        GGenomeBuilder b;
+        b.addDoubleGroup(n, -10., 10.).init(1.0);
+        this->setGenome(b.build());
+    }
+
+    friend class boost::serialization::access;
+    friend struct Gem::Common::archive::access;
+    template <typename Archive>
+    void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
+        Gem::Common::archive_named_base<GGenomeT<GemSphere>>(ar, "GGenomeT", *this);
+    }
+};
+
+/******************************************************************************/
+/**
  * A config-driven (Tier-2) flat individual: the same sphere, but its genome is built by the generic
  * GIndividualFactory from a Config that the factory reads from a configuration file. The default
  * constructor leaves the genome empty -- the factory installs it via setGenome() in postProcess_.
@@ -242,6 +281,7 @@ BOOST_CLASS_EXPORT(Gem::Tests::Sphere)    // NOLINT
 BOOST_CLASS_EXPORT(Gem::Tests::FactorySphere) // NOLINT
 
 using Gem::Tests::FactorySphere;
+using Gem::Tests::GemSphere;
 using Gem::Tests::Sphere;
 
 /******************************************************************************/
@@ -763,6 +803,57 @@ TEST_CASE("GGenomeLayout: round-trips through the GArchive codecs (binary + JSON
         GJsonIArchive ia(oa.str());
         ia &make_nvp("layout", restored);
         CHECK(restored.layoutId() == original_id);
+    }
+}
+
+/******************************************************************************/
+// A whole derived individual round-trips its value identity + structural layout through BOTH GArchive
+// codecs, with no wire scope active (the self-contained checkpoint form). This is the end-to-end proof of
+// the 3d-A individual-tree port: the object graph the Boost path serializes -- GGenome + its layout,
+// GOptimizableEntity, the GProcessable lifecycle base, the result store, and the null-by-default
+// polymorphic owned members (constraint / processors / OA scratch) -- now serializes identically through
+// a GArchive codec, reconstructing an equal (compare()) individual.
+TEST_CASE("GGenome: a derived individual round-trips through the GArchive codecs (binary + JSON)",
+          "[flat][garchive][individual]") {
+    using namespace Gem::Common::archive;
+    const std::vector<double> vals{1., -2., 3., -4., 5.};
+
+    // Binary codec.
+    {
+        GemSphere ind(5);
+        ind.assignValueVector<double>(vals);
+
+        GBinaryOArchive oa;
+        oa &make_nvp("ind", ind);
+        GemSphere restored(5);
+        GBinaryIArchive ia(oa.str());
+        ia &make_nvp("ind", restored);
+
+        CHECK_NOTHROW(restored.compare(
+            ind, Gem::Common::expectation::EQUALITY, Gem::Common::CE_DEF_SIMILARITY_DIFFERENCE));
+        std::vector<double> v;
+        restored.streamline<double>(v);
+        CHECK(v == vals);
+        CHECK(restored.getLayout()->layoutId() == ind.getLayout()->layoutId());
+    }
+
+    // JSON codec (human-readable checkpoint form).
+    {
+        GemSphere ind(5);
+        ind.assignValueVector<double>(vals);
+
+        GJsonOArchive oa;
+        oa &make_nvp("ind", ind);
+        GemSphere restored(5);
+        GJsonIArchive ia(oa.str());
+        ia &make_nvp("ind", restored);
+
+        CHECK_NOTHROW(restored.compare(
+            ind, Gem::Common::expectation::EQUALITY, Gem::Common::CE_DEF_SIMILARITY_DIFFERENCE));
+        std::vector<double> v;
+        restored.streamline<double>(v);
+        CHECK(v == vals);
+        CHECK(restored.getLayout()->layoutId() == ind.getLayout()->layoutId());
     }
 }
 

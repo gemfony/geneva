@@ -214,7 +214,7 @@ struct ser_wire_omitted_ptr {
     /**
      * @brief (De)serialises the pointer, omitting it (saving null) under an active, enabled wire scope; on
      * load an omitted (null) member leaves the target pointer untouched.
-     * @tparam Archive The Boost.Serialization archive type
+     * @tparam Archive The archive type (Boost.Serialization or a GArchive codec)
      * @tparam PtrT The smart-pointer member type (e.g. std::unique_ptr<T>)
      * @param ar The archive to (de)serialize through
      * @param name The NVP tag
@@ -222,20 +222,20 @@ struct ser_wire_omitted_ptr {
      */
     template <typename Archive, typename PtrT>
     static void serialize(Archive &ar, const char *name, PtrT &ref) {
-        if constexpr(Archive::is_saving::value) {
+        if constexpr(Gem::Common::archive_is_saving_v<Archive>) {
             const auto *ctx = GWireSerializationScope::current();
             const bool on_wire = (ctx != nullptr) && ctx->enabled;
             if(on_wire) {
                 PtrT empty; // a null pointer: on the wire the member is omitted (only its null marker travels)
-                ar & boost::serialization::make_nvp(name, empty);
+                Gem::Common::archive_named(ar, name, empty);
             }
             else {
-                ar & boost::serialization::make_nvp(name, ref);
+                Gem::Common::archive_named(ar, name, ref);
             }
         }
         else {
             PtrT loaded;
-            ar & boost::serialization::make_nvp(name, loaded);
+            Gem::Common::archive_named(ar, name, loaded);
             if(loaded) { ref = std::move(loaded); } // omitted -> null -> leave ref (the default) untouched
         }
     }

@@ -358,14 +358,20 @@ struct is_atomic : std::false_type {};
 template <typename T>
 struct is_atomic<std::atomic<T>> : std::true_type {};
 
-// Owning smart pointers, dispatched polymorphically through the registry (see
-// GArchivePolymorphic.hpp). Only the shapes Geneva serializes are matched.
+// Owning smart pointers. Only the shapes Geneva serializes are matched.
 template <typename T>
 struct is_smart_ptr : std::false_type {};
 template <typename T, typename D>
 struct is_smart_ptr<std::unique_ptr<T, D>> : std::true_type {};
 template <typename T>
 struct is_smart_ptr<std::shared_ptr<T>> : std::true_type {};
+
+// Whether a pointee type belongs to a GCommonInterfaceT hierarchy (exposes
+// gemfony_common_root_t). Such a pointer is dispatched POLYMORPHICALLY through the
+// registry (GArchivePolymorphic.hpp); a pointer to a concrete non-hierarchy type is
+// instead serialized inline by value (present flag + pointee), needing no registry.
+template <typename Pointee>
+concept has_common_root = requires { typename Pointee::gemfony_common_root_t; };
 
 // A "value class" is anything not covered above that is (de)serializable in one
 // of two ways, mirroring Boost's intrusive/non-intrusive split:
@@ -605,14 +611,32 @@ private:
             }
             d().end_seq();
         } else if constexpr (detail::is_smart_ptr<U>::value) {
-            // Polymorphic owning pointer: dispatched through the registry by
-            // gem_serialize_pointer, an ADL customization point defined in
-            // GArchivePolymorphic.hpp. Kept out of this base so the base never
-            // depends on the registry/codecs -- the include-cycle break of the
-            // "codec layer owns pointer dispatch" layering. Found at instantiation
-            // via ADL on the archive type; a TU serializing a pointer must include
-            // GArchivePolymorphic.hpp (the registration sites and choke points do).
-            gem_serialize_pointer(d(), v);
+            if constexpr (detail::has_common_root<typename U::element_type>) {
+                // POLYMORPHIC owning pointer (element type is a GCommonInterfaceT
+                // hierarchy root): dispatched through the registry by
+                // gem_serialize_pointer, an ADL customization point defined in
+                // GArchivePolymorphic.hpp. Kept out of this base so the base never
+                // depends on the registry/codecs -- the include-cycle break of the
+                // "codec layer owns pointer dispatch" layering. Found at instantiation
+                // via ADL on the archive type; a TU serializing such a pointer must
+                // include GArchivePolymorphic.hpp (registration sites / choke points do).
+                gem_serialize_pointer(d(), v);
+            } else {
+                // NON-polymorphic owning pointer to a concrete, final type (no
+                // hierarchy / no derived types): the analogue of Boost serializing a
+                // shared_ptr<Concrete> by value. No tag/registry -- just a present
+                // flag plus the pointee serialized inline. Reconstructed on load with
+                // the pointee's accessible default constructor.
+                d().begin_object();
+                bool present = static_cast<bool>(v);
+                d().member("present");
+                process(present);
+                if (present) {
+                    d().member("value");
+                    process(*v);
+                }
+                d().end_object();
+            }
         } else {
             static_assert(detail::serializable_class<Derived, U>,
                           "GOArchiveT: type is neither a supported primitive/container/pointer nor a serializable "
@@ -853,8 +877,28 @@ private:
             }
             d().end_seq();
         } else if constexpr (detail::is_smart_ptr<U>::value) {
-            // Polymorphic owning pointer -- see the matching note in GOArchiveT.
-            gem_serialize_pointer(d(), v);
+            if constexpr (detail::has_common_root<typename U::element_type>) {
+                // POLYMORPHIC owning pointer -- see the matching note in GOArchiveT.
+                gem_serialize_pointer(d(), v);
+            } else {
+                // NON-polymorphic owning pointer to a concrete type -- see GOArchiveT.
+                d().enter_object();
+                bool present = false;
+                d().member("present");
+                process(present);
+                if (present) {
+                    using Pointee = typename U::element_type;
+                    static_assert(std::is_default_constructible_v<Pointee>,
+                                  "GIArchiveT: a non-polymorphic owned pointer needs an accessible "
+                                  "default-constructible pointee to reconstruct on load");
+                    v.reset(new Pointee()); // reset(ptr) serves unique_ptr and shared_ptr alike
+                    d().member("value");
+                    process(*v);
+                } else {
+                    v.reset();
+                }
+                d().leave_object();
+            }
         } else {
             static_assert(detail::serializable_class<Derived, U>,
                           "GIArchiveT: type is neither a supported primitive/container/pointer nor a serializable "

@@ -47,6 +47,7 @@
 #include <boost/serialization/nvp.hpp>
 
 // Geneva headers
+#include "common/GArchiveNamed.hpp"             // archive_named (boost-vs-GArchive member emitter)
 #include "common/GCommonHelperFunctions.hpp"    // timeAndPlace
 #include "common/GErrorStreamer.hpp"            // g_error_streamer, DO_LOG
 #include "common/GExceptions.hpp"
@@ -134,28 +135,29 @@ class g_processing_exception : public geneva_exception {
 class GProcessable {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
+    friend struct Gem::Common::archive::access;
 
     /**
      * @brief Serialises the non-generic lifecycle state (status, errors, routing ids, timing).
      * The transient dispatch-scheduling state (dispatch_state_) is deliberately NOT serialised.
      *
-     * @tparam Archive The Boost.Serialization archive type
+     * @tparam Archive The archive type (Boost.Serialization or a GArchive codec)
      * @param ar The archive to (de)serialise the lifecycle state with
      * @param version The (unused) serialization version number
      */
     template <typename Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
-        using boost::serialization::make_nvp;
+        using Gem::Common::archive_named;
         // The stable lineage id travels by value (its two 64-bit halves) so a wire / checkpoint round-trip
         // PRESERVES it -- see detail::LineageId for why this preserves while clone() mints fresh.
-        ar &make_nvp("submission_uuid_hi", submission_uuid_.value[0]) &
-            make_nvp("submission_uuid_lo", submission_uuid_.value[1]) &
-            BOOST_SERIALIZATION_NVP(correlation_id_) &
-            BOOST_SERIALIZATION_NVP(pre_processing_time_) &
-            BOOST_SERIALIZATION_NVP(processing_time_) &
-            BOOST_SERIALIZATION_NVP(post_processing_time_) &
-            BOOST_SERIALIZATION_NVP(stored_error_descriptions_) &
-            BOOST_SERIALIZATION_NVP(processing_status_);
+        archive_named(ar, "submission_uuid_hi", submission_uuid_.value[0]);
+        archive_named(ar, "submission_uuid_lo", submission_uuid_.value[1]);
+        archive_named(ar, "correlation_id_", correlation_id_);
+        archive_named(ar, "pre_processing_time_", pre_processing_time_);
+        archive_named(ar, "processing_time_", processing_time_);
+        archive_named(ar, "post_processing_time_", post_processing_time_);
+        archive_named(ar, "stored_error_descriptions_", stored_error_descriptions_);
+        archive_named(ar, "processing_status_", processing_status_);
     }
     ///////////////////////////////////////////////////////////////////////
 

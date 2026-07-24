@@ -42,6 +42,7 @@
 #include <boost/serialization/shared_ptr.hpp>
 
 // Geneva header files go here
+#include "common/GArchiveNamed.hpp"               // archive_named (boost-vs-GArchive member emitter)
 #include "common/GCommonHelperFunctionsT.hpp"     // copyCloneableSmartPointer
 #include "common/GCommonMathHelperFunctionsT.hpp"  // grational_sigmoid
 #include "common/GExceptions.hpp"
@@ -85,20 +86,22 @@ class GOptimizableEntity;
 class GProblemPolicy {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
+    friend struct Gem::Common::archive::access;
 
     /**
      * @brief Serialises the shared policy: the four scalar rules plus the (polymorphic) constraint.
-     * @tparam Archive The Boost.Serialization archive type
+     * @tparam Archive The archive type (Boost.Serialization or a GArchive codec)
      * @param ar The archive to (de)serialise with
      * @param version The (unused) serialization version number
      */
     template <typename Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
-        ar &BOOST_SERIALIZATION_NVP(maxmode_) &
-            BOOST_SERIALIZATION_NVP(eval_policy_) &
-            BOOST_SERIALIZATION_NVP(sigmoid_steepness_) &
-            BOOST_SERIALIZATION_NVP(sigmoid_extremes_) &
-            BOOST_SERIALIZATION_NVP(constraint_ptr_);
+        using Gem::Common::archive_named;
+        archive_named(ar, "maxmode_", maxmode_);
+        archive_named(ar, "eval_policy_", eval_policy_);
+        archive_named(ar, "sigmoid_steepness_", sigmoid_steepness_);
+        archive_named(ar, "sigmoid_extremes_", sigmoid_extremes_);
+        archive_named(ar, "constraint_ptr_", constraint_ptr_);
     }
     ///////////////////////////////////////////////////////////////////////
 

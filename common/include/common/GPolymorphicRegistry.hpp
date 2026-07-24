@@ -103,6 +103,24 @@ namespace Gem::Common {
  * static-destruction-order hazards. Its maps are mutex-guarded so a plugin load
  * on one thread cannot race a lookup on another.
  *
+ * @par Cross-module singleton (the pluggable-OA / pluggable-individual guarantee)
+ * A loadable OA/individual plugin registers its concrete types (@ref GEM_REGISTER_TYPE /
+ * @c GEM_REGISTER_ARCHIVABLE) from the plugin's own @c .so, exactly as it carries a
+ * @c BOOST_CLASS_EXPORT today. For that registration to be visible to the host that
+ * serializes the type, the plugin and the host must share @b one @ref instance(). Two
+ * project-wide conditions make that so, and both must hold:
+ *   - @c GModuleLoader @c dlopen's every plugin @c RTLD_GLOBAL @c | @c RTLD_NOW, so the
+ *     plugin's references to this template's vague-linkage singleton resolve against the
+ *     definition already loaded from @c libgemfony-common (RTLD_NOW forces the binding,
+ *     and the registering static initializer, at plugin load);
+ *   - Geneva builds with default ELF symbol visibility (no @c -fvisibility=hidden), so the
+ *     singleton's guard/state symbols are interposable weak symbols rather than
+ *     module-private ones.
+ * This is the same interposition Boost.Serialization's own singleton relies on. If a future
+ * build ever adopts hidden visibility, this singleton (and @c GArchivePointerDispatch's) must
+ * be marked default-visible (as Boost marks its registry @c BOOST_SYMBOL_VISIBLE), or a
+ * plugin's registrations would land in a per-module copy and fail as "unknown tag" at the read.
+ *
  * @tparam Root The category root of the hierarchy this registry serves.
  */
 template <typename Root>

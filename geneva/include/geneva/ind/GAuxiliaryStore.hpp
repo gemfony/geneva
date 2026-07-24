@@ -51,6 +51,7 @@
 #include <boost/serialization/shared_ptr.hpp>
 
 // Geneva headers go here
+#include "common/GArchiveNamed.hpp" // archive_named / archive_named_binary (boost-vs-GArchive emitters)
 #include "common/GCommonHelperFunctionsT.hpp"
 #include "common/GExceptions.hpp"
 #include "geneva/GPersonalityTraits.hpp"
@@ -92,22 +93,20 @@ struct AuxBlock {
      */
     template <typename Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
+        using Gem::Common::archive_named;
         auto scope_u = std::to_underlying(scope);
-        ar &boost::serialization::make_nvp("scope", scope_u);
+        archive_named(ar, "scope", scope_u);
         scope = static_cast<AuxScope>(scope_u);
 
-        ar &boost::serialization::make_nvp("stride", stride);
+        archive_named(ar, "stride", stride);
 
         std::size_t n_bytes = bytes.size();
-        ar &boost::serialization::make_nvp("n_bytes", n_bytes);
+        archive_named(ar, "n_bytes", n_bytes);
         if(n_bytes != bytes.size()) {
             bytes.resize(n_bytes); // on load
         }
         if(n_bytes > 0) {
-            ar &boost::serialization::make_nvp(
-                "bytes",
-                boost::serialization::make_binary_object(bytes.data(), n_bytes)
-            );
+            Gem::Common::archive_named_binary(ar, "bytes", bytes.data(), n_bytes);
         }
     }
 };
@@ -316,19 +315,21 @@ private:
     // optimization forward; this lets a resumed algorithm keep its evolved scratch (sigma, swarm
     // velocity / personal-best, conjugate-gradient memory, personality) instead of restarting it.
     friend class boost::serialization::access;
+    friend struct Gem::Common::archive::access;
 
     /**
      * @brief Full-state (de)serialization of the personality object and the opaque POD blocks
      *
-     * @tparam Archive The Boost.Serialization archive type
+     * @tparam Archive The archive type (Boost.Serialization or a GArchive codec)
      * @param ar The archive to serialize to / from
      * @param version The serialization version (unused)
      */
     template <typename Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
-        ar &boost::serialization::make_nvp("personality_", personality_);
-        ar &boost::serialization::make_nvp("pods_", pods_);
-        ar &boost::serialization::make_nvp("n_adaptions_", n_adaptions_);
+        using Gem::Common::archive_named;
+        archive_named(ar, "personality_", personality_);
+        archive_named(ar, "pods_", pods_);
+        archive_named(ar, "n_adaptions_", n_adaptions_);
     }
 
     /***************************************************************************/

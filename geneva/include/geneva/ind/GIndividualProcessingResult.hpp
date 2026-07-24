@@ -41,6 +41,7 @@
 #include <boost/serialization/nvp.hpp>
 
 // Geneva header files go here
+#include "common/GArchiveNamed.hpp" // archive_named (boost-vs-GArchive member emitter)
 #include "common/GExceptions.hpp"
 #include "common/GLogger.hpp"
 
@@ -58,19 +59,19 @@ namespace Gem::Geneva::Genome {
 class individual_processing_result {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
+    friend struct Gem::Common::archive::access;
 
     /**
-     * @brief Serializes this object to/from a Boost archive
-     * @tparam Archive The Boost.Serialization archive type
+     * @brief Serializes this object to/from a Boost archive or a GArchive codec
+     * @tparam Archive The archive type (Boost.Serialization or a GArchive codec)
      * @param ar The archive to read from or write to
      * @param version The serialization version (unused)
      */
     template <typename Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
-        using boost::serialization::make_nvp;
-        ar &BOOST_SERIALIZATION_NVP(raw_fitness_) &
-            BOOST_SERIALIZATION_NVP(transformed_fitness_) &
-            BOOST_SERIALIZATION_NVP(transformed_fitness_set_);
+        Gem::Common::archive_named(ar, "raw_fitness_", raw_fitness_);
+        Gem::Common::archive_named(ar, "transformed_fitness_", transformed_fitness_);
+        Gem::Common::archive_named(ar, "transformed_fitness_set_", transformed_fitness_set_);
     }
     ///////////////////////////////////////////////////////////////////////
 
