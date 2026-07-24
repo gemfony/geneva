@@ -654,7 +654,7 @@ CONFIGURE_PACKAGE_CONFIG_FILE(
 # Version compatibility policy: SameMinorVersion. Geneva's minor version encodes
 # release vs. development series (even = production, odd = development) and the
 # ABI of the shared libraries may change between minor releases, so a consumer
-# that requested e.g. 1.12 must not silently be satisfied by 1.14.
+# that requested e.g. 2.0 must not silently be satisfied by 2.2.
 WRITE_BASIC_PACKAGE_VERSION_FILE(
 	${CMAKE_CURRENT_BINARY_DIR}/GenevaConfigVersion.cmake
 	VERSION ${GENEVA_VERSION}

@@ -6,7 +6,7 @@ Per-library documentation directory for the **Geneva** library
 algorithms -- EA, SA, swarm, CGD, Nelder-Mead, parameter scan, ACO,
 PSO, generalized SA, sepCMA-ES, the meta-EA -- per-category
 `GCommonInterfaceT<Root>` CRTP roots, individuals, pluggable monitors;
-absorbed the former geneva-individuals library in 1.12.0).
+absorbed the former geneva-individuals library in the 1.99 redesign).
 
 ## Building the docs
 

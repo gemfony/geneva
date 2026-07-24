@@ -71,12 +71,12 @@
  * The three component macros below are the single source of truth; GENEVA_VERSION
  * composes them into one monotonically comparable integer
  *   major * 10000 + minor * 100 + patch
- * so that e.g. 1.12.0 → 11200 and ordinary version tests such as
- *   #if GENEVA_VERSION >= 11200
+ * so that e.g. 1.99.0 → 19900 and ordinary version tests such as
+ *   #if GENEVA_VERSION >= 19900
  * work. Each component is a plain decimal literal (no leading zero), so no value is
- * ever silently reinterpreted as octal — the historical packed-literal form "01120"
- * was an octal literal (= 592) and would have become an invalid octal literal as
- * soon as a minor/patch digit reached 8 or 9.
+ * ever silently reinterpreted as octal — the historical packed-literal form (e.g.
+ * "019900") was an octal literal and, once a minor/patch digit reached 8 or 9 as it
+ * has here, would have been an outright invalid octal literal.
  *
  * Keep in sync with VERSION_MAJOR / VERSION_MINOR / VERSION_PATCH / VERSION_SUFFIX in the
  * top-level CMakeLists.txt.

@@ -1,9 +1,10 @@
 //------------------------------------------------------------------------------------------------------
-* Version 1.12.0 "Puente de Santiago" - May 02, 2026
+* Version 1.99.0-beta1 "Puente de Santiago" - May 02, 2026
 
-Version 1.12 is not an incremental release: it is a ground-up REDESIGN of Geneva and the
+Version 1.99.0-beta1 is not an incremental release: it is a ground-up REDESIGN of Geneva and the
 start of a revived, actively developed code base. Relative to 1.11 "Hendaye" it is a
-single, large, breaking change.
+single, large, breaking change. The 1.99.x betas stabilize this redesign toward its first
+production release, 2.0.
 
 Why the redesign:
 - To revive active development of Geneva after a long quiet period, on a foundation that is

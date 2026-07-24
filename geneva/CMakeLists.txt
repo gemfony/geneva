@@ -28,7 +28,7 @@
 ################################################################################
 #
 # Orchestrator for the self-contained Geneva library subtree (the largest
-# of the four; absorbed the former geneva-individuals library in 1.12.0).
+# of the four; absorbed the former geneva-individuals library in the 1.99 redesign).
 #
 # Layout (per the 2026-05-28 repo-layout reorganisation):
 #   geneva/include/geneva/             public headers (install layout 1:1)
