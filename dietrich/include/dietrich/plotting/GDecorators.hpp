@@ -468,7 +468,7 @@ class GDecoratorContainer<dimensions::Dim2, coordinate_type>
      * data_cnt_ rides in localMembers_, so this ties the same single vector the base_object<GPtrContainerT>
      * form used to (no base_object needed; the GCommonInterfaceT root is stateless). load_/compare_/name_/
      * clone_ still fold onto the mixin.
-     * @tparam Archive The Boost.Serialization archive type
+     * @tparam Archive The GArchive codec type
      * @param ar The archive to serialize to / from
      * @param version The (unused) class version supplied by Boost.Serialization
      */
@@ -660,7 +660,7 @@ class GDecoratorContainer<dimensions::Dim3, coordinate_type>
      * @brief One-line serialize(): DISAMBIGUATES the two inherited serialize()s
      * (GReflectiveInterfaceBaseT's and GPtrContainerT's); data_cnt_ rides in localMembers_, so it ties the
      * same single vector base_object<GPtrContainerT> used to. load_/compare_/name_/clone_ fold onto the mixin.
-     * @tparam Archive The Boost.Serialization archive type
+     * @tparam Archive The GArchive codec type
      * @param ar The archive to serialize to / from
      * @param version The (unused) class version supplied by Boost.Serialization
      */

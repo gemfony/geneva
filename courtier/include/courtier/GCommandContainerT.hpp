@@ -83,7 +83,7 @@ class GCommandContainerT {
      * version-free format that round-trips for every command. The layout id's two 64-bit halves are
      * streamed individually so no std::array archive support is required.
      *
-     * @tparam Archive The Boost.Serialization archive type
+     * @tparam Archive The GArchive codec type
      * @param ar The archive to read from / write to
      * @param version The class version (unused)
      */

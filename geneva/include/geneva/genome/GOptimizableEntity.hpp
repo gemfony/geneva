@@ -155,7 +155,7 @@ class GOptimizableEntity // NOLINT(cppcoreguidelines-special-member-functions)
      * checkpoint, omitted on the wire, via make_wire_omitted_ptr_member) -- comes from localMembers_(). The
      * stateless GCommonInterfaceT root and GRateableI interface contribute nothing.
      *
-     * @tparam Archive The Boost.Serialization archive type
+     * @tparam Archive The GArchive codec type
      * @param ar The archive to read from or write to
      * @param version The serialization version (unused)
      */

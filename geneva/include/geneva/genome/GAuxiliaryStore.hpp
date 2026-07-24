@@ -82,7 +82,7 @@ struct AuxBlock {
      * tag. It therefore stays at its default 0 on load, which metaRecords()'s debug check treats as
      * "type-unchecked" (the stride / size check, which IS stable, still applies).
      *
-     * @tparam Archive The Boost.Serialization archive type
+     * @tparam Archive The GArchive codec type
      * @param ar The archive to serialize to / from
      * @param version The serialization version (unused)
      */

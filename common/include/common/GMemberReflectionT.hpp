@@ -95,7 +95,7 @@ namespace Gem::Common {
 struct ser_emit {
     /**
      * @brief Serializes the member by NVP.
-     * @tparam Archive The Boost.Serialization archive type
+     * @tparam Archive The GArchive codec type
      * @tparam T The referenced member type
      * @param ar The archive to serialize through
      * @param name The NVP tag (a static string literal with static storage duration)
@@ -111,7 +111,7 @@ struct ser_emit {
 struct ser_skip {
     /**
      * @brief Emits nothing: the member is excluded from the folded serialize().
-     * @tparam Archive The Boost.Serialization archive type
+     * @tparam Archive The GArchive codec type
      * @tparam T The referenced member type
      */
     template <typename Archive, typename T>
@@ -132,7 +132,7 @@ template <typename Base>
 struct ser_base_object {
     /**
      * @brief Serialises the Base slice of @p derived under @p name.
-     * @tparam Archive The Boost.Serialization archive type
+     * @tparam Archive The GArchive codec type
      * @tparam Derived The (deduced) derived type carrying the Base subobject
      * @param ar The archive to serialize through
      * @param name The NVP tag
@@ -528,7 +528,7 @@ void g_load_members(DstTuple dst, SrcTuple src) {
  * class's serialize() derive its member list from the same single localMembers() declaration that
  * load_() and compare_() use.
  *
- * @tparam Archive The Boost.Serialization archive type
+ * @tparam Archive The GArchive codec type
  * @tparam T The referenced member type
  * @tparam Ser The serialize policy applied
  * @tparam Load The (unused here) load policy
@@ -543,7 +543,7 @@ void g_serialize_one(Archive &ar, member_desc<T, Ser, Load, Cmp> &m) {
 
 /**
  * @brief Serializes each entry of a localMembers() tuple (implementation helper).
- * @tparam Archive The Boost.Serialization archive type
+ * @tparam Archive The GArchive codec type
  * @tparam Tuple The localMembers() tuple type
  * @tparam I The compile-time member indices expanded by the fold
  * @param ar The archive to serialize through
@@ -557,7 +557,7 @@ void serialize_members_impl(Archive &ar, Tuple &members, [[maybe_unused]] std::i
 
 /**
  * @brief Serializes every entry of a localMembers() tuple through the archive, name by name.
- * @tparam Archive The Boost.Serialization archive type
+ * @tparam Archive The GArchive codec type
  * @tparam Tuple The localMembers() tuple type
  * @param ar The archive to serialize through
  * @param members The localMembers() tuple whose entries are serialized (taken by value)

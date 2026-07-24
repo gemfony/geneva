@@ -130,7 +130,7 @@ class GGenome // NOLINT(cppcoreguidelines-special-member-functions)
      * @brief Serialises the genome: the four value channels plus the shared structural layout, the latter
      * either by value (self-contained form) or by content id (transport send-once form), as selected by
      * the active wire-serialisation scope. See the body for the two forms.
-     * @tparam Archive The Boost.Serialization archive type
+     * @tparam Archive The GArchive codec type
      * @param ar The archive to write the genome into
      * @param version The (unused) serialization version number
      */
@@ -187,7 +187,7 @@ class GGenome // NOLINT(cppcoreguidelines-special-member-functions)
      * @brief Restores the genome from an archive: the value channels plus a freshly-owned layout, read
      * either by value or resolved from a content id against the wire registry (with a cache-miss fetch),
      * following the self-describing tag written by save().
-     * @tparam Archive The Boost.Serialization archive type
+     * @tparam Archive The GArchive codec type
      * @param ar The archive to read the genome from
      * @param version The (unused) serialization version number
      */
