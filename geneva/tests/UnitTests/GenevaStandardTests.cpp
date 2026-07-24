@@ -36,6 +36,7 @@
 #include <cmath>
 
 // All classes that will be tested in this file
+#include "weft/GArchivePolymorphic.hpp" // GEM_REGISTER_ARCHIVABLE (probe types)
 #include "geneva/individuals/GDelayIndividual.hpp"
 #include "geneva/individuals/GExternalEvaluatorIndividual.hpp"
 #include "geneva/individuals/GFunctionIndividual.hpp"
@@ -270,7 +271,7 @@ TEST_CASE(
     using Gem::Common::serializationMode;
 
     for (auto mode :
-         {serializationMode::TEXT, serializationMode::XML, serializationMode::BINARY}) {
+         {serializationMode::GEM_BINARY, serializationMode::GEM_JSON}) {
         // Non-default value so the round-trip actually exercises the member
         // (the default is 1.0; a serialize that dropped it would still pass at 1.0).
         gind::GDoubleSumConstraint const original(3.5);
@@ -296,7 +297,7 @@ TEST_CASE(
     using Gem::Common::serializationMode;
 
     for (auto mode :
-         {serializationMode::TEXT, serializationMode::XML, serializationMode::BINARY}) {
+         {serializationMode::GEM_BINARY, serializationMode::GEM_JSON}) {
         // Non-default value (default 1.0): catches the previously-latent bug where
         // GSphereConstraint::serialize() did not store diameter_ at all.
         gind::GSphereConstraint const original(3.5);
@@ -322,7 +323,7 @@ TEST_CASE(
     using Gem::Common::serializationMode;
 
     for (auto mode :
-         {serializationMode::TEXT, serializationMode::XML, serializationMode::BINARY}) {
+         {serializationMode::GEM_BINARY, serializationMode::GEM_JSON}) {
         // Non-default values (defaults 1.0 / 0.5) so both members are exercised.
         gind::GDoubleSumGapConstraint const original(3.5, 1.25);
         gind::GDoubleSumGapConstraint restored(2.0, 0.25);
@@ -350,7 +351,7 @@ TEST_CASE(
     using Gem::Common::serializationMode;
 
     for (auto mode :
-         {serializationMode::TEXT, serializationMode::XML, serializationMode::BINARY}) {
+         {serializationMode::GEM_BINARY, serializationMode::GEM_JSON}) {
         gind::GExternalEvaluatorIndividual original;
         original.setRunId("custom-run-id-xyz");
         gind::GExternalEvaluatorIndividual restored;
@@ -391,7 +392,7 @@ TEST_CASE(
     using Gem::Common::serializationMode;
 
     for (auto mode :
-         {serializationMode::TEXT, serializationMode::XML, serializationMode::BINARY}) {
+         {serializationMode::GEM_BINARY, serializationMode::GEM_JSON}) {
         oa::GEvolutionaryAlgorithm original;
         // Set several oa::GOptimizationAlgorithmBase members to non-default values via public setters.
         // "." is an always-existing directory, so setCheckpointBaseName creates nothing.
@@ -469,7 +470,7 @@ TEST_CASE(
 
     // --- wire round-trip in all three modes ---
     for (auto mode :
-         {serializationMode::TEXT, serializationMode::XML, serializationMode::BINARY}) {
+         {serializationMode::GEM_BINARY, serializationMode::GEM_JSON}) {
         gind::GTestIndividual1 const original = make_original();
         gind::GTestIndividual1 restored; // defaults
 
@@ -547,7 +548,7 @@ TEST_CASE(
 
     // --- wire round-trip in all three modes ---
     for (auto mode :
-         {serializationMode::TEXT, serializationMode::XML, serializationMode::BINARY}) {
+         {serializationMode::GEM_BINARY, serializationMode::GEM_JSON}) {
         oa::GSwarmAlgorithm const original = makeOriginal();
         oa::GSwarmAlgorithm restored;
         restored.setCPersonal(0.1);
@@ -611,7 +612,7 @@ TEST_CASE(
 
     // --- wire round-trip in all three modes ---
     for (auto mode :
-         {serializationMode::TEXT, serializationMode::XML, serializationMode::BINARY}) {
+         {serializationMode::GEM_BINARY, serializationMode::GEM_JSON}) {
         oa::GParameterScan const original = makeOriginal();
         oa::GParameterScan restored;
         restored.setScanRandomly(true);
@@ -664,7 +665,7 @@ TEST_CASE(
 
     // --- wire round-trip in all three modes (polymorphic serialize of every leaf) ---
     for (auto mode :
-         {serializationMode::TEXT, serializationMode::XML, serializationMode::BINARY}) {
+         {serializationMode::GEM_BINARY, serializationMode::GEM_JSON}) {
         oa::GParameterScan const original = makeOriginal();
         oa::GParameterScan restored;
         REQUIRE_NOTHROW(restored.fromString(original.toString(mode), mode));
@@ -684,6 +685,7 @@ TEST_CASE(
 // GOptimizationAlgorithmBase fold introduced (its best_iteration_individuals_pq_ is exactly this kind).
 namespace {
 class GPolicyProbe : public Gem::Common::GReflectiveInterfaceT<GPolicyProbe, Gem::Common::GCommonInterfaceT<GPolicyProbe>> {
+    friend struct Gem::Weft::access;
     friend struct Gem::Common::GReflectiveInterfaceAccess;
 
     template <typename Self>
@@ -709,6 +711,8 @@ protected:
     void specificTestsFailuresExpected_GUnitTests_() override { /* nothing */ }
 };
 } // anonymous namespace
+
+GEM_REGISTER_ARCHIVABLE(GPolicyProbe) // NOLINT
 
 TEST_CASE(
     "member descriptor policies: transient is compared yet not serialized (vs load-only)",
@@ -750,7 +754,7 @@ TEST_CASE(
 
     // --- serialize: only the plain member travels; load-only and transient are skipped ---
     for (auto mode :
-         {serializationMode::TEXT, serializationMode::XML, serializationMode::BINARY}) {
+         {serializationMode::GEM_BINARY, serializationMode::GEM_JSON}) {
         GPolicyProbe restored; // members default to 0
         restored.fromString(a.toString(mode), mode);
         CHECK(restored.plain_ == 1);     // serialized -> survives the wire
@@ -769,7 +773,7 @@ struct GProbeBase {
     /** @brief Boost serialization of the base slice (public so base_object can reach it). */
     template <typename Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
-        ar & boost::serialization::make_nvp("base_val_", base_val_);
+        Gem::Common::archive_named(ar, "base_val_", base_val_);
     }
 };
 
@@ -777,6 +781,7 @@ class GBaseObjectProbe
   : public GProbeBase
   , public Gem::Common::GReflectiveInterfaceT<GBaseObjectProbe, Gem::Common::GCommonInterfaceT<GBaseObjectProbe>> {
     friend class boost::serialization::access;
+    friend struct Gem::Weft::access;
     friend struct Gem::Common::GReflectiveInterfaceAccess;
 
     template <typename Self>
@@ -805,6 +810,8 @@ protected:
     void specificTestsFailuresExpected_GUnitTests_() override { /* nothing */ }
 };
 } // anonymous namespace
+
+GEM_REGISTER_ARCHIVABLE(GBaseObjectProbe) // NOLINT
 
 TEST_CASE(
     "member descriptor policies: make_base_object_member carries a stateful base",
@@ -839,7 +846,7 @@ TEST_CASE(
 
     // --- serialize: the base slice travels via base_object ---
     for (auto mode :
-         {serializationMode::TEXT, serializationMode::XML, serializationMode::BINARY}) {
+         {serializationMode::GEM_BINARY, serializationMode::GEM_JSON}) {
         GBaseObjectProbe restored;
         restored.fromString(a.toString(mode), mode);
         CHECK(restored.base_val_ == 7); // base slice survived via base_object

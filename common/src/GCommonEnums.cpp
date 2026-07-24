@@ -73,12 +73,6 @@ std::ostream &operator<<(std::ostream &o, Gem::Common::tribool const &x) {
  */
 std::string serModeToString(Gem::Common::serializationMode ser_mod) {
     switch(ser_mod) {
-    case Gem::Common::serializationMode::TEXT:
-        return "TEXT";
-    case Gem::Common::serializationMode::XML:
-        return "XML";
-    case Gem::Common::serializationMode::BINARY:
-        return "BINARY";
     case Gem::Common::serializationMode::GEM_BINARY:
         return "GEM_BINARY";
     case Gem::Common::serializationMode::GEM_JSON:

@@ -44,8 +44,6 @@
 
 #include <sstream>
 
-#include <boost/archive/binary_iarchive.hpp>
-#include <boost/archive/binary_oarchive.hpp>
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/export.hpp>
 #include <boost/serialization/nvp.hpp>
@@ -154,12 +152,10 @@ private:
     }
 
     friend class boost::serialization::access;
+    friend struct Gem::Weft::access;
     template <typename Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
-        ar &boost::serialization::make_nvp(
-            "GGenomeT",
-            boost::serialization::base_object<GGenomeT<Sphere>>(*this)
-        );
+        Gem::Common::archive_named_base<GGenomeT<Sphere>>(ar, "GGenomeT", *this);
     }
 };
 
@@ -266,19 +262,19 @@ protected:
 
 private:
     friend class boost::serialization::access;
+    friend struct Gem::Weft::access;
     template <typename Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
-        ar &boost::serialization::make_nvp(
-            "GGenomeT",
-            boost::serialization::base_object<GGenomeT<FactorySphere>>(*this)
-        );
+        Gem::Common::archive_named_base<GGenomeT<FactorySphere>>(ar, "GGenomeT", *this);
     }
 };
 
 } // namespace Gem::Tests
 
 BOOST_CLASS_EXPORT(Gem::Tests::Sphere)    // NOLINT
+GEM_REGISTER_ARCHIVABLE(Gem::Tests::Sphere) // NOLINT
 BOOST_CLASS_EXPORT(Gem::Tests::FactorySphere) // NOLINT
+GEM_REGISTER_ARCHIVABLE(Gem::Tests::FactorySphere) // NOLINT
 
 // Register GemSphere for GArchive polymorphic dispatch: toString/fromString serialize the individual
 // through a GOptimizableEntity root pointer, so the GArchive codec arm needs its tag <-> factory entry.
@@ -401,17 +397,16 @@ TEST_CASE("GGenomeLayout::layoutId survives the WIRE-BLOB round-trip", "[flat][l
         CHECK(same);                 // false -> reconstruction changed the structure (serialize bug)
         CHECK(id2 == id1);           // false while same==true -> the HASH is unstable (hash bug)
 
-        // The genome's inline layout-by-value path uses the OUTER archive, whose format follows the
-        // consumer's serialization mode (may be XML/text, not binary). Does a non-binary round-trip
-        // preserve the content id (which folds exact double bit patterns)?
-        std::ostringstream oss;
-        { boost::archive::xml_oarchive oa(oss); GGenomeLayout cp = *orig;
-          oa << boost::serialization::make_nvp("l", cp); }
-        auto back_xml = std::make_shared<GGenomeLayout>();
-        std::istringstream iss(oss.str());
-        { boost::archive::xml_iarchive ia(iss); ia >> boost::serialization::make_nvp("l", *back_xml); }
-        CHECK(back_xml->sameStructure(*orig));      // structurally equal (same VALUES)?
-        CHECK(back_xml->layoutId() == id1);         // but is the content id (bit-pattern hash) preserved?
+        // The genome's inline layout-by-value path uses the OUTER archive, which for a non-binary
+        // consumer mode is GEM_JSON. Does a non-binary (JSON) round-trip preserve the content id
+        // (which folds exact double bit patterns)?
+        std::string layout_json;
+        { Gem::Weft::GJsonOArchive oa; GGenomeLayout cp = *orig;
+          oa &Gem::Weft::make_nvp("l", cp); layout_json = oa.str(); }
+        auto back_json = std::make_shared<GGenomeLayout>();
+        { Gem::Weft::GJsonIArchive ia(layout_json); ia &Gem::Weft::make_nvp("l", *back_json); }
+        CHECK(back_json->sameStructure(*orig));     // structurally equal (same VALUES)?
+        CHECK(back_json->layoutId() == id1);        // but is the content id (bit-pattern hash) preserved?
 
         // Multi-hop: server->worker->server. Does re-serializing the RECONSTRUCTED layout keep the id?
         const auto back2 = layoutFromWireBlob(layoutToWireBlob(*back));
@@ -449,8 +444,8 @@ TEST_CASE("GGenomeLayout::layoutId survives a serialization round-trip", "[flat]
     const LayoutId before = ind.getLayout()->layoutId();
 
     Sphere restored;
-    restored.fromString(ind.toString(Gem::Common::serializationMode::BINARY),
-                        Gem::Common::serializationMode::BINARY);
+    restored.fromString(ind.toString(Gem::Common::serializationMode::GEM_BINARY),
+                        Gem::Common::serializationMode::GEM_BINARY);
     CHECK(restored.getLayout()->layoutId() == before);
     CHECK(restored.getLayout()->sameStructure(*ind.getLayout()));
 }
@@ -526,10 +521,10 @@ TEST_CASE("GGenomeBuilder: interned group labels", "[flat]") {
     // Serialize round-trip (through a GGenome) preserves the labels + their resolution.
     Sphere ind;
     ind.setGenome(g);
-    const std::string xml = ind.toString(Gem::Common::serializationMode::XML);
+    const std::string xml = ind.toString(Gem::Common::serializationMode::GEM_JSON);
 
     Sphere restored;
-    restored.fromString(xml, Gem::Common::serializationMode::XML);
+    restored.fromString(xml, Gem::Common::serializationMode::GEM_JSON);
 
     std::shared_ptr<const GGenomeLayout> RL = restored.getLayout();
     REQUIRE(RL);
@@ -561,8 +556,8 @@ TEST_CASE("GGenome: layout interning round-trips losslessly (compact + escape ro
     REQUIRE(L);
 
     Sphere restored;
-    restored.fromString(ind.toString(Gem::Common::serializationMode::BINARY),
-                        Gem::Common::serializationMode::BINARY);
+    restored.fromString(ind.toString(Gem::Common::serializationMode::GEM_BINARY),
+                        Gem::Common::serializationMode::GEM_BINARY);
     auto RL = restored.getLayout();
     REQUIRE(RL);
     // The reconstructed per-value arrays must be identical to the original.
@@ -589,16 +584,16 @@ TEST_CASE("GGenome: layout interning round-trips losslessly (compact + escape ro
     ch.fold = {std::uint8_t{1}, std::uint8_t{1}, std::uint8_t{0}};
     ch.active = {1, 1, 1};
 
-    std::ostringstream oss;
+    std::string ch_blob;
     {
-        boost::archive::binary_oarchive oa(oss);
-        oa << ch;
+        Gem::Weft::GBinaryOArchive oa;
+        oa &Gem::Weft::make_nvp("ch", ch);
+        ch_blob = oa.str();
     }
     ChannelLayout<double> ch2;
     {
-        std::istringstream iss(oss.str());
-        boost::archive::binary_iarchive ia(iss);
-        ia >> ch2;
+        Gem::Weft::GBinaryIArchive ia(ch_blob);
+        ia &Gem::Weft::make_nvp("ch", ch2);
     }
     CHECK(ch2.lower == ch.lower);
     CHECK(ch2.upper == ch.upper);
@@ -691,10 +686,10 @@ TEST_CASE("GGenome: serialization round-trip", "[flat]") {
     Sphere ind(5);
     ind.assignValueVector<double>(std::vector<double>{1., -2., 3., -4., 5.});
 
-    const std::string xml = ind.toString(Gem::Common::serializationMode::XML);
+    const std::string xml = ind.toString(Gem::Common::serializationMode::GEM_JSON);
 
     Sphere restored;
-    restored.fromString(xml, Gem::Common::serializationMode::XML);
+    restored.fromString(xml, Gem::Common::serializationMode::GEM_JSON);
 
     CHECK_NOTHROW(restored.compare(
         ind,
@@ -749,7 +744,7 @@ TEST_CASE("GGenome: a derived individual round-trips in TEXT, XML and BINARY",
     using mode = Gem::Common::serializationMode;
     const std::vector<double> vals{1., -2., 3., -4., 5.};
 
-    for(auto m : {mode::TEXT, mode::XML, mode::BINARY}) {
+    for(auto m : {mode::GEM_BINARY, mode::GEM_JSON}) {
         Sphere ind(5);
         ind.assignValueVector<double>(vals);
 
@@ -1042,12 +1037,10 @@ protected:
 
 private:
     friend class boost::serialization::access;
+    friend struct Gem::Weft::access;
     template <typename Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
-        ar &boost::serialization::make_nvp(
-            "GGenomeT",
-            boost::serialization::base_object<GGenomeT<Mixed>>(*this)
-        );
+        Gem::Common::archive_named_base<GGenomeT<Mixed>>(ar, "GGenomeT", *this);
     }
 };
 
@@ -1086,12 +1079,10 @@ protected:
 
 private:
     friend class boost::serialization::access;
+    friend struct Gem::Weft::access;
     template <typename Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
-        ar &boost::serialization::make_nvp(
-            "GGenomeT",
-            boost::serialization::base_object<GGenomeT<IntGauss>>(*this)
-        );
+        Gem::Common::archive_named_base<GGenomeT<IntGauss>>(ar, "GGenomeT", *this);
     }
 };
 
@@ -1124,20 +1115,21 @@ private:
     }
 
     friend class boost::serialization::access;
+    friend struct Gem::Weft::access;
     template <typename Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
-        ar &boost::serialization::make_nvp(
-            "GGenomeT",
-            boost::serialization::base_object<GGenomeT<ManyGroups>>(*this)
-        );
+        Gem::Common::archive_named_base<GGenomeT<ManyGroups>>(ar, "GGenomeT", *this);
     }
 };
 
 } // namespace Gem::Tests
 
 BOOST_CLASS_EXPORT(Gem::Tests::Mixed)       // NOLINT
+GEM_REGISTER_ARCHIVABLE(Gem::Tests::Mixed) // NOLINT
 BOOST_CLASS_EXPORT(Gem::Tests::IntGauss)    // NOLINT
+GEM_REGISTER_ARCHIVABLE(Gem::Tests::IntGauss) // NOLINT
 BOOST_CLASS_EXPORT(Gem::Tests::ManyGroups)  // NOLINT
+GEM_REGISTER_ARCHIVABLE(Gem::Tests::ManyGroups) // NOLINT
 
 using Gem::Tests::ManyGroups;
 using Gem::Tests::Mixed;
@@ -1208,9 +1200,9 @@ TEST_CASE("GGenome: mixed flip/bigauss genome serialises round-trip", "[flat][fl
         adapter.adapt(ind);
     }
 
-    const std::string xml = ind.toString(Gem::Common::serializationMode::XML);
+    const std::string xml = ind.toString(Gem::Common::serializationMode::GEM_JSON);
     Mixed restored;
-    restored.fromString(xml, Gem::Common::serializationMode::XML);
+    restored.fromString(xml, Gem::Common::serializationMode::GEM_JSON);
 
     CHECK_NOTHROW(restored.compare(
         ind,
@@ -1260,9 +1252,9 @@ TEST_CASE("GGenome: integer Gauss genome serialises round-trip", "[flat][intgaus
         adapter.adapt(ind);
     }
 
-    const std::string xml = ind.toString(Gem::Common::serializationMode::XML);
+    const std::string xml = ind.toString(Gem::Common::serializationMode::GEM_JSON);
     IntGauss restored;
-    restored.fromString(xml, Gem::Common::serializationMode::XML);
+    restored.fromString(xml, Gem::Common::serializationMode::GEM_JSON);
 
     CHECK_NOTHROW(restored.compare(
         ind,
@@ -1440,8 +1432,8 @@ TEST_CASE("Wire send-once: first item carries the layout, later items only the i
     std::string s_second;
     {
         GWireSerializationScope const scope(&server_ctx);
-        s_first = a.toString(mode::BINARY);  // first to peer 1 -> full layout inline
-        s_second = c.toString(mode::BINARY); // same layout id -> id-only
+        s_first = a.toString(mode::GEM_BINARY);  // first to peer 1 -> full layout inline
+        s_second = c.toString(mode::GEM_BINARY); // same layout id -> id-only
     }
     // The layout was interned once and peer 1 is recorded as holding it.
     CHECK(server_reg.size() == 1);
@@ -1460,9 +1452,9 @@ TEST_CASE("Wire send-once: first item carries the layout, later items only the i
     ManyGroups rc;
     {
         GWireSerializationScope const scope(&worker_ctx);
-        ra.fromString(s_first, mode::BINARY);
+        ra.fromString(s_first, mode::GEM_BINARY);
         CHECK(worker_reg.size() == 1); // the worker cached the layout it received
-        rc.fromString(s_second, mode::BINARY);
+        rc.fromString(s_second, mode::GEM_BINARY);
     }
     REQUIRE(ra.getLayout());
     REQUIRE(rc.getLayout());
@@ -1489,8 +1481,8 @@ TEST_CASE("Wire send-once: a cache miss is resolved by the fetch fallback", "[fl
     std::string s_idonly;
     {
         GWireSerializationScope const scope(&server_ctx);
-        (void)a.toString(mode::BINARY);          // first send: marks peer 1 as holding the layout
-        s_idonly = a.toString(mode::BINARY);     // second send: id-only
+        (void)a.toString(mode::GEM_BINARY);          // first send: marks peer 1 as holding the layout
+        s_idonly = a.toString(mode::GEM_BINARY);     // second send: id-only
     }
 
     // A late-joining / reconnected worker with an EMPTY cache receives the id-only item. Its fetch
@@ -1513,7 +1505,7 @@ TEST_CASE("Wire send-once: a cache miss is resolved by the fetch fallback", "[fl
     ManyGroups r;
     {
         GWireSerializationScope const scope(&worker_ctx);
-        r.fromString(s_idonly, mode::BINARY); // miss -> fetch -> reconstruct
+        r.fromString(s_idonly, mode::GEM_BINARY); // miss -> fetch -> reconstruct
     }
     CHECK(fetch_calls == 1);
     CHECK(worker_reg.size() == 1); // the fetched blob is now cached
@@ -1535,8 +1527,8 @@ TEST_CASE("Wire send-once: an unresolvable id-only reference throws", "[flat][wi
     std::string s_idonly;
     {
         GWireSerializationScope const scope(&server_ctx);
-        (void)a.toString(mode::BINARY);
-        s_idonly = a.toString(mode::BINARY);
+        (void)a.toString(mode::GEM_BINARY);
+        s_idonly = a.toString(mode::GEM_BINARY);
     }
 
     // Empty cache, no fetch callback -> the miss cannot be resolved and load() must throw rather than
@@ -1548,7 +1540,7 @@ TEST_CASE("Wire send-once: an unresolvable id-only reference throws", "[flat][wi
     ManyGroups r;
     {
         GWireSerializationScope const scope(&worker_ctx);
-        CHECK_THROWS(r.fromString(s_idonly, mode::BINARY));
+        CHECK_THROWS(r.fromString(s_idonly, mode::GEM_BINARY));
     }
 }
 
@@ -1561,10 +1553,10 @@ TEST_CASE("Wire send-once: default-off encoding is self-contained and interopera
     const std::vector<double> a_vals = valuesOf(a);
 
     // No active scope -> the self-contained full-layout form (the checkpoint / file path).
-    const std::string s_full = a.toString(mode::BINARY);
+    const std::string s_full = a.toString(mode::GEM_BINARY);
 
     ManyGroups r;
-    r.fromString(s_full, mode::BINARY); // loads with no scope
+    r.fromString(s_full, mode::GEM_BINARY); // loads with no scope
     REQUIRE(r.getLayout());
     CHECK(r.getLayout()->sameStructure(*a.getLayout()));
     CHECK(valuesOf(r) == a_vals);
@@ -1578,7 +1570,7 @@ TEST_CASE("Wire send-once: default-off encoding is self-contained and interopera
     ManyGroups r2;
     {
         GWireSerializationScope const scope(&worker_ctx);
-        r2.fromString(s_full, mode::BINARY);
+        r2.fromString(s_full, mode::GEM_BINARY);
     }
     CHECK(r2.getLayout()->sameStructure(*a.getLayout()));
     CHECK(valuesOf(r2) == a_vals);
@@ -1609,13 +1601,13 @@ TEST_CASE("Wire results-only return: genome omitted, grafted from the original",
     std::string s_results_only;
     {
         GWireSerializationScope const scope(&worker_ctx);
-        s_results_only = worker_copy->toString(mode::BINARY);
+        s_results_only = worker_copy->toString(mode::GEM_BINARY);
     }
 
     // A full serialization of the same item is materially larger (it carries the 24-group genome).
     auto full_copy = original.clone<ManyGroups>();
     full_copy->process();
-    const std::string s_full = full_copy->toString(mode::BINARY); // no scope -> self-contained
+    const std::string s_full = full_copy->toString(mode::GEM_BINARY); // no scope -> self-contained
     CHECK(s_results_only.size() < s_full.size());
 
     // Server deserializes the results-only return: genome omitted, results present.
@@ -1626,7 +1618,7 @@ TEST_CASE("Wire results-only return: genome omitted, grafted from the original",
     ManyGroups received;
     {
         GWireSerializationScope const scope(&server_ctx);
-        received.fromString(s_results_only, mode::BINARY);
+        received.fromString(s_results_only, mode::GEM_BINARY);
     }
     CHECK(received.inputDataOmitted());
     CHECK(received.countParameters<double>() == 0);   // no input parameters arrived
@@ -1702,7 +1694,7 @@ TEST_CASE("Wire results-only return: a client may opt into a full return", "[fla
     std::string s;
     {
         GWireSerializationScope const scope(&worker_ctx);
-        s = worker_copy->toString(mode::BINARY);
+        s = worker_copy->toString(mode::GEM_BINARY);
     }
 
     GWireLayoutRegistry server_reg;
@@ -1712,7 +1704,7 @@ TEST_CASE("Wire results-only return: a client may opt into a full return", "[fla
     ManyGroups received;
     {
         GWireSerializationScope const scope(&server_ctx);
-        received.fromString(s, mode::BINARY);
+        received.fromString(s, mode::GEM_BINARY);
     }
     // A full return carried the (modified) genome -- no graft needed.
     CHECK_FALSE(received.inputDataOmitted());
@@ -1732,7 +1724,7 @@ TEST_CASE("Wire send-once: large-genome wire-size before/after", "[flat][wire]")
 
     // --- submit direction ---
     // Self-contained full encoding (no scope) -- the size before send-once.
-    const std::size_t full_submit = big.toString(mode::BINARY).size();
+    const std::size_t full_submit = big.toString(mode::GEM_BINARY).size();
 
     // Send-once: the first item to a peer carries the full layout, every later one only the 16-byte id.
     GWireLayoutRegistry server_reg;
@@ -1744,8 +1736,8 @@ TEST_CASE("Wire send-once: large-genome wire-size before/after", "[flat][wire]")
     std::size_t idonly_submit = 0;
     {
         GWireSerializationScope const scope(&server_ctx);
-        first_submit = big.toString(mode::BINARY).size();   // present=true (carries the layout)
-        idonly_submit = big.toString(mode::BINARY).size();  // id-only
+        first_submit = big.toString(mode::GEM_BINARY).size();   // present=true (carries the layout)
+        idonly_submit = big.toString(mode::GEM_BINARY).size();  // id-only
     }
 
     // --- return direction ---
@@ -1760,9 +1752,9 @@ TEST_CASE("Wire send-once: large-genome wire-size before/after", "[flat][wire]")
     {
         GWireSerializationScope const scope(&worker_ctx);
         big.setReturnFullIndividual(true);
-        full_return = big.toString(mode::BINARY).size();
+        full_return = big.toString(mode::GEM_BINARY).size();
         big.setReturnFullIndividual(false);
-        results_only_return = big.toString(mode::BINARY).size();
+        results_only_return = big.toString(mode::GEM_BINARY).size();
     }
 
     WARN("Wire size (2000-group genome, binary bytes):"
@@ -1796,7 +1788,7 @@ TEST_CASE("Wire send-once over a real websocket loopback interns one layout", "[
     // every work item still comes back correctly processed.
     namespace c2 = Gem::Courtier;
     namespace ccons = Gem::Courtier::Consumers;
-    constexpr auto BIN = Gem::Common::serializationMode::BINARY;
+    constexpr auto BIN = Gem::Common::serializationMode::GEM_BINARY;
 
     constexpr std::size_t N = 100;
     std::vector<std::unique_ptr<GOptimizableEntity>> items;
@@ -1878,7 +1870,7 @@ TEST_CASE("Wire send-once over a real ASIO loopback interns one layout", "[flat]
     // path. Every item must still come back processed, and the server must intern exactly one layout.
     namespace c2 = Gem::Courtier;
     namespace ccons = Gem::Courtier::Consumers;
-    constexpr auto BIN = Gem::Common::serializationMode::BINARY;
+    constexpr auto BIN = Gem::Common::serializationMode::GEM_BINARY;
 
     constexpr std::size_t N = 100;
     std::vector<std::unique_ptr<GOptimizableEntity>> items;
@@ -1956,7 +1948,7 @@ TEST_CASE("Networked reconciliation keeps population elements at stable addresse
     // change and this fails.
     namespace c2 = Gem::Courtier;
     namespace ccons = Gem::Courtier::Consumers;
-    constexpr auto BIN = Gem::Common::serializationMode::BINARY;
+    constexpr auto BIN = Gem::Common::serializationMode::GEM_BINARY;
 
     constexpr std::size_t N = 60;
     std::vector<std::unique_ptr<GOptimizableEntity>> items;
@@ -2043,7 +2035,7 @@ TEST_CASE("Wire send-once: many distinct layouts under a bounded registry stay c
     // server re-inline an evicted layout on its next use. Every item must still come back processed.
     namespace c2 = Gem::Courtier;
     namespace ccons = Gem::Courtier::Consumers;
-    constexpr auto BIN = Gem::Common::serializationMode::BINARY;
+    constexpr auto BIN = Gem::Common::serializationMode::GEM_BINARY;
 
     const std::vector<std::size_t> sizes{8, 16, 24, 32}; // four distinct layout structures
     constexpr std::size_t N = 80;
@@ -2124,7 +2116,7 @@ TEST_CASE("EA over a websocket consumer with results-only returns keeps full gen
     namespace c2 = Gem::Courtier;
     namespace ccons = Gem::Courtier::Consumers;
     namespace oa = Gem::Geneva::OptimizationAlgorithms;
-    constexpr auto BIN = Gem::Common::serializationMode::BINARY;
+    constexpr auto BIN = Gem::Common::serializationMode::GEM_BINARY;
 
     auto consumer = std::make_shared<c2::GWebsocketConsumerT<GOptimizableEntity>>(/*port=*/0, /*threads=*/4, BIN);
     consumer->setCloneFunction(

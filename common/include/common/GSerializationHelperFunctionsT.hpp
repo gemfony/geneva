@@ -43,16 +43,13 @@
 
 // Boost headers go here
 
-#include <boost/archive/binary_iarchive.hpp>
-#include <boost/archive/binary_oarchive.hpp>
-#include <boost/archive/text_iarchive.hpp>
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/archive/xml_iarchive.hpp>
-#include <boost/archive/xml_oarchive.hpp>
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/vector.hpp>
 
 // Geneva headers go here
+#include "weft/GArchivePolymorphic.hpp" // GArchive codecs (smart-ptr arm) for sharedPtr[To|From]String
+#include "weft/GBinaryArchive.hpp"       // GArchive flat binary codec
+#include "weft/GJsonArchive.hpp"         // GArchive JSON codec
 #include "common/GCommonEnums.hpp"
 #include "common/GCommonHelperFunctions.hpp"
 #include "common/GErrorStreamer.hpp"
@@ -63,111 +60,64 @@ namespace Gem::Common {
 
 /******************************************************************************/
 /**
- * Converts a shared_ptr<T> into its string representation. This template function thus assumes that
- * T is serializable using the Boost.Serialization framework.
+ * Converts a shared_ptr<T> into its string representation using one of the GArchive (Weft) codecs.
+ * T must be GArchive-serializable and (as a polymorphic root) registered via GEM_REGISTER_ARCHIVABLE.
  *
  * @param gt_ptr A shared_ptr to the object to be serialized
- * @param ser_mod The corresponding serialization mode
+ * @param ser_mod The corresponding serialization mode (GEM_BINARY or GEM_JSON)
  * @return A string representation of gt_ptr
  */
 template <typename T>
 std::string
 sharedPtrToString(std::shared_ptr<T> gt_ptr, const Gem::Common::serializationMode &ser_mod) {
-    std::ostringstream oarchive_stream; // NOLINT(cppcoreguidelines-init-variables)
-
     switch(ser_mod) {
         using enum Gem::Common::serializationMode;
-    case TEXT: {
-        boost::archive::text_oarchive oa(oarchive_stream);
-        oa << boost::serialization::make_nvp("classHierarchyFromT_ptr", gt_ptr);
-    } // note: explicit scope here is essential so the oa-destructor gets called
-
-    break;
-
-    case XML: {
-        boost::archive::xml_oarchive oa(oarchive_stream);
-        oa << boost::serialization::make_nvp("classHierarchyFromT_ptr", gt_ptr);
-    } break;
-
-    case BINARY: {
-        boost::archive::binary_oarchive oa(oarchive_stream);
-        oa << boost::serialization::make_nvp("classHierarchyFromT_ptr", gt_ptr);
+    case GEM_BINARY: {
+        Gem::Weft::GBinaryOArchive oa;
+        oa &Gem::Weft::make_nvp("classHierarchyFromT_ptr", gt_ptr);
+        return oa.str();
     }
 
-    break;
-
-    case GEM_BINARY:
-    case GEM_JSON:
-        // This is a Boost.Serialization helper (it assumes a Boost-serializable T). The GArchive
-        // codecs are reached through GCommonInterfaceT::toString/toStream, not here -- routing an
-        // arbitrary shared_ptr<T> through GArchive would force GArchive-serializability on every T.
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In sharedPtrToString(): the GArchive codecs (GEM_BINARY / GEM_JSON) are not supported "
-            << "by this Boost.Serialization helper; serialize through GCommonInterfaceT::toString instead."
-            << '\n');
+    case GEM_JSON: {
+        Gem::Weft::GJsonOArchive oa;
+        oa &Gem::Weft::make_nvp("classHierarchyFromT_ptr", gt_ptr);
+        return oa.str();
+    }
     }
 
-    return oarchive_stream.str();
+    throw geneva_exception(
+        g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+        << "In sharedPtrToString(): unknown serialization mode " << static_cast<int>(ser_mod) << '\n');
 }
 
 /******************************************************************************/
 /**
- * Loads a shared_ptr<T> from its string representation. This template function thus assumes that
- * T is de-serializable using the Boost.Serialization framework.
+ * Loads a shared_ptr<T> from its string representation using one of the GArchive (Weft) codecs.
+ * T must be GArchive-serializable and (as a polymorphic root) registered via GEM_REGISTER_ARCHIVABLE.
  *
  * @param gt_string A string representation of the object to be restored
- * @param ser_mod The corresponding serialization mode
+ * @param ser_mod The corresponding serialization mode (GEM_BINARY or GEM_JSON)
  * @return A shared_ptr to the restored object
  */
 template <typename T>
 std::shared_ptr<T>
 sharedPtrFromString(const std::string &gt_string, const Gem::Common::serializationMode &ser_mod) {
-    std::istringstream istr(gt_string);
     std::shared_ptr<T> gt_ptr;
 
     try {
         switch(ser_mod) {
             using enum Gem::Common::serializationMode;
-        case TEXT: {
-            boost::archive::text_iarchive ia(istr);
-            ia >> boost::serialization::make_nvp("classHierarchyFromT_ptr", gt_ptr);
-        } // note: explicit scope here is essential so the ia-destructor gets called
-
-        break;
-
-        case XML: {
-            boost::archive::xml_iarchive ia(istr);
-            ia >> boost::serialization::make_nvp("classHierarchyFromT_ptr", gt_ptr);
-        }
-
-        break;
-
-        case BINARY: {
-            boost::archive::binary_iarchive ia(istr);
-            ia >> boost::serialization::make_nvp("classHierarchyFromT_ptr", gt_ptr);
+        case GEM_BINARY: {
+            // GBinaryIArchive holds a string_view over gt_string, which outlives it here.
+            Gem::Weft::GBinaryIArchive ia(gt_string);
+            ia &Gem::Weft::make_nvp("classHierarchyFromT_ptr", gt_ptr);
         } break;
 
-        case GEM_BINARY:
-        case GEM_JSON:
-            // See sharedPtrToString(): the GArchive codecs are reached through
-            // GCommonInterfaceT::fromString, not through this Boost.Serialization helper.
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In sharedPtrFromString(): the GArchive codecs (GEM_BINARY / GEM_JSON) are not "
-                << "supported by this Boost.Serialization helper; deserialize through "
-                << "GCommonInterfaceT::fromString instead." << '\n');
+        case GEM_JSON: {
+            Gem::Weft::GJsonIArchive ia(gt_string);
+            ia &Gem::Weft::make_nvp("classHierarchyFromT_ptr", gt_ptr);
+        } break;
         }
-    }
-    catch(boost::archive::archive_exception &e) {
-        glogger << "In sharedPtrFromString(): Error!" << '\n'
-                << "Caught boost::archive::archive_exception" << '\n'
-                << "with message" << '\n'
-                << e.what() << '\n'
-                << "We will return an empty pointer." << '\n'
-                << GWARNING;
-
-        return std::shared_ptr<T>();
     }
     catch(std::exception &e) {
         glogger << "In sharedPtrFromString(): Error!" << '\n'

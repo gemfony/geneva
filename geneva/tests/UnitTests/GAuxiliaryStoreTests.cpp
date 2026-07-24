@@ -141,7 +141,7 @@ TEST_CASE("Individual scratch: kept on a checkpoint, omitted on the wire (target
     {
         auto original = withScratch();
         GTestIndividual3 restored;
-        restored.fromString(original->toString(mode::BINARY), mode::BINARY);
+        restored.fromString(original->toString(mode::GEM_BINARY), mode::GEM_BINARY);
         REQUIRE(restored.scratch().hasAux(KEY)); // scratch survived the checkpoint
         CHECK(restored.scratch().metaRecords<AuxGaussRecord>(KEY)[0].sigma == 1.5f);
     }
@@ -159,7 +159,7 @@ TEST_CASE("Individual scratch: kept on a checkpoint, omitted on the wire (target
         std::string wire;
         {
             c2::GWireSerializationScope const scope(&send_ctx);
-            wire = original->toString(mode::BINARY); // first send: carries the layout, omits the scratch
+            wire = original->toString(mode::GEM_BINARY); // first send: carries the layout, omits the scratch
         }
 
         c2::GWireLayoutRegistry recv_reg;
@@ -169,7 +169,7 @@ TEST_CASE("Individual scratch: kept on a checkpoint, omitted on the wire (target
         GTestIndividual3 restored;
         {
             c2::GWireSerializationScope const scope(&recv_ctx);
-            restored.fromString(wire, mode::BINARY);
+            restored.fromString(wire, mode::GEM_BINARY);
         }
         CHECK_FALSE(restored.scratch().hasAux(KEY)); // scratch omitted; restored keeps its empty default (no crash)
     }

@@ -58,9 +58,8 @@ std::filesystem::path scratch(std::string const &tag) {
 
 TEST_CASE("serializationModeToString: maps known modes to their labels",
           "[common][helper-nonT][serialization-mode]") {
-    static_assert(serializationModeToString(serializationMode::TEXT)   == "text mode");
-    static_assert(serializationModeToString(serializationMode::XML)    == "XML mode");
-    static_assert(serializationModeToString(serializationMode::BINARY) == "binary mode");
+    static_assert(serializationModeToString(serializationMode::GEM_BINARY) == "GArchive binary mode");
+    static_assert(serializationModeToString(serializationMode::GEM_JSON)   == "GArchive JSON mode");
     SUCCEED();
 }
 

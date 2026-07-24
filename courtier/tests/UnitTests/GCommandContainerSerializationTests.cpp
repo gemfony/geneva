@@ -52,53 +52,22 @@ test_container_type makeContainer() {
 
 /******************************************************************************/
 /**
- * Regression guard: container_to_string() must return a COMPLETE archive document.
- *
- * A boost output archive may append trailing content in its destructor -- xml_oarchive writes
- * the closing </boost_serialization> root tag there. Reading the underlying stream from inside
- * the archive's scope (`return oss.str();` next to a live `oa`) therefore yields a truncated
- * document. The damage is not contained to the writer: the truncated text still de-serializes
- * successfully, and ~xml_iarchive then fails while winding up and throws from an implicitly
- * noexcept destructor -- std::terminate, which container_from_string()'s try/catch cannot
- * intercept. XML is user-selectable (--asio_serializationMode / --beast_serializationMode /
- * --mpi_serializationMode), so this is reachable, not merely theoretical.
- *
- * The well-formedness assertions below are REQUIREs on purpose: on the unfixed code they must
- * stop the test case before the round-trip section terminates the whole test binary.
+ * container_to_string() must return a non-empty document in every (GArchive) mode.
  */
-TEST_CASE("container_to_string emits a complete archive document in every mode", "[courtier][serialization]") {
+TEST_CASE("container_to_string emits a non-empty document in every mode", "[courtier][serialization]") {
     const auto container = makeContainer();
 
-    SECTION("XML carries its closing root tag") {
-        const std::string xml =
-            container_to_string(container, Gem::Common::serializationMode::XML);
-
-        REQUIRE_FALSE(xml.empty());
-        INFO("emitted XML tail: " << xml.substr(xml.size() > 120 ? xml.size() - 120 : 0));
-        REQUIRE(xml.find("<boost_serialization") != std::string::npos);
-        REQUIRE(xml.find("</boost_serialization>") != std::string::npos);
-    }
-
-    SECTION("TEXT and BINARY are non-empty") {
-        REQUIRE_FALSE(container_to_string(container, Gem::Common::serializationMode::TEXT).empty());
-        REQUIRE_FALSE(
-            container_to_string(container, Gem::Common::serializationMode::BINARY).empty()
-        );
-    }
+    REQUIRE_FALSE(container_to_string(container, Gem::Common::serializationMode::GEM_BINARY).empty());
+    REQUIRE_FALSE(container_to_string(container, Gem::Common::serializationMode::GEM_JSON).empty());
 }
 
 /******************************************************************************/
 /**
  * The companion round-trip: every serialization mode must survive a write/read cycle with the
- * command, the payload and the payload's stable lineage id intact. On the unfixed code the XML
- * arm of this test terminates the process rather than failing -- which is precisely why the
- * document-completeness case above exists and runs first.
+ * command, the payload and the payload's stable lineage id intact.
  */
 TEST_CASE("GCommandContainerT survives a round-trip in every serialization mode", "[courtier][serialization]") {
     const auto modes = {
-        Gem::Common::serializationMode::TEXT,
-        Gem::Common::serializationMode::XML,
-        Gem::Common::serializationMode::BINARY,
         Gem::Common::serializationMode::GEM_BINARY, // GArchive flat-binary wire codec
         Gem::Common::serializationMode::GEM_JSON    // GArchive JSON wire codec
     };

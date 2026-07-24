@@ -53,6 +53,7 @@
 
 #include "courtier/GCourtierEnums.hpp" // SUBMISSION_UUID_TYPE
 #include "geneva/genome/GOptimizableEntity.hpp"
+#include "weft/GArchivePolymorphic.hpp" // GEM_REGISTER_ARCHIVABLE + archive-generic dispatch
 #include "geneva/genome/GGenomeT.hpp"
 #include "geneva/genome/GGenomeBuilder.hpp"
 #include "geneva/oa/GOptimizationAlgorithmBase.hpp"
@@ -87,12 +88,10 @@ protected:
 
 private:
     friend class boost::serialization::access;
+    friend struct Gem::Weft::access;
     template <typename Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
-        ar &boost::serialization::make_nvp(
-            "GGenomeT",
-            boost::serialization::base_object<GGenomeT<LRSphere>>(*this)
-        );
+        Gem::Common::archive_named_base<GGenomeT<LRSphere>>(ar, "GGenomeT", *this);
     }
 };
 
@@ -116,12 +115,10 @@ protected:
 
 private:
     friend class boost::serialization::access;
+    friend struct Gem::Weft::access;
     template <typename Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
-        ar &boost::serialization::make_nvp(
-            "GGenomeT",
-            boost::serialization::base_object<GGenomeT<LRThrower>>(*this)
-        );
+        Gem::Common::archive_named_base<GGenomeT<LRThrower>>(ar, "GGenomeT", *this);
     }
 };
 
@@ -156,6 +153,8 @@ std::unique_ptr<gen::GOptimizableEntity> make_unprocessed(SUBMISSION_UUID_TYPE u
 constexpr SUBMISSION_UUID_TYPE U(std::uint64_t a, std::uint64_t b) { return SUBMISSION_UUID_TYPE{{a, b}}; }
 
 } // namespace Gem::Tests
+GEM_REGISTER_ARCHIVABLE(Gem::Tests::LRThrower) // NOLINT
+GEM_REGISTER_ARCHIVABLE(Gem::Tests::LRSphere) // NOLINT
 
 using namespace Gem::Tests;
 

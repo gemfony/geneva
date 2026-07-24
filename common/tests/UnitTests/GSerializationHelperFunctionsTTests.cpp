@@ -48,6 +48,7 @@
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/nvp.hpp>
 
+#include "common/GArchiveNamed.hpp"      // archive_named (archive-generic member emitter)
 #include "common/GCommonEnums.hpp"
 #include "common/GSerializationHelperFunctionsT.hpp"
 #include "common/GStdFilesystemPathSerialization.hpp"
@@ -73,11 +74,12 @@ public:
 
 private:
     friend class boost::serialization::access;
+    friend struct Gem::Weft::access;
     template <class Archive>
     void serialize(Archive &ar, [[maybe_unused]] unsigned int version) {
-        ar &boost::serialization::make_nvp("i", i_);
-        ar &boost::serialization::make_nvp("d", d_);
-        ar &boost::serialization::make_nvp("s", s_);
+        Gem::Common::archive_named(ar, "i", i_);
+        Gem::Common::archive_named(ar, "d", d_);
+        Gem::Common::archive_named(ar, "s", s_);
     }
 
     int         i_{0};
@@ -139,39 +141,26 @@ Value round_trip_binary(Value const &in, Save save, Load load) {
 // sharedPtrToString / sharedPtrFromString round-trips through each archive
 // family that the helpers support.
 
-TEST_CASE("GSerializationHelperFunctionsT: shared_ptr round-trip via TEXT mode",
+TEST_CASE("GSerializationHelperFunctionsT: shared_ptr round-trip via GEM_BINARY mode",
           "[common][serialization-helpers]") {
     auto in = std::make_shared<TestPayload>(17, 3.5, "alpha");
 
-    const std::string s = sharedPtrToString(in, serializationMode::TEXT);
+    const std::string s = sharedPtrToString(in, serializationMode::GEM_BINARY);
     REQUIRE_FALSE(s.empty());
 
-    auto out = sharedPtrFromString<TestPayload>(s, serializationMode::TEXT);
+    auto out = sharedPtrFromString<TestPayload>(s, serializationMode::GEM_BINARY);
     REQUIRE(out);
     CHECK(*out == *in);
 }
 
-TEST_CASE("GSerializationHelperFunctionsT: shared_ptr round-trip via XML mode",
+TEST_CASE("GSerializationHelperFunctionsT: shared_ptr round-trip via GEM_JSON mode",
           "[common][serialization-helpers]") {
     auto in = std::make_shared<TestPayload>(-3, 1.25, "beta");
 
-    const std::string s = sharedPtrToString(in, serializationMode::XML);
-    REQUIRE_FALSE(s.empty());
-    CHECK(s.contains("classHierarchyFromT_ptr"));
-
-    auto out = sharedPtrFromString<TestPayload>(s, serializationMode::XML);
-    REQUIRE(out);
-    CHECK(*out == *in);
-}
-
-TEST_CASE("GSerializationHelperFunctionsT: shared_ptr round-trip via BINARY mode",
-          "[common][serialization-helpers]") {
-    auto in = std::make_shared<TestPayload>(99, -2.5, "gamma");
-
-    const std::string s = sharedPtrToString(in, serializationMode::BINARY);
+    const std::string s = sharedPtrToString(in, serializationMode::GEM_JSON);
     REQUIRE_FALSE(s.empty());
 
-    auto out = sharedPtrFromString<TestPayload>(s, serializationMode::BINARY);
+    auto out = sharedPtrFromString<TestPayload>(s, serializationMode::GEM_JSON);
     REQUIRE(out);
     CHECK(*out == *in);
 }
@@ -179,10 +168,10 @@ TEST_CASE("GSerializationHelperFunctionsT: shared_ptr round-trip via BINARY mode
 TEST_CASE("GSerializationHelperFunctionsT: sharedPtrFromString returns null on garbage input "
           "rather than throwing through",
           "[common][serialization-helpers]") {
-    // The implementation catches archive_exception / std::exception, logs, and
-    // returns an empty shared_ptr. (Only unknown-type catches throw a geneva_exception.)
+    // The implementation catches std::exception, logs, and returns an empty shared_ptr.
+    // (Only unknown-type catches throw a geneva_exception.)
     auto out = sharedPtrFromString<TestPayload>("not-a-valid-archive-blob",
-                                                serializationMode::TEXT);
+                                                serializationMode::GEM_BINARY);
     CHECK_FALSE(out);
 }
 

@@ -46,6 +46,7 @@
 
 #include "courtier/GCourtierEnums.hpp" // processingStatus
 #include "geneva/GFaultInjector.hpp"
+#include "weft/GArchivePolymorphic.hpp" // GEM_REGISTER_ARCHIVABLE + archive-generic dispatch
 #include "geneva/genome/GOptimizableEntity.hpp"
 #include "geneva/genome/GGenomeT.hpp"
 #include "geneva/genome/GGenomeBuilder.hpp"
@@ -79,12 +80,10 @@ protected:
 
 private:
     friend class boost::serialization::access;
+    friend struct Gem::Weft::access;
     template <typename Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
-        ar &boost::serialization::make_nvp(
-            "GGenomeT",
-            boost::serialization::base_object<GGenomeT<FISphere>>(*this)
-        );
+        Gem::Common::archive_named_base<GGenomeT<FISphere>>(ar, "GGenomeT", *this);
     }
 };
 
@@ -101,6 +100,7 @@ private:
 };
 
 } // namespace Gem::Tests
+GEM_REGISTER_ARCHIVABLE(Gem::Tests::FISphere) // NOLINT
 
 using namespace Gem::Tests;
 

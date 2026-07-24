@@ -78,7 +78,7 @@ public:
     explicit GWebsocketConsumerT(
         unsigned short port,
         std::size_t n_threads = 0,
-        Gem::Common::serializationMode serialization_mode = Gem::Common::serializationMode::BINARY,
+        Gem::Common::serializationMode serialization_mode = Gem::Common::serializationMode::GEM_BINARY,
         std::size_t ping_interval = 5,
         bool verbose_control_frames = false
     )

@@ -46,12 +46,6 @@
 #include <vector>
 
 // Boost headers go here
-#include <boost/archive/binary_iarchive.hpp>
-#include <boost/archive/binary_oarchive.hpp>
-#include <boost/archive/text_iarchive.hpp>
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/archive/xml_iarchive.hpp>
-#include <boost/archive/xml_oarchive.hpp>
 #include <boost/serialization/nvp.hpp>
 #include <boost/serialization/string.hpp>
 #include <boost/serialization/unique_ptr.hpp>
@@ -311,40 +305,6 @@ std::string container_to_string(
     try {
         switch(serMode) {
             using enum Gem::Common::serializationMode;
-        // NOTE: in every arm the archive MUST be destroyed before oss.str() is read. An archive
-        // may append trailing content in its destructor -- boost's xml_oarchive writes the
-        // closing </boost_serialization> root tag there -- and a `return oss.str();` inside the
-        // archive's scope is evaluated BEFORE that destructor runs. Reading the stream too early
-        // therefore yields a truncated document whose later de-serialization makes
-        // ~xml_iarchive throw from a noexcept destructor, i.e. std::terminate, which
-        // container_from_string's try/catch cannot intercept. Hence the explicit inner scopes.
-        case TEXT: {
-            std::ostringstream oss; // NOLINT(cppcoreguidelines-init-variables)
-            {
-                boost::archive::text_oarchive oa(oss);
-                oa << boost::serialization::make_nvp("command_container", container);
-            } // archive closed here
-            return oss.str();
-        } break;
-
-        case XML: {
-            std::ostringstream oss; // NOLINT(cppcoreguidelines-init-variables)
-            {
-                boost::archive::xml_oarchive oa(oss);
-                oa << boost::serialization::make_nvp("command_container", container);
-            } // archive closed here -- this is what emits the closing root tag
-            return oss.str();
-        } break;
-
-        case BINARY: {
-            std::ostringstream oss(std::ios_base::binary);
-            {
-                boost::archive::binary_oarchive oa(oss);
-                oa << boost::serialization::make_nvp("command_container", container);
-            } // archive closed here
-            return oss.str();
-        } break;
-
         case GEM_BINARY: {
             // GArchive flat-binary codec. The layout send-once interning is orthogonal: it lives
             // inside GGenome::save (an ambient GWireSerializationScope, if any, is honoured there,
@@ -392,7 +352,7 @@ std::string container_to_string(
  * @tparam command_type The command enumeration of the command container
  * @param descr The serialized representation to load from
  * @param container The command container to be filled (output parameter; reset before loading)
- * @param serMode The serialization format the string was produced with (text, XML or binary)
+ * @param serMode The serialization format the string was produced with (GArchive binary or JSON)
  * @throws geneva_exception if de-serialization fails
  */
 template <typename processable_type, typename command_type>
@@ -406,24 +366,6 @@ void container_from_string(
     try {
         switch(serMode) {
             using enum Gem::Common::serializationMode;
-        case TEXT: {
-            std::ispanstream iss{std::span<const char>(descr)};
-            boost::archive::text_iarchive ia(iss);
-            ia >> boost::serialization::make_nvp("command_container", container);
-        } break; // archive and stream closed at end of scope
-
-        case XML: {
-            std::ispanstream iss{std::span<const char>(descr)};
-            boost::archive::xml_iarchive ia(iss);
-            ia >> boost::serialization::make_nvp("command_container", container);
-        } break;
-
-        case BINARY: {
-            std::istringstream iss(descr, std::ios_base::binary);
-            boost::archive::binary_iarchive ia(iss);
-            ia >> boost::serialization::make_nvp("command_container", container);
-        } break;
-
         case GEM_BINARY: {
             // descr is a live named parameter, so GBinaryIArchive's string_view over it stays valid.
             Gem::Weft::GBinaryIArchive ia(descr);

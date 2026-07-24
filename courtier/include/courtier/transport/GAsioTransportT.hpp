@@ -670,7 +670,7 @@ private:
     std::string address_; ///< The ip address or name of the peer system
     unsigned int port_;   ///< The peer port
     Gem::Common::serializationMode serialization_mode_ = Gem::Common::serializationMode::
-        BINARY; ///< Determines which seriliztion mode should be used
+        GEM_BINARY; ///< Determines which seriliztion mode should be used
 
     std::size_t n_reconnects_ = 0;
     std::size_t max_reconnects_ = 0;
@@ -1044,7 +1044,7 @@ private:
     std::move_only_function<bool()> check_server_stopped_;
     std::move_only_function<void(bool)> f_sign_on_; ///< Signs the session on (true) / off (false) with the consumer
 
-    Gem::Common::serializationMode serialization_mode_ = Gem::Common::serializationMode::BINARY;
+    Gem::Common::serializationMode serialization_mode_ = Gem::Common::serializationMode::GEM_BINARY;
 
     GCommandContainerT<processable_type, networked_consumer_payload_command> command_container_{
         networked_consumer_payload_command::NONE

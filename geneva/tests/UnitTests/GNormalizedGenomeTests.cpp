@@ -64,6 +64,7 @@
 #include <boost/serialization/nvp.hpp>
 
 #include "geneva/GOptimizationEnums.hpp"
+#include "weft/GArchivePolymorphic.hpp" // GEM_REGISTER_ARCHIVABLE + archive-generic dispatch
 #include "geneva/genome/GGenomeLayout.hpp"
 #include "geneva/genome/GGenome.hpp"
 #include "geneva/genome/GGenomeT.hpp"
@@ -115,12 +116,10 @@ private:
     }
 
     friend class boost::serialization::access;
+    friend struct Gem::Weft::access;
     template <typename Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
-        ar &boost::serialization::make_nvp(
-            "GGenomeT",
-            boost::serialization::base_object<GGenomeT<NgBoxIndividual>>(*this)
-        );
+        Gem::Common::archive_named_base<GGenomeT<NgBoxIndividual>>(ar, "GGenomeT", *this);
     }
 };
 
@@ -162,12 +161,10 @@ private:
     }
 
     friend class boost::serialization::access;
+    friend struct Gem::Weft::access;
     template <typename Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
-        ar &boost::serialization::make_nvp(
-            "GGenomeT",
-            boost::serialization::base_object<GGenomeT<NgMixedIndividual>>(*this)
-        );
+        Gem::Common::archive_named_base<GGenomeT<NgMixedIndividual>>(ar, "GGenomeT", *this);
     }
 };
 
@@ -195,20 +192,21 @@ protected:
 
 private:
     friend class boost::serialization::access;
+    friend struct Gem::Weft::access;
     template <typename Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
-        ar &boost::serialization::make_nvp(
-            "GGenomeT",
-            boost::serialization::base_object<GGenomeT<NgErgoIndividual>>(*this)
-        );
+        Gem::Common::archive_named_base<GGenomeT<NgErgoIndividual>>(ar, "GGenomeT", *this);
     }
 };
 
 } // namespace Gem::Tests
 
 BOOST_CLASS_EXPORT(Gem::Tests::NgBoxIndividual)   // NOLINT
+GEM_REGISTER_ARCHIVABLE(Gem::Tests::NgBoxIndividual) // NOLINT
 BOOST_CLASS_EXPORT(Gem::Tests::NgMixedIndividual) // NOLINT
+GEM_REGISTER_ARCHIVABLE(Gem::Tests::NgMixedIndividual) // NOLINT
 BOOST_CLASS_EXPORT(Gem::Tests::NgErgoIndividual)  // NOLINT
+GEM_REGISTER_ARCHIVABLE(Gem::Tests::NgErgoIndividual) // NOLINT
 
 using Gem::Tests::NgBoxIndividual;
 using Gem::Tests::NgErgoIndividual;

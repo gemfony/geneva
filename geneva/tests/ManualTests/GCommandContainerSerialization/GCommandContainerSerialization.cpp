@@ -62,8 +62,8 @@ using namespace Gem::Common;
 using namespace boost;
 
 const std::uint32_t DEFEXAMPLENTESTS = 5000;
-const Gem::Common::serializationMode DEFEXAMPLESERMOD = Gem::Common::serializationMode::BINARY;
-const Gem::Common::serializationMode PRINTOUTSERMOD = Gem::Common::serializationMode::XML;
+const Gem::Common::serializationMode DEFEXAMPLESERMOD = Gem::Common::serializationMode::GEM_BINARY;
+const Gem::Common::serializationMode PRINTOUTSERMOD = Gem::Common::serializationMode::GEM_JSON;
 
 // NOLINTNEXTLINE(readability-function-size) -- main() of a manual serialization round-trip test: CL parsing, then one coherent per-iteration round-trip/process/round-trip check sequence with inline error reporting; splitting would scatter one linear test script
 int main(int argc, char **argv) {

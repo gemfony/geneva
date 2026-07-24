@@ -165,12 +165,9 @@ public:
 
         // Set the transfer mode
         switch(serialization_mode_) {
-        case Gem::Common::serializationMode::BINARY:
         case Gem::Common::serializationMode::GEM_BINARY: // GArchive binary -> binary websocket frames
             ws_.binary(true);
             break;
-        case Gem::Common::serializationMode::XML:
-        case Gem::Common::serializationMode::TEXT:
         case Gem::Common::serializationMode::GEM_JSON: // GArchive JSON -> text websocket frames
             ws_.binary(false);
             break;
@@ -683,7 +680,7 @@ private:
         normal; ///< Holds the close code when terminating the connection
 
     Gem::Common::serializationMode serialization_mode_ = Gem::Common::serializationMode::
-        BINARY; ///< Determines which seriliztion mode should be used
+        GEM_BINARY; ///< Determines which seriliztion mode should be used
     bool verbose_control_frames_ =
         false; ///< Whether a diagnostic message should be emitted when a control frame arrives
 
@@ -830,12 +827,9 @@ public:
 
         // Set the transfer mode according to the serialization mode
         switch(serialization_mode_) {
-        case Gem::Common::serializationMode::BINARY:
         case Gem::Common::serializationMode::GEM_BINARY: // GArchive binary -> binary websocket frames
             ws_.binary(true);
             break;
-        case Gem::Common::serializationMode::XML:
-        case Gem::Common::serializationMode::TEXT:
         case Gem::Common::serializationMode::GEM_JSON: // GArchive JSON -> text websocket frames
             ws_.binary(false);
             break;
@@ -1246,7 +1240,7 @@ private:
     boost::beast::websocket::close_code close_code_ = boost::beast::websocket::close_code::
         normal; ///< Holds the close code when terminating the connection
 
-    Gem::Common::serializationMode serialization_mode_ = Gem::Common::serializationMode::BINARY;
+    Gem::Common::serializationMode serialization_mode_ = Gem::Common::serializationMode::GEM_BINARY;
 
     const std::chrono::seconds ping_interval_{
         GBEASTCONSUMERPINGINTERVAL

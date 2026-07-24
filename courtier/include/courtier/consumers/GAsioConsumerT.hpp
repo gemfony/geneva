@@ -77,7 +77,7 @@ public:
     explicit GAsioConsumerT(
         unsigned short port,
         std::size_t n_threads = 0,
-        Gem::Common::serializationMode serialization_mode = Gem::Common::serializationMode::BINARY
+        Gem::Common::serializationMode serialization_mode = Gem::Common::serializationMode::GEM_BINARY
     )
         : GTcpAcceptingConsumerT<processable_type>("Gem::Courtier::GAsioConsumerT", port, n_threads)
         , serialization_mode_(serialization_mode)

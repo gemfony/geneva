@@ -242,14 +242,14 @@ template <> inline constexpr bool numeric_enum_io_v<triboolStates> = true;
 
 /******************************************************************************/
 /**
- * The serialization modes that are currently allowed
+ * The serialization modes that are currently allowed. The two GArchive (Weft) codecs are the only
+ * modes; the numeric values 3/4 are retained (rather than renumbered to 0/1) so configuration files
+ * carry stable mode values -- values 0-2 belonged to the removed Boost.Serialization text/XML/binary
+ * archives and are simply no longer valid.
  */
 enum class serializationMode : Gem::Common::ENUMBASETYPE {
-    TEXT = 0,       ///< Boost.Serialization text archive
-    XML = 1,        ///< Boost.Serialization XML archive
-    BINARY = 2,     ///< Boost.Serialization binary archive (the default)
-    GEM_BINARY = 3, ///< GArchive flat little-endian binary codec
-    GEM_JSON = 4    ///< GArchive self-describing JSON codec
+    GEM_BINARY = 3, ///< GArchive flat little-endian binary codec (the networked-wire default)
+    GEM_JSON = 4    ///< GArchive self-describing JSON codec (the checkpoint default)
 };
 
 /** @brief serializationMode streams as its underlying numeric value (see numeric_enum_io_v) */

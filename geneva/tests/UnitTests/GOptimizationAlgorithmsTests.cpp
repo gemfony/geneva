@@ -1210,7 +1210,7 @@ TEST_CASE("Parameter scan survives a Boost serialization round-trip", "[flat][oa
     a->setScanRandomly(false);
     a->setParameterSpecs("d(0, -5., 5., 3), i(1, 0, 4, 5), b(2)"); // mixed double / int32 / bool grids
 
-    for(auto mode : {serializationMode::TEXT, serializationMode::XML, serializationMode::BINARY}) {
+    for(auto mode : {serializationMode::GEM_BINARY, serializationMode::GEM_JSON}) {
         const std::string archived = a->toString(mode);
         auto restored = std::make_shared<oa::GParameterScan>();
         restored->fromString(archived, mode);
@@ -1736,7 +1736,7 @@ TEST_CASE("meta-EA orchestration-thread count is real config: copied, serialized
 
     // Serialization round-trip
     auto restored = std::make_shared<oa::GMetaEvolutionaryAlgorithm>();
-    restored->fromString(meta->toString(serializationMode::XML), serializationMode::XML);
+    restored->fromString(meta->toString(serializationMode::GEM_JSON), serializationMode::GEM_JSON);
     CHECK(restored->getNOrchestrationThreads() == 5);
 
     // compare_ detects a difference in the knob

@@ -42,12 +42,6 @@
 #include <type_traits>
 
 // Boost header files go here
-#include <boost/archive/binary_iarchive.hpp>
-#include <boost/archive/binary_oarchive.hpp>
-#include <boost/archive/text_iarchive.hpp>
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/archive/xml_iarchive.hpp>
-#include <boost/archive/xml_oarchive.hpp>
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/export.hpp>
 #include <boost/serialization/map.hpp>
@@ -118,27 +112,6 @@ public:
         const g_class_type *local = &self;
 
         switch(ser_mod) {
-        case Gem::Common::serializationMode::TEXT: {
-            boost::archive::text_oarchive oa(oarchive_stream);
-            oa << boost::serialization::make_nvp("classhierarchyFromT", local);
-        } // note: explicit scope here is essential so the oa-destructor gets called
-
-        break;
-
-        case Gem::Common::serializationMode::XML: {
-            boost::archive::xml_oarchive oa(oarchive_stream);
-            oa << boost::serialization::make_nvp("classhierarchyFromT", local);
-        } // note: explicit scope here is essential so the oa-destructor gets called
-
-        break;
-
-        case Gem::Common::serializationMode::BINARY: {
-            boost::archive::binary_oarchive oa(oarchive_stream);
-            oa << boost::serialization::make_nvp("classhierarchyFromT", local);
-        } // note: explicit scope here is essential so the oa-destructor gets called
-
-        break;
-
         case Gem::Common::serializationMode::GEM_BINARY: {
             // GArchive: serialize the polymorphic root pointer through a NON-owning shared_ptr so the
             // smart-ptr arm's gem_serialize_pointer runs (present flag + dynamic tag + members). The
@@ -181,27 +154,6 @@ public:
         g_class_type *raw = nullptr;
 
         switch(ser_mod) {
-        case Gem::Common::serializationMode::TEXT: {
-            boost::archive::text_iarchive ia(istr);
-            ia >> boost::serialization::make_nvp("classhierarchyFromT", raw);
-        } // note: explicit scope here is essential so the ia-destructor gets called
-
-        break;
-
-        case Gem::Common::serializationMode::XML: {
-            boost::archive::xml_iarchive ia(istr);
-            ia >> boost::serialization::make_nvp("classhierarchyFromT", raw);
-        } // note: explicit scope here is essential so the ia-destructor gets called
-
-        break;
-
-        case Gem::Common::serializationMode::BINARY: {
-            boost::archive::binary_iarchive ia(istr);
-            ia >> boost::serialization::make_nvp("classhierarchyFromT", raw);
-        } // note: explicit scope here is essential so the ia-destructor gets called
-
-        break;
-
         case Gem::Common::serializationMode::GEM_BINARY: {
             // GArchive: read the whole stream, reconstruct the dynamic type via the smart-ptr arm
             // (gem_serialize_pointer builds it from the identity registry), then hand ownership to
@@ -373,11 +325,11 @@ public:
      *
      * @tparam Self The deduced most-derived type of *this (forwarded to toString)
      * @param self The (deduced) object being described
-     * @return An XML description of the GCommonInterfaceT-derivative the function is called for
+     * @return A JSON description of the GCommonInterfaceT-derivative the function is called for
      */
     template <typename Self>
     std::string report(this const Self &self) {
-        return self.toString(Gem::Common::serializationMode::XML);
+        return self.toString(Gem::Common::serializationMode::GEM_JSON);
     }
 
     /* ----------------------------------------------------------------------------------

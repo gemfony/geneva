@@ -141,7 +141,7 @@ public:
 struct GWireSerializationContext {
     bool enabled = false;       ///< master switch: false -> genome uses its full, self-contained encoding
     Gem::Common::serializationMode mode =
-        Gem::Common::serializationMode::BINARY; ///< the format the surrounding archive uses
+        Gem::Common::serializationMode::GEM_BINARY; ///< the format the surrounding archive uses
     GWirePeerId peer = 0;       ///< server: the destination session; worker: 0 (single upstream)
     GWireLayoutRegistry *registry = nullptr; ///< the shared blob store + ack tracker (not owned)
 

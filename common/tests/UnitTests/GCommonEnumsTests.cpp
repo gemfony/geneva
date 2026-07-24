@@ -85,7 +85,7 @@ TEST_CASE("triboolStates: numeric round-trip preserves value", "[common][enums]"
 }
 
 TEST_CASE("serializationMode: numeric round-trip preserves value", "[common][enums]") {
-    for(auto m : {serializationMode::TEXT, serializationMode::XML, serializationMode::BINARY}) {
+    for(auto m : {serializationMode::GEM_BINARY, serializationMode::GEM_JSON}) {
         CHECK(round_trip_int(m) == m);
     }
 }
@@ -133,9 +133,8 @@ TEST_CASE("indeterminate() helper", "[common][enums]") {
 // serModeToString: dedicated debug helper, plus the "unknown" fallback.
 
 TEST_CASE("serModeToString: maps each mode to its name", "[common][enums]") {
-    CHECK(serModeToString(serializationMode::TEXT)   == "TEXT");
-    CHECK(serModeToString(serializationMode::XML)    == "XML");
-    CHECK(serModeToString(serializationMode::BINARY) == "BINARY");
+    CHECK(serModeToString(serializationMode::GEM_BINARY) == "GEM_BINARY");
+    CHECK(serModeToString(serializationMode::GEM_JSON)   == "GEM_JSON");
 }
 
 TEST_CASE("serModeToString: unknown value falls through to 'unknown'", "[common][enums]") {
@@ -162,6 +161,6 @@ TEST_CASE("enum stream operators: round-trip through string<->enum",
     check(dimensions::Dim3);
     check(logType::WARNING);
     check(triboolStates::TBS_TRUE);
-    check(serializationMode::XML);
+    check(serializationMode::GEM_JSON);
     check(expectation::FP_SIMILARITY);
 }

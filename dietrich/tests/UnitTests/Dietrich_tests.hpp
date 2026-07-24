@@ -214,15 +214,15 @@ void StandardTests_no_failure_expected() {
         if(T_ptr1->modify_GUnitTests()) {
             CHECK(not gep.isEqual(*T_ptr1, *T_ptr2));
             REQUIRE_NOTHROW(T_ptr2->fromString(
-                T_ptr1->toString(Gem::Common::serializationMode::TEXT),
-                Gem::Common::serializationMode::TEXT
+                T_ptr1->toString(Gem::Common::serializationMode::GEM_BINARY),
+                Gem::Common::serializationMode::GEM_BINARY
             ));
             CHECK(gep.isSimilar(*T_ptr1, *T_ptr2));
         }
         else {
             std::cout << "Internal (de-)serialization test for object with name "
                       << typeid(T).name()
-                      << " not run because original objects are identical / TEXT" << '\n';
+                      << " not run because original objects are identical / GEM_BINARY" << '\n';
         }
     }
 
@@ -235,43 +235,22 @@ void StandardTests_no_failure_expected() {
         if(T_ptr1->modify_GUnitTests()) {
             CHECK(not gep.isEqual(*T_ptr1, *T_ptr2));
             REQUIRE_NOTHROW(T_ptr2->fromString(
-                T_ptr1->toString(Gem::Common::serializationMode::XML),
-                Gem::Common::serializationMode::XML
+                T_ptr1->toString(Gem::Common::serializationMode::GEM_JSON),
+                Gem::Common::serializationMode::GEM_JSON
             ));
             CHECK(gep.isSimilar(*T_ptr1, *T_ptr2));
         }
         else {
             std::cout << "Internal (de-)serialization test for object with name "
-                      << typeid(T).name() << " not run because original objects are identical / XML"
+                      << typeid(T).name() << " not run because original objects are identical / GEM_JSON"
                       << '\n';
-        }
-    }
-
-    { // binary test format
-        std::shared_ptr<T> T_ptr1 = TFactory_GUnitTests<T>();
-        REQUIRE(T_ptr1);
-        std::shared_ptr<T> T_ptr2 = TFactory_GUnitTests<T>();
-        REQUIRE(T_ptr2);
-
-        if(T_ptr1->modify_GUnitTests()) {
-            CHECK(not gep.isEqual(*T_ptr1, *T_ptr2));
-            REQUIRE_NOTHROW(T_ptr2->fromString(
-                T_ptr1->toString(Gem::Common::serializationMode::BINARY),
-                Gem::Common::serializationMode::BINARY
-            ));
-            CHECK(gep.isSimilar(*T_ptr1, *T_ptr2));
-        }
-        else {
-            std::cout << "Internal (de-)serialization test for object with name "
-                      << typeid(T).name()
-                      << " not run because original objects are identical / BINARY" << '\n';
         }
     }
 
     //---------------------------------------------------------------------------//
     // Check (de-)serialization in different modes through external Gem::Common functions
 
-    { // plain text mode
+    { // GEM_BINARY mode
         std::shared_ptr<T> T_ptr1 = TFactory_GUnitTests<T>();
         REQUIRE(T_ptr1);
         std::shared_ptr<T> T_ptr2 = TFactory_GUnitTests<T>();
@@ -280,21 +259,21 @@ void StandardTests_no_failure_expected() {
         if(T_ptr1->modify_GUnitTests()) {
             CHECK(not gep.isEqual(*T_ptr1, *T_ptr2));
             std::string serializedObject =
-                Gem::Common::sharedPtrToString(T_ptr1, Gem::Common::serializationMode::TEXT);
+                Gem::Common::sharedPtrToString(T_ptr1, Gem::Common::serializationMode::GEM_BINARY);
             T_ptr2 = Gem::Common::sharedPtrFromString<T>(
                 serializedObject,
-                Gem::Common::serializationMode::TEXT
+                Gem::Common::serializationMode::GEM_BINARY
             );
             CHECK(gep.isSimilar(*T_ptr1, *T_ptr2));
         }
         else {
             std::cout << "External (de-)serialization test for object with name "
                       << typeid(T).name()
-                      << " not run because original objects are identical / TEXT" << '\n';
+                      << " not run because original objects are identical / GEM_BINARY" << '\n';
         }
     }
 
-    { // XML mode
+    { // GEM_JSON mode
         std::shared_ptr<T> T_ptr1 = TFactory_GUnitTests<T>();
         REQUIRE(T_ptr1);
         std::shared_ptr<T> T_ptr2 = TFactory_GUnitTests<T>();
@@ -303,40 +282,17 @@ void StandardTests_no_failure_expected() {
         if(T_ptr1->modify_GUnitTests()) {
             CHECK(not gep.isEqual(*T_ptr1, *T_ptr2));
             std::string serializedObject =
-                Gem::Common::sharedPtrToString(T_ptr1, Gem::Common::serializationMode::XML);
+                Gem::Common::sharedPtrToString(T_ptr1, Gem::Common::serializationMode::GEM_JSON);
             T_ptr2 = Gem::Common::sharedPtrFromString<T>(
                 serializedObject,
-                Gem::Common::serializationMode::XML
+                Gem::Common::serializationMode::GEM_JSON
             );
             CHECK(gep.isSimilar(*T_ptr1, *T_ptr2));
         }
         else {
             std::cout << "External (de-)serialization test for object with name "
-                      << typeid(T).name() << " not run because original objects are identical / XML"
+                      << typeid(T).name() << " not run because original objects are identical / GEM_JSON"
                       << '\n';
-        }
-    }
-
-    { // Binary mode
-        std::shared_ptr<T> T_ptr1 = TFactory_GUnitTests<T>();
-        REQUIRE(T_ptr1);
-        std::shared_ptr<T> T_ptr2 = TFactory_GUnitTests<T>();
-        REQUIRE(T_ptr2);
-
-        if(T_ptr1->modify_GUnitTests()) {
-            CHECK(not gep.isEqual(*T_ptr1, *T_ptr2));
-            std::string serializedObject =
-                Gem::Common::sharedPtrToString(T_ptr1, Gem::Common::serializationMode::BINARY);
-            T_ptr2 = Gem::Common::sharedPtrFromString<T>(
-                serializedObject,
-                Gem::Common::serializationMode::BINARY
-            );
-            CHECK(gep.isSimilar(*T_ptr1, *T_ptr2));
-        }
-        else {
-            std::cout << "External (de-)serialization test for object with name "
-                      << typeid(T).name()
-                      << " not run because original objects are identical / BINARY" << '\n';
         }
     }
 

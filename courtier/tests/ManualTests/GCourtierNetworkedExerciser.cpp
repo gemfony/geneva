@@ -64,7 +64,7 @@ namespace ccons = Gem::Courtier::Consumers;
 
 namespace {
 
-constexpr auto BIN = Gem::Common::serializationMode::BINARY;
+constexpr auto BIN = Gem::Common::serializationMode::GEM_BINARY;
 
 int run_server(const std::string &consumer, unsigned short port, std::size_t n, std::size_t fault_every) {
     // Build the chosen courtier consumer behind the common base type.

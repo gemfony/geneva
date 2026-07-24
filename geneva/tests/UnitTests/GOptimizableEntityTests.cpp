@@ -50,6 +50,7 @@
 #include <boost/serialization/base_object.hpp>
 
 #include "geneva/genome/GOptimizableEntity.hpp"
+#include "weft/GArchivePolymorphic.hpp" // GEM_REGISTER_ARCHIVABLE + archive-generic dispatch
 #include "geneva/genome/GGenomeT.hpp"
 #include "geneva/genome/GGenomeBuilder.hpp"
 #include "geneva/genome/GProblemStoreT.hpp"
@@ -99,18 +100,17 @@ private:
     }
 
     friend class boost::serialization::access;
+    friend struct Gem::Weft::access;
     template <typename Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
-        ar &boost::serialization::make_nvp(
-            "GGenomeT",
-            boost::serialization::base_object<GGenomeT<NewSphere>>(*this)
-        );
+        Gem::Common::archive_named_base<GGenomeT<NewSphere>>(ar, "GGenomeT", *this);
     }
 };
 
 } // namespace Gem::Tests
 
 BOOST_CLASS_EXPORT(Gem::Tests::NewSphere) // NOLINT
+GEM_REGISTER_ARCHIVABLE(Gem::Tests::NewSphere) // NOLINT
 
 using Gem::Tests::NewSphere;
 
@@ -144,10 +144,10 @@ protected:
 
 private:
     friend class boost::serialization::access;
+    friend struct Gem::Weft::access;
     template <typename Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
-        ar &boost::serialization::make_nvp(
-            "GGenomeT", boost::serialization::base_object<GGenomeT<SeamSphere>>(*this));
+        Gem::Common::archive_named_base<GGenomeT<SeamSphere>>(ar, "GGenomeT", *this);
     }
 };
 
@@ -181,17 +181,19 @@ protected:
 
 private:
     friend class boost::serialization::access;
+    friend struct Gem::Weft::access;
     template <typename Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
-        ar &boost::serialization::make_nvp(
-            "GGenomeT", boost::serialization::base_object<GGenomeT<SeamMulti>>(*this));
+        Gem::Common::archive_named_base<GGenomeT<SeamMulti>>(ar, "GGenomeT", *this);
     }
 };
 
 } // namespace Gem::Tests
 
 BOOST_CLASS_EXPORT(Gem::Tests::SeamSphere) // NOLINT
+GEM_REGISTER_ARCHIVABLE(Gem::Tests::SeamSphere) // NOLINT
 BOOST_CLASS_EXPORT(Gem::Tests::SeamMulti)  // NOLINT
+GEM_REGISTER_ARCHIVABLE(Gem::Tests::SeamMulti) // NOLINT
 
 using Gem::Tests::SeamMulti;
 using Gem::Tests::SeamSphere;
@@ -277,9 +279,8 @@ TEST_CASE("GOptimizableEntity: a derived individual round-trips in TEXT, XML and
         }
     };
 
-    check_format(serializationMode::TEXT);
-    check_format(serializationMode::XML);
-    check_format(serializationMode::BINARY);
+    check_format(serializationMode::GEM_BINARY);
+    check_format(serializationMode::GEM_JSON);
 }
 
 /******************************************************************************/
@@ -453,16 +454,16 @@ protected:
 
 private:
     friend class boost::serialization::access;
+    friend struct Gem::Weft::access;
     template <typename Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
-        ar &boost::serialization::make_nvp(
-            "GGenomeT",
-            boost::serialization::base_object<GGenomeT<ErrorFlaggingSphere>>(*this)
-        );
+        Gem::Common::archive_named_base<GGenomeT<ErrorFlaggingSphere>>(ar, "GGenomeT", *this);
     }
 };
 
 } // namespace Gem::Tests
+
+GEM_REGISTER_ARCHIVABLE(Gem::Tests::ErrorFlaggingSphere) // NOLINT
 
 TEST_CASE(
     "GOptimizableEntity: an error flagged inside evaluate() survives as ERROR_FLAGGED",

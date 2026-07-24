@@ -42,6 +42,7 @@
 #include <boost/serialization/nvp.hpp>
 
 #include "common/GExceptions.hpp"
+#include "weft/GArchivePolymorphic.hpp" // GEM_REGISTER_ARCHIVABLE + archive-generic dispatch
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/genome/GGenome.hpp"
 #include "geneva/genome/GGenomeT.hpp"
@@ -90,18 +91,17 @@ private:
     }
 
     friend class boost::serialization::access;
+    friend struct Gem::Weft::access;
     template <typename Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
-        ar &boost::serialization::make_nvp(
-            "GGenomeT",
-            boost::serialization::base_object<GGenomeT<AdaptCfgIndividual>>(*this)
-        );
+        Gem::Common::archive_named_base<GGenomeT<AdaptCfgIndividual>>(ar, "GGenomeT", *this);
     }
 };
 
 } // namespace Gem::Tests
 
 BOOST_CLASS_EXPORT(Gem::Tests::AdaptCfgIndividual) // NOLINT
+GEM_REGISTER_ARCHIVABLE(Gem::Tests::AdaptCfgIndividual) // NOLINT
 
 using Gem::Tests::AdaptCfgIndividual;
 

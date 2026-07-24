@@ -193,42 +193,9 @@ TEST_CASE("GCommonInterfaceT::name: defaults to the templated form when not over
 // ---------------------------------------------------------------------------
 // toString / fromString round-trip in each archive mode
 
-TEST_CASE("GCommonInterfaceT: toString/fromString round-trip in TEXT mode",
-          "[common][interface][serialize]") {
-    TestObj const src(42);
-    std::string const s = src.toString(serializationMode::TEXT);
-    REQUIRE_FALSE(s.empty());
-
-    TestObj dst(0);
-    dst.fromString(s, serializationMode::TEXT);
-    CHECK(dst.v() == 42);
-}
-
-TEST_CASE("GCommonInterfaceT: toString/fromString round-trip in XML mode",
-          "[common][interface][serialize]") {
-    TestObj const src(-9);
-    std::string const s = src.toString(serializationMode::XML);
-    REQUIRE_FALSE(s.empty());
-
-    TestObj dst(0);
-    dst.fromString(s, serializationMode::XML);
-    CHECK(dst.v() == -9);
-}
-
-TEST_CASE("GCommonInterfaceT: toString/fromString round-trip in BINARY mode",
-          "[common][interface][serialize]") {
-    TestObj const src(123);
-    std::string const s = src.toString(serializationMode::BINARY);
-    REQUIRE_FALSE(s.empty());
-
-    TestObj dst(0);
-    dst.fromString(s, serializationMode::BINARY);
-    CHECK(dst.v() == 123);
-}
-
-// The GArchive (Weft) codec modes: the same toString/fromString path, driven through the polymorphic
-// root dispatch (GEM_REGISTER_ARCHIVABLE(TestObj)) rather than Boost. These will become the default
-// checkpoint/wire encodings when Boost is removed.
+// The GArchive (Weft) codec modes are the only serialization modes: the toString/fromString path is
+// driven through the polymorphic root dispatch (GEM_REGISTER_ARCHIVABLE(TestObj)). GEM_BINARY is the
+// networked-wire default, GEM_JSON the checkpoint default.
 TEST_CASE("GCommonInterfaceT: toString/fromString round-trip in GEM_BINARY mode",
           "[common][interface][serialize]") {
     TestObj const src(456);
@@ -254,19 +221,19 @@ TEST_CASE("GCommonInterfaceT: toString/fromString round-trip in GEM_JSON mode",
 // ---------------------------------------------------------------------------
 // toFile / fromFile round-trip
 
-TEST_CASE("GCommonInterfaceT: toFile / fromFile round-trip in TEXT mode",
+TEST_CASE("GCommonInterfaceT: toFile / fromFile round-trip in GEM_JSON mode",
           "[common][interface][serialize]") {
     auto base = std::filesystem::temp_directory_path() / "geneva_interface_tests";
     std::filesystem::create_directories(base);
-    auto path = base / "obj.txt";
+    auto path = base / "obj.json";
     std::filesystem::remove(path);
 
     TestObj const src(314);
-    src.toFile(path, serializationMode::TEXT);
+    src.toFile(path, serializationMode::GEM_JSON);
     REQUIRE(std::filesystem::exists(path));
 
     TestObj dst(0);
-    dst.fromFile(path, serializationMode::TEXT);
+    dst.fromFile(path, serializationMode::GEM_JSON);
     CHECK(dst.v() == 314);
     std::filesystem::remove(path);
 }
@@ -275,14 +242,14 @@ TEST_CASE("GCommonInterfaceT::fromFile: missing file throws",
           "[common][interface][serialize]") {
     TestObj dst(0);
     CHECK_THROWS_AS(
-        dst.fromFile(std::filesystem::path("/no/such/file/geneva_xyz"), serializationMode::TEXT),
+        dst.fromFile(std::filesystem::path("/no/such/file/geneva_xyz"), serializationMode::GEM_JSON),
         geneva_exception);
 }
 
 // ---------------------------------------------------------------------------
-// report(): non-empty XML.
+// report(): non-empty JSON.
 
-TEST_CASE("GCommonInterfaceT::report: returns non-empty XML",
+TEST_CASE("GCommonInterfaceT::report: returns non-empty JSON",
           "[common][interface][report]") {
     TestObj const a(5);
     auto r = a.report();

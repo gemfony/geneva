@@ -64,9 +64,8 @@ TEST_CASE("GCheckCombinerT: serialization preserves the contained validity check
     original.addCheck(std::make_shared<GSphereConstraint>(2.5));
     original.addCheck(std::make_shared<GDoubleSumConstraint>(1.25));
 
-    for(auto mode : {Gem::Common::serializationMode::XML,
-                     Gem::Common::serializationMode::TEXT,
-                     Gem::Common::serializationMode::BINARY}) {
+    for(auto mode : {Gem::Common::serializationMode::GEM_BINARY,
+                     Gem::Common::serializationMode::GEM_JSON}) {
         const std::string archived = original.toString(mode);
 
         GCheckCombinerT<gen::GOptimizableEntity> restored;
