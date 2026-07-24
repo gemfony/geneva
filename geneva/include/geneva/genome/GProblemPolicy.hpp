@@ -86,7 +86,7 @@ class GOptimizableEntity;
 class GProblemPolicy {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
-    friend struct Gem::Common::archive::access;
+    friend struct Gem::Weft::access;
 
     /**
      * @brief Serialises the shared policy: the four scalar rules plus the (polymorphic) constraint.

@@ -273,7 +273,7 @@ template <typename T, typename StoragePolicy = PodStorage<T>>
 class GContainerT {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
-    friend struct Gem::Common::archive::access;
+    friend struct Gem::Weft::access;
 
     /**
      * @brief (De)serialises the underlying data container, against a Boost archive or a GArchive codec.

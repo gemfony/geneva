@@ -60,7 +60,7 @@ class GRandomSearch_PersonalityTraits // NOLINT(cppcoreguidelines-special-member
   : public GPersonalityTraits {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
-    friend struct Gem::Common::archive::access;
+    friend struct Gem::Weft::access;
 
     /** @brief Serializes this object (no local data beyond the base). Archive-generic: the same body
      *  serves a Boost archive or a GArchive codec (the backend branch lives inside archive_named_base).

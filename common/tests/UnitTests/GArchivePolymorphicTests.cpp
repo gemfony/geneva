@@ -47,10 +47,10 @@
 #include "common/GReflectiveInterfaceT.hpp"
 
 using namespace Gem::Common;
-using Gem::Common::archive::GBinaryIArchive;
-using Gem::Common::archive::GBinaryOArchive;
-using Gem::Common::archive::GJsonIArchive;
-using Gem::Common::archive::GJsonOArchive;
+using Gem::Weft::GBinaryIArchive;
+using Gem::Weft::GBinaryOArchive;
+using Gem::Weft::GJsonIArchive;
+using Gem::Weft::GJsonOArchive;
 
 namespace {
 
@@ -321,10 +321,10 @@ TEST_CASE("GArchive polymorphic: the completeness self-check flags an identity-o
           "[common][archive][poly]") {
     // The archivable PolyBase/PolyA/PolyB/PolyC are fully dispatchable; PolyIdentityOnly was
     // registered identity-only (GEM_REGISTER_TYPE), so it must surface as a gap.
-    const auto gaps = Gem::Common::archive::archiveRegistrationGaps();
+    const auto gaps = Gem::Weft::archiveRegistrationGaps();
 
     // At least one hierarchy (PolyBase) has archivable types, so a checker is registered.
-    CHECK(Gem::Common::archive::archiveRegisteredHierarchyCount() >= 1);
+    CHECK(Gem::Weft::archiveRegisteredHierarchyCount() >= 1);
 
     // The identity-only type is reported ...
     const bool flags_identity_only =
@@ -341,5 +341,5 @@ TEST_CASE("GArchive polymorphic: the completeness self-check flags an identity-o
     }
 
     // The hard assertion form throws while the gap stands.
-    CHECK_THROWS(Gem::Common::archive::verifyArchiveRegistrations());
+    CHECK_THROWS(Gem::Weft::verifyArchiveRegistrations());
 }

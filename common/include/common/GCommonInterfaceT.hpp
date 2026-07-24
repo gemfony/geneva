@@ -145,8 +145,8 @@ public:
             // deleter is a no-op -- `local` is borrowed (it is &self), the archive must not delete it;
             // the const_cast is safe because saving never mutates.
             std::shared_ptr<g_class_type> sp(const_cast<g_class_type *>(local), [](g_class_type *) {});
-            Gem::Common::archive::GBinaryOArchive oa;
-            oa &Gem::Common::archive::make_nvp("classhierarchyFromT", sp);
+            Gem::Weft::GBinaryOArchive oa;
+            oa &Gem::Weft::make_nvp("classhierarchyFromT", sp);
             oarchive_stream << oa.str();
         }
 
@@ -154,8 +154,8 @@ public:
 
         case Gem::Common::serializationMode::GEM_JSON: {
             std::shared_ptr<g_class_type> sp(const_cast<g_class_type *>(local), [](g_class_type *) {});
-            Gem::Common::archive::GJsonOArchive oa;
-            oa &Gem::Common::archive::make_nvp("classhierarchyFromT", sp);
+            Gem::Weft::GJsonOArchive oa;
+            oa &Gem::Weft::make_nvp("classhierarchyFromT", sp);
             oarchive_stream << oa.str();
         }
 
@@ -211,9 +211,9 @@ public:
             std::ostringstream ss;
             ss << istr.rdbuf();
             const std::string data = ss.str();
-            Gem::Common::archive::GBinaryIArchive ia(data);
+            Gem::Weft::GBinaryIArchive ia(data);
             std::unique_ptr<g_class_type> loaded;
-            ia &Gem::Common::archive::make_nvp("classhierarchyFromT", loaded);
+            ia &Gem::Weft::make_nvp("classhierarchyFromT", loaded);
             raw = loaded.release();
         }
 
@@ -223,9 +223,9 @@ public:
             std::ostringstream ss;
             ss << istr.rdbuf();
             const std::string data = ss.str();
-            Gem::Common::archive::GJsonIArchive ia(data);
+            Gem::Weft::GJsonIArchive ia(data);
             std::unique_ptr<g_class_type> loaded;
-            ia &Gem::Common::archive::make_nvp("classhierarchyFromT", loaded);
+            ia &Gem::Weft::make_nvp("classhierarchyFromT", loaded);
             raw = loaded.release();
         }
 

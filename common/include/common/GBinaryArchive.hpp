@@ -44,10 +44,9 @@
 
 // Geneva headers go here
 #include "common/GArchive.hpp"
-#include "common/GErrorStreamer.hpp"
-#include "common/GExceptions.hpp"
+#include "common/GWeftError.hpp"
 
-namespace Gem::Common::archive {
+namespace Gem::Weft {
 
 /******************************************************************************/
 /**
@@ -263,8 +262,8 @@ public:
 private:
     void require(std::size_t n) const {
         if (pos_ + n > data_.size()) {
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+            throw weft_exception(
+                weft_error_streamer()
                 << "In GBinaryIArchive: attempt to read " << n << " byte(s) past the end of a "
                 << data_.size() << "-byte stream (cursor at " << pos_ << "). Truncated or malformed archive." << '\n'
             );
@@ -282,4 +281,4 @@ private:
 
 /******************************************************************************/
 
-} // namespace Gem::Common::archive
+} // namespace Gem::Weft

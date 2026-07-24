@@ -109,7 +109,7 @@ template <
 class GProcessingContainerT : public GProcessable {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
-    friend struct Gem::Common::archive::access;
+    friend struct Gem::Weft::access;
 
     template <typename Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {

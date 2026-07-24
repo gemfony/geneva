@@ -146,20 +146,6 @@ struct GReflectiveInterfaceAccess {
     }
 };
 
-/**
- * @brief Definition of the codec base's polymorphic-registry construction seam
- * (declared in @c GArchive.hpp): reconstructs a private-ctor reflection-managed
- * type through the @c GReflectiveInterfaceAccess friend shim and hands it back as
- * its hierarchy root. Kept here, in the reflection layer, so
- * @c GArchivePolymorphic.hpp can call the seam without a reflection-layer include
- * (see the declaration's note on the broken include cycle).
- * @tparam T The concrete reflection-managed type to reconstruct.
- */
-template <typename T>
-std::unique_ptr<typename T::gemfony_common_root_t> archive::gem_registry_construct_reflective() {
-    return GReflectiveInterfaceAccess::template construct<T>();
-}
-
 /******************************************************************************/
 /**
  * @brief A class is managed by the GReflectiveInterface mixins iff it exposes both a
@@ -284,7 +270,7 @@ private:
     // Lets a GArchive codec reach this generated serialize (the GArchive analogue
     // of the boost::serialization::access friendship), so the same generated
     // sweep serves both serialization backends while they coexist.
-    friend struct Gem::Common::archive::access;
+    friend struct Gem::Weft::access;
 
     /**
      * @brief Deleted fallback member list.
@@ -413,3 +399,24 @@ private:
 /******************************************************************************/
 
 } /* namespace Gem::Common */
+
+/******************************************************************************/
+
+namespace Gem::Weft {
+
+/**
+ * @brief Definition of the Weft codec base's polymorphic-registry construction seam
+ * (declared in @c GArchive.hpp): reconstructs a private-ctor reflection-managed type
+ * through the @c GReflectiveInterfaceAccess friend shim and hands it back as its
+ * hierarchy root. Defined here, in the reflection layer, so @c GArchivePolymorphic.hpp
+ * can call the seam without a reflection-layer include (see the declaration's note on
+ * the broken include cycle). It lives in a @c Gem::Weft block outside @c Gem::Common
+ * because @c Gem::Weft no longer nests inside @c Gem::Common after the library split.
+ * @tparam T The concrete reflection-managed type to reconstruct.
+ */
+template <typename T>
+std::unique_ptr<typename T::gemfony_common_root_t> gem_registry_construct_reflective() {
+    return Gem::Common::GReflectiveInterfaceAccess::template construct<T>();
+}
+
+} // namespace Gem::Weft

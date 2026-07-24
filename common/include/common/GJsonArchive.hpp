@@ -48,10 +48,9 @@
 
 // Geneva headers go here
 #include "common/GArchive.hpp"
-#include "common/GErrorStreamer.hpp"
-#include "common/GExceptions.hpp"
+#include "common/GWeftError.hpp"
 
-namespace Gem::Common::archive {
+namespace Gem::Weft {
 
 /******************************************************************************/
 /**
@@ -281,8 +280,8 @@ public:
 private:
     static void from_hex(std::string_view hex, void *p, std::size_t n) {
         if (hex.size() != 2 * n) {
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+            throw weft_exception(
+                weft_error_streamer()
                 << "In GJsonIArchive::get_bytes(): hex string of length " << hex.size()
                 << " does not match the expected " << (2 * n) << " (for " << n << " bytes)." << '\n'
             );
@@ -324,4 +323,4 @@ private:
 
 /******************************************************************************/
 
-} // namespace Gem::Common::archive
+} // namespace Gem::Weft

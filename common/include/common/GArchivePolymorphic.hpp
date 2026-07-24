@@ -47,19 +47,18 @@
 // Geneva headers go here
 #include "common/GArchive.hpp"
 #include "common/GBinaryArchive.hpp"
-#include "common/GErrorStreamer.hpp"
-#include "common/GExceptions.hpp"
+#include "common/GWeftError.hpp"
 #include "common/GJsonArchive.hpp"
 #include "common/GPolymorphicRegistry.hpp"
 // NOTE: deliberately does NOT include GReflectiveInterfaceT.hpp. The private-ctor construction seam
-// is reached through the forward-declared archive::gem_registry_construct_reflective (declared in
+// is reached through the forward-declared Weft::gem_registry_construct_reflective (declared in
 // GArchive.hpp, defined in GReflectiveInterfaceT.hpp), so this header stays free of the reflection
 // layer -- otherwise GArchivePolymorphic -> GReflectiveInterfaceT -> GCommonInterfaceT would be a
 // cycle, blocking the codec/dispatch layer from being pulled into GCommonInterfaceT (the toStream
 // codec arm). Registration sites instantiate register_archivable and include the type's header
 // (hence the seam's definition).
 
-namespace Gem::Common::archive {
+namespace Gem::Weft {
 
 /******************************************************************************/
 /**
@@ -82,7 +81,7 @@ namespace Gem::Common::archive {
  * Identity is the codec-agnostic @c GPolymorphicRegistry (tag <-> factory).
  * Dispatch is @ref GArchivePointerDispatch, a per-hierarchy table mapping a tag
  * to four function-pointer thunks (one per concrete archive type) that each call
- * the concrete type's @c serialize through @c archive::access. A single
+ * the concrete type's @c serialize through @c Weft::access. A single
  * mechanism -- the registry -- carries identity; this table carries the typed
  * entry points a template @c serialize cannot expose as a virtual. Both are
  * populated together by @ref GEM_REGISTER_ARCHIVABLE.
@@ -143,7 +142,7 @@ public:
     /**
      * @brief Installs the four serialize thunks for concrete type @p Derived
      * under wire tag @p tag. Idempotent for a repeated identical registration.
-     * @tparam Derived The concrete type (must derive from @p Root and be reachable via @c archive::access).
+     * @tparam Derived The concrete type (must derive from @p Root and be reachable via @c Weft::access).
      * @param tag The wire tag (the same one used for the identity registry).
      */
     template <typename Derived>
@@ -167,7 +166,7 @@ public:
      * @param tag The wire tag identifying the dynamic type.
      * @param r The object, upcast to @p Root.
      * @param ar The archive.
-     * @throws geneva_exception if @p tag has no dispatch entry.
+     * @throws weft_exception if @p tag has no dispatch entry.
      */
     template <typename Archive>
     static void invoke(std::string_view tag, Root &r, Archive &ar) {
@@ -215,8 +214,8 @@ private:
         const std::scoped_lock lock{instance().mutex_};
         auto it = instance().map_.find(std::string{tag});
         if (it == instance().map_.end()) {
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+            throw weft_exception(
+                weft_error_streamer()
                 << "In GArchivePointerDispatch::lookup(): no serialize thunk is registered under tag \"" << tag
                 << "\" (its type is in the identity registry but was not registered for archive dispatch -- "
                 << "use GEM_REGISTER_ARCHIVABLE, not the identity-only GEM_REGISTER_TYPE)." << '\n'
@@ -384,7 +383,7 @@ inline std::size_t archiveRegisteredHierarchyCount() {
  * tag" at the first deserialization into a loud failure at startup. Cheap (a set
  * comparison per hierarchy) and idempotent, so it is safe to call once at process
  * or consumer init.
- * @throws geneva_exception listing every gap, if @ref archiveRegistrationGaps is non-empty.
+ * @throws weft_exception listing every gap, if @ref archiveRegistrationGaps is non-empty.
  */
 inline void verifyArchiveRegistrations() {
     const auto gaps = archiveRegistrationGaps();
@@ -395,18 +394,18 @@ inline void verifyArchiveRegistrations() {
     for (const auto &g : gaps) {
         detail_msg += "  - " + g + "\n";
     }
-    throw geneva_exception(
-        g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+    throw weft_exception(
+        weft_error_streamer()
         << "In verifyArchiveRegistrations(): the GArchive polymorphic registration is incomplete -- "
         << gaps.size() << " type(s) are identity-registered but not archive-dispatchable:\n"
         << detail_msg);
 }
 
-} // namespace Gem::Common::archive
+} // namespace Gem::Weft
 
 /**
  * @brief Registers a concrete polymorphic type for identity + @c GArchive
- * dispatch (see @ref Gem::Common::archive::register_archivable). Place exactly
+ * dispatch (see @ref Gem::Weft::register_archivable). Place exactly
  * one at namespace scope in a single translation unit per type. Variadic so a
  * template instantiation with comma-separated arguments passes through intact.
  * @param ... The fully-qualified concrete type.
@@ -414,5 +413,5 @@ inline void verifyArchiveRegistrations() {
 #define GEM_REGISTER_ARCHIVABLE(...)                                                       \
     namespace {                                                                            \
     const bool GEM_REGISTRY_CAT(gem_archivable_tag_, __COUNTER__) =                        \
-        ::Gem::Common::archive::register_archivable<__VA_ARGS__>(#__VA_ARGS__);            \
+        ::Gem::Weft::register_archivable<__VA_ARGS__>(#__VA_ARGS__);            \
     }

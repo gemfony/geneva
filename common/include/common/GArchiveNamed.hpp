@@ -75,7 +75,7 @@ namespace Gem::Common {
  */
 template <typename Archive>
 inline constexpr bool archive_is_saving_v = [] {
-    if constexpr (Gem::Common::archive::is_gem_archive_v<Archive>) {
+    if constexpr (Gem::Weft::is_gem_archive_v<Archive>) {
         return Archive::is_saving;
     } else {
         return Archive::is_saving::value;
@@ -91,8 +91,8 @@ inline constexpr bool archive_is_saving_v = [] {
  */
 template <typename Archive, typename T>
 inline void archive_named(Archive &ar, const char *name, T &ref) {
-    if constexpr (Gem::Common::archive::is_gem_archive_v<Archive>) {
-        ar &Gem::Common::archive::make_nvp(name, ref);
+    if constexpr (Gem::Weft::is_gem_archive_v<Archive>) {
+        ar &Gem::Weft::make_nvp(name, ref);
     } else {
         ar &boost::serialization::make_nvp(name, ref);
     }
@@ -109,8 +109,8 @@ inline void archive_named(Archive &ar, const char *name, T &ref) {
  */
 template <typename Base, typename Archive, typename Derived>
 inline void archive_named_base(Archive &ar, const char *name, Derived &derived) {
-    if constexpr (Gem::Common::archive::is_gem_archive_v<Archive>) {
-        ar &Gem::Common::archive::named_base<Base>(name, derived);
+    if constexpr (Gem::Weft::is_gem_archive_v<Archive>) {
+        ar &Gem::Weft::named_base<Base>(name, derived);
     } else {
         ar &boost::serialization::make_nvp(name, boost::serialization::base_object<Base>(derived));
     }
@@ -125,9 +125,9 @@ inline void archive_named_base(Archive &ar, const char *name, Derived &derived) 
  */
 template <typename Archive>
 inline void archive_named_binary(Archive &ar, const char *name, void *data, std::size_t bytes) {
-    if constexpr (Gem::Common::archive::is_gem_archive_v<Archive>) {
+    if constexpr (Gem::Weft::is_gem_archive_v<Archive>) {
         ar.member(name); // key the blob (a JSON member; a no-op for the flat binary codec)
-        ar &Gem::Common::archive::make_binary(data, bytes);
+        ar &Gem::Weft::make_binary(data, bytes);
     } else {
         ar &boost::serialization::make_nvp(name, boost::serialization::make_binary_object(data, bytes));
     }
@@ -142,9 +142,9 @@ inline void archive_named_binary(Archive &ar, const char *name, void *data, std:
  */
 template <typename Archive, typename T>
 inline void archive_named_array(Archive &ar, const char *name, T *data, std::size_t count) {
-    if constexpr (Gem::Common::archive::is_gem_archive_v<Archive>) {
+    if constexpr (Gem::Weft::is_gem_archive_v<Archive>) {
         ar.member(name); // key the range (a JSON member; a no-op for the flat binary codec)
-        ar &Gem::Common::archive::make_array(data, count);
+        ar &Gem::Weft::make_array(data, count);
     } else {
         ar &boost::serialization::make_nvp(name, boost::serialization::make_array(data, count));
     }

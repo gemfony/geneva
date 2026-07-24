@@ -48,11 +48,9 @@
 // Boost headers go here
 
 // Geneva headers go here
-#include "common/GCommonHelperFunctions.hpp"
-#include "common/GErrorStreamer.hpp"
-#include "common/GExceptions.hpp"
+#include "common/GWeftError.hpp"
 
-namespace Gem::Common {
+namespace Gem::Weft {
 
 /******************************************************************************/
 /**
@@ -143,7 +141,7 @@ public:
      * Registration is @b idempotent for an identical (type, tag) pair -- so an
      * accidental placement of @ref GEM_REGISTER_TYPE in a header, re-run by every
      * including TU, is harmless rather than a static-init crash. It throws a
-     * @c geneva_exception if @p tag is already bound to a @e different type
+     * @c weft_exception if @p tag is already bound to a @e different type
      * (a tag collision), or if @p Derived was already registered under a
      * @e different tag (a type must have one stable tag).
      *
@@ -187,15 +185,15 @@ public:
             if (it->second.type == ti) {
                 return false; // identical (type, tag) -- idempotent
             }
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+            throw weft_exception(
+                weft_error_streamer()
                 << "In GPolymorphicRegistry::reg(): tag \"" << key << "\" is already bound to a different type "
                 << "(existing type_index differs from the one being registered). Two types must not share a wire tag." << '\n'
             );
         }
         if (auto rit = type_to_tag.find(ti); rit != type_to_tag.end()) {
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+            throw weft_exception(
+                weft_error_streamer()
                 << "In GPolymorphicRegistry::reg(): the type being registered under tag \"" << key
                 << "\" is already registered under a different tag \"" << rit->second
                 << "\". A type must have exactly one stable wire tag." << '\n'
@@ -211,7 +209,7 @@ public:
      * @brief Reconstructs a default instance of the type registered under @p tag.
      * @param tag The wire tag read from the archive.
      * @return An owning pointer to a freshly default-constructed @p Root derivative.
-     * @throws geneva_exception if no type is registered under @p tag.
+     * @throws weft_exception if no type is registered under @p tag.
      */
     static std::unique_ptr<Root> create(std::string_view tag) {
         std::string key{tag};
@@ -219,8 +217,8 @@ public:
         auto &tag_to_entry = instance().tag_to_entry_;
         auto it = tag_to_entry.find(key);
         if (it == tag_to_entry.end()) {
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+            throw weft_exception(
+                weft_error_streamer()
                 << "In GPolymorphicRegistry::create(): no type is registered under tag \"" << key << "\". "
                 << "The archive references a type that was never registered (missing GEM_REGISTER_TYPE?)." << '\n'
             );
@@ -233,7 +231,7 @@ public:
      * @brief Returns the wire tag registered for the @e dynamic type of @p obj.
      * @param obj A live object whose most-derived type's tag is wanted.
      * @return The registered tag string (by value).
-     * @throws geneva_exception if the dynamic type of @p obj was never registered.
+     * @throws weft_exception if the dynamic type of @p obj was never registered.
      */
     static std::string tagOf(const Root &obj) {
         std::type_index ti{typeid(obj)};
@@ -241,8 +239,8 @@ public:
         auto &type_to_tag = instance().type_to_tag_;
         auto it = type_to_tag.find(ti);
         if (it == type_to_tag.end()) {
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+            throw weft_exception(
+                weft_error_streamer()
                 << "In GPolymorphicRegistry::tagOf(): the dynamic type \"" << ti.name() << "\" was never registered "
                 << "(missing GEM_REGISTER_TYPE for this concrete type?)." << '\n'
             );
@@ -318,7 +316,7 @@ private:
 
 /**
  * @brief Registers a concrete polymorphic type with its hierarchy's
- * @ref Gem::Common::GPolymorphicRegistry, keyed by its fully-qualified,
+ * @ref Gem::Weft::GPolymorphicRegistry, keyed by its fully-qualified,
  * stringized type name.
  *
  * Place exactly one @c GEM_REGISTER_TYPE(FullyQualifiedType) at namespace scope
@@ -340,10 +338,10 @@ private:
 #define GEM_REGISTER_TYPE(...)                                                                              \
     namespace {                                                                                             \
     const bool GEM_REGISTRY_CAT(gem_registry_tag_, __COUNTER__) =                                           \
-        ::Gem::Common::GPolymorphicRegistry<__VA_ARGS__::gemfony_common_root_t>::template reg<__VA_ARGS__>( \
+        ::Gem::Weft::GPolymorphicRegistry<__VA_ARGS__::gemfony_common_root_t>::template reg<__VA_ARGS__>( \
             #__VA_ARGS__);                                                                                  \
     }
 
 /******************************************************************************/
 
-} // namespace Gem::Common
+} // namespace Gem::Weft

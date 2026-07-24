@@ -449,7 +449,7 @@ class GDecoratorContainer<dimensions::Dim2, coordinate_type>
     // GReflectiveInterfaceAccess lets the mixin reach localMembers_(); the boost and GArchive
     // access shims both call the one-line serialize() below.
     friend class boost::serialization::access;
-    friend struct Gem::Common::archive::access;
+    friend struct Gem::Weft::access;
     friend struct Gem::Common::GReflectiveInterfaceAccess;
 
     /**
@@ -645,7 +645,7 @@ class GDecoratorContainer<dimensions::Dim3, coordinate_type>
     // the single-Parent GReflectiveInterfaceBaseT. GReflectiveInterfaceAccess lets the mixin reach
     // localMembers_(); the boost and GArchive access shims both call the one-line serialize() below.
     friend class boost::serialization::access;
-    friend struct Gem::Common::archive::access;
+    friend struct Gem::Weft::access;
     friend struct Gem::Common::GReflectiveInterfaceAccess;
 
     /**

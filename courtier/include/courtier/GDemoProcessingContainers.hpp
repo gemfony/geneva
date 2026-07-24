@@ -72,7 +72,7 @@ class GSimpleContainer
   : public Gem::Courtier::GProcessingContainerT<GSimpleContainer, bool> {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
-    friend struct Gem::Common::archive::access;
+    friend struct Gem::Weft::access;
 
     template <typename Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
@@ -118,7 +118,7 @@ class GRandomNumberContainer
   : public Gem::Courtier::GProcessingContainerT<GRandomNumberContainer, bool> {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
-    friend struct Gem::Common::archive::access;
+    friend struct Gem::Weft::access;
 
     template <typename Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
@@ -186,7 +186,7 @@ class GFaultyContainer
   : public Gem::Courtier::GProcessingContainerT<GFaultyContainer, bool> {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
-    friend struct Gem::Common::archive::access;
+    friend struct Gem::Weft::access;
 
     template <typename Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {

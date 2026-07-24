@@ -144,9 +144,9 @@ Go2::Go2(
     // possibly hours-into-a-run) deserialization -- the enumerable replacement for Boost's
     // compiler-invisible void_cast gap. Runs once per process.
     std::call_once(fArchiveCheck, []() {
-        Gem::Common::archive::verifyArchiveRegistrations();
+        Gem::Weft::verifyArchiveRegistrations();
         glogger << "GArchive registration self-check passed: "
-                << Gem::Common::archive::archiveRegisteredHierarchyCount()
+                << Gem::Weft::archiveRegisteredHierarchyCount()
                 << " polymorphic hierarchies are fully archive-dispatchable." << '\n'
                 << GLOGGING;
     });

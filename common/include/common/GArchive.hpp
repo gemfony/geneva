@@ -63,7 +63,7 @@
 
 // Geneva headers go here
 
-namespace Gem::Common::archive {
+namespace Gem::Weft {
 
 /******************************************************************************/
 /**
@@ -243,7 +243,7 @@ inline binary_wrapper_t make_binary(void *data, std::size_t bytes) {
 /**
  * @brief Access shim invoking a class's (often private) @c serialize member.
  * A serializable class grants access with
- * @c "friend struct Gem::Common::archive::access;".
+ * @c "friend struct Gem::Weft::access;".
  */
 struct access {
     /** @brief Invokes @c obj.serialize(ar, 0). @param ar The archive. @param obj The object to (de)serialize. */
@@ -267,7 +267,7 @@ struct access {
      * @brief Default-constructs a @p T on the heap through this friend shim,
      * reaching a *private* default constructor (the analogue of Boost's
      * @c access::construct). A concrete pointee kept default-constructible only for
-     * de-serialization grants access with @c "friend struct Gem::Common::archive::access;";
+     * de-serialization grants access with @c "friend struct Gem::Weft::access;";
      * the non-polymorphic owned-pointer load path calls this when the pointee is
      * not publicly default-constructible. (Hierarchy types instead reconstruct
      * through @c GReflectiveInterfaceAccess::construct via the registry.)
@@ -690,7 +690,7 @@ private:
         } else {
             static_assert(detail::serializable_class<Derived, U>,
                           "GOArchiveT: type is neither a supported primitive/container/pointer nor a serializable "
-                          "class (needs a serialize member reachable via archive::access, or a non-intrusive free "
+                          "class (needs a serialize member reachable via Weft::access, or a non-intrusive free "
                           "gem_archive_serialize(Archive&, T&) in the type's namespace)");
             d().begin_object();
             if constexpr (detail::has_member_serialize<Derived, U>) {
@@ -961,7 +961,7 @@ private:
         } else {
             static_assert(detail::serializable_class<Derived, U>,
                           "GIArchiveT: type is neither a supported primitive/container/pointer nor a serializable "
-                          "class (needs a serialize member reachable via archive::access, or a non-intrusive free "
+                          "class (needs a serialize member reachable via Weft::access, or a non-intrusive free "
                           "gem_archive_serialize(Archive&, T&) in the type's namespace)");
             d().enter_object();
             if constexpr (detail::has_member_serialize<Derived, U>) {
@@ -977,10 +977,10 @@ private:
 
 /******************************************************************************/
 
-} // namespace Gem::Common::archive
+} // namespace Gem::Weft
 
 /**
  * @brief Serializes a named member, deducing the name from the identifier.
  * The @c GArchive analogue of @c "ar & BOOST_SERIALIZATION_NVP(x)".
  */
-#define GEM_NVP(member) ::Gem::Common::archive::make_nvp(#member, member)
+#define GEM_NVP(member) ::Gem::Weft::make_nvp(#member, member)

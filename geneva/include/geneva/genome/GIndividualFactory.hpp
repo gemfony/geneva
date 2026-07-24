@@ -138,7 +138,7 @@ class GIndividualFactory // NOLINT(cppcoreguidelines-special-member-functions)
   : public GOptimizableEntityFactory {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
-    friend struct Gem::Common::archive::access;
+    friend struct Gem::Weft::access;
 
     /**
      * @brief Serialises only the factory base; Config and the genome cache are transient.

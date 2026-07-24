@@ -125,13 +125,13 @@ TEST_CASE("GArchive integration: generated serialize round-trips a single-level 
     a.root_s_ = "root";
 
     SECTION("binary") {
-        using namespace Gem::Common::archive;
+        using namespace Gem::Weft;
         PRoot b = gem_roundtrip<GBinaryOArchive, GBinaryIArchive>(a);
         CHECK(b.root_i_ == 7);
         CHECK(b.root_s_ == "root");
     }
     SECTION("json") {
-        using namespace Gem::Common::archive;
+        using namespace Gem::Weft;
         PRoot b = gem_roundtrip<GJsonOArchive, GJsonIArchive>(a);
         CHECK(b.root_i_ == 7);
         CHECK(b.root_s_ == "root");
@@ -148,7 +148,7 @@ TEST_CASE("GArchive integration: generated serialize round-trips the parent slic
     a.d_loadonly_ = 99;        // load-only -> must NOT be serialized
 
     SECTION("binary") {
-        using namespace Gem::Common::archive;
+        using namespace Gem::Weft;
         PDerived b = gem_roundtrip<GBinaryOArchive, GBinaryIArchive>(a);
         CHECK(b.root_i_ == 5);       // parent slice survived
         CHECK(b.root_s_ == "inherited");
@@ -157,7 +157,7 @@ TEST_CASE("GArchive integration: generated serialize round-trips the parent slic
         CHECK(b.d_loadonly_ == 0);   // load-only skipped by serialize -> stays default
     }
     SECTION("json") {
-        using namespace Gem::Common::archive;
+        using namespace Gem::Weft;
         PDerived b = gem_roundtrip<GJsonOArchive, GJsonIArchive>(a);
         CHECK(b.root_i_ == 5);
         CHECK(b.root_s_ == "inherited");
@@ -169,7 +169,7 @@ TEST_CASE("GArchive integration: generated serialize round-trips the parent slic
 
 TEST_CASE("GArchive integration: JSON output nests the parent slice under gemfonyParent",
           "[common][archive][integration]") {
-    using namespace Gem::Common::archive;
+    using namespace Gem::Weft;
     PDerived a;
     a.root_i_ = 5;
     a.d_d_ = 2.5;

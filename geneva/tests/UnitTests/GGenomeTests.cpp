@@ -194,7 +194,7 @@ private:
     }
 
     friend class boost::serialization::access;
-    friend struct Gem::Common::archive::access;
+    friend struct Gem::Weft::access;
     template <typename Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         Gem::Common::archive_named_base<GGenomeT<GemSphere>>(ar, "GGenomeT", *this);
@@ -775,7 +775,7 @@ TEST_CASE("GGenome: a derived individual round-trips in TEXT, XML and BINARY",
 // members are ported and registered.
 TEST_CASE("GGenomeLayout: round-trips through the GArchive codecs (binary + JSON)",
           "[flat][garchive][layoutid]") {
-    using namespace Gem::Common::archive;
+    using namespace Gem::Weft;
 
     // A layout with several groups across double / int32 / bool channels + labels, so the compact
     // per-group encoding, the escape route and the bool proxy channel are all exercised.
@@ -819,7 +819,7 @@ TEST_CASE("GGenomeLayout: round-trips through the GArchive codecs (binary + JSON
 // a GArchive codec, reconstructing an equal (compare()) individual.
 TEST_CASE("GGenome: a derived individual round-trips through the GArchive codecs (binary + JSON)",
           "[flat][garchive][individual]") {
-    using namespace Gem::Common::archive;
+    using namespace Gem::Weft;
     const std::vector<double> vals{1., -2., 3., -4., 5.};
 
     // Binary codec.
@@ -900,7 +900,7 @@ TEST_CASE("GCommonInterfaceT: an individual round-trips through toString/fromStr
 // GEM_REGISTER_ARCHIVABLE registration (GCheckCombinerT, registered in GIndividualMultiConstraint.cpp).
 TEST_CASE("GGenome: a populated individual (registered polymorphic constraint) round-trips through GArchive",
           "[flat][garchive][individual][polymorphic]") {
-    using namespace Gem::Common::archive;
+    using namespace Gem::Weft;
     const std::vector<double> vals{1., -2., 3., -4., 5.};
 
     auto make_populated = [&] {

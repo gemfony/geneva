@@ -35,11 +35,11 @@
 #include <typeinfo>
 #include <vector>
 
-#include "common/GExceptions.hpp"
 #include "common/GPolymorphicRegistry.hpp"
+#include "common/GWeftError.hpp"
 
-using ::geneva_exception; // note: geneva_exception lives in the global namespace, not Gem::Common
-using Gem::Common::GPolymorphicRegistry;
+using Gem::Weft::weft_exception; // the registry now throws Weft's own dependency-free exception type
+using Gem::Weft::GPolymorphicRegistry;
 
 // ---------------------------------------------------------------------------
 // Toy hierarchies.
@@ -135,7 +135,7 @@ TEST_CASE("GPolymorphicRegistry: a tag bound to a different type throws", "[comm
     using B = DerB<Tag>;
 
     GPolymorphicRegistry<Root>::template reg<A>("shared");
-    CHECK_THROWS_AS(GPolymorphicRegistry<Root>::template reg<B>("shared"), geneva_exception);
+    CHECK_THROWS_AS(GPolymorphicRegistry<Root>::template reg<B>("shared"), weft_exception);
 }
 
 TEST_CASE("GPolymorphicRegistry: a type re-registered under a different tag throws", "[common][polyregistry]") {
@@ -144,7 +144,7 @@ TEST_CASE("GPolymorphicRegistry: a type re-registered under a different tag thro
     using A = DerA<Tag>;
 
     GPolymorphicRegistry<Root>::template reg<A>("first");
-    CHECK_THROWS_AS(GPolymorphicRegistry<Root>::template reg<A>("second"), geneva_exception);
+    CHECK_THROWS_AS(GPolymorphicRegistry<Root>::template reg<A>("second"), weft_exception);
 }
 
 // ---------------------------------------------------------------------------
@@ -153,7 +153,7 @@ TEST_CASE("GPolymorphicRegistry: a type re-registered under a different tag thro
 TEST_CASE("GPolymorphicRegistry: create() on an unknown tag throws", "[common][polyregistry]") {
     struct Tag {};
     using Root = RootT<Tag>;
-    CHECK_THROWS_AS(GPolymorphicRegistry<Root>::create("nope"), geneva_exception);
+    CHECK_THROWS_AS(GPolymorphicRegistry<Root>::create("nope"), weft_exception);
 }
 
 TEST_CASE("GPolymorphicRegistry: tagOf() on an unregistered dynamic type throws", "[common][polyregistry]") {
@@ -161,7 +161,7 @@ TEST_CASE("GPolymorphicRegistry: tagOf() on an unregistered dynamic type throws"
     using Root = RootT<Tag>;
     using A = DerA<Tag>;
     A concrete; // never registered
-    CHECK_THROWS_AS(GPolymorphicRegistry<Root>::tagOf(concrete), geneva_exception);
+    CHECK_THROWS_AS(GPolymorphicRegistry<Root>::tagOf(concrete), weft_exception);
 }
 
 // ---------------------------------------------------------------------------

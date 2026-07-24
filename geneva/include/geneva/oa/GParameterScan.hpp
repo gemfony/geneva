@@ -187,7 +187,7 @@ class GBaseScanParT // NOLINT(cppcoreguidelines-special-member-functions)
   , public Gem::Common::GReflectiveInterfaceBaseT<GBaseScanParT<T>, Gem::Common::GCommonInterfaceT<GBaseScanParT<T>>> {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
-    friend struct Gem::Common::archive::access;
+    friend struct Gem::Weft::access;
     friend struct Gem::Common::GReflectiveInterfaceAccess;
 
     /** @brief Single declaration of this class'es members, so the GReflectiveInterfaceBaseT-generated
@@ -697,7 +697,7 @@ class GParameterScan // NOLINT(cppcoreguidelines-special-member-functions)
   : public GOptimizationAlgorithmT<GParameterScan> {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
-    friend struct Gem::Common::archive::access;
+    friend struct Gem::Weft::access;
     friend struct Gem::Common::GReflectiveInterfaceAccess;
 
 public:

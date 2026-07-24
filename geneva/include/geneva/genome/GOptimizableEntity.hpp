@@ -118,7 +118,7 @@ class GOptimizableEntity // NOLINT(cppcoreguidelines-special-member-functions)
   , public Interface::GRateableI {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
-    friend struct Gem::Common::archive::access;
+    friend struct Gem::Weft::access;
     friend struct Gem::Common::GReflectiveInterfaceAccess;
 
     /**

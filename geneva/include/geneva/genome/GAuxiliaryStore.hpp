@@ -315,7 +315,7 @@ private:
     // optimization forward; this lets a resumed algorithm keep its evolved scratch (sigma, swarm
     // velocity / personal-best, conjugate-gradient memory, personality) instead of restarting it.
     friend class boost::serialization::access;
-    friend struct Gem::Common::archive::access;
+    friend struct Gem::Weft::access;
 
     /**
      * @brief Full-state (de)serialization of the personality object and the opaque POD blocks

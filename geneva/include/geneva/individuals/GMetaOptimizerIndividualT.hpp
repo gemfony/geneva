@@ -186,7 +186,7 @@ class GMetaOptimizerIndividualT // NOLINT(cppcoreguidelines-special-member-funct
     // is kept BY HAND: it also emits ind_factory_, which localMembers_ deliberately omits (the factory is
     // kept-not-copied on load and ignored by compare) -- an asymmetry serialize_members() cannot express.
     friend class boost::serialization::access;
-    friend struct Gem::Common::archive::access;
+    friend struct Gem::Weft::access;
     friend struct Gem::Common::GReflectiveInterfaceAccess;
 
     template <class Archive>
@@ -1586,7 +1586,7 @@ class GOptOptMonitorT // NOLINT(cppcoreguidelines-special-member-functions)
 
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
-    friend struct Gem::Common::archive::access;
+    friend struct Gem::Weft::access;
     // The GArchive registry factory reconstructs this (private default ctor) through the
     // GReflectiveInterfaceAccess construct shim, so it needs reach to the private constructor.
     friend struct Gem::Common::GReflectiveInterfaceAccess;

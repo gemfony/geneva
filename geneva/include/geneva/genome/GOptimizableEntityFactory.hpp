@@ -62,7 +62,7 @@ class GOptimizableEntityFactory // NOLINT(cppcoreguidelines-special-member-funct
   : public Gem::Common::GFactoryT<GOptimizableEntity> {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
-    friend struct Gem::Common::archive::access;
+    friend struct Gem::Weft::access;
 
     template <typename Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {

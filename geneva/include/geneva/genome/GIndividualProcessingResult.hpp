@@ -59,7 +59,7 @@ namespace Gem::Geneva::Genome {
 class individual_processing_result {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
-    friend struct Gem::Common::archive::access;
+    friend struct Gem::Weft::access;
 
     /**
      * @brief Serializes this object to/from a Boost archive or a GArchive codec

@@ -54,7 +54,7 @@
 #include "common/GBinaryArchive.hpp"
 #include "common/GJsonArchive.hpp"
 
-using namespace Gem::Common::archive;
+using namespace Gem::Weft;
 
 namespace {
 
@@ -230,10 +230,10 @@ TEST_CASE("GArchive coverage: non-intrusive free gem_archive_serialize round-tri
 namespace {
 
 // A concrete pointee whose default constructor is PRIVATE (kept only for de-serialization),
-// befriending archive::access exactly as GIndividualFactory does. The non-polymorphic owned-pointer
+// befriending Weft::access exactly as GIndividualFactory does. The non-polymorphic owned-pointer
 // load path must reconstruct it through access::construct_raw, not a public new.
 class PrivateCtorPod {
-    friend struct Gem::Common::archive::access;
+    friend struct Gem::Weft::access;
     template <typename Archive>
     void serialize(Archive &ar, [[maybe_unused]] unsigned int version) {
         ar &make_nvp("v", v_);

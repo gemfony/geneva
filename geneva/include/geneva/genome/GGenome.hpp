@@ -96,7 +96,7 @@ class GGenome // NOLINT(cppcoreguidelines-special-member-functions)
   : public Gem::Common::GReflectiveInterfaceBaseT<GGenome, GOptimizableEntity> {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
-    friend struct Gem::Common::archive::access;
+    friend struct Gem::Weft::access;
     friend struct Gem::Common::GReflectiveInterfaceAccess;
 
     /** @brief Single declaration of this class's local data members, feeding the
@@ -280,7 +280,7 @@ class GGenome // NOLINT(cppcoreguidelines-special-member-functions)
      */
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int version) {
-        if constexpr (Gem::Common::archive::is_gem_archive_v<Archive>) {
+        if constexpr (Gem::Weft::is_gem_archive_v<Archive>) {
             if constexpr (Archive::is_saving) {
                 save(ar, version);
             } else {

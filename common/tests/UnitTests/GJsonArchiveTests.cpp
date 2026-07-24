@@ -41,9 +41,9 @@
 
 #include "common/GJsonArchive.hpp"
 
-using Gem::Common::archive::base_object;
-using Gem::Common::archive::GJsonIArchive;
-using Gem::Common::archive::GJsonOArchive;
+using Gem::Weft::base_object;
+using Gem::Weft::GJsonIArchive;
+using Gem::Weft::GJsonOArchive;
 
 // ---------------------------------------------------------------------------
 // Round-trip helper: save through serialized JSON *text* (the real checkpoint
@@ -71,9 +71,9 @@ struct Point {
 
     template <typename Archive>
     void serialize(Archive &ar, unsigned) {
-        ar &Gem::Common::archive::make_nvp("x", x);
-        ar &Gem::Common::archive::make_nvp("y", y);
-        ar &Gem::Common::archive::make_nvp("name", name);
+        ar &Gem::Weft::make_nvp("x", x);
+        ar &Gem::Weft::make_nvp("y", y);
+        ar &Gem::Weft::make_nvp("name", name);
     }
     bool operator==(const Point &) const = default;
 };
@@ -85,11 +85,11 @@ public:
     bool operator==(const Secret &) const = default;
 
 private:
-    friend struct Gem::Common::archive::access;
+    friend struct Gem::Weft::access;
     template <typename Archive>
     void serialize(Archive &ar, unsigned) {
-        ar &Gem::Common::archive::make_nvp("a", a_);
-        ar &Gem::Common::archive::make_nvp("b", b_);
+        ar &Gem::Weft::make_nvp("a", a_);
+        ar &Gem::Weft::make_nvp("b", b_);
     }
     int a_ = 0;
     std::string b_;
@@ -99,7 +99,7 @@ struct Base {
     int b = 0;
     template <typename Archive>
     void serialize(Archive &ar, unsigned) {
-        ar &Gem::Common::archive::make_nvp("b", b);
+        ar &Gem::Weft::make_nvp("b", b);
     }
     bool operator==(const Base &) const = default;
 };
@@ -109,7 +109,7 @@ struct Derived : Base {
     template <typename Archive>
     void serialize(Archive &ar, unsigned) {
         ar &base_object<Base>(*this);
-        ar &Gem::Common::archive::make_nvp("d", d);
+        ar &Gem::Weft::make_nvp("d", d);
     }
     bool operator==(const Derived &) const = default;
 };

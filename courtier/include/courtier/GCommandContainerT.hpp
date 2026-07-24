@@ -80,7 +80,7 @@ template <typename processable_type, typename command_type>
 class GCommandContainerT {
     ///////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
-    friend struct Gem::Common::archive::access;
+    friend struct Gem::Weft::access;
 
     /**
      * @brief Boost.Serialization hook that (de-)serializes the command and the payload pointer, plus the
@@ -349,14 +349,14 @@ std::string container_to_string(
             // GArchive flat-binary codec. The layout send-once interning is orthogonal: it lives
             // inside GGenome::save (an ambient GWireSerializationScope, if any, is honoured there,
             // and the interned layout travels as an opaque blob), so the outer codec choice is free.
-            Gem::Common::archive::GBinaryOArchive oa;
-            oa &Gem::Common::archive::make_nvp("command_container", container);
+            Gem::Weft::GBinaryOArchive oa;
+            oa &Gem::Weft::make_nvp("command_container", container);
             return oa.str();
         }
 
         case GEM_JSON: {
-            Gem::Common::archive::GJsonOArchive oa;
-            oa &Gem::Common::archive::make_nvp("command_container", container);
+            Gem::Weft::GJsonOArchive oa;
+            oa &Gem::Weft::make_nvp("command_container", container);
             return oa.str();
         }
         }
@@ -426,13 +426,13 @@ void container_from_string(
 
         case GEM_BINARY: {
             // descr is a live named parameter, so GBinaryIArchive's string_view over it stays valid.
-            Gem::Common::archive::GBinaryIArchive ia(descr);
-            ia &Gem::Common::archive::make_nvp("command_container", container);
+            Gem::Weft::GBinaryIArchive ia(descr);
+            ia &Gem::Weft::make_nvp("command_container", container);
         } break;
 
         case GEM_JSON: {
-            Gem::Common::archive::GJsonIArchive ia(descr);
-            ia &Gem::Common::archive::make_nvp("command_container", container);
+            Gem::Weft::GJsonIArchive ia(descr);
+            ia &Gem::Weft::make_nvp("command_container", container);
         } break;
         }
     }

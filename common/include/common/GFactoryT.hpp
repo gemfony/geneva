@@ -80,7 +80,7 @@ template <typename prod_type>
 class GFactoryT {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
-    friend struct Gem::Common::archive::access;
+    friend struct Gem::Weft::access;
 
     /**
      * @brief Loads the factory's persistent state, from a Boost archive or a GArchive codec
@@ -120,7 +120,7 @@ class GFactoryT {
      */
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int version) {
-        if constexpr (Gem::Common::archive::is_gem_archive_v<Archive>) {
+        if constexpr (Gem::Weft::is_gem_archive_v<Archive>) {
             if constexpr (Archive::is_saving) {
                 save(ar, version);
             } else {

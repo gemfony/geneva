@@ -135,7 +135,7 @@ class g_processing_exception : public geneva_exception {
 class GProcessable {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
-    friend struct Gem::Common::archive::access;
+    friend struct Gem::Weft::access;
 
     /**
      * @brief Serialises the non-generic lifecycle state (status, errors, routing ids, timing).

@@ -68,6 +68,7 @@ SET ( GENEVACOMMONINCLUDES
 	GTypeToStringT.hpp
 	GTypeTraitsT.hpp
 	GUnitTestFrameworkT.hpp
+	GWeftError.hpp
 )
 
 # The concurrency facilities (thread pool/group + MPMC queues) live in a distinct
