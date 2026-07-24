@@ -446,9 +446,10 @@ class GDecoratorContainer<dimensions::Dim2, coordinate_type>
     // onto the single-Parent GReflectiveInterfaceBaseT (Parent = the GCommonInterfaceT root)
     // exactly as the hand-written serialize (base_object<GPtrContainerT>), load_
     // (GPtrContainerT::operator=) and compare_ (compare_t on data_cnt_) did.
-    // GReflectiveInterfaceAccess lets the mixin reach localMembers_(); boost access calls the
-    // one-line serialize() below.
+    // GReflectiveInterfaceAccess lets the mixin reach localMembers_(); the boost and GArchive
+    // access shims both call the one-line serialize() below.
     friend class boost::serialization::access;
+    friend struct Gem::Common::archive::access;
     friend struct Gem::Common::GReflectiveInterfaceAccess;
 
     /**
@@ -642,8 +643,9 @@ class GDecoratorContainer<dimensions::Dim3, coordinate_type>
     // Multiply-inherits GPtrContainerT for container BEHAVIOUR; that base's sole
     // serialized state (data_cnt_) rides in localMembers_, so the quartet folds onto
     // the single-Parent GReflectiveInterfaceBaseT. GReflectiveInterfaceAccess lets the mixin reach
-    // localMembers_(); boost access calls the one-line serialize() below.
+    // localMembers_(); the boost and GArchive access shims both call the one-line serialize() below.
     friend class boost::serialization::access;
+    friend struct Gem::Common::archive::access;
     friend struct Gem::Common::GReflectiveInterfaceAccess;
 
     /**
