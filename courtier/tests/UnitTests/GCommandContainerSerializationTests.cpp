@@ -98,7 +98,9 @@ TEST_CASE("GCommandContainerT survives a round-trip in every serialization mode"
     const auto modes = {
         Gem::Common::serializationMode::TEXT,
         Gem::Common::serializationMode::XML,
-        Gem::Common::serializationMode::BINARY
+        Gem::Common::serializationMode::BINARY,
+        Gem::Common::serializationMode::GEM_BINARY, // GArchive flat-binary wire codec
+        Gem::Common::serializationMode::GEM_JSON    // GArchive JSON wire codec
     };
 
     for(const auto mode : modes) {
