@@ -38,7 +38,7 @@
 #include "common/GExceptions.hpp"
 #include "common/GFactoryT.hpp"
 #include "common/GLogger.hpp"
-#include "geneva/ind/GOptimizableEntity.hpp"
+#include "geneva/genome/GOptimizableEntity.hpp"
 #include "geneva/GPostProcessorT.hpp"
 
 // Forward declarations (kept light so this header carries no OA / flat-genome dependency): the base

@@ -30,7 +30,7 @@
 #pragma once
 
 // Geneva headers
-#include "geneva/ind/GBaseGPUMarshallerT.hpp"
+#include "geneva/genome/GBaseGPUMarshallerT.hpp"
 
 /******************************************************************************/
 /**

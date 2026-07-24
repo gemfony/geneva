@@ -54,7 +54,7 @@
 // Geneva header files go here
 #include "common/GReflectiveInterfaceT.hpp"
 #include "common/GFixedSizePriorityQueueT.hpp"
-#include "geneva/ind/GOptimizableEntity.hpp"
+#include "geneva/genome/GOptimizableEntity.hpp"
 #include "geneva/GenevaHelperFunctions.hpp"
 
 namespace Gem::Geneva::Genome {

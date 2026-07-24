@@ -40,7 +40,7 @@
 
 // Geneva headers go here
 #include "common/GParserBuilder.hpp"
-#include "geneva/ind/GOptimizableEntity.hpp"
+#include "geneva/genome/GOptimizableEntity.hpp"
 #include "geneva/oa/GOptimizationAlgorithmBase.hpp"
 #include "geneva/oa/GOAFactoryT.hpp"
 

@@ -48,10 +48,10 @@
 #include "common/GLogger.hpp"
 #include "common/GParserBuilder.hpp"
 #include "common/concurrency/GLoadOnceCellT.hpp"
-#include "geneva/ind/GGenome.hpp"
-#include "geneva/ind/GGenomeBuilder.hpp"
-#include "geneva/ind/GOptimizableEntity.hpp"
-#include "geneva/ind/GOptimizableEntityFactory.hpp"
+#include "geneva/genome/GGenome.hpp"
+#include "geneva/genome/GGenomeBuilder.hpp"
+#include "geneva/genome/GOptimizableEntity.hpp"
+#include "geneva/genome/GOptimizableEntityFactory.hpp"
 
 namespace Gem::Geneva::OptimizationAlgorithms {
 // The OA-owned adaption configuration produced (optionally) by a flat individual's

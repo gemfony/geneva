@@ -27,7 +27,7 @@
  *
  ********************************************************************************/
 
-#include "geneva/ind/GOptimizableEntity.hpp"
+#include "geneva/genome/GOptimizableEntity.hpp"
 
 #include "geneva/GFaultInjector.hpp" // the pluggable, process-global evaluation fault injector
 

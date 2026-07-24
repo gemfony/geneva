@@ -50,8 +50,8 @@
 #include "common/GBuildFingerprint.hpp"      // GENEVA_BUILD_FINGERPRINT
 #include "common/GModuleManifest.hpp"        // GenevaContribution / GenevaModuleManifest / kinds / version string
 #include "geneva/GMarshallerPlugin.hpp"      // GMarshallerProviderPtr / GGPUMarshallerProviderT
-#include "geneva/ind/GIndividualFactory.hpp" // Gem::Geneva::Genome::GIndividualFactory<>
-#include "geneva/ind/GIndividualPlugin.hpp"  // GIndividualFactoryPtr
+#include "geneva/genome/GIndividualFactory.hpp" // Gem::Geneva::Genome::GIndividualFactory<>
+#include "geneva/genome/GIndividualPlugin.hpp"  // GIndividualFactoryPtr
 
 #include "GGPUParaboloid.hpp"
 #include "GGPUParaboloidMarshaller.hpp"

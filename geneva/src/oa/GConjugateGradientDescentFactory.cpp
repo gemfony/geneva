@@ -35,7 +35,7 @@
 #include "geneva/oa/GConjugateGradientDescent.hpp"
 #include "geneva/oa/GConjugateGradientDescent_PersonalityTraits.hpp"
 #include "geneva/oa/GOAFactoryT.hpp"
-#include "geneva/ind/GOptimizableEntity.hpp"
+#include "geneva/genome/GOptimizableEntity.hpp"
 #include <cstddef>
 #include <memory>
 #include <string>

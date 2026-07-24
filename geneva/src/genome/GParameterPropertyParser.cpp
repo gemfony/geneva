@@ -27,7 +27,7 @@
  *
  ********************************************************************************/
 
-#include "geneva/ind/GParameterPropertyParser.hpp"
+#include "geneva/genome/GParameterPropertyParser.hpp"
 #include "common/GExceptions.hpp"
 #include "common/GLogger.hpp"
 

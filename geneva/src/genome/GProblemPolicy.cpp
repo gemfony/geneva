@@ -27,10 +27,10 @@
  *
  ********************************************************************************/
 
-#include "geneva/ind/GProblemPolicy.hpp"
+#include "geneva/genome/GProblemPolicy.hpp"
 
 // The constraint reads the genome's parameter values, so its full definition is needed here.
-#include "geneva/ind/GOptimizableEntity.hpp"
+#include "geneva/genome/GOptimizableEntity.hpp"
 
 namespace Gem::Geneva::Genome {
 

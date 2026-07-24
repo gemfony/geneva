@@ -33,7 +33,7 @@
 
 #include "GMultiCriterionParabolaIndividual.hpp"
 
-#include "geneva/ind/GProblemStoreT.hpp"
+#include "geneva/genome/GProblemStoreT.hpp"
 #include "common/GArchivePolymorphic.hpp" // GEM_REGISTER_ARCHIVABLE (GArchive polymorphic-pointer dispatch)
 #include "geneva/oa/GAdaption.hpp"
 #include "geneva/oa/GAdaptionConfig.hpp"

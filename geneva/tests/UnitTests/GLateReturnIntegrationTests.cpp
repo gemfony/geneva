@@ -52,9 +52,9 @@
 #include <catch2/catch_test_macros.hpp>
 
 #include "courtier/GCourtierEnums.hpp" // SUBMISSION_UUID_TYPE
-#include "geneva/ind/GOptimizableEntity.hpp"
-#include "geneva/ind/GGenomeT.hpp"
-#include "geneva/ind/GGenomeBuilder.hpp"
+#include "geneva/genome/GOptimizableEntity.hpp"
+#include "geneva/genome/GGenomeT.hpp"
+#include "geneva/genome/GGenomeBuilder.hpp"
 #include "geneva/oa/GOptimizationAlgorithmBase.hpp"
 
 using namespace Gem::Geneva;

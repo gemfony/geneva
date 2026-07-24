@@ -56,7 +56,7 @@
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/GFaultInjector.hpp"
 #include "geneva/GSigHupHandler.hpp"
-#include "geneva/ind/GOptimizableEntity.hpp"
+#include "geneva/genome/GOptimizableEntity.hpp"
 #include "geneva/Interface/GOptimizerIT.hpp"
 #include "geneva/oa/GOptimizationAlgorithmBase.hpp"
 #include "geneva/oa/GFactoryStore.hpp"

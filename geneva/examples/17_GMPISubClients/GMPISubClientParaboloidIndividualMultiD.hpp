@@ -44,7 +44,7 @@
 
 // Geneva header files go here
 #include <courtier/GMPIHelperFunctions.hpp>
-#include <geneva/ind/GGenomeBuilder.hpp>
+#include <geneva/genome/GGenomeBuilder.hpp>
 #include <geneva/GMPISubClientIndividual.hpp>
 
 #include <memory>

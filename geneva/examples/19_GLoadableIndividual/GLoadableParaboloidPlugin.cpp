@@ -51,8 +51,8 @@
 #include <boost/serialization/export.hpp>
 
 #include "common/GModuleManifest.hpp" // GenevaModuleManifest
-#include "geneva/ind/GIndividualFactory.hpp"
-#include "geneva/ind/GIndividualPlugin.hpp" // Gem::Geneva::individualManifest<>
+#include "geneva/genome/GIndividualFactory.hpp"
+#include "geneva/genome/GIndividualPlugin.hpp" // Gem::Geneva::individualManifest<>
 
 #include "GLoadableParaboloid.hpp"
 

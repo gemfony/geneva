@@ -47,7 +47,7 @@
 #include "geneva/oa/GOptimizationAlgorithmBase.hpp"
 #include "geneva/oa/GFactoryStore.hpp"
 #include "geneva/GModuleLoader.hpp"
-#include "geneva/ind/GOptimizableEntity.hpp"
+#include "geneva/genome/GOptimizableEntity.hpp"
 #include "hap/GRandomFactory.hpp"
 #include <boost/program_options.hpp>
 #include <algorithm>

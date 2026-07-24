@@ -41,7 +41,7 @@
 // Geneva headers go here
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/GenevaHelperFunctions.hpp" // isWorse(double, double, maxMode)
-#include "geneva/ind/GOptimizableEntity.hpp"
+#include "geneva/genome/GOptimizableEntity.hpp"
 
 namespace Gem::Geneva::OptimizationAlgorithms {
 

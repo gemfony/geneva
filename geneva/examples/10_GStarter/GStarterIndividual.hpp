@@ -48,10 +48,10 @@
 // Geneva header files go here
 #include "common/GCommonMathHelperFunctionsT.hpp"
 #include "common/GParserBuilder.hpp"
-#include "geneva/ind/GGenome.hpp"
-#include "geneva/ind/GGenomeT.hpp"
-#include "geneva/ind/GIndividualFactory.hpp"
-#include "geneva/ind/GGenomeBuilder.hpp"
+#include "geneva/genome/GGenome.hpp"
+#include "geneva/genome/GGenomeT.hpp"
+#include "geneva/genome/GIndividualFactory.hpp"
+#include "geneva/genome/GGenomeBuilder.hpp"
 #include <filesystem>
 #include <memory>
 #include <string>

@@ -39,10 +39,10 @@
 #include <vector>
 
 // Geneva headers go here
-#include "geneva/ind/GAdaptionAuxKeys.hpp"
-#include "geneva/ind/GAdaptionKernels.hpp"
-#include "geneva/ind/GAuxiliaryStore.hpp"
-#include "geneva/ind/GGenome.hpp"
+#include "geneva/genome/GAdaptionAuxKeys.hpp"
+#include "geneva/genome/GAdaptionKernels.hpp"
+#include "geneva/genome/GAuxiliaryStore.hpp"
+#include "geneva/genome/GGenome.hpp"
 #include "geneva/oa/GAdaptionConfig.hpp"
 #include "hap/GRandomBase.hpp"
 #include "hap/GRandomLeasePool.hpp"
@@ -415,7 +415,7 @@ inline std::vector<double> readAdaptionSigmas(
  * the plain base). The genome (structure-only) supplies the group SKELETON, and the
  * caller authors the adaptors onto the returned config via its fluent API (cfg->groupDouble(i).gauss(...) /
  * cfg->forLabel(...).gauss(...)). It is an oa-side factory because GAdaptionConfig lives in geneva/oa/ while
- * GGenomeBuilder lives in geneva/ind/ (oa depends on ind, not the reverse).
+ * GGenomeBuilder lives in geneva/genome/ (oa depends on ind, not the reverse).
  */
 template <typename ConfigT = GAdaptionConfigBase>
 std::shared_ptr<ConfigT> makeAdaptionConfig(const detail::GGenome &genome) {

@@ -33,8 +33,8 @@
 #include "common/GExceptions.hpp"
 #include "common/GExpectationChecksT.hpp"
 #include "common/GLogger.hpp"
-#include "geneva/ind/GGenome.hpp"
-#include "geneva/ind/GGenomeBuilder.hpp"
+#include "geneva/genome/GGenome.hpp"
+#include "geneva/genome/GGenomeBuilder.hpp"
 #include <algorithm>
 #include <cstddef>
 #include <functional>

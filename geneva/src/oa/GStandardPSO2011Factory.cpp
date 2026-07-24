@@ -35,7 +35,7 @@
 #include "geneva/oa/GOAFactoryT.hpp"
 #include "geneva/oa/GStandardPSO2011.hpp"
 #include "geneva/oa/GStandardPSO2011_PersonalityTraits.hpp"
-#include "geneva/ind/GOptimizableEntity.hpp"
+#include "geneva/genome/GOptimizableEntity.hpp"
 #include <cstddef>
 #include <memory>
 #include <string>

@@ -44,7 +44,7 @@
 // Geneva headers
 #include "common/GProviderStoreT.hpp"
 #include "common/GProviderT.hpp"
-#include "geneva/ind/GBaseGPUMarshallerT.hpp"
+#include "geneva/genome/GBaseGPUMarshallerT.hpp"
 
 namespace Gem::Geneva {
 

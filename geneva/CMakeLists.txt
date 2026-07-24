@@ -35,7 +35,7 @@
 #     *.hpp                              top-level (Go2.hpp, GSigHupHandler.hpp,
 #                                        GMultiConstraintT.hpp,
 #                                        GPluggableOptimizationMonitors.hpp, ...)
-#     ind/*.hpp                          genome / entity infrastructure (GGenome,
+#     genome/*.hpp                       genome / entity infrastructure (GGenome,
 #                                        GOptimizableEntity, factories, constraints,
 #                                        priority queue, parameter-property parser)
 #     oa/*.hpp                           optimization algorithms (EA, SA,

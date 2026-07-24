@@ -56,11 +56,11 @@
 
 #include <boost/serialization/export.hpp>
 
-#include "geneva/ind/GAdaptionAuxKeys.hpp"
-#include "geneva/ind/GAdaptionKernels.hpp"
-#include "geneva/ind/GGenome.hpp"
-#include "geneva/ind/GGenomeT.hpp"
-#include "geneva/ind/GGenomeBuilder.hpp"
+#include "geneva/genome/GAdaptionAuxKeys.hpp"
+#include "geneva/genome/GAdaptionKernels.hpp"
+#include "geneva/genome/GGenome.hpp"
+#include "geneva/genome/GGenomeT.hpp"
+#include "geneva/genome/GGenomeBuilder.hpp"
 #include "geneva/individuals/GLineFitIndividual.hpp"
 #include "geneva/oa/GAdaption.hpp"
 #include "geneva/oa/GAdaptionConfig.hpp"

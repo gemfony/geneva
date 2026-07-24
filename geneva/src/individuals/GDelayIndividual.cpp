@@ -38,8 +38,8 @@
 #include "common/GLogger.hpp"
 #include "common/GParserBuilder.hpp"
 #include "hap/GRandomLeasePool.hpp"
-#include "geneva/ind/GGenome.hpp"
-#include "geneva/ind/GGenomeBuilder.hpp"
+#include "geneva/genome/GGenome.hpp"
+#include "geneva/genome/GGenomeBuilder.hpp"
 #include <chrono>
 #include <cstddef>
 #include <cstdint>

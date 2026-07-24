@@ -43,7 +43,7 @@
 // Geneva headers go here
 #include "common/GFactoryT.hpp"
 #include "common/GModuleManifest.hpp" // the unified module manifest (GenevaCompat + contributions)
-#include "geneva/ind/GOptimizableEntity.hpp"
+#include "geneva/genome/GOptimizableEntity.hpp"
 
 namespace Gem::Geneva {
 

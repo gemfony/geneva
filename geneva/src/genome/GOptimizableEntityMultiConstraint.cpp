@@ -27,12 +27,12 @@
  *
  ********************************************************************************/
 
-#include "geneva/ind/GOptimizableEntityMultiConstraint.hpp"
+#include "geneva/genome/GOptimizableEntityMultiConstraint.hpp"
 #include "common/GCommonInterfaceT.hpp"
 #include "common/GExpectationChecksT.hpp"
 #include "common/GParserBuilder.hpp"
 #include "geneva/GMultiConstraintT.hpp"
-#include "geneva/ind/GOptimizableEntity.hpp"
+#include "geneva/genome/GOptimizableEntity.hpp"
 
 namespace Gem::Geneva::Genome {
 

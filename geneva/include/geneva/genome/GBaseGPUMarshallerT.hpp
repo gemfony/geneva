@@ -45,8 +45,8 @@
 #include "common/GExceptions.hpp"
 #include "common/GLogger.hpp"
 #include "courtier/gpu/GGPUEvaluableI.hpp"
-#include "geneva/ind/GGenome.hpp"
-#include "geneva/ind/GOptimizableEntity.hpp"
+#include "geneva/genome/GGenome.hpp"
+#include "geneva/genome/GOptimizableEntity.hpp"
 
 namespace Gem::Geneva {
 

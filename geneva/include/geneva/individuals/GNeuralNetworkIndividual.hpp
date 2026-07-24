@@ -74,11 +74,11 @@
 #include "common/GContainerT.hpp"
 #include "common/GSingletonT.hpp"
 #include "common/GUnitTestFrameworkT.hpp"
-#include "geneva/ind/GGenome.hpp"
-#include "geneva/ind/GGenomeT.hpp"
-#include "geneva/ind/GIndividualFactory.hpp"
-#include "geneva/ind/GGenomeArchitecture.hpp"
-#include "geneva/ind/GGenomeBuilder.hpp"
+#include "geneva/genome/GGenome.hpp"
+#include "geneva/genome/GGenomeT.hpp"
+#include "geneva/genome/GIndividualFactory.hpp"
+#include "geneva/genome/GGenomeArchitecture.hpp"
+#include "geneva/genome/GGenomeBuilder.hpp"
 #include "hap/GRandomT.hpp"
 
 namespace Gem::Geneva::OptimizationAlgorithms {

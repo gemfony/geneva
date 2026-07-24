@@ -46,7 +46,7 @@
 #include "common/GCommonMathHelperFunctionsT.hpp"
 #include "common/concurrency/GLoadOnceCellT.hpp"
 #include "geneva/GOptimizationEnums.hpp"
-#include "geneva/ind/GAdaptionKernels.hpp"
+#include "geneva/genome/GAdaptionKernels.hpp"
 
 namespace Gem::Geneva::Genome {
 
@@ -55,7 +55,7 @@ namespace Gem::Geneva::Genome {
  * The adaption floating-point type for a parameter type: double parameters adapt in double, float
  * parameters in float, everything else (int / bool) carries a double-typed Gauss config that simply
  * stays unused (those channels are mutated by flip adaptors). The trait is defined locally so the
- * layout (in geneva/ind/) stays self-contained.
+ * layout (in geneva/genome/) stays self-contained.
  *
  * @tparam T The parameter type whose adaption floating-point type is being selected.
  */

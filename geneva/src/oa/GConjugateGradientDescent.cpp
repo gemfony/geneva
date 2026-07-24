@@ -47,7 +47,7 @@
 #include "geneva/GenevaHelperFunctions.hpp"
 #include "geneva/oa/GOptimizationAlgorithmBase.hpp"
 #include "geneva/oa/GConjugateGradientDescent_PersonalityTraits.hpp"
-#include "geneva/ind/GOptimizableEntity.hpp"
+#include "geneva/genome/GOptimizableEntity.hpp"
 #include <cstddef>
 #include <cstdint>
 #include <memory>

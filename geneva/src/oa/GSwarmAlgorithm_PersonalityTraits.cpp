@@ -35,7 +35,7 @@
 #include "common/GExpectationChecksT.hpp"
 #include "common/GLogger.hpp"
 #include "geneva/GPersonalityTraits.hpp"
-#include "geneva/ind/GOptimizableEntity.hpp"
+#include "geneva/genome/GOptimizableEntity.hpp"
 #include <cstddef>
 #include <memory>
 #include <tuple>

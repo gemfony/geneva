@@ -49,10 +49,10 @@
 #include <boost/serialization/nvp.hpp>
 #include <boost/serialization/base_object.hpp>
 
-#include "geneva/ind/GOptimizableEntity.hpp"
-#include "geneva/ind/GGenomeT.hpp"
-#include "geneva/ind/GGenomeBuilder.hpp"
-#include "geneva/ind/GProblemStoreT.hpp"
+#include "geneva/genome/GOptimizableEntity.hpp"
+#include "geneva/genome/GGenomeT.hpp"
+#include "geneva/genome/GGenomeBuilder.hpp"
+#include "geneva/genome/GProblemStoreT.hpp"
 
 using namespace Gem::Geneva;        // activityMode, serializationMode helpers
 using namespace Gem::Geneva::Genome;

@@ -33,7 +33,7 @@
 #include "common/GGlobalDefines.hpp"
 
 // Geneva headers go here
-#include "geneva/ind/GAuxiliaryStore.hpp"
+#include "geneva/genome/GAuxiliaryStore.hpp"
 
 namespace Gem::Geneva::Genome {
 

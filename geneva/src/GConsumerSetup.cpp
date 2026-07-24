@@ -68,7 +68,7 @@
 #ifdef GENEVA_BUILD_WITH_GPU_CONSUMER
 #include "courtier/gpu/GGPUConsumer.hpp"
 #include "geneva/GMarshallerSetup.hpp"
-#include "geneva/ind/GBaseGPUMarshallerT.hpp"
+#include "geneva/genome/GBaseGPUMarshallerT.hpp"
 #endif /* GENEVA_BUILD_WITH_GPU_CONSUMER */
 
 namespace Gem::Geneva {

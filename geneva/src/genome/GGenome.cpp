@@ -27,7 +27,7 @@
  *
  ********************************************************************************/
 
-#include "geneva/ind/GGenome.hpp"
+#include "geneva/genome/GGenome.hpp"
 
 #include <algorithm>
 #include <cstddef>

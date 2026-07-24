@@ -42,7 +42,7 @@
 #include "common/GCommonHelperFunctionsT.hpp"
 #include "geneva/GIndividualMultiConstraint.hpp"
 #include "geneva/GMultiConstraintT.hpp"
-#include "geneva/ind/GOptimizableEntity.hpp"
+#include "geneva/genome/GOptimizableEntity.hpp"
 
 namespace Gem::Geneva::Genome {
 

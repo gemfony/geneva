@@ -42,7 +42,7 @@
 
 // Geneva headers go here
 #include "geneva/GOptimizationEnums.hpp"
-#include "geneva/ind/GGenomeLayout.hpp"
+#include "geneva/genome/GGenomeLayout.hpp"
 
 namespace Gem::Geneva::Genome {
 

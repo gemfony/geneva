@@ -41,8 +41,8 @@
 #include <boost/config.hpp> // BOOST_SYMBOL_EXPORT
 
 #include "common/GModuleManifest.hpp" // GenevaModuleManifest
-#include "geneva/ind/GIndividualFactory.hpp"
-#include "geneva/ind/GIndividualPlugin.hpp" // Gem::Geneva::individualManifest<>
+#include "geneva/genome/GIndividualFactory.hpp"
+#include "geneva/genome/GIndividualPlugin.hpp" // Gem::Geneva::individualManifest<>
 
 #include "GParaboloidIndividual2D.hpp"
 

@@ -65,8 +65,8 @@
 #include "courtier/GConsumerRegistry.hpp"
 #include "courtier/GSubmissionPolicy.hpp"
 #include "courtier/consumers/GStdThreadConsumerT.hpp" // the default consumer built when none was set
-#include "geneva/ind/GOptimizableEntity.hpp"
-#include "geneva/ind/GOptimizableEntityFixedSizePriorityQueue.hpp"
+#include "geneva/genome/GOptimizableEntity.hpp"
+#include "geneva/genome/GOptimizableEntityFixedSizePriorityQueue.hpp"
 #include "geneva/GPersonalityTraits.hpp"
 #include "geneva/Interface/GOptimizerIT.hpp"
 #include "geneva/GenevaHelperFunctions.hpp"

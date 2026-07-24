@@ -45,7 +45,7 @@
 #include "common/GCommonEnums.hpp" // serializationMode
 #include "common/GProviderStoreT.hpp"
 #include "courtier/GBaseConsumerT.hpp"
-#include "geneva/ind/GOptimizableEntity.hpp"
+#include "geneva/genome/GOptimizableEntity.hpp"
 
 namespace Gem::Courtier {
 template <typename processable_type>

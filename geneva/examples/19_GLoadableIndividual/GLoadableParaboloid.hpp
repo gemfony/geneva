@@ -43,8 +43,8 @@
 
 // Geneva headers
 #include "common/GParserBuilder.hpp"
-#include "geneva/ind/GGenomeT.hpp"
-#include "geneva/ind/GGenomeBuilder.hpp"
+#include "geneva/genome/GGenomeT.hpp"
+#include "geneva/genome/GGenomeBuilder.hpp"
 #include "geneva/oa/GAdaptionConfig.hpp"
 
 /******************************************************************************/

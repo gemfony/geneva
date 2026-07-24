@@ -42,7 +42,7 @@
 #include "common/GCommonHelperFunctionsT.hpp"
 #include "common/GExceptions.hpp"
 #include "geneva/GOptimizationEnums.hpp"
-#include "geneva/ind/GOptimizableEntity.hpp"
+#include "geneva/genome/GOptimizableEntity.hpp"
 #include "geneva/oa/GAdaptionConfig.hpp"
 #include "geneva/oa/GEvolutionaryAlgorithm_PersonalityTraits.hpp"
 #include "geneva/oa/GParChild.hpp"

@@ -39,7 +39,7 @@
 
 // Geneva headers go here
 #include "common/GModuleManifest.hpp"       // GenevaModuleManifest (the unified module manifest)
-#include "geneva/ind/GIndividualPlugin.hpp" // the individual plugin contract (entry-point names + factory type)
+#include "geneva/genome/GIndividualPlugin.hpp" // the individual plugin contract (entry-point names + factory type)
 
 namespace Gem::Geneva {
 

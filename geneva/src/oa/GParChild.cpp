@@ -39,8 +39,8 @@
 #include "geneva/oa/GBaseParChildPersonalityTraits.hpp"
 #include "geneva/oa/GAdaption.hpp"
 #include "geneva/oa/GAdaptionConfig.hpp"
-#include "geneva/ind/GOptimizableEntity.hpp"
-#include "geneva/ind/GGenome.hpp"
+#include "geneva/genome/GOptimizableEntity.hpp"
+#include "geneva/genome/GGenome.hpp"
 #include <algorithm>
 #include <cstddef>
 #include <cstdint>

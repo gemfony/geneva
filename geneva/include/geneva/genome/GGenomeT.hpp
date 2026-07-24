@@ -37,7 +37,7 @@
 #include <boost/serialization/nvp.hpp>
 
 // Geneva headers go here
-#include "geneva/ind/GGenome.hpp"
+#include "geneva/genome/GGenome.hpp"
 
 namespace Gem::Geneva::Genome {
 

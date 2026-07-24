@@ -48,7 +48,7 @@
 
 // Geneva headers go here
 #include "geneva/GPluggableOptimizationMonitors.hpp"
-#include "geneva/ind/GGenome.hpp"
+#include "geneva/genome/GGenome.hpp"
 
 // Example-local headers
 #include "GImageHelperFunctions.hpp"

@@ -37,7 +37,7 @@
 #include <vector>
 
 // Geneva headers
-#include "geneva/ind/GBaseGPUMarshallerT.hpp" // generic flatten/scatter/itemDimension scaffolding
+#include "geneva/genome/GBaseGPUMarshallerT.hpp" // generic flatten/scatter/itemDimension scaffolding
 #include "GImageScalar.hpp"
 #include "GMonaLisaProblem.hpp"
 

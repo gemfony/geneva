@@ -40,12 +40,12 @@
 #include "common/GLogger.hpp"
 #include "common/GParserBuilder.hpp"
 #include "geneva/GMultiConstraintT.hpp"
-#include "geneva/ind/GGenome.hpp"
-#include "geneva/ind/GGenomeBuilder.hpp"
+#include "geneva/genome/GGenome.hpp"
+#include "geneva/genome/GGenomeBuilder.hpp"
 #include "geneva/oa/GAdaption.hpp"
 #include "geneva/oa/GAdaptionConfig.hpp"
-#include "geneva/ind/GOptimizableEntityFactory.hpp"
-#include "geneva/ind/GOptimizableEntityMultiConstraint.hpp"
+#include "geneva/genome/GOptimizableEntityFactory.hpp"
+#include "geneva/genome/GOptimizableEntityMultiConstraint.hpp"
 #include "hap/GRandomT.hpp"
 #include <algorithm>
 #include <cmath>

@@ -38,7 +38,7 @@
 
 // Geneva headers go here
 #include "common/GFactoryT.hpp"
-#include "geneva/ind/GOptimizableEntity.hpp"
+#include "geneva/genome/GOptimizableEntity.hpp"
 #include "geneva/oa/GOptimizationAlgorithmFactoryT.hpp"
 
 #include "GRandomSearch.hpp"

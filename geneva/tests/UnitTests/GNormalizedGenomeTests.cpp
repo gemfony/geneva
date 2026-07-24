@@ -64,10 +64,10 @@
 #include <boost/serialization/nvp.hpp>
 
 #include "geneva/GOptimizationEnums.hpp"
-#include "geneva/ind/GGenomeLayout.hpp"
-#include "geneva/ind/GGenome.hpp"
-#include "geneva/ind/GGenomeT.hpp"
-#include "geneva/ind/GGenomeBuilder.hpp"
+#include "geneva/genome/GGenomeLayout.hpp"
+#include "geneva/genome/GGenome.hpp"
+#include "geneva/genome/GGenomeT.hpp"
+#include "geneva/genome/GGenomeBuilder.hpp"
 #include "geneva/oa/GAdaption.hpp"
 #include "geneva/oa/GAdaptionConfig.hpp"
 

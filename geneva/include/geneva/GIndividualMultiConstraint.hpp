@@ -38,7 +38,7 @@
 
 // Geneva header files go here
 #include "geneva/GMultiConstraintT.hpp"
-#include "geneva/ind/GOptimizableEntity.hpp"
+#include "geneva/genome/GOptimizableEntity.hpp"
 
 // Make sure the instantiation with GOptimizableEntity as template argument can be serialized
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GCheckCombinerT<gen::GOptimizableEntity>) // NOLINT

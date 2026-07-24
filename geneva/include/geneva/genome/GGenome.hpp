@@ -56,11 +56,11 @@
 #include "common/GLogger.hpp"
 #include "courtier/GWireSerializationContext.hpp" // layout send-once: the wire (de)serialization context
 #include "geneva/GOptimizationEnums.hpp"
-#include "geneva/ind/GAdaptionKernels.hpp"
-#include "geneva/ind/GOptimizableEntity.hpp"
-#include "geneva/ind/GGenomeLayout.hpp"
-#include "geneva/ind/GGenomeLayoutSerialization.hpp"
-#include "geneva/ind/GGenomeBuilder.hpp"
+#include "geneva/genome/GAdaptionKernels.hpp"
+#include "geneva/genome/GOptimizableEntity.hpp"
+#include "geneva/genome/GGenomeLayout.hpp"
+#include "geneva/genome/GGenomeLayoutSerialization.hpp"
+#include "geneva/genome/GGenomeBuilder.hpp"
 
 namespace Gem::Geneva::Genome {
 

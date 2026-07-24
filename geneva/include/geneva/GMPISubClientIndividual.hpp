@@ -45,7 +45,7 @@
 // Boost header files go here
 
 // Geneva header files go here
-#include <geneva/ind/GGenome.hpp>
+#include <geneva/genome/GGenome.hpp>
 
 namespace Gem::Geneva {
 

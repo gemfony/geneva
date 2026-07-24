@@ -18,10 +18,10 @@ SET ( OPTIMIZATIONINCLUDES
 # Parameter / adaptor object hierarchy (namespace Gem::Geneva::Genome),
 # installed under geneva/par to mirror the `gen` alias.
 SET ( PARAM_INCLUDES
-    ind/GParameterPropertyParser.hpp
-    ind/GOptimizableEntityFactory.hpp
-    ind/GOptimizableEntityFixedSizePriorityQueue.hpp
-    ind/GOptimizableEntityMultiConstraint.hpp
+    genome/GParameterPropertyParser.hpp
+    genome/GOptimizableEntityFactory.hpp
+    genome/GOptimizableEntityFixedSizePriorityQueue.hpp
+    genome/GOptimizableEntityMultiConstraint.hpp
 )
 
 # Individual / genome headers (namespace Gem::Geneva::Genome), installed
@@ -31,20 +31,20 @@ SET ( PARAM_INCLUDES
 # kernels. All are pulled in transitively by the installed individuals/*.hpp,
 # so every one must ship.
 SET ( IND_INCLUDES
-    ind/GAuxiliaryStore.hpp
-    ind/GIndividualProcessingResult.hpp
-    ind/GProblemPolicy.hpp
-    ind/GGenomeT.hpp
-    ind/GOptimizableEntity.hpp
-    ind/GAdaptionAuxKeys.hpp
-    ind/GAdaptionKernels.hpp
-    ind/GGenomeLayout.hpp
-    ind/GGenomeLayoutSerialization.hpp
-    ind/GGenomeBuilder.hpp
-    ind/GGenomeArchitecture.hpp
-    ind/GGenome.hpp
-    ind/GIndividualFactory.hpp
-    ind/GIndividualPlugin.hpp
+    genome/GAuxiliaryStore.hpp
+    genome/GIndividualProcessingResult.hpp
+    genome/GProblemPolicy.hpp
+    genome/GGenomeT.hpp
+    genome/GOptimizableEntity.hpp
+    genome/GAdaptionAuxKeys.hpp
+    genome/GAdaptionKernels.hpp
+    genome/GGenomeLayout.hpp
+    genome/GGenomeLayoutSerialization.hpp
+    genome/GGenomeBuilder.hpp
+    genome/GGenomeArchitecture.hpp
+    genome/GGenome.hpp
+    genome/GIndividualFactory.hpp
+    genome/GIndividualPlugin.hpp
 )
 
 # Optimization-algorithm headers (namespace Gem::Geneva::OptimizationAlgorithms),

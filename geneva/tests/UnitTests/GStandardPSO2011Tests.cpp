@@ -39,8 +39,8 @@
 #include <memory>
 #include <vector>
 
-#include "geneva/ind/GGenomeT.hpp"
-#include "geneva/ind/GGenomeBuilder.hpp"
+#include "geneva/genome/GGenomeT.hpp"
+#include "geneva/genome/GGenomeBuilder.hpp"
 #include "geneva/oa/GStandardPSO2011.hpp"
 
 namespace gen = Gem::Geneva::Genome;

@@ -47,11 +47,11 @@
 #include "common/GExceptions.hpp"
 #include "common/GLogger.hpp"
 #include "geneva/GOptimizationEnums.hpp"
-#include "geneva/ind/GAdaptionAuxKeys.hpp"
-#include "geneva/ind/GAdaptionKernels.hpp"
-#include "geneva/ind/GAuxiliaryStore.hpp"
-#include "geneva/ind/GGenome.hpp"
-#include "geneva/ind/GGenomeLayout.hpp"
+#include "geneva/genome/GAdaptionAuxKeys.hpp"
+#include "geneva/genome/GAdaptionKernels.hpp"
+#include "geneva/genome/GAuxiliaryStore.hpp"
+#include "geneva/genome/GGenome.hpp"
+#include "geneva/genome/GGenomeLayout.hpp"
 
 namespace Gem::Geneva::OptimizationAlgorithms {
 

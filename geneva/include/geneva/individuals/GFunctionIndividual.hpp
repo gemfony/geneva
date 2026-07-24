@@ -46,12 +46,12 @@
 // Geneva header files go here
 #include "common/GReflectiveInterfaceT.hpp"
 #include "common/GParserBuilder.hpp"
-#include "geneva/ind/GGenome.hpp"
-#include "geneva/ind/GGenomeT.hpp"
-#include "geneva/ind/GIndividualFactory.hpp"
-#include "geneva/ind/GGenomeBuilder.hpp"
-#include "geneva/ind/GOptimizableEntityFactory.hpp"
-#include "geneva/ind/GOptimizableEntityMultiConstraint.hpp"
+#include "geneva/genome/GGenome.hpp"
+#include "geneva/genome/GGenomeT.hpp"
+#include "geneva/genome/GIndividualFactory.hpp"
+#include "geneva/genome/GGenomeBuilder.hpp"
+#include "geneva/genome/GOptimizableEntityFactory.hpp"
+#include "geneva/genome/GOptimizableEntityMultiConstraint.hpp"
 
 namespace Gem::Geneva::OptimizationAlgorithms {
 class GAdaptionConfigBase;

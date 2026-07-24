@@ -33,7 +33,7 @@
 #include <span>
 #include <vector>
 
-#include "geneva/ind/GAdaptionKernels.hpp"
+#include "geneva/genome/GAdaptionKernels.hpp"
 #include "hap/GRandomT.hpp"
 
 using namespace Gem::Geneva;

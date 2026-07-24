@@ -43,7 +43,7 @@
 
 // Geneva headers go here
 #include "common/GSerializableFunctionObjectT.hpp"
-#include "geneva/ind/GOptimizableEntity.hpp"
+#include "geneva/genome/GOptimizableEntity.hpp"
 #include "geneva/oa/GEvolutionaryAlgorithmFactory.hpp"
 
 namespace Gem::Geneva {

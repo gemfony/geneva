@@ -89,8 +89,8 @@
 #include "common/GParserBuilder.hpp"
 #include "courtier/gpu/GGPUConsumer.hpp"
 #include "geneva/Go2.hpp"
-#include "geneva/ind/GGenome.hpp"
-#include "geneva/ind/GOptimizableEntityFactory.hpp"
+#include "geneva/genome/GGenome.hpp"
+#include "geneva/genome/GOptimizableEntityFactory.hpp"
 
 // Example-local headers (host-side rendering + the device marshaller; both header-only, no dependency on
 // the concrete individual, which lives in the runtime module).

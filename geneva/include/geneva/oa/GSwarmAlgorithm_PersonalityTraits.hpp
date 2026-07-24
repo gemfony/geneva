@@ -37,7 +37,7 @@
 // Boost headers go here
 
 // Geneva headers go here
-#include "geneva/ind/GOptimizableEntity.hpp"
+#include "geneva/genome/GOptimizableEntity.hpp"
 #include "geneva/GPersonalityTraits.hpp"
 
 namespace Gem::Geneva::OptimizationAlgorithms {

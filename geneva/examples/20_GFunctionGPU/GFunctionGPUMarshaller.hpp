@@ -40,7 +40,7 @@
 #include <vector>
 
 // Geneva headers
-#include "geneva/ind/GBaseGPUMarshallerT.hpp"
+#include "geneva/genome/GBaseGPUMarshallerT.hpp"
 #include "geneva/individuals/GFunctionIndividual.hpp"
 
 namespace gind = Gem::Geneva::Individuals;

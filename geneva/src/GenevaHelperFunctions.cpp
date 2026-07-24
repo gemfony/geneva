@@ -31,7 +31,7 @@
 #include "common/GExceptions.hpp"
 #include "common/GLogger.hpp"
 #include "geneva/GOptimizationEnums.hpp"
-#include "geneva/ind/GOptimizableEntity.hpp"
+#include "geneva/genome/GOptimizableEntity.hpp"
 #include <cstddef>
 #include <limits>
 #include <memory>

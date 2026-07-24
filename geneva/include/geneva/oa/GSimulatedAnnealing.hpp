@@ -41,7 +41,7 @@
 #include "common/GCommonHelperFunctionsT.hpp"
 #include "common/GExceptions.hpp"
 #include "geneva/GOptimizationEnums.hpp"
-#include "geneva/ind/GOptimizableEntity.hpp"
+#include "geneva/genome/GOptimizableEntity.hpp"
 #include "geneva/oa/GParChild.hpp"
 #include "geneva/oa/GOptimizationAlgorithmT.hpp"
 #include "geneva/oa/GSimulatedAnnealing_PersonalityTraits.hpp"

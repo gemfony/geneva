@@ -35,7 +35,7 @@
 #include "geneva/oa/GNelderMead.hpp"
 #include "geneva/oa/GNelderMead_PersonalityTraits.hpp"
 #include "geneva/oa/GOAFactoryT.hpp"
-#include "geneva/ind/GOptimizableEntity.hpp"
+#include "geneva/genome/GOptimizableEntity.hpp"
 #include <cstddef>
 #include <memory>
 #include <string>

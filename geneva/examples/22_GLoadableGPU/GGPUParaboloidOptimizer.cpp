@@ -51,8 +51,8 @@
 // Geneva headers
 #include "courtier/gpu/GGPUConsumerConfig.hpp" // materialize the GPU config under --update-configs
 #include "geneva/Go2.hpp"
-#include "geneva/ind/GGenome.hpp"
-#include "geneva/ind/GOptimizableEntityFactory.hpp"
+#include "geneva/genome/GGenome.hpp"
+#include "geneva/genome/GOptimizableEntityFactory.hpp"
 
 using namespace Gem::Geneva;
 

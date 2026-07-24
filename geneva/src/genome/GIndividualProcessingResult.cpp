@@ -27,7 +27,7 @@
  *
  ********************************************************************************/
 
-#include "geneva/ind/GIndividualProcessingResult.hpp"
+#include "geneva/genome/GIndividualProcessingResult.hpp"
 
 #include <functional>
 

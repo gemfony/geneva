@@ -48,8 +48,8 @@
 
 // Geneva headers go here
 #include "common/GMemberReflectionT.hpp" // Gem::Common::archive_named (boost-vs-GArchive member emitter)
-#include "geneva/ind/GAdaptionKernels.hpp"
-#include "geneva/ind/GGenomeLayout.hpp"
+#include "geneva/genome/GAdaptionKernels.hpp"
+#include "geneva/genome/GGenomeLayout.hpp"
 
 /******************************************************************************/
 /**

@@ -66,9 +66,9 @@
 #include "geneva/GMultiConstraintT.hpp" // GPreEvaluationValidityCheckT (registered on the shared policy)
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/Interface/GRateableI.hpp"
-#include "geneva/ind/GAuxiliaryStore.hpp" // the OA-owned scratch (personality + per-group adaption PODs)
-#include "geneva/ind/GIndividualProcessingResult.hpp"
-#include "geneva/ind/GProblemPolicy.hpp"
+#include "geneva/genome/GAuxiliaryStore.hpp" // the OA-owned scratch (personality + per-group adaption PODs)
+#include "geneva/genome/GIndividualProcessingResult.hpp"
+#include "geneva/genome/GProblemPolicy.hpp"
 #include "hap/GRandomT.hpp"
 
 namespace Gem::Geneva::Genome {

@@ -46,9 +46,9 @@
 
 #include "courtier/GCourtierEnums.hpp" // processingStatus
 #include "geneva/GFaultInjector.hpp"
-#include "geneva/ind/GOptimizableEntity.hpp"
-#include "geneva/ind/GGenomeT.hpp"
-#include "geneva/ind/GGenomeBuilder.hpp"
+#include "geneva/genome/GOptimizableEntity.hpp"
+#include "geneva/genome/GGenomeT.hpp"
+#include "geneva/genome/GGenomeBuilder.hpp"
 
 using namespace Gem::Geneva;
 using namespace Gem::Geneva::Genome;

@@ -43,7 +43,7 @@
 // Boost header files go here
 
 // Geneva headers go here
-#include "geneva/ind/GOptimizableEntity.hpp"
+#include "geneva/genome/GOptimizableEntity.hpp"
 
 namespace Gem::Geneva::Interface {
 

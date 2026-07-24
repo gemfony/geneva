@@ -69,19 +69,19 @@
 #include <chrono>
 #include <thread>
 #include "geneva/GOptimizationEnums.hpp"
-#include "geneva/ind/GGenomeLayout.hpp"
-#include "geneva/ind/GGenomeLayoutSerialization.hpp" // ChannelLayout (de)serialisation (layout interning)
+#include "geneva/genome/GGenomeLayout.hpp"
+#include "geneva/genome/GGenomeLayoutSerialization.hpp" // ChannelLayout (de)serialisation (layout interning)
 #include "geneva/Go2.hpp"
 #include "geneva/GenevaInitializer.hpp"
 #include "hap/GRandomT.hpp"
 #include "hap/GRandomFactory.hpp"
-#include "geneva/ind/GGenome.hpp"
-#include "geneva/ind/GIndividualFactory.hpp"
+#include "geneva/genome/GGenome.hpp"
+#include "geneva/genome/GIndividualFactory.hpp"
 #include "geneva/GModuleLoader.hpp"
 #include "geneva/GMarshallerPlugin.hpp" // marshallerManifest / GMarshallerProviderPtr / the marshaller store
-#include "geneva/ind/GGenomeT.hpp"
-#include "geneva/ind/GGenomeArchitecture.hpp"
-#include "geneva/ind/GGenomeBuilder.hpp"
+#include "geneva/genome/GGenomeT.hpp"
+#include "geneva/genome/GGenomeArchitecture.hpp"
+#include "geneva/genome/GGenomeBuilder.hpp"
 #include "geneva/oa/GAdaption.hpp"
 #include "geneva/oa/GAdaptionConfig.hpp"
 #include "geneva/oa/GEvolutionaryAlgorithm.hpp"
