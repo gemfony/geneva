@@ -446,6 +446,7 @@ private:
                 d().end_elem();
                 v.emplace(std::move(key), std::move(mapped));
             }
+            d().end_seq();
         } else if constexpr (detail::is_sequence<U>::value) {
             std::size_t n = d().begin_seq();
             v.clear();
@@ -460,6 +461,7 @@ private:
                     v.push_back(std::move(elem));
                 }
             }
+            d().end_seq();
         } else {
             static_assert(detail::serializable_class<Derived, U>,
                           "GIArchiveT: type is neither a supported primitive/container nor a serializable class "
