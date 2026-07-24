@@ -858,6 +858,55 @@ TEST_CASE("GGenome: a derived individual round-trips through the GArchive codecs
 }
 
 /******************************************************************************/
+// A POPULATED individual -- one carrying a non-null polymorphic owned member (a registered constraint) --
+// round-trips through both GArchive codecs. This exercises the polymorphic-pointer path end to end: the
+// constraint is dispatched by GProblemPolicy::constraint_ptr_ through GArchivePointerDispatch, its wire
+// tag written by tagOf() and resolved by create() on load. An unregistered concrete type would throw
+// "unknown tag" at the read, so a clean round-trip that reconstructs the constraint proves the
+// GEM_REGISTER_ARCHIVABLE registration (GCheckCombinerT, registered in GIndividualMultiConstraint.cpp).
+TEST_CASE("GGenome: a populated individual (registered polymorphic constraint) round-trips through GArchive",
+          "[flat][garchive][individual][polymorphic]") {
+    using namespace Gem::Common::archive;
+    const std::vector<double> vals{1., -2., 3., -4., 5.};
+
+    auto make_populated = [&] {
+        auto ind = std::make_unique<GemSphere>(5);
+        ind->assignValueVector<double>(vals);
+        ind->registerConstraint(std::make_shared<GCheckCombinerT<GOptimizableEntity>>());
+        REQUIRE(ind->getPolicy()->hasConstraint());
+        return ind;
+    };
+
+    // Binary codec.
+    {
+        auto ind = make_populated();
+        GBinaryOArchive oa;
+        oa &make_nvp("ind", *ind);
+        GemSphere restored(5);
+        GBinaryIArchive ia(oa.str());
+        REQUIRE_NOTHROW(ia &make_nvp("ind", restored)); // an unregistered tag would throw here
+        CHECK(restored.getPolicy()->hasConstraint());   // the polymorphic constraint was reconstructed
+        std::vector<double> v;
+        restored.streamline<double>(v);
+        CHECK(v == vals);
+    }
+
+    // JSON codec.
+    {
+        auto ind = make_populated();
+        GJsonOArchive oa;
+        oa &make_nvp("ind", *ind);
+        GemSphere restored(5);
+        GJsonIArchive ia(oa.str());
+        REQUIRE_NOTHROW(ia &make_nvp("ind", restored));
+        CHECK(restored.getPolicy()->hasConstraint());
+        std::vector<double> v;
+        restored.streamline<double>(v);
+        CHECK(v == vals);
+    }
+}
+
+/******************************************************************************/
 TEST_CASE("GGenome: adapt() mutates within bounds", "[flat]") {
     Sphere ind(8);
 
