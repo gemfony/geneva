@@ -34,6 +34,7 @@
 
 // Standard header files go here
 #include <concepts>
+#include <memory>
 #include <string>
 #include <string_view>
 #include <type_traits>
@@ -122,6 +123,27 @@ struct GReflectiveInterfaceAccess {
      */
     template <typename T>
     static constexpr bool has_members = requires(T &t) { t.localMembers_(); };
+
+    /**
+     * @brief Reconstructs a default-constructed managed object on the heap,
+     * reaching a *private* default constructor through this friend shim.
+     *
+     * The GArchive analogue of Boost's @c access::construct: a managed class keeps
+     * its default constructor private (only de-serialization needs it) and
+     * befriends this struct, exactly as it once befriended
+     * @c boost::serialization::access. The polymorphic-pointer registry factory
+     * therefore reconstructs the type *here* -- where the friendship grants ctor
+     * access -- rather than at the (non-friend) @c GEM_REGISTER_ARCHIVABLE site.
+     * @c register_archivable routes through this whenever the concrete type is not
+     * publicly default-constructible.
+     *
+     * @tparam T The managed concrete class to construct
+     * @return An owning pointer to a freshly default-constructed T
+     */
+    template <typename T>
+    static std::unique_ptr<T> construct() {
+        return std::unique_ptr<T>(new T());
+    }
 };
 
 /******************************************************************************/

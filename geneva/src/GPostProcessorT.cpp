@@ -28,6 +28,7 @@
  ********************************************************************************/
 
 #include "geneva/GPostProcessorT.hpp"
+#include "common/GArchivePolymorphic.hpp" // GEM_REGISTER_ARCHIVABLE (GArchive polymorphic-pointer dispatch)
 #include "common/GCommonInterfaceT.hpp"
 #include "common/GExceptions.hpp"
 #include "common/GExpectationChecksT.hpp"
@@ -45,8 +46,11 @@
 #include <memory>
 #include <string>
 
-// Export of GEvolutionaryAlgorithmPostOptimizer
+// Export of GEvolutionaryAlgorithmPostOptimizer -- through a Boost archive
+// (BOOST_CLASS_EXPORT_IMPLEMENT) and through a GArchive codec (GEM_REGISTER_ARCHIVABLE); both register
+// the same concrete type in one translation unit.
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GEvolutionaryAlgorithmPostOptimizer) // NOLINT
+GEM_REGISTER_ARCHIVABLE(Gem::Geneva::GEvolutionaryAlgorithmPostOptimizer)       // NOLINT
 
 namespace Gem::Geneva {
 

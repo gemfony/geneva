@@ -38,6 +38,7 @@
 #include <string>
 #include <string_view>
 #include <type_traits>
+#include <typeindex>
 #include <unordered_map>
 
 // Boost headers go here
@@ -49,6 +50,7 @@
 #include "common/GExceptions.hpp"
 #include "common/GJsonArchive.hpp"
 #include "common/GPolymorphicRegistry.hpp"
+#include "common/GReflectiveInterfaceT.hpp" // GReflectiveInterfaceAccess::construct (private-ctor factory seam)
 
 namespace Gem::Common::archive {
 
@@ -250,7 +252,18 @@ void gem_serialize_pointer(Archive &ar, SmartPtr &p) {
 template <typename T>
 inline bool register_archivable(std::string_view tag) {
     using Root = typename T::gemfony_common_root_t;
-    GPolymorphicRegistry<Root>::template reg<T>(tag);
+    if constexpr (std::is_default_constructible_v<T>) {
+        // Public default constructor: the registry's own std::make_unique factory reaches it.
+        GPolymorphicRegistry<Root>::template reg<T>(tag);
+    } else {
+        // Private default constructor (constructed only on load, through a friend, exactly as
+        // Boost does): route the factory through GReflectiveInterfaceAccess -- the shim every
+        // mixin-managed class befriends -- so the reconstruction has ctor access the (non-friend)
+        // registration site lacks.
+        GPolymorphicRegistry<Root>::reg(
+            tag, std::type_index(typeid(T)),
+            +[]() -> std::unique_ptr<Root> { return GReflectiveInterfaceAccess::template construct<T>(); });
+    }
     GArchivePointerDispatch<Root>::template add<T>(tag);
     return true;
 }

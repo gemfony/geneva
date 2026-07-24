@@ -117,11 +117,40 @@ protected:
     void specificTestsFailuresExpected_GUnitTests_() override { /* nothing */ }
 };
 
+// A derived type whose default constructor is PRIVATE (only de-serialization needs it), befriending
+// GReflectiveInterfaceAccess exactly as a real mixin-managed geneva class does. This exercises the
+// private-ctor factory path in register_archivable: the registry factory cannot std::make_unique it,
+// so it must reconstruct through GReflectiveInterfaceAccess::construct (regression for that seam).
+class PolyC : public GReflectiveInterfaceT<PolyC, PolyBase> {
+    friend struct Gem::Common::GReflectiveInterfaceAccess;
+
+    template <typename Self>
+    auto localMembers_(this Self &self) {
+        return std::make_tuple(make_member("c_val_", self.c_val_));
+    }
+
+public:
+    static constexpr std::string_view class_name = "PolyC";
+    explicit PolyC(int c) : c_val_(c) { /* public value ctor */ }
+
+    int c_val_ = 0;
+    [[nodiscard]] int kind() const override { return 3; }
+
+protected:
+    bool modify_GUnitTests_() override { return false; }
+    void specificTestsNoFailureExpected_GUnitTests_() override { /* nothing */ }
+    void specificTestsFailuresExpected_GUnitTests_() override { /* nothing */ }
+
+private:
+    PolyC() = default; ///< Private: only reachable through the befriended access shim (de-serialization).
+};
+
 } // namespace
 
 GEM_REGISTER_ARCHIVABLE(PolyBase)
 GEM_REGISTER_ARCHIVABLE(PolyA)
 GEM_REGISTER_ARCHIVABLE(PolyB)
+GEM_REGISTER_ARCHIVABLE(PolyC)
 
 namespace {
 
@@ -219,6 +248,34 @@ TEST_CASE("GArchive polymorphic: a container of mixed dynamic types round-trips"
 
     check(ptr_roundtrip<GBinaryOArchive, GBinaryIArchive>(v));
     check(ptr_roundtrip<GJsonOArchive, GJsonIArchive>(v));
+}
+
+TEST_CASE("GArchive polymorphic: a private-default-ctor type reconstructs through the friend shim",
+          "[common][archive][poly]") {
+    // PolyC has NO public default constructor; the registry factory reconstructs it via
+    // GReflectiveInterfaceAccess::construct. A round-trip proves the dynamic type is rebuilt.
+    auto c = std::make_shared<PolyC>(42);
+    c->base_id_ = 5;
+    std::shared_ptr<PolyBase> p = c;
+
+    SECTION("binary") {
+        std::shared_ptr<PolyBase> q = ptr_roundtrip<GBinaryOArchive, GBinaryIArchive>(p);
+        REQUIRE(q);
+        CHECK(q->kind() == 3); // dynamic type is PolyC, rebuilt through the private ctor
+        CHECK(q->base_id_ == 5);
+        auto qc = std::dynamic_pointer_cast<PolyC>(q);
+        REQUIRE(qc);
+        CHECK(qc->c_val_ == 42);
+    }
+    SECTION("json") {
+        std::shared_ptr<PolyBase> q = ptr_roundtrip<GJsonOArchive, GJsonIArchive>(p);
+        REQUIRE(q);
+        CHECK(q->kind() == 3);
+        CHECK(q->base_id_ == 5);
+        auto qc = std::dynamic_pointer_cast<PolyC>(q);
+        REQUIRE(qc);
+        CHECK(qc->c_val_ == 42);
+    }
 }
 
 TEST_CASE("GArchive polymorphic: JSON output records the dynamic tag", "[common][archive][poly]") {
