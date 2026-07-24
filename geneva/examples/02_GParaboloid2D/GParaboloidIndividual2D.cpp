@@ -34,6 +34,7 @@
 #include "GParaboloidIndividual2D.hpp"
 
 #include "geneva/oa/GAdaption.hpp"
+#include "common/GArchivePolymorphic.hpp" // GEM_REGISTER_ARCHIVABLE (GArchive polymorphic-pointer dispatch)
 #include "geneva/oa/GAdaptionConfig.hpp"
 
 #include <algorithm>
@@ -41,6 +42,7 @@
 #include <ranges>
 
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GParaboloidIndividual2D) // NOLINT
+GEM_REGISTER_ARCHIVABLE(Gem::Geneva::GParaboloidIndividual2D) // NOLINT
 namespace Gem::Geneva {
 
 /********************************************************************************************/

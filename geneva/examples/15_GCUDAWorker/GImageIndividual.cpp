@@ -35,12 +35,14 @@
 #include "GMonaLisaProblem.hpp"
 
 #include "geneva/oa/GAdaption.hpp"
+#include "common/GArchivePolymorphic.hpp" // GEM_REGISTER_ARCHIVABLE (GArchive polymorphic-pointer dispatch)
 
 #ifdef GEM_TESTING
 #include <catch2/catch_test_macros.hpp>
 #endif /* GEM_TESTING */
 
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GImageIndividual) // NOLINT
+GEM_REGISTER_ARCHIVABLE(Gem::Geneva::GImageIndividual) // NOLINT
 namespace Gem::Geneva {
 /******************************************************************************/
 //////////////////////////////////////////////////////////////////////////////////////////////////

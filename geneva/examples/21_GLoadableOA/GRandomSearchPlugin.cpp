@@ -45,6 +45,7 @@
 
 // Geneva headers go here
 #include "common/GModuleManifest.hpp"
+#include "common/GArchivePolymorphic.hpp" // GEM_REGISTER_ARCHIVABLE (GArchive polymorphic-pointer dispatch)
 #include "geneva/oa/GOAPlugin.hpp" // Gem::Geneva::oaManifest
 
 // The algorithm shipped by this module
@@ -54,7 +55,9 @@
 
 // Serialization registrations for the algorithm and its personality traits (checkpoint payloads).
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::OptimizationAlgorithms::GRandomSearch)                    // NOLINT
+GEM_REGISTER_ARCHIVABLE(Gem::Geneva::OptimizationAlgorithms::GRandomSearch) // NOLINT
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::OptimizationAlgorithms::GRandomSearch_PersonalityTraits)  // NOLINT
+GEM_REGISTER_ARCHIVABLE(Gem::Geneva::OptimizationAlgorithms::GRandomSearch_PersonalityTraits) // NOLINT
 
 /**
  * @brief The module manifest entry point. Resolved by the loader (Gem::Geneva::openModule / loadModule) via

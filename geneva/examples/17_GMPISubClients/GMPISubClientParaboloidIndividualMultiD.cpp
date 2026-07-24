@@ -34,6 +34,7 @@
 #include "GMPISubClientParaboloidIndividualMultiD.hpp"
 
 #include "geneva/oa/GAdaption.hpp"
+#include "common/GArchivePolymorphic.hpp" // GEM_REGISTER_ARCHIVABLE (GArchive polymorphic-pointer dispatch)
 #include "geneva/oa/GAdaptionConfig.hpp"
 
 #include <algorithm>
@@ -41,6 +42,7 @@
 #include <ranges>
 
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GMPISubClientParaboloidIndividualMultiD) // NOLINT
+GEM_REGISTER_ARCHIVABLE(Gem::Geneva::GMPISubClientParaboloidIndividualMultiD) // NOLINT
 namespace Gem::Geneva {
 
 // The MPI helper utilities (mpiSize / mpiErrorString / MPIStatusCode / MPICompletionStatus, …) now

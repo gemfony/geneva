@@ -34,6 +34,7 @@
 #include "GStarterIndividual.hpp"
 
 #include "geneva/oa/GAdaption.hpp"
+#include "common/GArchivePolymorphic.hpp" // GEM_REGISTER_ARCHIVABLE (GArchive polymorphic-pointer dispatch)
 #include "geneva/oa/GAdaptionConfig.hpp"
 
 #include <algorithm>
@@ -49,6 +50,7 @@
 #endif /* GEM_TESTING */
 
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GStarterIndividual) // NOLINT
+GEM_REGISTER_ARCHIVABLE(Gem::Geneva::GStarterIndividual) // NOLINT
 namespace Gem::Geneva {
 
 /******************************************************************************/
