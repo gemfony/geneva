@@ -96,6 +96,7 @@ class GGenome // NOLINT(cppcoreguidelines-special-member-functions)
   : public Gem::Common::GReflectiveInterfaceBaseT<GGenome, GOptimizableEntity> {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
+    friend struct Gem::Common::archive::access;
     friend struct Gem::Common::GReflectiveInterfaceAccess;
 
     /** @brief Single declaration of this class's local data members, feeding the
@@ -138,8 +139,8 @@ class GGenome // NOLINT(cppcoreguidelines-special-member-functions)
      */
     template <typename Archive>
     void save(Archive &ar, [[maybe_unused]] const unsigned int version) const {
-        using boost::serialization::make_nvp;
-        ar &make_nvp("GOptimizableEntity", boost::serialization::base_object<GOptimizableEntity>(*this));
+        using Gem::Common::archive_named;
+        Gem::Common::archive_named_base<GOptimizableEntity>(ar, "GOptimizableEntity", *this);
 
         const auto *ctx = Gem::Courtier::GWireSerializationScope::current();
 
@@ -147,9 +148,9 @@ class GGenome // NOLINT(cppcoreguidelines-special-member-functions)
         // not modified, omit the (potentially large) input parameters + layout -- only the computed
         // results (already written via the base) travel; the server grafts the input back on. A leading
         // `genome_omitted` marker makes the stream self-describing.
-        const bool genome_omitted =
+        bool genome_omitted =
             (ctx != nullptr) && ctx->enabled && ctx->returning && not this->getReturnFullIndividual();
-        ar &make_nvp("genome_omitted", genome_omitted);
+        archive_named(ar, "genome_omitted", genome_omitted);
         if(genome_omitted) {
             return;
         }
@@ -160,27 +161,27 @@ class GGenome // NOLINT(cppcoreguidelines-special-member-functions)
         // forms (see GGenome's historical note): SELF-CONTAINED (full layout by value, the only form
         // with no active scope -- checkpoint / file) and SEND-ONCE (referenced by content id, shipped to a
         // peer only the first time the id is seen). A leading `layout_interned` tag is self-describing.
-        const bool interned =
+        bool interned =
             (ctx != nullptr) && ctx->enabled && (ctx->registry != nullptr) && (layout_ != nullptr);
-        ar &make_nvp("layout_interned", interned);
+        archive_named(ar, "layout_interned", interned);
         if(not interned) {
             GGenomeLayout layout_copy = layout_ ? *layout_ : GGenomeLayout{};
-            ar &make_nvp("layout_", layout_copy);
+            archive_named(ar, "layout_", layout_copy);
             return;
         }
 
         const LayoutId lid = layout_->layoutId();
         Gem::Courtier::GWireLayoutId wid{lid.hi, lid.lo};
-        ar &make_nvp("layout_id_hi", wid[0]);
-        ar &make_nvp("layout_id_lo", wid[1]);
+        archive_named(ar, "layout_id_hi", wid[0]);
+        archive_named(ar, "layout_id_lo", wid[1]);
         if(not ctx->registry->has(wid)) {
             ctx->registry->put(wid, layoutToWireBlob(*layout_));
         }
         bool layout_present = not ctx->registry->peerHasLayout(ctx->peer, wid);
-        ar &make_nvp("layout_present", layout_present);
+        archive_named(ar, "layout_present", layout_present);
         if(layout_present) {
             GGenomeLayout layout_copy = *layout_;
-            ar &make_nvp("layout_", layout_copy);
+            archive_named(ar, "layout_", layout_copy);
             ctx->registry->markPeerHasLayout(ctx->peer, wid);
         }
     }
@@ -196,11 +197,11 @@ class GGenome // NOLINT(cppcoreguidelines-special-member-functions)
     template <typename Archive>
     // NOLINTNEXTLINE(readability-function-size) -- one coherent serialization sweep: the self-describing wire-format tag dispatch (omitted / by-value / interned-by-id, with cache-miss fetch) must stay in lockstep with save()'s tag order; splitting would scatter tightly coupled archive-decode branches
     void load(Archive &ar, [[maybe_unused]] const unsigned int version) {
-        using boost::serialization::make_nvp;
-        ar &make_nvp("GOptimizableEntity", boost::serialization::base_object<GOptimizableEntity>(*this));
+        using Gem::Common::archive_named;
+        Gem::Common::archive_named_base<GOptimizableEntity>(ar, "GOptimizableEntity", *this);
 
         bool genome_omitted = false;
-        ar &make_nvp("genome_omitted", genome_omitted);
+        archive_named(ar, "genome_omitted", genome_omitted);
         if(genome_omitted) {
             input_omitted_ = true;
             dv_.clear();
@@ -215,24 +216,24 @@ class GGenome // NOLINT(cppcoreguidelines-special-member-functions)
         Gem::Common::serialize_members(ar, this->localMembers_());
 
         bool interned = false;
-        ar &make_nvp("layout_interned", interned);
+        archive_named(ar, "layout_interned", interned);
         if(not interned) {
             auto fresh = std::make_shared<GGenomeLayout>();
-            ar &make_nvp("layout_", *fresh);
+            archive_named(ar, "layout_", *fresh);
             this->setLayout(fresh);
             return;
         }
 
         Gem::Courtier::GWireLayoutId wid{};
-        ar &make_nvp("layout_id_hi", wid[0]);
-        ar &make_nvp("layout_id_lo", wid[1]);
+        archive_named(ar, "layout_id_hi", wid[0]);
+        archive_named(ar, "layout_id_lo", wid[1]);
         bool layout_present = false;
-        ar &make_nvp("layout_present", layout_present);
+        archive_named(ar, "layout_present", layout_present);
 
         const auto *ctx = Gem::Courtier::GWireSerializationScope::current();
         if(layout_present) {
             auto fresh = std::make_shared<GGenomeLayout>();
-            ar &make_nvp("layout_", *fresh);
+            archive_named(ar, "layout_", *fresh);
             this->setLayout(fresh);
             if(ctx != nullptr && ctx->registry != nullptr && not ctx->registry->has(wid)) {
                 ctx->registry->put(wid, layoutToWireBlob(*fresh));
@@ -269,7 +270,26 @@ class GGenome // NOLINT(cppcoreguidelines-special-member-functions)
         this->setLayout(layoutFromWireBlob(blob));
     }
 
-    BOOST_SERIALIZATION_SPLIT_MEMBER()
+    /**
+     * @brief The single (de)serialization entry point, split by direction. For a GArchive codec the split
+     * is done here on the codec's compile-time direction (a GArchive has no Boost is_saving trait); for a
+     * Boost archive it defers to Boost's split_member, which routes to save()/load() exactly as before.
+     * @tparam Archive The archive type (Boost.Serialization or a GArchive codec)
+     * @param ar The archive to read from / write to
+     * @param version The serialization format version, forwarded to the split
+     */
+    template <typename Archive>
+    void serialize(Archive &ar, const unsigned int version) {
+        if constexpr (Gem::Common::archive::is_gem_archive_v<Archive>) {
+            if constexpr (Archive::is_saving) {
+                save(ar, version);
+            } else {
+                load(ar, version);
+            }
+        } else {
+            boost::serialization::split_member(ar, *this, version);
+        }
+    }
     ///////////////////////////////////////////////////////////////////////
 
 public:
