@@ -52,6 +52,9 @@
 #include <boost/serialization/vector.hpp>
 
 #include "common/GContainerT.hpp"
+#include "common/GArchiveNamed.hpp" // archive_named
+#include "weft/GBinaryArchive.hpp"
+#include "weft/GJsonArchive.hpp"
 #include "common/GExceptions.hpp"
 #include "common/GExpectationChecksT.hpp"
 
@@ -88,7 +91,7 @@ struct SerBase : Gem::Common::gemfony_common_interface_indicator {
 
     template <class Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
-        ar & boost::serialization::make_nvp("v", v);
+        Gem::Common::archive_named(ar, "v", v);
     }
 };
 
@@ -814,16 +817,16 @@ TEST_CASE("GContainerT: GPodContainerT<int> with std::deque backend", "[GContain
         src.assign({4, 5, 6});
         src[1] = 99;
 
-        std::ostringstream oss;
+        std::string blob;
         {
-            boost::archive::text_oarchive oa(oss);
-            oa << src;
+            Gem::Weft::GBinaryOArchive oa;
+            oa &Gem::Weft::make_nvp("c", src);
+            blob = oa.str();
         }
         ConcretePodDeque loaded;
         {
-            std::istringstream iss(oss.str());
-            boost::archive::text_iarchive ia(iss);
-            ia >> loaded;
+            Gem::Weft::GBinaryIArchive ia(blob);
+            ia &Gem::Weft::make_nvp("c", loaded);
         }
         REQUIRE(loaded.size() == 3u);
         CHECK(loaded[0] == 4);
@@ -1507,16 +1510,16 @@ TEST_CASE("GContainerT: GPodContainerT<int> with std::list backend", "[GContaine
         src.assign({11, 22, 33, 44});
         *std::next(src.begin(), 2) = 99;
 
-        std::ostringstream oss;
+        std::string blob;
         {
-            boost::archive::text_oarchive oa(oss);
-            oa << src;
+            Gem::Weft::GBinaryOArchive oa;
+            oa &Gem::Weft::make_nvp("c", src);
+            blob = oa.str();
         }
         ConcretePodList loaded;
         {
-            std::istringstream iss(oss.str());
-            boost::archive::text_iarchive ia(iss);
-            ia >> loaded;
+            Gem::Weft::GBinaryIArchive ia(blob);
+            ia &Gem::Weft::make_nvp("c", loaded);
         }
         REQUIRE(loaded.size() == 4u);
         CHECK(loaded.front() == 11);
@@ -1687,16 +1690,16 @@ TEST_CASE("GContainerT: Boost.Serialization round-trips", "[GContainerT][seriali
         src[2] = 99;
         src[4] = -1;
 
-        std::ostringstream oss;
+        std::string blob;
         {
-            boost::archive::text_oarchive oa(oss);
-            oa << src;
+            Gem::Weft::GBinaryOArchive oa;
+            oa &Gem::Weft::make_nvp("c", src);
+            blob = oa.str();
         }
         ConcretePodVec loaded;
         {
-            std::istringstream iss(oss.str());
-            boost::archive::text_iarchive ia(iss);
-            ia >> loaded;
+            Gem::Weft::GBinaryIArchive ia(blob);
+            ia &Gem::Weft::make_nvp("c", loaded);
         }
         REQUIRE(loaded.size() == 5u);
         CHECK(loaded[0] == 42);
@@ -1710,16 +1713,16 @@ TEST_CASE("GContainerT: Boost.Serialization round-trips", "[GContainerT][seriali
         ConcretePodVec src;
         src.assign({10, 20, 30, 40});
 
-        std::ostringstream oss;
+        std::string blob;
         {
-            boost::archive::xml_oarchive oa(oss);
-            oa << boost::serialization::make_nvp("container", src);
+            Gem::Weft::GJsonOArchive oa;
+            oa &Gem::Weft::make_nvp("container", src);
+            blob = oa.str();
         }
         ConcretePodVec loaded;
         {
-            std::istringstream iss(oss.str());
-            boost::archive::xml_iarchive ia(iss);
-            ia >> boost::serialization::make_nvp("container", loaded);
+            Gem::Weft::GJsonIArchive ia(blob);
+            ia &Gem::Weft::make_nvp("container", loaded);
         }
         REQUIRE(loaded.size() == 4u);
         CHECK(loaded[0] == 10);
@@ -1730,16 +1733,16 @@ TEST_CASE("GContainerT: Boost.Serialization round-trips", "[GContainerT][seriali
         ConcretePodVec src;
         src.assign({-5, 0, 5, 100, -100});
 
-        std::ostringstream oss;
+        std::string blob;
         {
-            boost::archive::binary_oarchive oa(oss);
-            oa << src;
+            Gem::Weft::GBinaryOArchive oa;
+            oa &Gem::Weft::make_nvp("c", src);
+            blob = oa.str();
         }
         ConcretePodVec loaded;
         {
-            std::istringstream iss(oss.str());
-            boost::archive::binary_iarchive ia(iss);
-            ia >> loaded;
+            Gem::Weft::GBinaryIArchive ia(blob);
+            ia &Gem::Weft::make_nvp("c", loaded);
         }
         REQUIRE(loaded.size() == 5u);
         CHECK(loaded[0] == -5);
@@ -1751,16 +1754,16 @@ TEST_CASE("GContainerT: Boost.Serialization round-trips", "[GContainerT][seriali
         ConcretePodVecDouble src(3, 3.14);
         src[1] = 2.718;
 
-        std::ostringstream oss;
+        std::string blob;
         {
-            boost::archive::text_oarchive oa(oss);
-            oa << src;
+            Gem::Weft::GBinaryOArchive oa;
+            oa &Gem::Weft::make_nvp("c", src);
+            blob = oa.str();
         }
         ConcretePodVecDouble loaded;
         {
-            std::istringstream iss(oss.str());
-            boost::archive::text_iarchive ia(iss);
-            ia >> loaded;
+            Gem::Weft::GBinaryIArchive ia(blob);
+            ia &Gem::Weft::make_nvp("c", loaded);
         }
         REQUIRE(loaded.size() == 3u);
         CHECK(loaded[0] == Catch::Approx(3.14));
@@ -1770,17 +1773,17 @@ TEST_CASE("GContainerT: Boost.Serialization round-trips", "[GContainerT][seriali
 
     SECTION("Empty container round-trip preserves zero size") {
         ConcretePodVec const src;
-        std::ostringstream oss;
+        std::string blob;
         {
-            boost::archive::text_oarchive oa(oss);
-            oa << src;
+            Gem::Weft::GBinaryOArchive oa;
+            oa &Gem::Weft::make_nvp("c", src);
+            blob = oa.str();
         }
         ConcretePodVec loaded;
         loaded.assign({1, 2, 3}); // pre-populate to ensure deserialization clears
         {
-            std::istringstream iss(oss.str());
-            boost::archive::text_iarchive ia(iss);
-            ia >> loaded;
+            Gem::Weft::GBinaryIArchive ia(blob);
+            ia &Gem::Weft::make_nvp("c", loaded);
         }
         CHECK(loaded.empty());
     }
@@ -1795,16 +1798,16 @@ TEST_CASE("GContainerT: Boost.Serialization round-trips", "[GContainerT][seriali
         src.push_back_noclone(std::make_shared<SerBase>(20));
         src.push_back_noclone(std::make_shared<SerBase>(30));
 
-        std::ostringstream oss;
+        std::string blob;
         {
-            boost::archive::text_oarchive oa(oss);
-            oa << src;
+            Gem::Weft::GBinaryOArchive oa;
+            oa &Gem::Weft::make_nvp("c", src);
+            blob = oa.str();
         }
         ConcretePtrSerializable loaded;
         {
-            std::istringstream iss(oss.str());
-            boost::archive::text_iarchive ia(iss);
-            ia >> loaded;
+            Gem::Weft::GBinaryIArchive ia(blob);
+            ia &Gem::Weft::make_nvp("c", loaded);
         }
         REQUIRE(loaded.size() == 3u);
         CHECK(loaded[0]->v == 10);
@@ -1818,16 +1821,16 @@ TEST_CASE("GContainerT: Boost.Serialization round-trips", "[GContainerT][seriali
         src.push_back_noclone(std::make_shared<SerBase>(5));
         src.push_back_noclone(std::make_shared<SerBase>(-5));
 
-        std::ostringstream oss;
+        std::string blob;
         {
-            boost::archive::xml_oarchive oa(oss);
-            oa << boost::serialization::make_nvp("container", src);
+            Gem::Weft::GJsonOArchive oa;
+            oa &Gem::Weft::make_nvp("container", src);
+            blob = oa.str();
         }
         ConcretePtrSerializable loaded;
         {
-            std::istringstream iss(oss.str());
-            boost::archive::xml_iarchive ia(iss);
-            ia >> boost::serialization::make_nvp("container", loaded);
+            Gem::Weft::GJsonIArchive ia(blob);
+            ia &Gem::Weft::make_nvp("container", loaded);
         }
         REQUIRE(loaded.size() == 2u);
         CHECK(loaded[0]->v == 5);
@@ -1839,16 +1842,16 @@ TEST_CASE("GContainerT: Boost.Serialization round-trips", "[GContainerT][seriali
         src.push_back_noclone(std::make_shared<SerBase>(100));
         src.push_back_noclone(std::make_shared<SerBase>(200));
 
-        std::ostringstream oss;
+        std::string blob;
         {
-            boost::archive::binary_oarchive oa(oss);
-            oa << src;
+            Gem::Weft::GBinaryOArchive oa;
+            oa &Gem::Weft::make_nvp("c", src);
+            blob = oa.str();
         }
         ConcretePtrSerializable loaded;
         {
-            std::istringstream iss(oss.str());
-            boost::archive::binary_iarchive ia(iss);
-            ia >> loaded;
+            Gem::Weft::GBinaryIArchive ia(blob);
+            ia &Gem::Weft::make_nvp("c", loaded);
         }
         REQUIRE(loaded.size() == 2u);
         CHECK(loaded[0]->v == 100);
@@ -1857,17 +1860,17 @@ TEST_CASE("GContainerT: Boost.Serialization round-trips", "[GContainerT][seriali
 
     SECTION("GPtrContainerT<SerBase> — empty container round-trip") {
         ConcretePtrSerializable const src;
-        std::ostringstream oss;
+        std::string blob;
         {
-            boost::archive::text_oarchive oa(oss);
-            oa << src;
+            Gem::Weft::GBinaryOArchive oa;
+            oa &Gem::Weft::make_nvp("c", src);
+            blob = oa.str();
         }
         ConcretePtrSerializable loaded;
         loaded.push_back_noclone(std::make_shared<SerBase>(99));
         {
-            std::istringstream iss(oss.str());
-            boost::archive::text_iarchive ia(iss);
-            ia >> loaded;
+            Gem::Weft::GBinaryIArchive ia(blob);
+            ia &Gem::Weft::make_nvp("c", loaded);
         }
         CHECK(loaded.empty());
     }

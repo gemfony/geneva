@@ -53,7 +53,6 @@
 #include <tuple>
 #include <vector>
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::OptimizationAlgorithms::GNelderMead) // NOLINT
 GEM_REGISTER_ARCHIVABLE(Gem::Geneva::OptimizationAlgorithms::GNelderMead) // NOLINT
 
 namespace Gem::Geneva::OptimizationAlgorithms {

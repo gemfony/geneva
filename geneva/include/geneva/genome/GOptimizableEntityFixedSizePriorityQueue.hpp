@@ -216,4 +216,3 @@ protected:
 
 } /* namespace Gem::Geneva::Genome */
 
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::Genome::GOptimizableEntityFixedSizePriorityQueue) // NOLINT

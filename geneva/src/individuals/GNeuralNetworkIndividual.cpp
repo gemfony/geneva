@@ -43,11 +43,13 @@
 #include "geneva/oa/GAdaption.hpp"
 #include "geneva/oa/GAdaptionConfig.hpp"
 #include "weft/GArchivePolymorphic.hpp" // GEM_REGISTER_ARCHIVABLE (GArchive polymorphic-pointer dispatch)
+#include "weft/GJsonArchive.hpp"         // GJson[IO]Archive -- training-data disk persistence codec
 #include <cmath>
 #include <cstddef>
 #include <filesystem>
 #include <format>
 #include <fstream>
+#include <iterator>
 #include <istream>
 #include <memory>
 #include <mutex>
@@ -61,9 +63,6 @@
 #include <utility>
 #include <vector>
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::Individuals::trainingSet)              // NOLINT
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::Individuals::networkData)              // NOLINT
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::Individuals::GNeuralNetworkIndividual) // NOLINT
 // The nested value structs trainingSet / networkData are NOT wire-polymorphic (no
 // gemfony_common_root_t; they travel by value in the saveToDisk training-data path,
 // off the individual's wire serialize), so only the individual itself is registered
@@ -249,12 +248,12 @@ void networkData::saveToDisk(const std::string &network_data_file) const {
         );
     }
 
-    // Save the data, using the Boost.Serialization library
+    // Save the data via the GArchive JSON codec (self-describing, human-readable on disk).
     {
-        const networkData *local = this;
-        boost::archive::xml_oarchive oa(tr_dat);
-        oa << boost::serialization::make_nvp("networkData", local);
-    } // Explicit scope at this point is essential so that oa's destructor is called
+        Gem::Weft::GJsonOArchive oa;
+        oa &Gem::Weft::make_nvp("networkData", const_cast<networkData &>(*this));
+        tr_dat << oa.str();
+    }
 
     tr_dat.close();
 }
@@ -266,8 +265,6 @@ void networkData::saveToDisk(const std::string &network_data_file) const {
  * @param network_data_file The name of the file from which the data should be loaded (Boost.Serialization XML)
  */
 void networkData::loadFromDisk(const std::string &network_data_file) {
-    networkData *raw = nullptr;
-
     std::ifstream tr_dat(network_data_file.c_str());
 
     if(not tr_dat) {
@@ -284,35 +281,33 @@ void networkData::loadFromDisk(const std::string &network_data_file) {
         );
     }
 
-    // Load the data into raw, using the Boost.Serialization library. A deserialization failure (a
-    // truncated file, or -- most commonly -- a training-data file written by an incompatible Geneva /
-    // Boost.Serialization version, e.g. an older archive version) otherwise escapes as an uncaught
-    // boost::archive exception and aborts the program with a cryptic "XML start/end tag mismatch"
-    // message. Catch it and bail out with an actionable diagnostic instead.
+    // Load the data via the GArchive JSON codec. A deserialization failure (a truncated file, or --
+    // most commonly -- a training-data file written by an incompatible Geneva version) otherwise
+    // escapes as an uncaught exception; catch it and bail out with an actionable diagnostic instead.
+    networkData loaded(0);
     try {
-        boost::archive::xml_iarchive ia(tr_dat);
-        ia >> boost::serialization::make_nvp("networkData", raw);
-    } // Explicit scope at this point is essential so that ia's destructor is called
+        std::string content(
+            (std::istreambuf_iterator<char>(tr_dat)), std::istreambuf_iterator<char>());
+        Gem::Weft::GJsonIArchive ia(content);
+        ia &Gem::Weft::make_nvp("networkData", loaded);
+    }
     catch(const std::exception &e) {
-        delete raw; // may be a partially-loaded object the archive does not own (delete nullptr is safe)
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In networkData::loadFromDisk(const std::string&):" << '\n'
             << "Failed to deserialise the training-data file" << '\n'
             << "  " << network_data_file << '\n'
-            << "as a Boost.Serialization XML archive. Reason:" << '\n'
+            << "as a GArchive JSON archive. Reason:" << '\n'
             << "  " << e.what() << '\n'
-            << "The file is most likely stale or was written by an incompatible version" << '\n'
-            << "(for example an older Boost.Serialization archive version). Regenerate it with:" << '\n'
+            << "The file is most likely stale or was written by an incompatible version." << '\n'
+            << "Regenerate it with:" << '\n'
             << "  GNeuralNetwork --trainingDataFile " << network_data_file
             << " --traininDataType <1-4> --nDataSets <N>" << '\n'
         );
     }
 
-    std::unique_ptr<networkData> const n_d(raw);
-
     // Copy the data over, using our own operator=()
-    *this = *n_d;
+    *this = loaded;
 }
 
 /******************************************************************************/

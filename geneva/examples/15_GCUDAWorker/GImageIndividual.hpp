@@ -315,4 +315,3 @@ std::shared_ptr<Gem::Geneva::GImageIndividual> TFactory_GUnitTests<Gem::Geneva::
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GImageIndividual) // NOLINT

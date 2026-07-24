@@ -43,7 +43,6 @@
 #include <ranges>
 #include <utility>
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GFMinIndividual) // NOLINT
 GEM_REGISTER_ARCHIVABLE(Gem::Geneva::GFMinIndividual) // NOLINT
 namespace Gem::Geneva {
 

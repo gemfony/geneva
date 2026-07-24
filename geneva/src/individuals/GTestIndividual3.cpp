@@ -46,7 +46,6 @@
 #include <catch2/catch_test_macros.hpp>
 #endif /* GEM_TESTING */
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::Individuals::GTestIndividual3) // NOLINT
 GEM_REGISTER_ARCHIVABLE(Gem::Geneva::Individuals::GTestIndividual3) // NOLINT
 namespace Gem::Geneva::Individuals {
 

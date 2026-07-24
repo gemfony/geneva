@@ -73,7 +73,6 @@
 
 /******************************************************************************/
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::OptimizationAlgorithms::GEvolutionaryAlgorithm) // NOLINT
 GEM_REGISTER_ARCHIVABLE(Gem::Geneva::OptimizationAlgorithms::GEvolutionaryAlgorithm) // NOLINT
 
 /******************************************************************************/

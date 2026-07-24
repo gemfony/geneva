@@ -42,7 +42,6 @@
 #include <catch2/catch_test_macros.hpp>
 #endif /* GEM_TESTING */
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::OptimizationAlgorithms::GBaseParChildPersonalityTraits) // NOLINT
 GEM_REGISTER_ARCHIVABLE(Gem::Geneva::OptimizationAlgorithms::GBaseParChildPersonalityTraits)       // NOLINT
 namespace Gem::Geneva::OptimizationAlgorithms {
 

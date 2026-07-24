@@ -66,14 +66,9 @@
 // GFunctionIndividualFactory (= GIndividualFactory<...>) is a config object, not a
 // GCommonInterfaceT-hierarchy type (no gemfony_common_root_t) and is never serialized through a
 // hierarchy-root pointer, so it takes no GArchive polymorphic registration.
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::Individuals::GFunctionIndividual)        // NOLINT
 GEM_REGISTER_ARCHIVABLE(Gem::Geneva::Individuals::GFunctionIndividual)             // NOLINT
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::Individuals::GFunctionIndividualFactory) // NOLINT
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::Individuals::GDoubleSumConstraint)       // NOLINT
 GEM_REGISTER_ARCHIVABLE(Gem::Geneva::Individuals::GDoubleSumConstraint)            // NOLINT
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::Individuals::GDoubleSumGapConstraint)    // NOLINT
 GEM_REGISTER_ARCHIVABLE(Gem::Geneva::Individuals::GDoubleSumGapConstraint)         // NOLINT
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::Individuals::GSphereConstraint)          // NOLINT
 GEM_REGISTER_ARCHIVABLE(Gem::Geneva::Individuals::GSphereConstraint)               // NOLINT
 
 namespace Gem::Geneva::Individuals {

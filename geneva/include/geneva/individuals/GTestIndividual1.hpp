@@ -126,4 +126,3 @@ protected:
 
 } /* namespace Gem::Geneva::Individuals */
 
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::Individuals::GTestIndividual1) // NOLINT

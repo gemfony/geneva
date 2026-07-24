@@ -100,7 +100,6 @@ private:
 
 } // namespace Gem::Tests
 
-BOOST_CLASS_EXPORT(Gem::Tests::AdaptCfgIndividual) // NOLINT
 GEM_REGISTER_ARCHIVABLE(Gem::Tests::AdaptCfgIndividual) // NOLINT
 
 using Gem::Tests::AdaptCfgIndividual;

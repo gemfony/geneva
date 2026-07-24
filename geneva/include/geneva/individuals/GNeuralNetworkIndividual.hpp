@@ -1194,7 +1194,4 @@ TFactory_GUnitTests<Gem::Geneva::Individuals::GNeuralNetworkIndividual>() {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::Individuals::trainingSet)              // NOLINT
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::Individuals::networkData)              // NOLINT
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::Individuals::GNeuralNetworkIndividual) // NOLINT
 /******************************************************************************/

@@ -34,7 +34,6 @@
 #include "geneva/GPersonalityTraits.hpp"
 #include "geneva/oa/GBaseParChildPersonalityTraits.hpp"
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::OptimizationAlgorithms::GEvolutionaryAlgorithm_PersonalityTraits) // NOLINT
 GEM_REGISTER_ARCHIVABLE(Gem::Geneva::OptimizationAlgorithms::GEvolutionaryAlgorithm_PersonalityTraits)       // NOLINT
 
 namespace Gem::Geneva::OptimizationAlgorithms {

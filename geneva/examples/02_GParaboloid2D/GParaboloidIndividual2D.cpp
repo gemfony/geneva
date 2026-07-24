@@ -41,7 +41,6 @@
 #include <functional>
 #include <ranges>
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GParaboloidIndividual2D) // NOLINT
 GEM_REGISTER_ARCHIVABLE(Gem::Geneva::GParaboloidIndividual2D) // NOLINT
 namespace Gem::Geneva {
 

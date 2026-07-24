@@ -112,22 +112,18 @@ class GFactoryT {
     }
 
     /**
-     * @brief The single (de)serialization entry point, split by direction: dispatched here for a GArchive
-     * codec (no Boost is_saving trait), or via Boost's split_member for a Boost archive.
-     * @tparam Archive The archive type (Boost.Serialization or a GArchive codec)
+     * @brief The single (de)serialization entry point, split by direction on the GArchive codec's
+     * compile-time direction, routing to save()/load().
+     * @tparam Archive The GArchive codec type
      * @param ar The archive to read from / write to
      * @param version The serialization format version, forwarded to the split
      */
     template <typename Archive>
     void serialize(Archive &ar, const unsigned int version) {
-        if constexpr (Gem::Weft::is_gem_archive_v<Archive>) {
-            if constexpr (Archive::is_saving) {
-                save(ar, version);
-            } else {
-                load(ar, version);
-            }
+        if constexpr (Archive::is_saving) {
+            save(ar, version);
         } else {
-            boost::serialization::split_member(ar, *this, version);
+            load(ar, version);
         }
     }
 

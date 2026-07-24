@@ -45,7 +45,6 @@
 #include <string>
 #include <vector>
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::Genome::GOptimizableEntityFixedSizePriorityQueue) // NOLINT
 GEM_REGISTER_ARCHIVABLE(Gem::Geneva::Genome::GOptimizableEntityFixedSizePriorityQueue) // NOLINT
 
 namespace Gem::Geneva::Genome {

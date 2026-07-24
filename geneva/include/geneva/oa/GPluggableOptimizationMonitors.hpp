@@ -2100,15 +2100,4 @@ using GAdaptorPropertyLogger = GAdaptorPropertyLoggerT<num_type>;
 /******************************************************************************/
 // Exports of classes
 
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GStandardMonitor)                     // NOLINT
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GFitnessMonitor)                      // NOLINT
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GCollectiveMonitor)                   // NOLINT
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GProgressPlotter)                     // NOLINT
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GAllSolutionFileLogger)               // NOLINT
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GIterationResultsFileLogger)          // NOLINT
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GNAdpationsLogger)                    // NOLINT
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GAdaptorPropertyLogger<double>)       // NOLINT
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GAdaptorPropertyLogger<std::int32_t>) // NOLINT
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GAdaptorPropertyLogger<bool>)         // NOLINT
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GProcessingTimesLogger)               // NOLINT
 /******************************************************************************/

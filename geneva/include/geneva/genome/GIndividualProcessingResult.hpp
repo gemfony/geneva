@@ -202,5 +202,4 @@ private:
 /**
  * @brief Needed for Boost.Serialization
  */
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::Genome::individual_processing_result) // NOLINT
 /******************************************************************************/

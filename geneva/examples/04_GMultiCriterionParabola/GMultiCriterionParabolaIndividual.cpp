@@ -38,7 +38,6 @@
 #include "geneva/oa/GAdaption.hpp"
 #include "geneva/oa/GAdaptionConfig.hpp"
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GMultiCriterionParabolaIndividual) // NOLINT
 GEM_REGISTER_ARCHIVABLE(Gem::Geneva::GMultiCriterionParabolaIndividual) // NOLINT
 
 namespace {

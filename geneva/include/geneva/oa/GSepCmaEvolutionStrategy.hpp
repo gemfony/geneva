@@ -362,4 +362,3 @@ private:
 
 } /* namespace Gem::Geneva::OptimizationAlgorithms */
 
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::OptimizationAlgorithms::GSepCmaEvolutionStrategy) // NOLINT

@@ -858,8 +858,3 @@ private:
 /******************************************************************************/
 } /* namespace Gem::Geneva::Individuals */
 
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::Individuals::GFunctionIndividual)        // NOLINT
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::Individuals::GFunctionIndividualFactory) // NOLINT
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::Individuals::GDoubleSumConstraint)       // NOLINT
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::Individuals::GDoubleSumGapConstraint)    // NOLINT
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::Individuals::GSphereConstraint)          // NOLINT

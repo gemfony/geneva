@@ -47,7 +47,6 @@
 #include <tuple>
 #include <vector>
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::Individuals::GLineFitIndividual) // NOLINT
 GEM_REGISTER_ARCHIVABLE(Gem::Geneva::Individuals::GLineFitIndividual) // NOLINT
 namespace Gem::Geneva::Individuals {
 

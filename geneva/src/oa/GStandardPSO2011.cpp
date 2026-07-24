@@ -50,7 +50,6 @@
 #include <catch2/catch_test_macros.hpp>
 #endif /* GEM_TESTING */
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::OptimizationAlgorithms::GStandardPSO2011) // NOLINT
 GEM_REGISTER_ARCHIVABLE(Gem::Geneva::OptimizationAlgorithms::GStandardPSO2011) // NOLINT
 
 namespace Gem::Geneva::OptimizationAlgorithms {

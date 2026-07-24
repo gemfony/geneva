@@ -271,9 +271,7 @@ private:
 
 } // namespace Gem::Tests
 
-BOOST_CLASS_EXPORT(Gem::Tests::Sphere)    // NOLINT
 GEM_REGISTER_ARCHIVABLE(Gem::Tests::Sphere) // NOLINT
-BOOST_CLASS_EXPORT(Gem::Tests::FactorySphere) // NOLINT
 GEM_REGISTER_ARCHIVABLE(Gem::Tests::FactorySphere) // NOLINT
 
 // Register GemSphere for GArchive polymorphic dispatch: toString/fromString serialize the individual
@@ -1124,11 +1122,8 @@ private:
 
 } // namespace Gem::Tests
 
-BOOST_CLASS_EXPORT(Gem::Tests::Mixed)       // NOLINT
 GEM_REGISTER_ARCHIVABLE(Gem::Tests::Mixed) // NOLINT
-BOOST_CLASS_EXPORT(Gem::Tests::IntGauss)    // NOLINT
 GEM_REGISTER_ARCHIVABLE(Gem::Tests::IntGauss) // NOLINT
-BOOST_CLASS_EXPORT(Gem::Tests::ManyGroups)  // NOLINT
 GEM_REGISTER_ARCHIVABLE(Gem::Tests::ManyGroups) // NOLINT
 
 using Gem::Tests::ManyGroups;

@@ -35,6 +35,7 @@
 #include <boost/archive/text_oarchive.hpp>
 
 #include "courtier/GDemoProcessingContainers.hpp"
+#include "weft/GBinaryArchive.hpp" // Gem::Weft::GBinary[IO]Archive
 
 using namespace Gem::Courtier;
 
@@ -64,18 +65,19 @@ TEST_CASE("GProcessable lineage id: fresh on copy, kept on assign, preserved on 
     CHECK(b.getSubmissionUuid() == b_id_before);
     CHECK(b.getSubmissionUuid() != a.getSubmissionUuid());
 
-    // BOOST ROUND-TRIP (wire / checkpoint) -> the id is PRESERVED (a deserialized object is first
+    // SERIALIZED ROUND-TRIP (wire / checkpoint) -> the id is PRESERVED (a deserialized object is first
     // default-constructed with a fresh id, then the archived value overwrites it).
-    std::stringstream ss;
+    std::string blob;
     {
-        boost::archive::text_oarchive oa(ss);
-        oa << a;
+        Gem::Weft::GBinaryOArchive oa;
+        oa &Gem::Weft::make_nvp("item", a);
+        blob = oa.str();
     }
     GSimpleContainer restored(0);
     REQUIRE(restored.getSubmissionUuid() != a.getSubmissionUuid()); // distinct before the load
     {
-        boost::archive::text_iarchive ia(ss);
-        ia >> restored;
+        Gem::Weft::GBinaryIArchive ia(blob);
+        ia &Gem::Weft::make_nvp("item", restored);
     }
     CHECK(restored.getSubmissionUuid() == a.getSubmissionUuid());
 

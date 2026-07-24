@@ -61,55 +61,30 @@
 #include <vector>
 #include "dietrich/plotting/detail/GPlotDetail.hpp"
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Dietrich::GMarker<short>)                        // NOLINT
 GEM_REGISTER_ARCHIVABLE(Gem::Dietrich::GMarker<short>) // NOLINT
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Dietrich::GMarker<std::int32_t>)                 // NOLINT
 GEM_REGISTER_ARCHIVABLE(Gem::Dietrich::GMarker<std::int32_t>) // NOLINT
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Dietrich::GMarker<std::uint32_t>)                // NOLINT
 GEM_REGISTER_ARCHIVABLE(Gem::Dietrich::GMarker<std::uint32_t>) // NOLINT
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Dietrich::GMarker<float>)                        // NOLINT
 GEM_REGISTER_ARCHIVABLE(Gem::Dietrich::GMarker<float>) // NOLINT
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Dietrich::GMarker<double>)                       // NOLINT
 GEM_REGISTER_ARCHIVABLE(Gem::Dietrich::GMarker<double>) // NOLINT
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Dietrich::GDecoratorContainer_2D<short>)         // NOLINT
 GEM_REGISTER_ARCHIVABLE(Gem::Dietrich::GDecoratorContainer_2D<short>) // NOLINT
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Dietrich::GDecoratorContainer_2D<std::int32_t>)  // NOLINT
 GEM_REGISTER_ARCHIVABLE(Gem::Dietrich::GDecoratorContainer_2D<std::int32_t>) // NOLINT
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Dietrich::GDecoratorContainer_2D<std::uint32_t>) // NOLINT
 GEM_REGISTER_ARCHIVABLE(Gem::Dietrich::GDecoratorContainer_2D<std::uint32_t>) // NOLINT
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Dietrich::GDecoratorContainer_2D<float>)         // NOLINT
 GEM_REGISTER_ARCHIVABLE(Gem::Dietrich::GDecoratorContainer_2D<float>) // NOLINT
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Dietrich::GDecoratorContainer_2D<double>)        // NOLINT
 GEM_REGISTER_ARCHIVABLE(Gem::Dietrich::GDecoratorContainer_2D<double>) // NOLINT
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Dietrich::GDecoratorContainer_3D<short>)         // NOLINT
 GEM_REGISTER_ARCHIVABLE(Gem::Dietrich::GDecoratorContainer_3D<short>) // NOLINT
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Dietrich::GDecoratorContainer_3D<std::int32_t>)  // NOLINT
 GEM_REGISTER_ARCHIVABLE(Gem::Dietrich::GDecoratorContainer_3D<std::int32_t>) // NOLINT
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Dietrich::GDecoratorContainer_3D<std::uint32_t>) // NOLINT
 GEM_REGISTER_ARCHIVABLE(Gem::Dietrich::GDecoratorContainer_3D<std::uint32_t>) // NOLINT
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Dietrich::GDecoratorContainer_3D<float>)         // NOLINT
 GEM_REGISTER_ARCHIVABLE(Gem::Dietrich::GDecoratorContainer_3D<float>) // NOLINT
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Dietrich::GDecoratorContainer_3D<double>)        // NOLINT
 GEM_REGISTER_ARCHIVABLE(Gem::Dietrich::GDecoratorContainer_3D<double>) // NOLINT
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Dietrich::GHistogram1D)                          // NOLINT
 GEM_REGISTER_ARCHIVABLE(Gem::Dietrich::GHistogram1D) // NOLINT
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Dietrich::GHistogram1I)                          // NOLINT
 GEM_REGISTER_ARCHIVABLE(Gem::Dietrich::GHistogram1I) // NOLINT
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Dietrich::GHistogram2D)                          // NOLINT
 GEM_REGISTER_ARCHIVABLE(Gem::Dietrich::GHistogram2D) // NOLINT
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Dietrich::GGraph2D)                              // NOLINT
 GEM_REGISTER_ARCHIVABLE(Gem::Dietrich::GGraph2D) // NOLINT
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Dietrich::GGraph2ED)                             // NOLINT
 GEM_REGISTER_ARCHIVABLE(Gem::Dietrich::GGraph2ED) // NOLINT
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Dietrich::GGraph3D)                              // NOLINT
 GEM_REGISTER_ARCHIVABLE(Gem::Dietrich::GGraph3D) // NOLINT
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Dietrich::GGraph4D)                              // NOLINT
 GEM_REGISTER_ARCHIVABLE(Gem::Dietrich::GGraph4D) // NOLINT
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Dietrich::GFunctionPlotter1D)                    // NOLINT
 GEM_REGISTER_ARCHIVABLE(Gem::Dietrich::GFunctionPlotter1D) // NOLINT
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Dietrich::GFunctionPlotter2D)                    // NOLINT
 GEM_REGISTER_ARCHIVABLE(Gem::Dietrich::GFunctionPlotter2D) // NOLINT
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Dietrich::GPlotDesigner)                         // NOLINT
 GEM_REGISTER_ARCHIVABLE(Gem::Dietrich::GPlotDesigner) // NOLINT
 
 namespace Gem::Dietrich {

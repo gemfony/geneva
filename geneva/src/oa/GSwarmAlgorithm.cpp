@@ -53,7 +53,6 @@
 #include <tuple>
 #include <vector>
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::OptimizationAlgorithms::GSwarmAlgorithm) // NOLINT
 GEM_REGISTER_ARCHIVABLE(Gem::Geneva::OptimizationAlgorithms::GSwarmAlgorithm) // NOLINT
 
 namespace Gem::Geneva::OptimizationAlgorithms {

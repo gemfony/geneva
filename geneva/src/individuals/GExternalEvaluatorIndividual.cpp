@@ -55,7 +55,6 @@
 #include <tuple>
 #include <vector>
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::Individuals::GExternalEvaluatorIndividual)        // NOLINT
 GEM_REGISTER_ARCHIVABLE(Gem::Geneva::Individuals::GExternalEvaluatorIndividual) // NOLINT
 namespace Gem::Geneva::Individuals {
 

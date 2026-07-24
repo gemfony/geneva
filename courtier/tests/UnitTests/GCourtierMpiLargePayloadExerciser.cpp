@@ -42,6 +42,7 @@
  */
 
 #include "common/GGlobalDefines.hpp"
+#include "weft/GBinaryArchive.hpp" // Gem::Weft::GBinary[IO]Archive
 
 #ifdef GENEVA_BUILD_WITH_MPI_CONSUMER
 
@@ -76,13 +77,10 @@ constexpr std::size_t N_ITEMS = 8;
 
 /** @brief Serialized size (binary) of one work item, used to prove the payload exceeds the old cap. */
 std::size_t serialized_size_of_one_item() {
-    GRandomNumberContainer const probe(DOUBLES_PER_ITEM);
-    std::ostringstream oss(std::ios_base::binary);
-    {
-        boost::archive::binary_oarchive oa(oss);
-        oa << probe;
-    }
-    return oss.str().size();
+    GRandomNumberContainer probe(DOUBLES_PER_ITEM);
+    Gem::Weft::GBinaryOArchive oa;
+    oa &Gem::Weft::make_nvp("item", probe);
+    return oa.str().size();
 }
 
 } // namespace

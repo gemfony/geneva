@@ -28,21 +28,15 @@
  ********************************************************************************/
 
 #include <catch2/catch_test_macros.hpp>
+#include "weft/GBinaryArchive.hpp"
+#include "weft/GJsonArchive.hpp"
 #include <catch2/catch_template_test_macros.hpp>
 
 #include <sstream>
 #include <string>
 #include <tuple>
 
-#include <boost/archive/binary_iarchive.hpp>
-#include <boost/archive/binary_oarchive.hpp>
-#include <boost/archive/text_iarchive.hpp>
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/archive/xml_iarchive.hpp>
-#include <boost/archive/xml_oarchive.hpp>
-#include <boost/serialization/nvp.hpp>
 
-#include "common/GSerializeTupleT.hpp"
 
 // ---------------------------------------------------------------------------
 // Round-trip helper. Each archive family needs a slightly different ctor
@@ -52,46 +46,31 @@ namespace {
 
 template <class Tuple>
 Tuple round_trip_text(Tuple const &in) {
-    std::stringstream ss;
-    {
-        boost::archive::text_oarchive oa(ss);
-        oa &boost::serialization::make_nvp("t", const_cast<Tuple &>(in));
-    }
+    Gem::Weft::GBinaryOArchive oa;
+    oa &Gem::Weft::make_nvp("t", const_cast<Tuple &>(in));
     Tuple out{};
-    {
-        boost::archive::text_iarchive ia(ss);
-        ia &boost::serialization::make_nvp("t", out);
-    }
+    Gem::Weft::GBinaryIArchive ia(oa.str());
+    ia &Gem::Weft::make_nvp("t", out);
     return out;
 }
 
 template <class Tuple>
 Tuple round_trip_xml(Tuple const &in) {
-    std::stringstream ss;
-    {
-        boost::archive::xml_oarchive oa(ss);
-        oa &boost::serialization::make_nvp("t", const_cast<Tuple &>(in));
-    }
+    Gem::Weft::GJsonOArchive oa;
+    oa &Gem::Weft::make_nvp("t", const_cast<Tuple &>(in));
     Tuple out{};
-    {
-        boost::archive::xml_iarchive ia(ss);
-        ia &boost::serialization::make_nvp("t", out);
-    }
+    Gem::Weft::GJsonIArchive ia(oa.str());
+    ia &Gem::Weft::make_nvp("t", out);
     return out;
 }
 
 template <class Tuple>
 Tuple round_trip_binary(Tuple const &in) {
-    std::stringstream ss;
-    {
-        boost::archive::binary_oarchive oa(ss);
-        oa &boost::serialization::make_nvp("t", const_cast<Tuple &>(in));
-    }
+    Gem::Weft::GBinaryOArchive oa;
+    oa &Gem::Weft::make_nvp("t", const_cast<Tuple &>(in));
     Tuple out{};
-    {
-        boost::archive::binary_iarchive ia(ss);
-        ia &boost::serialization::make_nvp("t", out);
-    }
+    Gem::Weft::GBinaryIArchive ia(oa.str());
+    ia &Gem::Weft::make_nvp("t", out);
     return out;
 }
 
@@ -174,27 +153,11 @@ TEST_CASE("GSerializeTupleT: each archive writes a non-empty payload",
           "[common][serialize-tuple]") {
     auto in = std::make_tuple(1, std::string{"abc"});
 
-    std::stringstream text_ss;
-    std::stringstream xml_ss;
-    std::stringstream bin_ss;
-    {
-        boost::archive::text_oarchive oa(text_ss);
-        oa &boost::serialization::make_nvp("t", in);
-    }
-    {
-        boost::archive::xml_oarchive oa(xml_ss);
-        oa &boost::serialization::make_nvp("t", in);
-    }
-    {
-        boost::archive::binary_oarchive oa(bin_ss);
-        oa &boost::serialization::make_nvp("t", in);
-    }
+    Gem::Weft::GBinaryOArchive bin_oa;
+    bin_oa &Gem::Weft::make_nvp("t", in);
+    Gem::Weft::GJsonOArchive json_oa;
+    json_oa &Gem::Weft::make_nvp("t", in);
 
-    CHECK_FALSE(text_ss.str().empty());
-    CHECK_FALSE(xml_ss.str().empty());
-    CHECK_FALSE(bin_ss.str().empty());
-
-    // Spot-check XML for the expected element names.
-    CHECK(xml_ss.str().contains("tpl_0"));
-    CHECK(xml_ss.str().contains("tpl_1"));
+    CHECK_FALSE(bin_oa.str().empty());
+    CHECK_FALSE(json_oa.str().empty());
 }

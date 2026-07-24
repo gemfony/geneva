@@ -57,7 +57,6 @@
 #include "GLoadableParaboloid.hpp"
 
 // (1) Serialization GUID for wire / checkpoint transport of this individual.
-BOOST_CLASS_EXPORT(GLoadableParaboloid) // NOLINT
 
 // (2) The module entry point. The extern "C" wrapper is the only irreducible boilerplate (fixed symbol name
 // for the loader's dlsym); everything else is the typed individualManifest<> helper. The template arguments

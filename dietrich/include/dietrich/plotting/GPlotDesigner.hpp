@@ -404,28 +404,3 @@ struct is_abstract<const Gem::Dietrich::GDataCollector4T<x_type, y_type, z_type,
 } /* namespace boost::serialization */
 
 BOOST_SERIALIZATION_ASSUME_ABSTRACT(GBasePlotter)                          // NOLINT
-BOOST_CLASS_EXPORT_KEY(Gem::Dietrich::GMarker<short>)                        // NOLINT
-BOOST_CLASS_EXPORT_KEY(Gem::Dietrich::GMarker<std::int32_t>)                 // NOLINT
-BOOST_CLASS_EXPORT_KEY(Gem::Dietrich::GMarker<std::uint32_t>)                // NOLINT
-BOOST_CLASS_EXPORT_KEY(Gem::Dietrich::GMarker<float>)                        // NOLINT
-BOOST_CLASS_EXPORT_KEY(Gem::Dietrich::GMarker<double>)                       // NOLINT
-BOOST_CLASS_EXPORT_KEY(Gem::Dietrich::GDecoratorContainer_2D<short>)         // NOLINT
-BOOST_CLASS_EXPORT_KEY(Gem::Dietrich::GDecoratorContainer_2D<std::int32_t>)  // NOLINT
-BOOST_CLASS_EXPORT_KEY(Gem::Dietrich::GDecoratorContainer_2D<std::uint32_t>) // NOLINT
-BOOST_CLASS_EXPORT_KEY(Gem::Dietrich::GDecoratorContainer_2D<float>)         // NOLINT
-BOOST_CLASS_EXPORT_KEY(Gem::Dietrich::GDecoratorContainer_2D<double>)        // NOLINT
-BOOST_CLASS_EXPORT_KEY(Gem::Dietrich::GDecoratorContainer_3D<short>)         // NOLINT
-BOOST_CLASS_EXPORT_KEY(Gem::Dietrich::GDecoratorContainer_3D<std::int32_t>)  // NOLINT
-BOOST_CLASS_EXPORT_KEY(Gem::Dietrich::GDecoratorContainer_3D<std::uint32_t>) // NOLINT
-BOOST_CLASS_EXPORT_KEY(Gem::Dietrich::GDecoratorContainer_3D<float>)         // NOLINT
-BOOST_CLASS_EXPORT_KEY(Gem::Dietrich::GDecoratorContainer_3D<double>)        // NOLINT
-BOOST_CLASS_EXPORT_KEY(Gem::Dietrich::GHistogram1D)                          // NOLINT
-BOOST_CLASS_EXPORT_KEY(Gem::Dietrich::GHistogram1I)                          // NOLINT
-BOOST_CLASS_EXPORT_KEY(Gem::Dietrich::GHistogram2D)                          // NOLINT
-BOOST_CLASS_EXPORT_KEY(Gem::Dietrich::GGraph2D)                              // NOLINT
-BOOST_CLASS_EXPORT_KEY(Gem::Dietrich::GGraph2ED)                             // NOLINT
-BOOST_CLASS_EXPORT_KEY(Gem::Dietrich::GGraph3D)                              // NOLINT
-BOOST_CLASS_EXPORT_KEY(Gem::Dietrich::GGraph4D)                              // NOLINT
-BOOST_CLASS_EXPORT_KEY(Gem::Dietrich::GFunctionPlotter1D)                    // NOLINT
-BOOST_CLASS_EXPORT_KEY(Gem::Dietrich::GFunctionPlotter2D)                    // NOLINT
-BOOST_CLASS_EXPORT_KEY(Gem::Dietrich::GPlotDesigner)                         // NOLINT

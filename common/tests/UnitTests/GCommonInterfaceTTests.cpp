@@ -95,8 +95,6 @@ private:
 
 } // namespace
 
-BOOST_CLASS_EXPORT_KEY(TestObj)
-BOOST_CLASS_EXPORT_IMPLEMENT(TestObj)
 GEM_REGISTER_ARCHIVABLE(TestObj) // polymorphic-root dispatch for the GEM_BINARY / GEM_JSON toString path
 
 // ---------------------------------------------------------------------------

@@ -146,4 +146,3 @@ operator<<(std::ostream &, const std::shared_ptr<Gem::Geneva::GMultiCriterionPar
 
 }
 
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GMultiCriterionParabolaIndividual) // NOLINT

@@ -109,7 +109,6 @@ private:
 
 } // namespace Gem::Tests
 
-BOOST_CLASS_EXPORT(Gem::Tests::NewSphere) // NOLINT
 GEM_REGISTER_ARCHIVABLE(Gem::Tests::NewSphere) // NOLINT
 
 using Gem::Tests::NewSphere;
@@ -190,9 +189,7 @@ private:
 
 } // namespace Gem::Tests
 
-BOOST_CLASS_EXPORT(Gem::Tests::SeamSphere) // NOLINT
 GEM_REGISTER_ARCHIVABLE(Gem::Tests::SeamSphere) // NOLINT
-BOOST_CLASS_EXPORT(Gem::Tests::SeamMulti)  // NOLINT
 GEM_REGISTER_ARCHIVABLE(Gem::Tests::SeamMulti) // NOLINT
 
 using Gem::Tests::SeamMulti;

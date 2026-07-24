@@ -35,7 +35,6 @@
 #include "common/GExceptions.hpp"
 #include "common/GLogger.hpp"
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::Genome::individual_processing_result) // NOLINT
 
 namespace Gem::Geneva::Genome {
 /******************************************************************************/

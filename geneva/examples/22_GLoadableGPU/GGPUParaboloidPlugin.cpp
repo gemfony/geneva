@@ -57,7 +57,6 @@
 #include "GGPUParaboloidMarshaller.hpp"
 
 // Serialization GUID for wire / checkpoint transport of the individual (the marshaller is not serialized).
-BOOST_CLASS_EXPORT(GGPUParaboloid) // NOLINT
 
 namespace {
 

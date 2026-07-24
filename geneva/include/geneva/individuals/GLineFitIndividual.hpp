@@ -191,4 +191,3 @@ private:
 
 } /* namespace Gem::Geneva::Individuals */
 
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::Individuals::GLineFitIndividual) // NOLINT

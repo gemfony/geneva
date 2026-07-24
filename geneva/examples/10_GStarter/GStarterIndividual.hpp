@@ -291,4 +291,3 @@ using GStarterIndividualFactory = Gem::Geneva::Genome::GIndividualFactory<GStart
 } /* namespace Geneva */
 } /* namespace Gem */
 
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GStarterIndividual) // NOLINT

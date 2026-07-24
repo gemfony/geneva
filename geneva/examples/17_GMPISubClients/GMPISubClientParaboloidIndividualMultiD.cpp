@@ -41,7 +41,6 @@
 #include <functional>
 #include <ranges>
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GMPISubClientParaboloidIndividualMultiD) // NOLINT
 GEM_REGISTER_ARCHIVABLE(Gem::Geneva::GMPISubClientParaboloidIndividualMultiD) // NOLINT
 namespace Gem::Geneva {
 

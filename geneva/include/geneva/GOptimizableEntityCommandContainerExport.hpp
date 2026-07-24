@@ -49,10 +49,5 @@
  * in the geneva library). Including this header makes the registration visible at every networked
  * (de)serialization site -- it is pulled in via GenevaInitializer.hpp.
  */
-BOOST_CLASS_EXPORT_KEY(
-    BOOST_IDENTITY_TYPE((Gem::Courtier::GCommandContainerT<
-                         gen::GOptimizableEntity,
-                         Gem::Courtier::networked_consumer_payload_command>))
-) // NOLINT
 
 /******************************************************************************/

@@ -409,4 +409,3 @@ std::ostream &operator<<(std::ostream &os, const GEvolutionaryAlgorithm &pop);
 /******************************************************************************/
 } /* namespace Gem::Geneva::OptimizationAlgorithms */
 
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::OptimizationAlgorithms::GEvolutionaryAlgorithm) // NOLINT

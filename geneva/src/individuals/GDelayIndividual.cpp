@@ -51,7 +51,6 @@
 #include <tuple>
 #include <vector>
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::Individuals::GDelayIndividual) // NOLINT
 GEM_REGISTER_ARCHIVABLE(Gem::Geneva::Individuals::GDelayIndividual) // NOLINT
 namespace Gem::Geneva::Individuals {
 

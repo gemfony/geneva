@@ -201,11 +201,8 @@ private:
 
 } // namespace Gem::Tests
 
-BOOST_CLASS_EXPORT(Gem::Tests::NgBoxIndividual)   // NOLINT
 GEM_REGISTER_ARCHIVABLE(Gem::Tests::NgBoxIndividual) // NOLINT
-BOOST_CLASS_EXPORT(Gem::Tests::NgMixedIndividual) // NOLINT
 GEM_REGISTER_ARCHIVABLE(Gem::Tests::NgMixedIndividual) // NOLINT
-BOOST_CLASS_EXPORT(Gem::Tests::NgErgoIndividual)  // NOLINT
 GEM_REGISTER_ARCHIVABLE(Gem::Tests::NgErgoIndividual) // NOLINT
 
 using Gem::Tests::NgBoxIndividual;

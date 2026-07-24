@@ -36,15 +36,8 @@
 #include <ostream>
 #include <utility>
 
-BOOST_CLASS_EXPORT_IMPLEMENT(
-    Gem::Geneva::Individuals::GMetaOptimizerIndividualT<Gem::Geneva::Individuals::GFunctionIndividual>
-) // NOLINT
 GEM_REGISTER_ARCHIVABLE(
     Gem::Geneva::Individuals::GMetaOptimizerIndividualT<Gem::Geneva::Individuals::GFunctionIndividual>
-) // NOLINT
-
-BOOST_CLASS_EXPORT_IMPLEMENT(
-    Gem::Geneva::Individuals::GOptOptMonitorT<Gem::Geneva::Individuals::GFunctionIndividual>
 ) // NOLINT
 GEM_REGISTER_ARCHIVABLE(
     Gem::Geneva::Individuals::GOptOptMonitorT<Gem::Geneva::Individuals::GFunctionIndividual>

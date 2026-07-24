@@ -58,7 +58,6 @@
 #include <span>
 #include <vector>
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::OptimizationAlgorithms::GConjugateGradientDescent) // NOLINT
 GEM_REGISTER_ARCHIVABLE(Gem::Geneva::OptimizationAlgorithms::GConjugateGradientDescent) // NOLINT
 
 namespace Gem::Geneva::OptimizationAlgorithms {

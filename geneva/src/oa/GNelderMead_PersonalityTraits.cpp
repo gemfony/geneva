@@ -32,7 +32,6 @@
 
 #include <string>
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::OptimizationAlgorithms::GNelderMead_PersonalityTraits) // NOLINT
 GEM_REGISTER_ARCHIVABLE(Gem::Geneva::OptimizationAlgorithms::GNelderMead_PersonalityTraits)       // NOLINT
 namespace Gem::Geneva::OptimizationAlgorithms {
 

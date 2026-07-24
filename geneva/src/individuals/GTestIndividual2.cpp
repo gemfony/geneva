@@ -47,7 +47,6 @@
 #include <utility>
 #include <vector>
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::Individuals::GTestIndividual2) // NOLINT
 GEM_REGISTER_ARCHIVABLE(Gem::Geneva::Individuals::GTestIndividual2) // NOLINT
 namespace Gem::Geneva::Individuals {
 

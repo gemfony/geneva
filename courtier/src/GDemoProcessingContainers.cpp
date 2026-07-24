@@ -47,9 +47,6 @@
 #include <thread>
 #include <vector>
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Courtier::GSimpleContainer)       // NOLINT
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Courtier::GRandomNumberContainer) // NOLINT
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Courtier::GFaultyContainer)       // NOLINT
 
 namespace Gem::Courtier {
 

@@ -29,10 +29,6 @@
 
 #include "geneva/GOptimizableEntityCommandContainerExport.hpp"
 
-// The single translation unit holding the Boost.Serialization implementation of the command-container
-// export keyed in GOptimizableEntityCommandContainerExport.hpp.
-BOOST_CLASS_EXPORT_IMPLEMENT(
-    BOOST_IDENTITY_TYPE((Gem::Courtier::GCommandContainerT<
-                         gen::GOptimizableEntity,
-                         Gem::Courtier::networked_consumer_payload_command>))
-) // NOLINT
+// This translation unit previously held the Boost.Serialization export implementation of the
+// command container instantiated for GOptimizableEntity; the GArchive registration now lives with
+// the type (GEM_REGISTER_ARCHIVABLE), so nothing is emitted here.

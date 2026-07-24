@@ -898,9 +898,4 @@ private:
 
 } /* namespace Gem::Geneva::OptimizationAlgorithms */
 
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::OptimizationAlgorithms::GBScanPar)       // NOLINT
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::OptimizationAlgorithms::GInt32ScanPar)   // NOLINT
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::OptimizationAlgorithms::GDScanPar)       // NOLINT
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::OptimizationAlgorithms::GFScanPar)       // NOLINT
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::OptimizationAlgorithms::GParameterScan) // NOLINT
 

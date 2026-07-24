@@ -49,7 +49,6 @@
 #include <utility>
 #endif /* GEM_TESTING */
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GStarterIndividual) // NOLINT
 GEM_REGISTER_ARCHIVABLE(Gem::Geneva::GStarterIndividual) // NOLINT
 namespace Gem::Geneva {
 

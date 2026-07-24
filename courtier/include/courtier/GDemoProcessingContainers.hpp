@@ -256,6 +256,3 @@ private:
 
 } /* namespace Gem::Courtier */
 
-BOOST_CLASS_EXPORT_KEY(Gem::Courtier::GSimpleContainer)       // NOLINT
-BOOST_CLASS_EXPORT_KEY(Gem::Courtier::GRandomNumberContainer) // NOLINT
-BOOST_CLASS_EXPORT_KEY(Gem::Courtier::GFaultyContainer)       // NOLINT
