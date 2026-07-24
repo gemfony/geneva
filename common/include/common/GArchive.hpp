@@ -316,6 +316,12 @@ struct is_sequence<std::unordered_set<T, R...>> : std::true_type {};
 template <typename T, typename... R>
 struct is_sequence<std::unordered_multiset<T, R...>> : std::true_type {};
 
+// std::vector<bool> is a proxy-reference specialization: its elements are not
+// real bool lvalues, so the generic is_sequence arm (which binds each element by
+// reference) cannot handle it. It gets its own arm, serializing bit by bit.
+template <typename T>
+inline constexpr bool is_vector_bool_v = std::is_same_v<T, std::vector<bool>>;
+
 template <typename T>
 struct is_optional : std::false_type {};
 template <typename T>
@@ -425,7 +431,7 @@ public:
     /** @brief Serializes only the @p Base slice of a derived object, inline. @param b The base-object wrapper. */
     template <typename Base, typename Der>
     Derived &operator&(const base_object_t<Base, Der> &b) {
-        access::serialize(d(), static_cast<Base &>(b.ref));
+        access::serialize(d(), base_slice<Base>(b.ref));
         return d();
     }
 
@@ -434,7 +440,7 @@ public:
     Derived &operator&(const named_base_object_t<Base, Der> &b) {
         d().member(b.name);
         d().begin_object();
-        access::serialize(d(), static_cast<Base &>(b.ref));
+        access::serialize(d(), base_slice<Base>(b.ref));
         d().end_object();
         return d();
     }
@@ -473,9 +479,24 @@ public:
 private:
     Derived &d() { return static_cast<Derived &>(*this); }
 
+    // Yields the @p Base slice as a non-const reference regardless of the derived
+    // object's constness. A saving archive never mutates what it visits, but a
+    // genuinely const derived (e.g. a Boost-style split save(), which is const)
+    // must still route its base slice through the one serialize() that serves both
+    // directions -- so const is cast away here on the save side only.
+    template <typename Base, typename Der>
+    static Base &base_slice(Der &derived) {
+        return const_cast<Base &>(static_cast<const Base &>(derived));
+    }
+
     template <typename T>
-    Derived &process(T &v) {
+    Derived &process(T &v_in) {
         using U = std::remove_cv_t<T>;
+        // A saving archive never mutates what it visits; normalize away any const
+        // on the referent so every arm (and the free/member serializers it calls)
+        // sees one non-const U&, whether the value arrived through a const
+        // container/member (e.g. a by-value save of a const layout) or not.
+        U &v = const_cast<U &>(v_in);
         if constexpr (std::is_same_v<U, bool>) {
             d().put_bool(v);
         } else if constexpr (std::is_enum_v<U>) {
@@ -564,6 +585,14 @@ private:
                 d().member("value");
                 process(kv.second);
                 d().end_object();
+                d().end_elem();
+            }
+            d().end_seq();
+        } else if constexpr (detail::is_vector_bool_v<U>) {
+            d().begin_seq(v.size());
+            for (bool bit : v) {
+                d().begin_elem();
+                process(bit);
                 d().end_elem();
             }
             d().end_seq();
@@ -794,6 +823,18 @@ private:
                 d().leave_object();
                 d().end_elem();
                 v.emplace(std::move(key), std::move(mapped));
+            }
+            d().end_seq();
+        } else if constexpr (detail::is_vector_bool_v<U>) {
+            std::size_t n = d().begin_seq();
+            v.clear();
+            v.reserve(n);
+            for (std::size_t i = 0; i < n; ++i) {
+                d().begin_elem();
+                bool bit = false;
+                process(bit);
+                d().end_elem();
+                v.push_back(bit);
             }
             d().end_seq();
         } else if constexpr (detail::is_sequence<U>::value) {

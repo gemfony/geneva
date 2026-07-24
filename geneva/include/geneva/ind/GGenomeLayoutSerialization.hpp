@@ -47,83 +47,105 @@
 #include <vector>
 
 // Geneva headers go here
+#include "common/GMemberReflectionT.hpp" // Gem::Common::archive_named (boost-vs-GArchive member emitter)
 #include "geneva/ind/GAdaptionKernels.hpp"
 #include "geneva/ind/GGenomeLayout.hpp"
 
 /******************************************************************************/
 /**
- * Non-intrusive Boost.Serialization support for the (otherwise POD-clean) adaption-layout structs.
- * The layout is serialised by value as part of GGenome's transport encoding (it carries no
- * pointers and no evolving state, so a flat serialisation is sufficient and self-contained).
+ * Non-intrusive serialization support for the (otherwise POD-clean) adaption-layout structs. The bodies
+ * are ARCHIVE-GENERIC -- written once against Gem::Common::archive_named, which selects Boost.Serialization
+ * or a GArchive codec at compile time -- and exposed as free gem_archive_serialize() overloads in the
+ * structs' own namespace, so GArchive's class dispatch finds them by ADL (the analogue of a Boost
+ * non-intrusive serialize()). The thin boost::serialization wrappers further down delegate to these same
+ * bodies; they exist only so a Boost archive can reach the non-intrusive form and are removed with
+ * Boost.Serialization.
+ *
+ * The layout is serialised by value as part of GGenome's transport encoding (it carries no pointers and no
+ * evolving state, so a flat serialisation is sufficient and self-contained).
  */
-namespace boost::serialization {
+namespace Gem::Geneva::Genome {
 
 /**
  * @brief Serializes a GaussConfig (the static Gauss adaptor configuration) field by field.
- * @tparam Archive The Boost.Serialization archive type.
+ * @tparam Archive The archive type (Boost.Serialization or a GArchive codec).
  * @tparam T The Gauss config's floating-point type.
  * @param ar The archive to read from / write to.
  * @param g The GaussConfig to serialize.
- * @param version The serialization format version (ignored).
  */
 template <class Archive, typename T>
-void serialize(Archive &ar, Gem::Geneva::Genome::GaussConfig<T> &g, [[maybe_unused]] const unsigned int version) {
-    ar &make_nvp("sigma_sigma", g.sigma_sigma) &make_nvp("min_sigma", g.min_sigma) &
-        make_nvp("max_sigma", g.max_sigma) &make_nvp("min_ad_prob", g.min_ad_prob) &
-        make_nvp("max_ad_prob", g.max_ad_prob) &make_nvp("adapt_ad_prob", g.adapt_ad_prob) &
-        make_nvp("adapt_sigma_prob", g.adapt_sigma_prob) &
-        make_nvp("adaption_threshold", g.adaption_threshold) &make_nvp("mode", g.mode);
+void gem_archive_serialize(Archive &ar, GaussConfig<T> &g) {
+    using Gem::Common::archive_named;
+    archive_named(ar, "sigma_sigma", g.sigma_sigma);
+    archive_named(ar, "min_sigma", g.min_sigma);
+    archive_named(ar, "max_sigma", g.max_sigma);
+    archive_named(ar, "min_ad_prob", g.min_ad_prob);
+    archive_named(ar, "max_ad_prob", g.max_ad_prob);
+    archive_named(ar, "adapt_ad_prob", g.adapt_ad_prob);
+    archive_named(ar, "adapt_sigma_prob", g.adapt_sigma_prob);
+    archive_named(ar, "adaption_threshold", g.adaption_threshold);
+    archive_named(ar, "mode", g.mode);
 }
 
 /**
  * @brief Serializes a BiGaussConfig (the static bi-gaussian adaptor configuration) field by field.
- * @tparam Archive The Boost.Serialization archive type.
+ * @tparam Archive The archive type (Boost.Serialization or a GArchive codec).
  * @tparam T The bi-gaussian config's floating-point type.
  * @param ar The archive to read from / write to.
  * @param g The BiGaussConfig to serialize.
- * @param version The serialization format version (ignored).
  */
 template <class Archive, typename T>
-void serialize(Archive &ar, Gem::Geneva::Genome::BiGaussConfig<T> &g, [[maybe_unused]] const unsigned int version) {
-    ar &make_nvp("sigma_sigma1", g.sigma_sigma1) &make_nvp("sigma_sigma2", g.sigma_sigma2) &
-        make_nvp("sigma_delta", g.sigma_delta) &make_nvp("min_sigma1", g.min_sigma1) &
-        make_nvp("max_sigma1", g.max_sigma1) &make_nvp("min_sigma2", g.min_sigma2) &
-        make_nvp("max_sigma2", g.max_sigma2) &make_nvp("min_delta", g.min_delta) &
-        make_nvp("max_delta", g.max_delta) &make_nvp("min_ad_prob", g.min_ad_prob) &
-        make_nvp("max_ad_prob", g.max_ad_prob) &make_nvp("adapt_ad_prob", g.adapt_ad_prob) &
-        make_nvp("adapt_sigma_prob", g.adapt_sigma_prob) &
-        make_nvp("adaption_threshold", g.adaption_threshold) &
-        make_nvp("use_symmetric_sigmas", g.use_symmetric_sigmas) &make_nvp("mode", g.mode);
+void gem_archive_serialize(Archive &ar, BiGaussConfig<T> &g) {
+    using Gem::Common::archive_named;
+    archive_named(ar, "sigma_sigma1", g.sigma_sigma1);
+    archive_named(ar, "sigma_sigma2", g.sigma_sigma2);
+    archive_named(ar, "sigma_delta", g.sigma_delta);
+    archive_named(ar, "min_sigma1", g.min_sigma1);
+    archive_named(ar, "max_sigma1", g.max_sigma1);
+    archive_named(ar, "min_sigma2", g.min_sigma2);
+    archive_named(ar, "max_sigma2", g.max_sigma2);
+    archive_named(ar, "min_delta", g.min_delta);
+    archive_named(ar, "max_delta", g.max_delta);
+    archive_named(ar, "min_ad_prob", g.min_ad_prob);
+    archive_named(ar, "max_ad_prob", g.max_ad_prob);
+    archive_named(ar, "adapt_ad_prob", g.adapt_ad_prob);
+    archive_named(ar, "adapt_sigma_prob", g.adapt_sigma_prob);
+    archive_named(ar, "adaption_threshold", g.adaption_threshold);
+    archive_named(ar, "use_symmetric_sigmas", g.use_symmetric_sigmas);
+    archive_named(ar, "mode", g.mode);
 }
 
 /**
  * @brief Serializes a FlipConfig (the static flip adaptor configuration) field by field.
- * @tparam Archive The Boost.Serialization archive type.
+ * @tparam Archive The archive type (Boost.Serialization or a GArchive codec).
  * @param ar The archive to read from / write to.
  * @param g The FlipConfig to serialize.
- * @param version The serialization format version (ignored).
  */
 template <class Archive>
-inline void
-serialize(Archive &ar, Gem::Geneva::Genome::FlipConfig &g, [[maybe_unused]] const unsigned int version) {
-    ar &make_nvp("min_ad_prob", g.min_ad_prob) &make_nvp("max_ad_prob", g.max_ad_prob) &
-        make_nvp("adapt_ad_prob", g.adapt_ad_prob) &make_nvp("mode", g.mode);
+void gem_archive_serialize(Archive &ar, FlipConfig &g) {
+    using Gem::Common::archive_named;
+    archive_named(ar, "min_ad_prob", g.min_ad_prob);
+    archive_named(ar, "max_ad_prob", g.max_ad_prob);
+    archive_named(ar, "adapt_ad_prob", g.adapt_ad_prob);
+    archive_named(ar, "mode", g.mode);
 }
 
 // The genome layout holds structure-only groups. The adaptor configuration lives on the (transient,
 // non-serialized) OA-owned GAdaptionConfig, so only the structure is serialized here.
 /**
  * @brief Serializes a GroupStructure (structure only: start / len / label_id / active).
- * @tparam Archive The Boost.Serialization archive type.
+ * @tparam Archive The archive type (Boost.Serialization or a GArchive codec).
  * @tparam T The group's value type.
  * @param ar The archive to read from / write to.
  * @param g The GroupStructure to serialize.
- * @param version The serialization format version (ignored).
  */
 template <class Archive, typename T>
-void serialize(Archive &ar, Gem::Geneva::Genome::GroupStructure<T> &g, [[maybe_unused]] const unsigned int version) {
-    ar &make_nvp("start", g.start) &make_nvp("len", g.len) &make_nvp("label_id", g.label_id) &
-        make_nvp("active", g.active);
+void gem_archive_serialize(Archive &ar, GroupStructure<T> &g) {
+    using Gem::Common::archive_named;
+    archive_named(ar, "start", g.start);
+    archive_named(ar, "len", g.len);
+    archive_named(ar, "label_id", g.label_id);
+    archive_named(ar, "active", g.active);
 }
 
 /******************************************************************************/
@@ -147,7 +169,7 @@ void serialize(Archive &ar, Gem::Geneva::Genome::GroupStructure<T> &g, [[maybe_u
  * false as soon as any per-value variation is found (triggering the full, non-compact encoding).
  */
 template <typename T>
-bool channelGroupsUniform(const Gem::Geneva::Genome::ChannelLayout<T> &c) {
+bool channelGroupsUniform(const ChannelLayout<T> &c) {
     for(const auto &g : c.groups) {
         for(std::uint32_t k = g.start + 1; k < g.start + g.len; ++k) {
             if(c.lower[k] != c.lower[g.start] || c.upper[k] != c.upper[g.start] ||
@@ -163,17 +185,17 @@ bool channelGroupsUniform(const Gem::Geneva::Genome::ChannelLayout<T> &c) {
 /**
  * @brief Saves a ChannelLayout, using the compact one-value-set-per-group encoding when groups are
  * uniform and falling back to full per-value arrays otherwise (flagged by the `compact` field).
- * @tparam Archive The Boost.Serialization output archive type.
+ * @tparam Archive The saving archive type (Boost.Serialization or a GArchive codec).
  * @tparam T The channel's value type.
  * @param ar The archive to write to.
  * @param c The channel to save.
- * @param version The serialization format version (ignored).
  */
 template <class Archive, typename T>
-void save(Archive &ar, const Gem::Geneva::Genome::ChannelLayout<T> &c, [[maybe_unused]] const unsigned int version) {
+void saveChannelLayout(Archive &ar, const ChannelLayout<T> &c) {
+    using Gem::Common::archive_named;
     bool compact = channelGroupsUniform<T>(c);
-    ar &make_nvp("compact", compact);
-    ar &make_nvp("groups", c.groups);
+    archive_named(ar, "compact", compact);
+    archive_named(ar, "groups", c.groups); // const referent -> T deduces const; both backends save it
     if(compact) {
         // One representative value-set per group; per-value arrays + `active` are rebuilt on load.
         std::vector<T> g_lower, g_upper, g_init_lower, g_init_upper;
@@ -191,37 +213,44 @@ void save(Archive &ar, const Gem::Geneva::Genome::ChannelLayout<T> &c, [[maybe_u
             g_init_upper.push_back(c.init_upper[g.start]);
             g_fold.push_back(c.fold[g.start]);
         }
-        ar &make_nvp("g_lower", g_lower) &make_nvp("g_upper", g_upper) &
-            make_nvp("g_init_lower", g_init_lower) &make_nvp("g_init_upper", g_init_upper) &
-            make_nvp("g_fold", g_fold);
+        archive_named(ar, "g_lower", g_lower);
+        archive_named(ar, "g_upper", g_upper);
+        archive_named(ar, "g_init_lower", g_init_lower);
+        archive_named(ar, "g_init_upper", g_init_upper);
+        archive_named(ar, "g_fold", g_fold);
     }
     else {
-        ar &make_nvp("lower", c.lower) &make_nvp("upper", c.upper) &
-            make_nvp("init_lower", c.init_lower) &make_nvp("init_upper", c.init_upper) &
-            make_nvp("fold", c.fold) &make_nvp("active", c.active);
+        archive_named(ar, "lower", c.lower);
+        archive_named(ar, "upper", c.upper);
+        archive_named(ar, "init_lower", c.init_lower);
+        archive_named(ar, "init_upper", c.init_upper);
+        archive_named(ar, "fold", c.fold);
+        archive_named(ar, "active", c.active);
     }
 }
 
 /**
  * @brief Loads a ChannelLayout, rebuilding the per-value arrays from the compact per-group encoding
  * when `compact` is set, or reading the full per-value arrays directly otherwise.
- * @tparam Archive The Boost.Serialization input archive type.
+ * @tparam Archive The loading archive type (Boost.Serialization or a GArchive codec).
  * @tparam T The channel's value type.
  * @param ar The archive to read from.
  * @param c The channel to populate.
- * @param version The serialization format version (ignored).
  */
 template <class Archive, typename T>
-void load(Archive &ar, Gem::Geneva::Genome::ChannelLayout<T> &c, [[maybe_unused]] const unsigned int version) {
+void loadChannelLayout(Archive &ar, ChannelLayout<T> &c) {
+    using Gem::Common::archive_named;
     bool compact = false;
-    ar &make_nvp("compact", compact);
-    ar &make_nvp("groups", c.groups);
+    archive_named(ar, "compact", compact);
+    archive_named(ar, "groups", c.groups);
     if(compact) {
         std::vector<T> g_lower, g_upper, g_init_lower, g_init_upper;
         std::vector<std::uint8_t> g_fold;
-        ar &make_nvp("g_lower", g_lower) &make_nvp("g_upper", g_upper) &
-            make_nvp("g_init_lower", g_init_lower) &make_nvp("g_init_upper", g_init_upper) &
-            make_nvp("g_fold", g_fold);
+        archive_named(ar, "g_lower", g_lower);
+        archive_named(ar, "g_upper", g_upper);
+        archive_named(ar, "g_init_lower", g_init_lower);
+        archive_named(ar, "g_init_upper", g_init_upper);
+        archive_named(ar, "g_fold", g_fold);
         // The groups tile [0, size()) contiguously, so size == past-the-end of the last group.
         const std::size_t size = c.groups.empty()
                                      ? 0
@@ -245,36 +274,104 @@ void load(Archive &ar, Gem::Geneva::Genome::ChannelLayout<T> &c, [[maybe_unused]
         }
     }
     else {
-        ar &make_nvp("lower", c.lower) &make_nvp("upper", c.upper) &
-            make_nvp("init_lower", c.init_lower) &make_nvp("init_upper", c.init_upper) &
-            make_nvp("fold", c.fold) &make_nvp("active", c.active);
+        archive_named(ar, "lower", c.lower);
+        archive_named(ar, "upper", c.upper);
+        archive_named(ar, "init_lower", c.init_lower);
+        archive_named(ar, "init_upper", c.init_upper);
+        archive_named(ar, "fold", c.fold);
+        archive_named(ar, "active", c.active);
     }
 }
 
 /**
- * @brief Dispatches ChannelLayout (de)serialization to the split save()/load() free functions.
- * @tparam Archive The Boost.Serialization archive type.
+ * @brief Non-intrusive ChannelLayout (de)serializer for a GArchive codec: dispatches the split
+ * save/load bodies on the codec's compile-time direction.
+ * @tparam Archive The GArchive codec type.
  * @tparam T The channel's value type.
  * @param ar The archive to read from / write to.
  * @param c The channel to serialize.
- * @param version The serialization format version, forwarded to split_free.
  */
+template <class Archive, typename T>
+void gem_archive_serialize(Archive &ar, ChannelLayout<T> &c) {
+    if constexpr (Archive::is_saving) {
+        saveChannelLayout(ar, c);
+    } else {
+        loadChannelLayout(ar, c);
+    }
+}
+
+/**
+ * @brief Serializes a whole GGenomeLayout: its four value channels (d / f / i / b) plus the interned labels.
+ * @tparam Archive The archive type (Boost.Serialization or a GArchive codec).
+ * @param ar The archive to read from / write to.
+ * @param l The layout to serialize.
+ */
+template <class Archive>
+void gem_archive_serialize(Archive &ar, GGenomeLayout &l) {
+    using Gem::Common::archive_named;
+    archive_named(ar, "d", l.d);
+    archive_named(ar, "f", l.f);
+    archive_named(ar, "i", l.i);
+    archive_named(ar, "b", l.b);
+    archive_named(ar, "labels", l.labels);
+}
+
+} /* namespace Gem::Geneva::Genome */
+
+/******************************************************************************/
+/**
+ * Thin Boost.Serialization wrappers: they let a Boost archive reach the archive-generic
+ * gem_archive_serialize() bodies above (Boost's access looks in boost::serialization, not the type's
+ * namespace). Each simply forwards; all are deleted when Boost.Serialization is removed.
+ */
+namespace boost::serialization {
+
+/** @brief Boost wrapper -> Gem::Geneva::Genome::gem_archive_serialize(GaussConfig). */
+template <class Archive, typename T>
+void serialize(Archive &ar, Gem::Geneva::Genome::GaussConfig<T> &g, [[maybe_unused]] const unsigned int version) {
+    Gem::Geneva::Genome::gem_archive_serialize(ar, g);
+}
+
+/** @brief Boost wrapper -> Gem::Geneva::Genome::gem_archive_serialize(BiGaussConfig). */
+template <class Archive, typename T>
+void serialize(Archive &ar, Gem::Geneva::Genome::BiGaussConfig<T> &g, [[maybe_unused]] const unsigned int version) {
+    Gem::Geneva::Genome::gem_archive_serialize(ar, g);
+}
+
+/** @brief Boost wrapper -> Gem::Geneva::Genome::gem_archive_serialize(FlipConfig). */
+template <class Archive>
+inline void serialize(Archive &ar, Gem::Geneva::Genome::FlipConfig &g, [[maybe_unused]] const unsigned int version) {
+    Gem::Geneva::Genome::gem_archive_serialize(ar, g);
+}
+
+/** @brief Boost wrapper -> Gem::Geneva::Genome::gem_archive_serialize(GroupStructure). */
+template <class Archive, typename T>
+void serialize(Archive &ar, Gem::Geneva::Genome::GroupStructure<T> &g, [[maybe_unused]] const unsigned int version) {
+    Gem::Geneva::Genome::gem_archive_serialize(ar, g);
+}
+
+/** @brief Boost split-save wrapper -> Gem::Geneva::Genome::saveChannelLayout. */
+template <class Archive, typename T>
+void save(Archive &ar, const Gem::Geneva::Genome::ChannelLayout<T> &c, [[maybe_unused]] const unsigned int version) {
+    Gem::Geneva::Genome::saveChannelLayout(ar, c);
+}
+
+/** @brief Boost split-load wrapper -> Gem::Geneva::Genome::loadChannelLayout. */
+template <class Archive, typename T>
+void load(Archive &ar, Gem::Geneva::Genome::ChannelLayout<T> &c, [[maybe_unused]] const unsigned int version) {
+    Gem::Geneva::Genome::loadChannelLayout(ar, c);
+}
+
+/** @brief Dispatches ChannelLayout (de)serialization to the split save()/load() wrappers above. */
 template <class Archive, typename T>
 void serialize(Archive &ar, Gem::Geneva::Genome::ChannelLayout<T> &c, const unsigned int version) {
     boost::serialization::split_free(ar, c, version);
 }
 
-/**
- * @brief Serializes a whole GGenomeLayout: its four value channels (d / f / i / b) plus the interned labels.
- * @tparam Archive The Boost.Serialization archive type.
- * @param ar The archive to read from / write to.
- * @param l The layout to serialize.
- * @param version The serialization format version (ignored).
- */
+/** @brief Boost wrapper -> Gem::Geneva::Genome::gem_archive_serialize(GGenomeLayout). */
 template <class Archive>
 void serialize(Archive &ar, Gem::Geneva::Genome::GGenomeLayout &l, [[maybe_unused]] const unsigned int version) {
-    ar &make_nvp("d", l.d) &make_nvp("f", l.f) &make_nvp("i", l.i) &make_nvp("b", l.b) &
-        make_nvp("labels", l.labels);
+    Gem::Geneva::Genome::gem_archive_serialize(ar, l);
 }
 
 } /* namespace boost::serialization */

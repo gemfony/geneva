@@ -50,6 +50,8 @@
 #include <boost/serialization/export.hpp>
 #include <boost/serialization/nvp.hpp>
 
+#include "common/GBinaryArchive.hpp" // GArchive binary codec (3d-A GGenome gem round-trip)
+#include "common/GJsonArchive.hpp"   // GArchive JSON codec (3d-A GGenome gem round-trip)
 #include "common/GCommonEnums.hpp"
 #include "common/GExceptions.hpp"
 #include "common/GExpectationChecksT.hpp"
@@ -716,6 +718,51 @@ TEST_CASE("GGenome: a derived individual round-trips in TEXT, XML and BINARY",
         std::vector<double> v;
         restored.streamline<double>(v);
         CHECK(v == vals);
+    }
+}
+
+/******************************************************************************/
+// The ported GGenomeLayout serialization (non-intrusive gem_archive_serialize on the layout structs,
+// dispatched through GArchive's class arm) round-trips a real built layout -- the compact per-group
+// encoding, the four value channels including the vector<bool> proxy channel, and the interned labels --
+// through BOTH GArchive codecs (flat binary + inspectable JSON), reproducing the same content-addressed
+// layoutId. This is the self-contained layer of the send-once wire form and the leaf of the individual's
+// serialization tree; the full derived-individual GArchive round-trip follows once its polymorphic owned
+// members are ported and registered.
+TEST_CASE("GGenomeLayout: round-trips through the GArchive codecs (binary + JSON)",
+          "[flat][garchive][layoutid]") {
+    using namespace Gem::Common::archive;
+
+    // A layout with several groups across double / int32 / bool channels + labels, so the compact
+    // per-group encoding, the escape route and the bool proxy channel are all exercised.
+    GGenomeBuilder b;
+    b.addDoubleGroup(4, -10., 10.).init(1.0);
+    b.addDoubleArray(3, -1., 1.);
+    b.addInt32Group(2, -5, 5);
+    b.addBoolArray(3);
+    Sphere host;
+    host.setGenome(b.build());
+    const GGenomeLayout original = *host.getLayout();
+    const auto original_id = host.getLayout()->layoutId();
+
+    // Binary codec.
+    {
+        GBinaryOArchive oa;
+        oa &make_nvp("layout", original);
+        GGenomeLayout restored;
+        GBinaryIArchive ia(oa.str());
+        ia &make_nvp("layout", restored);
+        CHECK(restored.layoutId() == original_id);
+    }
+
+    // JSON codec (human-readable checkpoint form).
+    {
+        GJsonOArchive oa;
+        oa &make_nvp("layout", original);
+        GGenomeLayout restored;
+        GJsonIArchive ia(oa.str());
+        ia &make_nvp("layout", restored);
+        CHECK(restored.layoutId() == original_id);
     }
 }
 
