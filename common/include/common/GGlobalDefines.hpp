@@ -106,9 +106,6 @@
 #error "Error: Boost should at least have version 1.91 !"
 #endif /* BOOST_VERSION */
 
-/** Make sure we use boost filesystem v3 */
-#define BOOST_FILESYSTEM_VERSION 3
-
 //-----------------------------------------------------------
 
 /** @brief Returns x squared, evaluating its argument exactly once (the former GSQUARED

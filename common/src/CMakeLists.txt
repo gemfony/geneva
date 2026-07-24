@@ -68,13 +68,12 @@ TARGET_INCLUDE_DIRECTORIES(
 )
 
 # Propagate the Boost dependencies that appear in the public headers
-# (program_options/serialization/filesystem/regex/atomic). The C++ standard is
+# (json/program_options/regex/atomic). The C++ standard is
 # selected centrally in CMakeModules/CommonGenevaBuild.cmake.
 TARGET_LINK_LIBRARIES(
     ${COMMON_LIBNAME}
     PUBLIC
     ${WEFT_LIBNAME}
-    Boost::filesystem
     Boost::json
     Boost::program_options
     Boost::regex

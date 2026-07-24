@@ -39,6 +39,9 @@
 #include <vector>
 
 // Boost headers go here
+// Make Boost.DLL use std::filesystem / std::system_error (its `dll::fs` aliases) instead of
+// boost::filesystem, so Geneva does not link libboost_filesystem for the one dll::fs::path we use.
+#define BOOST_DLL_USE_STD_FS 1
 #include <boost/dll/shared_library.hpp>
 
 // Geneva headers go here
@@ -155,7 +158,7 @@ boost::dll::shared_library &openAndKeep(const std::string &path_str) {
     namespace dll = boost::dll;
     dll::shared_library lib;
     try {
-        // boost::dll uses its own filesystem path type; convert from the native string.
+        // dll::fs::path is std::filesystem::path here (BOOST_DLL_USE_STD_FS); build it from the string.
         lib.load(dll::fs::path(path_str), dll::load_mode::rtld_global | dll::load_mode::rtld_now);
     }
     catch(const std::exception &e) {

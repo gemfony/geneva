@@ -266,7 +266,6 @@ IF (GENEVA_FOUND)
 	# matching the behaviour of the config-file package. The component list
 	# mirrors GENEVA_BOOST_LIBS in CommonGenevaBuild.cmake.
 	FIND_DEPENDENCY (Boost 1.91 COMPONENTS
-		filesystem
 		json
 		program_options
 		regex
@@ -279,7 +278,7 @@ IF (GENEVA_FOUND)
 			IMPORTED_LOCATION "${GENEVA_COMMON_LIBRARY}"
 			INTERFACE_INCLUDE_DIRECTORIES "${GENEVA_INCLUDE_DIR}"
 			INTERFACE_COMPILE_FEATURES "cxx_std_23"
-			INTERFACE_LINK_LIBRARIES "Boost::filesystem;Boost::json;Boost::program_options;Boost::regex;Boost::atomic"
+			INTERFACE_LINK_LIBRARIES "Boost::json;Boost::program_options;Boost::regex;Boost::atomic"
 		)
 	ENDIF ()
 

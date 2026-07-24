@@ -162,7 +162,6 @@ IF(NOT COMMON_GENEVA_BUILD_INCLUDED)
 	SET (
 			GENEVA_BOOST_LIBS
 			atomic
-			filesystem
 			json
 			regex
 			program_options
