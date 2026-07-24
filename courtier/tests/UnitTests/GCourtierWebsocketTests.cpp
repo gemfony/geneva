@@ -57,7 +57,9 @@ namespace ccons = Gem::Courtier::Consumers;
 namespace {
 
 using item_ptr = std::unique_ptr<GFaultyContainer>;
-constexpr auto BIN = Gem::Common::serializationMode::BINARY;
+// The wire codec exercised over the real socket: the GArchive flat-binary format (the networked
+// default). This carries a GEM-encoded work item end-to-end through the beast consumer/session path.
+constexpr auto BIN = Gem::Common::serializationMode::GEM_BINARY;
 
 std::vector<item_ptr> make_batch(
     std::size_t n,

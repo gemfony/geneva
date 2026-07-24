@@ -65,7 +65,7 @@ struct ConsumerSpec {
     unsigned int n_threads = 0;      ///< local thread-pool / networked IO-thread count (0 == hardware concurrency)
     unsigned short port = 0;         ///< listening / target port (networked socket consumers)
     Gem::Common::serializationMode serialization_mode =
-        Gem::Common::serializationMode::BINARY; ///< wire serialization (networked)
+        Gem::Common::serializationMode::GEM_BINARY; ///< wire serialization (networked)
     // --- client-side fields (networked socket consumers; ignored by the server build) ---
     std::string ip = "localhost";        ///< server address the client connects to
     std::size_t max_reconnects = 0;      ///< [asio] client reconnect attempts before giving up

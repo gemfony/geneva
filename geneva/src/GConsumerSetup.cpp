@@ -186,7 +186,7 @@ public:
         hidden.add_options()(
             "asio_serializationMode",
             po::value<serializationMode>()->default_value(c2::GCONSUMERSERIALIZATIONMODE),
-            "\t[asio] Serialization in TEXTMODE (0), XMLMODE (1) or BINARYMODE (2)")(
+            "\t[asio] Serialization in TEXTMODE (0), XMLMODE (1), BINARYMODE (2), GEM_BINARYMODE (3) or GEM_JSONMODE (4)")(
             "asio_nProcessingThreads",
             po::value<std::size_t>()->default_value(c2::GCONSUMERLISTENERTHREADS),
             "\t[asio] The number of threads used to process incoming connections")(
@@ -251,7 +251,7 @@ public:
         hidden.add_options()(
             "beast_serializationMode",
             po::value<serializationMode>()->default_value(c2::GCONSUMERSERIALIZATIONMODE),
-            "\t[beast] Serialization in TEXTMODE (0), XMLMODE (1) or BINARYMODE (2)")(
+            "\t[beast] Serialization in TEXTMODE (0), XMLMODE (1), BINARYMODE (2), GEM_BINARYMODE (3) or GEM_JSONMODE (4)")(
             "beast_nListenerThreads",
             po::value<std::size_t>()->default_value(c2::GCONSUMERLISTENERTHREADS),
             "\t[beast] The number of threads used to listen for incoming connections")(
@@ -338,7 +338,7 @@ public:
             "\t[mpi] Interval in ms between master session-completion checks")(
             "mpi_serializationMode",
             po::value<serializationMode>()->default_value(c2::GCONSUMERSERIALIZATIONMODE),
-            "\t[mpi] Serialization in TEXTMODE (0), XMLMODE (1) or BINARYMODE (2)");
+            "\t[mpi] Serialization in TEXTMODE (0), XMLMODE (1), BINARYMODE (2), GEM_BINARYMODE (3) or GEM_JSONMODE (4)");
     }
 };
 #endif /* GENEVA_BUILD_WITH_MPI_CONSUMER */

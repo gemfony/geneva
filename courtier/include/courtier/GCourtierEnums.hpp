@@ -98,7 +98,7 @@ constexpr unsigned short GCONSUMERDEFAULTPORT = 10000;
 const std::string GCONSUMERDEFAULTSERVER = "localhost"; // NOLINT
 constexpr std::uint16_t GCONSUMERLISTENERTHREADS = 4;
 const Gem::Common::serializationMode GCONSUMERSERIALIZATIONMODE =
-    Gem::Common::serializationMode::BINARY;
+    Gem::Common::serializationMode::GEM_BINARY;
 constexpr std::size_t GBEASTCONSUMERPINGINTERVAL = 15;
 
 /******************************************************************************

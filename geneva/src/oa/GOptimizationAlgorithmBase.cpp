@@ -1267,7 +1267,7 @@ void GOptimizationAlgorithmBase::addConfigurationOptions_(Gem::Common::GParserBu
         [this](Gem::Common::serializationMode s_m) { this->setCheckpointSerializationMode(s_m); }
     ) << "Determines whether check-pointing should be done in"
       << '\n'
-      << "text- (0), XML- (1), or binary-mode (2)";
+      << "text- (0), XML- (1), binary- (2), GArchive-binary- (3) or GArchive-JSON-mode (4)";
 
     gpb.registerFileParameter<double, bool>(
         "threshold" // The name of the variable

@@ -167,7 +167,7 @@ struct MPIConsumerConfig {
     /**
          * Serialization mode to use when serializing messages before transmitting over network between master node and worker nodes
          */
-    Gem::Common::serializationMode serializationMode{Gem::Common::serializationMode::BINARY};
+    Gem::Common::serializationMode serializationMode{Gem::Common::serializationMode::GEM_BINARY};
     /**
          * The number of threads in a thread pool which is used to handle incoming requests.
          */
@@ -221,8 +221,8 @@ struct MPIConsumerConfig {
             "mpi_serializationMode",
             po::value<Gem::Common::serializationMode>(&serializationMode)
                 ->default_value(serializationMode),
-            "\t[mpi] Specifies whether serialization shall be done in TEXTMODE (0), XMLMODE (1) or "
-            "BINARYMODE (2)"
+            "\t[mpi] Specifies whether serialization shall be done in TEXTMODE (0), XMLMODE (1), "
+            "BINARYMODE (2), GEM_BINARYMODE (3) or GEM_JSONMODE (4)"
         );
     }
 
