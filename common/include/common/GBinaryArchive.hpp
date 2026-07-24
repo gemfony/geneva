@@ -130,7 +130,16 @@ public:
             std::uint64_t le = detail::to_le(std::bit_cast<std::uint64_t>(v));
             append_raw(&le, sizeof(le));
         } else {
-            // long double: raw platform bytes (see the portability note above).
+            // long double: written as raw platform bytes (native width, native byte order), NOT
+            // endian/width-canonicalised like the integer and float/double cases above. This
+            // round-trips bit-exactly for a save+load within one binary on one architecture -- the
+            // only guarantee Geneva's clean break requires (Inv 4) -- but a long double is therefore
+            // NOT portable across architectures that differ in long double width (80-bit x87 vs
+            // 128-bit) or endianness. DEFERRED: a canonical cross-arch long double wire encoding
+            // (e.g. fixed-width mantissa/exponent decomposition) is left to the wire-hardening step;
+            // see the file-level "Portability" note and the Boost-replacement design doc
+            // ("own-the-codec risk"). Until then, a heterogeneous-arch cluster must not put long
+            // double on the wire. (The normalized-genome long double values are same-arch here.)
             append_raw(&v, sizeof(v));
         }
     }
@@ -206,6 +215,10 @@ public:
             read_raw(&le, sizeof(le));
             v = std::bit_cast<double>(detail::to_le(le));
         } else {
+            // long double: read back as raw platform bytes -- the exact inverse of put_fp's raw
+            // write, so it round-trips bit-exactly only on the same architecture/width the bytes
+            // were written on (see the put_fp long double branch and the file-level portability
+            // note; canonical cross-arch encoding is deferred to the wire-hardening step).
             read_raw(&v, sizeof(v));
         }
     }
