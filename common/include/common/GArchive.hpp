@@ -131,6 +131,39 @@ base_object_t<Base, Derived> base_object(Derived &derived) {
 }
 
 /**
+ * @brief Like @ref base_object_t but serializes the @p Base slice as a @b named,
+ * @b nested member (a sub-object under @c name) rather than inline. This mirrors
+ * Boost's @c make_nvp(name, base_object<Base>(d)) nesting -- used for a
+ * hierarchy's parent slice -- so base and derived members cannot collide on a
+ * shared name in the self-describing (JSON) codec.
+ * @tparam Base The base slice to serialize.
+ * @tparam Derived The concrete object providing that slice.
+ */
+template <typename Base, typename Derived>
+struct named_base_object_t {
+    const char *name;
+    Derived &ref;
+};
+
+/** @brief Builds a @ref named_base_object_t. @param name The member name for the nested base slice. @param derived The derived object. */
+template <typename Base, typename Derived>
+named_base_object_t<Base, Derived> named_base(const char *name, Derived &derived) {
+    static_assert(std::is_base_of_v<Base, Derived>, "named_base<Base>(name, d): Base must be a base of decltype(d)");
+    return named_base_object_t<Base, Derived>{name, derived};
+}
+
+/**
+ * @brief Empty marker base of every @c GArchive codec, so generic serialization
+ * code can branch on "is this a GArchive?" (vs a Boost archive) at compile time
+ * via @ref is_gem_archive_v.
+ */
+struct gem_archive_tag {};
+
+/** @brief Whether @p Archive is a @c GArchive codec (derives from @ref gem_archive_tag). */
+template <typename Archive>
+inline constexpr bool is_gem_archive_v = std::is_base_of_v<gem_archive_tag, std::remove_cvref_t<Archive>>;
+
+/**
  * @brief Access shim invoking a class's (often private) @c serialize member.
  * A serializable class grants access with
  * @c "friend struct Gem::Common::archive::access;".
@@ -228,7 +261,7 @@ inline constexpr bool is_set_like_v<std::unordered_set<T, R...>> = true;
  * @tparam Derived The concrete saving codec (CRTP).
  */
 template <typename Derived>
-class GOArchiveT {
+class GOArchiveT : public gem_archive_tag {
 public:
     static constexpr bool is_saving = true;
     static constexpr bool is_loading = false;
@@ -240,10 +273,20 @@ public:
         return process(n.value);
     }
 
-    /** @brief Serializes only the @p Base slice of a derived object. @param b The base-object wrapper. */
+    /** @brief Serializes only the @p Base slice of a derived object, inline. @param b The base-object wrapper. */
     template <typename Base, typename Der>
     Derived &operator&(const base_object_t<Base, Der> &b) {
         access::serialize(d(), static_cast<Base &>(b.ref));
+        return d();
+    }
+
+    /** @brief Serializes the @p Base slice as a named, nested sub-object. @param b The named base-object wrapper. */
+    template <typename Base, typename Der>
+    Derived &operator&(const named_base_object_t<Base, Der> &b) {
+        d().member(b.name);
+        d().begin_object();
+        access::serialize(d(), static_cast<Base &>(b.ref));
+        d().end_object();
         return d();
     }
 
@@ -350,7 +393,7 @@ private:
  * @tparam Derived The concrete loading codec (CRTP).
  */
 template <typename Derived>
-class GIArchiveT {
+class GIArchiveT : public gem_archive_tag {
 public:
     static constexpr bool is_saving = false;
     static constexpr bool is_loading = true;
@@ -362,10 +405,20 @@ public:
         return process(n.value);
     }
 
-    /** @brief Loads only the @p Base slice of a derived object. @param b The base-object wrapper. */
+    /** @brief Loads only the @p Base slice of a derived object, inline. @param b The base-object wrapper. */
     template <typename Base, typename Der>
     Derived &operator&(const base_object_t<Base, Der> &b) {
         access::serialize(d(), static_cast<Base &>(b.ref));
+        return d();
+    }
+
+    /** @brief Loads the @p Base slice from a named, nested sub-object. @param b The named base-object wrapper. */
+    template <typename Base, typename Der>
+    Derived &operator&(const named_base_object_t<Base, Der> &b) {
+        d().member(b.name);
+        d().enter_object();
+        access::serialize(d(), static_cast<Base &>(b.ref));
+        d().leave_object();
         return d();
     }
 

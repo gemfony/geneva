@@ -43,9 +43,45 @@
 #include <boost/serialization/nvp.hpp>
 
 // Gemfony headers go here
+#include "common/GArchive.hpp"
 #include "common/GCommonHelperFunctionsT.hpp"
 
 namespace Gem::Common {
+
+/******************************************************************************/
+/**
+ * @brief Emits @p ref through @p ar under NVP @p name, against either a Boost
+ * archive or a @c GArchive codec (chosen at compile time). This is the single
+ * boost-vs-GArchive branch for a plain member: the generated serialize keeps
+ * calling one spelling while the two serialization backends coexist.
+ * @param ar The archive. @param name The NVP tag. @param ref The member reference.
+ */
+template <typename Archive, typename T>
+inline void archive_named(Archive &ar, const char *name, T &ref) {
+    if constexpr (Gem::Common::archive::is_gem_archive_v<Archive>) {
+        ar &Gem::Common::archive::make_nvp(name, ref);
+    } else {
+        ar &boost::serialization::make_nvp(name, ref);
+    }
+}
+
+/**
+ * @brief Emits the @p Base slice of @p derived as a named, nested sub-object,
+ * against either a Boost archive or a @c GArchive codec. The Boost path is the
+ * exact @c make_nvp(name, base_object<Base>(derived)) it always was; the
+ * @c GArchive path nests via @c named_base so base/derived members cannot
+ * collide on a shared name.
+ * @tparam Base The base slice to serialize.
+ * @param ar The archive. @param name The NVP tag. @param derived The derived object.
+ */
+template <typename Base, typename Archive, typename Derived>
+inline void archive_named_base(Archive &ar, const char *name, Derived &derived) {
+    if constexpr (Gem::Common::archive::is_gem_archive_v<Archive>) {
+        ar &Gem::Common::archive::named_base<Base>(name, derived);
+    } else {
+        ar &boost::serialization::make_nvp(name, boost::serialization::base_object<Base>(derived));
+    }
+}
 
 /******************************************************************************/
 /**
@@ -97,7 +133,7 @@ struct ser_emit {
      */
     template <typename Archive, typename T>
     static void serialize(Archive &ar, const char *name, T &ref) {
-        ar & boost::serialization::make_nvp(name, ref);
+        Gem::Common::archive_named(ar, name, ref);
     }
 };
 
@@ -134,7 +170,7 @@ struct ser_base_object {
      */
     template <typename Archive, typename Derived>
     static void serialize(Archive &ar, const char *name, Derived &derived) {
-        ar & boost::serialization::make_nvp(name, boost::serialization::base_object<Base>(derived));
+        Gem::Common::archive_named_base<Base>(ar, name, derived);
     }
 };
 

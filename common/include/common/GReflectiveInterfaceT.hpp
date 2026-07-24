@@ -245,6 +245,10 @@ private:
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
     friend struct Gem::Common::GReflectiveInterfaceAccess;
+    // Lets a GArchive codec reach this generated serialize (the GArchive analogue
+    // of the boost::serialization::access friendship), so the same generated
+    // sweep serves both serialization backends while they coexist.
+    friend struct Gem::Common::archive::access;
 
     /**
      * @brief Deleted fallback member list.
@@ -265,7 +269,10 @@ private:
     /**
      * @brief Serializes the parent slice (unless this is the hierarchy root) and
      * this class's own members, derived from the single localMembers_() declaration.
-     * @tparam Archive The Boost.Serialization archive type
+     * Archive-generic: the same body serves a Boost archive or a @c GArchive codec
+     * (the boost-vs-GArchive branch lives once in @c archive_named_base /
+     * @c serialize_members), so the two backends coexist without a second sweep.
+     * @tparam Archive The Boost.Serialization archive or GArchive codec type
      * @param ar The archive being read from or written to
      * @param version The (unused) class version supplied by Boost.Serialization
      */
@@ -281,10 +288,7 @@ private:
             // serialize (base_object<Parent>(*this) with *this a Derived&) did. Passing
             // the mixin subobject instead leaves Derived<->Parent unregistered and the
             // polymorphic downcast through the hierarchy root throws "unregistered void cast".
-            ar &boost::serialization::make_nvp(
-                "gemfonyParent",
-                boost::serialization::base_object<Parent>(static_cast<Derived &>(*this))
-            );
+            Gem::Common::archive_named_base<Parent>(ar, "gemfonyParent", static_cast<Derived &>(*this));
         }
         Gem::Common::serialize_members(ar, GReflectiveInterfaceAccess::members(static_cast<Derived &>(*this)));
     }
