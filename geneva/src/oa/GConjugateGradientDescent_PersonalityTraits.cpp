@@ -28,10 +28,12 @@
  ********************************************************************************/
 
 #include "geneva/oa/GConjugateGradientDescent_PersonalityTraits.hpp"
+#include "common/GArchivePolymorphic.hpp" // GEM_REGISTER_ARCHIVABLE (GArchive polymorphic-pointer dispatch)
 
 #include <string>
 
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::OptimizationAlgorithms::GConjugateGradientDescent_PersonalityTraits) // NOLINT
+GEM_REGISTER_ARCHIVABLE(Gem::Geneva::OptimizationAlgorithms::GConjugateGradientDescent_PersonalityTraits)       // NOLINT
 namespace Gem::Geneva::OptimizationAlgorithms {
 
 /******************************************************************************/

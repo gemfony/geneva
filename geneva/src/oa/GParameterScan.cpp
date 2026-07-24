@@ -28,6 +28,7 @@
  ********************************************************************************/
 
 #include "geneva/oa/GParameterScan.hpp"
+#include "common/GArchivePolymorphic.hpp" // GEM_REGISTER_ARCHIVABLE (GArchive polymorphic-pointer dispatch)
 #include "common/GCommonInterfaceT.hpp"
 #include "common/GExceptions.hpp"
 #include "common/GExpectationChecksT.hpp"
@@ -52,11 +53,16 @@
 #include <vector>
 
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::OptimizationAlgorithms::GBScanPar)     // NOLINT
+GEM_REGISTER_ARCHIVABLE(Gem::Geneva::OptimizationAlgorithms::GBScanPar) // NOLINT
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::OptimizationAlgorithms::GInt32ScanPar) // NOLINT
+GEM_REGISTER_ARCHIVABLE(Gem::Geneva::OptimizationAlgorithms::GInt32ScanPar) // NOLINT
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::OptimizationAlgorithms::GDScanPar)     // NOLINT
+GEM_REGISTER_ARCHIVABLE(Gem::Geneva::OptimizationAlgorithms::GDScanPar) // NOLINT
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::OptimizationAlgorithms::GFScanPar)     // NOLINT
+GEM_REGISTER_ARCHIVABLE(Gem::Geneva::OptimizationAlgorithms::GFScanPar) // NOLINT
 
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::OptimizationAlgorithms::GParameterScan) // NOLINT
+GEM_REGISTER_ARCHIVABLE(Gem::Geneva::OptimizationAlgorithms::GParameterScan) // NOLINT
 
 namespace Gem::Geneva::OptimizationAlgorithms {
 

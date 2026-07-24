@@ -28,6 +28,7 @@
  ********************************************************************************/
 
 #include "geneva/oa/GSepCmaEvolutionStrategy_PersonalityTraits.hpp"
+#include "common/GArchivePolymorphic.hpp" // GEM_REGISTER_ARCHIVABLE (GArchive polymorphic-pointer dispatch)
 
 #include <string>
 
@@ -36,6 +37,7 @@
 #endif /* GEM_TESTING */
 
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::OptimizationAlgorithms::GSepCmaEvolutionStrategy_PersonalityTraits) // NOLINT
+GEM_REGISTER_ARCHIVABLE(Gem::Geneva::OptimizationAlgorithms::GSepCmaEvolutionStrategy_PersonalityTraits)       // NOLINT
 
 namespace Gem::Geneva::OptimizationAlgorithms {
 

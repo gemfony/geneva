@@ -28,6 +28,7 @@
  ********************************************************************************/
 
 #include "geneva/oa/GSwarmAlgorithm_PersonalityTraits.hpp"
+#include "common/GArchivePolymorphic.hpp" // GEM_REGISTER_ARCHIVABLE (GArchive polymorphic-pointer dispatch)
 #include "common/GCommonHelperFunctionsT.hpp"
 #include "common/GCommonInterfaceT.hpp"
 #include "common/GExceptions.hpp"
@@ -44,6 +45,7 @@
 #endif /* GEM_TESTING */
 
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::OptimizationAlgorithms::GSwarmAlgorithm_PersonalityTraits) // NOLINT
+GEM_REGISTER_ARCHIVABLE(Gem::Geneva::OptimizationAlgorithms::GSwarmAlgorithm_PersonalityTraits)       // NOLINT
 
 namespace Gem::Geneva::OptimizationAlgorithms {
 

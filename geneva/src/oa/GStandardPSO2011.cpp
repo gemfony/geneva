@@ -28,6 +28,7 @@
  ********************************************************************************/
 
 #include "geneva/oa/GStandardPSO2011.hpp"
+#include "common/GArchivePolymorphic.hpp" // GEM_REGISTER_ARCHIVABLE (GArchive polymorphic-pointer dispatch)
 
 #include <algorithm>
 #include <cmath>
@@ -50,6 +51,7 @@
 #endif /* GEM_TESTING */
 
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::OptimizationAlgorithms::GStandardPSO2011) // NOLINT
+GEM_REGISTER_ARCHIVABLE(Gem::Geneva::OptimizationAlgorithms::GStandardPSO2011) // NOLINT
 
 namespace Gem::Geneva::OptimizationAlgorithms {
 

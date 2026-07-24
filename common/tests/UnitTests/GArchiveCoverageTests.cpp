@@ -37,6 +37,7 @@
 
 #include <array>
 #include <bitset>
+#include <chrono>
 #include <complex>
 #include <cstdint>
 #include <forward_list>
@@ -84,6 +85,13 @@ TEST_CASE("GArchive coverage: std::optional (empty and engaged)", "[common][arch
     both_codecs(std::optional<int>{42});
     both_codecs(std::optional<std::string>{"engaged"});
     both_codecs(std::optional<std::vector<int>>{{1, 2, 3}});
+}
+
+TEST_CASE("GArchive coverage: std::chrono::duration (raw count)", "[common][archive][coverage]") {
+    both_codecs(std::chrono::duration<double>(123.5));   // the OA max/min run-time members
+    both_codecs(std::chrono::duration<double>(0.0));
+    both_codecs(std::chrono::milliseconds(2500));        // an integer-rep duration
+    both_codecs(std::chrono::seconds(-7));
 }
 
 TEST_CASE("GArchive coverage: std::complex", "[common][archive][coverage]") {

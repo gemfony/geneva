@@ -28,6 +28,7 @@
  ********************************************************************************/
 
 #include "geneva/oa/GMetaEvolutionaryAlgorithm.hpp"
+#include "common/GArchivePolymorphic.hpp" // GEM_REGISTER_ARCHIVABLE (GArchive polymorphic-pointer dispatch)
 
 // Standard headers
 #include <algorithm>
@@ -37,6 +38,7 @@
 #include "geneva/ind/GOptimizableEntity.hpp"
 
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::OptimizationAlgorithms::GMetaEvolutionaryAlgorithm) // NOLINT
+GEM_REGISTER_ARCHIVABLE(Gem::Geneva::OptimizationAlgorithms::GMetaEvolutionaryAlgorithm) // NOLINT
 
 namespace Gem::Geneva::OptimizationAlgorithms {
 

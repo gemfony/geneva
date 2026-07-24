@@ -35,6 +35,7 @@
 // Standard headers go here
 #include <array>
 #include <atomic>
+#include <chrono>
 #include <bitset>
 #include <complex>
 #include <cstddef>
@@ -358,6 +359,14 @@ struct is_atomic : std::false_type {};
 template <typename T>
 struct is_atomic<std::atomic<T>> : std::true_type {};
 
+// A std::chrono::duration is serialized by its raw count (its Rep), matching the
+// Boost split-free handling in GSerializationHelperFunctionsT.hpp. std types cannot
+// be reached by an ADL free gem_archive_serialize, so this is a built-in codec arm.
+template <typename T>
+struct is_chrono_duration : std::false_type {};
+template <typename Rep, typename Period>
+struct is_chrono_duration<std::chrono::duration<Rep, Period>> : std::true_type {};
+
 // Owning smart pointers. Only the shapes Geneva serializes are matched.
 template <typename T>
 struct is_smart_ptr : std::false_type {};
@@ -519,6 +528,9 @@ private:
         } else if constexpr (detail::is_atomic<U>::value) {
             typename U::value_type held = v.load();
             process(held);
+        } else if constexpr (detail::is_chrono_duration<U>::value) {
+            typename U::rep count = v.count();
+            process(count);
         } else if constexpr (detail::is_optional<U>::value) {
             d().begin_object();
             bool present = v.has_value();
@@ -753,6 +765,10 @@ private:
             typename U::value_type held{};
             process(held);
             v.store(held);
+        } else if constexpr (detail::is_chrono_duration<U>::value) {
+            typename U::rep count{};
+            process(count);
+            v = U(count);
         } else if constexpr (detail::is_optional<U>::value) {
             d().enter_object();
             bool present = false;
