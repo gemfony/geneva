@@ -165,7 +165,6 @@ IF(NOT COMMON_GENEVA_BUILD_INCLUDED)
 			filesystem
 			json
 			regex
-			serialization
 			program_options
 	)
 

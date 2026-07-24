@@ -44,11 +44,6 @@
 #include <vector>
 
 // Boost headers go here
-#include <boost/serialization/access.hpp>
-#include <boost/serialization/binary_object.hpp>
-#include <boost/serialization/map.hpp>
-#include <boost/serialization/nvp.hpp>
-#include <boost/serialization/shared_ptr.hpp>
 
 // Geneva headers go here
 #include "common/GArchiveNamed.hpp" // archive_named / archive_named_binary (boost-vs-GArchive emitters)
@@ -314,7 +309,6 @@ private:
     // bare individuals), so this always runs in the "checkpoint" form. The genome carries the
     // optimization forward; this lets a resumed algorithm keep its evolved scratch (sigma, swarm
     // velocity / personal-best, conjugate-gradient memory, personality) instead of restarting it.
-    friend class boost::serialization::access;
     friend struct Gem::Weft::access;
 
     /**

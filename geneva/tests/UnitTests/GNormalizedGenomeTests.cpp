@@ -59,9 +59,6 @@
 #include <memory>
 #include <vector>
 
-#include <boost/serialization/base_object.hpp>
-#include <boost/serialization/export.hpp>
-#include <boost/serialization/nvp.hpp>
 
 #include "geneva/GOptimizationEnums.hpp"
 #include "weft/GArchivePolymorphic.hpp" // GEM_REGISTER_ARCHIVABLE + archive-generic dispatch
@@ -115,7 +112,6 @@ private:
         this->setGenome(b.build());
     }
 
-    friend class boost::serialization::access;
     friend struct Gem::Weft::access;
     template <typename Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
@@ -160,7 +156,6 @@ private:
         this->setGenome(b.build());
     }
 
-    friend class boost::serialization::access;
     friend struct Gem::Weft::access;
     template <typename Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
@@ -191,7 +186,6 @@ protected:
     }
 
 private:
-    friend class boost::serialization::access;
     friend struct Gem::Weft::access;
     template <typename Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {

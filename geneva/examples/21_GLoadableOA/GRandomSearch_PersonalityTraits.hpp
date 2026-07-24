@@ -36,9 +36,6 @@
 #include <string>
 
 // Boost headers go here
-#include <boost/serialization/base_object.hpp>
-#include <boost/serialization/export.hpp>
-#include <boost/serialization/nvp.hpp>
 
 // Geneva headers go here
 #include "common/GExpectationChecksT.hpp"
@@ -59,7 +56,6 @@ namespace Gem::Geneva::OptimizationAlgorithms {
 class GRandomSearch_PersonalityTraits // NOLINT(cppcoreguidelines-special-member-functions)
   : public GPersonalityTraits {
     ///////////////////////////////////////////////////////////////////////
-    friend class boost::serialization::access;
     friend struct Gem::Weft::access;
 
     /** @brief Serializes this object (no local data beyond the base). Archive-generic: the same body

@@ -57,7 +57,6 @@ class GSimulatedAnnealing_PersonalityTraits // NOLINT(cppcoreguidelines-special-
     ///////////////////////////////////////////////////////////////////////
     // boost::serialization::access default-constructs this concrete type on load;
     // GReflectiveInterfaceAccess lets the GReflectiveInterfaceT base reach the (empty) localMembers_().
-    friend class boost::serialization::access;
     friend struct Gem::Common::GReflectiveInterfaceAccess;
 
     /** @brief This traits class adds no own state (only its identity). @return An empty member tuple */

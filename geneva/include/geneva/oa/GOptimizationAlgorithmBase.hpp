@@ -56,7 +56,6 @@
 #include "common/concurrency/GThreadPool.hpp"
 #include "common/GContainerT.hpp"
 #include "common/GSerializationHelperFunctionsT.hpp"
-#include "common/GStdFilesystemPathSerialization.hpp"
 #include "courtier/GCourtierEnums.hpp"     // SUBMISSION_UUID_TYPE (late-return lineage de-dup)
 #include "courtier/GSubmissionStatusT.hpp" // submission_status_t (workOn's return type)
 // --- Submission goes through the one process-wide consumer (GConsumerRegistry): the algorithm is
@@ -106,7 +105,6 @@ class GOptimizationAlgorithmBase // NOLINT(cppcoreguidelines-special-member-func
   , public Interface::GOptimizerIT<GOptimizationAlgorithmBase> {
 private:
     ///////////////////////////////////////////////////////////////////////
-    friend class boost::serialization::access;
     friend struct Gem::Weft::access;
     friend struct Gem::Common::GReflectiveInterfaceAccess;
 
@@ -1150,5 +1148,4 @@ private:
 // specifiers are included in the macros, no need for an explicit namespace boost::serialization
 
 // GBasePluggableOM's BOOST_SERIALIZATION_ASSUME_ABSTRACT lives in geneva/oa/GBasePluggableOM.hpp.
-BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::Geneva::OptimizationAlgorithms::GOptimizationAlgorithmBase) // NOLINT
 /******************************************************************************/

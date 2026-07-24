@@ -43,7 +43,6 @@
 #include <algorithm>
 #include <vector>
 
-#include <boost/serialization/export.hpp>
 
 #include "geneva/genome/GGenome.hpp"
 #include "geneva/genome/GGenomeT.hpp"

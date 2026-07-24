@@ -87,7 +87,6 @@ protected:
     }
 
 private:
-    friend class boost::serialization::access;
     friend struct Gem::Weft::access;
     template <typename Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
@@ -114,7 +113,6 @@ protected:
     }
 
 private:
-    friend class boost::serialization::access;
     friend struct Gem::Weft::access;
     template <typename Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {

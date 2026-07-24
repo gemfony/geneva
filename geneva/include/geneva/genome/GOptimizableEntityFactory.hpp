@@ -61,7 +61,6 @@ class GGenome;
 class GOptimizableEntityFactory // NOLINT(cppcoreguidelines-special-member-functions)
   : public Gem::Common::GFactoryT<GOptimizableEntity> {
     ///////////////////////////////////////////////////////////////////////
-    friend class boost::serialization::access;
     friend struct Gem::Weft::access;
 
     template <typename Archive>

@@ -51,7 +51,6 @@
 #include <vector>
 
 // Boost headers go here
-#include <boost/serialization/nvp.hpp>
 
 // Gemfony headers go here
 #include "common/GCommonEnums.hpp"

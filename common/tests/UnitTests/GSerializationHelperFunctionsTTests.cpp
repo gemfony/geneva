@@ -39,19 +39,10 @@
 #include <string>
 #include <vector>
 
-#include <boost/archive/binary_iarchive.hpp>
-#include <boost/archive/binary_oarchive.hpp>
-#include <boost/archive/text_iarchive.hpp>
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/archive/xml_iarchive.hpp>
-#include <boost/archive/xml_oarchive.hpp>
-#include <boost/serialization/access.hpp>
-#include <boost/serialization/nvp.hpp>
 
 #include "common/GArchiveNamed.hpp"      // archive_named (archive-generic member emitter)
 #include "common/GCommonEnums.hpp"
 #include "common/GSerializationHelperFunctionsT.hpp"
-#include "common/GStdFilesystemPathSerialization.hpp"
 
 using namespace Gem::Common;
 
@@ -73,7 +64,6 @@ public:
     bool operator==(TestPayload const &o) const = default;
 
 private:
-    friend class boost::serialization::access;
     friend struct Gem::Weft::access;
     template <class Archive>
     void serialize(Archive &ar, [[maybe_unused]] unsigned int version) {

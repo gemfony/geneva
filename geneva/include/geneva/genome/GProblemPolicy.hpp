@@ -37,9 +37,6 @@
 #include <memory>
 
 // Boost header files go here
-#include <boost/serialization/access.hpp>
-#include <boost/serialization/nvp.hpp>
-#include <boost/serialization/shared_ptr.hpp>
 
 // Geneva header files go here
 #include "common/GArchiveNamed.hpp"               // archive_named (boost-vs-GArchive member emitter)
@@ -85,7 +82,6 @@ class GOptimizableEntity;
  */
 class GProblemPolicy {
     ///////////////////////////////////////////////////////////////////////
-    friend class boost::serialization::access;
     friend struct Gem::Weft::access;
 
     /**

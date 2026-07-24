@@ -31,8 +31,6 @@
 
 #include <sstream>
 
-#include <boost/archive/text_iarchive.hpp>
-#include <boost/archive/text_oarchive.hpp>
 
 #include "courtier/GDemoProcessingContainers.hpp"
 #include "weft/GBinaryArchive.hpp" // Gem::Weft::GBinary[IO]Archive

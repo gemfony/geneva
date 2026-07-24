@@ -122,7 +122,6 @@ class GExternalEvaluatorIndividual
 
     // Boost still default-constructs the concrete type on load; GReflectiveInterfaceAccess lets the mixin
     // reach the private localMembers_() below (from which serialize/load_/compare_/clone_/name_ derive).
-    friend class boost::serialization::access;
     friend struct Gem::Common::GReflectiveInterfaceAccess;
 
     /**

@@ -45,7 +45,6 @@ class GHistogram1D : public Gem::Common::GReflectiveInterfaceT<GHistogram1D, GDa
     // boost::serialization::access default-constructs this concrete type (its
     // private default ctor) on load; GReflectiveInterfaceAccess lets the GReflectiveInterfaceT
     // base reach this class's private localMembers_().
-    friend class boost::serialization::access;
     friend struct Gem::Common::GReflectiveInterfaceAccess;
 
     /**
@@ -195,7 +194,6 @@ private:
  */
 class GHistogram1I : public Gem::Common::GReflectiveInterfaceT<GHistogram1I, GDataCollector1T<std::int32_t>> {
     ///////////////////////////////////////////////////////////////////////
-    friend class boost::serialization::access;
     friend struct Gem::Common::GReflectiveInterfaceAccess;
 
     /**
@@ -342,7 +340,6 @@ private:
  */
 class GHistogram2D : public Gem::Common::GReflectiveInterfaceT<GHistogram2D, GDataCollector2T<double, double>> {
     ///////////////////////////////////////////////////////////////////////
-    friend class boost::serialization::access;
     friend struct Gem::Common::GReflectiveInterfaceAccess;
 
     /**

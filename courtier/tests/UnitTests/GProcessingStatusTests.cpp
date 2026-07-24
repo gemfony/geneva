@@ -61,16 +61,12 @@ namespace {
 class StatusProbeContainer
   : public GProcessingContainerT<StatusProbeContainer, double> {
     ///////////////////////////////////////////////////////////////////////
-    friend class boost::serialization::access;
 
+    friend struct Gem::Weft::access;
     template <typename Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
-        using boost::serialization::make_nvp;
-        ar &make_nvp(
-            "GProcessingContainerT_StatusProbeContainer",
-            boost::serialization::base_object<
-                GProcessingContainerT<StatusProbeContainer, double>>(*this)
-        );
+        Gem::Common::archive_named_base<GProcessingContainerT<StatusProbeContainer, double>>(
+            ar, "GProcessingContainerT_StatusProbeContainer", *this);
     }
     ///////////////////////////////////////////////////////////////////////
 

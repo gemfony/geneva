@@ -71,7 +71,6 @@ TARGET_LINK_LIBRARIES(
     PUBLIC
     ${COMMON_LIBNAME}
     Boost::filesystem
-    Boost::serialization
 )
 
 INSTALL ( TARGETS ${DIETRICH_LIBNAME} EXPORT GenevaTargets DESTINATION ${INSTALL_PREFIX_LIBS} )

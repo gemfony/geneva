@@ -40,7 +40,6 @@
 #include <vector>
 
 // Boost headers go here
-#include <boost/serialization/vector.hpp>
 
 // Geneva headers go here
 #include "common/GCommonHelperFunctionsT.hpp"
@@ -238,7 +237,6 @@ public:
 
 private:
     ///////////////////////////////////////////////////////////////////////
-    friend class boost::serialization::access;
     friend struct Gem::Common::GReflectiveInterfaceAccess;
 
     /** @brief Single declaration of this class'es local data members (drives serialize/load/compare).

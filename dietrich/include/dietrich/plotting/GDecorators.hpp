@@ -167,7 +167,6 @@ class GMarker
     ///////////////////////////////////////////////////////////////////////
     // boost::serialization::access default-constructs this concrete type on load;
     // GReflectiveInterfaceAccess lets the GReflectiveInterfaceT base reach this class's localMembers_().
-    friend class boost::serialization::access;
     friend struct Gem::Common::GReflectiveInterfaceAccess;
 
 public:
@@ -448,7 +447,6 @@ class GDecoratorContainer<dimensions::Dim2, coordinate_type>
     // (GPtrContainerT::operator=) and compare_ (compare_t on data_cnt_) did.
     // GReflectiveInterfaceAccess lets the mixin reach localMembers_(); the boost and GArchive
     // access shims both call the one-line serialize() below.
-    friend class boost::serialization::access;
     friend struct Gem::Weft::access;
     friend struct Gem::Common::GReflectiveInterfaceAccess;
 
@@ -573,7 +571,6 @@ class GDecoratorContainer_2D
     ///////////////////////////////////////////////////////////////////////
     // boost::serialization::access default-constructs this concrete type on load;
     // GReflectiveInterfaceAccess lets the GReflectiveInterfaceT base reach this class's (empty) localMembers_().
-    friend class boost::serialization::access;
     friend struct Gem::Common::GReflectiveInterfaceAccess;
 
     /**
@@ -644,7 +641,6 @@ class GDecoratorContainer<dimensions::Dim3, coordinate_type>
     // serialized state (data_cnt_) rides in localMembers_, so the quartet folds onto
     // the single-Parent GReflectiveInterfaceBaseT. GReflectiveInterfaceAccess lets the mixin reach
     // localMembers_(); the boost and GArchive access shims both call the one-line serialize() below.
-    friend class boost::serialization::access;
     friend struct Gem::Weft::access;
     friend struct Gem::Common::GReflectiveInterfaceAccess;
 
@@ -769,7 +765,6 @@ class GDecoratorContainer_3D
     ///////////////////////////////////////////////////////////////////////
     // boost::serialization::access default-constructs this concrete type on load;
     // GReflectiveInterfaceAccess lets the GReflectiveInterfaceT base reach this class's (empty) localMembers_().
-    friend class boost::serialization::access;
     friend struct Gem::Common::GReflectiveInterfaceAccess;
 
     /**

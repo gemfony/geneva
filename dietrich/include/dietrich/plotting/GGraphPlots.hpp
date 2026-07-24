@@ -44,7 +44,6 @@ namespace Gem::Dietrich {
  */
 class GGraph2D : public Gem::Common::GReflectiveInterfaceT<GGraph2D, GDataCollector2T<double, double>> {
     ///////////////////////////////////////////////////////////////////////
-    friend class boost::serialization::access;
     friend struct Gem::Common::GReflectiveInterfaceAccess;
 
     /**
@@ -172,7 +171,6 @@ private:
  */
 class GGraph2ED : public Gem::Common::GReflectiveInterfaceT<GGraph2ED, GDataCollector2ET<double, double>> {
     ///////////////////////////////////////////////////////////////////////
-    friend class boost::serialization::access;
     friend struct Gem::Common::GReflectiveInterfaceAccess;
 
     /**
@@ -287,7 +285,6 @@ private:
  */
 class GGraph3D : public Gem::Common::GReflectiveInterfaceT<GGraph3D, GDataCollector3T<double, double, double>> {
     ///////////////////////////////////////////////////////////////////////
-    friend class boost::serialization::access;
     friend struct Gem::Common::GReflectiveInterfaceAccess;
 
     /**
@@ -401,7 +398,6 @@ private:
  */
 class GGraph4D : public Gem::Common::GReflectiveInterfaceT<GGraph4D, GDataCollector4T<double, double, double, double>> {
     ///////////////////////////////////////////////////////////////////////
-    friend class boost::serialization::access;
     friend struct Gem::Common::GReflectiveInterfaceAccess;
 
     /**
@@ -557,7 +553,6 @@ private:
  */
 class GFunctionPlotter1D : public Gem::Common::GReflectiveInterfaceT<GFunctionPlotter1D, GBasePlotter> {
     ///////////////////////////////////////////////////////////////////////
-    friend class boost::serialization::access;
     friend struct Gem::Common::GReflectiveInterfaceAccess;
 
     /**
@@ -672,7 +667,6 @@ private:
  */
 class GFunctionPlotter2D : public Gem::Common::GReflectiveInterfaceT<GFunctionPlotter2D, GBasePlotter> {
     ///////////////////////////////////////////////////////////////////////
-    friend class boost::serialization::access;
     friend struct Gem::Common::GReflectiveInterfaceAccess;
 
     /**

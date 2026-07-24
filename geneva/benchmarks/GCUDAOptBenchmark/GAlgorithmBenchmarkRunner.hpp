@@ -91,12 +91,11 @@ struct BenchmarkConfig {
  */
 class GBenchmarkTerminationMonitor final : public oa::GBasePluggableOM {
     ///////////////////////////////////////////////////////////////////////
-    friend class boost::serialization::access;
 
+    friend struct Gem::Weft::access;
     template <typename Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
-        using boost::serialization::make_nvp;
-        ar &BOOST_SERIALIZATION_BASE_OBJECT_NVP(oa::GBasePluggableOM);
+        Gem::Common::archive_named_base<oa::GBasePluggableOM>(ar, "GBasePluggableOM", *this);
     }
     ///////////////////////////////////////////////////////////////////////
 

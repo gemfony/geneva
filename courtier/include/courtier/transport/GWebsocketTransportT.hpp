@@ -47,8 +47,6 @@
 #include <tuple>
 
 // Boost headers go here
-#include <boost/archive/xml_iarchive.hpp>
-#include <boost/archive/xml_oarchive.hpp>
 #include <boost/asio/executor_work_guard.hpp>
 #include <boost/asio/post.hpp>
 #include <boost/asio/steady_timer.hpp>
@@ -57,7 +55,6 @@
 #include <boost/beast/core.hpp>
 #include <boost/beast/websocket.hpp>
 #include <boost/beast/websocket/rfc6455.hpp>
-#include <boost/serialization/vector.hpp>
 
 // Geneva headers go here
 #include "common/GCommonEnums.hpp"

@@ -41,7 +41,6 @@
 
 // Boost headers go here
 #include <boost/config.hpp> // BOOST_SYMBOL_EXPORT
-#include <boost/serialization/export.hpp>
 
 // Geneva headers go here
 #include "common/GModuleManifest.hpp"

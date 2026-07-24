@@ -102,7 +102,6 @@ class GTestIndividual2
     // Boost still default-constructs the concrete type on load, so it keeps this friendship; the
     // GArchive registry factory reconstructs it through the same-purpose GReflectiveInterfaceAccess
     // shim, which therefore needs equal reach to the private default constructor.
-    friend class boost::serialization::access;
     friend struct Gem::Common::GReflectiveInterfaceAccess;
     ///////////////////////////////////////////////////////////////////////
 

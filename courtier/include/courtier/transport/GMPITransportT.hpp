@@ -50,9 +50,6 @@
 #include <vector>
 
 // Boost headers go here
-#include <boost/archive/xml_iarchive.hpp>
-#include <boost/archive/xml_oarchive.hpp>
-#include <boost/serialization/vector.hpp>
 
 // MPI headers go here
 

@@ -35,10 +35,6 @@
 #include <string>
 #include <type_traits>
 
-#include <boost/serialization/access.hpp>
-#include <boost/serialization/base_object.hpp>
-#include <boost/serialization/export.hpp>
-#include <boost/serialization/nvp.hpp>
 
 #include "common/GArchiveNamed.hpp"       // archive_named (boost-vs-GArchive member emitter)
 #include "weft/GArchivePolymorphic.hpp"   // GEM_REGISTER_ARCHIVABLE
@@ -83,7 +79,6 @@ protected:
 private:
     [[nodiscard]] TestObj *clone_() const override { return new TestObj(*this); }
 
-    friend class boost::serialization::access;
     friend struct Gem::Weft::access;
     template <class Archive>
     void serialize(Archive &ar, [[maybe_unused]] unsigned int version) {

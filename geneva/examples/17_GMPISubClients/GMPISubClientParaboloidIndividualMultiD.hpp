@@ -69,7 +69,6 @@ class GAdaptionConfigBase;
 class GMPISubClientParaboloidIndividualMultiD
   : public Gem::Common::GReflectiveInterfaceT<GMPISubClientParaboloidIndividualMultiD, GMPISubClientIndividual, gen::GGenome> {
     /** @brief Make the class accessible to Boost.Serialization */
-    friend class boost::serialization::access;
     /** @brief The GReflectiveInterfaceT mixin reaches the (empty) private localMembers_() through this shim. */
     friend struct Gem::Common::GReflectiveInterfaceAccess;
 

@@ -39,8 +39,6 @@
 #include <type_traits>
 
 // Boost headers go here
-#include <boost/serialization/base_object.hpp>
-#include <boost/serialization/nvp.hpp>
 
 // Gemfony headers go here
 #include "weft/GArchive.hpp"

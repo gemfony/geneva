@@ -270,7 +270,6 @@ IF (GENEVA_FOUND)
 		json
 		program_options
 		regex
-		serialization
 		atomic
 	)
 
@@ -280,7 +279,7 @@ IF (GENEVA_FOUND)
 			IMPORTED_LOCATION "${GENEVA_COMMON_LIBRARY}"
 			INTERFACE_INCLUDE_DIRECTORIES "${GENEVA_INCLUDE_DIR}"
 			INTERFACE_COMPILE_FEATURES "cxx_std_23"
-			INTERFACE_LINK_LIBRARIES "Boost::filesystem;Boost::json;Boost::program_options;Boost::regex;Boost::serialization;Boost::atomic"
+			INTERFACE_LINK_LIBRARIES "Boost::filesystem;Boost::json;Boost::program_options;Boost::regex;Boost::atomic"
 		)
 	ENDIF ()
 

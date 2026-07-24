@@ -48,21 +48,6 @@
 #include <vector>
 
 // Boost header files go here
-#include <boost/archive/binary_iarchive.hpp>
-#include <boost/archive/binary_oarchive.hpp>
-#include <boost/archive/text_iarchive.hpp>
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/archive/xml_iarchive.hpp>
-#include <boost/archive/xml_oarchive.hpp>
-#include <boost/serialization/base_object.hpp>
-#include <boost/serialization/export.hpp>
-#include <boost/serialization/nvp.hpp>
-#include <boost/serialization/shared_ptr.hpp>
-#include <boost/serialization/split_member.hpp>
-#include <boost/serialization/tracking.hpp>
-#include <boost/serialization/utility.hpp>
-#include <boost/serialization/vector.hpp>
-#include <boost/serialization/version.hpp>
 
 // Geneva header files go here
 #include "common/GCommonEnums.hpp"
@@ -95,7 +80,6 @@ namespace Gem::Geneva::Individuals {
  */
 struct trainingSet {
     /////////////////////////////////////////////////////////////////////////////
-    friend class boost::serialization::access;
     friend struct Gem::Weft::access;
 
     // A single, archive-generic serialize(): the Input / Output std::vectors are
@@ -173,7 +157,6 @@ private:
  */
 class networkData : public Gem::Common::GPodContainerT<std::size_t> {
     /////////////////////////////////////////////////////////////////////////////
-    friend class boost::serialization::access;
     friend struct Gem::Weft::access;
 
     // A single, archive-generic serialize(): the data_ vector of trainingSet
@@ -577,7 +560,6 @@ class GNeuralNetworkIndividual // NOLINT(cppcoreguidelines-special-member-functi
 
     // Boost still default-constructs the concrete type on load; GReflectiveInterfaceAccess lets the mixin reach
     // the private localMembers_() below (serialize/load_/compare_/clone_/name_ are all generated).
-    friend class boost::serialization::access;
     friend struct Gem::Common::GReflectiveInterfaceAccess;
 
     /** @brief The single declaration of this class'es serialised local data members. n_d_ (the training

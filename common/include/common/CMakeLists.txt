@@ -60,10 +60,8 @@ SET ( GENEVACOMMONINCLUDES
 	GProviderT.hpp
 	GSerializableFunctionObjectT.hpp
 	GSerializationHelperFunctionsT.hpp
-	GSerializeTupleT.hpp
 	GSigHupHandler.hpp
 	GSingletonT.hpp
-	GStdFilesystemPathSerialization.hpp
 	GTupleIO.hpp
 	GTypeToStringT.hpp
 	GTypeTraitsT.hpp

@@ -35,21 +35,6 @@
 // Standard header files go here
 
 // Boost header files go here
-#include <boost/archive/binary_iarchive.hpp>
-#include <boost/archive/binary_oarchive.hpp>
-#include <boost/archive/text_iarchive.hpp>
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/archive/xml_iarchive.hpp>
-#include <boost/archive/xml_oarchive.hpp>
-#include <boost/serialization/base_object.hpp>
-#include <boost/serialization/export.hpp>
-#include <boost/serialization/map.hpp>
-#include <boost/serialization/nvp.hpp>
-#include <boost/serialization/shared_ptr.hpp>
-#include <boost/serialization/split_member.hpp>
-#include <boost/serialization/tracking.hpp>
-#include <boost/serialization/utility.hpp>
-#include <boost/serialization/vector.hpp>
 
 // Geneva header files go here
 #include "common/GReflectiveInterfaceT.hpp"
@@ -70,7 +55,6 @@ class GOptimizableEntityFixedSizePriorityQueue // NOLINT(cppcoreguidelines-speci
     ///////////////////////////////////////////////////////////////////////
     // boost::serialization::access default-constructs this concrete type on load;
     // GReflectiveInterfaceAccess lets the mixin reach the (empty) localMembers_().
-    friend class boost::serialization::access;
     friend struct Gem::Common::GReflectiveInterfaceAccess;
 
     /** @brief This class adds no own members; the explicit empty declaration is required

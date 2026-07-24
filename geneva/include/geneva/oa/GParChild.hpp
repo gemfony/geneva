@@ -85,7 +85,6 @@ class GAdaptionConfigBase;
 class GParChild // NOLINT(cppcoreguidelines-special-member-functions)
   : public Gem::Common::GReflectiveInterfaceBaseT<GParChild, GOptimizationAlgorithmBase> {
     /////////////////////////////////////////////////////////////////////////////
-    friend class boost::serialization::access;
     friend struct Gem::Common::GReflectiveInterfaceAccess;
 
     /** @brief Single declaration of this class'es local data members. Drives the
@@ -386,5 +385,4 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
-BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::Geneva::OptimizationAlgorithms::GParChild) // NOLINT
 /******************************************************************************/

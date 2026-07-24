@@ -43,8 +43,6 @@
 #include <tuple>
 
 // Boost headers
-#include <boost/serialization/access.hpp>
-#include <boost/serialization/nvp.hpp>
 
 // Geneva headers
 #include "common/GArchiveNamed.hpp"             // archive_named (boost-vs-GArchive member emitter)
@@ -134,7 +132,6 @@ class g_processing_exception : public geneva_exception {
  */
 class GProcessable {
     ///////////////////////////////////////////////////////////////////////
-    friend class boost::serialization::access;
     friend struct Gem::Weft::access;
 
     /**

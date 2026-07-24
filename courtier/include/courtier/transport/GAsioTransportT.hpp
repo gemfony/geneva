@@ -51,10 +51,7 @@
 #include <tuple>
 
 // Boost headers go here
-#include <boost/archive/xml_iarchive.hpp>
-#include <boost/archive/xml_oarchive.hpp>
 #include <boost/asio.hpp>
-#include <boost/serialization/vector.hpp>
 
 // Geneva headers go here
 #include "common/GCommonEnums.hpp"

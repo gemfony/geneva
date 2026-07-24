@@ -780,7 +780,6 @@ struct GProbeBase {
 class GBaseObjectProbe
   : public GProbeBase
   , public Gem::Common::GReflectiveInterfaceT<GBaseObjectProbe, Gem::Common::GCommonInterfaceT<GBaseObjectProbe>> {
-    friend class boost::serialization::access;
     friend struct Gem::Weft::access;
     friend struct Gem::Common::GReflectiveInterfaceAccess;
 

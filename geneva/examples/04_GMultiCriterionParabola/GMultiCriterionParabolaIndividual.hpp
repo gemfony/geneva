@@ -74,7 +74,6 @@ class GMultiCriterionParabolaIndividual : public gen::GGenomeT<GMultiCriterionPa
      *  (via GGenomeT): a genome-only leaf (the per-criterion minima live in the module's load-once store,
      *  not on the individual). Boost still default-constructs the concrete type on load, so it keeps this
      *  friendship. */
-    friend class boost::serialization::access;
     /***************************************************************************/
 
 public:

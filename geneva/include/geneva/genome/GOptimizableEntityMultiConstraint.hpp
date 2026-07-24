@@ -111,4 +111,3 @@ protected:
 
 } /* namespace Gem::Geneva::Genome */
 
-BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::Geneva::Genome::GOptimizableEntityConstraint) // NOLINT

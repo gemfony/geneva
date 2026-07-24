@@ -78,7 +78,6 @@ TARGET_LINK_LIBRARIES(
     Boost::json
     Boost::program_options
     Boost::regex
-    Boost::serialization
     Boost::atomic
 )
 

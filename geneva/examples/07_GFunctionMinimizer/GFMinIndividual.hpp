@@ -107,7 +107,6 @@ class GFMinIndividual : public gen::GGenomeT<GFMinIndividual> {
     /////////////////////////////////////////////////////////////////////////////
     // Boost still default-constructs the concrete type on load; GReflectiveInterfaceAccess lets the mixin reach
     // the private localMembers_() below (serialize/load_/compare_/clone_/name_ are all generated from it).
-    friend class boost::serialization::access;
     friend struct Gem::Common::GReflectiveInterfaceAccess;
 
     /** @brief The single declaration of this class'es local data members, driving the generated

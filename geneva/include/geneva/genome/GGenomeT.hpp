@@ -33,8 +33,6 @@
 #include "common/GGlobalDefines.hpp"
 
 // Boost header files go here
-#include <boost/serialization/base_object.hpp>
-#include <boost/serialization/nvp.hpp>
 
 // Geneva headers go here
 #include "geneva/genome/GGenome.hpp"

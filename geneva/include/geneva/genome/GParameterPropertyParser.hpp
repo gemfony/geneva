@@ -71,7 +71,6 @@ template <typename par_type>
 class parPropSpec // NOLINT(cppcoreguidelines-special-member-functions)
   : public Gem::Common::GCommonInterfaceT<parPropSpec<par_type>> {
     ///////////////////////////////////////////////////////////////////////
-    friend class boost::serialization::access;
     friend struct Gem::Weft::access;
 
     template <typename Archive>

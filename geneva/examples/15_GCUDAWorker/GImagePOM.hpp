@@ -35,6 +35,8 @@
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
+#include "weft/GArchivePolymorphic.hpp"
+#include "common/GArchiveNamed.hpp"
 
 // Standard header files go here
 #include <chrono>
@@ -129,7 +131,6 @@ private:
  */
 class GImagePOM final : public oa::GBasePluggableOM {
     ///////////////////////////////////////////////////////////////////////
-    friend class boost::serialization::access;
 
     /**
      * @brief Single declaration of this class'es local data members
@@ -143,15 +144,13 @@ class GImagePOM final : public oa::GBasePluggableOM {
         );
     }
 
+    friend struct Gem::Weft::access;
+
     template <typename Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
-        using boost::serialization::make_nvp;
         // The member list is derived from the single localMembers() declaration
         // so serialize()/load_()/compare_() stay in sync (no silently-dropped member).
-        ar &make_nvp(
-            "GBasePluggableOM",
-            boost::serialization::base_object<oa::GBasePluggableOM>(*this)
-        );
+        Gem::Common::archive_named_base<oa::GBasePluggableOM>(ar, "GBasePluggableOM", *this);
         Gem::Common::serialize_members(ar, this->localMembers_());
     }
 

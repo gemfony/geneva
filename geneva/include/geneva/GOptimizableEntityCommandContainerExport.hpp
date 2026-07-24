@@ -33,8 +33,6 @@
 #include "common/GGlobalDefines.hpp"
 
 // Boost header files go here
-#include <boost/serialization/export.hpp>
-#include <boost/utility/identity_type.hpp>
 
 // Geneva headers go here
 #include "courtier/GCommandContainerT.hpp"

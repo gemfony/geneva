@@ -438,7 +438,6 @@ class GCheckCombinerT
     ///////////////////////////////////////////////////////////////////////
     // boost::serialization::access default-constructs this concrete type on load;
     // GReflectiveInterfaceAccess lets the mixin reach localMembers_().
-    friend class boost::serialization::access;
     friend struct Gem::Common::GReflectiveInterfaceAccess;
     ///////////////////////////////////////////////////////////////////////
 
@@ -620,19 +619,6 @@ private:
 
 /******************************************************************************/
 // The content of BOOST_SERIALIZATION_ASSUME_ABSTRACT(T)
-namespace boost::serialization {
-template <typename ind_type>
-struct is_abstract<Gem::Geneva::GPreEvaluationValidityCheckT<ind_type>>
-  : public std::true_type {};
-template <typename ind_type>
-struct is_abstract<const Gem::Geneva::GPreEvaluationValidityCheckT<ind_type>>
-  : public std::true_type {};
-} /* namespace boost::serialization */
-namespace boost::serialization {
-template <typename ind_type>
-struct is_abstract<Gem::Geneva::GValidityCheckContainerT<ind_type>> : public std::true_type {};
-template <typename ind_type>
-struct is_abstract<const Gem::Geneva::GValidityCheckContainerT<ind_type>>
-  : public std::true_type {};
-} /* namespace boost::serialization */
+
+
 /******************************************************************************/

@@ -74,7 +74,6 @@ class GStandardMonitor // NOLINT(cppcoreguidelines-special-member-functions)
     ///////////////////////////////////////////////////////////////////////
     // boost::serialization::access default-constructs this concrete type on load;
     // GReflectiveInterfaceAccess lets the GReflectiveInterfaceT base reach this class's (empty) localMembers_().
-    friend class boost::serialization::access;
     friend struct Gem::Common::GReflectiveInterfaceAccess;
 
     /**
@@ -139,7 +138,6 @@ private:
 class GFitnessMonitor // NOLINT(cppcoreguidelines-special-member-functions)
   : public Gem::Common::GReflectiveInterfaceT<GFitnessMonitor, oa::GBasePluggableOM> {
     ///////////////////////////////////////////////////////////////////////
-    friend class boost::serialization::access;
     friend struct Gem::Common::GReflectiveInterfaceAccess;
 
     /***************************************************************************/
@@ -278,7 +276,6 @@ class GCollectiveMonitor // NOLINT(cppcoreguidelines-special-member-functions)
     // boost::serialization::access default-constructs this concrete type on load;
     // GReflectiveInterfaceAccess lets the GReflectiveInterfaceT base reach localMembers_() for the
     // generated serialize()/load_()/compare_()/name_()/clone_().
-    friend class boost::serialization::access;
     friend struct Gem::Common::GReflectiveInterfaceAccess;
 
     /***************************************************************************/
@@ -369,7 +366,6 @@ class GProgressPlotterT // NOLINT(cppcoreguidelines-special-member-functions)
     ///////////////////////////////////////////////////////////////////////
     // boost::serialization::access default-constructs this concrete type on load;
     // GReflectiveInterfaceAccess lets the GReflectiveInterfaceT base reach localMembers_().
-    friend class boost::serialization::access;
     friend struct Gem::Common::GReflectiveInterfaceAccess;
 
     /***************************************************************************/
@@ -951,7 +947,6 @@ private:
 class GAllSolutionFileLogger // NOLINT(cppcoreguidelines-special-member-functions)
   : public Gem::Common::GReflectiveInterfaceT<GAllSolutionFileLogger, oa::GBasePluggableOM> {
     ///////////////////////////////////////////////////////////////////////
-    friend class boost::serialization::access;
     friend struct Gem::Common::GReflectiveInterfaceAccess;
 
     /***************************************************************************/
@@ -1156,7 +1151,6 @@ private:
 class GIterationResultsFileLogger // NOLINT(cppcoreguidelines-special-member-functions)
   : public Gem::Common::GReflectiveInterfaceT<GIterationResultsFileLogger, oa::GBasePluggableOM> {
     ///////////////////////////////////////////////////////////////////////
-    friend class boost::serialization::access;
     friend struct Gem::Common::GReflectiveInterfaceAccess;
 
     /***************************************************************************/
@@ -1272,7 +1266,6 @@ private:
 class GNAdpationsLogger // NOLINT(cppcoreguidelines-special-member-functions)
   : public Gem::Common::GReflectiveInterfaceT<GNAdpationsLogger, oa::GBasePluggableOM> {
     ///////////////////////////////////////////////////////////////////////
-    friend class boost::serialization::access;
     friend struct Gem::Common::GReflectiveInterfaceAccess;
 
     /***************************************************************************/
@@ -1432,7 +1425,6 @@ template <typename num_type>
 class GAdaptorPropertyLoggerT // NOLINT(cppcoreguidelines-special-member-functions)
   : public Gem::Common::GReflectiveInterfaceT<GAdaptorPropertyLoggerT<num_type>, oa::GBasePluggableOM> {
     ///////////////////////////////////////////////////////////////////////
-    friend class boost::serialization::access;
     friend struct Gem::Common::GReflectiveInterfaceAccess;
 
     /***************************************************************************/
@@ -1884,7 +1876,6 @@ class GProcessingTimesLogger // NOLINT(cppcoreguidelines-special-member-function
   : public Gem::Common::GReflectiveInterfaceT<GProcessingTimesLogger, oa::GBasePluggableOM> {
     ///////////////////////////////////////////////////////////////////////
 
-    friend class boost::serialization::access;
     friend struct Gem::Common::GReflectiveInterfaceAccess;
 
     /***************************************************************************/

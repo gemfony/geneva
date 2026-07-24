@@ -39,8 +39,6 @@
 #include <vector>
 
 // Boost header files go here
-#include <boost/serialization/base_object.hpp>
-#include <boost/serialization/nvp.hpp>
 
 // Geneva headers go here
 #include "common/GArchiveNamed.hpp" // archive_named_base (boost-vs-GArchive base emitter)
@@ -137,7 +135,6 @@ template <class Derived>
 class GIndividualFactory // NOLINT(cppcoreguidelines-special-member-functions)
   : public GOptimizableEntityFactory {
     ///////////////////////////////////////////////////////////////////////
-    friend class boost::serialization::access;
     friend struct Gem::Weft::access;
 
     /**

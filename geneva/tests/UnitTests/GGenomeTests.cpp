@@ -44,9 +44,6 @@
 
 #include <sstream>
 
-#include <boost/serialization/base_object.hpp>
-#include <boost/serialization/export.hpp>
-#include <boost/serialization/nvp.hpp>
 
 #include "weft/GBinaryArchive.hpp" // GArchive binary codec (3d-A GGenome gem round-trip)
 #include "weft/GJsonArchive.hpp"   // GArchive JSON codec (3d-A GGenome gem round-trip)
@@ -151,7 +148,6 @@ private:
         this->setGenome(b.build());
     }
 
-    friend class boost::serialization::access;
     friend struct Gem::Weft::access;
     template <typename Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
@@ -189,7 +185,6 @@ private:
         this->setGenome(b.build());
     }
 
-    friend class boost::serialization::access;
     friend struct Gem::Weft::access;
     template <typename Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
@@ -261,7 +256,6 @@ protected:
     }
 
 private:
-    friend class boost::serialization::access;
     friend struct Gem::Weft::access;
     template <typename Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
@@ -1034,7 +1028,6 @@ protected:
     std::vector<double> evaluate() override { return {0.}; }
 
 private:
-    friend class boost::serialization::access;
     friend struct Gem::Weft::access;
     template <typename Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
@@ -1076,7 +1069,6 @@ protected:
     std::vector<double> evaluate() override { return {0.}; }
 
 private:
-    friend class boost::serialization::access;
     friend struct Gem::Weft::access;
     template <typename Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
@@ -1112,7 +1104,6 @@ private:
         this->setGenome(b.build());
     }
 
-    friend class boost::serialization::access;
     friend struct Gem::Weft::access;
     template <typename Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {

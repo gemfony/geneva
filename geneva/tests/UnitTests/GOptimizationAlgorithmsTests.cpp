@@ -54,7 +54,6 @@
 #include <tuple>
 #include <vector>
 
-#include <boost/serialization/export.hpp>
 
 #include "geneva/genome/GAdaptionAuxKeys.hpp"
 #include "geneva/genome/GAdaptionKernels.hpp"

@@ -41,7 +41,6 @@
 
 // Boost headers
 #include <boost/config.hpp>               // BOOST_SYMBOL_EXPORT
-#include <boost/serialization/export.hpp> // BOOST_CLASS_EXPORT
 
 // Standard headers
 #include <memory>
@@ -55,6 +54,9 @@
 
 #include "GGPUParaboloid.hpp"
 #include "GGPUParaboloidMarshaller.hpp"
+#include "weft/GArchivePolymorphic.hpp" // GEM_REGISTER_ARCHIVABLE
+
+GEM_REGISTER_ARCHIVABLE(GGPUParaboloid) // NOLINT
 
 // Serialization GUID for wire / checkpoint transport of the individual (the marshaller is not serialized).
 

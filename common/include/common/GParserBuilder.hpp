@@ -56,23 +56,8 @@
 //   #68-D  – integer conversion sign change    (boost/mpl/print.hpp)
 //   #186-D – unsigned comparison with zero     (boost/mp11, via boost/json)
 //   #191-D – meaningless cast qualifier        (boost/archive/detail/iserializer.hpp)
-#include <boost/archive/binary_iarchive.hpp>
-#include <boost/archive/binary_oarchive.hpp>
-#include <boost/archive/text_iarchive.hpp>
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/archive/xml_iarchive.hpp>
-#include <boost/archive/xml_oarchive.hpp>
 #include <boost/json.hpp>
 #include <boost/program_options.hpp>
-#include <boost/serialization/base_object.hpp>
-#include <boost/serialization/export.hpp>
-#include <boost/serialization/map.hpp>
-#include <boost/serialization/nvp.hpp>
-#include <boost/serialization/shared_ptr.hpp>
-#include <boost/serialization/split_member.hpp>
-#include <boost/serialization/tracking.hpp>
-#include <boost/serialization/utility.hpp>
-#include <boost/serialization/vector.hpp>
 
 // Geneva header files go here
 #include "common/GCommonEnums.hpp"

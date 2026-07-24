@@ -325,7 +325,6 @@ class GFunctionIndividual
     ///////////////////////////////////////////////////////////////////////
     // Boost still default-constructs the concrete type on load; GReflectiveInterfaceAccess lets the mixin
     // reach the private localMembers_() (from which serialize/load_/compare_/clone_/name_ derive).
-    friend class boost::serialization::access;
     friend struct Gem::Common::GReflectiveInterfaceAccess;
 
     ///////////////////////////////////////////////////////////////////////
@@ -681,7 +680,6 @@ using GFunctionIndividualFactory =
 class GDoubleSumConstraint
   : public Gem::Common::GReflectiveInterfaceT<GDoubleSumConstraint, gen::GOptimizableEntityConstraint> { // NOLINT(cppcoreguidelines-special-member-functions)
     ///////////////////////////////////////////////////////////////////////
-    friend class boost::serialization::access;
     friend struct Gem::Common::GReflectiveInterfaceAccess;
 
     /** @brief Single declaration of this class'es local data members */
@@ -740,7 +738,6 @@ private:
 class GDoubleSumGapConstraint
   : public Gem::Common::GReflectiveInterfaceT<GDoubleSumGapConstraint, gen::GOptimizableEntityConstraint> { // NOLINT(cppcoreguidelines-special-member-functions)
     ///////////////////////////////////////////////////////////////////////
-    friend class boost::serialization::access;
     friend struct Gem::Common::GReflectiveInterfaceAccess;
 
     /** @brief The single declaration of this class'es local data members. */
@@ -803,7 +800,6 @@ private:
 class GSphereConstraint
   : public Gem::Common::GReflectiveInterfaceT<GSphereConstraint, gen::GOptimizableEntityConstraint> { // NOLINT(cppcoreguidelines-special-member-functions)
     ///////////////////////////////////////////////////////////////////////
-    friend class boost::serialization::access;
     friend struct Gem::Common::GReflectiveInterfaceAccess;
 
     /** @brief Single declaration of this class'es local data members */

@@ -44,21 +44,6 @@
 #include <vector>
 
 // Boost headers go here
-#include <boost/archive/binary_iarchive.hpp>
-#include <boost/archive/binary_oarchive.hpp>
-#include <boost/archive/text_iarchive.hpp>
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/archive/xml_iarchive.hpp>
-#include <boost/archive/xml_oarchive.hpp>
-#include <boost/serialization/base_object.hpp>
-#include <boost/serialization/export.hpp>
-#include <boost/serialization/map.hpp>
-#include <boost/serialization/nvp.hpp>
-#include <boost/serialization/shared_ptr.hpp>
-#include <boost/serialization/split_member.hpp>
-#include <boost/serialization/tracking.hpp>
-#include <boost/serialization/utility.hpp>
-#include <boost/serialization/vector.hpp>
 // Geneva headers go here
 #include "common/GArchiveNamed.hpp" // archive_named / archive_named_base (boost-vs-GArchive emitters)
 #include "common/GCommonHelperFunctionsT.hpp"
@@ -66,7 +51,6 @@
 #include "common/GExceptions.hpp"
 #include "common/GSerializableFunctionObjectT.hpp"
 #include "common/GSerializationHelperFunctionsT.hpp" // serialization of std::chrono time_point members
-#include "common/GSerializeTupleT.hpp"
 #include "courtier/GCourtierEnums.hpp"
 #include "courtier/GCourtierHelperFunctions.hpp"
 #include "courtier/GProcessable.hpp" // the non-generic processing-lifecycle base
@@ -108,7 +92,6 @@ template <
     requires (!std::is_void_v<processing_result_type>)
 class GProcessingContainerT : public GProcessable {
     ///////////////////////////////////////////////////////////////////////
-    friend class boost::serialization::access;
     friend struct Gem::Weft::access;
 
     template <typename Archive>
@@ -584,14 +567,6 @@ private:
 
 /******************************************************************************/
 /** @brief Mark this class as abstract */
-namespace boost::serialization {
-template <typename processable_type, typename processing_result_type>
-struct is_abstract<Gem::Courtier::GProcessingContainerT<processable_type, processing_result_type>>
-  : public std::true_type {};
-template <typename processable_type, typename processing_result_type>
-struct is_abstract<
-    const Gem::Courtier::GProcessingContainerT<processable_type, processing_result_type>>
-  : public std::true_type {};
-} /* namespace boost::serialization */
+
 
 /******************************************************************************/

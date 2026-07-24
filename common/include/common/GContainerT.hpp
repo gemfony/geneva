@@ -46,24 +46,6 @@
 #include <vector>
 
 // Boost header files go here
-#include <boost/archive/binary_iarchive.hpp>
-#include <boost/archive/binary_oarchive.hpp>
-#include <boost/archive/text_iarchive.hpp>
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/archive/xml_iarchive.hpp>
-#include <boost/archive/xml_oarchive.hpp>
-#include <boost/serialization/assume_abstract.hpp>
-#include <boost/serialization/base_object.hpp>
-#include <boost/serialization/deque.hpp>
-#include <boost/serialization/list.hpp>
-#include <boost/serialization/export.hpp>
-#include <boost/serialization/nvp.hpp>
-#include <boost/serialization/shared_ptr.hpp>
-#include <boost/serialization/split_member.hpp>
-#include <boost/serialization/tracking.hpp>
-#include <boost/serialization/unique_ptr.hpp>
-#include <boost/serialization/utility.hpp>
-#include <boost/serialization/vector.hpp>
 
 // Geneva headers go here
 #include "common/GArchiveNamed.hpp" // archive_named (boost-vs-GArchive member emitter)
@@ -272,7 +254,6 @@ struct UniquePtrStorage {
 template <typename T, typename StoragePolicy = PodStorage<T>>
 class GContainerT {
     ///////////////////////////////////////////////////////////////////////
-    friend class boost::serialization::access;
     friend struct Gem::Weft::access;
 
     /**
@@ -1760,14 +1741,6 @@ using GUniquePtrContainerT = GContainerT<T, UniquePtrStorage<T, Container>>;
  * Required so that Boost.Serialization correctly handles the abstract base
  * class during serialisation of derived types.
  */
-namespace boost::serialization {
 
-template <typename T, typename StoragePolicy>
-struct is_abstract<Gem::Common::GContainerT<T, StoragePolicy>> : public std::true_type {};
-
-template <typename T, typename StoragePolicy>
-struct is_abstract<const Gem::Common::GContainerT<T, StoragePolicy>> : public std::true_type {};
-
-} /* namespace boost::serialization */
 
 /******************************************************************************/

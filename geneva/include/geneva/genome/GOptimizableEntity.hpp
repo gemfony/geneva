@@ -46,10 +46,6 @@
 #include <vector>
 
 // Boost header files go here
-#include <boost/serialization/base_object.hpp>
-#include <boost/serialization/nvp.hpp>
-#include <boost/serialization/shared_ptr.hpp>
-#include <boost/serialization/vector.hpp>
 #include <boost/json.hpp>
 
 // Geneva headers go here
@@ -60,7 +56,6 @@
 #include "common/GLogger.hpp"
 #include "common/GSerializableFunctionObjectT.hpp"
 #include "common/GSerializationHelperFunctionsT.hpp" // serialization of std::chrono time_point (GProcessable timing)
-#include "common/GSerializeTupleT.hpp"               // Boost serialization of std::tuple (result / fitness tuples across the geneva graph)
 #include "courtier/GProcessable.hpp" // the non-generic processing-lifecycle base
 #include "courtier/GWireSerializationContext.hpp" // the wire scope: scratch is skipped on transport
 #include "geneva/genome/GMultiConstraintT.hpp" // GPreEvaluationValidityCheckT (registered on the shared policy)
@@ -117,7 +112,6 @@ class GOptimizableEntity // NOLINT(cppcoreguidelines-special-member-functions)
   , public Gem::Common::GReflectiveInterfaceBaseT<GOptimizableEntity, Gem::Common::GCommonInterfaceT<GOptimizableEntity>>
   , public Interface::GRateableI {
     ///////////////////////////////////////////////////////////////////////
-    friend class boost::serialization::access;
     friend struct Gem::Weft::access;
     friend struct Gem::Common::GReflectiveInterfaceAccess;
 
@@ -1017,5 +1011,4 @@ private:
 /**
  * @brief Needed for Boost.Serialization
  */
-BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::Geneva::Genome::GOptimizableEntity) // NOLINT
 /******************************************************************************/

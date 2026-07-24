@@ -123,4 +123,3 @@ private:
 
 } /* namespace Gem::Geneva::OptimizationAlgorithms */
 
-BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::Geneva::OptimizationAlgorithms::GPositionPersonalityTraits) // NOLINT

@@ -42,22 +42,9 @@
 #include <vector>
 
 // Boost headers go here
-#include <boost/archive/binary_iarchive.hpp>
-#include <boost/archive/text_iarchive.hpp>
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/archive/xml_iarchive.hpp>
-#include <boost/archive/xml_oarchive.hpp>
-#include <boost/serialization/base_object.hpp>
-#include <boost/serialization/export.hpp>
-#include <boost/serialization/map.hpp>
-#include <boost/serialization/nvp.hpp>
-#include <boost/serialization/shared_ptr.hpp>
-#include <boost/serialization/tracking.hpp>
-#include <boost/serialization/vector.hpp>
 
 // Geneva headers go here
 #include "common/GArchiveNamed.hpp" // archive_named / archive_named_base (boost-vs-GArchive emitters)
-#include "common/GSerializeTupleT.hpp"
 #include "courtier/GProcessingContainerT.hpp"
 #include "hap/GRandomT.hpp"
 
@@ -71,7 +58,6 @@ namespace Gem::Courtier {
 class GSimpleContainer
   : public Gem::Courtier::GProcessingContainerT<GSimpleContainer, bool> {
     ///////////////////////////////////////////////////////////////////////
-    friend class boost::serialization::access;
     friend struct Gem::Weft::access;
 
     template <typename Archive>
@@ -117,7 +103,6 @@ private:
 class GRandomNumberContainer
   : public Gem::Courtier::GProcessingContainerT<GRandomNumberContainer, bool> {
     ///////////////////////////////////////////////////////////////////////
-    friend class boost::serialization::access;
     friend struct Gem::Weft::access;
 
     template <typename Archive>
@@ -185,7 +170,6 @@ enum class fault_mode : std::uint8_t {
 class GFaultyContainer
   : public Gem::Courtier::GProcessingContainerT<GFaultyContainer, bool> {
     ///////////////////////////////////////////////////////////////////////
-    friend class boost::serialization::access;
     friend struct Gem::Weft::access;
 
     template <typename Archive>

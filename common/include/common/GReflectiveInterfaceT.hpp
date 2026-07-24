@@ -40,9 +40,6 @@
 #include <type_traits>
 
 // Boost header files go here
-#include <boost/serialization/access.hpp>
-#include <boost/serialization/base_object.hpp>
-#include <boost/serialization/nvp.hpp>
 
 // Geneva header files go here
 #include "common/GCommonHelperFunctionsT.hpp" // g_convert_and_compare
@@ -265,7 +262,6 @@ protected:
 
 private:
     ///////////////////////////////////////////////////////////////////////
-    friend class boost::serialization::access;
     friend struct Gem::Common::GReflectiveInterfaceAccess;
     // Lets a GArchive codec reach this generated serialize (the GArchive analogue
     // of the boost::serialization::access friendship), so the same generated

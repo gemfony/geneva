@@ -33,6 +33,8 @@
 
 // Standard header files go here
 #include <algorithm>
+#include "weft/GArchivePolymorphic.hpp"
+#include "common/GArchiveNamed.hpp"
 #include <cstdint>
 #include <functional>
 #include <iostream>
@@ -66,14 +68,12 @@ namespace oa = Gem::Geneva::OptimizationAlgorithms;
 class GDemoIndividual : public gen::GGenomeT<GDemoIndividual> {
 public:
     using gemfony_flat_individual = void; // b2: genome-only flat leaf -- opt into GGenomeT's empty localMembers_()
-    friend class boost::serialization::access;
+
+    friend struct Gem::Weft::access;
 
     template <typename Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
-        ar &boost::serialization::make_nvp(
-            "GGenomeT",
-            boost::serialization::base_object<gen::GGenomeT<GDemoIndividual>>(*this)
-        );
+        Gem::Common::archive_named_base<gen::GGenomeT<GDemoIndividual>>(ar, "GGenomeT", *this);
     }
 
 public:
@@ -103,6 +103,8 @@ protected:
             v | std::views::transform([](double x) { return x * x; }), 0., std::plus{})};
     }
 };
+
+GEM_REGISTER_ARCHIVABLE(GDemoIndividual) // NOLINT
 
 
 /******************************************************************************/

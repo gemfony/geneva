@@ -46,8 +46,6 @@
 #include <utility>
 
 // Geneva headers go here
-#include <boost/serialization/nvp.hpp>
-#include <boost/serialization/unique_ptr.hpp> // Boost (de)serialization of std::unique_ptr (null-aware)
 
 #include "common/GCommonEnums.hpp" // Gem::Common::serializationMode
 #include "common/GMemberReflectionT.hpp" // member_desc / load_copy_ptr / cmp_skip (the wire-omitted-ptr descriptor)

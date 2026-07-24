@@ -48,13 +48,15 @@
  */
 
 #include <boost/config.hpp>              // BOOST_SYMBOL_EXPORT
-#include <boost/serialization/export.hpp>
 
 #include "common/GModuleManifest.hpp" // GenevaModuleManifest
 #include "geneva/genome/GIndividualFactory.hpp"
 #include "geneva/genome/GIndividualPlugin.hpp" // Gem::Geneva::individualManifest<>
 
 #include "GLoadableParaboloid.hpp"
+#include "weft/GArchivePolymorphic.hpp" // GEM_REGISTER_ARCHIVABLE
+
+GEM_REGISTER_ARCHIVABLE(GLoadableParaboloid) // NOLINT
 
 // (1) Serialization GUID for wire / checkpoint transport of this individual.
 

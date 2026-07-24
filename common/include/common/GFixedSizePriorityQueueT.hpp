@@ -39,8 +39,6 @@
 #include <unordered_set>
 
 // Boost headers go here
-#include <boost/serialization/deque.hpp>
-#include <boost/serialization/nvp.hpp>
 
 // Geneva headers go here
 #include "common/GReflectiveInterfaceT.hpp"

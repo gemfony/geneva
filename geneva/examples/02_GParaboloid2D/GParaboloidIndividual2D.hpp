@@ -66,7 +66,6 @@ class GParaboloidIndividual2D : public gen::GGenomeT<GParaboloidIndividual2D> {
      *  (via GGenomeT). This is a genome-only leaf: M_PAR_MIN/M_PAR_MAX are const construction constants
      *  that were never serialized/compared/loaded (the original serialize emitted only the base). Boost
      *  still default-constructs the concrete type on load, so it keeps this friendship. */
-    friend class boost::serialization::access;
 
 public:
     /** @brief Opt into GGenomeT's generated empty member list (no serialized own state). */

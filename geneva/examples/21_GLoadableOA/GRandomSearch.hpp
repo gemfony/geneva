@@ -38,9 +38,6 @@
 #include <tuple>
 
 // Boost headers go here
-#include <boost/serialization/base_object.hpp>
-#include <boost/serialization/export.hpp>
-#include <boost/serialization/nvp.hpp>
 
 // Geneva headers go here
 #include "common/GExpectationChecksT.hpp" // GToken / expectation / compare_base_t
@@ -77,7 +74,6 @@ namespace Gem::Geneva::OptimizationAlgorithms {
 class GRandomSearch // NOLINT(cppcoreguidelines-special-member-functions)
   : public GOptimizationAlgorithmT<GRandomSearch> {
     ///////////////////////////////////////////////////////////////////////
-    friend class boost::serialization::access;
     friend struct Gem::Common::GReflectiveInterfaceAccess;
 
     /** @brief This algorithm carries no local data of its own; the explicit empty member list lets the

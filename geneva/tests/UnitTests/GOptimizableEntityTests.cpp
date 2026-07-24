@@ -45,9 +45,6 @@
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/catch_approx.hpp>
 
-#include <boost/serialization/export.hpp>
-#include <boost/serialization/nvp.hpp>
-#include <boost/serialization/base_object.hpp>
 
 #include "geneva/genome/GOptimizableEntity.hpp"
 #include "weft/GArchivePolymorphic.hpp" // GEM_REGISTER_ARCHIVABLE + archive-generic dispatch
@@ -99,7 +96,6 @@ private:
         this->setGenome(b.build());
     }
 
-    friend class boost::serialization::access;
     friend struct Gem::Weft::access;
     template <typename Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
@@ -142,7 +138,6 @@ protected:
     }
 
 private:
-    friend class boost::serialization::access;
     friend struct Gem::Weft::access;
     template <typename Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
@@ -179,7 +174,6 @@ protected:
     }
 
 private:
-    friend class boost::serialization::access;
     friend struct Gem::Weft::access;
     template <typename Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
@@ -450,7 +444,6 @@ protected:
     }
 
 private:
-    friend class boost::serialization::access;
     friend struct Gem::Weft::access;
     template <typename Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {

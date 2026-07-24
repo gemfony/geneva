@@ -46,10 +46,6 @@
 #include <vector>
 
 // Boost headers go here
-#include <boost/serialization/nvp.hpp>
-#include <boost/serialization/string.hpp>
-#include <boost/serialization/unique_ptr.hpp>
-#include <boost/serialization/vector.hpp>
 
 // Geneva headers go here
 #include "common/GArchiveNamed.hpp"       // archive_named (boost-vs-GArchive member emitter)
@@ -73,7 +69,6 @@ namespace Gem::Courtier {
 template <typename processable_type, typename command_type>
 class GCommandContainerT {
     ///////////////////////////////////////////////////////////////
-    friend class boost::serialization::access;
     friend struct Gem::Weft::access;
 
     /**

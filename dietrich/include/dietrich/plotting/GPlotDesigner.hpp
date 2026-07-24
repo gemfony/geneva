@@ -59,7 +59,6 @@ class GPlotDesigner
     ///////////////////////////////////////////////////////////////////////
     // boost::serialization::access default-constructs this concrete type on load;
     // GReflectiveInterfaceAccess lets the GReflectiveInterfaceT base reach this class's private localMembers_().
-    friend class boost::serialization::access;
     friend struct Gem::Common::GReflectiveInterfaceAccess;
     // The pluggable backend emitters read the designer's plotters, canvas
     // dimensions / divisions and label to compose their backend document.
@@ -299,108 +298,5 @@ private:
 
 /******************************************************************************/
 // Declare abstract or export class names for Boost.Serialization
-namespace boost::serialization {
 
-/** @brief Marks the 2D GDecorator as abstract for Boost.Serialization. @tparam coordinate_type The decorator's coordinate type */
-template <typename coordinate_type>
-struct is_abstract<Gem::Dietrich::GDecorator<Gem::Common::dimensions::Dim2, coordinate_type>>
-  : public std::true_type { /* nothing */
-};
-/** @brief Marks the const 2D GDecorator as abstract for Boost.Serialization. @tparam coordinate_type The decorator's coordinate type */
-template <typename coordinate_type>
-struct is_abstract<const Gem::Dietrich::GDecorator<Gem::Common::dimensions::Dim2, coordinate_type>>
-  : public std::true_type { /* nothing */
-};
 
-/** @brief Marks the 3D GDecorator as abstract for Boost.Serialization. @tparam coordinate_type The decorator's coordinate type */
-template <typename coordinate_type>
-struct is_abstract<Gem::Dietrich::GDecorator<Gem::Common::dimensions::Dim3, coordinate_type>>
-  : public std::true_type { /* nothing */
-};
-/** @brief Marks the const 3D GDecorator as abstract for Boost.Serialization. @tparam coordinate_type The decorator's coordinate type */
-template <typename coordinate_type>
-struct is_abstract<const Gem::Dietrich::GDecorator<Gem::Common::dimensions::Dim3, coordinate_type>>
-  : public std::true_type { /* nothing */
-};
-
-/** @brief Marks the 2D GDecoratorContainer as abstract for Boost.Serialization. @tparam coordinate_type The container's coordinate type */
-template <typename coordinate_type>
-struct is_abstract<Gem::Dietrich::GDecoratorContainer<Gem::Common::dimensions::Dim2, coordinate_type>>
-  : public std::true_type { /* nothing */
-};
-/** @brief Marks the const 2D GDecoratorContainer as abstract for Boost.Serialization. @tparam coordinate_type The container's coordinate type */
-template <typename coordinate_type>
-struct is_abstract<
-    const Gem::Dietrich::GDecoratorContainer<Gem::Common::dimensions::Dim2, coordinate_type>>
-  : public std::true_type { /* nothing */
-};
-
-/** @brief Marks the 3D GDecoratorContainer as abstract for Boost.Serialization. @tparam coordinate_type The container's coordinate type */
-template <typename coordinate_type>
-struct is_abstract<Gem::Dietrich::GDecoratorContainer<Gem::Common::dimensions::Dim3, coordinate_type>>
-  : public std::true_type { /* nothing */
-};
-/** @brief Marks the const 3D GDecoratorContainer as abstract for Boost.Serialization. @tparam coordinate_type The container's coordinate type */
-template <typename coordinate_type>
-struct is_abstract<
-    const Gem::Dietrich::GDecoratorContainer<Gem::Common::dimensions::Dim3, coordinate_type>>
-  : public std::true_type { /* nothing */
-};
-
-/** @brief Marks GDataCollector1T as abstract for Boost.Serialization. @tparam x_type The x-coordinate data type */
-template <typename x_type>
-struct is_abstract<Gem::Dietrich::GDataCollector1T<x_type>> : public std::true_type { /* nothing */
-};
-/** @brief Marks const GDataCollector1T as abstract for Boost.Serialization. @tparam x_type The x-coordinate data type */
-template <typename x_type>
-struct is_abstract<const Gem::Dietrich::GDataCollector1T<x_type>>
-  : public std::true_type { /* nothing */
-};
-
-/** @brief Marks GDataCollector2T as abstract for Boost.Serialization. @tparam x_type The x data type @tparam y_type The y data type */
-template <typename x_type, typename y_type>
-struct is_abstract<Gem::Dietrich::GDataCollector2T<x_type, y_type>>
-  : public std::true_type { /* nothing */
-};
-/** @brief Marks const GDataCollector2T as abstract for Boost.Serialization. @tparam x_type The x data type @tparam y_type The y data type */
-template <typename x_type, typename y_type>
-struct is_abstract<const Gem::Dietrich::GDataCollector2T<x_type, y_type>>
-  : public std::true_type { /* nothing */
-};
-
-/** @brief Marks GDataCollector2ET as abstract for Boost.Serialization. @tparam x_type The x data type @tparam y_type The y data type */
-template <typename x_type, typename y_type>
-struct is_abstract<Gem::Dietrich::GDataCollector2ET<x_type, y_type>>
-  : public std::true_type { /* nothing */
-};
-/** @brief Marks const GDataCollector2ET as abstract for Boost.Serialization. @tparam x_type The x data type @tparam y_type The y data type */
-template <typename x_type, typename y_type>
-struct is_abstract<const Gem::Dietrich::GDataCollector2ET<x_type, y_type>>
-  : public std::true_type { /* nothing */
-};
-
-/** @brief Marks GDataCollector3T as abstract for Boost.Serialization. @tparam x_type The x data type @tparam y_type The y data type @tparam z_type The z data type */
-template <typename x_type, typename y_type, typename z_type>
-struct is_abstract<Gem::Dietrich::GDataCollector3T<x_type, y_type, z_type>>
-  : public std::true_type { /* nothing */
-};
-/** @brief Marks const GDataCollector3T as abstract for Boost.Serialization. @tparam x_type The x data type @tparam y_type The y data type @tparam z_type The z data type */
-template <typename x_type, typename y_type, typename z_type>
-struct is_abstract<const Gem::Dietrich::GDataCollector3T<x_type, y_type, z_type>>
-  : public std::true_type { /* nothing */
-};
-
-/** @brief Marks GDataCollector4T as abstract for Boost.Serialization. @tparam x_type The x data type @tparam y_type The y data type @tparam z_type The z data type @tparam w_type The w data type */
-template <typename x_type, typename y_type, typename z_type, typename w_type>
-struct is_abstract<Gem::Dietrich::GDataCollector4T<x_type, y_type, z_type, w_type>>
-  : public std::true_type { /* nothing */
-};
-/** @brief Marks const GDataCollector4T as abstract for Boost.Serialization. @tparam x_type The x data type @tparam y_type The y data type @tparam z_type The z data type @tparam w_type The w data type */
-template <typename x_type, typename y_type, typename z_type, typename w_type>
-struct is_abstract<const Gem::Dietrich::GDataCollector4T<x_type, y_type, z_type, w_type>>
-  : public std::true_type { /* nothing */
-};
-
-} /* namespace boost::serialization */
-
-BOOST_SERIALIZATION_ASSUME_ABSTRACT(GBasePlotter)                          // NOLINT

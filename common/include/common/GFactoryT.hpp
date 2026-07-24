@@ -40,22 +40,7 @@
 #include <string>
 
 // Boost header files go here
-#include <boost/archive/binary_iarchive.hpp>
-#include <boost/archive/binary_oarchive.hpp>
-#include <boost/archive/text_iarchive.hpp>
-#include <boost/archive/text_oarchive.hpp>
-#include <boost/archive/xml_iarchive.hpp>
-#include <boost/archive/xml_oarchive.hpp>
 #include <boost/json.hpp>
-#include <boost/serialization/base_object.hpp>
-#include <boost/serialization/export.hpp>
-#include <boost/serialization/map.hpp>
-#include <boost/serialization/nvp.hpp>
-#include <boost/serialization/shared_ptr.hpp>
-#include <boost/serialization/split_member.hpp>
-#include <boost/serialization/tracking.hpp>
-#include <boost/serialization/utility.hpp>
-#include <boost/serialization/vector.hpp>
 
 // Geneva header files go here
 #include "common/GArchiveNamed.hpp" // archive_named (boost-vs-GArchive member emitter)
@@ -79,7 +64,6 @@ namespace Gem::Common {
 template <typename prod_type>
 class GFactoryT {
     ///////////////////////////////////////////////////////////////////////
-    friend class boost::serialization::access;
     friend struct Gem::Weft::access;
 
     /**
@@ -475,13 +459,6 @@ private:
 /** @brief Mark this class as abstract. This is the content of
  * BOOST_SERIALIZATION_ASSUME_ABSTRACT(T) */
 
-namespace boost::serialization {
-/** @brief Marks GFactoryT<T> as abstract for Boost.Serialization. @tparam T The factory's product type */
-template <typename T>
-struct is_abstract<Gem::Common::GFactoryT<T>> : public std::true_type {};
-/** @brief Marks const GFactoryT<T> as abstract for Boost.Serialization. @tparam T The factory's product type */
-template <typename T>
-struct is_abstract<const Gem::Common::GFactoryT<T>> : public std::true_type {};
-} /* namespace boost::serialization */
+
 
 /******************************************************************************/

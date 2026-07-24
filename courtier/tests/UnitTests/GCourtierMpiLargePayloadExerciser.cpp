@@ -53,7 +53,6 @@
 #include <sstream>
 #include <vector>
 
-#include <boost/archive/binary_oarchive.hpp>
 
 #include "courtier/GDemoProcessingContainers.hpp"
 #include "courtier/GSubmissionPolicy.hpp"

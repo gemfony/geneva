@@ -53,7 +53,6 @@ class GSwarmAlgorithm_PersonalityTraits // NOLINT(cppcoreguidelines-special-memb
     // boost::serialization::access default-constructs this concrete type on load;
     // GReflectiveInterfaceAccess lets the base reach localMembers_() for the generated
     // serialize()/load_()/compare_()/name_()/clone_().
-    friend class boost::serialization::access;
     friend struct Gem::Common::GReflectiveInterfaceAccess;
 
     /***************************************************************************/

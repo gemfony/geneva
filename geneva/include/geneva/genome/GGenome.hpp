@@ -45,8 +45,6 @@
 #include <vector>
 
 // Boost header files go here
-#include <boost/serialization/split_member.hpp>
-#include <boost/serialization/vector.hpp>
 #include <boost/json.hpp>
 
 // Geneva headers go here
@@ -95,7 +93,6 @@ namespace Gem::Geneva::Genome {
 class GGenome // NOLINT(cppcoreguidelines-special-member-functions)
   : public Gem::Common::GReflectiveInterfaceBaseT<GGenome, GOptimizableEntity> {
     ///////////////////////////////////////////////////////////////////////
-    friend class boost::serialization::access;
     friend struct Gem::Weft::access;
     friend struct Gem::Common::GReflectiveInterfaceAccess;
 
@@ -867,5 +864,4 @@ private:
 /**
  * @brief Needed for Boost.Serialization
  */
-BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::Geneva::Genome::GGenome) // NOLINT
 /******************************************************************************/

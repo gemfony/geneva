@@ -31,6 +31,8 @@
 
 // Standard headers
 #include <algorithm>
+#include "weft/GArchivePolymorphic.hpp"
+#include "common/GArchiveNamed.hpp"
 #include <cstddef>
 #include <functional>
 #include <memory>
@@ -38,8 +40,6 @@
 #include <vector>
 
 // Boost headers
-#include <boost/serialization/base_object.hpp>
-#include <boost/serialization/nvp.hpp>
 
 // Geneva headers
 #include "common/GParserBuilder.hpp"
@@ -120,13 +120,10 @@ protected:
     }
 
 private:
-    friend class boost::serialization::access;
+    friend struct Gem::Weft::access;
     template <typename Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
-        ar &boost::serialization::make_nvp(
-            "GGenomeT",
-            boost::serialization::base_object<Gem::Geneva::Genome::GGenomeT<GGPUParaboloid>>(*this)
-        );
+        Gem::Common::archive_named_base<Gem::Geneva::Genome::GGenomeT<GGPUParaboloid>>(ar, "GGenomeT", *this);
     }
 };
 

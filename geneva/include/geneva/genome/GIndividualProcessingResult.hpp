@@ -36,9 +36,6 @@
 #include <functional>
 
 // Boost header files go here
-#include <boost/serialization/access.hpp>
-#include <boost/serialization/export.hpp>
-#include <boost/serialization/nvp.hpp>
 
 // Geneva header files go here
 #include "common/GArchiveNamed.hpp" // archive_named (boost-vs-GArchive member emitter)
@@ -58,7 +55,6 @@ namespace Gem::Geneva::Genome {
  */
 class individual_processing_result {
     ///////////////////////////////////////////////////////////////////////
-    friend class boost::serialization::access;
     friend struct Gem::Weft::access;
 
     /**

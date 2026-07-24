@@ -42,15 +42,6 @@
 #include <type_traits>
 
 // Boost header files go here
-#include <boost/serialization/base_object.hpp>
-#include <boost/serialization/export.hpp>
-#include <boost/serialization/map.hpp>
-#include <boost/serialization/nvp.hpp>
-#include <boost/serialization/shared_ptr.hpp>
-#include <boost/serialization/split_member.hpp>
-#include <boost/serialization/tracking.hpp>
-#include <boost/serialization/utility.hpp>
-#include <boost/serialization/vector.hpp>
 
 // Geneva header files go here
 #include "weft/GArchivePolymorphic.hpp" // GArchive codec arm for toStream/fromStream (gem_serialize_pointer)

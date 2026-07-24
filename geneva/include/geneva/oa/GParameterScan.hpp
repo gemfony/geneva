@@ -43,7 +43,6 @@
 #include "common/GCommonInterfaceT.hpp"
 #include "common/GExceptions.hpp"
 #include "common/GContainerT.hpp"
-#include "common/GSerializeTupleT.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/genome/GParameterPropertyParser.hpp"
 #include "geneva/genome/GOptimizableEntity.hpp"
@@ -186,7 +185,6 @@ class GBaseScanParT // NOLINT(cppcoreguidelines-special-member-functions)
   , public GScanParInterface
   , public Gem::Common::GReflectiveInterfaceBaseT<GBaseScanParT<T>, Gem::Common::GCommonInterfaceT<GBaseScanParT<T>>> {
     ///////////////////////////////////////////////////////////////////////
-    friend class boost::serialization::access;
     friend struct Gem::Weft::access;
     friend struct Gem::Common::GReflectiveInterfaceAccess;
 
@@ -696,7 +694,6 @@ std::ostream &operator<<(std::ostream &os, const parSet &p_s);
 class GParameterScan // NOLINT(cppcoreguidelines-special-member-functions)
   : public GOptimizationAlgorithmT<GParameterScan> {
     ///////////////////////////////////////////////////////////////////////
-    friend class boost::serialization::access;
     friend struct Gem::Weft::access;
     friend struct Gem::Common::GReflectiveInterfaceAccess;
 

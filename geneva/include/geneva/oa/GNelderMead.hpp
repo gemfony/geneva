@@ -145,7 +145,6 @@ constexpr std::size_t NM_OCONTRACT = 3; ///< outside contraction
 class GNelderMead // NOLINT(cppcoreguidelines-special-member-functions)
   : public GOptimizationAlgorithmT<GNelderMead> {
     ///////////////////////////////////////////////////////////////////////
-    friend class boost::serialization::access;
     friend struct Gem::Common::GReflectiveInterfaceAccess;
 
 public:

@@ -33,12 +33,6 @@
 #include "common/GGlobalDefines.hpp"
 
 // Boost header files go here
-#include <boost/archive/binary_iarchive.hpp>
-#include <boost/archive/binary_oarchive.hpp>
-#include <boost/serialization/nvp.hpp>
-#include <boost/serialization/split_free.hpp>
-#include <boost/serialization/string.hpp>
-#include <boost/serialization/vector.hpp>
 
 #include <cstdint>
 #include <memory>
@@ -325,57 +319,7 @@ void gem_archive_serialize(Archive &ar, GGenomeLayout &l) {
  * gem_archive_serialize() bodies above (Boost's access looks in boost::serialization, not the type's
  * namespace). Each simply forwards; all are deleted when Boost.Serialization is removed.
  */
-namespace boost::serialization {
 
-/** @brief Boost wrapper -> Gem::Geneva::Genome::gem_archive_serialize(GaussConfig). */
-template <class Archive, typename T>
-void serialize(Archive &ar, Gem::Geneva::Genome::GaussConfig<T> &g, [[maybe_unused]] const unsigned int version) {
-    Gem::Geneva::Genome::gem_archive_serialize(ar, g);
-}
-
-/** @brief Boost wrapper -> Gem::Geneva::Genome::gem_archive_serialize(BiGaussConfig). */
-template <class Archive, typename T>
-void serialize(Archive &ar, Gem::Geneva::Genome::BiGaussConfig<T> &g, [[maybe_unused]] const unsigned int version) {
-    Gem::Geneva::Genome::gem_archive_serialize(ar, g);
-}
-
-/** @brief Boost wrapper -> Gem::Geneva::Genome::gem_archive_serialize(FlipConfig). */
-template <class Archive>
-inline void serialize(Archive &ar, Gem::Geneva::Genome::FlipConfig &g, [[maybe_unused]] const unsigned int version) {
-    Gem::Geneva::Genome::gem_archive_serialize(ar, g);
-}
-
-/** @brief Boost wrapper -> Gem::Geneva::Genome::gem_archive_serialize(GroupStructure). */
-template <class Archive, typename T>
-void serialize(Archive &ar, Gem::Geneva::Genome::GroupStructure<T> &g, [[maybe_unused]] const unsigned int version) {
-    Gem::Geneva::Genome::gem_archive_serialize(ar, g);
-}
-
-/** @brief Boost split-save wrapper -> Gem::Geneva::Genome::saveChannelLayout. */
-template <class Archive, typename T>
-void save(Archive &ar, const Gem::Geneva::Genome::ChannelLayout<T> &c, [[maybe_unused]] const unsigned int version) {
-    Gem::Geneva::Genome::saveChannelLayout(ar, c);
-}
-
-/** @brief Boost split-load wrapper -> Gem::Geneva::Genome::loadChannelLayout. */
-template <class Archive, typename T>
-void load(Archive &ar, Gem::Geneva::Genome::ChannelLayout<T> &c, [[maybe_unused]] const unsigned int version) {
-    Gem::Geneva::Genome::loadChannelLayout(ar, c);
-}
-
-/** @brief Dispatches ChannelLayout (de)serialization to the split save()/load() wrappers above. */
-template <class Archive, typename T>
-void serialize(Archive &ar, Gem::Geneva::Genome::ChannelLayout<T> &c, const unsigned int version) {
-    boost::serialization::split_free(ar, c, version);
-}
-
-/** @brief Boost wrapper -> Gem::Geneva::Genome::gem_archive_serialize(GGenomeLayout). */
-template <class Archive>
-void serialize(Archive &ar, Gem::Geneva::Genome::GGenomeLayout &l, [[maybe_unused]] const unsigned int version) {
-    Gem::Geneva::Genome::gem_archive_serialize(ar, l);
-}
-
-} /* namespace boost::serialization */
 
 namespace Gem::Geneva::Genome {
 
