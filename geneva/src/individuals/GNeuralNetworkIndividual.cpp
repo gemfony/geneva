@@ -42,6 +42,7 @@
 #include "geneva/genome/GGenomeBuilder.hpp"
 #include "geneva/oa/GAdaption.hpp"
 #include "geneva/oa/GAdaptionConfig.hpp"
+#include "weft/GArchivePolymorphic.hpp" // GEM_REGISTER_ARCHIVABLE (GArchive polymorphic-pointer dispatch)
 #include <cmath>
 #include <cstddef>
 #include <filesystem>
@@ -63,6 +64,11 @@
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::Individuals::trainingSet)              // NOLINT
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::Individuals::networkData)              // NOLINT
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::Individuals::GNeuralNetworkIndividual) // NOLINT
+// The nested value structs trainingSet / networkData are NOT wire-polymorphic (no
+// gemfony_common_root_t; they travel by value in the saveToDisk training-data path,
+// off the individual's wire serialize), so only the individual itself is registered
+// for GArchive polymorphic dispatch.
+GEM_REGISTER_ARCHIVABLE(Gem::Geneva::Individuals::GNeuralNetworkIndividual)      // NOLINT
 namespace Gem::Geneva::Individuals {
 
 /******************************************************************************/
