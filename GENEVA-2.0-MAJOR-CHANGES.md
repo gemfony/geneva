@@ -125,15 +125,20 @@ are in `CHANGES` and `INSTALL`; this file is the practical upgrade guide.
 
 ## 6. Packaging: libraries and runtime-loadable modules
 
-- **A new foundation library, `gemfony-weft`, carries Geneva's serialization engine.**
-  `Gem::Weft` (public headers under `weft/`) is a small, standalone serialization codec —
-  a Boost.Serialization-style intrusive/non-intrusive `serialize` contract with a compact
-  binary codec and a human-readable JSON codec — that depends on nothing from Geneva and
-  only on Boost.JSON. It is the deepest layer of the collection: `gemfony-common` now
-  links it. It coexists with Boost.Serialization, which it is progressively replacing as
-  Geneva's wire and checkpoint codec; the transition is transparent to problem code
-  (`evaluate()` and the genome API are unaffected). Downstream consumers link it
-  automatically through the exported `Geneva::` targets.
+- **A new foundation library, `gemfony-weft`, carries Geneva's serialization engine, and
+  Boost.Serialization has been removed entirely.** `Gem::Weft` (public headers under `weft/`)
+  is a small, standalone serialization codec — an intrusive/non-intrusive `serialize` contract
+  with a compact flat-binary codec (`GEM_BINARY`, the networked-wire default) and a
+  human-readable JSON codec (`GEM_JSON`, the checkpoint default) — that depends on nothing from
+  Geneva and only on Boost.JSON. It is the deepest layer of the collection: `gemfony-common`
+  links it, and it is now Geneva's **only** wire and checkpoint codec. Geneva no longer links
+  `libboost_serialization` (dropped from the build, the installed `FindGeneva` config, and the
+  Debian dependency list). The change is transparent to problem code (`evaluate()` and the genome
+  API are unaffected); a hand-written `serialize()` uses `Gem::Common::archive_named` /
+  `archive_named_base` and a polymorphic wire/checkpoint type is registered with
+  `GEM_REGISTER_ARCHIVABLE` (replacing `BOOST_CLASS_EXPORT`). The old Boost text/XML/binary
+  serialization modes are gone; only `GEM_BINARY` and `GEM_JSON` remain. Downstream consumers link
+  Weft automatically through the exported `Geneva::` targets.
 - **The Geneva library ships no concrete optimization individual.** The reusable sample
   problems were folded into `gemfony-geneva` (`Gem::Geneva::Individuals`); there is no
   separate `geneva-individuals` library.

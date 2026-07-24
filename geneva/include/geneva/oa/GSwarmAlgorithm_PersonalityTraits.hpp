@@ -50,7 +50,7 @@ namespace Gem::Geneva::OptimizationAlgorithms {
 class GSwarmAlgorithm_PersonalityTraits // NOLINT(cppcoreguidelines-special-member-functions)
   : public Gem::Common::GReflectiveInterfaceT<GSwarmAlgorithm_PersonalityTraits, GPersonalityTraits> {
     ///////////////////////////////////////////////////////////////////////
-    // boost::serialization::access default-constructs this concrete type on load;
+    // Gem::Weft::access default-constructs this concrete type on load;
     // GReflectiveInterfaceAccess lets the base reach localMembers_() for the generated
     // serialize()/load_()/compare_()/name_()/clone_().
     friend struct Gem::Common::GReflectiveInterfaceAccess;

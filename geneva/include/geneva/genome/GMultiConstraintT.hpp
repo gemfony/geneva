@@ -436,7 +436,7 @@ template <typename ind_type>
 class GCheckCombinerT
   : public Gem::Common::GReflectiveInterfaceT<GCheckCombinerT<ind_type>, GValidityCheckContainerT<ind_type>> {
     ///////////////////////////////////////////////////////////////////////
-    // boost::serialization::access default-constructs this concrete type on load;
+    // Gem::Weft::access default-constructs this concrete type on load;
     // GReflectiveInterfaceAccess lets the mixin reach localMembers_().
     friend struct Gem::Common::GReflectiveInterfaceAccess;
     ///////////////////////////////////////////////////////////////////////

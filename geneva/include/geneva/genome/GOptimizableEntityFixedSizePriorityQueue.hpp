@@ -53,7 +53,7 @@ namespace Gem::Geneva::Genome {
 class GOptimizableEntityFixedSizePriorityQueue // NOLINT(cppcoreguidelines-special-member-functions)
   : public Gem::Common::GReflectiveInterfaceT<GOptimizableEntityFixedSizePriorityQueue, Gem::Common::GFixedSizePriorityQueueT<GOptimizableEntity>> {
     ///////////////////////////////////////////////////////////////////////
-    // boost::serialization::access default-constructs this concrete type on load;
+    // Gem::Weft::access default-constructs this concrete type on load;
     // GReflectiveInterfaceAccess lets the mixin reach the (empty) localMembers_().
     friend struct Gem::Common::GReflectiveInterfaceAccess;
 

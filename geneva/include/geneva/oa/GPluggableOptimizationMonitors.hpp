@@ -72,7 +72,7 @@ namespace Gem::Geneva {
 class GStandardMonitor // NOLINT(cppcoreguidelines-special-member-functions)
   : public Gem::Common::GReflectiveInterfaceT<GStandardMonitor, oa::GBasePluggableOM> {
     ///////////////////////////////////////////////////////////////////////
-    // boost::serialization::access default-constructs this concrete type on load;
+    // Gem::Weft::access default-constructs this concrete type on load;
     // GReflectiveInterfaceAccess lets the GReflectiveInterfaceT base reach this class's (empty) localMembers_().
     friend struct Gem::Common::GReflectiveInterfaceAccess;
 
@@ -273,7 +273,7 @@ private:
 class GCollectiveMonitor // NOLINT(cppcoreguidelines-special-member-functions)
   : public Gem::Common::GReflectiveInterfaceT<GCollectiveMonitor, oa::GBasePluggableOM> {
     ///////////////////////////////////////////////////////////////////////
-    // boost::serialization::access default-constructs this concrete type on load;
+    // Gem::Weft::access default-constructs this concrete type on load;
     // GReflectiveInterfaceAccess lets the GReflectiveInterfaceT base reach localMembers_() for the
     // generated serialize()/load_()/compare_()/name_()/clone_().
     friend struct Gem::Common::GReflectiveInterfaceAccess;
@@ -364,7 +364,7 @@ template <typename fp_type>
 class GProgressPlotterT // NOLINT(cppcoreguidelines-special-member-functions)
   : public Gem::Common::GReflectiveInterfaceT<GProgressPlotterT<fp_type>, oa::GBasePluggableOM> {
     ///////////////////////////////////////////////////////////////////////
-    // boost::serialization::access default-constructs this concrete type on load;
+    // Gem::Weft::access default-constructs this concrete type on load;
     // GReflectiveInterfaceAccess lets the GReflectiveInterfaceT base reach localMembers_().
     friend struct Gem::Common::GReflectiveInterfaceAccess;
 

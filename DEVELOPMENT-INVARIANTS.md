@@ -53,7 +53,12 @@ Never configure or build inside the source tree. Use an external build directory
 Every class that adds data members implements `serialize()` and `load_()` / `save_()` (required for
 checkpointing and network transport). Keep the compared/serialized member list **single-sourced** (the
 `localMembers_` pattern) so that `serialize()`, `load_()`, and `compare_()` can never drift apart — a member
-forgotten in one list is silent data loss.
+forgotten in one list is silent data loss. Serialization runs entirely through the in-house **GArchive**
+(`Gem::Weft`) codecs — the flat binary codec (`GEM_BINARY`, the networked-wire default) and the
+self-describing JSON codec (`GEM_JSON`, the checkpoint default). A `serialize()` body is written once,
+codec-agnostic, against `Gem::Common::archive_named` / `archive_named_base` (never `boost::serialization`);
+a polymorphic wire/checkpoint type is registered with `GEM_REGISTER_ARCHIVABLE`. Boost.Serialization has
+been removed — do not reintroduce `boost::serialization`, `boost::archive`, or `BOOST_CLASS_EXPORT`.
 
 ## 5. One consumer per process
 

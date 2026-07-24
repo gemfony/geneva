@@ -57,7 +57,7 @@ namespace Gem::Dietrich {
 class GPlotDesigner
   : public Gem::Common::GReflectiveInterfaceT<GPlotDesigner, Gem::Common::GCommonInterfaceT<GPlotDesigner>, GPlotDesigner> {
     ///////////////////////////////////////////////////////////////////////
-    // boost::serialization::access default-constructs this concrete type on load;
+    // Gem::Weft::access default-constructs this concrete type on load;
     // GReflectiveInterfaceAccess lets the GReflectiveInterfaceT base reach this class's private localMembers_().
     friend struct Gem::Common::GReflectiveInterfaceAccess;
     // The pluggable backend emitters read the designer's plotters, canvas

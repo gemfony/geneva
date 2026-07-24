@@ -165,7 +165,7 @@ class GMarker
         // not observable and this is purely a formality.
     > {
     ///////////////////////////////////////////////////////////////////////
-    // boost::serialization::access default-constructs this concrete type on load;
+    // Gem::Weft::access default-constructs this concrete type on load;
     // GReflectiveInterfaceAccess lets the GReflectiveInterfaceT base reach this class's localMembers_().
     friend struct Gem::Common::GReflectiveInterfaceAccess;
 
@@ -569,7 +569,7 @@ class GDecoratorContainer_2D
         GDecoratorContainer<dimensions::Dim2, coordinate_type>
     > {
     ///////////////////////////////////////////////////////////////////////
-    // boost::serialization::access default-constructs this concrete type on load;
+    // Gem::Weft::access default-constructs this concrete type on load;
     // GReflectiveInterfaceAccess lets the GReflectiveInterfaceT base reach this class's (empty) localMembers_().
     friend struct Gem::Common::GReflectiveInterfaceAccess;
 
@@ -763,7 +763,7 @@ class GDecoratorContainer_3D
         GDecoratorContainer<dimensions::Dim3, coordinate_type>
     > {
     ///////////////////////////////////////////////////////////////////////
-    // boost::serialization::access default-constructs this concrete type on load;
+    // Gem::Weft::access default-constructs this concrete type on load;
     // GReflectiveInterfaceAccess lets the GReflectiveInterfaceT base reach this class's (empty) localMembers_().
     friend struct Gem::Common::GReflectiveInterfaceAccess;
 

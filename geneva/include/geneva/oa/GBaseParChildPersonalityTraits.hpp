@@ -56,7 +56,7 @@ namespace Gem::Geneva::OptimizationAlgorithms {
 class GBaseParChildPersonalityTraits // NOLINT(cppcoreguidelines-special-member-functions)
   : public Gem::Common::GReflectiveInterfaceT<GBaseParChildPersonalityTraits, GPositionPersonalityTraits> {
     ///////////////////////////////////////////////////////////////////////
-    // boost::serialization::access default-constructs this concrete type on load;
+    // Gem::Weft::access default-constructs this concrete type on load;
     // GReflectiveInterfaceAccess lets the GReflectiveInterfaceT base reach localMembers_().
     friend struct Gem::Common::GReflectiveInterfaceAccess;
 

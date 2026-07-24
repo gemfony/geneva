@@ -56,7 +56,7 @@ class GSepCmaEvolutionStrategy_PersonalityTraits // NOLINT(cppcoreguidelines-spe
   : public Gem::Common::GReflectiveInterfaceT<GSepCmaEvolutionStrategy_PersonalityTraits, GPersonalityTraits>
   , public GParetoTag {
     ///////////////////////////////////////////////////////////////////////
-    // boost::serialization::access default-constructs this concrete type on load;
+    // Gem::Weft::access default-constructs this concrete type on load;
     // GReflectiveInterfaceAccess lets the GReflectiveInterfaceT base reach localMembers_(). GParetoTag
     // is a plain mixin (no quartet); its is_on_pareto_front_ rides in localMembers_.
     friend struct Gem::Common::GReflectiveInterfaceAccess;

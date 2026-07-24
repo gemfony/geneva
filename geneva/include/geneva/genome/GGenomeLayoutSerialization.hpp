@@ -49,12 +49,9 @@
 /******************************************************************************/
 /**
  * Non-intrusive serialization support for the (otherwise POD-clean) adaption-layout structs. The bodies
- * are ARCHIVE-GENERIC -- written once against Gem::Common::archive_named, which selects Boost.Serialization
- * or a GArchive codec at compile time -- and exposed as free gem_archive_serialize() overloads in the
- * structs' own namespace, so GArchive's class dispatch finds them by ADL (the analogue of a Boost
- * non-intrusive serialize()). The thin boost::serialization wrappers further down delegate to these same
- * bodies; they exist only so a Boost archive can reach the non-intrusive form and are removed with
- * Boost.Serialization.
+ * are exposed as free gem_archive_serialize() overloads in the structs' own namespace, so the GArchive
+ * codec's class dispatch finds them by ADL (the analogue of a non-intrusive serialize()); each is written
+ * once against Gem::Common::archive_named and works unchanged across the binary and JSON codecs.
  *
  * The layout is serialised by value as part of GGenome's transport encoding (it carries no pointers and no
  * evolving state, so a flat serialisation is sufficient and self-contained).

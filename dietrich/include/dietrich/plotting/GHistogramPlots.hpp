@@ -42,7 +42,7 @@ namespace Gem::Dietrich {
  */
 class GHistogram1D : public Gem::Common::GReflectiveInterfaceT<GHistogram1D, GDataCollector1T<double>> {
     ///////////////////////////////////////////////////////////////////////
-    // boost::serialization::access default-constructs this concrete type (its
+    // Gem::Weft::access default-constructs this concrete type (its
     // private default ctor) on load; GReflectiveInterfaceAccess lets the GReflectiveInterfaceT
     // base reach this class's private localMembers_().
     friend struct Gem::Common::GReflectiveInterfaceAccess;
