@@ -40,6 +40,9 @@
 #include <boost/serialization/export.hpp>
 #include <boost/serialization/nvp.hpp>
 
+#include "common/GArchiveNamed.hpp"       // archive_named (boost-vs-GArchive member emitter)
+#include "weft/GArchivePolymorphic.hpp"   // GEM_REGISTER_ARCHIVABLE
+
 #include "common/GCommonEnums.hpp"
 #include "common/GCommonInterfaceT.hpp"
 #include "common/GExpectationChecksT.hpp"
@@ -81,9 +84,10 @@ private:
     [[nodiscard]] TestObj *clone_() const override { return new TestObj(*this); }
 
     friend class boost::serialization::access;
+    friend struct Gem::Weft::access;
     template <class Archive>
     void serialize(Archive &ar, [[maybe_unused]] unsigned int version) {
-        ar &BOOST_SERIALIZATION_NVP(v_);
+        Gem::Common::archive_named(ar, "v_", v_);
     }
 
     int v_{0};
@@ -93,6 +97,7 @@ private:
 
 BOOST_CLASS_EXPORT_KEY(TestObj)
 BOOST_CLASS_EXPORT_IMPLEMENT(TestObj)
+GEM_REGISTER_ARCHIVABLE(TestObj) // polymorphic-root dispatch for the GEM_BINARY / GEM_JSON toString path
 
 // ---------------------------------------------------------------------------
 // gemfony_common_interface_indicator: the interface should be detectable.
@@ -219,6 +224,31 @@ TEST_CASE("GCommonInterfaceT: toString/fromString round-trip in BINARY mode",
     TestObj dst(0);
     dst.fromString(s, serializationMode::BINARY);
     CHECK(dst.v() == 123);
+}
+
+// The GArchive (Weft) codec modes: the same toString/fromString path, driven through the polymorphic
+// root dispatch (GEM_REGISTER_ARCHIVABLE(TestObj)) rather than Boost. These will become the default
+// checkpoint/wire encodings when Boost is removed.
+TEST_CASE("GCommonInterfaceT: toString/fromString round-trip in GEM_BINARY mode",
+          "[common][interface][serialize]") {
+    TestObj const src(456);
+    std::string const s = src.toString(serializationMode::GEM_BINARY);
+    REQUIRE_FALSE(s.empty());
+
+    TestObj dst(0);
+    dst.fromString(s, serializationMode::GEM_BINARY);
+    CHECK(dst.v() == 456);
+}
+
+TEST_CASE("GCommonInterfaceT: toString/fromString round-trip in GEM_JSON mode",
+          "[common][interface][serialize]") {
+    TestObj const src(-789);
+    std::string const s = src.toString(serializationMode::GEM_JSON);
+    REQUIRE_FALSE(s.empty());
+
+    TestObj dst(0);
+    dst.fromString(s, serializationMode::GEM_JSON);
+    CHECK(dst.v() == -789);
 }
 
 // ---------------------------------------------------------------------------

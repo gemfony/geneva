@@ -43,6 +43,8 @@
 #include <catch2/catch_approx.hpp>
 
 #include "geneva/individuals/GNeuralNetworkIndividual.hpp"
+#include "weft/GBinaryArchive.hpp"
+#include "weft/GJsonArchive.hpp"
 
 using Gem::Geneva::Individuals::networkData;
 using Gem::Geneva::Individuals::trainingSet;
@@ -137,4 +139,50 @@ TEST_CASE("networkData: disk round-trip preserves all data", "[individuals][nn]"
         CHECK(t_s.value()->Input[1] == Approx(0.50 + static_cast<double>(pos)));
     }
     CHECK(not loaded.getTrainingSet(3).has_value());
+}
+
+// The GArchive codecs (binary + JSON) round-trip the same training data as the disk path. This covers
+// the archive-generic serialize that a Boost-free saveToDisk will use: the value vectors via
+// archive_named, the GPodContainerT<size_t> geometry base slice, and the std::vector<shared_ptr<
+// trainingSet>> whose concrete (non-polymorphic) elements reconstruct element-wise through the
+// concrete-pointer path -- the std::vectors serialized directly, with no make_array, explicit count or
+// bounds limit. (The training data never crosses the wire -- it is rebuilt from nnTrainingDataStore()
+// on individual load -- so this exercises the disk-persistence port specifically.)
+TEST_CASE("networkData: GArchive binary + JSON codecs round-trip all data", "[individuals][nn][garchive]") {
+    const networkData n_d = makeSampleData();
+
+    auto verify = [&](const networkData &loaded) {
+        CHECK(loaded.getNInputNodes() == 2);
+        CHECK(loaded.getNOutputNodes() == 1);
+        REQUIRE(loaded.initRangeSet());
+        CHECK(loaded.getInitRange() == n_d.getInitRange());
+        for(std::size_t pos = 0; pos < 3; pos++) {
+            auto t_s = loaded.getTrainingSet(pos);
+            REQUIRE(t_s.has_value());
+            REQUIRE(t_s.value());
+            CHECK(t_s.value()->Input[0] == Approx(0.25 + static_cast<double>(pos)));
+            CHECK(t_s.value()->Input[1] == Approx(0.50 + static_cast<double>(pos)));
+            CHECK(t_s.value()->Output[0] == Approx((pos % 2 == 0) ? 0.99 : 0.01));
+        }
+        CHECK(not loaded.getTrainingSet(3).has_value());
+    };
+
+    // Binary codec.
+    {
+        Gem::Weft::GBinaryOArchive oa;
+        oa &Gem::Weft::make_nvp("nd", n_d);
+        networkData loaded(0);
+        Gem::Weft::GBinaryIArchive ia(oa.str());
+        ia &Gem::Weft::make_nvp("nd", loaded);
+        verify(loaded);
+    }
+    // JSON codec.
+    {
+        Gem::Weft::GJsonOArchive oa;
+        oa &Gem::Weft::make_nvp("nd", n_d);
+        networkData loaded(0);
+        Gem::Weft::GJsonIArchive ia(oa.str());
+        ia &Gem::Weft::make_nvp("nd", loaded);
+        verify(loaded);
+    }
 }

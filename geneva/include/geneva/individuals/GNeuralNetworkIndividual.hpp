@@ -96,34 +96,21 @@ namespace Gem::Geneva::Individuals {
 struct trainingSet {
     /////////////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
+    friend struct Gem::Weft::access;
 
+    // A single, archive-generic serialize(): the Input / Output std::vectors are
+    // serialized directly, so the container itself carries the element count and
+    // load resizes automatically -- no make_array, no separate count field, no
+    // pre-sizing, no split. (This is a local training-data file, never a wire item,
+    // and archives may change under the clean-break policy, so the historical raw-
+    // array layout no longer needs preserving.)
     template <typename Archive>
-    void load(Archive &ar, [[maybe_unused]] const unsigned int version) {
-        using boost::serialization::make_nvp;
-
-        ar &BOOST_SERIALIZATION_NVP(nInputNodes) & BOOST_SERIALIZATION_NVP(nOutputNodes);
-
-        // The element-wise make_array form (rather than serializing the vectors
-        // directly) preserves the historical archive layout of the raw arrays
-        // these vectors replaced.
-        Input.assign(nInputNodes, 0.);
-        Output.assign(nOutputNodes, 0.);
-
-        ar &boost::serialization::make_array(Input.data(), nInputNodes);
-        ar &boost::serialization::make_array(Output.data(), nOutputNodes);
+    void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
+        Gem::Common::archive_named(ar, "nInputNodes", nInputNodes);
+        Gem::Common::archive_named(ar, "nOutputNodes", nOutputNodes);
+        Gem::Common::archive_named(ar, "Input", Input);
+        Gem::Common::archive_named(ar, "Output", Output);
     }
-
-    template <typename Archive>
-    void save(Archive &ar, [[maybe_unused]] const unsigned int version) const {
-        using boost::serialization::make_nvp;
-
-        ar &BOOST_SERIALIZATION_NVP(nInputNodes) & BOOST_SERIALIZATION_NVP(nOutputNodes);
-
-        ar &boost::serialization::make_array(Input.data(), nInputNodes);
-        ar &boost::serialization::make_array(Output.data(), nOutputNodes);
-    }
-
-    BOOST_SERIALIZATION_SPLIT_MEMBER()
 
     /////////////////////////////////////////////////////////////////////////////
 
@@ -187,53 +174,20 @@ private:
 class networkData : public Gem::Common::GPodContainerT<std::size_t> {
     /////////////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
+    friend struct Gem::Weft::access;
 
+    // A single, archive-generic serialize(): the data_ vector of trainingSet
+    // pointers is serialized directly, so the container carries its own element
+    // count and each pointer is (de)serialized element-wise -- no make_array, no
+    // separate array_size_ field, no manual overflow guard (this is a local, trusted
+    // training-data file that never crosses the wire), and no split.
     template <typename Archive>
-    void load(Archive &ar, [[maybe_unused]] const unsigned int version) {
-        using boost::serialization::make_nvp;
-
-        ar &make_nvp(
-            "GStdSimpleVectorInterfaceT_size_t",
-            boost::serialization::base_object<Gem::Common::GPodContainerT<std::size_t>>(*this)
-        ) & BOOST_SERIALIZATION_NVP(init_range_);
-
-        // The historical archive layout stored an explicit element count followed by a raw array of
-        // shared_ptrs; keep both (the local variable's name yields the same NVP tag the former
-        // array_size_ member produced).
-        std::size_t array_size_{0};
-        ar &BOOST_SERIALIZATION_NVP(array_size_);
-
-        // array_size_ has just been read from the (possibly untrusted) archive. Reject a value that
-        // would overflow the allocation before handing it to the vector.
-        if(array_size_ > std::numeric_limits<std::ptrdiff_t>::max() /
-                              static_cast<std::ptrdiff_t>(sizeof(std::shared_ptr<trainingSet>))) {
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GNeuralNetworkIndividual::load(Archive&):" << '\n'
-                << "Deserialized array_size_ = " << array_size_ << " is too large" << '\n'
-            );
-        }
-
-        data_.assign(array_size_, std::shared_ptr<trainingSet>{});
-
-        ar &boost::serialization::make_array(data_.data(), array_size_);
+    void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
+        Gem::Common::archive_named_base<Gem::Common::GPodContainerT<std::size_t>>(
+            ar, "GStdSimpleVectorInterfaceT_size_t", *this);
+        Gem::Common::archive_named(ar, "init_range_", init_range_);
+        Gem::Common::archive_named(ar, "data_", data_);
     }
-
-    template <typename Archive>
-    void save(Archive &ar, [[maybe_unused]] const unsigned int version) const {
-        using boost::serialization::make_nvp;
-
-        // See load(): the local variable keeps the former array_size_ member's NVP tag.
-        const std::size_t array_size_{data_.size()};
-        ar &make_nvp(
-            "GStdSimpleVectorInterfaceT_size_t",
-            boost::serialization::base_object<Gem::Common::GPodContainerT<std::size_t>>(*this)
-        ) & BOOST_SERIALIZATION_NVP(init_range_) &
-            BOOST_SERIALIZATION_NVP(array_size_) &
-            boost::serialization::make_array(data_.data(), array_size_);
-    }
-
-    BOOST_SERIALIZATION_SPLIT_MEMBER()
 
     /////////////////////////////////////////////////////////////////////////////
 
