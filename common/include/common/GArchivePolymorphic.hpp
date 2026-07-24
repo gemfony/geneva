@@ -40,6 +40,7 @@
 #include <type_traits>
 #include <typeindex>
 #include <unordered_map>
+#include <vector>
 
 // Boost headers go here
 
@@ -81,6 +82,41 @@ namespace Gem::Common::archive {
  * populated together by @ref GEM_REGISTER_ARCHIVABLE.
  */
 /******************************************************************************/
+
+namespace detail {
+
+/**
+ * @brief A type-erased per-hierarchy completeness checker: it appends to @p gaps a
+ * human-readable line for every wire tag that is registered for identity but has no
+ * archive-dispatch thunk. One is registered per @c Root the first time that Root's
+ * dispatch table is touched, so @ref archiveRegistrationGaps can enumerate all
+ * hierarchies without a central list of roots.
+ */
+using root_check_fn = void (*)(std::vector<std::string> &gaps);
+
+/** @brief Guards the process-wide checker list. */
+inline std::mutex &root_check_mutex() {
+    static std::mutex m;
+    return m;
+}
+
+/**
+ * @brief The process-wide list of per-Root completeness checkers. Leaked (like the
+ * registries themselves) so cross-TU / plugin-time registration never touches a
+ * torn-down container at static-destruction time.
+ */
+inline std::vector<root_check_fn> &root_checks() {
+    static auto *const v = new std::vector<root_check_fn>();
+    return *v;
+}
+
+/** @brief Appends a per-Root completeness checker (idempotence is the caller's concern). */
+inline void register_root_check(root_check_fn fn) {
+    const std::scoped_lock lock{root_check_mutex()};
+    root_checks().push_back(fn);
+}
+
+} // namespace detail
 
 /**
  * @brief Per-hierarchy table of typed serialize thunks: for each registered
@@ -143,6 +179,31 @@ public:
         }
     }
 
+    /** @brief Whether a dispatch thunk is registered under @p tag. @param tag The wire tag to probe. */
+    static bool contains(std::string_view tag) {
+        const std::scoped_lock lock{instance().mutex_};
+        return instance().map_.contains(std::string{tag});
+    }
+
+    /**
+     * @brief The completeness checker for this hierarchy: appends to @p gaps every
+     * tag that the identity @c GPolymorphicRegistry<Root> holds but this dispatch
+     * table lacks -- i.e. a type registered identity-only (@c GEM_REGISTER_TYPE)
+     * where @c GEM_REGISTER_ARCHIVABLE was needed. Registered once per Root (see
+     * @ref instance) so @ref archiveRegistrationGaps can reach it.
+     * @param gaps The accumulator to which this hierarchy's gaps are appended.
+     */
+    static void collectGaps(std::vector<std::string> &gaps) {
+        for (const auto &tag : GPolymorphicRegistry<Root>::tags()) {
+            if (!contains(tag)) {
+                gaps.push_back(
+                    "wire tag \"" + tag +
+                    "\" is in the identity registry but has no GArchive dispatch thunk "
+                    "(registered identity-only via GEM_REGISTER_TYPE instead of GEM_REGISTER_ARCHIVABLE)");
+            }
+        }
+    }
+
 private:
     static const entry_t &lookup(std::string_view tag) {
         const std::scoped_lock lock{instance().mutex_};
@@ -161,7 +222,13 @@ private:
     GArchivePointerDispatch() = default;
 
     static GArchivePointerDispatch &instance() {
-        static GArchivePointerDispatch *const inst = new GArchivePointerDispatch(); // leaked by design (see GPolymorphicRegistry)
+        // Leaked by design (see GPolymorphicRegistry). The first time this Root's table is
+        // created, register its completeness checker so the boot-time self-check can reach it.
+        static GArchivePointerDispatch *const inst = [] {
+            auto *p = new GArchivePointerDispatch();
+            detail::register_root_check(&GArchivePointerDispatch::collectGaps);
+            return p;
+        }();
         return *inst;
     }
 
@@ -266,6 +333,67 @@ inline bool register_archivable(std::string_view tag) {
     }
     GArchivePointerDispatch<Root>::template add<T>(tag);
     return true;
+}
+
+/******************************************************************************/
+/**
+ * @brief Enumerates the GArchive polymorphic-registration gaps across every
+ * hierarchy touched this process: a line per wire tag that is identity-registered
+ * but has no archive-dispatch thunk (an empty result means every registered type
+ * is fully archive-dispatchable).
+ *
+ * This is the enumerable counterpart of Boost.Serialization's compiler-invisible
+ * @c void_cast graph: because registration is explicit (@ref GPolymorphicRegistry
+ * for identity, @ref GArchivePointerDispatch for dispatch), the two sides can be
+ * compared directly. It reaches every hierarchy through the per-Root checkers that
+ * each @ref GArchivePointerDispatch registers on first use -- so it sees exactly
+ * the roots that have at least one archivable type (a hierarchy registered
+ * @e entirely identity-only would have no dispatch table and would instead fail
+ * loudly at the first deserialization, per @c GArchivePointerDispatch::lookup).
+ *
+ * @return A (possibly empty) list of human-readable gap descriptions.
+ */
+inline std::vector<std::string> archiveRegistrationGaps() {
+    std::vector<std::string> gaps;
+    const std::scoped_lock lock{detail::root_check_mutex()};
+    for (const auto fn : detail::root_checks()) {
+        fn(gaps);
+    }
+    return gaps;
+}
+
+/**
+ * @brief The number of hierarchies (category roots) that have at least one type
+ * registered for GArchive dispatch -- for a boot-time diagnostic log line.
+ * @return The count of registered hierarchies.
+ */
+inline std::size_t archiveRegisteredHierarchyCount() {
+    const std::scoped_lock lock{detail::root_check_mutex()};
+    return detail::root_checks().size();
+}
+
+/**
+ * @brief Boot-time completeness self-check: throws if any type is identity-registered
+ * but not archive-dispatchable, turning what would otherwise be a runtime "unknown
+ * tag" at the first deserialization into a loud failure at startup. Cheap (a set
+ * comparison per hierarchy) and idempotent, so it is safe to call once at process
+ * or consumer init.
+ * @throws geneva_exception listing every gap, if @ref archiveRegistrationGaps is non-empty.
+ */
+inline void verifyArchiveRegistrations() {
+    const auto gaps = archiveRegistrationGaps();
+    if (gaps.empty()) {
+        return;
+    }
+    std::string detail_msg;
+    for (const auto &g : gaps) {
+        detail_msg += "  - " + g + "\n";
+    }
+    throw geneva_exception(
+        g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+        << "In verifyArchiveRegistrations(): the GArchive polymorphic registration is incomplete -- "
+        << gaps.size() << " type(s) are identity-registered but not archive-dispatchable:\n"
+        << detail_msg);
 }
 
 } // namespace Gem::Common::archive

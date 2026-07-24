@@ -32,6 +32,7 @@
 #include "common/GConfigEmission.hpp"
 #include "common/GExceptions.hpp"
 #include "common/GFactoryT.hpp"
+#include "common/GArchivePolymorphic.hpp" // verifyArchiveRegistrations (boot-time completeness self-check)
 #include "common/GLogger.hpp"
 #include "common/GParserBuilder.hpp"
 #include "common/GProviderT.hpp"
@@ -80,6 +81,7 @@ void setRNFParameters(std::uint16_t n_producer_threads) {
 }
 
 std::once_flag fGo2; // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
+std::once_flag fArchiveCheck; // NOLINT(cppcoreguidelines-avoid-non-const-global-variables) -- boot self-check runs once
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -132,6 +134,22 @@ Go2::Go2(
     // registerContentCreator() or a second plugin then hits the one-individual-per-process guard). Server
     // and client are the same binary launched with different options, so both load identically.
     parseCommandLine(argc, argv, user_descriptions);
+
+    //--------------------------------------------
+    // GArchive registration completeness self-check. parseCommandLine (above) has loaded any
+    // command-line-requested runtime modules / individual plugins, so every concrete polymorphic
+    // type this process can (de)serialize is now registered. Assert that each identity-registered
+    // type is also archive-dispatchable, turning a missing GEM_REGISTER_ARCHIVABLE into a loud
+    // failure here at startup rather than an "unknown tag" at the first (possibly remote,
+    // possibly hours-into-a-run) deserialization -- the enumerable replacement for Boost's
+    // compiler-invisible void_cast gap. Runs once per process.
+    std::call_once(fArchiveCheck, []() {
+        Gem::Common::archive::verifyArchiveRegistrations();
+        glogger << "GArchive registration self-check passed: "
+                << Gem::Common::archive::archiveRegisteredHierarchyCount()
+                << " polymorphic hierarchies are fully archive-dispatchable." << '\n'
+                << GLOGGING;
+    });
 
     //--------------------------------------------
     // Random numbers are our most valuable good.

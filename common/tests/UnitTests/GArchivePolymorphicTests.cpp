@@ -35,6 +35,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 
+#include <algorithm>
 #include <memory>
 #include <string>
 #include <tuple>
@@ -145,12 +146,38 @@ private:
     PolyC() = default; ///< Private: only reachable through the befriended access shim (de-serialization).
 };
 
+// A type registered IDENTITY-ONLY (GEM_REGISTER_TYPE) rather than archivable: it lands in the
+// GPolymorphicRegistry but has no dispatch thunk, so the boot-time completeness self-check must
+// flag it. This is the exact mistake (identity-only where GEM_REGISTER_ARCHIVABLE was needed) the
+// check exists to catch at startup instead of at the first deserialization.
+class PolyIdentityOnly : public GReflectiveInterfaceT<PolyIdentityOnly, PolyBase> {
+    friend struct Gem::Common::GReflectiveInterfaceAccess;
+
+    template <typename Self>
+    auto localMembers_(this Self &self) {
+        return std::make_tuple(make_member("io_val_", self.io_val_));
+    }
+
+public:
+    static constexpr std::string_view class_name = "PolyIdentityOnly";
+    PolyIdentityOnly() = default;
+
+    int io_val_ = 0;
+    [[nodiscard]] int kind() const override { return 4; }
+
+protected:
+    bool modify_GUnitTests_() override { return false; }
+    void specificTestsNoFailureExpected_GUnitTests_() override { /* nothing */ }
+    void specificTestsFailuresExpected_GUnitTests_() override { /* nothing */ }
+};
+
 } // namespace
 
 GEM_REGISTER_ARCHIVABLE(PolyBase)
 GEM_REGISTER_ARCHIVABLE(PolyA)
 GEM_REGISTER_ARCHIVABLE(PolyB)
 GEM_REGISTER_ARCHIVABLE(PolyC)
+GEM_REGISTER_TYPE(PolyIdentityOnly) // identity only -- deliberately NOT archive-dispatchable
 
 namespace {
 
@@ -288,4 +315,31 @@ TEST_CASE("GArchive polymorphic: JSON output records the dynamic tag", "[common]
     std::string text = oa.str();
     CHECK(text.find("\"tag\":\"PolyA\"") != std::string::npos);
     CHECK(text.find("\"present\":true") != std::string::npos);
+}
+
+TEST_CASE("GArchive polymorphic: the completeness self-check flags an identity-only registration",
+          "[common][archive][poly]") {
+    // The archivable PolyBase/PolyA/PolyB/PolyC are fully dispatchable; PolyIdentityOnly was
+    // registered identity-only (GEM_REGISTER_TYPE), so it must surface as a gap.
+    const auto gaps = Gem::Common::archive::archiveRegistrationGaps();
+
+    // At least one hierarchy (PolyBase) has archivable types, so a checker is registered.
+    CHECK(Gem::Common::archive::archiveRegisteredHierarchyCount() >= 1);
+
+    // The identity-only type is reported ...
+    const bool flags_identity_only =
+        std::any_of(gaps.begin(), gaps.end(),
+                    [](const std::string &g) { return g.find("PolyIdentityOnly") != std::string::npos; });
+    CHECK(flags_identity_only);
+
+    // ... and the fully-archivable types are NOT.
+    for (const char *ok : {"\"PolyA\"", "\"PolyB\"", "\"PolyC\""}) {
+        const bool flagged =
+            std::any_of(gaps.begin(), gaps.end(),
+                        [&](const std::string &g) { return g.find(ok) != std::string::npos; });
+        CHECK_FALSE(flagged);
+    }
+
+    // The hard assertion form throws while the gap stands.
+    CHECK_THROWS(Gem::Common::archive::verifyArchiveRegistrations());
 }
