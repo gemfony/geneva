@@ -28,6 +28,7 @@
  ********************************************************************************/
 
 #include "geneva/individuals/GExternalEvaluatorIndividual.hpp"
+#include "common/GArchivePolymorphic.hpp" // GEM_REGISTER_ARCHIVABLE (GArchive polymorphic-pointer dispatch)
 #include "common/GCommonHelperFunctions.hpp"
 #include "common/GCommonHelperFunctionsT.hpp"
 #include "common/GCommonInterfaceT.hpp"
@@ -55,6 +56,7 @@
 #include <vector>
 
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::Individuals::GExternalEvaluatorIndividual)        // NOLINT
+GEM_REGISTER_ARCHIVABLE(Gem::Geneva::Individuals::GExternalEvaluatorIndividual) // NOLINT
 namespace Gem::Geneva::Individuals {
 
 /******************************************************************************/

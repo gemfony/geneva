@@ -28,6 +28,7 @@
  ********************************************************************************/
 
 #include "geneva/individuals/GDelayIndividual.hpp"
+#include "common/GArchivePolymorphic.hpp" // GEM_REGISTER_ARCHIVABLE (GArchive polymorphic-pointer dispatch)
 #include "common/GCommonHelperFunctions.hpp"
 #include "common/GCommonHelperFunctionsT.hpp"
 #include "common/GCommonInterfaceT.hpp"
@@ -51,6 +52,7 @@
 #include <vector>
 
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::Individuals::GDelayIndividual) // NOLINT
+GEM_REGISTER_ARCHIVABLE(Gem::Geneva::Individuals::GDelayIndividual) // NOLINT
 namespace Gem::Geneva::Individuals {
 
 /******************************************************************************/

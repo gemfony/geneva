@@ -28,6 +28,7 @@
  ********************************************************************************/
 
 #include "geneva/GPluggableOptimizationMonitors.hpp"
+#include "common/GArchivePolymorphic.hpp" // GEM_REGISTER_ARCHIVABLE (GArchive polymorphic-pointer dispatch)
 #include "common/GCommonHelperFunctions.hpp"
 #include "common/GCommonHelperFunctionsT.hpp"
 #include "common/GCommonInterfaceT.hpp"
@@ -57,16 +58,27 @@
 // Exports of classes
 
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GStandardMonitor)                     // NOLINT
+GEM_REGISTER_ARCHIVABLE(Gem::Geneva::GStandardMonitor) // NOLINT
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GFitnessMonitor)                      // NOLINT
+GEM_REGISTER_ARCHIVABLE(Gem::Geneva::GFitnessMonitor) // NOLINT
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GCollectiveMonitor)                   // NOLINT
+GEM_REGISTER_ARCHIVABLE(Gem::Geneva::GCollectiveMonitor) // NOLINT
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GProgressPlotter)                     // NOLINT
+GEM_REGISTER_ARCHIVABLE(Gem::Geneva::GProgressPlotter) // NOLINT
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GAllSolutionFileLogger)               // NOLINT
+GEM_REGISTER_ARCHIVABLE(Gem::Geneva::GAllSolutionFileLogger) // NOLINT
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GIterationResultsFileLogger)          // NOLINT
+GEM_REGISTER_ARCHIVABLE(Gem::Geneva::GIterationResultsFileLogger) // NOLINT
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GNAdpationsLogger)                    // NOLINT
+GEM_REGISTER_ARCHIVABLE(Gem::Geneva::GNAdpationsLogger) // NOLINT
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GAdaptorPropertyLogger<double>)       // NOLINT
+GEM_REGISTER_ARCHIVABLE(Gem::Geneva::GAdaptorPropertyLogger<double>) // NOLINT
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GAdaptorPropertyLogger<std::int32_t>) // NOLINT
+GEM_REGISTER_ARCHIVABLE(Gem::Geneva::GAdaptorPropertyLogger<std::int32_t>) // NOLINT
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GAdaptorPropertyLogger<bool>)         // NOLINT
+GEM_REGISTER_ARCHIVABLE(Gem::Geneva::GAdaptorPropertyLogger<bool>) // NOLINT
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GProcessingTimesLogger)               // NOLINT
+GEM_REGISTER_ARCHIVABLE(Gem::Geneva::GProcessingTimesLogger) // NOLINT
 
 namespace Gem::Geneva {
 

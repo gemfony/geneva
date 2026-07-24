@@ -28,6 +28,7 @@
  ********************************************************************************/
 
 #include "geneva/individuals/GLineFitIndividual.hpp"
+#include "common/GArchivePolymorphic.hpp" // GEM_REGISTER_ARCHIVABLE (GArchive polymorphic-pointer dispatch)
 #include "common/GCommonHelperFunctionsT.hpp"
 #include "common/GCommonInterfaceT.hpp"
 #include "common/GCommonMathHelperFunctionsT.hpp"
@@ -47,6 +48,7 @@
 #include <vector>
 
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::Individuals::GLineFitIndividual) // NOLINT
+GEM_REGISTER_ARCHIVABLE(Gem::Geneva::Individuals::GLineFitIndividual) // NOLINT
 namespace Gem::Geneva::Individuals {
 
 /******************************************************************************/

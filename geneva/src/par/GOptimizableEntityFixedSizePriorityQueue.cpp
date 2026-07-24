@@ -28,6 +28,7 @@
  ********************************************************************************/
 
 #include "geneva/par/GOptimizableEntityFixedSizePriorityQueue.hpp"
+#include "common/GArchivePolymorphic.hpp" // GEM_REGISTER_ARCHIVABLE (GArchive polymorphic-pointer dispatch)
 #include "common/GCommonMathHelperFunctionsT.hpp"
 #include "common/GExceptions.hpp"
 #include "common/GExpectationChecksT.hpp"
@@ -45,6 +46,7 @@
 #include <vector>
 
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::Genome::GOptimizableEntityFixedSizePriorityQueue) // NOLINT
+GEM_REGISTER_ARCHIVABLE(Gem::Geneva::Genome::GOptimizableEntityFixedSizePriorityQueue) // NOLINT
 
 namespace Gem::Geneva::Genome {
 

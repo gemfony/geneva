@@ -28,6 +28,7 @@
  ********************************************************************************/
 
 #include "geneva/individuals/GTestIndividual2.hpp"
+#include "common/GArchivePolymorphic.hpp" // GEM_REGISTER_ARCHIVABLE (GArchive polymorphic-pointer dispatch)
 #include "common/GCommonEnums.hpp"
 #include "common/GCommonMathHelperFunctionsT.hpp"
 #include "common/GExpectationChecksT.hpp"
@@ -47,6 +48,7 @@
 #include <vector>
 
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::Individuals::GTestIndividual2) // NOLINT
+GEM_REGISTER_ARCHIVABLE(Gem::Geneva::Individuals::GTestIndividual2) // NOLINT
 namespace Gem::Geneva::Individuals {
 
 /******************************************************************************/
