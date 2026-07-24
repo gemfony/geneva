@@ -29,6 +29,7 @@
 
 #include "geneva/individuals/GFunctionIndividual.hpp"
 #include "geneva/individuals/GBenchmarkFunctions.hpp"
+#include "common/GArchivePolymorphic.hpp" // GEM_REGISTER_ARCHIVABLE (GArchive polymorphic-pointer dispatch)
 #include "common/GCommonEnums.hpp"
 #include "common/GCommonHelperFunctionsT.hpp"
 #include "common/GCommonInterfaceT.hpp"
@@ -61,11 +62,19 @@
 #include <utility>
 #include <vector>
 
+// GArchive registration accompanies each BOOST_CLASS_EXPORT_IMPLEMENT, EXCEPT the factory:
+// GFunctionIndividualFactory (= GIndividualFactory<...>) is a config object, not a
+// GCommonInterfaceT-hierarchy type (no gemfony_common_root_t) and is never serialized through a
+// hierarchy-root pointer, so it takes no GArchive polymorphic registration.
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::Individuals::GFunctionIndividual)        // NOLINT
+GEM_REGISTER_ARCHIVABLE(Gem::Geneva::Individuals::GFunctionIndividual)             // NOLINT
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::Individuals::GFunctionIndividualFactory) // NOLINT
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::Individuals::GDoubleSumConstraint)       // NOLINT
+GEM_REGISTER_ARCHIVABLE(Gem::Geneva::Individuals::GDoubleSumConstraint)            // NOLINT
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::Individuals::GDoubleSumGapConstraint)    // NOLINT
+GEM_REGISTER_ARCHIVABLE(Gem::Geneva::Individuals::GDoubleSumGapConstraint)         // NOLINT
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::Individuals::GSphereConstraint)          // NOLINT
+GEM_REGISTER_ARCHIVABLE(Gem::Geneva::Individuals::GSphereConstraint)               // NOLINT
 
 namespace Gem::Geneva::Individuals {
 
