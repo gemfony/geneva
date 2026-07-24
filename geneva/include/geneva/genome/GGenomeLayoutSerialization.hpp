@@ -48,6 +48,7 @@
 
 // Geneva headers go here
 #include "common/GMemberReflectionT.hpp" // Gem::Common::archive_named (boost-vs-GArchive member emitter)
+#include "weft/GBinaryArchive.hpp"        // Gem::Weft::GBinary[IO]Archive -- the wire-blob codec
 #include "geneva/genome/GAdaptionKernels.hpp"
 #include "geneva/genome/GGenomeLayout.hpp"
 
@@ -389,12 +390,12 @@ namespace Gem::Geneva::Genome {
  * @return The serialized layout as a binary blob.
  */
 inline std::string layoutToWireBlob(const GGenomeLayout &layout) {
-    std::ostringstream oss(std::ios_base::binary);
-    {
-        boost::archive::binary_oarchive oa(oss);
-        oa << boost::serialization::make_nvp("layout", layout);
-    }
-    return oss.str();
+    // The layout tree is archive-generic (gem_archive_serialize overloads above), so it encodes
+    // directly through the Weft flat-binary codec; the const_cast is safe because saving never
+    // mutates (the same borrow-to-save idiom as GCommonInterfaceT's GEM_BINARY arm).
+    Gem::Weft::GBinaryOArchive oa;
+    oa &Gem::Weft::make_nvp("layout", const_cast<GGenomeLayout &>(layout));
+    return oa.str();
 }
 
 /******************************************************************************/
@@ -406,11 +407,9 @@ inline std::string layoutToWireBlob(const GGenomeLayout &layout) {
  */
 inline std::shared_ptr<const GGenomeLayout> layoutFromWireBlob(const std::string &blob) {
     auto layout = std::make_shared<GGenomeLayout>();
-    std::istringstream iss(blob, std::ios_base::binary);
-    {
-        boost::archive::binary_iarchive ia(iss);
-        ia >> boost::serialization::make_nvp("layout", *layout);
-    }
+    // GBinaryIArchive holds a string_view over `blob`, which outlives it here.
+    Gem::Weft::GBinaryIArchive ia(blob);
+    ia &Gem::Weft::make_nvp("layout", *layout);
     return layout;
 }
 
