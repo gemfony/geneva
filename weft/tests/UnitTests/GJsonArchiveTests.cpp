@@ -29,6 +29,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 
+#include <cmath>
 #include <cstdint>
 #include <filesystem>
 #include <limits>
@@ -137,6 +138,44 @@ TEST_CASE("GJsonArchive: float and double round-trip through text", "[common][ar
     CHECK(roundtrip<double>(2.718281828459045) == 2.718281828459045);
     CHECK(roundtrip<double>(std::numeric_limits<double>::min()) == std::numeric_limits<double>::min());
     CHECK(roundtrip<double>(-1.0 / 3.0) == -1.0 / 3.0);
+}
+
+// Regression: floating-point values are stored as their exact shortest decimal
+// (%.9g / %.17g), NOT as a boost::json number. boost::json's number serializer is
+// not round-trip-exact for every double -- e.g. it renders the double nearest
+// 9.10938e-31 with too few digits, so a re-parse lands one ULP away. These are the
+// exact values that exposed the defect, plus the float/double edges. Every one must
+// return bit-identical.
+TEST_CASE("GJsonArchive: arbitrary doubles round-trip bit-exactly (no boost::json ULP loss)",
+          "[common][archive][json]") {
+    const double hard[] = {
+        9.10938e-31,       // electron mass: the value that first exposed the defect
+        1.602176634e-19,   // elementary charge
+        6.02214076e23,     // Avogadro
+        0.1, 0.2, 0.3,     // decimals with no exact binary form
+        123456.789012345,
+        std::numeric_limits<double>::max(),
+        std::numeric_limits<double>::denorm_min(),
+        -0.0,
+    };
+    for (double d : hard) {
+        CHECK(roundtrip<double>(d) == d);
+    }
+    // A wide float value that boost::json's number path would likewise round.
+    CHECK(roundtrip<float>(9.10938e-31f) == 9.10938e-31f);
+    CHECK(roundtrip<float>(std::numeric_limits<float>::denorm_min()) ==
+          std::numeric_limits<float>::denorm_min());
+}
+
+// Storing floats as strings also lets the JSON codec carry the non-finite values a
+// JSON number cannot represent at all.
+TEST_CASE("GJsonArchive: infinities and NaN survive", "[common][archive][json]") {
+    CHECK(roundtrip<double>(std::numeric_limits<double>::infinity()) ==
+          std::numeric_limits<double>::infinity());
+    CHECK(roundtrip<double>(-std::numeric_limits<double>::infinity()) ==
+          -std::numeric_limits<double>::infinity());
+    CHECK(std::isnan(roundtrip<double>(std::numeric_limits<double>::quiet_NaN())));
+    CHECK(std::isnan(roundtrip<float>(std::numeric_limits<float>::quiet_NaN())));
 }
 
 TEST_CASE("GJsonArchive: long double round-trips bit-exactly via hex-float string", "[common][archive][json]") {

@@ -61,10 +61,13 @@ namespace Gem::Weft {
  * @par Format
  * A serializable class becomes a JSON object keyed by member name; a container
  * becomes a JSON array; @c pair and @c map entries become @c {"first","second"}
- * / @c {"key","value"} objects. @c float / @c double are stored as JSON numbers
- * (boost::json's shortest-round-trip serializer reproduces them exactly on
- * re-parse). @c long @c double, which a JSON number cannot hold, is stored as an
- * exact hexadecimal-float string (@c "%La") so it round-trips bit-exactly.
+ * / @c {"key","value"} objects. Floating-point values are stored as exact,
+ * re-parseable strings rather than JSON numbers: @c float / @c double as their
+ * shortest round-trip-exact decimal (@c %.9g / @c %.17g, read back with
+ * @c strtof / @c strtod), and @c long @c double as an exact hexadecimal float
+ * (@c %La). Strings are used because boost::json's number serializer is not
+ * round-trip-exact for every double, and because a JSON number can hold neither a
+ * @c long @c double nor a NaN/Inf; the decimal form stays human-readable.
  *
  * @par Tree assembly (save)
  * Values are built bottom-up on an owned-node stack: @c begin_object /
@@ -111,15 +114,21 @@ public:
         }
     }
 
-    /** @brief Stores a float/double as a JSON number, a long double as an exact hex-float string. @param v The value. */
+    /**
+     * @brief Stores a floating-point value as an exact, re-parseable string.
+     *
+     * All three widths are stored as strings rather than JSON numbers: boost::json's
+     * number serializer is not round-trip-exact for every @c double (it can emit a
+     * shortest form that re-parses to an adjacent value, losing a ULP), and a JSON
+     * number cannot hold a @c long @c double or a NaN/Inf at all. @c float / @c double
+     * use the shortest round-trip-exact decimal (@c %.9g / @c %.17g), which reads back
+     * bit-exactly via @c strtof / @c strtod and stays human-readable; @c long @c double
+     * uses an exact hexadecimal float (@c %La). @param v The value.
+     */
     template <typename Float>
     void put_fp(Float v) {
         static_assert(std::is_floating_point_v<Float>);
-        if constexpr (std::is_same_v<Float, long double>) {
-            place(boost::json::value(long_double_to_hex(v)));
-        } else {
-            place(boost::json::value(static_cast<double>(v)));
-        }
+        place(boost::json::value(fp_to_string(v)));
     }
 
     /** @brief Stores a string. @param s The string. */
@@ -191,9 +200,19 @@ private:
         }
     }
 
-    static std::string long_double_to_hex(long double v) {
+    // Formats a floating-point value as an exact, re-parseable decimal (float/double)
+    // or hex-float (long double) string. The precisions %.9g / %.17g are the
+    // round-trip-minimal digit counts for IEEE single / double.
+    template <typename Float>
+    static std::string fp_to_string(Float v) {
         char buf[64];
-        std::snprintf(buf, sizeof(buf), "%La", v); // hex float: exact and re-parseable
+        if constexpr (std::is_same_v<Float, long double>) {
+            std::snprintf(buf, sizeof(buf), "%La", v); // hex float: exact and re-parseable
+        } else if constexpr (std::is_same_v<Float, float>) {
+            std::snprintf(buf, sizeof(buf), "%.9g", static_cast<double>(v));
+        } else {
+            std::snprintf(buf, sizeof(buf), "%.17g", static_cast<double>(v));
+        }
         return std::string{buf};
     }
 
@@ -226,15 +245,21 @@ public:
         v = slot().to_number<Int>();
     }
 
-    /** @brief Reads a float/double from a JSON number, a long double from its hex-float string. @param v The value. */
+    /**
+     * @brief Reads a floating-point value from its exact string form (see
+     * GJsonOArchive::put_fp): @c strtof / @c strtod / @c strtold reproduce the
+     * written value bit-exactly. @param v The value to fill.
+     */
     template <typename Float>
     void get_fp(Float &v) {
         static_assert(std::is_floating_point_v<Float>);
+        const boost::json::string &s = slot().as_string();
         if constexpr (std::is_same_v<Float, long double>) {
-            const boost::json::string &s = slot().as_string();
             v = std::strtold(s.c_str(), nullptr);
+        } else if constexpr (std::is_same_v<Float, float>) {
+            v = std::strtof(s.c_str(), nullptr);
         } else {
-            v = static_cast<Float>(slot().to_number<double>());
+            v = std::strtod(s.c_str(), nullptr);
         }
     }
 
