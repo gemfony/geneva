@@ -1,8 +1,9 @@
-# Behavioral changes in Geneva 1.12 (migrating from 1.11 "Hendaye")
+# Major changes in Geneva 2.0 (migrating from 1.11 "Hendaye")
 
-Version 1.12 "Puente de Santiago" is a ground-up redesign, so it is a single large
-breaking change relative to 1.11. This file collects the **behavioral, source- and
-serialization-breaking** changes you need in order to port existing code,
+Geneva 2.0 "Puente de Santiago" is a ground-up redesign, so it is a single large
+breaking change relative to the 1.x series (last stable: 1.11 "Hendaye"). It is being
+stabilized through the 1.99.x development betas. This file collects the **behavioral,
+source- and serialization-breaking** changes you need in order to port existing code,
 configuration files or checkpoints. The high-level rationale and build prerequisites
 are in `CHANGES` and `INSTALL`; this file is the practical upgrade guide.
 
@@ -122,8 +123,17 @@ are in `CHANGES` and `INSTALL`; this file is the practical upgrade guide.
   parameter and `setExecMode` / `getExecMode` have been **removed** (the nested
   refinement never submits to the process consumer, so there was no mode to select).
 
-## 6. Packaging: runtime-loadable modules
+## 6. Packaging: libraries and runtime-loadable modules
 
+- **A new foundation library, `gemfony-weft`, carries Geneva's serialization engine.**
+  `Gem::Weft` (public headers under `weft/`) is a small, standalone serialization codec —
+  a Boost.Serialization-style intrusive/non-intrusive `serialize` contract with a compact
+  binary codec and a human-readable JSON codec — that depends on nothing from Geneva and
+  only on Boost.JSON. It is the deepest layer of the collection: `gemfony-common` now
+  links it. It coexists with Boost.Serialization, which it is progressively replacing as
+  Geneva's wire and checkpoint codec; the transition is transparent to problem code
+  (`evaluate()` and the genome API are unaffected). Downstream consumers link it
+  automatically through the exported `Geneva::` targets.
 - **The Geneva library ships no concrete optimization individual.** The reusable sample
   problems were folded into `gemfony-geneva` (`Gem::Geneva::Individuals`); there is no
   separate `geneva-individuals` library.
@@ -136,6 +146,14 @@ are in `CHANGES` and `INSTALL`; this file is the practical upgrade guide.
 
 ## 7. Renames and small API removals
 
+- **Several public headers moved to sit with the layer they belong to** (source-breaking
+  `#include`-path changes; update the paths). The flat-genome / entity headers moved from
+  `geneva/ind/` to `geneva/genome/`; the entity multi-constraint headers (`GMultiConstraintT`,
+  `GIndividualMultiConstraint`) moved under `geneva/genome/`; the pluggable optimization
+  monitors (`GPluggableOptimizationMonitors`) and the nested-EA refiner (`GPostProcessorT`)
+  moved under `geneva/oa/`; and the generic OS-signal handler `GSigHupHandler` moved from
+  `geneva/` to `common/` (namespace `Gem::Geneva` → `Gem::Common`, so register it as
+  `Gem::Common::sigHupHandler`).
 - **The vestigial "Flat" qualifier was dropped from the genome layer** (source-breaking;
   update any references to the old `*Flat*` names).
 - **The standalone gradient descent ("gd") is gone.** Plain gradient descent survives as
@@ -209,7 +227,7 @@ are in `CHANGES` and `INSTALL`; this file is the practical upgrade guide.
   the parent-child traits now serialize their population position through the shared
   `GPositionPersonalityTraits` base (one added nesting level; the GSA/ACO
   `population_position_` and PSO `particle_` tags became `pop_pos_`). Checkpoints written
-  by earlier 1.99 development builds do not load; 1.11 checkpoints never loaded in 1.12+
+  by earlier 1.99 development builds do not load; 1.11 checkpoints never loaded in 2.0
   anyway (see the top of this document).
 
 ---

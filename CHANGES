@@ -20,7 +20,7 @@ Why the redesign:
 
 Because this is one big breaking change, the behavioral, source- and serialization-breaking
 changes -- and how to adapt existing problem definitions, configuration files and
-checkpoints -- are collected in their own file: see BEHAVIORAL-CHANGES.md, and read it
+checkpoints -- are collected in their own file: see GENEVA-2.0-MAJOR-CHANGES.md, and read it
 before upgrading. In short: checkpoints and binary archives from 1.11 do not load; problem
 definitions must be ported to the flat-genome / evaluate() model; and configuration files
 are now strict JSON.
