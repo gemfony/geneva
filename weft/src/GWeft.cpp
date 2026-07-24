@@ -27,19 +27,28 @@
  *
  ********************************************************************************/
 
-#include "geneva/oa/GAntColonyOptimization_PersonalityTraits.hpp"
-#include "weft/GArchivePolymorphic.hpp" // GEM_REGISTER_ARCHIVABLE (GArchive polymorphic-pointer dispatch)
+#include "weft/GWeft.hpp"
 
-#include <string>
-
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::OptimizationAlgorithms::GAntColonyOptimization_PersonalityTraits) // NOLINT
-GEM_REGISTER_ARCHIVABLE(Gem::Geneva::OptimizationAlgorithms::GAntColonyOptimization_PersonalityTraits)       // NOLINT
-namespace Gem::Geneva::OptimizationAlgorithms {
+namespace Gem::Weft {
 
 /******************************************************************************/
-/** A short identifier suitable for storage in a std::map */
-const std::string GAntColonyOptimization_PersonalityTraits::nickname = "acor";
+/**
+ * @brief Returns the Weft library version as a human-readable string.
+ *
+ * The version is stamped in at build time (see WEFT_VERSION_STRING in the CMake
+ * configuration). Weft carries no dependency on Gem::Common's version macros so
+ * that it stays a self-contained, reusable foundation library.
+ *
+ * @return The Weft version string.
+ */
+std::string version() {
+#ifdef WEFT_VERSION_STRING
+    return WEFT_VERSION_STRING;
+#else
+    return "unknown";
+#endif
+}
 
 /******************************************************************************/
 
-} /* namespace Gem::Geneva::OptimizationAlgorithms */
+} // namespace Gem::Weft

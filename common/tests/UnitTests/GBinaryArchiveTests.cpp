@@ -41,8 +41,8 @@
 #include <utility>
 #include <vector>
 
-#include "common/GBinaryArchive.hpp"
-#include "common/GWeftError.hpp"
+#include "weft/GBinaryArchive.hpp"
+#include "weft/GWeftError.hpp"
 
 using Gem::Weft::base_object;
 using Gem::Weft::GBinaryIArchive;

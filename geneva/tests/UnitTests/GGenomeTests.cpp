@@ -50,9 +50,9 @@
 #include <boost/serialization/export.hpp>
 #include <boost/serialization/nvp.hpp>
 
-#include "common/GBinaryArchive.hpp" // GArchive binary codec (3d-A GGenome gem round-trip)
-#include "common/GJsonArchive.hpp"   // GArchive JSON codec (3d-A GGenome gem round-trip)
-#include "common/GArchivePolymorphic.hpp" // gem_serialize_pointer (owned-pointer members of the individual)
+#include "weft/GBinaryArchive.hpp" // GArchive binary codec (3d-A GGenome gem round-trip)
+#include "weft/GJsonArchive.hpp"   // GArchive JSON codec (3d-A GGenome gem round-trip)
+#include "weft/GArchivePolymorphic.hpp" // gem_serialize_pointer (owned-pointer members of the individual)
 #include "common/GCommonEnums.hpp"
 #include "common/GExceptions.hpp"
 #include "common/GExpectationChecksT.hpp"

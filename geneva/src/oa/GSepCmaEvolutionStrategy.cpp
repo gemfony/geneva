@@ -28,7 +28,7 @@
  ********************************************************************************/
 
 #include "geneva/oa/GSepCmaEvolutionStrategy.hpp"
-#include "common/GArchivePolymorphic.hpp" // GEM_REGISTER_ARCHIVABLE (GArchive polymorphic-pointer dispatch)
+#include "weft/GArchivePolymorphic.hpp" // GEM_REGISTER_ARCHIVABLE (GArchive polymorphic-pointer dispatch)
 
 #include <algorithm>
 #include <cmath>

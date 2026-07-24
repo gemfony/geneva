@@ -41,7 +41,7 @@
 #include <tuple>
 #include <vector>
 
-#include "common/GArchivePolymorphic.hpp"
+#include "weft/GArchivePolymorphic.hpp"
 #include "common/GCommonInterfaceT.hpp"
 #include "common/GMemberReflectionT.hpp"
 #include "common/GReflectiveInterfaceT.hpp"

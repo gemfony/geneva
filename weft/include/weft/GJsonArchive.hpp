@@ -30,7 +30,6 @@
 #pragma once
 
 // Global checks, defines and includes needed for all of Geneva
-#include "common/GGlobalDefines.hpp"
 
 // Standard headers go here
 #include <cstddef>
@@ -47,8 +46,8 @@
 #include <boost/json.hpp>
 
 // Geneva headers go here
-#include "common/GArchive.hpp"
-#include "common/GWeftError.hpp"
+#include "weft/GArchive.hpp"
+#include "weft/GWeftError.hpp"
 
 namespace Gem::Weft {
 

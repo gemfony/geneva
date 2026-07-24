@@ -502,6 +502,7 @@ ENDIF()
 # Include directories, libraries
 
 INCLUDE_DIRECTORIES (
+	${PROJECT_SOURCE_DIR}/weft/include
 	${PROJECT_SOURCE_DIR}/common/include
 	${PROJECT_SOURCE_DIR}/dietrich/include
 	${PROJECT_SOURCE_DIR}/hap/include
@@ -594,8 +595,10 @@ ENDIF ()
 # Self-contained per-library subtrees. All four libraries now live under
 # their own top-level directory; the legacy split-by-kind include/, src/,
 # tests/, examples/, benchmarks/ trees no longer exist. Order matches the
-# dependency chain (common <- hap <- courtier <- geneva) so every library's
-# targets exist when its dependents configure.
+# dependency chain (weft <- common <- hap <- courtier <- geneva) so every
+# library's targets exist when its dependents configure. Weft (the standalone
+# serialization engine) is the deepest layer, added before common.
+ADD_SUBDIRECTORY (weft)
 ADD_SUBDIRECTORY (common)
 ADD_SUBDIRECTORY (dietrich)
 ADD_SUBDIRECTORY (hap)

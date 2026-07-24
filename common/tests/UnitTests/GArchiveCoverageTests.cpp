@@ -51,8 +51,8 @@
 #include <variant>
 #include <vector>
 
-#include "common/GBinaryArchive.hpp"
-#include "common/GJsonArchive.hpp"
+#include "weft/GBinaryArchive.hpp"
+#include "weft/GJsonArchive.hpp"
 
 using namespace Gem::Weft;
 

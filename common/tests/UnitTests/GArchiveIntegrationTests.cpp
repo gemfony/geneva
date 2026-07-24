@@ -42,9 +42,9 @@
 #include <tuple>
 #include <vector>
 
-#include "common/GBinaryArchive.hpp"
+#include "weft/GBinaryArchive.hpp"
 #include "common/GCommonInterfaceT.hpp"
-#include "common/GJsonArchive.hpp"
+#include "weft/GJsonArchive.hpp"
 #include "common/GMemberReflectionT.hpp"
 #include "common/GReflectiveInterfaceT.hpp"
 

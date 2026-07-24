@@ -208,6 +208,7 @@ IF(NOT COMMON_GENEVA_BUILD_INCLUDED)
 	################################################################################
 	# The names of the Geneva libraries
 
+	SET ( WEFT_LIBNAME              "gemfony-weft" )
 	SET ( COMMON_LIBNAME            "gemfony-common" )
 	SET ( DIETRICH_LIBNAME          "gemfony-dietrich" )
 	SET ( HAP_LIBNAME               "gemfony-hap" )
@@ -225,6 +226,8 @@ IF(NOT COMMON_GENEVA_BUILD_INCLUDED)
 	# order in TARGET_LINK_LIBRARIES() later...
 	# Dietrich (plotting) is a leaf peer on top of common, used by geneva; it links
 	# after hap so geneva -> dietrich -> common resolves left-to-right.
+	# Weft (the standalone serialization engine) is the deepest layer: common depends
+	# on it, so it links LAST, after common.
 	SET (
 			GENEVA_LIBNAMES
 			${GENEVA_LIBNAME}
@@ -232,6 +235,7 @@ IF(NOT COMMON_GENEVA_BUILD_INCLUDED)
 			${HAP_LIBNAME}
 			${DIETRICH_LIBNAME}
 			${COMMON_LIBNAME}
+			${WEFT_LIBNAME}
 	)
 
 	# This variable contains the library names.
@@ -412,6 +416,7 @@ IF(NOT COMMON_GENEVA_BUILD_INCLUDED)
 	# that consumes an installed Geneva via find_package(Geneva). Here (the in-tree build) we point them at
 	# the in-tree source include layout; the installed GenevaConfig.cmake points them at the install prefix.
 	SET(GENEVA_INDIVIDUAL_INCLUDE_DIRS
+		${PROJECT_SOURCE_DIR}/weft/include
 		${PROJECT_SOURCE_DIR}/common/include
 		${PROJECT_SOURCE_DIR}/hap/include
 		${PROJECT_SOURCE_DIR}/courtier/include

@@ -43,7 +43,7 @@
 #include <boost/serialization/nvp.hpp>
 
 // Gemfony headers go here
-#include "common/GArchive.hpp"
+#include "weft/GArchive.hpp"
 #include "common/GArchiveNamed.hpp" // archive_named / archive_named_base (the boost-vs-GArchive member emitters)
 #include "common/GCommonHelperFunctionsT.hpp"
 

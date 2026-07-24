@@ -39,7 +39,7 @@
 #include <utility>
 #include <vector>
 
-#include "common/GJsonArchive.hpp"
+#include "weft/GJsonArchive.hpp"
 
 using Gem::Weft::base_object;
 using Gem::Weft::GJsonIArchive;

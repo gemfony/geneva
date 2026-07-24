@@ -35,8 +35,8 @@
 #include <typeinfo>
 #include <vector>
 
-#include "common/GPolymorphicRegistry.hpp"
-#include "common/GWeftError.hpp"
+#include "weft/GPolymorphicRegistry.hpp"
+#include "weft/GWeftError.hpp"
 
 using Gem::Weft::weft_exception; // the registry now throws Weft's own dependency-free exception type
 using Gem::Weft::GPolymorphicRegistry;

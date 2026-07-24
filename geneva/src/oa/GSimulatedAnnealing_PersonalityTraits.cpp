@@ -28,7 +28,7 @@
  ********************************************************************************/
 
 #include "geneva/oa/GSimulatedAnnealing_PersonalityTraits.hpp"
-#include "common/GArchivePolymorphic.hpp" // GEM_REGISTER_ARCHIVABLE (GArchive polymorphic-pointer dispatch)
+#include "weft/GArchivePolymorphic.hpp" // GEM_REGISTER_ARCHIVABLE (GArchive polymorphic-pointer dispatch)
 #include "common/GExpectationChecksT.hpp"
 #include "geneva/GPersonalityTraits.hpp"
 #include "geneva/oa/GBaseParChildPersonalityTraits.hpp"

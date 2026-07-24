@@ -30,7 +30,6 @@
 #pragma once
 
 // Global checks, defines and includes needed for all of Geneva
-#include "common/GGlobalDefines.hpp"
 
 // Standard headers go here
 #include <memory>
@@ -45,11 +44,11 @@
 // Boost headers go here
 
 // Geneva headers go here
-#include "common/GArchive.hpp"
-#include "common/GBinaryArchive.hpp"
-#include "common/GWeftError.hpp"
-#include "common/GJsonArchive.hpp"
-#include "common/GPolymorphicRegistry.hpp"
+#include "weft/GArchive.hpp"
+#include "weft/GBinaryArchive.hpp"
+#include "weft/GWeftError.hpp"
+#include "weft/GJsonArchive.hpp"
+#include "weft/GPolymorphicRegistry.hpp"
 // NOTE: deliberately does NOT include GReflectiveInterfaceT.hpp. The private-ctor construction seam
 // is reached through the forward-declared Weft::gem_registry_construct_reflective (declared in
 // GArchive.hpp, defined in GReflectiveInterfaceT.hpp), so this header stays free of the reflection

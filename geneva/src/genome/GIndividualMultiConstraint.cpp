@@ -29,7 +29,7 @@
 
 #include "geneva/genome/GIndividualMultiConstraint.hpp"
 
-#include "common/GArchivePolymorphic.hpp" // GEM_REGISTER_ARCHIVABLE (GArchive polymorphic-pointer dispatch)
+#include "weft/GArchivePolymorphic.hpp" // GEM_REGISTER_ARCHIVABLE (GArchive polymorphic-pointer dispatch)
 
 // Make sure the instantiation with GOptimizableEntity as template argument can be serialized -- through a
 // Boost archive (BOOST_CLASS_EXPORT_IMPLEMENT) and through a GArchive codec (GEM_REGISTER_ARCHIVABLE); both

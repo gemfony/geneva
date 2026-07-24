@@ -42,7 +42,7 @@
 #include <boost/serialization/nvp.hpp>
 
 // Geneva headers go here
-#include "common/GArchive.hpp"
+#include "weft/GArchive.hpp"
 
 namespace Gem::Common {
 

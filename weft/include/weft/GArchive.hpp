@@ -30,7 +30,6 @@
 #pragma once
 
 // Global checks, defines and includes needed for all of Geneva
-#include "common/GGlobalDefines.hpp"
 
 // Standard headers go here
 #include <array>

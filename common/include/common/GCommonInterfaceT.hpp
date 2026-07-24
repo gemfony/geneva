@@ -59,8 +59,8 @@
 #include <boost/serialization/vector.hpp>
 
 // Geneva header files go here
-#include "common/GArchivePolymorphic.hpp" // GArchive codec arm for toStream/fromStream (gem_serialize_pointer)
-#include "common/GBinaryArchive.hpp"      // GArchive flat binary codec
+#include "weft/GArchivePolymorphic.hpp" // GArchive codec arm for toStream/fromStream (gem_serialize_pointer)
+#include "weft/GBinaryArchive.hpp"      // GArchive flat binary codec
 #include "common/GCommonEnums.hpp"        // For the serialization mode
 #include "common/GCommonHelperFunctionsT.hpp"
 #include "common/GErrorStreamer.hpp"

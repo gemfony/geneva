@@ -59,7 +59,7 @@
 
 // Geneva headers go here
 #include "common/GArchiveNamed.hpp"       // archive_named (boost-vs-GArchive member emitter)
-#include "common/GArchivePolymorphic.hpp" // GArchive codecs for the GEM_BINARY / GEM_JSON wire arm
+#include "weft/GArchivePolymorphic.hpp" // GArchive codecs for the GEM_BINARY / GEM_JSON wire arm
 #include "courtier/GCourtierEnums.hpp"
 #include "courtier/GProcessable.hpp"
 #include "courtier/GWireSerializationContext.hpp" // GWireLayoutId / GWirePeerId for the layout-fetch commands

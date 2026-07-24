@@ -28,7 +28,7 @@
  ********************************************************************************/
 
 #include "geneva/individuals/GMetaOptimizerIndividualT.hpp"
-#include "common/GArchivePolymorphic.hpp" // GEM_REGISTER_ARCHIVABLE (GArchive polymorphic-pointer dispatch)
+#include "weft/GArchivePolymorphic.hpp" // GEM_REGISTER_ARCHIVABLE (GArchive polymorphic-pointer dispatch)
 #include "common/GCommonEnums.hpp"
 #include "common/GCommonMathHelperFunctionsT.hpp"
 #include "geneva/individuals/GFunctionIndividual.hpp"

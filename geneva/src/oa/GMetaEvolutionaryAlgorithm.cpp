@@ -28,7 +28,7 @@
  ********************************************************************************/
 
 #include "geneva/oa/GMetaEvolutionaryAlgorithm.hpp"
-#include "common/GArchivePolymorphic.hpp" // GEM_REGISTER_ARCHIVABLE (GArchive polymorphic-pointer dispatch)
+#include "weft/GArchivePolymorphic.hpp" // GEM_REGISTER_ARCHIVABLE (GArchive polymorphic-pointer dispatch)
 
 // Standard headers
 #include <algorithm>

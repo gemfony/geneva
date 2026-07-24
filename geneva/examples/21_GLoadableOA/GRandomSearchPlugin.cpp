@@ -45,7 +45,7 @@
 
 // Geneva headers go here
 #include "common/GModuleManifest.hpp"
-#include "common/GArchivePolymorphic.hpp" // GEM_REGISTER_ARCHIVABLE (GArchive polymorphic-pointer dispatch)
+#include "weft/GArchivePolymorphic.hpp" // GEM_REGISTER_ARCHIVABLE (GArchive polymorphic-pointer dispatch)
 #include "geneva/oa/GOAPlugin.hpp" // Gem::Geneva::oaManifest
 
 // The algorithm shipped by this module

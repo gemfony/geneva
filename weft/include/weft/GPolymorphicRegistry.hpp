@@ -30,7 +30,6 @@
 #pragma once
 
 // Global checks, defines and includes needed for all of Geneva
-#include "common/GGlobalDefines.hpp"
 
 // Standard headers go here
 #include <algorithm>
@@ -48,7 +47,7 @@
 // Boost headers go here
 
 // Geneva headers go here
-#include "common/GWeftError.hpp"
+#include "weft/GWeftError.hpp"
 
 namespace Gem::Weft {
 
