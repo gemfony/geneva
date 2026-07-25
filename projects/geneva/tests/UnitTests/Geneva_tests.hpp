@@ -4,7 +4,7 @@
  * INTERNAL — not installed, not part of the public Geneva API.
  *
  * Helper template functions used by Geneva's internal test drivers
- * (tests/geneva/UnitTests/ and examples/geneva/.../Tests/UnitTests/).
+ * (projects/geneva/tests/UnitTests/ and projects/geneva/examples/.../Tests/UnitTests/).
  * External users should write their own Catch2 test drivers directly
  * against the public Geneva methods specificTestsNoFailureExpected_GUnitTests()
  * and specificTestsFailuresExpected_GUnitTests() — see the project's

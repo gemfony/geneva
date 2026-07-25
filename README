@@ -54,7 +54,7 @@ for the typeset output, a LaTeX system.
 
 The examples shipped under each library's examples/ directory are the best
 practical starting point for writing your own problems; see in particular
-docs/writing-optimization-problems.md and examples/geneva/10_GStarter.
+docs/writing-optimization-problems.md and projects/geneva/examples/10_GStarter.
 
 
 Contributing

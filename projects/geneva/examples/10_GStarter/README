@@ -36,7 +36,7 @@ use it as the starting point for your own project.
 2. Configure and build this example out-of-tree, pointing CMake at
    the Geneva install prefix:
 
-       cd /path/to/examples/geneva/10_GStarter
+       cd /path/to/projects/geneva/examples/10_GStarter
        mkdir build && cd build
        cmake -DCMAKE_PREFIX_PATH=<geneva-install-prefix> ..
        make

@@ -75,7 +75,7 @@ ADD_SUBDIRECTORY( 08_GPostProcessing )
 ADD_SUBDIRECTORY( 09_GNeuralNetwork )
 # 10_GStarter is intentionally NOT built in-tree: it ships as the canonical
 # standalone downstream template that consumes an installed Geneva via
-# find_package(Geneva). See examples/geneva/10_GStarter/README.
+# find_package(Geneva). See projects/geneva/examples/10_GStarter/README.
 ADD_SUBDIRECTORY( 11_GMetaOptimizer )
 ADD_SUBDIRECTORY( 12_GExternalEvaluator )
 ADD_SUBDIRECTORY( 13_GPluggableOptimizationMonitors )
