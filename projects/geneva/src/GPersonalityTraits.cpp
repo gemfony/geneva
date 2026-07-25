@@ -38,8 +38,56 @@ namespace Gem::Geneva {
 // Gem::Common::GReflectiveInterfaceBaseT base from class_name and localMembers_()
 // (clone_ stays pure -- this is the abstract category root).
 
+/******************************************************************************/
+/**
+ * @brief Applies modifications to this object. This is needed for testing purposes
+ *
+ * @return A boolean which indicates whether modifications were made (always false here, as this root has no modifiable data)
+ */
+bool GPersonalityTraits::modify_GUnitTests_() {
+#ifdef GEM_TESTING
+    // This is the category root; there is no modifiable parent class and no
+    // local data, so there is nothing we can do here in this function.
 
+    return false;
 
+#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
+    Gem::Common::condnotset("GPersonalityTraits::modify_GUnitTests", "GEM_TESTING");
+    return false;
+#endif                  /* GEM_TESTING */
+}
+
+/******************************************************************************/
+/**
+ * @brief Performs self tests that are expected to succeed. This is needed for testing purposes
+ */
+void GPersonalityTraits::specificTestsNoFailureExpected_GUnitTests_() {
+#ifdef GEM_TESTING
+    // This is the category root; no parent class and no local data -- nothing to test
+
+#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
+    Gem::Common::condnotset(
+        "GPersonalityTraits::specificTestsNoFailureExpected_GUnitTests",
+        "GEM_TESTING"
+    );
+#endif                  /* GEM_TESTING */
+}
+
+/******************************************************************************/
+/**
+ * @brief Performs self tests that are expected to fail. This is needed for testing purposes
+ */
+void GPersonalityTraits::specificTestsFailuresExpected_GUnitTests_() {
+#ifdef GEM_TESTING
+    // This is the category root; no parent class and no local data -- nothing to test
+
+#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
+    Gem::Common::condnotset(
+        "GPersonalityTraits::specificTestsFailuresExpected_GUnitTests",
+        "GEM_TESTING"
+    );
+#endif                  /* GEM_TESTING */
+}
 
 /******************************************************************************/
 

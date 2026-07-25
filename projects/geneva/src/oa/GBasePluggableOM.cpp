@@ -105,7 +105,37 @@ bool GBasePluggableOM::modify_GUnitTests_() {
 #endif                  /* GEM_TESTING */
 }
 
+/******************************************************************************/
+/**
+ * @brief Performs self tests that are expected to succeed. This is needed for testing purposes
+ */
+void GBasePluggableOM::specificTestsNoFailureExpected_GUnitTests_() {
+#ifdef GEM_TESTING
+    // This is the category root; there is no parent class to test.
 
+#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
+    Gem::Common::condnotset(
+        "GBasePluggableOM::specificTestsNoFailureExpected_GUnitTests",
+        "GEM_TESTING"
+    );
+#endif                  /* GEM_TESTING */
+}
+
+/******************************************************************************/
+/**
+ * @brief Performs self tests that are expected to fail. This is needed for testing purposes
+ */
+void GBasePluggableOM::specificTestsFailuresExpected_GUnitTests_() {
+#ifdef GEM_TESTING
+    // This is the category root; there is no parent class to test.
+
+#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
+    Gem::Common::condnotset(
+        "GBasePluggableOM::specificTestsFailuresExpected_GUnitTests",
+        "GEM_TESTING"
+    );
+#endif                  /* GEM_TESTING */
+}
 
 
 /******************************************************************************/
