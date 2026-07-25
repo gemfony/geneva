@@ -56,8 +56,8 @@ TEST_CASE("ENUMBASETYPE: aliases std::uint16_t", "[common][enums]") {
 }
 
 // ---------------------------------------------------------------------------
-// sortOrder / dimensions / logType / triboolStates /
-// serializationMode / expectation: numeric round-trip is the contract.
+// sortOrder / dimensions / logType / serializationMode / expectation:
+// numeric round-trip is the contract.
 
 TEST_CASE("sortOrder: numeric round-trip preserves value", "[common][enums]") {
     CHECK(round_trip_int(sortOrder::LOWERISBETTER)  == sortOrder::LOWERISBETTER);
@@ -75,12 +75,6 @@ TEST_CASE("logType: numeric round-trip preserves value", "[common][enums]") {
                   logType::LOGGING,   logType::FILE,        logType::STDOUT,
                   logType::STDERR}) {
         CHECK(round_trip_int(l) == l);
-    }
-}
-
-TEST_CASE("triboolStates: numeric round-trip preserves value", "[common][enums]") {
-    for(auto t : {triboolStates::TBS_FALSE, triboolStates::TBS_TRUE, triboolStates::TBS_INDETERMINATE}) {
-        CHECK(round_trip_int(t) == t);
     }
 }
 
@@ -160,7 +154,6 @@ TEST_CASE("enum stream operators: round-trip through string<->enum",
     check(sortOrder::HIGHERISBETTER);
     check(dimensions::Dim3);
     check(logType::WARNING);
-    check(triboolStates::TBS_TRUE);
     check(serializationMode::GEM_JSON);
     check(expectation::FP_SIMILARITY);
 }

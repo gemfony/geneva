@@ -36,7 +36,7 @@ namespace Gem::Common {
 
 /******************************************************************************/
 // The numeric enum stream operators (sortOrder, dimensions, logType,
-// triboolStates, serializationMode, expectation) are supplied by the shared
+// serializationMode, expectation) are supplied by the shared
 // numeric_enum_io_v machinery in GCommonEnums.hpp. Only tribool's textual
 // insertion operator needs a hand-written implementation.
 

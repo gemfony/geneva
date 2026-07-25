@@ -222,13 +222,6 @@ enum class tribool : Gem::Common::ENUMBASETYPE {
  */
 inline bool indeterminate(tribool t) noexcept { return t == tribool::Indeterminate; }
 
-/** @brief Intermediate enum giving Gem::Common::tribool a stable numeric wire representation */
-enum class triboolStates : Gem::Common::ENUMBASETYPE {
-    TBS_FALSE        = 0,
-    TBS_INDETERMINATE = 1,
-    TBS_TRUE         = 2
-};
-
 /**
  * @brief Puts a Gem::Common::tribool into a stream.
  * @param o The output stream to write to
@@ -236,9 +229,6 @@ enum class triboolStates : Gem::Common::ENUMBASETYPE {
  * @return A reference to the output stream
  */
 std::ostream &operator<<(std::ostream &o, Gem::Common::tribool const &x);
-
-/** @brief triboolStates streams as its underlying numeric value (see numeric_enum_io_v) */
-template <> inline constexpr bool numeric_enum_io_v<triboolStates> = true;
 
 /******************************************************************************/
 /**
