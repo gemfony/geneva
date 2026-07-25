@@ -114,6 +114,15 @@ still governs *how* — fix the code for a genuine failure, amend the test for a
 the failure is always addressed, never left red.) A green test suite is the precondition for continuing, and
 for every commit.
 
+The same discipline denies **silent disabling** in every form: commenting a test out, gating it behind a flag
+that is never true, marking it skipped without a machine-detectable reason, or leaving it registered but
+unrun "for now". A disabled test is a red that has been hidden instead of diagnosed. A test that cannot stay
+green has exactly two honest exits: it is **fixed** (Invariant 7 decides whether the code or the test moves),
+or — when it genuinely no longer makes sense — it is **removed outright**, as a visible, reviewable deletion
+whose commit says why. Removal is a legitimate outcome; hiding never is. Conditional registration is
+acceptable only for real, configure-time-detectable external dependencies (no MPI launcher, no GPU device on
+the host), never as a place to park failures.
+
 ## 10. Newly discovered compilation warnings must be investigated
 
 A warning that appears during a build is a signal, not noise: **investigate every newly surfaced compiler
