@@ -139,6 +139,15 @@ are in `CHANGES` and `INSTALL`; this file is the practical upgrade guide.
   `GEM_REGISTER_ARCHIVABLE` (replacing `BOOST_CLASS_EXPORT`). The old Boost text/XML/binary
   serialization modes are gone; only `GEM_BINARY` and `GEM_JSON` remain. Downstream consumers link
   Weft automatically through the exported `Geneva::` targets.
+- **Geneva's Boost link footprint is now just Boost.JSON and Boost.ProgramOptions.** Beyond
+  Boost.Serialization (above), **Boost.Filesystem has also been dropped**: Geneva's own code uses
+  `std::filesystem` throughout, and the plugin loader (Boost.DLL) is compiled with
+  `BOOST_DLL_USE_STD_FS`, so it too uses `std::filesystem` / `std::system_error`. `Boost::filesystem`
+  was removed from the library link lines, the `GENEVA_BOOST_LIBS` component list, the installed
+  `FindGeneva` config, and the `libboost-filesystem-dev` Debian dependency. An installed Geneva
+  library now links only `libboost_json` and `libboost_program_options` (Boost headers are still
+  needed at build time, e.g. Boost.Asio/Beast for the networked consumers and Boost.DLL for module
+  loading).
 - **The Geneva library ships no concrete optimization individual.** The reusable sample
   problems were folded into `gemfony-geneva` (`Gem::Geneva::Individuals`); there is no
   separate `geneva-individuals` library.
