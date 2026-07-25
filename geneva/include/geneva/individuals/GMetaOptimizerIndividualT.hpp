@@ -668,9 +668,17 @@ protected:
      * @return The raw result vector (size == getNStoredResults())
      */
     /***************************************************************************/
+    /** @brief The per-run measurements evaluate() accumulates across the sub-optimizations and then
+     *  reduces to the raw result (see runOneSubOptimization / assembleEvaluationResult). */
+    struct SubRunMeasurements {
+        std::vector<double> solver_calls;
+        std::vector<double> iterations;
+        std::vector<double> best_evaluations;
+    };
+
+    /***************************************************************************/
     /** @brief Runs one sub-optimization (build population, drive adaption, optimize) and appends this
-     *  run's solver-calls / iterations / best-evaluation to the three accumulators. Extracted verbatim
-     *  from the per-run loop in evaluate(). */
+     *  run's solver-calls / iterations / best-evaluation to @p measurements. */
     void runOneSubOptimization(
         oa::GEvolutionaryAlgorithmFactory &ea,
         std::uint32_t pop_size,
@@ -678,80 +686,74 @@ protected:
         std::uint32_t n_children,
         const std::shared_ptr<oa::GAdaptionConfigBase> &sub_adaption_config,
         double amalgamation_likelihood,
-        std::vector<double> &solver_calls_per_optimization,
-        std::vector<double> &iterations_per_optimization,
-        std::vector<double> &best_evaluations
+        SubRunMeasurements &measurements
     ) {
-        std::shared_ptr<oa::GEvolutionaryAlgorithm> ea_ptr;
-        std::uint32_t iterations_consumed = 0;
+        // The inner optimization submits to the one process-wide work consumer (the default). This is
+        // safe because this individual is evaluated by GMetaEvolutionaryAlgorithm on its own orchestration
+        // pool -- distinct from that work consumer -- so the inner submission never starves the pool this
+        // evaluation runs on.
+        std::shared_ptr<oa::GEvolutionaryAlgorithm> const ea_ptr = ea.get<oa::GEvolutionaryAlgorithm>();
 
-            ea_ptr = ea.get<oa::GEvolutionaryAlgorithm>();
+        populateSubEA(*ea_ptr, pop_size, n_parents, sub_adaption_config, amalgamation_likelihood);
+        configureSubEAStopCriteria(*ea_ptr);
 
-            // The inner optimization submits to the one process-wide work consumer (the default). This is
-            // safe because this individual is evaluated by GMetaEvolutionaryAlgorithm on its own
-            // orchestration pool -- distinct from that work consumer -- so the inner submission never
-            // starves the pool this evaluation runs on.
+        // Make sure the optimization is quiet, then run it.
+        ea_ptr->setReportIteration(0);
+        ea_ptr->optimize();
 
-            // Set the population parameters
-            ea_ptr->setPopulationSizes(pop_size, n_parents);
+        // Book-keeping from the completed run.
+        std::shared_ptr<gen::GOptimizableEntity> const best_individual =
+            ea_ptr->getBestGlobalIndividual<gen::GOptimizableEntity>();
+        const std::uint32_t iterations_consumed = ea_ptr->getIteration();
+        measurements.solver_calls.push_back(
+            static_cast<double>(((iterations_consumed + 1) * n_children) + n_parents)
+        );
+        measurements.iterations.push_back(static_cast<double>(iterations_consumed + 1));
+        measurements.best_evaluations.push_back(
+            best_individual->transformed_fitness(0)
+        ); // We use the transformed fitness to avoid MAX_DOUBLE
+    }
 
-            // Add the required number of individuals
-            for(std::size_t ind = 0; ind < pop_size; ind++) {
-                // Retrieve an individual
-                std::shared_ptr<gen::GOptimizableEntity> const gi_ptr = ind_factory_->get();
+    /***************************************************************************/
+    /**
+     * @brief runOneSubOptimization() setup: size the sub-EA, fill it with fresh individuals from the
+     * factory, and hand it the OA-owned adaption config and the cross-over likelihood.
+     */
+    void populateSubEA(
+        oa::GEvolutionaryAlgorithm &ea,
+        std::uint32_t pop_size,
+        std::uint32_t n_parents,
+        const std::shared_ptr<oa::GAdaptionConfigBase> &sub_adaption_config,
+        double amalgamation_likelihood
+    ) {
+        ea.setPopulationSizes(pop_size, n_parents);
+        for(std::size_t ind = 0; ind < pop_size; ind++) {
+            std::shared_ptr<gen::GOptimizableEntity> const gi_ptr = ind_factory_->get();
+            ea.push_back(gi_ptr->clone_unique());
+        }
+        // Drive the sub-individuals' adaption through the OA-owned config, and set the likelihood for work
+        // items to be produced through cross-over rather than mutation alone.
+        ea.setAdaptionConfig(sub_adaption_config);
+        ea.setAmalgamationLikelihood(amalgamation_likelihood);
+    }
 
-                ea_ptr->push_back(gi_ptr->clone_unique());
-            }
-
-            // Drive the sub-individuals' adaption through the OA-owned config built above.
-            ea_ptr->setAdaptionConfig(sub_adaption_config);
-
-            // Set the likelihood for work items to be produced through cross-over rather than mutation alone
-            ea_ptr->setAmalgamationLikelihood(amalgamation_likelihood);
-
-            if(metaOptimizationTarget::MINSOLVERCALLS == mo_target_) {
-                // Set the stop criteria (either maxIterations_ iterations or falling below the quality threshold
-                ea_ptr->setQualityThreshold(fitness_target_, true);
-                ea_ptr->setMaxIteration(iteration_threshold_);
-
-                // Make sure the optimization does not emit the termination reason
-                ea_ptr->setEmitTerminationReason(false);
-
-                // Make sure the optimization does not stop due to stalls (which is the default in the EA-config
-                ea_ptr->setMaxStallIteration(0);
-            }
-            else { // Optimization of best fitness found or multi-criterion optimization: BESTFITNESS / MC_MINSOLVER_BESTFITNESS
-                // Set the stop criterion maxIterations only
-                ea_ptr->setMaxIteration(iteration_threshold_);
-
-                // Make sure the optimization does not emit the termination reason
-                ea_ptr->setEmitTerminationReason(false);
-
-                // Set a relatively high stall threshold
-                ea_ptr->setMaxStallIteration(50);
-            }
-
-            // Make sure the optimization is quiet
-            ea_ptr->setReportIteration(0);
-
-            // Run the actual optimization
-            ea_ptr->optimize();
-
-            // Retrieve the best individual
-            std::shared_ptr<gen::GOptimizableEntity> const best_individual =
-                ea_ptr->getBestGlobalIndividual<gen::GOptimizableEntity>();
-
-            // Retrieve the number of iterations
-            iterations_consumed = ea_ptr->getIteration();
-
-            // Do book-keeping
-            solver_calls_per_optimization.push_back(
-                static_cast<double>(((iterations_consumed + 1) * n_children) + n_parents)
-            );
-            iterations_per_optimization.push_back(static_cast<double>(iterations_consumed + 1));
-            best_evaluations.push_back(
-                best_individual->transformed_fitness(0)
-            ); // We use the transformed fitness to avoid MAX_DOUBLE
+    /***************************************************************************/
+    /**
+     * @brief runOneSubOptimization() setup: configure the sub-EA's stop criteria for the current
+     * meta-optimization target. MINSOLVERCALLS also stops on the quality threshold and disables stalls;
+     * the fitness / multi-criterion targets stop on max-iterations with a lenient stall threshold. Neither
+     * emits a termination reason.
+     */
+    void configureSubEAStopCriteria(oa::GEvolutionaryAlgorithm &ea) const {
+        ea.setEmitTerminationReason(false);
+        ea.setMaxIteration(iteration_threshold_);
+        if(metaOptimizationTarget::MINSOLVERCALLS == mo_target_) {
+            ea.setQualityThreshold(fitness_target_, true);
+            ea.setMaxStallIteration(0); // do not stop due to stalls (the EA-config default)
+        }
+        else { // BESTFITNESS / MC_MINSOLVER_BESTFITNESS
+            ea.setMaxStallIteration(50);
+        }
     }
 
     std::vector<double> evaluate() override {
@@ -770,9 +772,46 @@ protected:
             );
         }
 
-        // Derive the sub-individuals' adaptor settings from the meta-optimised parameters. The genome
-        // carries RAW knobs (min + range + start percentage) so it always holds valid values; the actual
-        // gauss bounds are derived here (max = min + range; start = min + percentage * range).
+        // Derive the sub-individuals' adaptor config from the meta-optimised knobs.
+        auto sub_adaption_config = buildSubAdaptionConfig(v);
+
+        // Set up a population factory for serial execution
+        oa::GEvolutionaryAlgorithmFactory ea(sub_ea_config_);
+
+        // Run the required number of optimizations
+        auto n_children = static_cast<std::uint32_t>(v.at(n::n_children));
+        auto n_parents = static_cast<std::uint32_t>(v.at(n::n_parents));
+        std::uint32_t const pop_size = n_parents + n_children;
+        double const amalgamation_likelihood = v.at(n::amalgamation);
+
+        SubRunMeasurements measurements;
+
+        for(std::size_t opt = 0; opt < n_runs_per_optimization_; opt++) {
+            std::cout << "Starting measurement " << opt + 1 << " / " << n_runs_per_optimization_
+                      << '\n';
+            runOneSubOptimization(
+                ea, pop_size, n_parents, n_children, sub_adaption_config, amalgamation_likelihood,
+                measurements
+            );
+        }
+
+        return assembleEvaluationResult(measurements);
+    }
+
+    /***************************************************************************/
+    /**
+     * @brief evaluate() phase: derive the sub-individuals' Gauss adaptor config from the meta-optimised
+     * knobs. The genome carries RAW knobs (min + range + start percentage) so it always holds valid values;
+     * the gauss bounds are derived here (max = min + range; start = min + percentage * range).
+     *
+     * The config is built from a sample genome rather than via the factory because GIndividualFactory
+     * re-applies its config file on every get_(), so programmatic setters on the factory would not stick.
+     *
+     * @param v The meta-optimised tunable parameters (by name; see readTuned())
+     * @return An OA-owned single-Gauss adaption config for the sub-individuals
+     */
+    auto buildSubAdaptionConfig(const std::map<std::string, double> &v) {
+        namespace n = oa::ea_tunable;
         double const min_sigma = v.at(n::min_sigma);
         double const sigma_range = v.at(n::sigma_range);
         double const max_sigma = min_sigma + sigma_range;
@@ -788,14 +827,6 @@ protected:
 
         double const adapt_ad_prob = v.at(n::adapt_ad_prob);
 
-        // Set up a population factory for serial execution
-        oa::GEvolutionaryAlgorithmFactory ea(sub_ea_config_);
-
-        // The sub-individuals' adaptors live on an OA-owned config (their genome is structure-only). The
-        // meta individual OWNS the adaptor parameters it optimises, so it authors that config INLINE here
-        // (the inner individuals are single-Gauss). It is built here from a sample genome rather than via
-        // the factory because GIndividualFactory re-applies its config file on every get_(), so
-        // programmatic setters on the factory would not stick.
         auto sub_adaption_config = oa::makeAdaptionConfig<oa::GAdaptionConfigBase>(
             dynamic_cast<const gen::GGenome &>(*ind_factory_->get())
         );
@@ -805,32 +836,25 @@ protected:
                 Gem::Geneva::adaptionMode::WITHPROBABILITY, min_ad_prob, max_ad_prob
             );
         }
+        return sub_adaption_config;
+    }
 
-        // Run the required number of optimizations
-        auto n_children = static_cast<std::uint32_t>(v.at(n::n_children));
-        auto n_parents = static_cast<std::uint32_t>(v.at(n::n_parents));
-        std::uint32_t const pop_size = n_parents + n_children;
-        double const amalgamation_likelihood = v.at(n::amalgamation);
-
-        std::vector<double> solver_calls_per_optimization;
-        std::vector<double> iterations_per_optimization;
-        std::vector<double> best_evaluations;
-
-        for(std::size_t opt = 0; opt < n_runs_per_optimization_; opt++) {
-            std::cout << "Starting measurement " << opt + 1 << " / " << n_runs_per_optimization_
-                      << '\n';
-            runOneSubOptimization(
-                ea, pop_size, n_parents, n_children, sub_adaption_config, amalgamation_likelihood,
-                solver_calls_per_optimization, iterations_per_optimization, best_evaluations
-            );
-        }
-
-        // Calculate the average number of iterations and solver calls
+    /***************************************************************************/
+    /**
+     * @brief evaluate() phase: reduce the per-run measurements to the raw result vector, reporting the
+     * summary statistics. The secondary (average solver calls) is present only for the multi-criterion
+     * target, matching getNStoredResults() (2 vs 1).
+     *
+     * @param measurements The per-run solver-call / iteration / best-evaluation accumulators
+     * @return The raw result vector for this meta-individual
+     */
+    std::vector<double> assembleEvaluationResult(const SubRunMeasurements &measurements) {
         std::tuple<double, double> sd =
-            Gem::Common::GStandardDeviation(solver_calls_per_optimization);
+            Gem::Common::GStandardDeviation(measurements.solver_calls);
         std::tuple<double, double> itmean =
-            Gem::Common::GStandardDeviation(iterations_per_optimization);
-        std::tuple<double, double> best_mean = Gem::Common::GStandardDeviation(best_evaluations);
+            Gem::Common::GStandardDeviation(measurements.iterations);
+        std::tuple<double, double> best_mean =
+            Gem::Common::GStandardDeviation(measurements.best_evaluations);
 
         double evaluation = 0.;
         if(metaOptimizationTarget::MINSOLVERCALLS == mo_target_) {
@@ -856,8 +880,6 @@ protected:
                   << '\n' // print without fitness -- not defined at this stage
                   << '\n';
 
-        // Return the raw result vector: the secondary (average solver calls) is present only for the
-        // multi-criterion target, matching getNStoredResults() (2 vs 1).
         if(metaOptimizationTarget::MC_MINSOLVER_BESTFITNESS == mo_target_) {
             return {evaluation, std::get<0>(sd)};
         }

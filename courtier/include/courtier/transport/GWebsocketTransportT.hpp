@@ -722,13 +722,19 @@ public:
 	  * @param ping_interval Time in seconds between keep-alive pings sent to the peer
 	  * @param verbose_control_frames If true, a diagnostic message is logged for every control frame received
 	  */
+    /** @brief The session's server-side hooks: how it pulls work, returns results, checks for a stopped
+     *  server, and signs itself on/off. Bundled so the constructor stays within the parameter budget. */
+    struct SessionHooks {
+        std::move_only_function<std::unique_ptr<processable_type>()> get_payload_item;
+        std::move_only_function<void(std::unique_ptr<processable_type>)> put_payload_item;
+        std::move_only_function<bool()> check_server_stopped;
+        std::move_only_function<void(bool)> server_sign_on;
+    };
+
     GWebsocketConsumerSessionT(
         boost::asio::io_context &io_context,
         boost::asio::ip::tcp::socket socket,
-        std::move_only_function<std::unique_ptr<processable_type>()> get_payload_item,
-        std::move_only_function<void(std::unique_ptr<processable_type>)> put_payload_item,
-        std::move_only_function<bool()> check_server_stopped,
-        std::move_only_function<void(bool)> server_sign_on,
+        SessionHooks hooks,
         Gem::Common::serializationMode serialization_mode,
         std::size_t ping_interval,
         bool verbose_control_frames,
@@ -738,10 +744,10 @@ public:
       : ws_(std::move(socket))
       , strand_(io_context.get_executor())
       , timer_(io_context, (std::chrono::steady_clock::time_point::max)())
-      , get_payload_item_(std::move(get_payload_item))
-      , put_payload_item_(std::move(put_payload_item))
-      , check_server_stopped_(std::move(check_server_stopped))
-      , server_sign_on_(std::move(server_sign_on))
+      , get_payload_item_(std::move(hooks.get_payload_item))
+      , put_payload_item_(std::move(hooks.put_payload_item))
+      , check_server_stopped_(std::move(hooks.check_server_stopped))
+      , server_sign_on_(std::move(hooks.server_sign_on))
       , serialization_mode_(serialization_mode)
       , ping_interval_(std::chrono::seconds(ping_interval))
       , verbose_control_frames_(verbose_control_frames)

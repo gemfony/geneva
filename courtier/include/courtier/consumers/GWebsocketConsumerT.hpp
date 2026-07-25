@@ -121,17 +121,21 @@ private:
         std::make_shared<session_type>(
             this->io_context_,
             std::move(socket),
-            [self, this, lease]() -> std::unique_ptr<processable_type> {
-                auto p = this->checkout();
-                lease->add(p); // no-op for a null item; records p's correlation id
-                return p;
+            typename session_type::SessionHooks{
+                .get_payload_item =
+                    [self, this, lease]() -> std::unique_ptr<processable_type> {
+                        auto p = this->checkout();
+                        lease->add(p); // no-op for a null item; records p's correlation id
+                        return p;
+                    },
+                .put_payload_item =
+                    [self, this, lease](std::unique_ptr<processable_type> p) {
+                        lease->remove(p); // returned normally -> nothing for the lease to reclaim
+                        this->checkin(std::move(p));
+                    },
+                .check_server_stopped = [self, this]() -> bool { return this->stopped(); },
+                .server_sign_on = [self, this](bool sign_on) { this->adjustSessionCount(sign_on); },
             },
-            [self, this, lease](std::unique_ptr<processable_type> p) {
-                lease->remove(p); // returned normally -> nothing for the lease to reclaim
-                this->checkin(std::move(p));
-            },
-            [self, this]() -> bool { return this->stopped(); },
-            [self, this](bool sign_on) { this->adjustSessionCount(sign_on); },
             serialization_mode_,
             ping_interval_,
             verbose_control_frames_,
