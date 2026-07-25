@@ -50,7 +50,7 @@
 // Geneva headers
 #include "geneva/Go2.hpp"
 #include "geneva/genome/GGenome.hpp"
-#include "geneva/genome/GOptimizableEntityFactory.hpp"
+#include "geneva/genome/GGenomeFactory.hpp"
 
 using namespace Gem::Geneva;
 
@@ -74,7 +74,7 @@ int main(int argc, char **argv) {
     // interface -- the launcher never needs to know the concrete problem type -- and hand it to the
     // adapting algorithms. Skipping this is a hard error for an adapting algorithm (EA / SA).
     if(auto factory = go.getContentCreator()) {
-        auto oef = std::dynamic_pointer_cast<Genome::GOptimizableEntityFactory>(factory);
+        auto oef = std::dynamic_pointer_cast<Genome::GGenomeFactory>(factory);
         auto sample = (*factory)(); // a sample individual (also parses the factory's config)
         const auto *flat = dynamic_cast<const Genome::GGenome *>(sample.get());
         if(oef && (flat != nullptr)) {

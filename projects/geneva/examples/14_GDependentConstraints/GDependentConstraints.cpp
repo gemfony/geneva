@@ -127,7 +127,7 @@ int main(int argc, char **argv) {
         ); // The sum of all variables must be 1 +/- 0.05
 
         // Create a check combiner and add the constraint objects to it. Constraints are
-        // expressed directly as C++ constraint objects (subclasses of GOptimizableEntityConstraint),
+        // expressed directly as C++ constraint objects (subclasses of GGenomeConstraint),
         // which is the general, type-safe way to formulate arbitrary dependent constraints.
         std::shared_ptr<GCheckCombinerT<gen::GGenome>> const combiner_ptr(
             new GCheckCombinerT<gen::GGenome>()

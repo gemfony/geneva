@@ -52,7 +52,7 @@
 #include "geneva/oa/GParetoTools.hpp"
 #include "geneva/genome/GGenome.hpp"
 #include "geneva/genome/GGenome.hpp"
-#include "geneva/genome/GOptimizableEntityFixedSizePriorityQueue.hpp"
+#include "geneva/genome/GGenomeFixedSizePriorityQueue.hpp"
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
@@ -196,7 +196,7 @@ std::vector<TunableParam> GType::tunableManifest() {
 /******************************************************************************/
 
 void GType::updateGlobalBestsPQ_(
-    gen::GOptimizableEntityFixedSizePriorityQueue &best_individuals
+    gen::GGenomeFixedSizePriorityQueue &best_individuals
 ) {
     constexpr bool donotreplace = false;
     constexpr bool clone = true;
@@ -236,7 +236,7 @@ void GType::updateGlobalBestsPQ_(
 /******************************************************************************/
 
 void GType::updateIterationBestsPQ_(
-    gen::GOptimizableEntityFixedSizePriorityQueue &best_individuals
+    gen::GGenomeFixedSizePriorityQueue &best_individuals
 ) {
     constexpr bool clone = true;
     constexpr bool donotreplace = false;

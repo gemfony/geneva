@@ -27,7 +27,7 @@
  *
  ********************************************************************************/
 
-#include "geneva/genome/GOptimizableEntityMultiConstraint.hpp"
+#include "geneva/genome/GGenomeMultiConstraint.hpp"
 #include "common/GCommonInterfaceT.hpp"
 #include "common/GExpectationChecksT.hpp"
 #include "common/GParserBuilder.hpp"
@@ -48,7 +48,7 @@ namespace Gem::Geneva::Genome {
  *
  * @param gpb The GParserBuilder object to which configuration options are added
  */
-void GOptimizableEntityConstraint::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) {
+void GGenomeConstraint::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) {
     // Call our parent class'es function
     GPreEvaluationValidityCheckT<GGenome>::addConfigurationOptions_(gpb);
 }

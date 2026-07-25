@@ -159,10 +159,9 @@ class GMarker
   : public Gem::Common::GReflectiveInterfaceT<
         GMarker<coordinate_type>,
         GDecorator<dimensions::Dim2, coordinate_type>
-        // CloneReturn defaults to the hierarchy root (GDecorator<Dim2>): a covariant
-        // return to the CRTP-self would need GMarker complete at the base's clone_
-        // declaration, which it is not. clone_ is private, so the narrower return is
-        // not observable and this is purely a formality.
+        // clone_() returns the hierarchy root (GDecorator<Dim2>). A covariant return to the
+        // CRTP-self would need GMarker complete at the base's clone_ declaration, which it
+        // is not; clone_ is private, so the wider return is not observable.
     > {
     ///////////////////////////////////////////////////////////////////////
     // Gem::Weft::access default-constructs this concrete type on load;

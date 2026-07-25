@@ -52,7 +52,7 @@
 #include "geneva/genome/GGenomeT.hpp"
 #include "geneva/genome/GIndividualFactory.hpp"
 #include "geneva/genome/GGenomeBuilder.hpp"
-#include "geneva/genome/GOptimizableEntityMultiConstraint.hpp"
+#include "geneva/genome/GGenomeMultiConstraint.hpp"
 #include "hap/GRandomT.hpp"
 
 namespace Gem::Geneva::OptimizationAlgorithms {

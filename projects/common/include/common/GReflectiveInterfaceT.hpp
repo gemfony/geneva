@@ -360,18 +360,16 @@ private:
  * would be instantiated into the vtable of an abstract class too, so it is added
  * only here, where a class opting in is asserting it is concrete.
  *
+ * clone_() returns the hierarchy root, recovered from Parent. There was once a third
+ * template parameter for a narrower, covariant return type: GGenomeT declared
+ * GGenome* while the root was GOptimizableEntity. Folding those two classes together
+ * left the parameter with no client, so it is gone -- one fewer knob, and one fewer way
+ * for a derivative to disagree with its own hierarchy about what a clone is.
+ *
  * @tparam Derived The managed (CRTP self) concrete class
  * @tparam Parent  The class's real base
- * @tparam CloneReturn The declared clone_() return type. Defaults to Root; a
- *                 covariant override (e.g. GGenomeT returning GGenome* while the
- *                 root is GGenome) supplies a narrower type here. The
- *                 return type is not derivable from Parent, hence the parameter.
  */
-template <
-    typename Derived,
-    typename Parent,
-    typename CloneReturn = typename Parent::gemfony_common_root_t
->
+template <typename Derived, typename Parent>
 class GReflectiveInterfaceT : public GReflectiveInterfaceBaseT<Derived, Parent> {
 protected:
     /** @brief Inherit the base mixin's (and thereby the parent's) constructors. */
@@ -382,7 +380,7 @@ private:
      * @brief Creates a deep clone of this object via the Derived copy constructor.
      * @return A heap-allocated deep copy of this object (caller takes ownership)
      */
-    [[nodiscard]] CloneReturn *clone_() const override {
+    [[nodiscard]] typename Parent::gemfony_common_root_t *clone_() const override {
         return new Derived(*static_cast<Derived const *>(this));
     }
 };

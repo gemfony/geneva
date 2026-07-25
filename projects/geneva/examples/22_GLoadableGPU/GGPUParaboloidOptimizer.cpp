@@ -52,7 +52,7 @@
 #include "courtier/gpu/GGPUConsumerConfig.hpp" // materialize the GPU config under --update-configs
 #include "geneva/Go2.hpp"
 #include "geneva/genome/GGenome.hpp"
-#include "geneva/genome/GOptimizableEntityFactory.hpp"
+#include "geneva/genome/GGenomeFactory.hpp"
 
 using namespace Gem::Geneva;
 
@@ -82,7 +82,7 @@ int main(int argc, char **argv) {
     // launcher never needs the concrete type) and hand it to the adapting algorithms (EA / SA). Skipping this
     // is a hard error for an adapting algorithm.
     if(auto factory = go.getContentCreator()) {
-        auto oef = std::dynamic_pointer_cast<Genome::GOptimizableEntityFactory>(factory);
+        auto oef = std::dynamic_pointer_cast<Genome::GGenomeFactory>(factory);
         auto sample = (*factory)(); // a sample individual (also parses the factory's config)
         const auto *flat = dynamic_cast<const Genome::GGenome *>(sample.get());
         if(oef && (flat != nullptr)) {

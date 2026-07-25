@@ -67,7 +67,7 @@ class GAdaptionConfigBase;
      * real data would be sent in order to solve the evaluation in a distributed manner.
      */
 class GMPISubClientParaboloidIndividualMultiD
-  : public Gem::Common::GReflectiveInterfaceT<GMPISubClientParaboloidIndividualMultiD, GMPISubClientIndividual, gen::GGenome> {
+  : public Gem::Common::GReflectiveInterfaceT<GMPISubClientParaboloidIndividualMultiD, GMPISubClientIndividual> {
     /** @brief Make the class accessible to the GArchive serializer */
     /** @brief The GReflectiveInterfaceT mixin reaches the (empty) private localMembers_() through this shim. */
     friend struct Gem::Common::GReflectiveInterfaceAccess;

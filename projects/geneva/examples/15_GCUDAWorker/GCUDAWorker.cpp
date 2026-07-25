@@ -90,7 +90,7 @@
 #include "courtier/gpu/GGPUConsumer.hpp"
 #include "geneva/Go2.hpp"
 #include "geneva/genome/GGenome.hpp"
-#include "geneva/genome/GOptimizableEntityFactory.hpp"
+#include "geneva/genome/GGenomeFactory.hpp"
 
 // Example-local headers (host-side rendering + the device marshaller; both header-only, no dependency on
 // the concrete individual, which lives in the runtime module).
@@ -330,11 +330,11 @@ int main(int argc, char **argv) {
     }
 
     // The genome carries only structure; its main + location Gauss adaptors live on an OA-owned config the
-    // loaded factory authors. Reach it generically through GOptimizableEntityFactory::getAdaptionConfig(),
+    // loaded factory authors. Reach it generically through GGenomeFactory::getAdaptionConfig(),
     // so this launcher need not know the concrete type. Register it for the only adapting algorithm we may
     // select: the dimension-aware evolutionary algorithm (ea). The from-scratch sep-CMA strategy (sepcma)
     // manages its own search distribution and needs no adaption config.
-    auto oef = std::dynamic_pointer_cast<gen::GOptimizableEntityFactory>(factory);
+    auto oef = std::dynamic_pointer_cast<gen::GGenomeFactory>(factory);
     auto sample = factory->get(); // a sample individual (also parses the factory's config)
     const auto *flat = dynamic_cast<const gen::GGenome *>(sample.get());
     if(oef && (flat != nullptr)) {

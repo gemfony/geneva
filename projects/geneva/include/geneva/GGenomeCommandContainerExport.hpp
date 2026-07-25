@@ -43,7 +43,7 @@
 /**
  * The command container instantiated for GGenome, the work-item
  * payload type carried over the wire by the networked consumers / clients. The matching
- * BOOST_CLASS_EXPORT_IMPLEMENT lives in GOptimizableEntityCommandContainerExport.cpp (one translation unit
+ * BOOST_CLASS_EXPORT_IMPLEMENT lives in GGenomeCommandContainerExport.cpp (one translation unit
  * in the geneva library). Including this header makes the registration visible at every networked
  * (de)serialization site -- it is pulled in via GenevaInitializer.hpp.
  */

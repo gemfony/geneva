@@ -2416,7 +2416,7 @@ TEST_CASE("destroying a GenevaInitializer keeps the process RNG alive", "[go2][r
 }
 
 /******************************************************************************/
-// Regression guard for the GOptimizableEntityFactory copy-constructor defect: it deep-cloned the
+// Regression guard for the GGenomeFactory copy-constructor defect: it deep-cloned the
 // POST-processor twice and never copied the PRE-processor, so any factory copy (GIndividualFactory
 // ::clone(), the GOAFactoryT content-creator copy, the meta-optimizer's factory->clone()) silently
 // dropped a registered pre-processor. This exercises the copy ctor directly and asserts both processors
@@ -2454,7 +2454,7 @@ public:
 
 } // namespace Gem::Tests
 
-TEST_CASE("GOptimizableEntityFactory copy retains BOTH pre- and post-processors", "[flat][factory][regression]") {
+TEST_CASE("GGenomeFactory copy retains BOTH pre- and post-processors", "[flat][factory][regression]") {
     // No config file is read (we never call get_()), so a placeholder path is fine.
     Gem::Tests::ProbeFactory orig(
         std::filesystem::temp_directory_path() / "geneva_factory_proc_probe.json"
@@ -2464,7 +2464,7 @@ TEST_CASE("GOptimizableEntityFactory copy retains BOTH pre- and post-processors"
     REQUIRE(orig.pre());
     REQUIRE(orig.post());
 
-    // The buggy path: GOptimizableEntityFactory's copy ctor (reached via the derived copy ctor).
+    // The buggy path: GGenomeFactory's copy ctor (reached via the derived copy ctor).
     Gem::Tests::ProbeFactory const copy(orig);
 
     CHECK(copy.pre());   // regressed to null on the unfixed code (pre_processor_ was never copied)

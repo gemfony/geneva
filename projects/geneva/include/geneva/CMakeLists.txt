@@ -1,7 +1,7 @@
 SET ( OPTIMIZATIONINCLUDES
     GenevaHelperFunctions.hpp
 	GenevaInitializer.hpp
-	GOptimizableEntityCommandContainerExport.hpp
+	GGenomeCommandContainerExport.hpp
 	Go2.hpp
 	GConsumerSetup.hpp
 	GMarshallerSetup.hpp
@@ -14,9 +14,9 @@ SET ( OPTIMIZATIONINCLUDES
 # installed under geneva/par to mirror the `gen` alias.
 SET ( PARAM_INCLUDES
     genome/GParameterPropertyParser.hpp
-    genome/GOptimizableEntityFactory.hpp
-    genome/GOptimizableEntityFixedSizePriorityQueue.hpp
-    genome/GOptimizableEntityMultiConstraint.hpp
+    genome/GGenomeFactory.hpp
+    genome/GGenomeFixedSizePriorityQueue.hpp
+    genome/GGenomeMultiConstraint.hpp
 )
 
 # Individual / genome headers (namespace Gem::Geneva::Genome), installed

@@ -49,7 +49,7 @@
 #include "geneva/genome/GGenome.hpp"
 #include "geneva/genome/GGenomeBuilder.hpp"
 #include "geneva/genome/GGenome.hpp"
-#include "geneva/genome/GOptimizableEntityFactory.hpp"
+#include "geneva/genome/GGenomeFactory.hpp"
 
 namespace Gem::Geneva::OptimizationAlgorithms {
 // The OA-owned adaption configuration produced (optionally) by a flat individual's
@@ -103,7 +103,7 @@ concept HasApplyConfigHook =
  * the first produced individual triggers Derived::buildGenome(config_), the result is cached, and every
  * subsequent individual is just a cheap value-array copy plus a bind to the same shared layout handle.
  * The user's JSON config files are unchanged; pre/post-processor registration is inherited from
- * GOptimizableEntityFactory and is genome-agnostic.
+ * GGenomeFactory and is genome-agnostic.
  *
  * Usage (Tier 2):
  * @code
@@ -133,7 +133,7 @@ concept HasApplyConfigHook =
  */
 template <class Derived>
 class GIndividualFactory // NOLINT(cppcoreguidelines-special-member-functions)
-  : public GOptimizableEntityFactory {
+  : public GGenomeFactory {
     ///////////////////////////////////////////////////////////////////////
     friend struct Gem::Weft::access;
 
@@ -149,7 +149,7 @@ class GIndividualFactory // NOLINT(cppcoreguidelines-special-member-functions)
         // Only the base is serialised. The Config is transient -- re-read from the (still known)
         // config file on the first get_() after deserialisation -- and the built-genome cache is a
         // transient optimisation that is rebuilt lazily.
-        Gem::Common::archive_named_base<GOptimizableEntityFactory>(ar, "GOptimizableEntityFactory", *this);
+        Gem::Common::archive_named_base<GGenomeFactory>(ar, "GGenomeFactory", *this);
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -161,7 +161,7 @@ public:
      * @param configFile The path of the configuration file holding the genome parameters
      */
     explicit GIndividualFactory(std::filesystem::path const &configFile)
-      : GOptimizableEntityFactory(configFile) { /* nothing */
+      : GGenomeFactory(configFile) { /* nothing */
     }
 
     /***************************************************************************/
@@ -172,7 +172,7 @@ public:
      * @param cp The factory to copy from (base state and parsed Config are copied)
      */
     GIndividualFactory(const GIndividualFactory<Derived> &cp)
-      : GOptimizableEntityFactory(cp)
+      : GGenomeFactory(cp)
       , config_(cp.config_) { /* nothing */
     }
 
@@ -301,7 +301,7 @@ private:
      * be reconstructed.
      */
     GIndividualFactory()
-      : GOptimizableEntityFactory("empty") { /* nothing */
+      : GGenomeFactory("empty") { /* nothing */
     }
 
     /***************************************************************************/

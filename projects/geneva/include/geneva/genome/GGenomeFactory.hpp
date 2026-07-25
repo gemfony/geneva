@@ -58,7 +58,7 @@ class GGenome;
  * This class facilitates handling of factories for GGenome-derivatives.
  * In particular it allows to register pre- and post-procesing objects
  */
-class GOptimizableEntityFactory // NOLINT(cppcoreguidelines-special-member-functions)
+class GGenomeFactory // NOLINT(cppcoreguidelines-special-member-functions)
   : public Gem::Common::GFactoryT<GGenome> {
     ///////////////////////////////////////////////////////////////////////
     friend struct Gem::Weft::access;
@@ -67,7 +67,7 @@ class GOptimizableEntityFactory // NOLINT(cppcoreguidelines-special-member-funct
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         using Gem::Common::archive_named;
         Gem::Common::archive_named_base<Gem::Common::GFactoryT<GGenome>>(
-            ar, "GFactoryT_GOptimizableEntity", *this);
+            ar, "GFactoryT_GGenome", *this);
         archive_named(ar, "pre_processor_", pre_processor_);
         archive_named(ar, "post_processor_", post_processor_);
     }
@@ -80,7 +80,7 @@ public:
 	  *
 	  * @param configFile path object of a configuration file holding information about objects of type T
 	  */
-    explicit GOptimizableEntityFactory(std::filesystem::path const &configFile)
+    explicit GGenomeFactory(std::filesystem::path const &configFile)
       : Gem::Common::GFactoryT<GGenome>(configFile) { /* nothing */
     }
 
@@ -88,9 +88,9 @@ public:
     /**
 	  * The copy constructor
 	  *
-	  * @param cp A constant reference to another GOptimizableEntityFactory object to be copied
+	  * @param cp A constant reference to another GGenomeFactory object to be copied
 	  */
-    GOptimizableEntityFactory(const GOptimizableEntityFactory &cp)
+    GGenomeFactory(const GGenomeFactory &cp)
       : Gem::Common::GFactoryT<GGenome>(cp) {
         Gem::Common::copyCloneableSmartPointer(cp.pre_processor_, pre_processor_);
         Gem::Common::copyCloneableSmartPointer(cp.post_processor_, post_processor_);
@@ -98,7 +98,7 @@ public:
 
     /***************************************************************************/
     // Defaulted and deleted functions
-    ~GOptimizableEntityFactory() override = default;
+    ~GGenomeFactory() override = default;
 
     /***************************************************************************/
     /**
@@ -115,7 +115,7 @@ public:
         else {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GOptimizableEntityFactory::registerPreProcessor(): Error!" << '\n'
+                << "In GGenomeFactory::registerPreProcessor(): Error!" << '\n'
                 << "Got empty pre-processor" << '\n'
             );
         }
@@ -136,7 +136,7 @@ public:
         else {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GOptimizableEntityFactory::registerPostProcessor(): Error!" << '\n'
+                << "In GGenomeFactory::registerPostProcessor(): Error!" << '\n'
                 << "Got empty post-processor" << '\n'
             );
         }
@@ -189,7 +189,7 @@ protected:
 
 private:
     // Only needed for (de-)serialization purposes, hence private
-    GOptimizableEntityFactory() = default;
+    GGenomeFactory() = default;
 };
 
 /******************************************************************************/

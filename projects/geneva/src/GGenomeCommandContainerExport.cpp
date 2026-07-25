@@ -27,7 +27,7 @@
  *
  ********************************************************************************/
 
-#include "geneva/GOptimizableEntityCommandContainerExport.hpp"
+#include "geneva/GGenomeCommandContainerExport.hpp"
 
 // This translation unit previously held the polymorphic export implementation of the
 // command container instantiated for GGenome; the GArchive registration now lives with

@@ -1322,7 +1322,7 @@ void GOptimizationAlgorithmBase::addConfigurationOptions_(Gem::Common::GParserBu
 	 * @param best_individuals The priority queue to which the current population's individuals are added (best ones are cloned in)
 	 */
 void GOptimizationAlgorithmBase::updateGlobalBestsPQ_(
-    gen::GOptimizableEntityFixedSizePriorityQueue &best_individuals
+    gen::GGenomeFixedSizePriorityQueue &best_individuals
 ) {
     constexpr bool clone = true;
     constexpr bool donotreplace = false;
@@ -1354,7 +1354,7 @@ void GOptimizationAlgorithmBase::updateGlobalBestsPQ_(
 	 * @param best_individuals The priority queue to which the current population's individuals are added (cloned in, replacing prior content)
 	 */
 void GOptimizationAlgorithmBase::updateIterationBestsPQ_(
-    gen::GOptimizableEntityFixedSizePriorityQueue &best_individuals
+    gen::GGenomeFixedSizePriorityQueue &best_individuals
 ) {
     constexpr bool clone = true;
     constexpr bool replace = true;
@@ -1385,7 +1385,7 @@ void GOptimizationAlgorithmBase::updateIterationBestsPQ_(
 	 * @param best_individuals The priority queue to which the already-processed (clean) individuals of this population are added
 	 */
 void GOptimizationAlgorithmBase::addCleanStoredBests(
-    gen::GOptimizableEntityFixedSizePriorityQueue &best_individuals
+    gen::GGenomeFixedSizePriorityQueue &best_individuals
 ) {
     constexpr bool clone = true;
 

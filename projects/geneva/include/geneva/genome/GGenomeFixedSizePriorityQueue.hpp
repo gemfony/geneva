@@ -50,8 +50,8 @@ namespace Gem::Geneva::Genome {
  * based on the maximization/minimization property and the current fitness of
  * the objects.
  */
-class GOptimizableEntityFixedSizePriorityQueue // NOLINT(cppcoreguidelines-special-member-functions)
-  : public Gem::Common::GReflectiveInterfaceT<GOptimizableEntityFixedSizePriorityQueue, Gem::Common::GFixedSizePriorityQueueT<GGenome>> {
+class GGenomeFixedSizePriorityQueue // NOLINT(cppcoreguidelines-special-member-functions)
+  : public Gem::Common::GReflectiveInterfaceT<GGenomeFixedSizePriorityQueue, Gem::Common::GFixedSizePriorityQueueT<GGenome>> {
     ///////////////////////////////////////////////////////////////////////
     // Gem::Weft::access default-constructs this concrete type on load;
     // GReflectiveInterfaceAccess lets the mixin reach the (empty) localMembers_().
@@ -67,25 +67,25 @@ class GOptimizableEntityFixedSizePriorityQueue // NOLINT(cppcoreguidelines-speci
 
 public:
     /** @brief The class name, consumed by the GReflectiveInterfaceT-generated name_() / compare token. */
-    static constexpr std::string_view class_name = "GOptimizableEntityFixedSizePriorityQueue";
+    static constexpr std::string_view class_name = "GGenomeFixedSizePriorityQueue";
 
     /** @brief The default constructor */
-    GOptimizableEntityFixedSizePriorityQueue() = default;
+    GGenomeFixedSizePriorityQueue() = default;
 
     /**
      * @brief Initialization with the maximum size
      *
      * @param maxSize The maximum number of items the priority queue is allowed to hold
      */
-    explicit GOptimizableEntityFixedSizePriorityQueue(const std::size_t & max_size);
+    explicit GGenomeFixedSizePriorityQueue(const std::size_t & max_size);
     /**
      * @brief The copy constructor
      *
-     * @param cp A constant reference to another GOptimizableEntityFixedSizePriorityQueue object to be copied
+     * @param cp A constant reference to another GGenomeFixedSizePriorityQueue object to be copied
      */
-    GOptimizableEntityFixedSizePriorityQueue(const GOptimizableEntityFixedSizePriorityQueue &cp) = default;
+    GGenomeFixedSizePriorityQueue(const GGenomeFixedSizePriorityQueue &cp) = default;
     /** @brief The destructor */
-    ~GOptimizableEntityFixedSizePriorityQueue() override = default;
+    ~GGenomeFixedSizePriorityQueue() override = default;
 
     /**
      * @brief Checks whether no item has the dirty flag set

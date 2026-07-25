@@ -327,9 +327,9 @@ private:
     evaluatePopulationRange_(std::size_t start, std::size_t end);
 
     /** @brief Adds the iteration's individuals to the global-best priority queue. */
-    void updateGlobalBestsPQ_(gen::GOptimizableEntityFixedSizePriorityQueue &best_individuals) override;
+    void updateGlobalBestsPQ_(gen::GGenomeFixedSizePriorityQueue &best_individuals) override;
     /** @brief Adds the iteration's individuals to this iteration's best priority queue. */
-    void updateIterationBestsPQ_(gen::GOptimizableEntityFixedSizePriorityQueue &best_individuals) override;
+    void updateIterationBestsPQ_(gen::GGenomeFixedSizePriorityQueue &best_individuals) override;
 
     /** @brief Retrieve a personality-traits object belonging to this algorithm. */
     std::shared_ptr<GPersonalityTraits> getPersonalityTraits_() const override;

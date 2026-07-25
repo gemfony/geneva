@@ -98,7 +98,7 @@ public:
     }
 
     /** @brief The OA-owned Gauss adaption config for a genome this problem produces. Reached generically
-     *  through GOptimizableEntityFactory::getAdaptionConfig(), so the launcher need not know this type. */
+     *  through GGenomeFactory::getAdaptionConfig(), so the launcher need not know this type. */
     static std::shared_ptr<Gem::Geneva::OptimizationAlgorithms::GAdaptionConfigBase>
     buildAdaptionConfig(const Gem::Geneva::Genome::GGenome &sample, const Config &c) {
         namespace oa = Gem::Geneva::OptimizationAlgorithms;

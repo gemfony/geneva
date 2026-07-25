@@ -27,7 +27,7 @@
  *
  ********************************************************************************/
 
-#include "geneva/genome/GOptimizableEntityFixedSizePriorityQueue.hpp"
+#include "geneva/genome/GGenomeFixedSizePriorityQueue.hpp"
 #include "weft/GArchivePolymorphic.hpp" // GEM_REGISTER_ARCHIVABLE (GArchive polymorphic-pointer dispatch)
 #include "common/GCommonMathHelperFunctionsT.hpp"
 #include "common/GExceptions.hpp"
@@ -45,22 +45,22 @@
 #include <string>
 #include <vector>
 
-GEM_REGISTER_ARCHIVABLE(Gem::Geneva::Genome::GOptimizableEntityFixedSizePriorityQueue) // NOLINT
+GEM_REGISTER_ARCHIVABLE(Gem::Geneva::Genome::GGenomeFixedSizePriorityQueue) // NOLINT
 
 namespace Gem::Geneva::Genome {
 
 /******************************************************************************/
 /**
-	 * @brief Initialization with the maximum size. The GOptimizableEntityFixedSizePriorityQueue is
+	 * @brief Initialization with the maximum size. The GGenomeFixedSizePriorityQueue is
 	 * targetted at optimization algorithms, which only understand "minimization". Hence
 	 * "lower is better" is the only allowed mode of operation of this priority queue.
 	 *
 	 * @param max_size The maximum number of items the priority queue may hold
 	 */
-GOptimizableEntityFixedSizePriorityQueue::GOptimizableEntityFixedSizePriorityQueue(
+GGenomeFixedSizePriorityQueue::GGenomeFixedSizePriorityQueue(
     const std::size_t &max_size
 )
-  : Gem::Common::GReflectiveInterfaceT<GOptimizableEntityFixedSizePriorityQueue, Gem::Common::GFixedSizePriorityQueueT<GGenome>>(
+  : Gem::Common::GReflectiveInterfaceT<GGenomeFixedSizePriorityQueue, Gem::Common::GFixedSizePriorityQueueT<GGenome>>(
         max_size,
         Gem::Common::sortOrder::LOWERISBETTER
     ) { /* nothing */
@@ -76,7 +76,7 @@ GOptimizableEntityFixedSizePriorityQueue::GOptimizableEntityFixedSizePriorityQue
 	 * @param pos An out-parameter set to the number of items that were checked (the count of clean items preceding any dirty item, or the total count when all are clean)
 	 * @return true if all items are processed (clean), false as soon as a dirty item is found
 	 */
-bool GOptimizableEntityFixedSizePriorityQueue::allClean(std::size_t &pos) const {
+bool GGenomeFixedSizePriorityQueue::allClean(std::size_t &pos) const {
     pos = 0;
     for(const auto &item_ptr : data_deq_) {
         if(not item_ptr->is_processed()) {
@@ -94,7 +94,7 @@ bool GOptimizableEntityFixedSizePriorityQueue::allClean(std::size_t &pos) const 
 	 *
 	 * @return A string listing each item's position and clean/dirty status ("c" for clean, "d" for dirty)
 	 */
-std::string GOptimizableEntityFixedSizePriorityQueue::getCleanStatus() const {
+std::string GGenomeFixedSizePriorityQueue::getCleanStatus() const {
     std::string result;
     for(auto const &[pos, item_ptr] : data_deq_ | std::views::enumerate) {
         result += std::format("({}, {}) ", pos, item_ptr->is_processed() ? "c" : "d");
@@ -111,7 +111,7 @@ std::string GOptimizableEntityFixedSizePriorityQueue::getCleanStatus() const {
 	 * @param item_ptr A shared pointer to the item to be checked
 	 * @return true if the pointer is non-empty and its item has been processed, false otherwise
 	 */
-bool GOptimizableEntityFixedSizePriorityQueue::isValid(
+bool GGenomeFixedSizePriorityQueue::isValid(
     const std::shared_ptr<GGenome> &item_ptr
 ) const {
     if(not item_ptr) {
@@ -134,7 +134,7 @@ bool GOptimizableEntityFixedSizePriorityQueue::isValid(
 	 * @param item_ptr A shared pointer to the item to be evaluated
 	 * @return The min-only transformed fitness of the item (its primary evaluation criterion)
 	 */
-double GOptimizableEntityFixedSizePriorityQueue::evaluation(
+double GGenomeFixedSizePriorityQueue::evaluation(
     const std::shared_ptr<GGenome> &item_ptr
 ) const {
     return minOnly_transformed_fitness(*item_ptr);
@@ -149,7 +149,7 @@ double GOptimizableEntityFixedSizePriorityQueue::evaluation(
 	 * @param do_clone If true, each added item is deep-cloned into the queue rather than co-owned
 	 * @param do_replace If true, the queue's existing content is replaced rather than merged
 	 */
-void GOptimizableEntityFixedSizePriorityQueue::add(
+void GGenomeFixedSizePriorityQueue::add(
     std::vector<std::shared_ptr<GGenome>>::const_iterator begin,
     std::vector<std::shared_ptr<GGenome>>::const_iterator end,
     bool do_clone,
@@ -170,7 +170,7 @@ void GOptimizableEntityFixedSizePriorityQueue::add(
     if(processed_cnt.empty()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GOptimizableEntityFixedSizePriorityQueue::add(range): Error!" << '\n'
+            << "In GGenomeFixedSizePriorityQueue::add(range): Error!" << '\n'
             << "Container is empty when it should not be!" << '\n'
         );
     }
@@ -193,7 +193,7 @@ void GOptimizableEntityFixedSizePriorityQueue::add(
 	 * @param do_clone If true, each added item is deep-cloned into the queue rather than co-owned
 	 * @param do_replace If true, the queue's existing content is replaced rather than merged
 	 */
-void GOptimizableEntityFixedSizePriorityQueue::add(
+void GGenomeFixedSizePriorityQueue::add(
     std::vector<std::shared_ptr<GGenome>> const &items_cnt,
     const bool do_clone,
     const bool do_replace
@@ -213,7 +213,7 @@ void GOptimizableEntityFixedSizePriorityQueue::add(
     if(processed_cnt.empty()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GOptimizableEntityFixedSizePriorityQueue::add(vec): Error!" << '\n'
+            << "In GGenomeFixedSizePriorityQueue::add(vec): Error!" << '\n'
             << "Container is empty when it should not be!" << '\n'
         );
     }
@@ -230,7 +230,7 @@ void GOptimizableEntityFixedSizePriorityQueue::add(
 	 * @param item_ptr A shared pointer to the item to be added (ignored if empty or not processed)
 	 * @param do_clone If true, the item is deep-cloned into the queue rather than co-owned
 	 */
-void GOptimizableEntityFixedSizePriorityQueue::add(
+void GGenomeFixedSizePriorityQueue::add(
     std::shared_ptr<GGenome> const &item_ptr,
     const bool do_clone
 ) {
@@ -250,7 +250,7 @@ void GOptimizableEntityFixedSizePriorityQueue::add(
 	 * @param items_cnt A vector of unique_ptr-owned individuals to be cloned into the queue
 	 * @param do_replace If true, the queue's existing content is replaced rather than merged
 	 */
-void GOptimizableEntityFixedSizePriorityQueue::add(
+void GGenomeFixedSizePriorityQueue::add(
     std::vector<std::unique_ptr<GGenome>> const &items_cnt,
     const bool /* do_clone */,
     const bool do_replace
@@ -273,7 +273,7 @@ void GOptimizableEntityFixedSizePriorityQueue::add(
 	 * @param end An iterator one past the last individual of the range
 	 * @param do_replace If true, the queue's existing content is replaced rather than merged
 	 */
-void GOptimizableEntityFixedSizePriorityQueue::add(
+void GGenomeFixedSizePriorityQueue::add(
     std::vector<std::unique_ptr<GGenome>>::const_iterator begin,
     std::vector<std::unique_ptr<GGenome>>::const_iterator end,
     const bool /* do_clone */,
@@ -295,7 +295,7 @@ void GOptimizableEntityFixedSizePriorityQueue::add(
 	 *
 	 * @param item_ptr A unique_ptr-owned individual that is cloned into the queue (ignored if empty or not processed)
 	 */
-void GOptimizableEntityFixedSizePriorityQueue::add(
+void GGenomeFixedSizePriorityQueue::add(
     std::unique_ptr<GGenome> const &item_ptr,
     const bool /* do_clone */
 ) {
@@ -310,7 +310,7 @@ void GOptimizableEntityFixedSizePriorityQueue::add(
  *
  * @return A boolean which indicates whether modifications were made
  */
-bool GOptimizableEntityFixedSizePriorityQueue::modify_GUnitTests_() {
+bool GGenomeFixedSizePriorityQueue::modify_GUnitTests_() {
 #ifdef GEM_TESTING
 
     bool result = false;
@@ -324,7 +324,7 @@ bool GOptimizableEntityFixedSizePriorityQueue::modify_GUnitTests_() {
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
     Gem::Common::condnotset(
-        "GOptimizableEntityFixedSizePriorityQueue<GGenome>::modify_GUnitTests",
+        "GGenomeFixedSizePriorityQueue<GGenome>::modify_GUnitTests",
         "GEM_TESTING"
     );
     return false;
@@ -333,7 +333,7 @@ bool GOptimizableEntityFixedSizePriorityQueue::modify_GUnitTests_() {
 
 /******************************************************************************/
 /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-void GOptimizableEntityFixedSizePriorityQueue::specificTestsNoFailureExpected_GUnitTests_() {
+void GGenomeFixedSizePriorityQueue::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 
     // Call the parent classes' functions
@@ -344,7 +344,7 @@ void GOptimizableEntityFixedSizePriorityQueue::specificTestsNoFailureExpected_GU
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
     Gem::Common::condnotset(
-        "GOptimizableEntityFixedSizePriorityQueue<GGenome>::specificTestsNoFailureExpected_"
+        "GGenomeFixedSizePriorityQueue<GGenome>::specificTestsNoFailureExpected_"
         "GUnitTests",
         "GEM_TESTING"
     );
@@ -353,7 +353,7 @@ void GOptimizableEntityFixedSizePriorityQueue::specificTestsNoFailureExpected_GU
 
 /******************************************************************************/
 /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-void GOptimizableEntityFixedSizePriorityQueue::specificTestsFailuresExpected_GUnitTests_() {
+void GGenomeFixedSizePriorityQueue::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 
     // Call the parent classes' functions
@@ -364,7 +364,7 @@ void GOptimizableEntityFixedSizePriorityQueue::specificTestsFailuresExpected_GUn
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
     Gem::Common::condnotset(
-        "GOptimizableEntityFixedSizePriorityQueue<GGenome>::specificTestsFailuresExpected_"
+        "GGenomeFixedSizePriorityQueue<GGenome>::specificTestsFailuresExpected_"
         "GUnitTests_",
         "GEM_TESTING"
     );

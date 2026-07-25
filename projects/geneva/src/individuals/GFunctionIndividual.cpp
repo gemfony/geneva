@@ -44,8 +44,8 @@
 #include "geneva/genome/GGenomeBuilder.hpp"
 #include "geneva/oa/GAdaption.hpp"
 #include "geneva/oa/GAdaptionConfig.hpp"
-#include "geneva/genome/GOptimizableEntityFactory.hpp"
-#include "geneva/genome/GOptimizableEntityMultiConstraint.hpp"
+#include "geneva/genome/GGenomeFactory.hpp"
+#include "geneva/genome/GGenomeMultiConstraint.hpp"
 #include "hap/GRandomT.hpp"
 #include <algorithm>
 #include <cmath>
@@ -97,7 +97,7 @@ GDoubleSumConstraint::GDoubleSumConstraint(const double &c)
  */
 void GDoubleSumConstraint::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) {
     // Call our parent class'es function
-    gen::GOptimizableEntityConstraint::addConfigurationOptions_(gpb);
+    gen::GGenomeConstraint::addConfigurationOptions_(gpb);
 }
 
 /******************************************************************************/
@@ -146,7 +146,7 @@ GDoubleSumGapConstraint::GDoubleSumGapConstraint(const double &c, const double &
  */
 void GDoubleSumGapConstraint::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) {
     // Call our parent class'es function
-    gen::GOptimizableEntityConstraint::addConfigurationOptions_(gpb);
+    gen::GGenomeConstraint::addConfigurationOptions_(gpb);
 }
 
 /******************************************************************************/
@@ -195,7 +195,7 @@ GSphereConstraint::GSphereConstraint(const double &diameter)
  */
 void GSphereConstraint::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) {
     // Call our parent class'es function
-    gen::GOptimizableEntityConstraint::addConfigurationOptions_(gpb);
+    gen::GGenomeConstraint::addConfigurationOptions_(gpb);
 }
 
 /******************************************************************************/

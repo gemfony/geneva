@@ -55,8 +55,8 @@ namespace Gem::Geneva::Genome {
  * class is to "translate" GGenome-based constraints into constraints
  * based on GGenome
  */
-class GOptimizableEntityConstraint // NOLINT(cppcoreguidelines-special-member-functions)
-  : public Gem::Common::GReflectiveInterfaceBaseT<GOptimizableEntityConstraint, GPreEvaluationValidityCheckT<GGenome>> {
+class GGenomeConstraint // NOLINT(cppcoreguidelines-special-member-functions)
+  : public Gem::Common::GReflectiveInterfaceBaseT<GGenomeConstraint, GPreEvaluationValidityCheckT<GGenome>> {
     ///////////////////////////////////////////////////////////////////////
     // GReflectiveInterfaceAccess lets the mixin reach localMembers_(); this abstract class is
     // never Boost-constructed.
@@ -71,18 +71,18 @@ class GOptimizableEntityConstraint // NOLINT(cppcoreguidelines-special-member-fu
     ///////////////////////////////////////////////////////////////////////
 public:
     /** @brief The class name, consumed by the GReflectiveInterfaceBaseT-generated name_() / compare token. */
-    static constexpr std::string_view class_name = "GOptimizableEntityConstraint";
+    static constexpr std::string_view class_name = "GGenomeConstraint";
 
     /** @brief The default constructor */
-    GOptimizableEntityConstraint() = default;
+    GGenomeConstraint() = default;
     /**
      * @brief The copy constructor
      *
-     * @param cp A constant reference to another GOptimizableEntityConstraint object to be copied
+     * @param cp A constant reference to another GGenomeConstraint object to be copied
      */
-    GOptimizableEntityConstraint(const GOptimizableEntityConstraint & cp) = default;
+    GGenomeConstraint(const GGenomeConstraint & cp) = default;
     /** @brief The destructor */
-    ~GOptimizableEntityConstraint() override = default;
+    ~GGenomeConstraint() override = default;
 
 protected:
     /**

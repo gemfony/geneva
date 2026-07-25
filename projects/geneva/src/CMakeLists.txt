@@ -33,7 +33,7 @@ SET ( OPTIMIZATIONSOURCES
 	GConsumerSetup.cpp
 	GFaultInjector.cpp
 	GenevaInitializer.cpp
-	GOptimizableEntityCommandContainerExport.cpp
+	GGenomeCommandContainerExport.cpp
 	Go2.cpp
     oa/GBasePluggableOM.cpp
     oa/GPluggableOptimizationMonitors.cpp
@@ -65,8 +65,8 @@ SET ( OPTIMIZATIONSOURCES
 	genome/GIndividualProcessingResult.cpp
 	genome/GProblemPolicy.cpp
 	genome/GGenome.cpp
-	genome/GOptimizableEntityFixedSizePriorityQueue.cpp
-	genome/GOptimizableEntityMultiConstraint.cpp
+	genome/GGenomeFixedSizePriorityQueue.cpp
+	genome/GGenomeMultiConstraint.cpp
 	genome/GIndividualMultiConstraint.cpp
 	GPersonalityTraits.cpp
 )
@@ -82,7 +82,7 @@ IF(GENEVA_BUILD_TESTS)
 ENDIF()
 
 # The reusable sample individuals are packaged, NOT compiled into the geneva library (DA1: libgemfony-geneva
-# ships zero concrete GOptimizableEntity subclasses). Each MODE-both declaration builds an OBJECT library
+# ships zero concrete GGenome subclasses). Each MODE-both declaration builds an OBJECT library
 # <name>-obj (linked by the individual's compile-in consumers -- examples / tests / benchmarks) and a
 # runtime-loadable module lib<name>.so (loaded by the generic optimizer via --individual). One
 # BOOST_CLASS_EXPORT_IMPLEMENT (in the individual's own .cpp) serves both; each module-only glue TU carries the

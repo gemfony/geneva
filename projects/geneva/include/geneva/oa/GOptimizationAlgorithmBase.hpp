@@ -65,7 +65,7 @@
 #include "courtier/GSubmissionPolicy.hpp"
 #include "courtier/consumers/GStdThreadConsumerT.hpp" // the default consumer built when none was set
 #include "geneva/genome/GGenome.hpp"
-#include "geneva/genome/GOptimizableEntityFixedSizePriorityQueue.hpp"
+#include "geneva/genome/GGenomeFixedSizePriorityQueue.hpp"
 #include "geneva/GPersonalityTraits.hpp"
 #include "geneva/Interface/GOptimizerIT.hpp"
 #include "geneva/GenevaHelperFunctions.hpp"
@@ -595,7 +595,7 @@ public:
      * @brief If individuals have been stored in this population, they are added to the priority queue.
      * @param best_individuals The priority queue that the stored best individuals are added to
      */
-    void addCleanStoredBests(gen::GOptimizableEntityFixedSizePriorityQueue &best_individuals);
+    void addCleanStoredBests(gen::GGenomeFixedSizePriorityQueue &best_individuals);
 
     /**
      * @brief Helper function that determines whether we are currently inside of the first iteration.
@@ -815,12 +815,12 @@ protected:
      * @brief Adds the individuals of this iteration to the global-best priority queue.
      * @param best_individuals The priority queue the current iteration's individuals are added to
      */
-    virtual void updateGlobalBestsPQ_(gen::GOptimizableEntityFixedSizePriorityQueue &best_individuals);
+    virtual void updateGlobalBestsPQ_(gen::GGenomeFixedSizePriorityQueue &best_individuals);
     /**
      * @brief Adds the individuals of this iteration to the iteration-best priority queue.
      * @param best_individuals The priority queue the current iteration's individuals are added to
      */
-    virtual void updateIterationBestsPQ_(gen::GOptimizableEntityFixedSizePriorityQueue &best_individuals);
+    virtual void updateIterationBestsPQ_(gen::GGenomeFixedSizePriorityQueue &best_individuals);
 
     /**
      * @brief Set the number of "best" individuals to be recorded in each iteration.
@@ -1059,10 +1059,10 @@ private:
 
     std::size_t n_recordbest_global_individuals_ =
         DEFNRECORDBESTINDIVIDUALS; ///< Indicates the number of best individuals to be recorded/updated in each iteration
-    gen::GOptimizableEntityFixedSizePriorityQueue best_global_individuals_pq_{
+    gen::GGenomeFixedSizePriorityQueue best_global_individuals_pq_{
         n_recordbest_global_individuals_
     }; ///< A priority queue with the best individuals found so far
-    gen::GOptimizableEntityFixedSizePriorityQueue best_iteration_individuals_pq_{
+    gen::GGenomeFixedSizePriorityQueue best_iteration_individuals_pq_{
         n_recordbest_global_individuals_
     }; ///< A priority queue with the best individuals of a given iteration; capped at n_recordbest_global_individuals_ (same capacity as the global-best queue)
 

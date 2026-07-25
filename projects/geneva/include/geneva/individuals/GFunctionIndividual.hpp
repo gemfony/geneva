@@ -50,8 +50,8 @@
 #include "geneva/genome/GGenomeT.hpp"
 #include "geneva/genome/GIndividualFactory.hpp"
 #include "geneva/genome/GGenomeBuilder.hpp"
-#include "geneva/genome/GOptimizableEntityFactory.hpp"
-#include "geneva/genome/GOptimizableEntityMultiConstraint.hpp"
+#include "geneva/genome/GGenomeFactory.hpp"
+#include "geneva/genome/GGenomeMultiConstraint.hpp"
 
 namespace Gem::Geneva::OptimizationAlgorithms {
 class GAdaptionConfigBase;
@@ -678,7 +678,7 @@ using GFunctionIndividualFactory =
  * than a given constant.
  */
 class GDoubleSumConstraint
-  : public Gem::Common::GReflectiveInterfaceT<GDoubleSumConstraint, gen::GOptimizableEntityConstraint> { // NOLINT(cppcoreguidelines-special-member-functions)
+  : public Gem::Common::GReflectiveInterfaceT<GDoubleSumConstraint, gen::GGenomeConstraint> { // NOLINT(cppcoreguidelines-special-member-functions)
     ///////////////////////////////////////////////////////////////////////
     friend struct Gem::Common::GReflectiveInterfaceAccess;
 
@@ -736,7 +736,7 @@ private:
  * sign!) for double variables
  */
 class GDoubleSumGapConstraint
-  : public Gem::Common::GReflectiveInterfaceT<GDoubleSumGapConstraint, gen::GOptimizableEntityConstraint> { // NOLINT(cppcoreguidelines-special-member-functions)
+  : public Gem::Common::GReflectiveInterfaceT<GDoubleSumGapConstraint, gen::GGenomeConstraint> { // NOLINT(cppcoreguidelines-special-member-functions)
     ///////////////////////////////////////////////////////////////////////
     friend struct Gem::Common::GReflectiveInterfaceAccess;
 
@@ -798,7 +798,7 @@ private:
  * a given constraint. Here, valid solutions lie in a sphere around 0
  */
 class GSphereConstraint
-  : public Gem::Common::GReflectiveInterfaceT<GSphereConstraint, gen::GOptimizableEntityConstraint> { // NOLINT(cppcoreguidelines-special-member-functions)
+  : public Gem::Common::GReflectiveInterfaceT<GSphereConstraint, gen::GGenomeConstraint> { // NOLINT(cppcoreguidelines-special-member-functions)
     ///////////////////////////////////////////////////////////////////////
     friend struct Gem::Common::GReflectiveInterfaceAccess;
 

@@ -55,7 +55,7 @@ namespace Gem::Dietrich {
  * dietrich/README.md.
  */
 class GPlotDesigner
-  : public Gem::Common::GReflectiveInterfaceT<GPlotDesigner, Gem::Common::GCommonInterfaceT<GPlotDesigner>, GPlotDesigner> {
+  : public Gem::Common::GReflectiveInterfaceT<GPlotDesigner, Gem::Common::GCommonInterfaceT<GPlotDesigner>> {
     ///////////////////////////////////////////////////////////////////////
     // Gem::Weft::access default-constructs this concrete type on load;
     // GReflectiveInterfaceAccess lets the GReflectiveInterfaceT base reach this class's private localMembers_().

@@ -42,7 +42,7 @@
 #include "geneva/genome/GGenomeBuilder.hpp"
 #include "geneva/oa/GAdaption.hpp"
 #include "geneva/oa/GAdaptionConfig.hpp"
-#include "geneva/genome/GOptimizableEntityMultiConstraint.hpp"
+#include "geneva/genome/GGenomeMultiConstraint.hpp"
 #include <algorithm>
 #include <chrono>
 #include <cstddef>
