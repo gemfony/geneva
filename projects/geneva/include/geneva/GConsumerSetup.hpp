@@ -45,7 +45,7 @@
 #include "common/GCommonEnums.hpp" // serializationMode
 #include "common/GProviderStoreT.hpp"
 #include "courtier/GBaseConsumerT.hpp"
-#include "geneva/genome/GOptimizableEntity.hpp"
+#include "geneva/genome/GGenome.hpp"
 
 namespace Gem::Courtier {
 template <typename processable_type>
@@ -87,7 +87,7 @@ struct ConsumerSetup {
     /** @brief The ready consumer (clone function set, server started for networked consumers), also
      *  registered as the process's single consumer in GConsumerRegistry. Null when this process is not a
      *  submitter -- e.g. an MPI worker rank. */
-    std::shared_ptr<Gem::Courtier::GBaseConsumerT<gen::GOptimizableEntity>> consumer;
+    std::shared_ptr<Gem::Courtier::GBaseConsumerT<gen::GGenome>> consumer;
     /** @brief When this process must serve as a worker (an MPI worker rank), the loop to run; null
      *  otherwise. The caller invokes it instead of submitting. */
     std::move_only_function<void()> run_worker;
@@ -109,7 +109,7 @@ struct ConsumerSetup {
  * returns nullptr.
  */
 class GConsumerProviderT
-  : public Gem::Common::GProviderT<Gem::Courtier::GBaseConsumerT<gen::GOptimizableEntity>> {
+  : public Gem::Common::GProviderT<Gem::Courtier::GBaseConsumerT<gen::GGenome>> {
 public:
     /** @brief Builds this consumer (and, for an MPI worker rank, a worker loop) for the current process.
      *  @param spec The consumer specification. @return The consumer and/or worker loop for this process. */
@@ -120,7 +120,7 @@ public:
         const boost::program_options::variables_map &vm) const = 0;
     /** @brief Builds the networked client matching @p spec, or nullptr for a local-only consumer.
      *  @param spec The consumer specification. @return The client, or nullptr. */
-    [[nodiscard]] virtual std::shared_ptr<Gem::Courtier::GBaseClientT<gen::GOptimizableEntity>>
+    [[nodiscard]] virtual std::shared_ptr<Gem::Courtier::GBaseClientT<gen::GGenome>>
     buildClient(const ConsumerSpec &spec) const = 0;
     /** @brief Whether a process selecting this consumer can run as a networked client.
      *  @return true for networked consumers (asio/beast/mpi), false otherwise. */
@@ -141,7 +141,7 @@ public:
 
     /** @brief Unused for consumers (they are built via setup(), not handed out prototype-style).
      *  @return nullptr. */
-    std::shared_ptr<Gem::Courtier::GBaseConsumerT<gen::GOptimizableEntity>> provide() override {
+    std::shared_ptr<Gem::Courtier::GBaseConsumerT<gen::GGenome>> provide() override {
         return nullptr;
     }
 };
@@ -156,7 +156,7 @@ public:
  * @return The shared consumer-provider store singleton (never nullptr).
  */
 [[nodiscard]] inline auto consumerProviderStore() {
-    return Gem::Common::providerStore<Gem::Courtier::GBaseConsumerT<gen::GOptimizableEntity>>();
+    return Gem::Common::providerStore<Gem::Courtier::GBaseConsumerT<gen::GGenome>>();
 }
 
 /******************************************************************************/
@@ -164,7 +164,7 @@ public:
  * @brief Builds a courtier setup (consumer and/or worker loop) for the current process from a spec.
  *
  * Resolves @c spec.mnemonic against @c consumerProviderStore() and invokes the matching provider's
- * @c setup(): it constructs the consumer, sets the polymorphic GOptimizableEntity clone function
+ * @c setup(): it constructs the consumer, sets the polymorphic GGenome clone function
  * (required by clone-on-partial-return), and -- for networked consumers -- starts the server (for MPI
  * only on the master rank; a worker rank yields a run_worker loop and a null consumer instead). The
  * freshly-built consumer is registered in GConsumerRegistry as the process's single consumer. A socket
@@ -207,7 +207,7 @@ ConsumerSpec specFromCommandLine(
  * @return The constructed client, or null for mnemonics that have no socket client (stc is local;
  *   the mpi worker loop is obtained from buildConsumerSetup().run_worker instead).
  */
-std::shared_ptr<Gem::Courtier::GBaseClientT<gen::GOptimizableEntity>>
+std::shared_ptr<Gem::Courtier::GBaseClientT<gen::GGenome>>
 buildConsumerClient(const ConsumerSpec &spec);
 
 /******************************************************************************/

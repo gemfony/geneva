@@ -245,12 +245,12 @@ inline std::size_t runAdaptionKernels(
 
 /******************************************************************************/
 /**
- * @brief The OA-side replacement for GOptimizableEntity::adapt(): runs the data-oriented adaption
+ * @brief The OA-side replacement for GGenome::adapt(): runs the data-oriented adaption
  * kernels over an individual inside the same "guarantee a change, then a valid solution" retry loop the
  * individual's adapt() used, but driven by the OA-owned config and an RNG proxy leased from the
  * process-global Gem::Hap::randomLeasePool() (the candidate holds no RNG of its own).
  *
- * Mirrors GOptimizableEntity::adapt() exactly: the inner loop retries customAdaptions (here:
+ * Mirrors GGenome::adapt() exactly: the inner loop retries customAdaptions (here:
  * runAdaptionKernels) until at least one value changed or max_unsuccessful_adaptions is exceeded; the
  * outer loop retries until the individual fulfils its constraints or max_retries_until_valid is
  * exceeded. Marks the individual due for processing iff at least one adaption happened, records the

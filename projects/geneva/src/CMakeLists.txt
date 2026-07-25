@@ -64,7 +64,6 @@ SET ( OPTIMIZATIONSOURCES
 	genome/GParameterPropertyParser.cpp
 	genome/GIndividualProcessingResult.cpp
 	genome/GProblemPolicy.cpp
-	genome/GOptimizableEntity.cpp
 	genome/GGenome.cpp
 	genome/GOptimizableEntityFixedSizePriorityQueue.cpp
 	genome/GOptimizableEntityMultiConstraint.cpp

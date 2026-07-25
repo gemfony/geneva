@@ -39,7 +39,7 @@
 #include "geneva/oa/GConjugateGradientDescent_PersonalityTraits.hpp"
 #include "geneva/oa/GSwarmAlgorithm_PersonalityTraits.hpp"
 #include "geneva/genome/GGenome.hpp"
-#include "geneva/genome/GOptimizableEntity.hpp"
+#include "geneva/genome/GGenome.hpp"
 #include "geneva/genome/GGenomeBuilder.hpp"
 #include "geneva/oa/GAdaption.hpp"
 #include <algorithm>
@@ -399,7 +399,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
 
     { // Check setting and retrieval of the current personality status and whether the personalities
       // themselves can be accessed. The personality is OA scratch carried on the individual itself
-      // (in its GAuxiliaryStore), exercised here via the personality surface on GOptimizableEntity.
+      // (in its GAuxiliaryStore), exercised here via the personality surface on GGenome.
         auto ind = this->clone();
         std::shared_ptr<GPersonalityTraits> p_pt;
 

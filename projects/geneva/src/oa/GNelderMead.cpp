@@ -44,7 +44,7 @@
 #include "geneva/GenevaHelperFunctions.hpp"
 #include "geneva/oa/GOptimizationAlgorithmBase.hpp"
 #include "geneva/oa/GNelderMead_PersonalityTraits.hpp"
-#include "geneva/genome/GOptimizableEntity.hpp"
+#include "geneva/genome/GGenome.hpp"
 #include <cstddef>
 #include <cstdint>
 #include <memory>
@@ -832,10 +832,10 @@ void GNelderMead::adjustPopulation_() {
     // The seeds currently sit at positions 0 .. n_simplices_-1. Re-order them so
     // that seed s ends up at vertexPos(s,0) and fill the rest of every block
     // with clones (the real initial simplex is constructed in init()).
-    std::vector<std::shared_ptr<gen::GOptimizableEntity>> seeds;
+    std::vector<std::shared_ptr<gen::GGenome>> seeds;
     seeds.reserve(n_simplices_);
     for(std::size_t s = 0; s < n_simplices_; s++) {
-        seeds.push_back(this->at(s)->clone<gen::GOptimizableEntity>());
+        seeds.push_back(this->at(s)->clone<gen::GGenome>());
     }
 
     this->clear();

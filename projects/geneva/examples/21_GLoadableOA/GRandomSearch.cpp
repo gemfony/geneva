@@ -42,7 +42,7 @@
 #include "courtier/GCourtierEnums.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/GenevaHelperFunctions.hpp" // isBetter
-#include "geneva/genome/GOptimizableEntity.hpp"
+#include "geneva/genome/GGenome.hpp"
 
 #include "GRandomSearch_PersonalityTraits.hpp"
 

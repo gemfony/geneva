@@ -56,7 +56,7 @@
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/GFaultInjector.hpp"
 #include "common/GSigHupHandler.hpp"
-#include "geneva/genome/GOptimizableEntity.hpp"
+#include "geneva/genome/GGenome.hpp"
 #include "geneva/Interface/GOptimizerIT.hpp"
 #include "geneva/oa/GOptimizationAlgorithmBase.hpp"
 #include "geneva/oa/GFactoryStore.hpp"
@@ -95,7 +95,7 @@ using GOABase = oa::GOptimizationAlgorithmBase;
  */
 class Go2 // NOLINT(cppcoreguidelines-special-member-functions)
   : public Interface::GOptimizerIT<Go2>
-  , public Gem::Common::GPtrContainerT<gen::GOptimizableEntity> {
+  , public Gem::Common::GPtrContainerT<gen::GGenome> {
 public:
     /** @brief The default constructor */
     Go2() = delete;
@@ -173,7 +173,7 @@ public:
      *  after construction and before optimize().
      *  @param consumer The ready-to-use consumer to register as the process consumer (ownership is taken via move). */
     void registerConsumer(
-        std::shared_ptr<Gem::Courtier::GBaseConsumerT<gen::GOptimizableEntity>> consumer);
+        std::shared_ptr<Gem::Courtier::GBaseConsumerT<gen::GGenome>> consumer);
 
     /** @brief Selects the consumer (parallelization backend) by mnemonic (e.g. "stc", "asio", "beast",
      *  "mpi", "gpu") -- the programmatic equivalent of the --consumer command-line option / the "consumer"
@@ -215,14 +215,14 @@ public:
      * @param cc_ptr A shared pointer to the factory used to fill the initial population
      */
     void
-        registerContentCreator(const std::shared_ptr<Gem::Common::GFactoryT<gen::GOptimizableEntity>> &cc_ptr);
+        registerContentCreator(const std::shared_ptr<Gem::Common::GFactoryT<gen::GGenome>> &cc_ptr);
 
     /**
      * @brief @return The registered content-creator factory (compiled-in or loaded from a plugin), or an
      *  empty pointer if none. A generic launcher uses this to pull e.g. the OA-owned adaption config from a
      *  runtime-loaded individual it does not know the concrete type of.
      */
-    std::shared_ptr<Gem::Common::GFactoryT<gen::GOptimizableEntity>> getContentCreator() const {
+    std::shared_ptr<Gem::Common::GFactoryT<gen::GGenome>> getContentCreator() const {
         return content_creator_ptr_;
     }
 
@@ -396,7 +396,7 @@ private:
      *  @param cc_ptr The content-creator factory to install (must not be empty)
      *  @param source Where this content creator came from (for the diagnostic on a double claim) */
     void claimContentCreator_(
-        const std::shared_ptr<Gem::Common::GFactoryT<gen::GOptimizableEntity>> &cc_ptr,
+        const std::shared_ptr<Gem::Common::GFactoryT<gen::GGenome>> &cc_ptr,
         individualSource source
     );
 
@@ -406,23 +406,23 @@ private:
      * @brief Retrieves the best individual found globally across the whole run.
      * @return A shared pointer to the globally best individual
      */
-    std::shared_ptr<gen::GOptimizableEntity> getBestGlobalIndividual_() const final;
+    std::shared_ptr<gen::GGenome> getBestGlobalIndividual_() const final;
     /**
      * @brief Retrieves a list of the globally best individuals found.
      * @return A vector of shared pointers to the globally best individuals
      */
-    std::vector<std::shared_ptr<gen::GOptimizableEntity>>
+    std::vector<std::shared_ptr<gen::GGenome>>
     getBestGlobalIndividuals_() const final;
     /**
      * @brief Retrieves the best individual found in the current iteration.
      * @return A shared pointer to the best individual of the current iteration
      */
-    std::shared_ptr<gen::GOptimizableEntity> getBestIterationIndividual_() const final;
+    std::shared_ptr<gen::GGenome> getBestIterationIndividual_() const final;
     /**
      * @brief Retrieves a list of the best individuals found in the current iteration.
      * @return A vector of shared pointers to the best individuals of the current iteration
      */
-    std::vector<std::shared_ptr<gen::GOptimizableEntity>>
+    std::vector<std::shared_ptr<gen::GGenome>>
     getBestIterationIndividuals_() const final;
 
     /**
@@ -565,7 +565,7 @@ private:
     /** @brief The single server-backed/local courtier consumer, shared across all algorithms. Held here
      *  so it (and any listening server) outlives the run and is torn down by RAII at Go2 destruction.
      *  Null when this process is not a submitter (a role-at-runtime consumer placed it in the worker role). */
-    std::shared_ptr<Gem::Courtier::GBaseConsumerT<gen::GOptimizableEntity>> consumer_;
+    std::shared_ptr<Gem::Courtier::GBaseConsumerT<gen::GGenome>> consumer_;
     /** @brief Set when a role-at-runtime consumer (see GConsumerProviderT::determinesRoleAtRuntime, e.g.
      *  the MPI worker rank) placed this process in the worker role: the worker loop clientRun_ runs instead
      *  of building a networked client. Type-erased so Go2.hpp needs no transport headers; the captured
@@ -611,7 +611,7 @@ private:
     // A string representation of the default algorithm
     const std::string default_algorithm_str_ = DEFAULTOPTALG; ///< This is the last fall-back
     // Holds an object capable of producing objects of the desired type
-    std::shared_ptr<Gem::Common::GFactoryT<gen::GOptimizableEntity>> content_creator_ptr_;
+    std::shared_ptr<Gem::Common::GFactoryT<gen::GGenome>> content_creator_ptr_;
     // Where content_creator_ptr_ came from (enforces one-individual-per-process, see claimContentCreator_)
     individualSource content_creator_source_ = individualSource::NONE;
     // Filesystem path to a runtime individual plugin (.so) to load; settable via config or --individual.

@@ -47,7 +47,7 @@
 namespace Gem::Geneva {
 
 // Forward declaration
-namespace Genome { class GOptimizableEntity; }
+namespace Genome { class GGenome; }
 
 /******************************************************************************/
 /**
@@ -56,7 +56,7 @@ namespace Genome { class GOptimizableEntity; }
  * validity. Note that the classes in this hierarchy are meant to be used PRIOR
  * to the evaluation.
  *
- * @tparam ind_type The individual type to be checked; must derive from Genome::GOptimizableEntity
+ * @tparam ind_type The individual type to be checked; must derive from Genome::GGenome
  */
 template <typename ind_type>
 class GPreEvaluationValidityCheckT // NOLINT(cppcoreguidelines-special-member-functions)
@@ -71,11 +71,11 @@ class GPreEvaluationValidityCheckT // NOLINT(cppcoreguidelines-special-member-fu
     ///////////////////////////////////////////////////////////////////////
 
     // A constraint reads the candidate's parameter values via the genome value API (streamlineFP), which
-    // lives on the algorithm-facing base GOptimizableEntity. Every individual derives that base, so the
+    // lives on the algorithm-facing base GGenome. Every individual derives that base, so the
     // constraint is parameterised on it.
     static_assert(
-        std::is_base_of_v<Genome::GOptimizableEntity, ind_type>,
-        "ind_type must derive from Gem::Geneva::Genome::GOptimizableEntity"
+        std::is_base_of_v<Genome::GGenome, ind_type>,
+        "ind_type must derive from Gem::Geneva::Genome::GGenome"
     );
 
 public:
@@ -307,7 +307,7 @@ private:
 /**
  * A collection of validity checks with the GPreEvaluationValidityCheckT interface
  *
- * @tparam ind_type The individual type to be checked; must derive from Genome::GOptimizableEntity
+ * @tparam ind_type The individual type to be checked; must derive from Genome::GGenome
  */
 template <typename ind_type>
 class GValidityCheckContainerT
@@ -430,7 +430,7 @@ protected:
  * A class which combines all values (i.e. values > 1) according to a
  * user-defined policy or returns 0, if all checks are valid.
  *
- * @tparam ind_type The individual type to be checked; must derive from Genome::GOptimizableEntity
+ * @tparam ind_type The individual type to be checked; must derive from Genome::GGenome
  */
 template <typename ind_type>
 class GCheckCombinerT

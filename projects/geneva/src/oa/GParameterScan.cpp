@@ -40,7 +40,7 @@
 #include "geneva/oa/GOptimizationAlgorithmBase.hpp"
 #include "geneva/oa/GParameterScan_PersonalityTraits.hpp"
 #include "geneva/genome/GParameterPropertyParser.hpp"
-#include "geneva/genome/GOptimizableEntity.hpp"
+#include "geneva/genome/GGenome.hpp"
 #include <cmath>
 #include <cstddef>
 #include <cstdint>

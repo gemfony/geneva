@@ -127,7 +127,7 @@ double reportParitySummary(const std::vector<double> &rel, int n, double rel_tol
 }
 
 int runParityCheck(int n, const std::string &consumerConfig) {
-    using gen::GOptimizableEntity;
+    using gen::GGenome;
 
     // Double-precision sequential sums on both sides: a tight relative tolerance suffices, with a best-of-N
     // criterion (Inv 18) so a single reduction-order outlier does not fail the whole check.
@@ -144,7 +144,7 @@ int runParityCheck(int n, const std::string &consumerConfig) {
     // Draw n random individuals for the CPU reference and, for each, an independent clone for the GPU so the
     // two paths score IDENTICAL genomes (each process() stores its result on its own item).
     std::vector<std::shared_ptr<gind::GFunctionIndividual>> cpuInds;
-    std::vector<std::unique_ptr<GOptimizableEntity>> gpuBatch;
+    std::vector<std::unique_ptr<GGenome>> gpuBatch;
     cpuInds.reserve(static_cast<std::size_t>(n));
     gpuBatch.reserve(static_cast<std::size_t>(n));
     for(int i = 0; i < n; ++i) {
@@ -167,10 +167,10 @@ int runParityCheck(int n, const std::string &consumerConfig) {
     // GPU: build the device marshaller + consumer directly (the same GGPUConsumerT the "gpu" mnemonic
     // builds) and evaluate the whole batch in one bulk launch. full_success_or_fatal: every item must be evaluated.
     auto marshaller = std::make_shared<FunctionGPU::GFunctionGPUMarshaller>();
-    auto consumer = std::make_shared<gpu::GGPUConsumerT<GOptimizableEntity, double>>(consumerConfig, marshaller);
-    consumer->setCloneFunction([](const std::unique_ptr<GOptimizableEntity> &p) { return p->clone(); });
+    auto consumer = std::make_shared<gpu::GGPUConsumerT<GGenome, double>>(consumerConfig, marshaller);
+    consumer->setCloneFunction([](const std::unique_ptr<GGenome> &p) { return p->clone(); });
     consumer->processBatch(
-        std::span<std::unique_ptr<GOptimizableEntity>>(gpuBatch.data(), gpuBatch.size()),
+        std::span<std::unique_ptr<GGenome>>(gpuBatch.data(), gpuBatch.size()),
         Gem::Courtier::GSubmissionPolicy::full_success_or_fatal());
 
     std::vector<double> fitness_gpu(static_cast<std::size_t>(n));
@@ -236,7 +236,7 @@ int main(int argc, char **argv) {
     // backend/kernel are acquired lazily on the first dispatch, so no device is required).
     if(go.updateConfigsMode()) {
         auto marshaller = std::make_shared<FunctionGPU::GFunctionGPUMarshaller>();
-        gpu::GGPUConsumerT<gen::GOptimizableEntity, double>(consumerConfig, marshaller);
+        gpu::GGPUConsumerT<gen::GGenome, double>(consumerConfig, marshaller);
         gind::GFunctionIndividualFactory("./config/GFunctionIndividual.json").get_as<gind::GFunctionIndividual>();
         go.optimize(); // refreshes Go2's owned configs, then exits; nothing device-dependent has run
     }

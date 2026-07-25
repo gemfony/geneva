@@ -32,7 +32,7 @@
 #include "common/GExpectationChecksT.hpp"
 #include "common/GParserBuilder.hpp"
 #include "geneva/genome/GMultiConstraintT.hpp"
-#include "geneva/genome/GOptimizableEntity.hpp"
+#include "geneva/genome/GGenome.hpp"
 
 namespace Gem::Geneva::Genome {
 
@@ -50,7 +50,7 @@ namespace Gem::Geneva::Genome {
  */
 void GOptimizableEntityConstraint::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) {
     // Call our parent class'es function
-    GPreEvaluationValidityCheckT<GOptimizableEntity>::addConfigurationOptions_(gpb);
+    GPreEvaluationValidityCheckT<GGenome>::addConfigurationOptions_(gpb);
 }
 
 /******************************************************************************/

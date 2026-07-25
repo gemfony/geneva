@@ -64,7 +64,7 @@
 #include "courtier/GConsumerRegistry.hpp"
 #include "courtier/GSubmissionPolicy.hpp"
 #include "courtier/consumers/GStdThreadConsumerT.hpp" // the default consumer built when none was set
-#include "geneva/genome/GOptimizableEntity.hpp"
+#include "geneva/genome/GGenome.hpp"
 #include "geneva/genome/GOptimizableEntityFixedSizePriorityQueue.hpp"
 #include "geneva/GPersonalityTraits.hpp"
 #include "geneva/Interface/GOptimizerIT.hpp"
@@ -101,7 +101,7 @@ class GOptimizationAlgorithmBase // NOLINT(cppcoreguidelines-special-member-func
   : public Gem::Common::GReflectiveInterfaceBaseT<
         GOptimizationAlgorithmBase, Gem::Common::GCommonInterfaceT<GOptimizationAlgorithmBase>
     >
-  , public Gem::Common::GUniquePtrContainerT<gen::GOptimizableEntity>
+  , public Gem::Common::GUniquePtrContainerT<gen::GGenome>
   , public Interface::GOptimizerIT<GOptimizationAlgorithmBase> {
 private:
     ///////////////////////////////////////////////////////////////////////
@@ -119,7 +119,7 @@ private:
      *
      * The two members that are NOT plain-and-serialized are expressed through their own
      * descriptor kinds, so the whole class still derives from this one list:
-     *  - the population held by the GUniquePtrContainerT<GOptimizableEntity> base is tied in
+     *  - the population held by the GUniquePtrContainerT<GGenome> base is tied in
      *    as data_cnt_ via make_cloneable_container_member() (deep-cloned on load, element-wise
      *    compared, serialized as a member) -- so that container stays a behaviour-only base and
      *    needs no base_object handling, mirroring GBaseScanParT;
@@ -201,10 +201,10 @@ public:
     using Gem::Common::GCommonInterfaceT<GOptimizationAlgorithmBase>::load;
 
     /***************************************************************************/
-    // The population element IS the work item (gen::GOptimizableEntity), which carries its own OA
+    // The population element IS the work item (gen::GGenome), which carries its own OA
     // scratch. A user adds bare individuals straight into the population; the inherited push_back
     // overloads are re-exposed so callers can grow the population directly.
-    using Gem::Common::GUniquePtrContainerT<gen::GOptimizableEntity>::push_back;
+    using Gem::Common::GUniquePtrContainerT<gen::GGenome>::push_back;
 
     /**
      * @brief The copy constructor.
@@ -526,7 +526,7 @@ public:
      * @param seen The set of already-represented submission UUIDs (updated with survivors)
      */
     static void retainIntegrableLateReturns(
-        std::vector<std::unique_ptr<gen::GOptimizableEntity>> &items,
+        std::vector<std::unique_ptr<gen::GGenome>> &items,
         std::set<Gem::Courtier::SUBMISSION_UUID_TYPE> &seen
     );
 
@@ -560,7 +560,7 @@ public:
      *
      * @tparam target_type The concrete individual type the entry should be converted to
      * @param pos The position in our data array that shall be converted
-     * @return A converted version of the GOptimizableEntity object, as required by the user
+     * @return A converted version of the GGenome object, as required by the user
      */
     template <typename target_type>
     std::shared_ptr<target_type> individual_cast(std::size_t pos) const {
@@ -579,8 +579,8 @@ public:
         // individual transiently, so hand back a NON-OWNING shared_ptr view (no-op deleter) of the live
         // individual rather than co-owning or cloning it -- the population element outlives the call.
         // Does error checks on the conversion internally.
-        std::shared_ptr<gen::GOptimizableEntity> const view(&(*this->at(pos)), [](gen::GOptimizableEntity *) {});
-        return Gem::Common::convertSmartPointer<gen::GOptimizableEntity, target_type>(view);
+        std::shared_ptr<gen::GGenome> const view(&(*this->at(pos)), [](gen::GGenome *) {});
+        return Gem::Common::convertSmartPointer<gen::GGenome, target_type>(view);
     }
 
     /***************************************************************************/
@@ -694,7 +694,7 @@ protected:
      * @return The executor status describing the outcome of the submission
      */
     Gem::Courtier::submission_status_t workOn(
-        std::vector<std::unique_ptr<gen::GOptimizableEntity>> &work_items,
+        std::vector<std::unique_ptr<gen::GGenome>> &work_items,
         std::size_t start,
         std::size_t end
     );
@@ -753,7 +753,7 @@ protected:
      * re-stamping, neighborhood handling) stays in the calling algorithm.
      * @return The integrable (clean, de-duplicated, in-age-window) late returns the consumer buffered
      */
-    std::vector<std::unique_ptr<gen::GOptimizableEntity>> getOldWorkItems() const;
+    std::vector<std::unique_ptr<gen::GGenome>> getOldWorkItems() const;
 
     /**
      * @brief Whether this algorithm reuses late returns -- results that arrived after their submission
@@ -886,24 +886,24 @@ private:
      * @brief Retrieves the best individual found up to now.
      * @return A shared pointer to the globally best individual
      */
-    std::shared_ptr<gen::GOptimizableEntity> getBestGlobalIndividual_() const final;
+    std::shared_ptr<gen::GGenome> getBestGlobalIndividual_() const final;
     /**
      * @brief Retrieves a list of the best individuals found.
      * @return A vector of shared pointers to the globally best individuals
      */
-    std::vector<std::shared_ptr<gen::GOptimizableEntity>>
+    std::vector<std::shared_ptr<gen::GGenome>>
     getBestGlobalIndividuals_() const final;
 
     /**
      * @brief Retrieves the best individual found in the iteration.
      * @return A shared pointer to the best individual of the current iteration
      */
-    std::shared_ptr<gen::GOptimizableEntity> getBestIterationIndividual_() const final;
+    std::shared_ptr<gen::GGenome> getBestIterationIndividual_() const final;
     /**
      * @brief Retrieves a list of the best individuals found in the current iteration.
      * @return A vector of shared pointers to the best individuals of the current iteration
      */
-    std::vector<std::shared_ptr<gen::GOptimizableEntity>>
+    std::vector<std::shared_ptr<gen::GGenome>>
     getBestIterationIndividuals_() const final;
 
     /**
@@ -1126,7 +1126,7 @@ private:
      * @return The executor status describing the outcome of the submission
      */
     Gem::Courtier::submission_status_t workOnViaConsumer_(
-        std::vector<std::unique_ptr<gen::GOptimizableEntity>> &work_items,
+        std::vector<std::unique_ptr<gen::GGenome>> &work_items,
         std::size_t start,
         std::size_t end
     );
@@ -1134,7 +1134,7 @@ private:
     /** @brief Returns the one process-wide consumer, lazily building+registering a default local
      *  thread-pool consumer (with the polymorphic clone function) if none has been established yet.
      *  @return The shared consumer this algorithm submits through */
-    std::shared_ptr<Gem::Courtier::GBaseConsumerT<gen::GOptimizableEntity>> consumerForSubmission_();
+    std::shared_ptr<Gem::Courtier::GBaseConsumerT<gen::GGenome>> consumerForSubmission_();
 };
 
 /*******************************************************************************/

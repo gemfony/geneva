@@ -46,7 +46,7 @@
 #include "common/GLogger.hpp"
 #include "courtier/gpu/GGPUEvaluableI.hpp"
 #include "geneva/genome/GGenome.hpp"
-#include "geneva/genome/GOptimizableEntity.hpp"
+#include "geneva/genome/GGenome.hpp"
 
 namespace Gem::Geneva {
 
@@ -118,9 +118,9 @@ public:
  */
 template <typename scalar_type = double>
 class GBaseGPUMarshallerT
-  : public Gem::Courtier::GPU::GGPUEvaluableI<Gem::Geneva::Genome::GOptimizableEntity, scalar_type>,
+  : public Gem::Courtier::GPU::GGPUEvaluableI<Gem::Geneva::Genome::GGenome, scalar_type>,
     public GGPUMarshallerHandle {
-    using base_type = Gem::Courtier::GPU::GGPUEvaluableI<Gem::Geneva::Genome::GOptimizableEntity, scalar_type>;
+    using base_type = Gem::Courtier::GPU::GGPUEvaluableI<Gem::Geneva::Genome::GGenome, scalar_type>;
     static_assert(std::is_same_v<scalar_type, float> || std::is_same_v<scalar_type, double>,
                   "GBaseGPUMarshallerT supports only float or double device scalars.");
 

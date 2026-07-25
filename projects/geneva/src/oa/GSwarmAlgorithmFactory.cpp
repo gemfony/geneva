@@ -35,7 +35,7 @@
 #include "geneva/oa/GOAFactoryT.hpp"
 #include "geneva/oa/GSwarmAlgorithm.hpp"
 #include "geneva/oa/GSwarmAlgorithm_PersonalityTraits.hpp"
-#include "geneva/genome/GOptimizableEntity.hpp"
+#include "geneva/genome/GGenome.hpp"
 #include <cstddef>
 #include <memory>
 #include <string>

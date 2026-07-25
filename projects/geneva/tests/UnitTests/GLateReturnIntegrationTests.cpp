@@ -52,7 +52,7 @@
 #include <catch2/catch_test_macros.hpp>
 
 #include "courtier/GCourtierEnums.hpp" // SUBMISSION_UUID_TYPE
-#include "geneva/genome/GOptimizableEntity.hpp"
+#include "geneva/genome/GGenome.hpp"
 #include "weft/GArchivePolymorphic.hpp" // GEM_REGISTER_ARCHIVABLE + archive-generic dispatch
 #include "geneva/genome/GGenomeT.hpp"
 #include "geneva/genome/GGenomeBuilder.hpp"
@@ -122,7 +122,7 @@ private:
 
 /******************************************************************************/
 /** @brief A freshly-evaluated (PROCESSED) sphere with an explicitly-set submission UUID. */
-std::unique_ptr<gen::GOptimizableEntity> make_processed(SUBMISSION_UUID_TYPE uuid) {
+std::unique_ptr<gen::GGenome> make_processed(SUBMISSION_UUID_TYPE uuid) {
     auto p = std::make_unique<LRSphere>();
     p->process(); // DO_PROCESS -> PROCESSED
     p->setSubmissionUuid(uuid);
@@ -130,7 +130,7 @@ std::unique_ptr<gen::GOptimizableEntity> make_processed(SUBMISSION_UUID_TYPE uui
 }
 
 /** @brief An errored (EXCEPTION_CAUGHT) work item with an explicitly-set submission UUID. */
-std::unique_ptr<gen::GOptimizableEntity> make_errored(SUBMISSION_UUID_TYPE uuid) {
+std::unique_ptr<gen::GGenome> make_errored(SUBMISSION_UUID_TYPE uuid) {
     auto p = std::make_unique<LRThrower>();
     try {
         p->process(); // throws; process() leaves the item in EXCEPTION_CAUGHT and rethrows
@@ -142,7 +142,7 @@ std::unique_ptr<gen::GOptimizableEntity> make_errored(SUBMISSION_UUID_TYPE uuid)
 }
 
 /** @brief An unprocessed (DO_PROCESS) work item with an explicitly-set submission UUID. */
-std::unique_ptr<gen::GOptimizableEntity> make_unprocessed(SUBMISSION_UUID_TYPE uuid) {
+std::unique_ptr<gen::GGenome> make_unprocessed(SUBMISSION_UUID_TYPE uuid) {
     auto p = std::make_unique<LRSphere>(); // setGenome() leaves it DO_PROCESS
     p->setSubmissionUuid(uuid);
     return p;
@@ -167,7 +167,7 @@ TEST_CASE("late-return gate: a fresh test individual carries a non-zero, unique 
 /******************************************************************************/
 // NOLINTNEXTLINE(readability-function-cognitive-complexity) -- one coherent test of a single retainIntegrableLateReturns() call, checked from several angles (survivors, order, processed/error state, seen-set membership)
 TEST_CASE("late-return gate: validity filter keeps only clean successes", "[lateret][validity]") {
-    std::vector<std::unique_ptr<gen::GOptimizableEntity>> items;
+    std::vector<std::unique_ptr<gen::GGenome>> items;
     items.push_back(make_processed(U(1, 1)));    // keep
     items.push_back(make_errored(U(2, 2)));      // drop -- errored
     items.push_back(make_unprocessed(U(3, 3)));  // drop -- not processed
@@ -193,7 +193,7 @@ TEST_CASE("late-return gate: validity filter keeps only clean successes", "[late
 
 /******************************************************************************/
 TEST_CASE("late-return gate: a lineage already live is rejected", "[lateret][dedup]") {
-    std::vector<std::unique_ptr<gen::GOptimizableEntity>> items;
+    std::vector<std::unique_ptr<gen::GGenome>> items;
     items.push_back(make_processed(U(7, 7)));  // already represented in the live population -> drop
     items.push_back(make_processed(U(8, 8)));  // fresh -> keep
 
@@ -207,7 +207,7 @@ TEST_CASE("late-return gate: a lineage already live is rejected", "[lateret][ded
 
 /******************************************************************************/
 TEST_CASE("late-return gate: a lineage duplicated within the batch is kept exactly once", "[lateret][dedup]") {
-    std::vector<std::unique_ptr<gen::GOptimizableEntity>> items;
+    std::vector<std::unique_ptr<gen::GGenome>> items;
     items.push_back(make_processed(U(5, 5)));  // first occurrence -> keep
     items.push_back(make_processed(U(5, 5)));  // duplicate lineage -> drop
     items.push_back(make_processed(U(6, 6)));  // distinct -> keep
@@ -222,7 +222,7 @@ TEST_CASE("late-return gate: a lineage duplicated within the batch is kept exact
 
 /******************************************************************************/
 TEST_CASE("late-return gate: distinct, clean lineages all survive", "[lateret][dedup]") {
-    std::vector<std::unique_ptr<gen::GOptimizableEntity>> items;
+    std::vector<std::unique_ptr<gen::GGenome>> items;
     for(std::uint64_t i = 0; i < 5; ++i) {
         items.push_back(make_processed(U(100 + i, 0)));
     }
@@ -238,7 +238,7 @@ TEST_CASE("late-return gate: validity and dedup compose (invalid duplicates neve
           "[lateret][validity][dedup]") {
     // An errored item shares a lineage with a later clean item: the errored one is removed by the
     // validity filter BEFORE dedup, so the clean item must still be admitted (its UUID is not yet seen).
-    std::vector<std::unique_ptr<gen::GOptimizableEntity>> items;
+    std::vector<std::unique_ptr<gen::GGenome>> items;
     items.push_back(make_errored(U(9, 9)));    // drop (errored) -- must not reserve U(9,9)
     items.push_back(make_processed(U(9, 9)));  // keep -- the only clean carrier of this lineage
 

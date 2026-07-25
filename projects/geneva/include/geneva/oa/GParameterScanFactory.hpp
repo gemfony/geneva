@@ -40,7 +40,7 @@
 
 // Geneva headers go here
 #include "courtier/GCourtierEnums.hpp"
-#include "geneva/genome/GOptimizableEntity.hpp"
+#include "geneva/genome/GGenome.hpp"
 #include "geneva/oa/GOptimizationAlgorithmBase.hpp"
 #include "geneva/oa/GOAFactoryT.hpp"
 #include "geneva/oa/GOptimizationAlgorithmFactoryT.hpp"
@@ -81,7 +81,7 @@ public:
      */
     GParameterScanFactory(
         std::filesystem::path const &config_file,
-        std::shared_ptr<Gem::Common::GFactoryT<gen::GOptimizableEntity>> content_creator_ptr
+        std::shared_ptr<Gem::Common::GFactoryT<gen::GGenome>> content_creator_ptr
     )
       : Base(config_file, std::move(content_creator_ptr)) { /* nothing */ }
     /**

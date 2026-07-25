@@ -125,7 +125,7 @@ class g_processing_exception : public geneva_exception {
  * layer down, on whichever class turns a GProcessable into an actual submittable work item. There are two
  * such implementations: the generic, geneva-free GProcessingContainerT<processable_type,
  * processing_result_type> (used by the courtier-internal demo work items / tests), and geneva's
- * specialized Gem::Geneva::Genome::GOptimizableEntity (which derives this class DIRECTLY and supplies its
+ * specialized Gem::Geneva::Genome::GGenome (which derives this class DIRECTLY and supplies its
  * own result store + process() with optimization-specific orchestration). Either way the only coupling
  * between the status machine and the result store -- clearing stored results when the status is reset --
  * is bridged by the virtual clearStoredResults_() hook, which the result-bearing derived class overrides.
@@ -402,7 +402,7 @@ protected:
     /**
      * @brief The shared processing lifecycle, stated ONCE for every processable item. This is the
      * template method the typed process() entry points (GProcessingContainerT::process and geneva's
-     * GOptimizableEntity::process) wrap: DO_PROCESS precondition, error/result reset, the timed
+     * GGenome::process) wrap: DO_PROCESS precondition, error/result reset, the timed
      * pre -> core -> (guarded) post sequence, exception funneling into EXCEPTION_CAUGHT, and the
      * error epilogue that zeroes the timings, clears the results and raises g_processing_exception.
      * The three class-specific steps arrive as callables (no virtual indirection): @p pre runs the
@@ -413,7 +413,7 @@ protected:
      * and post-processing is skipped. (This orchestration used to exist as two hand-synced copies in
      * courtier and geneva; the double-PROCESSED status bug lived in exactly that duplication.)
      *
-     * @param context The calling function's identity, used in the error texts (e.g. "GOptimizableEntity::process()")
+     * @param context The calling function's identity, used in the error texts (e.g. "GGenome::process()")
      * @param pre A callable running the class-specific pre-processing step
      * @param core A callable running the class-specific evaluation/processing
      * @param post A callable running the class-specific post-processing step
@@ -513,7 +513,7 @@ protected:
 
     /**
      * @brief Hook: re-attaches the OA-owned scratch from @p original (see graftOaScratchFrom()). The base
-     * carries no scratch, so the default is a no-op; geneva's GOptimizableEntity overrides it to deep-copy
+     * carries no scratch, so the default is a no-op; geneva's GGenome overrides it to deep-copy
      * the scratch back.
      * @param original The originally-submitted item supplying the scratch to graft back
      */

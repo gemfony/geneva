@@ -589,11 +589,11 @@ public:
     /**
      * @brief Builds an individual fully configured the way the factory would: installs the genome from
      *  @p c (whose par_dim the caller may have overridden) and the demo function, AND applies the base
-     *  GOptimizableEntity options (eval_policy / maxmode / validity thresholds) from @p configFile -- a
+     *  GGenome options (eval_policy / maxmode / validity thresholds) from @p configFile -- a
      *  faithful drop-in for factory get_as<>() for callers that need a genome dimension differing from the
      *  config file (the dimension-sweeping benchmarks).
      * @param c The configuration providing genome dimension, bounds and demo function
-     * @param configFile Path to the config file supplying the base GOptimizableEntity options
+     * @param configFile Path to the config file supplying the base GGenome options
      * @return A fully configured GFunctionIndividual, wrapped in a shared_ptr
      */
     static std::shared_ptr<GFunctionIndividual>
@@ -714,7 +714,7 @@ protected:
      * @param cp The individual whose parameters are checked
      * @return A measure of constraint violation (0 if the constraint is satisfied)
      */
-    double check_(const gen::GOptimizableEntity *p) const override;
+    double check_(const gen::GGenome *p) const override;
 
     /**
      * @brief Adds local configuration options to a GParserBuilder object.
@@ -775,7 +775,7 @@ protected:
      * @param cp The individual whose parameters are checked
      * @return A measure of constraint violation (0 if within the allowed gap)
      */
-    double check_(const gen::GOptimizableEntity *p) const override;
+    double check_(const gen::GGenome *p) const override;
 
     /**
      * @brief Adds local configuration options to a GParserBuilder object.
@@ -834,7 +834,7 @@ protected:
      * @param cp The individual whose parameters are checked
      * @return A measure of constraint violation (0 if inside the sphere)
      */
-    double check_(const gen::GOptimizableEntity *p) const override;
+    double check_(const gen::GGenome *p) const override;
 
     /**
      * @brief Adds local configuration options to a GParserBuilder object.

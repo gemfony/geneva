@@ -78,7 +78,7 @@ namespace Gem::Courtier {
 	 * This base is deliberately free of any dependency on the geneva optimization library, which keeps the
 	 * courtier consumer/transport machinery testable on its own (courtier sits BELOW geneva in the library
 	 * order): the geneva-free demo work items in GDemoProcessingContainers derive this and are what the
-	 * courtier unit tests submit. Geneva's own work item, Gem::Geneva::Genome::GOptimizableEntity, is a
+	 * courtier unit tests submit. Geneva's own work item, Gem::Geneva::Genome::GGenome, is a
 	 * SPECIALIZED, standalone second implementation of the same contract -- it derives GProcessable directly
 	 * and provides its own result store + process() (folding in optimization-specific orchestration:
 	 * feasibility, the evaluation policy, multi-criterion fitness), so it does NOT derive this class.

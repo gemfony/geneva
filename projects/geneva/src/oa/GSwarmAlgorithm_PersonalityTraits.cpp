@@ -35,7 +35,7 @@
 #include "common/GExpectationChecksT.hpp"
 #include "common/GLogger.hpp"
 #include "geneva/GPersonalityTraits.hpp"
-#include "geneva/genome/GOptimizableEntity.hpp"
+#include "geneva/genome/GGenome.hpp"
 #include <cstddef>
 #include <memory>
 #include <tuple>
@@ -139,7 +139,7 @@ bool GSwarmAlgorithm_PersonalityTraits::checkNoPositionUpdateAndReset() {
  *
  * @param p A shared pointer to the personally best individual to be registered
  */
-void GSwarmAlgorithm_PersonalityTraits::registerPersonalBest(const std::shared_ptr<gen::GOptimizableEntity>& p) {
+void GSwarmAlgorithm_PersonalityTraits::registerPersonalBest(const std::shared_ptr<gen::GGenome>& p) {
     // Some error checking
 #ifdef DEBUG
     // Does it point anywhere ?
@@ -179,7 +179,7 @@ void GSwarmAlgorithm_PersonalityTraits::registerPersonalBest(const std::shared_p
  *
  * @return A shared pointer to the personally best individual
  */
-std::shared_ptr<gen::GOptimizableEntity> GSwarmAlgorithm_PersonalityTraits::getPersonalBest() const {
+std::shared_ptr<gen::GGenome> GSwarmAlgorithm_PersonalityTraits::getPersonalBest() const {
 #ifdef DEBUG
     if(not personal_best_) {
         throw geneva_exception(
@@ -204,7 +204,7 @@ std::shared_ptr<gen::GOptimizableEntity> GSwarmAlgorithm_PersonalityTraits::getP
  * resetting the stored quality tuple to (0., 0.).
  */
 void GSwarmAlgorithm_PersonalityTraits::resetPersonalBest() {
-    personal_best_ = std::shared_ptr<gen::GOptimizableEntity>(); // empty
+    personal_best_ = std::shared_ptr<gen::GGenome>(); // empty
     personal_best_quality_ = std::make_tuple(0., 0.);
 }
 

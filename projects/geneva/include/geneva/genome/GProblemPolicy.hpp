@@ -51,8 +51,8 @@ namespace Gem::Geneva::Genome {
 
 /******************************************************************************/
 // Forward declaration: the constraint inspects an entity's parameter values via the value API
-// (streamlineFP) declared on the algorithm-facing base GOptimizableEntity.
-class GOptimizableEntity;
+// (streamlineFP) declared on the algorithm-facing base GGenome.
+class GGenome;
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -64,16 +64,16 @@ class GOptimizableEntity;
  * into a ranked, feasibility-aware evaluation -- the optimization direction (maxMode), the policy for
  * invalid solutions (evaluationPolicy), the sigmoid transform parameters, and the constraint object --
  * are identical across the whole population. GProblemPolicy holds that shared 1:N policy in one place;
- * each GOptimizableEntity references a single policy instance, so the policy travels (and checkpoints)
+ * each GGenome references a single policy instance, so the policy travels (and checkpoints)
  * once rather than once per individual.
  *
  * The per-individual state that genuinely differs (the computed validity level and the stored results)
- * stays on GOptimizableEntity. Only the population-uniform rules live here.
+ * stays on GGenome. Only the population-uniform rules live here.
  *
- * The constraint is parameterised on GOptimizableEntity (the algorithm-facing base) because a concrete
+ * The constraint is parameterised on GGenome (the algorithm-facing base) because a concrete
  * constraint reads parameter values via the genome value API (e.g. streamlineFP) declared there.
- * fulfillsConstraints() therefore takes a GOptimizableEntity; it is defined in the .cpp, where
- * GOptimizableEntity is a complete type.
+ * fulfillsConstraints() therefore takes a GGenome; it is defined in the .cpp, where
+ * GGenome is a complete type.
  *
  * This is a plain serialisable holder (not a GCommonInterfaceT category root): it is shared, not
  * deep-cloned per individual, so it needs no clone/compare category machinery -- only value semantics
@@ -213,7 +213,7 @@ public:
      * own copy and distinct policies never share one constraint object. Throws on an empty pointer.
      * @param c_ptr The validity-check constraint to register (must not be empty)
      */
-    void registerConstraint(const std::shared_ptr<GPreEvaluationValidityCheckT<GOptimizableEntity>>& c_ptr);
+    void registerConstraint(const std::shared_ptr<GPreEvaluationValidityCheckT<GGenome>>& c_ptr);
 
     /** @brief @return true if a constraint object is registered with this policy */
     [[nodiscard]] bool hasConstraint() const { return static_cast<bool>(constraint_ptr_); }
@@ -221,12 +221,12 @@ public:
     /**
      * @brief Checks whether a candidate fulfils the registered constraint. If no constraint is
      * registered, the candidate is always valid and the validity level is 0. Defined in the .cpp, where
-     * GOptimizableEntity is a complete type (the constraint reads its parameter values).
+     * GGenome is a complete type (the constraint reads its parameter values).
      * @param genome The genome whose feasibility is checked
      * @param validity_level Out-parameter receiving the computed validity level
      * @return true if the candidate satisfies the constraint (or none is registered), false otherwise
      */
-    bool fulfillsConstraints(const GOptimizableEntity &genome, double &validity_level) const;
+    bool fulfillsConstraints(const GGenome &genome, double &validity_level) const;
 
 private:
     /***************************************************************************/
@@ -242,7 +242,7 @@ private:
     double sigmoid_extremes_ = Gem::Geneva::WORSTALLOWEDVALIDFITNESS;
 
     /** @brief The shared constraint-check applied to every candidate (empty == always valid) */
-    std::shared_ptr<GPreEvaluationValidityCheckT<GOptimizableEntity>> constraint_ptr_;
+    std::shared_ptr<GPreEvaluationValidityCheckT<GGenome>> constraint_ptr_;
 };
 
 /******************************************************************************/

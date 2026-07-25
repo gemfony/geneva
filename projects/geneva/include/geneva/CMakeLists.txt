@@ -30,7 +30,6 @@ SET ( IND_INCLUDES
     genome/GIndividualProcessingResult.hpp
     genome/GProblemPolicy.hpp
     genome/GGenomeT.hpp
-    genome/GOptimizableEntity.hpp
     genome/GAdaptionAuxKeys.hpp
     genome/GAdaptionKernels.hpp
     genome/GGenomeLayout.hpp

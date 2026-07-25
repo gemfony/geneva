@@ -43,14 +43,14 @@
 // Geneva headers go here
 #include "common/GFactoryT.hpp"
 #include "common/GModuleManifest.hpp" // the unified module manifest (GenevaCompat + contributions)
-#include "geneva/genome/GOptimizableEntity.hpp"
+#include "geneva/genome/GGenome.hpp"
 
 namespace Gem::Geneva {
 
 /******************************************************************************/
 /** @brief The factory type a plugin hands back: the same content-creator type Go2::registerContentCreator
  *  accepts, so a loaded problem is indistinguishable from a compiled-in one downstream. */
-using GIndividualFactoryPtr = std::shared_ptr<Gem::Common::GFactoryT<Genome::GOptimizableEntity>>;
+using GIndividualFactoryPtr = std::shared_ptr<Gem::Common::GFactoryT<Genome::GGenome>>;
 
 /** @brief The compile-time fixed string NTTP the manifest helpers use (shared, in common). */
 using Gem::Common::GFixedString;
@@ -78,7 +78,7 @@ using Gem::Common::GFixedString;
  * function does NOT emit the individual's @c BOOST_CLASS_EXPORT -- the individual's own translation unit
  * carries it (the same registration a compiled-in individual needs), so there is no double registration.
  *
- * @tparam FactoryType The content-creator factory (a GFactoryT<GOptimizableEntity>, e.g.
+ * @tparam FactoryType The content-creator factory (a GFactoryT<GGenome>, e.g.
  *         GIndividualFactory<MyProblem>)
  * @tparam Config The factory's configuration-file path (a string literal), passed to its constructor
  * @tparam Name   The module/contribution name, for diagnostics (a string literal)

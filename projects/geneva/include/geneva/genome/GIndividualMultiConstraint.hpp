@@ -38,6 +38,6 @@
 
 // Geneva header files go here
 #include "geneva/genome/GMultiConstraintT.hpp"
-#include "geneva/genome/GOptimizableEntity.hpp"
+#include "geneva/genome/GGenome.hpp"
 
-// Make sure the instantiation with GOptimizableEntity as template argument can be serialized
+// Make sure the instantiation with GGenome as template argument can be serialized

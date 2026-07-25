@@ -160,7 +160,7 @@ private:
  * The same minimal sphere, but its serialize is ARCHIVE-GENERIC: it routes the GGenomeT base slice
  * through Gem::Common::archive_named_base, so the individual (de)serializes through a Boost archive OR a
  * GArchive codec identically. Exercises the whole ported individual serialization tree (GGenome +
- * GGenomeLayout + GOptimizableEntity + GProcessable + the result store + the null-by-default polymorphic
+ * GGenomeLayout + GGenome + GProcessable + the result store + the null-by-default polymorphic
  * owned members) through a GArchive codec end to end.
  */
 class GemSphere : public GGenomeT<GemSphere> {
@@ -269,7 +269,7 @@ GEM_REGISTER_ARCHIVABLE(Gem::Tests::Sphere) // NOLINT
 GEM_REGISTER_ARCHIVABLE(Gem::Tests::FactorySphere) // NOLINT
 
 // Register GemSphere for GArchive polymorphic dispatch: toString/fromString serialize the individual
-// through a GOptimizableEntity root pointer, so the GArchive codec arm needs its tag <-> factory entry.
+// through a GGenome root pointer, so the GArchive codec arm needs its tag <-> factory entry.
 GEM_REGISTER_ARCHIVABLE(Gem::Tests::GemSphere) // NOLINT
 
 using Gem::Tests::FactorySphere;
@@ -696,7 +696,7 @@ TEST_CASE("GGenome: serialization round-trip", "[flat]") {
 
 /******************************************************************************/
 // CHARACTERIZATION NET (B0, 2026-06-28): outcome-pins for the individual-architecture swap. These
-// assert behaviour that must survive the GProcessable / GOptimizableEntity / GGenome rebuild,
+// assert behaviour that must survive the GProcessable / GGenome / GGenome rebuild,
 // independent of the mechanisms being retired (results-only wire form, the population slot, genome_omitted).
 // See prompts/2026-06-28-characterization-net.md.
 
@@ -801,7 +801,7 @@ TEST_CASE("GGenomeLayout: round-trips through the GArchive codecs (binary + JSON
 // A whole derived individual round-trips its value identity + structural layout through BOTH GArchive
 // codecs, with no wire scope active (the self-contained checkpoint form). This is the end-to-end proof of
 // the 3d-A individual-tree port: the object graph the Boost path serializes -- GGenome + its layout,
-// GOptimizableEntity, the GProcessable lifecycle base, the result store, and the null-by-default
+// GGenome, the GProcessable lifecycle base, the result store, and the null-by-default
 // polymorphic owned members (constraint / processors / OA scratch) -- now serializes identically through
 // a GArchive codec, reconstructing an equal (compare()) individual.
 TEST_CASE("GGenome: a derived individual round-trips through the GArchive codecs (binary + JSON)",
@@ -850,7 +850,7 @@ TEST_CASE("GGenome: a derived individual round-trips through the GArchive codecs
 
 /******************************************************************************/
 // The GCommonInterfaceT toString/fromString choke point drives the GArchive codec through its full
-// public path: it serializes the individual through a GOptimizableEntity ROOT pointer (the polymorphic
+// public path: it serializes the individual through a GGenome ROOT pointer (the polymorphic
 // dispatch, not a by-value member), reconstructs the dynamic type from the registry on load, and yields
 // a compare()-equal individual -- for both the flat binary and the human-readable JSON codec. The Boost
 // modes remain the default and are exercised by the existing standard tests.
@@ -893,7 +893,7 @@ TEST_CASE("GGenome: a populated individual (registered polymorphic constraint) r
     auto make_populated = [&] {
         auto ind = std::make_unique<GemSphere>(5);
         ind->assignValueVector<double>(vals);
-        ind->registerConstraint(std::make_shared<GCheckCombinerT<GOptimizableEntity>>());
+        ind->registerConstraint(std::make_shared<GCheckCombinerT<GGenome>>());
         REQUIRE(ind->getPolicy()->hasConstraint());
         return ind;
     };
@@ -1649,7 +1649,7 @@ TEST_CASE("In-place return-reconciliation primitives keep genome / relocate noth
     // documenting the contract the networked refill relies on) and returns true for a geneva individual.
     ManyGroups failed(24);
     failed.randomInit(activityMode::ALLPARAMETERS);
-    const GOptimizableEntity *failed_addr = &failed;
+    const GGenome *failed_addr = &failed;
     const bool did_load = failed.loadContentFrom(*returned);
     CHECK(did_load);                               // geneva supports in-place substitution
     CHECK(&failed == failed_addr);                 // no relocation
@@ -1777,7 +1777,7 @@ TEST_CASE("Wire send-once over a real websocket loopback interns one layout", "[
     constexpr auto BIN = Gem::Common::serializationMode::GEM_BINARY;
 
     constexpr std::size_t N = 100;
-    std::vector<std::unique_ptr<GOptimizableEntity>> items;
+    std::vector<std::unique_ptr<GGenome>> items;
     items.reserve(N);
     for(std::size_t i = 0; i < N; ++i) {
         auto ind = std::make_unique<ManyGroups>(40); // all share one layout structure -> one id
@@ -1786,21 +1786,21 @@ TEST_CASE("Wire send-once over a real websocket loopback interns one layout", "[
     }
 
     auto consumer =
-        std::make_shared<c2::GWebsocketConsumerT<GOptimizableEntity>>(/*port=*/0, /*threads=*/2, BIN);
-    // The work item is the abstract GOptimizableEntity base, so the consumer needs a polymorphic clone
+        std::make_shared<c2::GWebsocketConsumerT<GGenome>>(/*port=*/0, /*threads=*/2, BIN);
+    // The work item is the abstract GGenome base, so the consumer needs a polymorphic clone
     // (copy-construction would slice). This mirrors GConsumerSetup's individualCloneFunction().
     consumer->setCloneFunction(
-        [](const std::unique_ptr<GOptimizableEntity> &p) { return p->clone(); }
+        [](const std::unique_ptr<GGenome> &p) { return p->clone(); }
     );
     consumer->startServer();
     const unsigned short port = consumer->getPort();
 
     constexpr std::size_t n_clients = 3;
-    std::vector<std::shared_ptr<ccons::GWebsocketClientT<GOptimizableEntity>>> clients;
+    std::vector<std::shared_ptr<ccons::GWebsocketClientT<GGenome>>> clients;
     std::vector<std::thread> client_threads;
     std::atomic<bool> any_threw{false};
     for(std::size_t c = 0; c < n_clients; ++c) {
-        auto client = std::make_shared<ccons::GWebsocketClientT<GOptimizableEntity>>(
+        auto client = std::make_shared<ccons::GWebsocketClientT<GGenome>>(
             "127.0.0.1", port, BIN, /*verbose_control_frames=*/false, /*prefetch_depth=*/4
         );
         clients.push_back(client);
@@ -1814,7 +1814,7 @@ TEST_CASE("Wire send-once over a real websocket loopback interns one layout", "[
         });
     }
 
-    consumer->processBatch(std::span<std::unique_ptr<GOptimizableEntity>>(items.data(), items.size()),
+    consumer->processBatch(std::span<std::unique_ptr<GGenome>>(items.data(), items.size()),
                            c2::GSubmissionPolicy::full_success_or_fatal());
 
     for(auto &client : clients) {
@@ -1859,7 +1859,7 @@ TEST_CASE("Wire send-once over a real ASIO loopback interns one layout", "[flat]
     constexpr auto BIN = Gem::Common::serializationMode::GEM_BINARY;
 
     constexpr std::size_t N = 100;
-    std::vector<std::unique_ptr<GOptimizableEntity>> items;
+    std::vector<std::unique_ptr<GGenome>> items;
     items.reserve(N);
     for(std::size_t i = 0; i < N; ++i) {
         auto ind = std::make_unique<ManyGroups>(40);
@@ -1867,19 +1867,19 @@ TEST_CASE("Wire send-once over a real ASIO loopback interns one layout", "[flat]
         items.push_back(std::move(ind));
     }
 
-    auto consumer = std::make_shared<c2::GAsioConsumerT<GOptimizableEntity>>(/*port=*/0, /*threads=*/2, BIN);
+    auto consumer = std::make_shared<c2::GAsioConsumerT<GGenome>>(/*port=*/0, /*threads=*/2, BIN);
     consumer->setCloneFunction(
-        [](const std::unique_ptr<GOptimizableEntity> &p) { return p->clone(); }
+        [](const std::unique_ptr<GGenome> &p) { return p->clone(); }
     );
     consumer->startServer();
     const unsigned short port = consumer->getPort();
 
     constexpr std::size_t n_clients = 3;
-    std::vector<std::shared_ptr<ccons::GAsioConsumerClientT<GOptimizableEntity>>> clients;
+    std::vector<std::shared_ptr<ccons::GAsioConsumerClientT<GGenome>>> clients;
     std::vector<std::thread> client_threads;
     std::atomic<bool> any_threw{false};
     for(std::size_t c = 0; c < n_clients; ++c) {
-        auto client = std::make_shared<ccons::GAsioConsumerClientT<GOptimizableEntity>>(
+        auto client = std::make_shared<ccons::GAsioConsumerClientT<GGenome>>(
             "127.0.0.1", port, BIN, /*max_reconnects=*/50, /*prefetch_depth=*/8
         );
         clients.push_back(client);
@@ -1893,7 +1893,7 @@ TEST_CASE("Wire send-once over a real ASIO loopback interns one layout", "[flat]
         });
     }
 
-    consumer->processBatch(std::span<std::unique_ptr<GOptimizableEntity>>(items.data(), items.size()),
+    consumer->processBatch(std::span<std::unique_ptr<GGenome>>(items.data(), items.size()),
                            c2::GSubmissionPolicy::full_success_or_fatal());
 
     for(auto &client : clients) {
@@ -1937,7 +1937,7 @@ TEST_CASE("Networked reconciliation keeps population elements at stable addresse
     constexpr auto BIN = Gem::Common::serializationMode::GEM_BINARY;
 
     constexpr std::size_t N = 60;
-    std::vector<std::unique_ptr<GOptimizableEntity>> items;
+    std::vector<std::unique_ptr<GGenome>> items;
     items.reserve(N);
     for(std::size_t i = 0; i < N; ++i) {
         auto ind = std::make_unique<ManyGroups>(16);
@@ -1947,22 +1947,22 @@ TEST_CASE("Networked reconciliation keeps population elements at stable addresse
 
     // Snapshot the object addresses BEFORE submission -- the fix must leave every one of them unchanged.
     const auto addrs_before = items
-        | std::views::transform([](const auto &it) -> const GOptimizableEntity * { return it.get(); })
-        | std::ranges::to<std::vector<const GOptimizableEntity *>>();
+        | std::views::transform([](const auto &it) -> const GGenome * { return it.get(); })
+        | std::ranges::to<std::vector<const GGenome *>>();
 
-    auto consumer = std::make_shared<c2::GWebsocketConsumerT<GOptimizableEntity>>(/*port=*/0, /*threads=*/2, BIN);
+    auto consumer = std::make_shared<c2::GWebsocketConsumerT<GGenome>>(/*port=*/0, /*threads=*/2, BIN);
     consumer->setCloneFunction(
-        [](const std::unique_ptr<GOptimizableEntity> &p) { return p->clone(); }
+        [](const std::unique_ptr<GGenome> &p) { return p->clone(); }
     );
     consumer->startServer();
     const unsigned short port = consumer->getPort();
 
     constexpr std::size_t n_clients = 3;
-    std::vector<std::shared_ptr<ccons::GWebsocketClientT<GOptimizableEntity>>> clients;
+    std::vector<std::shared_ptr<ccons::GWebsocketClientT<GGenome>>> clients;
     std::vector<std::thread> client_threads;
     std::atomic<bool> any_threw{false};
     for(std::size_t c = 0; c < n_clients; ++c) {
-        auto client = std::make_shared<ccons::GWebsocketClientT<GOptimizableEntity>>(
+        auto client = std::make_shared<ccons::GWebsocketClientT<GGenome>>(
             "127.0.0.1", port, BIN, /*verbose_control_frames=*/false, /*prefetch_depth=*/4
         );
         clients.push_back(client);
@@ -1976,7 +1976,7 @@ TEST_CASE("Networked reconciliation keeps population elements at stable addresse
         });
     }
 
-    consumer->processBatch(std::span<std::unique_ptr<GOptimizableEntity>>(items.data(), items.size()),
+    consumer->processBatch(std::span<std::unique_ptr<GGenome>>(items.data(), items.size()),
                            c2::GSubmissionPolicy::full_success_or_fatal());
 
     for(auto &client : clients) {
@@ -2007,7 +2007,7 @@ TEST_CASE("Networked reconciliation keeps population elements at stable addresse
     CHECK(with_genome == N);     // results-only return still leaves each item its full genome
 
     consumer->stopServer();
-    c2::GConsumerRegistryT<GOptimizableEntity>::instance().clear();
+    c2::GConsumerRegistryT<GGenome>::instance().clear();
     CHECK_FALSE(any_threw.load());
 }
 
@@ -2025,7 +2025,7 @@ TEST_CASE("Wire send-once: many distinct layouts under a bounded registry stay c
 
     const std::vector<std::size_t> sizes{8, 16, 24, 32}; // four distinct layout structures
     constexpr std::size_t N = 80;
-    std::vector<std::unique_ptr<GOptimizableEntity>> items;
+    std::vector<std::unique_ptr<GGenome>> items;
     items.reserve(N);
     for(std::size_t i = 0; i < N; ++i) {
         auto ind = std::make_unique<ManyGroups>(sizes[i % sizes.size()]);
@@ -2033,20 +2033,20 @@ TEST_CASE("Wire send-once: many distinct layouts under a bounded registry stay c
         items.push_back(std::move(ind));
     }
 
-    auto consumer = std::make_shared<c2::GWebsocketConsumerT<GOptimizableEntity>>(/*port=*/0, /*threads=*/2, BIN);
+    auto consumer = std::make_shared<c2::GWebsocketConsumerT<GGenome>>(/*port=*/0, /*threads=*/2, BIN);
     consumer->setCloneFunction(
-        [](const std::unique_ptr<GOptimizableEntity> &p) { return p->clone(); }
+        [](const std::unique_ptr<GGenome> &p) { return p->clone(); }
     );
     consumer->setInternedLayoutCapacity(2); // below the 4 distinct layouts -> eviction is forced
     consumer->startServer();
     const unsigned short port = consumer->getPort();
 
     constexpr std::size_t n_clients = 3;
-    std::vector<std::shared_ptr<ccons::GWebsocketClientT<GOptimizableEntity>>> clients;
+    std::vector<std::shared_ptr<ccons::GWebsocketClientT<GGenome>>> clients;
     std::vector<std::thread> client_threads;
     std::atomic<bool> any_threw{false};
     for(std::size_t c = 0; c < n_clients; ++c) {
-        auto client = std::make_shared<ccons::GWebsocketClientT<GOptimizableEntity>>(
+        auto client = std::make_shared<ccons::GWebsocketClientT<GGenome>>(
             "127.0.0.1", port, BIN, /*verbose_control_frames=*/false, /*prefetch_depth=*/4
         );
         clients.push_back(client);
@@ -2060,7 +2060,7 @@ TEST_CASE("Wire send-once: many distinct layouts under a bounded registry stay c
         });
     }
 
-    consumer->processBatch(std::span<std::unique_ptr<GOptimizableEntity>>(items.data(), items.size()),
+    consumer->processBatch(std::span<std::unique_ptr<GGenome>>(items.data(), items.size()),
                            c2::GSubmissionPolicy::full_success_or_fatal());
 
     for(auto &client : clients) {
@@ -2104,18 +2104,18 @@ TEST_CASE("EA over a websocket consumer with results-only returns keeps full gen
     namespace oa = Gem::Geneva::OptimizationAlgorithms;
     constexpr auto BIN = Gem::Common::serializationMode::GEM_BINARY;
 
-    auto consumer = std::make_shared<c2::GWebsocketConsumerT<GOptimizableEntity>>(/*port=*/0, /*threads=*/4, BIN);
+    auto consumer = std::make_shared<c2::GWebsocketConsumerT<GGenome>>(/*port=*/0, /*threads=*/4, BIN);
     consumer->setCloneFunction(
-        [](const std::unique_ptr<GOptimizableEntity> &p) { return p->clone(); }
+        [](const std::unique_ptr<GGenome> &p) { return p->clone(); }
     );
     consumer->startServer();
     const unsigned short port = consumer->getPort();
 
-    std::vector<std::shared_ptr<ccons::GWebsocketClientT<GOptimizableEntity>>> clients;
+    std::vector<std::shared_ptr<ccons::GWebsocketClientT<GGenome>>> clients;
     std::vector<std::thread> client_threads;
     std::atomic<bool> any_threw{false};
     for(std::size_t c = 0; c < 4; ++c) {
-        auto client = std::make_shared<ccons::GWebsocketClientT<GOptimizableEntity>>(
+        auto client = std::make_shared<ccons::GWebsocketClientT<GGenome>>(
             "127.0.0.1", port, BIN, /*verbose=*/false, /*prefetch_depth=*/4
         );
         clients.push_back(client);
@@ -2132,7 +2132,7 @@ TEST_CASE("EA over a websocket consumer with results-only returns keeps full gen
         pop->push_back(proto.clone());
     }
     pop->setAdaptionConfig(proto.getAdaptionConfig());
-    c2::GConsumerRegistryT<GOptimizableEntity>::instance().setConsumer(consumer);
+    c2::GConsumerRegistryT<GGenome>::instance().setConsumer(consumer);
 
     pop->optimize();
     auto best = pop->getBestGlobalIndividual<Sphere>();
@@ -2140,7 +2140,7 @@ TEST_CASE("EA over a websocket consumer with results-only returns keeps full gen
     for(auto &client : clients) { client->flagCloseRequested(); }
     for(auto &t : client_threads) { if(t.joinable()) t.join(); }
     consumer->stopServer();
-    c2::GConsumerRegistryT<GOptimizableEntity>::instance().clear(); // don't leak into other test cases
+    c2::GConsumerRegistryT<GGenome>::instance().clear(); // don't leak into other test cases
 
     REQUIRE(best);
     std::vector<double> v;
@@ -2327,7 +2327,7 @@ TEST_CASE("Go2 two-phase configuration: programmatic setters and CLI precedence"
         CHECK_THROWS(go.optimize());             // ...but finalizing configuration restores the CLI value
         CHECK(go.getConsumerName() == "stc");
 
-        c2::GConsumerRegistryT<GOptimizableEntity>::instance().clear();
+        c2::GConsumerRegistryT<GGenome>::instance().clear();
     }
 
     SECTION("a --optimizationAlgorithms list overrides a programmatic setAlgorithmChain") {
@@ -2344,7 +2344,7 @@ TEST_CASE("Go2 two-phase configuration: programmatic setters and CLI precedence"
         CHECK_THROWS(go.optimize());             // finalizes: the CLI's single "ea" wins over the two above
         CHECK(go.getNAlgorithms() == 1);
 
-        c2::GConsumerRegistryT<GOptimizableEntity>::instance().clear();
+        c2::GConsumerRegistryT<GGenome>::instance().clear();
     }
 
     SECTION("with no command-line algorithms, the programmatic chain is resolved") {
@@ -2359,7 +2359,7 @@ TEST_CASE("Go2 two-phase configuration: programmatic setters and CLI precedence"
         CHECK_THROWS(go.optimize());
         CHECK(go.getNAlgorithms() == 2);         // both programmatically-set algorithms were resolved
 
-        c2::GConsumerRegistryT<GOptimizableEntity>::instance().clear();
+        c2::GConsumerRegistryT<GGenome>::instance().clear();
     }
 
     SECTION("clientMode() finalizes only for a consumer whose role is unknown until runtime") {
@@ -2382,7 +2382,7 @@ TEST_CASE("Go2 two-phase configuration: programmatic setters and CLI precedence"
         CHECK_THROWS(go.optimize());             // ...the run start finalizes it
         CHECK(go.getNAlgorithms() == 2);
 
-        c2::GConsumerRegistryT<GOptimizableEntity>::instance().clear();
+        c2::GConsumerRegistryT<GGenome>::instance().clear();
     }
 }
 
@@ -2425,16 +2425,16 @@ TEST_CASE("destroying a GenevaInitializer keeps the process RNG alive", "[go2][r
 namespace Gem::Tests {
 
 /** @brief A trivial, cloneable pre/post-processor used only to witness factory-copy behaviour. */
-class ProbeProcessor : public Gem::Common::GSerializableFunctionObjectT<GOptimizableEntity> {
+class ProbeProcessor : public Gem::Common::GSerializableFunctionObjectT<GGenome> {
 public:
     ProbeProcessor() = default;
 
 protected:
     /** @brief No-op: the test never runs the processor, it only checks it is carried across a copy. */
-    bool process_([[maybe_unused]] GOptimizableEntity &p) override { return true; }
+    bool process_([[maybe_unused]] GGenome &p) override { return true; }
 
 private:
-    [[nodiscard]] Gem::Common::GSerializableFunctionObjectT<GOptimizableEntity> *clone_() const override {
+    [[nodiscard]] Gem::Common::GSerializableFunctionObjectT<GGenome> *clone_() const override {
         return new ProbeProcessor(*this);
     }
 };
@@ -2444,10 +2444,10 @@ class ProbeFactory : public GIndividualFactory<FactorySphere> {
 public:
     using GIndividualFactory<FactorySphere>::GIndividualFactory;
 
-    std::shared_ptr<Gem::Common::GSerializableFunctionObjectT<GOptimizableEntity>> pre() const {
+    std::shared_ptr<Gem::Common::GSerializableFunctionObjectT<GGenome>> pre() const {
         return this->pre_processor_;
     }
-    std::shared_ptr<Gem::Common::GSerializableFunctionObjectT<GOptimizableEntity>> post() const {
+    std::shared_ptr<Gem::Common::GSerializableFunctionObjectT<GGenome>> post() const {
         return this->post_processor_;
     }
 };

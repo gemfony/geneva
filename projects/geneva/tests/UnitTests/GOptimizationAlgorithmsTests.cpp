@@ -32,7 +32,7 @@
  * GGenome individual, not just the EA. Each algorithm only ever touches an individual through the
  * storage-agnostic channel interface (streamline / assignValueVector / boundaries / countParameters /
  * adapt / randomInit) + population-level access + personality traits -- and the OA populations already
- * hold a GUniquePtrContainerT<GOptimizableEntity>, so the flat genome drops in with ZERO OA changes.
+ * hold a GUniquePtrContainerT<GGenome>, so the flat genome drops in with ZERO OA changes.
  * These tests prove it by running each OA serially on a flat-genome sphere and asserting convergence.
  *
  * This is the flat counterpart of the OA validation the full test suite already performs on the tree
@@ -1381,7 +1381,7 @@ protected:
 };
 
 /** @brief Sum of squares of a flat individual's double parameters (its sphere value). */
-double sphereValue(const std::shared_ptr<gen::GOptimizableEntity> &best) {
+double sphereValue(const std::shared_ptr<gen::GGenome> &best) {
     std::vector<double> v;
     best->streamline<double>(v);
     double s = 0.;
@@ -1697,7 +1697,7 @@ TEST_CASE("OA base copy preserves every configuration knob (copy ctor vs localMe
 TEST_CASE("individual copy runs through localMembers_ (copy ctor vs single source)", "[flat][oa]") {
     using Gem::Common::expectation;
 
-    // Companion to the OA-base test above, one level down (2026-07-18): GOptimizableEntity's copy
+    // Companion to the OA-base test above, one level down (2026-07-18): GGenome's copy
     // constructor also hand-enumerated its local members outside localMembers_(), so the next member
     // added to the single source would silently not be cloned. The ctor now copies THROUGH
     // localMembers_() like load_(); pin a perturbed, non-default state across a copy.

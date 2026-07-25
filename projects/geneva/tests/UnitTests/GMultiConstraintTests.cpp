@@ -38,7 +38,7 @@
 #include "geneva/genome/GIndividualMultiConstraint.hpp"
 #include "geneva/genome/GOptimizableEntityMultiConstraint.hpp"
 #include "geneva/individuals/GFunctionIndividual.hpp"
-#include "geneva/genome/GOptimizableEntity.hpp"
+#include "geneva/genome/GGenome.hpp"
 
 namespace gen = Gem::Geneva::Genome;
 
@@ -59,7 +59,7 @@ TEST_CASE("GCheckCombinerT: serialization preserves the contained validity check
     using Gem::Geneva::Individuals::GDoubleSumConstraint;
     using Gem::Geneva::validityCheckCombinerPolicy;
 
-    GCheckCombinerT<gen::GOptimizableEntity> original;
+    GCheckCombinerT<gen::GGenome> original;
     original.setCombinerPolicy(validityCheckCombinerPolicy::ADDINVALID); // non-default, to also pin the policy
     original.addCheck(std::make_shared<GSphereConstraint>(2.5));
     original.addCheck(std::make_shared<GDoubleSumConstraint>(1.25));
@@ -68,7 +68,7 @@ TEST_CASE("GCheckCombinerT: serialization preserves the contained validity check
                      Gem::Common::serializationMode::GEM_JSON}) {
         const std::string archived = original.toString(mode);
 
-        GCheckCombinerT<gen::GOptimizableEntity> restored;
+        GCheckCombinerT<gen::GGenome> restored;
         restored.fromString(archived, mode);
 
         // The restored combiner must equal the original -- including the two contained

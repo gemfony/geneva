@@ -81,7 +81,7 @@ namespace Gem::Geneva::Genome {
  * @tparam Derived The concrete flat individual type (CRTP), supplying its constructor and evaluate()
  */
 template <class Derived>
-class GGenomeT : public Gem::Common::GReflectiveInterfaceT<Derived, GGenome, GGenome> {
+class GGenomeT : public Gem::Common::GReflectiveInterfaceT<Derived, GGenome> {
     ///////////////////////////////////////////////////////////////////////
     friend struct Gem::Common::GReflectiveInterfaceAccess;
 
@@ -105,7 +105,7 @@ class GGenomeT : public Gem::Common::GReflectiveInterfaceT<Derived, GGenome, GGe
 
 public:
     /** @brief Inherit the GGenome constructors (default + n-fitness-criteria). */
-    using Gem::Common::GReflectiveInterfaceT<Derived, GGenome, GGenome>::GReflectiveInterfaceT;
+    using Gem::Common::GReflectiveInterfaceT<Derived, GGenome>::GReflectiveInterfaceT;
 };
 
 /******************************************************************************/

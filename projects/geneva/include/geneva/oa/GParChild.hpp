@@ -48,7 +48,7 @@
 #include "common/GCommonHelperFunctionsT.hpp"
 #include "common/GExceptions.hpp"
 #include "geneva/GOptimizationEnums.hpp"
-#include "geneva/genome/GOptimizableEntity.hpp"
+#include "geneva/genome/GGenome.hpp"
 #include "geneva/oa/GOptimizationAlgorithmBase.hpp"
 #include "geneva/oa/GBaseParChildPersonalityTraits.hpp"
 
@@ -75,11 +75,11 @@ class GAdaptionConfigBase;
  * algorithms acting on parameter objects.
  *
  * Populations are collections of individuals, which themselves are objects
- * exhibiting at least the GOptimizableEntity class' API, most notably the GOptimizableEntity::evaluate()
+ * exhibiting at least the GGenome class' API, most notably the GGenome::evaluate()
  * function.
  *
  * In order to add parents to an instance of this class use the default constructor,
- * then add at least one GOptimizableEntity-derivative to it, and call setPopulationSizes().
+ * then add at least one GGenome-derivative to it, and call setPopulationSizes().
  * The population will then be "filled up" with missing individuals as required, before the
  * optimization starts.
  */
@@ -161,14 +161,14 @@ public:
     /**
      * Retrieves a specific parent individual and casts it to the desired type. The C++20
      * `requires std::derived_from` constraint below makes this overload visible to the compiler only when
-     * parent_type is a derivative of GOptimizableEntity.
+     * parent_type is a derivative of GGenome.
      *
-     * @tparam parent_type The concrete individual type to cast the parent to (must derive from GOptimizableEntity)
+     * @tparam parent_type The concrete individual type to cast the parent to (must derive from GGenome)
      * @param parent_id The id of the parent that should be returned
      * @return A converted shared_ptr to the parent
      */
     template <typename parent_type>
-        requires std::derived_from<parent_type, gen::GOptimizableEntity>
+        requires std::derived_from<parent_type, gen::GGenome>
     std::shared_ptr<parent_type> getParentIndividual(std::size_t parent_id) {
 #ifdef DEBUG
         // Check that the parent id is in a valid range
@@ -186,7 +186,7 @@ public:
 #endif /* DEBUG */
 
         // Does error checks on the conversion internally
-        return Gem::Common::convertSmartPointer<gen::GOptimizableEntity, parent_type>(
+        return Gem::Common::convertSmartPointer<gen::GGenome, parent_type>(
             *(this->begin() + parent_id)
         );
     }
@@ -280,12 +280,12 @@ protected:
 
     /** @brief This function implements the RANDOMDUPLICATIONSCHEME scheme
      *  @param child The child slot whose value is replaced by a randomly chosen parent's */
-    void randomRecombine(const std::unique_ptr<gen::GOptimizableEntity> &child);
+    void randomRecombine(const std::unique_ptr<gen::GGenome> &child);
     /** @brief This function implements the VALUEDUPLICATIONSCHEME scheme
      *  @param child The child slot whose value is replaced by a fitness-weighted chosen parent's
      *  @param threshold The cumulative-probability thresholds used to pick the source parent */
     void
-    valueRecombine(const std::unique_ptr<gen::GOptimizableEntity> &child, const std::vector<double> &threshold);
+    valueRecombine(const std::unique_ptr<gen::GGenome> &child, const std::vector<double> &threshold);
 
     /***************************************************************************/
 
@@ -377,12 +377,12 @@ private:
     void recombineSerial(const std::vector<double> &threshold);
     /** @brief recombineSerial() body for a single child slot: cross-over (amalgamation) or duplication. */
     void recombineOneSerial(
-        const std::unique_ptr<gen::GOptimizableEntity> &child,
+        const std::unique_ptr<gen::GGenome> &child,
         const std::vector<double> &threshold,
         std::bernoulli_distribution &amalgamation_wanted);
     /** @brief recombineOneSerial() duplication path: apply the recombination scheme to one child slot. */
     void duplicateForChild(
-        const std::unique_ptr<gen::GOptimizableEntity> &child, const std::vector<double> &threshold);
+        const std::unique_ptr<gen::GGenome> &child, const std::vector<double> &threshold);
 
     /***************************************************************************/
     // Data

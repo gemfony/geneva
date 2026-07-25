@@ -35,7 +35,7 @@ IF (NOT DOXYGEN_FOUND)
 ENDIF ()
 
 SET (GENEVA_DOC_LIB_NAME "geneva")
-SET (GENEVA_DOC_LIB_DESC "Core optimisation: Go2 driver, GOptimizableEntity "
+SET (GENEVA_DOC_LIB_DESC "Core optimisation: Go2 driver, GGenome "
 		"workflow, seven optimisation algorithms (EA/SA/Swarm/GD/CGD/NM/PS), "
 		"per-category GCommonInterfaceT<Root> CRTP roots, individuals, "
 		"pluggable monitors")

@@ -42,7 +42,7 @@
 #include "common/GCommonHelperFunctionsT.hpp"
 #include "geneva/genome/GIndividualMultiConstraint.hpp"
 #include "geneva/genome/GMultiConstraintT.hpp"
-#include "geneva/genome/GOptimizableEntity.hpp"
+#include "geneva/genome/GGenome.hpp"
 
 namespace Gem::Geneva::Genome {
 
@@ -50,13 +50,13 @@ namespace Gem::Geneva::Genome {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * This class implements constraint definitions based on GOptimizableEntity-derivatives.
+ * This class implements constraint definitions based on GGenome-derivatives.
  * It is meant to be added to a constraint collection. The main purpose of this
- * class is to "translate" GOptimizableEntity-based constraints into constraints
- * based on GOptimizableEntity
+ * class is to "translate" GGenome-based constraints into constraints
+ * based on GGenome
  */
 class GOptimizableEntityConstraint // NOLINT(cppcoreguidelines-special-member-functions)
-  : public Gem::Common::GReflectiveInterfaceBaseT<GOptimizableEntityConstraint, GPreEvaluationValidityCheckT<GOptimizableEntity>> {
+  : public Gem::Common::GReflectiveInterfaceBaseT<GOptimizableEntityConstraint, GPreEvaluationValidityCheckT<GGenome>> {
     ///////////////////////////////////////////////////////////////////////
     // GReflectiveInterfaceAccess lets the mixin reach localMembers_(); this abstract class is
     // never Boost-constructed.
@@ -88,10 +88,10 @@ protected:
     /**
      * @brief Checks whether a given individual is valid
      *
-     * @param individual A pointer to the GOptimizableEntity to be checked for constraint compliance
+     * @param individual A pointer to the GGenome to be checked for constraint compliance
      * @return A measure of the constraint violation (pure virtual; defined by derived classes)
      */
-    double check_(const GOptimizableEntity * individual) const override = 0;
+    double check_(const GGenome * individual) const override = 0;
 
     /**
      * @brief Adds local configuration options to a GParserBuilder object

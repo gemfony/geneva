@@ -35,7 +35,7 @@
 #include "common/GFixedSizePriorityQueueT.hpp"
 #include "common/GLogger.hpp"
 #include "geneva/GenevaHelperFunctions.hpp"
-#include "geneva/genome/GOptimizableEntity.hpp"
+#include "geneva/genome/GGenome.hpp"
 #include <algorithm>
 #include <cstddef>
 #include <format>
@@ -60,7 +60,7 @@ namespace Gem::Geneva::Genome {
 GOptimizableEntityFixedSizePriorityQueue::GOptimizableEntityFixedSizePriorityQueue(
     const std::size_t &max_size
 )
-  : Gem::Common::GReflectiveInterfaceT<GOptimizableEntityFixedSizePriorityQueue, Gem::Common::GFixedSizePriorityQueueT<GOptimizableEntity>>(
+  : Gem::Common::GReflectiveInterfaceT<GOptimizableEntityFixedSizePriorityQueue, Gem::Common::GFixedSizePriorityQueueT<GGenome>>(
         max_size,
         Gem::Common::sortOrder::LOWERISBETTER
     ) { /* nothing */
@@ -105,14 +105,14 @@ std::string GOptimizableEntityFixedSizePriorityQueue::getCleanStatus() const {
 
 /******************************************************************************/
 /**
-	 * @brief Checks whether an Item is valid, i.e. holds a GOptimizableEntity item and has
+	 * @brief Checks whether an Item is valid, i.e. holds a GGenome item and has
 	 * already been evaluated.
 	 *
 	 * @param item_ptr A shared pointer to the item to be checked
 	 * @return true if the pointer is non-empty and its item has been processed, false otherwise
 	 */
 bool GOptimizableEntityFixedSizePriorityQueue::isValid(
-    const std::shared_ptr<GOptimizableEntity> &item_ptr
+    const std::shared_ptr<GGenome> &item_ptr
 ) const {
     if(not item_ptr) {
         return false; // Empty
@@ -135,7 +135,7 @@ bool GOptimizableEntityFixedSizePriorityQueue::isValid(
 	 * @return The min-only transformed fitness of the item (its primary evaluation criterion)
 	 */
 double GOptimizableEntityFixedSizePriorityQueue::evaluation(
-    const std::shared_ptr<GOptimizableEntity> &item_ptr
+    const std::shared_ptr<GGenome> &item_ptr
 ) const {
     return minOnly_transformed_fitness(*item_ptr);
 }
@@ -150,19 +150,19 @@ double GOptimizableEntityFixedSizePriorityQueue::evaluation(
 	 * @param do_replace If true, the queue's existing content is replaced rather than merged
 	 */
 void GOptimizableEntityFixedSizePriorityQueue::add(
-    std::vector<std::shared_ptr<GOptimizableEntity>>::const_iterator begin,
-    std::vector<std::shared_ptr<GOptimizableEntity>>::const_iterator end,
+    std::vector<std::shared_ptr<GGenome>>::const_iterator begin,
+    std::vector<std::shared_ptr<GGenome>>::const_iterator end,
     bool do_clone,
     bool do_replace
 ) {
     // Create a std::vector containing only processed items. We only want
     // to add "clean" (i.e. processed) individuals to the queue.
-    std::vector<std::shared_ptr<GOptimizableEntity>> processed_cnt(std::distance(begin, end));
+    std::vector<std::shared_ptr<GGenome>> processed_cnt(std::distance(begin, end));
     auto it = std::copy_if(
         begin,
         end,
         processed_cnt.begin(),
-        [](const std::shared_ptr<GOptimizableEntity> &item_ptr) { return item_ptr->is_processed(); }
+        [](const std::shared_ptr<GGenome> &item_ptr) { return item_ptr->is_processed(); }
     );
     processed_cnt.resize(std::distance(processed_cnt.begin(), it));
 
@@ -175,7 +175,7 @@ void GOptimizableEntityFixedSizePriorityQueue::add(
         );
     }
 
-    Gem::Common::GFixedSizePriorityQueueT<GOptimizableEntity>::add(
+    Gem::Common::GFixedSizePriorityQueueT<GGenome>::add(
         processed_cnt.begin(),
         processed_cnt.end(),
         do_clone,
@@ -194,18 +194,18 @@ void GOptimizableEntityFixedSizePriorityQueue::add(
 	 * @param do_replace If true, the queue's existing content is replaced rather than merged
 	 */
 void GOptimizableEntityFixedSizePriorityQueue::add(
-    std::vector<std::shared_ptr<GOptimizableEntity>> const &items_cnt,
+    std::vector<std::shared_ptr<GGenome>> const &items_cnt,
     const bool do_clone,
     const bool do_replace
 ) {
     // Create a std::vector containing only processed items. We only want
     // to add "clean" (i.e. processed) individuals to the queue.
-    std::vector<std::shared_ptr<GOptimizableEntity>> processed_cnt(items_cnt.size());
+    std::vector<std::shared_ptr<GGenome>> processed_cnt(items_cnt.size());
     auto it = std::copy_if(
         items_cnt.begin(),
         items_cnt.end(),
         processed_cnt.begin(),
-        [](const std::shared_ptr<GOptimizableEntity> &item_ptr) { return item_ptr->is_processed(); }
+        [](const std::shared_ptr<GGenome> &item_ptr) { return item_ptr->is_processed(); }
     );
     processed_cnt.resize(std::distance(processed_cnt.begin(), it));
 
@@ -218,7 +218,7 @@ void GOptimizableEntityFixedSizePriorityQueue::add(
         );
     }
 
-    Gem::Common::GFixedSizePriorityQueueT<GOptimizableEntity>::add(processed_cnt, do_clone, do_replace);
+    Gem::Common::GFixedSizePriorityQueueT<GGenome>::add(processed_cnt, do_clone, do_replace);
 }
 
 /******************************************************************************/
@@ -231,11 +231,11 @@ void GOptimizableEntityFixedSizePriorityQueue::add(
 	 * @param do_clone If true, the item is deep-cloned into the queue rather than co-owned
 	 */
 void GOptimizableEntityFixedSizePriorityQueue::add(
-    std::shared_ptr<GOptimizableEntity> const &item_ptr,
+    std::shared_ptr<GGenome> const &item_ptr,
     const bool do_clone
 ) {
     if(item_ptr && item_ptr->is_processed()) {
-        Gem::Common::GFixedSizePriorityQueueT<GOptimizableEntity>::add(item_ptr, do_clone);
+        Gem::Common::GFixedSizePriorityQueueT<GGenome>::add(item_ptr, do_clone);
     }
 }
 
@@ -251,15 +251,15 @@ void GOptimizableEntityFixedSizePriorityQueue::add(
 	 * @param do_replace If true, the queue's existing content is replaced rather than merged
 	 */
 void GOptimizableEntityFixedSizePriorityQueue::add(
-    std::vector<std::unique_ptr<GOptimizableEntity>> const &items_cnt,
+    std::vector<std::unique_ptr<GGenome>> const &items_cnt,
     const bool /* do_clone */,
     const bool do_replace
 ) {
-    std::vector<std::shared_ptr<GOptimizableEntity>> bridge;
+    std::vector<std::shared_ptr<GGenome>> bridge;
     bridge.reserve(items_cnt.size());
     for(auto const &item_ptr : items_cnt) {
         if(item_ptr) {
-            bridge.push_back(item_ptr->clone<GOptimizableEntity>());
+            bridge.push_back(item_ptr->clone<GGenome>());
         }
     }
     this->add(bridge, false, do_replace);
@@ -274,16 +274,16 @@ void GOptimizableEntityFixedSizePriorityQueue::add(
 	 * @param do_replace If true, the queue's existing content is replaced rather than merged
 	 */
 void GOptimizableEntityFixedSizePriorityQueue::add(
-    std::vector<std::unique_ptr<GOptimizableEntity>>::const_iterator begin,
-    std::vector<std::unique_ptr<GOptimizableEntity>>::const_iterator end,
+    std::vector<std::unique_ptr<GGenome>>::const_iterator begin,
+    std::vector<std::unique_ptr<GGenome>>::const_iterator end,
     const bool /* do_clone */,
     const bool do_replace
 ) {
-    std::vector<std::shared_ptr<GOptimizableEntity>> bridge;
+    std::vector<std::shared_ptr<GGenome>> bridge;
     bridge.reserve(static_cast<std::size_t>(std::distance(begin, end)));
     for(auto it = begin; it != end; ++it) {
         if(*it) {
-            bridge.push_back((*it)->clone<GOptimizableEntity>());
+            bridge.push_back((*it)->clone<GGenome>());
         }
     }
     this->add(bridge, false, do_replace);
@@ -296,11 +296,11 @@ void GOptimizableEntityFixedSizePriorityQueue::add(
 	 * @param item_ptr A unique_ptr-owned individual that is cloned into the queue (ignored if empty or not processed)
 	 */
 void GOptimizableEntityFixedSizePriorityQueue::add(
-    std::unique_ptr<GOptimizableEntity> const &item_ptr,
+    std::unique_ptr<GGenome> const &item_ptr,
     const bool /* do_clone */
 ) {
     if(item_ptr && item_ptr->is_processed()) {
-        this->add(item_ptr->clone<GOptimizableEntity>(), false);
+        this->add(item_ptr->clone<GGenome>(), false);
     }
 }
 
@@ -316,7 +316,7 @@ bool GOptimizableEntityFixedSizePriorityQueue::modify_GUnitTests_() {
     bool result = false;
 
     // Call the parent classes' functions
-    if(Gem::Common::GFixedSizePriorityQueueT<GOptimizableEntity>::modify_GUnitTests_()) {
+    if(Gem::Common::GFixedSizePriorityQueueT<GGenome>::modify_GUnitTests_()) {
         result = true;
     }
 
@@ -324,7 +324,7 @@ bool GOptimizableEntityFixedSizePriorityQueue::modify_GUnitTests_() {
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
     Gem::Common::condnotset(
-        "GOptimizableEntityFixedSizePriorityQueue<GOptimizableEntity>::modify_GUnitTests",
+        "GOptimizableEntityFixedSizePriorityQueue<GGenome>::modify_GUnitTests",
         "GEM_TESTING"
     );
     return false;
@@ -338,13 +338,13 @@ void GOptimizableEntityFixedSizePriorityQueue::specificTestsNoFailureExpected_GU
 
     // Call the parent classes' functions
     Gem::Common::GFixedSizePriorityQueueT<
-        GOptimizableEntity>::specificTestsNoFailureExpected_GUnitTests_();
+        GGenome>::specificTestsNoFailureExpected_GUnitTests_();
 
     //------------------------------------------------------------------------------
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
     Gem::Common::condnotset(
-        "GOptimizableEntityFixedSizePriorityQueue<GOptimizableEntity>::specificTestsNoFailureExpected_"
+        "GOptimizableEntityFixedSizePriorityQueue<GGenome>::specificTestsNoFailureExpected_"
         "GUnitTests",
         "GEM_TESTING"
     );
@@ -358,13 +358,13 @@ void GOptimizableEntityFixedSizePriorityQueue::specificTestsFailuresExpected_GUn
 
     // Call the parent classes' functions
     Gem::Common::GFixedSizePriorityQueueT<
-        GOptimizableEntity>::specificTestsFailuresExpected_GUnitTests_();
+        GGenome>::specificTestsFailuresExpected_GUnitTests_();
 
     //------------------------------------------------------------------------------
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
     Gem::Common::condnotset(
-        "GOptimizableEntityFixedSizePriorityQueue<GOptimizableEntity>::specificTestsFailuresExpected_"
+        "GOptimizableEntityFixedSizePriorityQueue<GGenome>::specificTestsFailuresExpected_"
         "GUnitTests_",
         "GEM_TESTING"
     );

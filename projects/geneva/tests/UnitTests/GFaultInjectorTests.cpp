@@ -30,7 +30,7 @@
 /**
  * @file
  * @brief Tests for the pluggable evaluation fault injector (GFaultInjector / GFaultInjectorRegistry).
- * A registered injector is consulted inside GOptimizableEntity::process(): a THROW fault must surface as
+ * A registered injector is consulted inside GGenome::process(): a THROW fault must surface as
  * EXCEPTION_CAUGHT, a FLAG_ERROR fault as ERROR_FLAGGED, and with no injector (the default) evaluation
  * must proceed normally to PROCESSED. Both faults abort the evaluation and cause process() to raise a
  * processing exception, exactly like a genuine evaluation failure.
@@ -47,7 +47,7 @@
 #include "courtier/GCourtierEnums.hpp" // processingStatus
 #include "geneva/GFaultInjector.hpp"
 #include "weft/GArchivePolymorphic.hpp" // GEM_REGISTER_ARCHIVABLE + archive-generic dispatch
-#include "geneva/genome/GOptimizableEntity.hpp"
+#include "geneva/genome/GGenome.hpp"
 #include "geneva/genome/GGenomeT.hpp"
 #include "geneva/genome/GGenomeBuilder.hpp"
 
@@ -90,7 +90,7 @@ private:
 class ConstantInjector : public GFaultInjector {
 public:
     explicit ConstantInjector(Fault fault) : fault_(fault) {}
-    Fault evaluate(const GOptimizableEntity & /*item*/, Gem::Hap::GRandomBase & /*gr*/) override {
+    Fault evaluate(const GGenome & /*item*/, Gem::Hap::GRandomBase & /*gr*/) override {
         return fault_;
     }
 

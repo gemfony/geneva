@@ -41,7 +41,7 @@
 // Geneva headers go here
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/GenevaHelperFunctions.hpp" // isWorse(double, double, maxMode)
-#include "geneva/genome/GOptimizableEntity.hpp"
+#include "geneva/genome/GGenome.hpp"
 
 namespace Gem::Geneva::OptimizationAlgorithms {
 
@@ -64,8 +64,8 @@ namespace Gem::Geneva::OptimizationAlgorithms {
  * @return true iff `a` strictly Pareto-dominates `b`
  */
 inline bool paretoDominates(
-    const Gem::Geneva::Genome::GOptimizableEntity &a,
-    const Gem::Geneva::Genome::GOptimizableEntity &b
+    const Gem::Geneva::Genome::GGenome &a,
+    const Gem::Geneva::Genome::GGenome &b
 ) {
     const std::size_t n_crit = a.getNStoredResults();
     const maxMode m = a.getMaxMode();
@@ -99,7 +99,7 @@ namespace detail {
 
 /** @brief nonDominatedRank() step 1: fast non-dominated sort into best-first non-domination fronts. */
 inline std::vector<std::vector<std::size_t>> paretoFronts(
-    const std::vector<const Gem::Geneva::Genome::GOptimizableEntity *> &pop
+    const std::vector<const Gem::Geneva::Genome::GGenome *> &pop
 ) {
     const std::size_t sz = pop.size();
     std::vector<std::vector<std::size_t>> dominated(sz); // who each individual dominates
@@ -146,7 +146,7 @@ inline std::vector<std::vector<std::size_t>> paretoFronts(
 /** @brief nonDominatedRank() step 2: append one front's indices to @p order, by decreasing crowding
  *  distance (boundary points get infinite crowding so they are always retained). */
 inline void appendFrontByCrowding(
-    const std::vector<const Gem::Geneva::Genome::GOptimizableEntity *> &pop,
+    const std::vector<const Gem::Geneva::Genome::GGenome *> &pop,
     const std::vector<std::size_t> &front,
     std::size_t n_crit,
     std::vector<std::size_t> &order
@@ -182,7 +182,7 @@ inline void appendFrontByCrowding(
 } // namespace detail
 
 inline std::vector<std::size_t> nonDominatedRank(
-    const std::vector<const Gem::Geneva::Genome::GOptimizableEntity *> &pop
+    const std::vector<const Gem::Geneva::Genome::GGenome *> &pop
 ) {
     const std::size_t sz = pop.size();
     const std::size_t n_crit = sz > 0 ? pop[0]->getNStoredResults() : 1;

@@ -46,7 +46,7 @@
 #include "common/GParserBuilder.hpp"
 #include "geneva/GenevaHelperFunctions.hpp"
 #include "geneva/GPersonalityTraits.hpp"
-#include "geneva/genome/GOptimizableEntity.hpp"
+#include "geneva/genome/GGenome.hpp"
 
 #ifdef GEM_TESTING
 #include <catch2/catch_test_macros.hpp>

@@ -1448,7 +1448,7 @@ bool GOptimizationAlgorithmBase::cp_personality_fits(const std::filesystem::path
 	 * @return A struct which indicates whether all items have returned ("is_complete") and whether there were errors ("has_errors")
 	 */
 Gem::Courtier::submission_status_t GOptimizationAlgorithmBase::workOn(
-    std::vector<std::unique_ptr<gen::GOptimizableEntity>> &work_items,
+    std::vector<std::unique_ptr<gen::GGenome>> &work_items,
     std::size_t start,
     std::size_t end
 ) {
@@ -1492,7 +1492,7 @@ void GOptimizationAlgorithmBase::discardUnusableItems_(
 ) {
     if(not status.is_complete) {
         [[maybe_unused]] const std::size_t n_erased =
-            std::erase_if(data_cnt_, [](const std::unique_ptr<gen::GOptimizableEntity> &p) -> bool {
+            std::erase_if(data_cnt_, [](const std::unique_ptr<gen::GGenome> &p) -> bool {
                 return (p->getProcessingStatus() == Gem::Courtier::processingStatus::DO_PROCESS);
             });
 
@@ -1520,7 +1520,7 @@ void GOptimizationAlgorithmBase::discardUnusableItems_(
 /******************************************************************************/
 /**
  * Submits the population's [start, end) range for evaluation. The population element IS the work item
- * (a gen::GOptimizableEntity carrying its own OA scratch), so the population vector is the submission
+ * (a gen::GGenome carrying its own OA scratch), so the population vector is the submission
  * vector: workOn() submits a span over the live sub-range and reconciles it in place. No move-out /
  * move-back is needed -- the scratch rides along on each individual untouched.
  *
@@ -1549,7 +1549,7 @@ GOptimizationAlgorithmBase::workOnPopulation(std::size_t start, std::size_t end)
  * @return A struct indicating whether all items returned ("is_complete") and whether there were errors ("has_errors")
  */
 Gem::Courtier::submission_status_t GOptimizationAlgorithmBase::workOnViaConsumer_(
-    std::vector<std::unique_ptr<gen::GOptimizableEntity>> &work_items,
+    std::vector<std::unique_ptr<gen::GGenome>> &work_items,
     std::size_t start,
     std::size_t end
 ) {
@@ -1564,7 +1564,7 @@ Gem::Courtier::submission_status_t GOptimizationAlgorithmBase::workOnViaConsumer
     // transport-agnostic: it submits through the one process-wide consumer and gets back a fully
     // reconciled span. The submission policy is the algorithm's choice (clone-on-partial-return vs
     // full-success-or-fatal).
-    std::span<std::unique_ptr<gen::GOptimizableEntity>> const sp(work_items.data() + start, end - start);
+    std::span<std::unique_ptr<gen::GGenome>> const sp(work_items.data() + start, end - start);
     auto consumer = this->consumerForSubmission_();
     consumer->processBatch(sp, this->getSubmissionPolicy_());
 
@@ -1581,14 +1581,14 @@ Gem::Courtier::submission_status_t GOptimizationAlgorithmBase::workOnViaConsumer
  *
  * @return The shared consumer this algorithm submits through
  */
-std::shared_ptr<Gem::Courtier::GBaseConsumerT<gen::GOptimizableEntity>>
+std::shared_ptr<Gem::Courtier::GBaseConsumerT<gen::GGenome>>
 GOptimizationAlgorithmBase::consumerForSubmission_() {
     namespace c2 = Gem::Courtier;
-    auto consumer = c2::GConsumerRegistryT<gen::GOptimizableEntity>::instance().ensureConsumer(
-        []() -> std::shared_ptr<c2::GBaseConsumerT<gen::GOptimizableEntity>> {
-            auto c = std::make_shared<c2::GStdThreadConsumerT<gen::GOptimizableEntity>>();
-            // Polymorphic clone (GOptimizableEntity holds a concrete individual; copy-construction slices).
-            c->setCloneFunction([](const std::unique_ptr<gen::GOptimizableEntity> &p) {
+    auto consumer = c2::GConsumerRegistryT<gen::GGenome>::instance().ensureConsumer(
+        []() -> std::shared_ptr<c2::GBaseConsumerT<gen::GGenome>> {
+            auto c = std::make_shared<c2::GStdThreadConsumerT<gen::GGenome>>();
+            // Polymorphic clone (GGenome holds a concrete individual; copy-construction slices).
+            c->setCloneFunction([](const std::unique_ptr<gen::GGenome> &p) {
                 return p->clone();
             });
             return c;
@@ -1617,11 +1617,11 @@ GOptimizationAlgorithmBase::consumerForSubmission_() {
  *
  * @return A vector of integrable (clean, de-duplicated) late-returned individuals the consumer buffered
  */
-std::vector<std::unique_ptr<gen::GOptimizableEntity>> GOptimizationAlgorithmBase::getOldWorkItems() const {
+std::vector<std::unique_ptr<gen::GGenome>> GOptimizationAlgorithmBase::getOldWorkItems() const {
     // Reap any LATE returns the consumer buffered -- results that came back after their batch had
     // already been reconciled in place (empty for a local consumer; a networked consumer hands back its
     // bounded late-return buffer). The OA folds the integrable individuals into the next selection.
-    auto consumer = Gem::Courtier::GConsumerRegistryT<gen::GOptimizableEntity>::instance().consumer();
+    auto consumer = Gem::Courtier::GConsumerRegistryT<gen::GGenome>::instance().consumer();
     if(not consumer) {
         return {};
     }
@@ -1659,7 +1659,7 @@ std::vector<std::unique_ptr<gen::GOptimizableEntity>> GOptimizationAlgorithmBase
  * @param seen The set of already-represented submission UUIDs (updated with survivors)
  */
 void GOptimizationAlgorithmBase::retainIntegrableLateReturns(
-    std::vector<std::unique_ptr<gen::GOptimizableEntity>> &items,
+    std::vector<std::unique_ptr<gen::GGenome>> &items,
     std::set<Gem::Courtier::SUBMISSION_UUID_TYPE> &seen
 ) {
     // VALIDITY: keep only clean successes. is_processed() and has_errors() are mutually exclusive states,
@@ -1725,8 +1725,8 @@ GOptimizationAlgorithmBase::extractOptAlgFromPath(const std::filesystem::path &p
  *
  * @return A cloned shared pointer to the globally best individual found so far
  */
-std::shared_ptr<gen::GOptimizableEntity> GOptimizationAlgorithmBase::getBestGlobalIndividual_() const {
-    std::shared_ptr<gen::GOptimizableEntity> const p = best_global_individuals_pq_.best();
+std::shared_ptr<gen::GGenome> GOptimizationAlgorithmBase::getBestGlobalIndividual_() const {
+    std::shared_ptr<gen::GGenome> const p = best_global_individuals_pq_.best();
 #ifdef DEBUG
     if(!p) {
         throw geneva_exception(
@@ -1737,7 +1737,7 @@ std::shared_ptr<gen::GOptimizableEntity> GOptimizationAlgorithmBase::getBestGlob
     }
 #endif
     // Always clone: callers must not alias the internal priority-queue entry.
-    return p->clone<gen::GOptimizableEntity>();
+    return p->clone<gen::GGenome>();
 }
 
 /******************************************************************************/
@@ -1747,12 +1747,12 @@ std::shared_ptr<gen::GOptimizableEntity> GOptimizationAlgorithmBase::getBestGlob
  *
  * @return A vector of cloned shared pointers to the globally best individuals found so far
  */
-std::vector<std::shared_ptr<gen::GOptimizableEntity>>
+std::vector<std::shared_ptr<gen::GGenome>>
 GOptimizationAlgorithmBase::getBestGlobalIndividuals_() const {
-    std::vector<std::shared_ptr<gen::GOptimizableEntity>> best_individuals_vec;
+    std::vector<std::shared_ptr<gen::GGenome>> best_individuals_vec;
 
     for(const auto &ind_ptr : best_global_individuals_pq_.toVector()) {
-        best_individuals_vec.push_back(ind_ptr->clone<gen::GOptimizableEntity>());
+        best_individuals_vec.push_back(ind_ptr->clone<gen::GGenome>());
     }
 
     return best_individuals_vec;
@@ -1765,8 +1765,8 @@ GOptimizationAlgorithmBase::getBestGlobalIndividuals_() const {
  *
  * @return A cloned shared pointer to the best individual found in the current iteration
  */
-std::shared_ptr<gen::GOptimizableEntity> GOptimizationAlgorithmBase::getBestIterationIndividual_() const {
-    std::shared_ptr<gen::GOptimizableEntity> const p = best_iteration_individuals_pq_.best();
+std::shared_ptr<gen::GGenome> GOptimizationAlgorithmBase::getBestIterationIndividual_() const {
+    std::shared_ptr<gen::GGenome> const p = best_iteration_individuals_pq_.best();
 #ifdef DEBUG
     if(!p) {
         throw geneva_exception(
@@ -1778,7 +1778,7 @@ std::shared_ptr<gen::GOptimizableEntity> GOptimizationAlgorithmBase::getBestIter
     }
 #endif
     // Always clone: callers must not alias the internal priority-queue entry.
-    return p->clone<gen::GOptimizableEntity>();
+    return p->clone<gen::GGenome>();
 }
 
 /******************************************************************************/
@@ -1788,7 +1788,7 @@ std::shared_ptr<gen::GOptimizableEntity> GOptimizationAlgorithmBase::getBestIter
  *
  * @return A vector of shared pointers to the best individuals found in the current iteration
  */
-std::vector<std::shared_ptr<gen::GOptimizableEntity>>
+std::vector<std::shared_ptr<gen::GGenome>>
 GOptimizationAlgorithmBase::getBestIterationIndividuals_() const {
     return best_iteration_individuals_pq_.toVector();
 }
@@ -1815,7 +1815,7 @@ void GOptimizationAlgorithmBase::setIndividualPersonalities() {
         auto pp = ind->postProcessor();
         if(pp) {
             auto post_processor =
-                std::dynamic_pointer_cast<GPostProcessorBaseT<gen::GOptimizableEntity>>(pp);
+                std::dynamic_pointer_cast<GPostProcessorBaseT<gen::GGenome>>(pp);
             const bool eligible =
                 post_processor and post_processor->postProcessingAllowedFor(oa_mnemonic);
             ind->vetoPostProcessing(not eligible);
@@ -2001,7 +2001,7 @@ void GOptimizationAlgorithmBase::updateStallCounter(const std::tuple<double, dou
 /******************************************************************************/
 /**
  * This function returns true once a given time (set with
- * GOptimizationAlgorithm<GOptimizableEntity>::setMaxTime()) has passed.
+ * GOptimizationAlgorithm<GGenome>::setMaxTime()) has passed.
  * It is used in the GOptimizationAlgorithmBase::halt() function.
  *
  * @param current_time The reference time point against which the elapsed time since the start of the run is measured
@@ -2352,7 +2352,7 @@ bool GOptimizationAlgorithmBase::modify_GUnitTests_() {
 
     // This is the category root; there is no modifiable GObject parent class.
     // Call the stateful base class'es function
-    if(Gem::Common::GUniquePtrContainerT<gen::GOptimizableEntity>::modify_GUnitTests_()) {
+    if(Gem::Common::GUniquePtrContainerT<gen::GGenome>::modify_GUnitTests_()) {
         result = true;
     }
 
@@ -2383,7 +2383,7 @@ void GOptimizationAlgorithmBase::specificTestsNoFailureExpected_GUnitTests_() {
 
     // This is the category root; there is no GObject parent class to delegate to.
     // Call the stateful base class'es function
-    Gem::Common::GUniquePtrContainerT<gen::GOptimizableEntity>::specificTestsNoFailureExpected_GUnitTests_();
+    Gem::Common::GUniquePtrContainerT<gen::GGenome>::specificTestsNoFailureExpected_GUnitTests_();
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
     Gem::Common::condnotset(
@@ -2402,7 +2402,7 @@ void GOptimizationAlgorithmBase::specificTestsFailuresExpected_GUnitTests_() {
 
     // This is the category root; there is no GObject parent class to delegate to.
     // Call the stateful base class'es function
-    Gem::Common::GUniquePtrContainerT<gen::GOptimizableEntity>::specificTestsFailuresExpected_GUnitTests_();
+    Gem::Common::GUniquePtrContainerT<gen::GGenome>::specificTestsFailuresExpected_GUnitTests_();
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
     Gem::Common::condnotset(

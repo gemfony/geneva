@@ -429,8 +429,8 @@ TEST_CASE(
     }
 }
 
-// Safety net for the GOptimizableEntity serialize()/load_()/compare_() unification
-// onto a single localMembers() declaration. GOptimizableEntity is the central serialised
+// Safety net for the GGenome serialize()/load_()/compare_() unification
+// onto a single localMembers() declaration. GGenome is the central serialised
 // base for all individuals. This test sets several of its localMembers()-listed members
 // to non-default values (the adaption limits and the stall / best-known-fitness book-keeping)
 // and checks they survive both an in-memory load() (clone path) AND a wire round-trip; if any
@@ -438,7 +438,7 @@ TEST_CASE(
 // optimization direction (carried by the policy) is checked alongside. Exercised on the concrete
 // GTestIndividual1 (a GGenome subclass).
 TEST_CASE(
-    "GOptimizableEntity (via GTestIndividual1) round-trips its serialised members",
+    "GGenome (via GTestIndividual1) round-trips its serialised members",
     "[geneva][serialization]"
 ) {
     using Gem::Common::serializationMode;
@@ -763,7 +763,7 @@ TEST_CASE(
 // A guard for make_base_object_member: a minimal stateful, boost-serializable, copy-assignable base
 // (GProbeBase) carried through a derived that folds onto the mixin. It pins the three axes of a base-object
 // descriptor -- serialize as base_object, load via the base's operator= (base-slice copy), and cmp_skip --
-// which is the tool the GOptimizableEntity fold uses for its GProcessable base.
+// which is the tool the GGenome fold uses for its GProcessable base.
 namespace {
 struct GProbeBase {
     int base_val_ = 0;

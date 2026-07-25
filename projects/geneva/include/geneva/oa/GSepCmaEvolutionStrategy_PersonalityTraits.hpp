@@ -39,7 +39,7 @@
 // Boost headers go here
 
 // Geneva headers go here
-#include "geneva/genome/GOptimizableEntity.hpp"
+#include "geneva/genome/GGenome.hpp"
 #include "geneva/GPersonalityTraits.hpp"
 #include "geneva/oa/GParetoTag.hpp"
 

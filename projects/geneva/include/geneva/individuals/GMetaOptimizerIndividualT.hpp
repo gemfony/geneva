@@ -54,7 +54,7 @@
 #include "geneva/genome/GGenome.hpp"
 #include "geneva/genome/GGenomeT.hpp"
 #include "geneva/genome/GGenomeBuilder.hpp"
-#include "geneva/genome/GOptimizableEntity.hpp"
+#include "geneva/genome/GGenome.hpp"
 #include "geneva/oa/GPluggableOptimizationMonitors.hpp"
 #include "geneva/oa/GAdaption.hpp"
 #include "geneva/oa/GEvolutionaryAlgorithm.hpp"
@@ -239,7 +239,7 @@ public:
             // pointer when copying/cloning a default-constructed object.
             cp.ind_factory_
                 ? Gem::Common::convertSmartPointer<
-                      Gem::Common::GFactoryT<gen::GOptimizableEntity>,
+                      Gem::Common::GFactoryT<gen::GGenome>,
                       typename ind_type::FACTORYTYPE>((cp.ind_factory_)->clone())
                 : std::shared_ptr<typename ind_type::FACTORYTYPE>()
         ) { /* nothing */
@@ -579,7 +579,7 @@ public:
         }
 
         ind_factory_ = Gem::Common::convertSmartPointer<
-            Gem::Common::GFactoryT<gen::GOptimizableEntity>,
+            Gem::Common::GFactoryT<gen::GGenome>,
             typename ind_type::FACTORYTYPE>(factory->clone());
     }
 
@@ -702,8 +702,8 @@ protected:
         ea_ptr->optimize();
 
         // Book-keeping from the completed run.
-        std::shared_ptr<gen::GOptimizableEntity> const best_individual =
-            ea_ptr->getBestGlobalIndividual<gen::GOptimizableEntity>();
+        std::shared_ptr<gen::GGenome> const best_individual =
+            ea_ptr->getBestGlobalIndividual<gen::GGenome>();
         const std::uint32_t iterations_consumed = ea_ptr->getIteration();
         measurements.solver_calls.push_back(
             static_cast<double>(((iterations_consumed + 1) * n_children) + n_parents)
@@ -728,7 +728,7 @@ protected:
     ) {
         ea.setPopulationSizes(pop_size, n_parents);
         for(std::size_t ind = 0; ind < pop_size; ind++) {
-            std::shared_ptr<gen::GOptimizableEntity> const gi_ptr = ind_factory_->get();
+            std::shared_ptr<gen::GGenome> const gi_ptr = ind_factory_->get();
             ea.push_back(gi_ptr->clone());
         }
         // Drive the sub-individuals' adaption through the OA-owned config, and set the likelihood for work
@@ -1082,7 +1082,7 @@ std::ostream &operator<<(std::ostream &stream, const GMetaOptimizerIndividualT<i
  * @tparam ind_type The type of sub-individual whose optimization is being tuned
  */
 template <typename ind_type>
-class GMetaOptimizerIndividualFactoryT : public Gem::Common::GFactoryT<gen::GOptimizableEntity> {
+class GMetaOptimizerIndividualFactoryT : public Gem::Common::GFactoryT<gen::GGenome> {
 public:
     /***************************************************************************/
     /**
@@ -1092,7 +1092,7 @@ public:
      * @param config_file The name of the configuration file
      */
     GMetaOptimizerIndividualFactoryT(std::filesystem::path const &config_file)
-      : Gem::Common::GFactoryT<gen::GOptimizableEntity>(config_file) { /* nothing */
+      : Gem::Common::GFactoryT<gen::GGenome>(config_file) { /* nothing */
     }
 
     /***************************************************************************/
@@ -1119,7 +1119,7 @@ public:
         }
 
         ind_factory_ = Gem::Common::convertSmartPointer<
-            Gem::Common::GFactoryT<gen::GOptimizableEntity>,
+            Gem::Common::GFactoryT<gen::GGenome>,
             typename ind_type::FACTORYTYPE>(factory->clone());
     }
 
@@ -1428,7 +1428,7 @@ protected:
         );
 
         // Allow our parent class to describe its options
-        Gem::Common::GFactoryT<gen::GOptimizableEntity>::describeLocalOptions_(gpb);
+        Gem::Common::GFactoryT<gen::GGenome>::describeLocalOptions_(gpb);
     }
 
     /***************************************************************************/
@@ -1440,10 +1440,10 @@ protected:
      *
      * @param p_base A smart-pointer to be acted on during post-processing
      */
-    void postProcess_(std::shared_ptr<gen::GOptimizableEntity> &p_base) override {
+    void postProcess_(std::shared_ptr<gen::GGenome> &p_base) override {
         // Convert the base pointer to our local type
         std::shared_ptr<GMetaOptimizerIndividualT<ind_type>> const p =
-            Gem::Common::convertSmartPointer<gen::GOptimizableEntity, GMetaOptimizerIndividualT<ind_type>>(
+            Gem::Common::convertSmartPointer<gen::GGenome, GMetaOptimizerIndividualT<ind_type>>(
                 p_base
             );
 
@@ -1493,7 +1493,7 @@ private:
      * @param gpb The GParserBuilder to which the new object's configuration options are added
      * @return Items of the desired type
      */
-    std::shared_ptr<gen::GOptimizableEntity>
+    std::shared_ptr<gen::GGenome>
     getObject_(Gem::Common::GParserBuilder &gpb) override {
         // Will hold the result
         std::shared_ptr<GMetaOptimizerIndividualT<ind_type>> target(
@@ -1601,8 +1601,8 @@ class GOptOptMonitorT // NOLINT(cppcoreguidelines-special-member-functions)
     // (the monitor reads individuals only through the genome-agnostic interface, so any genome model
     // -- tree or flat -- qualifies).
     static_assert(
-        std::is_base_of_v<gen::GOptimizableEntity, ind_type>,
-        "GOptimizableEntity is no base class of ind_type"
+        std::is_base_of_v<gen::GGenome, ind_type>,
+        "GGenome is no base class of ind_type"
     );
 
     ///////////////////////////////////////////////////////////////////////

@@ -107,7 +107,7 @@ void GDoubleSumConstraint::addConfigurationOptions_(Gem::Common::GParserBuilder 
  * @param p A pointer to the individual whose floating-point parameters are summed and checked
  * @return 0 if the parameter sum is below the constant c_; otherwise sum/c_ as a penalty measure
  */
-double GDoubleSumConstraint::check_(const gen::GOptimizableEntity *p) const {
+double GDoubleSumConstraint::check_(const gen::GGenome *p) const {
     std::vector<double> par_vec;
     p->streamlineFP(par_vec);
 
@@ -156,7 +156,7 @@ void GDoubleSumGapConstraint::addConfigurationOptions_(Gem::Common::GParserBuild
  * @param p A pointer to the individual whose floating-point parameters are summed and checked
  * @return 0 if the parameter sum is within [c_ - gap_, c_ + gap_]; otherwise 1 + |sum - c_| / c_ as a penalty measure
  */
-double GDoubleSumGapConstraint::check_(const gen::GOptimizableEntity *p) const {
+double GDoubleSumGapConstraint::check_(const gen::GGenome *p) const {
     std::vector<double> par_vec;
     p->streamlineFP(par_vec);
 
@@ -205,7 +205,7 @@ void GSphereConstraint::addConfigurationOptions_(Gem::Common::GParserBuilder &gp
  * @param p A pointer to the individual whose floating-point parameters form the vector whose norm is checked
  * @return 0 if the Euclidean norm of the parameters is at most diameter_; otherwise (norm / diameter_) squared as a penalty measure
  */
-double GSphereConstraint::check_(const gen::GOptimizableEntity *p) const {
+double GSphereConstraint::check_(const gen::GGenome *p) const {
     std::vector<double> par_vec;
     p->streamlineFP(par_vec);
 
@@ -696,13 +696,13 @@ GFunctionIndividual::Config GFunctionIndividual::readConfig(std::filesystem::pat
  *
  * The genome dimension is taken from @p c (which the caller may have overridden) rather than from the
  * config file. Mirrors the factory's getObject_ + describeLocalOptions_ + parse + postProcess_
- * sequence: the base GOptimizableEntity options (eval_policy, maxmode, validity thresholds, ...) are
+ * sequence: the base GGenome options (eval_policy, maxmode, validity thresholds, ...) are
  * registered and applied from @p configFile, the genome structure comes from buildGenome(c), and the
  * demo function from applyConfig(). The Config-shaping keys are bound to a throwaway Config so they
  * don't trip the unknown-key diagnostic -- the caller's @p c drives the genome instead.
  *
  * @param c The Config driving the genome structure (e.g. an overridden par_dim) and the demo function
- * @param configFile The path to the configuration file from which the base GOptimizableEntity options are parsed
+ * @param configFile The path to the configuration file from which the base GGenome options are parsed
  * @return A shared pointer to the newly created, fully configured GFunctionIndividual
  */
 std::shared_ptr<GFunctionIndividual>
@@ -712,7 +712,7 @@ GFunctionIndividual::buildConfigured(const Config &c, std::filesystem::path cons
     Gem::Common::GParserBuilder gpb;
     Config sink;
     describeConfig(gpb, sink);          // bind the genome-shaping keys (suppresses unknown-key noise)
-    ind->addConfigurationOptions(gpb);  // bind the base GOptimizableEntity options to this individual
+    ind->addConfigurationOptions(gpb);  // bind the base GGenome options to this individual
     if(not gpb.parseConfigFile(configFile)) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())

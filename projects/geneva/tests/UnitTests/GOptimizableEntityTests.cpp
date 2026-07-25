@@ -29,7 +29,7 @@
 
 /**
  * @file
- * @brief Characterization tests for the new candidate-solution hierarchy (GOptimizableEntity /
+ * @brief Characterization tests for the new candidate-solution hierarchy (GGenome /
  * GGenome / GGenomeT). The hierarchy is additive and unwired at this stage; these tests
  * exercise it in isolation: value-channel round-trips, evaluation + external-result acceptance, the
  * multi-format serialization round-trip, clone independence, and -- the watertight part -- the
@@ -46,7 +46,7 @@
 #include <catch2/catch_approx.hpp>
 
 
-#include "geneva/genome/GOptimizableEntity.hpp"
+#include "geneva/genome/GGenome.hpp"
 #include "weft/GArchivePolymorphic.hpp" // GEM_REGISTER_ARCHIVABLE + archive-generic dispatch
 #include "geneva/genome/GGenomeT.hpp"
 #include "geneva/genome/GGenomeBuilder.hpp"
@@ -190,7 +190,7 @@ using Gem::Tests::SeamMulti;
 using Gem::Tests::SeamSphere;
 
 /******************************************************************************/
-TEST_CASE("GOptimizableEntity: a fresh flat individual evaluates and reaches PROCESSED", "[candidate]") {
+TEST_CASE("GGenome: a fresh flat individual evaluates and reaches PROCESSED", "[candidate]") {
     NewSphere ind(3, 0, 0); // 3 doubles, all initialised to 1.0
 
     // setGenome() marks the item due for processing.
@@ -206,7 +206,7 @@ TEST_CASE("GOptimizableEntity: a fresh flat individual evaluates and reaches PRO
 }
 
 /******************************************************************************/
-TEST_CASE("GOptimizableEntity: streamline / assignValueVector round-trip", "[candidate]") {
+TEST_CASE("GGenome: streamline / assignValueVector round-trip", "[candidate]") {
     NewSphere ind(4, 0, 0);
 
     std::vector<double> before;
@@ -227,7 +227,7 @@ TEST_CASE("GOptimizableEntity: streamline / assignValueVector round-trip", "[can
 }
 
 /******************************************************************************/
-TEST_CASE("GOptimizableEntity: an external evaluation result is accepted verbatim", "[candidate][external]") {
+TEST_CASE("GGenome: an external evaluation result is accepted verbatim", "[candidate][external]") {
     NewSphere ind(3, 0, 0);
     REQUIRE(ind.is_due_for_processing());
 
@@ -242,7 +242,7 @@ TEST_CASE("GOptimizableEntity: an external evaluation result is accepted verbati
 
 /******************************************************************************/
 // NOLINTNEXTLINE(readability-function-cognitive-complexity) -- one coherent serialization sweep (TEXT/XML/BINARY) via the shared check_format() helper
-TEST_CASE("GOptimizableEntity: a derived individual round-trips in TEXT, XML and BINARY", "[candidate][serialize]") {
+TEST_CASE("GGenome: a derived individual round-trips in TEXT, XML and BINARY", "[candidate][serialize]") {
     using Gem::Common::serializationMode;
 
     NewSphere ind(5, 2, 3);
@@ -275,7 +275,7 @@ TEST_CASE("GOptimizableEntity: a derived individual round-trips in TEXT, XML and
 }
 
 /******************************************************************************/
-TEST_CASE("GOptimizableEntity: clone is independent of the original", "[candidate]") {
+TEST_CASE("GGenome: clone is independent of the original", "[candidate]") {
     NewSphere ind(4, 0, 0);
     ind.process();
 
@@ -349,7 +349,7 @@ TEST_CASE("GGenome: countParameters is cached and re-keyed on layout change", "[
  * evaluation hook now that evaluate() is gone. Dispatch is by the vtable: no per-instance thunk,
  * no factory install.
  */
-TEST_CASE("GOptimizableEntity: a single-criterion individual evaluates via evaluate()", "[candidate][evaluator]") {
+TEST_CASE("GGenome: a single-criterion individual evaluates via evaluate()", "[candidate][evaluator]") {
     SeamSphere a;
     a.assignValueVector<double>(std::vector<double>{2.0, -3.0, 4.0}); // sum of squares == 29
     CHECK(a.process().rawFitness() == Approx(29.0));
@@ -363,7 +363,7 @@ TEST_CASE("GOptimizableEntity: a single-criterion individual evaluates via evalu
  * Path B: evaluate() RETURNS the full raw result vector, so every criterion of a multi-criterion individual
  * is populated from the one return value (runEvaluation_ writes the secondaries).
  */
-TEST_CASE("GOptimizableEntity: member evaluate() populates all criteria (multi-criterion)", "[candidate][evaluator]") {
+TEST_CASE("GGenome: member evaluate() populates all criteria (multi-criterion)", "[candidate][evaluator]") {
     SeamMulti ind;
     ind.assignValueVector<double>(std::vector<double>{2.0, 3.0, 4.0}); // criteria: {4, 2*9=18, 3*16=48}
     REQUIRE(ind.getNStoredResults() == 3u);
@@ -380,7 +380,7 @@ TEST_CASE("GOptimizableEntity: member evaluate() populates all criteria (multi-c
  * MPI worker / from a checkpoint -- evaluates correctly with NO thunk to re-install. The evaluator is
  * intrinsic to the type; this is what lets Path B drop the entire free-evaluator association machinery.
  */
-TEST_CASE("GOptimizableEntity: a cloned individual evaluates via the vtable", "[candidate][evaluator]") {
+TEST_CASE("GGenome: a cloned individual evaluates via the vtable", "[candidate][evaluator]") {
     SeamSphere parent;
     parent.assignValueVector<double>(std::vector<double>{1.0, 2.0, 2.0}); // 1+4+4 == 9
 
@@ -456,7 +456,7 @@ private:
 GEM_REGISTER_ARCHIVABLE(Gem::Tests::ErrorFlaggingSphere) // NOLINT
 
 TEST_CASE(
-    "GOptimizableEntity: an error flagged inside evaluate() survives as ERROR_FLAGGED",
+    "GGenome: an error flagged inside evaluate() survives as ERROR_FLAGGED",
     "[candidate][status]"
 ) {
     using Gem::Courtier::processingStatus;

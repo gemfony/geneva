@@ -43,7 +43,7 @@
 
 // Geneva headers go here
 #include "courtier/GCourtierEnums.hpp"
-#include "geneva/genome/GOptimizableEntity.hpp"
+#include "geneva/genome/GGenome.hpp"
 
 namespace Gem::Geneva {
 
@@ -63,7 +63,7 @@ namespace Gem::Geneva {
  * @return The fitness mapped onto an equivalent minimization value.
  */
 double
-minOnly_transformed_fitness(const gen::GOptimizableEntity &item, std::size_t id = 0);
+minOnly_transformed_fitness(const gen::GGenome &item, std::size_t id = 0);
 
 /******************************************************************************/
 /**
@@ -77,7 +77,7 @@ minOnly_transformed_fitness(const gen::GOptimizableEntity &item, std::size_t id 
  * @return true if @p x_ptr is better than @p y_ptr, false otherwise.
  */
 bool
-isBetter(const std::shared_ptr<gen::GOptimizableEntity> &x_ptr, const std::shared_ptr<gen::GOptimizableEntity> &y_ptr);
+isBetter(const std::shared_ptr<gen::GGenome> &x_ptr, const std::shared_ptr<gen::GGenome> &y_ptr);
 
 /******************************************************************************/
 /**
@@ -90,7 +90,7 @@ isBetter(const std::shared_ptr<gen::GOptimizableEntity> &x_ptr, const std::share
  * @return true if @p x_ptr is not better than @p y_ptr, false otherwise.
  */
 bool
-isWorse(const std::shared_ptr<gen::GOptimizableEntity> &x_ptr, const std::shared_ptr<gen::GOptimizableEntity> &y_ptr);
+isWorse(const std::shared_ptr<gen::GGenome> &x_ptr, const std::shared_ptr<gen::GGenome> &y_ptr);
 
 /******************************************************************************/
 /**

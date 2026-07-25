@@ -50,7 +50,7 @@
 #include "geneva/oa/GAdaption.hpp"
 #include "geneva/oa/GAdaptionConfig.hpp"
 #include "geneva/oa/GParetoTools.hpp"
-#include "geneva/genome/GOptimizableEntity.hpp"
+#include "geneva/genome/GGenome.hpp"
 #include "geneva/genome/GGenome.hpp"
 #include "geneva/genome/GOptimizableEntityFixedSizePriorityQueue.hpp"
 #include <algorithm>
@@ -135,7 +135,7 @@ bool GType::getSigmaRecombination() const {
 /******************************************************************************/
 
 void GType::extractCurrentParetoIndividuals(
-    std::vector<std::shared_ptr<gen::GOptimizableEntity>> &pareto_inds
+    std::vector<std::shared_ptr<gen::GGenome>> &pareto_inds
 ) {
     pareto_inds.clear();
     // An individual is on the (first) Pareto front iff no other individual strictly dominates it. Computed
@@ -151,7 +151,7 @@ void GType::extractCurrentParetoIndividuals(
             }
         }
         if(not dominated) {
-            pareto_inds.push_back(this->at(i)->clone<gen::GOptimizableEntity>());
+            pareto_inds.push_back(this->at(i)->clone<gen::GGenome>());
         }
     }
 }
@@ -226,7 +226,7 @@ void GType::updateGlobalBestsPQ_(
 
     case sortingMode::MUPLUSNU_PARETO:
     case sortingMode::MUCOMMANU_PARETO: {
-        std::vector<std::shared_ptr<gen::GOptimizableEntity>> pareto_inds;
+        std::vector<std::shared_ptr<gen::GGenome>> pareto_inds;
         this->extractCurrentParetoIndividuals(pareto_inds);
         best_individuals.add(pareto_inds, clone, replace);
     } break;
@@ -266,7 +266,7 @@ void GType::updateIterationBestsPQ_(
 
     case sortingMode::MUPLUSNU_PARETO:
     case sortingMode::MUCOMMANU_PARETO: {
-        std::vector<std::shared_ptr<gen::GOptimizableEntity>> pareto_inds;
+        std::vector<std::shared_ptr<gen::GGenome>> pareto_inds;
         this->extractCurrentParetoIndividuals(pareto_inds);
         best_individuals.add(pareto_inds, clone, replace);
     } break;
@@ -761,7 +761,7 @@ void GType::selectParetoParents(bool include_parents) {
     // distance. The leading n_parents_ become the survivors. Crowding makes an over-full front keep a
     // well-SPREAD subset (the former implementation kept a RANDOM subset of the first front and ranked the
     // remainder by a single-objective scalar, which lost coverage of the trade-off surface).
-    std::vector<const gen::GOptimizableEntity *> eligible;
+    std::vector<const gen::GGenome *> eligible;
     eligible.reserve(sz - start);
     for(std::size_t i = start; i < sz; ++i) {
         eligible.push_back(&(*this->at(i)));
@@ -770,7 +770,7 @@ void GType::selectParetoParents(bool include_parents) {
 
     // Rebuild the population: eligible individuals in NSGA-II order (so [0, n_parents_) are the survivors),
     // then -- for mu,nu -- the discarded old parents at the tail (overwritten by the next recombination).
-    std::vector<std::unique_ptr<gen::GOptimizableEntity>> reordered;
+    std::vector<std::unique_ptr<gen::GGenome>> reordered;
     reordered.reserve(sz);
     for(std::size_t const local : order) {
         reordered.push_back(std::move(this->data_cnt_[start + local]));

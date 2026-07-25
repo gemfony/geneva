@@ -46,7 +46,7 @@
 #include "common/GParserBuilder.hpp"
 #include "geneva/GenevaHelperFunctions.hpp"
 #include "geneva/GPersonalityTraits.hpp"
-#include "geneva/genome/GOptimizableEntity.hpp"
+#include "geneva/genome/GGenome.hpp"
 #include "geneva/oa/GParetoTools.hpp"
 
 #ifdef GEM_TESTING
@@ -488,7 +488,7 @@ std::vector<std::size_t> GSepCmaEvolutionStrategy::rankPopulation() const {
  * Pareto front.
  */
 std::vector<std::size_t> GSepCmaEvolutionStrategy::rankPopulationPareto() const {
-    std::vector<const gen::GOptimizableEntity *> pop;
+    std::vector<const gen::GGenome *> pop;
     pop.reserve(this->size());
     for(const auto & i : *this) {
         pop.push_back(&(*i));

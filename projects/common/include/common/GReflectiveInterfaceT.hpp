@@ -364,7 +364,7 @@ private:
  * @tparam Parent  The class's real base
  * @tparam CloneReturn The declared clone_() return type. Defaults to Root; a
  *                 covariant override (e.g. GGenomeT returning GGenome* while the
- *                 root is GOptimizableEntity) supplies a narrower type here. The
+ *                 root is GGenome) supplies a narrower type here. The
  *                 return type is not derivable from Parent, hence the parameter.
  */
 template <

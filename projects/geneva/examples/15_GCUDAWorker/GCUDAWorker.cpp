@@ -155,9 +155,9 @@ double reportParitySummary(const std::vector<double> &rel, int n, double rel_tol
     return withinFraction;
 }
 
-int runParityCheck(const std::shared_ptr<Gem::Common::GFactoryT<gen::GOptimizableEntity>> &factory, int n,
+int runParityCheck(const std::shared_ptr<Gem::Common::GFactoryT<gen::GGenome>> &factory, int n,
                    const std::string &consumerConfig) {
-    using gen::GOptimizableEntity;
+    using gen::GGenome;
 
     // Generous RELATIVE tolerance: the device kernel accumulates in the selected scalar (float by default)
     // with a parallel/atomic reduction, while evaluate() sums sequentially, so even identical genomes differ
@@ -176,8 +176,8 @@ int runParityCheck(const std::shared_ptr<Gem::Common::GFactoryT<gen::GOptimizabl
 
     // Draw n random individuals for the CPU reference and, for each, an independent clone for the GPU so the
     // two paths score IDENTICAL genomes (each process() stores its result on its own item).
-    std::vector<std::shared_ptr<GOptimizableEntity>> cpuInds;
-    std::vector<std::unique_ptr<GOptimizableEntity>> gpuBatch;
+    std::vector<std::shared_ptr<GGenome>> cpuInds;
+    std::vector<std::unique_ptr<GGenome>> gpuBatch;
     cpuInds.reserve(static_cast<std::size_t>(n));
     gpuBatch.reserve(static_cast<std::size_t>(n));
     for(int i = 0; i < n; ++i) {
@@ -199,12 +199,12 @@ int runParityCheck(const std::shared_ptr<Gem::Common::GFactoryT<gen::GOptimizabl
     // builds) and evaluate the whole batch in a single bulk launch. full_success_or_fatal: every item must be evaluated.
     auto marshaller = std::make_shared<MonaLisa::GMonaLisaGPUMarshaller>();
     auto consumer =
-        std::make_shared<gpu::GGPUConsumerT<GOptimizableEntity, gimage_fp_t>>(consumerConfig, marshaller);
-    consumer->setCloneFunction([](const std::unique_ptr<GOptimizableEntity> &p) {
+        std::make_shared<gpu::GGPUConsumerT<GGenome, gimage_fp_t>>(consumerConfig, marshaller);
+    consumer->setCloneFunction([](const std::unique_ptr<GGenome> &p) {
         return p->clone();
     });
     consumer->processBatch(
-        std::span<std::unique_ptr<GOptimizableEntity>>(gpuBatch.data(), gpuBatch.size()),
+        std::span<std::unique_ptr<GGenome>>(gpuBatch.data(), gpuBatch.size()),
         Gem::Courtier::GSubmissionPolicy::full_success_or_fatal());
 
     std::vector<double> fitness_gpu(static_cast<std::size_t>(n));
@@ -286,7 +286,7 @@ int main(int argc, char **argv) {
     // then refreshes Go2's own configs and the loaded individual's config, and exits.
     if(go.updateConfigsMode()) {
         auto marshaller = std::make_shared<MonaLisa::GMonaLisaGPUMarshaller>();
-        gpu::GGPUConsumerT<gen::GOptimizableEntity, gimage_fp_t>(consumerConfig, marshaller);
+        gpu::GGPUConsumerT<gen::GGenome, gimage_fp_t>(consumerConfig, marshaller);
         go.optimize();
     }
 

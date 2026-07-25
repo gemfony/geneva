@@ -39,7 +39,7 @@ class GRandomBase;
 } // namespace Gem::Hap
 
 namespace Gem::Geneva::Genome {
-class GOptimizableEntity;
+class GGenome;
 } // namespace Gem::Geneva::Genome
 
 namespace Gem::Geneva {
@@ -78,7 +78,7 @@ public:
     /**
      * @brief Decides which fault (if any) to inject for the given individual's imminent evaluation.
      *
-     * Called from GOptimizableEntity::process() before the objective is evaluated. Implementations may
+     * Called from GGenome::process() before the objective is evaluated. Implementations may
      * inspect the individual and draw from its RNG stream to make a (probabilistic) decision. Must not
      * mutate the individual's parameters.
      *
@@ -86,7 +86,7 @@ public:
      * @param gr The individual's own random-number stream (for probabilistic decisions)
      * @return The fault to inject (Fault::NONE for no fault)
      */
-    virtual Fault evaluate(const Genome::GOptimizableEntity &item, Gem::Hap::GRandomBase &gr) = 0;
+    virtual Fault evaluate(const Genome::GGenome &item, Gem::Hap::GRandomBase &gr) = 0;
 };
 
 /******************************************************************************/

@@ -45,7 +45,7 @@
 #include "common/GContainerT.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/genome/GParameterPropertyParser.hpp"
-#include "geneva/genome/GOptimizableEntity.hpp"
+#include "geneva/genome/GGenome.hpp"
 #include "geneva/oa/GOptimizationAlgorithmBase.hpp"
 #include "geneva/oa/GOptimizationAlgorithmT.hpp"
 #include "geneva/oa/GParameterScan_PersonalityTraits.hpp"

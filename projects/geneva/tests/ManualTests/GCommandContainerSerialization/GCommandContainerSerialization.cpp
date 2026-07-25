@@ -33,13 +33,13 @@
 
 /**
  * This test creates GFunctionIndividual objects, wraps them in GCommandContainerT
- * (with a GOptimizableEntity payload), and verifies round-trip serialization fidelity:
+ * (with a GGenome payload), and verifies round-trip serialization fidelity:
  * a) It serializes and de-serializes a command container and checks that the payload
  *    contents are identical after the round-trip.
  * b) It processes the payload (evaluates the individual) and performs another
  *    serialize/de-serialize round-trip, checking that the results match.
  *
- * Additional tests of the GCommandContainerT and GOptimizableEntity classes have been
+ * Additional tests of the GCommandContainerT and GGenome classes have been
  * implemented as part of the unit tests.
  */
 
@@ -137,13 +137,13 @@ int main(int argc, char **argv) {
 
         // Add the object to a new command container
         Gem::Courtier::GCommandContainerT<
-            gen::GOptimizableEntity,
+            gen::GGenome,
             Gem::Courtier::networked_consumer_payload_command>
             gcc1(Gem::Courtier::networked_consumer_payload_command::COMPUTE, fi_ptr->clone());
 
         // Prepare a command container for de-serialization
         Gem::Courtier::GCommandContainerT<
-            gen::GOptimizableEntity,
+            gen::GGenome,
             Gem::Courtier::networked_consumer_payload_command>
             gcc2(Gem::Courtier::networked_consumer_payload_command::NONE);
 
@@ -176,7 +176,7 @@ int main(int argc, char **argv) {
 
         // Prepare a command container for de-serialization
         Gem::Courtier::GCommandContainerT<
-            gen::GOptimizableEntity,
+            gen::GGenome,
             Gem::Courtier::networked_consumer_payload_command>
             gcc3(Gem::Courtier::networked_consumer_payload_command::NONE);
 

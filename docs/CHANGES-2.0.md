@@ -38,6 +38,14 @@ are in `CHANGES` and `INSTALL`; this file is the practical upgrade guide.
   `GParameterBase` / `GParameterT` / `GConstrainedDoubleObject` / `GDoubleCollection` /
   `GParameterObjectCollection` hierarchy (each node carrying its own adaptor) has been
   removed and replaced by a single **flat genome**.
+- **`GOptimizableEntity` is gone; `GGenome` is the hierarchy root.** The two were a
+  one-child pair -- the abstract category root and its only derivative -- with the root
+  declaring a matrix of typed virtuals that the genome implemented. They are now one
+  class. *Migration:* replace every `GOptimizableEntity` with `GGenome`; the include
+  `geneva/genome/GOptimizableEntity.hpp` becomes `geneva/genome/GGenome.hpp`. The
+  surrounding types keep their names (`GOptimizableEntityFactory`,
+  `GOptimizableEntityConstraint`, …). Checkpoints written before this change do not load:
+  the entity slice no longer travels under its own archive tag.
 - **Author a problem by subclassing `GGenome`** (typically via the CRTP helper
   `GGenomeT<Derived>`). Build a flat, fixed-structure array of double / float / int32 /
   bool values once in the constructor with `GGenomeBuilder` (`addDoubleGroup`,

@@ -38,7 +38,7 @@
 #include "common/GExceptions.hpp"
 #include "common/GFactoryT.hpp"
 #include "common/GLogger.hpp"
-#include "geneva/genome/GOptimizableEntity.hpp"
+#include "geneva/genome/GGenome.hpp"
 #include "geneva/oa/GPostProcessorT.hpp"
 
 // Forward declarations (kept light so this header carries no OA / flat-genome dependency): the base
@@ -55,18 +55,18 @@ class GGenome;
 
 /******************************************************************************/
 /**
- * This class facilitates handling of factories for GOptimizableEntity-derivatives.
+ * This class facilitates handling of factories for GGenome-derivatives.
  * In particular it allows to register pre- and post-procesing objects
  */
 class GOptimizableEntityFactory // NOLINT(cppcoreguidelines-special-member-functions)
-  : public Gem::Common::GFactoryT<GOptimizableEntity> {
+  : public Gem::Common::GFactoryT<GGenome> {
     ///////////////////////////////////////////////////////////////////////
     friend struct Gem::Weft::access;
 
     template <typename Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         using Gem::Common::archive_named;
-        Gem::Common::archive_named_base<Gem::Common::GFactoryT<GOptimizableEntity>>(
+        Gem::Common::archive_named_base<Gem::Common::GFactoryT<GGenome>>(
             ar, "GFactoryT_GOptimizableEntity", *this);
         archive_named(ar, "pre_processor_", pre_processor_);
         archive_named(ar, "post_processor_", post_processor_);
@@ -81,7 +81,7 @@ public:
 	  * @param configFile path object of a configuration file holding information about objects of type T
 	  */
     explicit GOptimizableEntityFactory(std::filesystem::path const &configFile)
-      : Gem::Common::GFactoryT<GOptimizableEntity>(configFile) { /* nothing */
+      : Gem::Common::GFactoryT<GGenome>(configFile) { /* nothing */
     }
 
     /***************************************************************************/
@@ -91,7 +91,7 @@ public:
 	  * @param cp A constant reference to another GOptimizableEntityFactory object to be copied
 	  */
     GOptimizableEntityFactory(const GOptimizableEntityFactory &cp)
-      : Gem::Common::GFactoryT<GOptimizableEntity>(cp) {
+      : Gem::Common::GFactoryT<GGenome>(cp) {
         Gem::Common::copyCloneableSmartPointer(cp.pre_processor_, pre_processor_);
         Gem::Common::copyCloneableSmartPointer(cp.post_processor_, post_processor_);
     }
@@ -107,7 +107,7 @@ public:
 	  * @param p A shared pointer to a pre-processor function object to be cloned into each produced individual; must not be empty
 	  */
     void registerPreProcessor(
-        const std::shared_ptr<Gem::Common::GSerializableFunctionObjectT<GOptimizableEntity>>& p
+        const std::shared_ptr<Gem::Common::GSerializableFunctionObjectT<GGenome>>& p
     ) {
         if(p) {
             pre_processor_ = p;
@@ -128,7 +128,7 @@ public:
 	  * @param p A shared pointer to a post-processor function object to be cloned into each produced individual; must not be empty
 	  */
     void registerPostProcessor(
-        const std::shared_ptr<Gem::Common::GSerializableFunctionObjectT<GOptimizableEntity>>& p
+        const std::shared_ptr<Gem::Common::GSerializableFunctionObjectT<GGenome>>& p
     ) {
         if(p) {
             post_processor_ = p;
@@ -161,20 +161,20 @@ public:
     }
 
 protected:
-    /** @brief A pre-processor for GOptimizableEntity-derivatives */
-    std::shared_ptr<Gem::Common::GSerializableFunctionObjectT<GOptimizableEntity>> pre_processor_;
+    /** @brief A pre-processor for GGenome-derivatives */
+    std::shared_ptr<Gem::Common::GSerializableFunctionObjectT<GGenome>> pre_processor_;
 
-    /** @brief A post-processor for GOptimizableEntity-derivatives */
-    std::shared_ptr<Gem::Common::GSerializableFunctionObjectT<GOptimizableEntity>> post_processor_;
+    /** @brief A post-processor for GGenome-derivatives */
+    std::shared_ptr<Gem::Common::GSerializableFunctionObjectT<GGenome>> post_processor_;
 
     /***************************************************************************/
     /**
-     * Production of GOptimizableEntity-derivatives
+     * Production of GGenome-derivatives
      *
-     * @return A shared pointer to a newly produced GOptimizableEntity-derivative, with any registered pre- and post-processor cloned and attached
+     * @return A shared pointer to a newly produced GGenome-derivative, with any registered pre- and post-processor cloned and attached
      */
-    std::shared_ptr<GOptimizableEntity> get_() override {
-        std::shared_ptr<GOptimizableEntity> p = GFactoryT<GOptimizableEntity>::get_();
+    std::shared_ptr<GGenome> get_() override {
+        std::shared_ptr<GGenome> p = GFactoryT<GGenome>::get_();
 
         if(pre_processor_) {
             p->registerPreProcessor(pre_processor_->clone());

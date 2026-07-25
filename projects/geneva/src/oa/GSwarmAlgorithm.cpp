@@ -39,7 +39,7 @@
 #include "geneva/GenevaHelperFunctions.hpp"
 #include "geneva/oa/GOptimizationAlgorithmBase.hpp"
 #include "geneva/oa/GSwarmAlgorithm_PersonalityTraits.hpp"
-#include "geneva/genome/GOptimizableEntity.hpp"
+#include "geneva/genome/GGenome.hpp"
 #include <algorithm>
 #include <cstddef>
 #include <cstdint>
@@ -108,8 +108,8 @@ GSwarmAlgorithm::GSwarmAlgorithm(const GSwarmAlgorithm &cp)
   , default_n_neighborhood_members_(cp.default_n_neighborhood_members_)
   , n_neighborhood_members_cnt_(cp.n_neighborhood_members_cnt_)
   , global_best_ptr_(
-        (cp.afterFirstIteration()) ? (cp.global_best_ptr_)->clone<gen::GOptimizableEntity>()
-                                   : std::shared_ptr<gen::GOptimizableEntity>()
+        (cp.afterFirstIteration()) ? (cp.global_best_ptr_)->clone<gen::GGenome>()
+                                   : std::shared_ptr<gen::GGenome>()
     )
   , neighborhood_bests_cnt_(n_neighborhoods_) // We copy the smart pointers over later
   , c_personal_(cp.c_personal_)
@@ -134,7 +134,7 @@ GSwarmAlgorithm::GSwarmAlgorithm(const GSwarmAlgorithm &cp)
     // Clone cp's best individuals in each neighborhood
     if(cp.afterFirstIteration()) {
         for(std::size_t i = 0; i < n_neighborhoods_; i++) {
-            neighborhood_bests_cnt_[i] = cp.neighborhood_bests_cnt_[i]->clone<gen::GOptimizableEntity>();
+            neighborhood_bests_cnt_[i] = cp.neighborhood_bests_cnt_[i]->clone<gen::GGenome>();
         }
     }
 
@@ -155,7 +155,7 @@ void GSwarmAlgorithm::resetToOptimizationStart_() {
 
     global_best_ptr_.reset(); // The globally best individual
 
-    neighborhood_bests_cnt_ = std::vector<std::shared_ptr<gen::GOptimizableEntity>>(
+    neighborhood_bests_cnt_ = std::vector<std::shared_ptr<gen::GGenome>>(
         n_neighborhoods_
     ); // The collection of best individuals from each neighborhood
 
@@ -304,7 +304,7 @@ std::size_t GSwarmAlgorithm::getLastNIPos(const std::size_t &neighborhood) const
  *
  * @param ind_ptr A reference to the unique_ptr-owned individual whose personal best should be (re)registered
  */
-void GSwarmAlgorithm::updatePersonalBest(const std::unique_ptr<gen::GOptimizableEntity> &ind_ptr) {
+void GSwarmAlgorithm::updatePersonalBest(const std::unique_ptr<gen::GGenome> &ind_ptr) {
 #ifdef DEBUG
     if(not ind_ptr) {
         throw geneva_exception(
@@ -331,7 +331,7 @@ void GSwarmAlgorithm::updatePersonalBest(const std::unique_ptr<gen::GOptimizable
     // The archive (personal_best_) keeps its own shared_ptr copy; the population owns the live
     // individual by unique_ptr, so we hand registerPersonalBest a clone across the ownership boundary.
     ind_ptr->getPersonalityTraits<GSwarmAlgorithm_PersonalityTraits>()->registerPersonalBest(
-        ind_ptr->clone<gen::GOptimizableEntity>()
+        ind_ptr->clone<gen::GGenome>()
     );
 }
 
@@ -341,7 +341,7 @@ void GSwarmAlgorithm::updatePersonalBest(const std::unique_ptr<gen::GOptimizable
  *
  * @param ind_ptr A reference to the unique_ptr-owned individual whose personal best should be updated when its current position is better
  */
-void GSwarmAlgorithm::updatePersonalBestIfBetter(const std::unique_ptr<gen::GOptimizableEntity> &ind_ptr) {
+void GSwarmAlgorithm::updatePersonalBestIfBetter(const std::unique_ptr<gen::GGenome> &ind_ptr) {
 #ifdef DEBUG
     if(not ind_ptr) {
         throw geneva_exception(
@@ -374,7 +374,7 @@ void GSwarmAlgorithm::updatePersonalBestIfBetter(const std::unique_ptr<gen::GOpt
            m
        )) {
         ind_ptr->getPersonalityTraits<GSwarmAlgorithm_PersonalityTraits>()->registerPersonalBest(
-            ind_ptr->clone<gen::GOptimizableEntity>()
+            ind_ptr->clone<gen::GGenome>()
         );
     }
 }
@@ -782,7 +782,7 @@ void GSwarmAlgorithm::updatePositions() {
     if(afterFirstIteration()) {
         // Clone the individuals and copy them over
         for(const auto &ind_ptr : *this) {
-            last_iteration_individuals_cnt_.push_back(ind_ptr->clone<gen::GOptimizableEntity>());
+            last_iteration_individuals_cnt_.push_back(ind_ptr->clone<gen::GGenome>());
         }
     }
 
@@ -881,9 +881,9 @@ void GSwarmAlgorithm::updatePositions() {
 void GSwarmAlgorithm::updateIndividualPositions(
     [[maybe_unused]] const std::size_t & neighborhood
     ,
-    const std::unique_ptr<gen::GOptimizableEntity> &ind,
-    const std::shared_ptr<gen::GOptimizableEntity>& neighborhood_best,
-    const std::shared_ptr<gen::GOptimizableEntity>& global_best,
+    const std::unique_ptr<gen::GGenome> &ind,
+    const std::shared_ptr<gen::GGenome>& neighborhood_best,
+    const std::shared_ptr<gen::GGenome>& global_best,
     std::tuple<double, double, double, double> constants
 ) {
     // Extract the constants from the tuple
@@ -904,7 +904,7 @@ void GSwarmAlgorithm::updateIndividualPositions(
 #endif /* DEBUG */
 
     // Extract the personal best
-    std::shared_ptr<gen::GOptimizableEntity> const personal_best =
+    std::shared_ptr<gen::GGenome> const personal_best =
         ind->getPersonalityTraits<GSwarmAlgorithm_PersonalityTraits>()->getPersonalBest();
 
     // Further error checks
@@ -1204,7 +1204,7 @@ void GSwarmAlgorithm::sortNeighborhoodsAndUpdateBests(maxMode m) {
         // the best individual found so far in this neighborhood
         if(inFirstIteration()) {
             neighborhood_bests_cnt_.at(n) =
-                (*(this->begin() + first_counter))->clone<gen::GOptimizableEntity>();
+                (*(this->begin() + first_counter))->clone<gen::GGenome>();
         }
         else {
             if(isBetter(
@@ -1245,7 +1245,7 @@ void GSwarmAlgorithm::updateGlobalBest(maxMode m) {
     // Compare the best neighborhood individual with the globally best individual and
     // update it, if necessary. Initialize it in the first generation.
     if(inFirstIteration()) {
-        global_best_ptr_ = (neighborhood_bests_cnt_.at(best_local_id))->clone<gen::GOptimizableEntity>();
+        global_best_ptr_ = (neighborhood_bests_cnt_.at(best_local_id))->clone<gen::GGenome>();
     }
     else {
         if(isBetter(

@@ -164,7 +164,7 @@ int main(int argc, char **argv) {
             new gind::GFunctionIndividualFactory("./config/GFunctionIndividual.json")
         );
 
-        std::shared_ptr<gen::GOptimizableEntity> const gfi_test = gfi_ptr->get();
+        std::shared_ptr<gen::GGenome> const gfi_test = gfi_ptr->get();
 
         // Make sure the individual is "clean", i.e. the processed flag is set
         gfi_test->set_processing_status(Gem::Courtier::processingStatus::DO_PROCESS);

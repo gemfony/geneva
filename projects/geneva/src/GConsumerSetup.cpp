@@ -79,15 +79,15 @@ namespace po = boost::program_options;
 namespace {
 
 /**
- * @brief Builds the polymorphic clone functor for GOptimizableEntity.
+ * @brief Builds the polymorphic clone functor for GGenome.
  *
  * Copy-construction would slice the held individual, so a virtual clone() is used instead.
  *
- * @return A functor that deep-copies a GOptimizableEntity via its virtual clone()
+ * @return A functor that deep-copies a GGenome via its virtual clone()
  */
-std::function<std::unique_ptr<gen::GOptimizableEntity>(const std::unique_ptr<gen::GOptimizableEntity> &)>
+std::function<std::unique_ptr<gen::GGenome>(const std::unique_ptr<gen::GGenome> &)>
 individualCloneFunction() {
-    return [](const std::unique_ptr<gen::GOptimizableEntity> &p) { return p->clone(); };
+    return [](const std::unique_ptr<gen::GGenome> &p) { return p->clone(); };
 }
 
 /******************************************************************************/
@@ -105,7 +105,7 @@ public:
     [[nodiscard]] bool needsClient() const override { return false; }
 
     ConsumerSetup setup(const ConsumerSpec &spec) override {
-        auto consumer = std::make_shared<c2::GStdThreadConsumerT<gen::GOptimizableEntity>>(spec.n_threads);
+        auto consumer = std::make_shared<c2::GStdThreadConsumerT<gen::GGenome>>(spec.n_threads);
         consumer->setCloneFunction(individualCloneFunction());
         ConsumerSetup setup;
         setup.consumer = consumer;
@@ -120,7 +120,7 @@ public:
         return spec;
     }
 
-    [[nodiscard]] std::shared_ptr<c2::GBaseClientT<gen::GOptimizableEntity>>
+    [[nodiscard]] std::shared_ptr<c2::GBaseClientT<gen::GGenome>>
     buildClient(const ConsumerSpec & /*spec*/) const override {
         return nullptr; // local-only
     }
@@ -144,7 +144,7 @@ public:
     [[nodiscard]] bool bindsListeningPort() const override { return true; }
 
     ConsumerSetup setup(const ConsumerSpec &spec) override {
-        auto consumer = std::make_shared<c2::GAsioConsumerT<gen::GOptimizableEntity>>(
+        auto consumer = std::make_shared<c2::GAsioConsumerT<gen::GGenome>>(
             spec.port, spec.n_threads, spec.serialization_mode);
         consumer->setCloneFunction(individualCloneFunction());
         consumer->startServer();
@@ -170,9 +170,9 @@ public:
         return spec;
     }
 
-    [[nodiscard]] std::shared_ptr<c2::GBaseClientT<gen::GOptimizableEntity>>
+    [[nodiscard]] std::shared_ptr<c2::GBaseClientT<gen::GGenome>>
     buildClient(const ConsumerSpec &spec) const override {
-        return std::make_shared<c2::Consumers::GAsioConsumerClientT<gen::GOptimizableEntity>>(
+        return std::make_shared<c2::Consumers::GAsioConsumerClientT<gen::GGenome>>(
             spec.ip, spec.port, spec.serialization_mode, spec.max_reconnects, spec.client_prefetch_depth);
     }
 
@@ -208,7 +208,7 @@ public:
     [[nodiscard]] bool bindsListeningPort() const override { return true; }
 
     ConsumerSetup setup(const ConsumerSpec &spec) override {
-        auto consumer = std::make_shared<c2::GWebsocketConsumerT<gen::GOptimizableEntity>>(
+        auto consumer = std::make_shared<c2::GWebsocketConsumerT<gen::GGenome>>(
             spec.port, spec.n_threads, spec.serialization_mode);
         consumer->setCloneFunction(individualCloneFunction());
         consumer->startServer();
@@ -234,9 +234,9 @@ public:
         return spec;
     }
 
-    [[nodiscard]] std::shared_ptr<c2::GBaseClientT<gen::GOptimizableEntity>>
+    [[nodiscard]] std::shared_ptr<c2::GBaseClientT<gen::GGenome>>
     buildClient(const ConsumerSpec &spec) const override {
-        return std::make_shared<c2::Consumers::GWebsocketClientT<gen::GOptimizableEntity>>(
+        return std::make_shared<c2::Consumers::GWebsocketClientT<gen::GGenome>>(
             spec.ip, spec.port, spec.serialization_mode, spec.verbose_control_frames,
             spec.client_prefetch_depth);
     }
@@ -290,7 +290,7 @@ public:
         }
         mpi_config.serializationMode = spec.serialization_mode;
         mpi_config.masterCleanSessIntervalMSec = spec.mpi_clean_sess_interval;
-        auto consumer = std::make_shared<c2::GMPIConsumerT<gen::GOptimizableEntity>>(
+        auto consumer = std::make_shared<c2::GMPIConsumerT<gen::GGenome>>(
             nullptr, nullptr, mpi_config);
         ConsumerSetup setup;
         if(consumer->isMasterNode()) {
@@ -320,7 +320,7 @@ public:
         return spec;
     }
 
-    [[nodiscard]] std::shared_ptr<c2::GBaseClientT<gen::GOptimizableEntity>>
+    [[nodiscard]] std::shared_ptr<c2::GBaseClientT<gen::GGenome>>
     buildClient(const ConsumerSpec & /*spec*/) const override {
         return nullptr; // the mpi worker loop comes from setup().run_worker, not a socket client
     }
@@ -398,7 +398,7 @@ public:
         return ConsumerSpec{};
     }
 
-    [[nodiscard]] std::shared_ptr<c2::GBaseClientT<gen::GOptimizableEntity>>
+    [[nodiscard]] std::shared_ptr<c2::GBaseClientT<gen::GGenome>>
     buildClient(const ConsumerSpec & /*spec*/) const override {
         return nullptr;
     }
@@ -416,10 +416,10 @@ private:
      * @return The ready GPU consumer (clone function set)
      */
     template <typename scalar_type>
-    static std::shared_ptr<c2::GBaseConsumerT<gen::GOptimizableEntity>>
+    static std::shared_ptr<c2::GBaseConsumerT<gen::GGenome>>
     buildGPUConsumer(const std::shared_ptr<GGPUMarshallerHandle> &handle, const std::string &configFile) {
         auto marshaller = std::dynamic_pointer_cast<
-            Gem::Courtier::GPU::GGPUEvaluableI<gen::GOptimizableEntity, scalar_type>>(handle);
+            Gem::Courtier::GPU::GGPUEvaluableI<gen::GGenome, scalar_type>>(handle);
         if(not marshaller) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
@@ -428,7 +428,7 @@ private:
             );
         }
         auto consumer = std::make_shared<
-            Gem::Courtier::GPU::GGPUConsumerT<gen::GOptimizableEntity, scalar_type>>(configFile, marshaller);
+            Gem::Courtier::GPU::GGPUConsumerT<gen::GGenome, scalar_type>>(configFile, marshaller);
         consumer->setCloneFunction(individualCloneFunction());
         return consumer;
     }
@@ -468,7 +468,7 @@ const ConsumerProviderRegistrar g_consumer_provider_registrar{};
  * @return The matching consumer provider, or nullptr if the mnemonic is unknown
  */
 std::shared_ptr<GConsumerProviderT> lookupConsumerProvider(const std::string &mnemonic) {
-    std::shared_ptr<Gem::Common::GProviderT<c2::GBaseConsumerT<gen::GOptimizableEntity>>> base;
+    std::shared_ptr<Gem::Common::GProviderT<c2::GBaseConsumerT<gen::GGenome>>> base;
     if(consumerProviderStore()->get(mnemonic, base) && base) {
         return std::static_pointer_cast<GConsumerProviderT>(base);
     }
@@ -506,7 +506,7 @@ std::vector<std::shared_ptr<GConsumerProviderT>> allConsumerProviders() {
  * @return A ConsumerSetup holding the consumer and/or worker loop; empty for an unknown mnemonic
  */
 ConsumerSetup buildConsumerSetup(const ConsumerSpec &spec) {
-    auto &registry = c2::GConsumerRegistryT<gen::GOptimizableEntity>::instance();
+    auto &registry = c2::GConsumerRegistryT<gen::GGenome>::instance();
 
     auto provider = lookupConsumerProvider(spec.mnemonic);
     if(not provider) {
@@ -532,7 +532,7 @@ ConsumerSetup buildConsumerSetup(const ConsumerSpec &spec) {
     // no command line. Applied once here for whichever networked consumer was built; local / GPU consumers
     // (not GNetworkedConsumerT) are unaffected.
     if(auto *networked =
-           dynamic_cast<c2::GNetworkedConsumerT<gen::GOptimizableEntity> *>(setup.consumer.get())) {
+           dynamic_cast<c2::GNetworkedConsumerT<gen::GGenome> *>(setup.consumer.get())) {
         c2::GNetworkedTimeoutConfig timeout_cfg;
         timeout_cfg.load("./config/GNetworkedConsumer.json");
         networked->applyTimeoutConfig(timeout_cfg);
@@ -589,7 +589,7 @@ ConsumerSpec specFromCommandLine(
  * @param spec The consumer specification (mnemonic plus connection/serialization settings)
  * @return A client for asio/beast; nullptr for local-only or non-client consumers
  */
-std::shared_ptr<Gem::Courtier::GBaseClientT<gen::GOptimizableEntity>>
+std::shared_ptr<Gem::Courtier::GBaseClientT<gen::GGenome>>
 buildConsumerClient(const ConsumerSpec &spec) {
     auto provider = lookupConsumerProvider(spec.mnemonic);
     return provider ? provider->buildClient(spec) : nullptr;

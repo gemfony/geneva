@@ -382,9 +382,9 @@ int main(int argc, char **argv) {
     gind::GFunctionIndividualFactory gfi("./config/GFunctionIndividual.json");
 
     // Create the first set of parent individuals. Initialization of parameters is done randomly.
-    std::vector<std::shared_ptr<gen::GOptimizableEntity>> parentIndividuals;
+    std::vector<std::shared_ptr<gen::GGenome>> parentIndividuals;
     for(std::size_t p = 0; p < nParents; p++) {
-        std::shared_ptr<gen::GOptimizableEntity> const functionIndividual_ptr = gfi();
+        std::shared_ptr<gen::GGenome> const functionIndividual_ptr = gfi();
 
         // Give the individual a genome of `parDim` unbounded doubles in [minVar, maxVar[, sharing one
         // Gauss adaptor (the flat-genome equivalent of a GDoubleCollection). This replaces the

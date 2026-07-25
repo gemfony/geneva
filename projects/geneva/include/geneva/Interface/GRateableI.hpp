@@ -47,7 +47,7 @@ namespace Gem::Geneva::Interface {
      *
      * Defines the public accessors for raw and transformed fitness values (single value by id
      * or the full vector). The evaluation hook itself (the virtual evaluate()) lives on
-     * GOptimizableEntity, which derives this interface.
+     * GGenome, which derives this interface.
      */
 class GRateableI {
 public:

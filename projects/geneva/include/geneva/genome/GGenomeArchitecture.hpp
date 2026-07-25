@@ -40,7 +40,7 @@
 // Geneva headers go here
 #include "common/GExceptions.hpp"
 #include "common/GLogger.hpp"
-#include "geneva/genome/GOptimizableEntity.hpp"
+#include "geneva/genome/GGenome.hpp"
 
 namespace Gem::Geneva::Genome {
 
@@ -82,7 +82,7 @@ public:
 /**
  * A worked example architecture: it views the floating-point genome as a rows x cols 2D field. The
  * same pattern extends to layered 1D arrays (a neural network: one row per layer) and plain 1D arrays
- * (rows == 1). It demonstrates the seam: every accessor takes a const GOptimizableEntity& and reads
+ * (rows == 1). It demonstrates the seam: every accessor takes a const GGenome& and reads
  * it via streamlineFP(), so it works unchanged over a tree genome and a flat genome alike.
  */
 class GGridArchitecture : public GGenomeArchitecture {
@@ -110,7 +110,7 @@ public:
      *  @param ind The individual to read the floating-point genome values from
      *  @param r The (zero-based) index of the row to extract
      *  @return A vector holding the cols_ values of row r */
-    [[nodiscard]] std::vector<double> row(GOptimizableEntity const &ind, std::size_t r) const {
+    [[nodiscard]] std::vector<double> row(GGenome const &ind, std::size_t r) const {
         std::vector<double> all;
         ind.streamlineFP(all);
         checkSize(all.size());
@@ -127,7 +127,7 @@ public:
      *  @param r The (zero-based) row index of the element
      *  @param c The (zero-based) column index of the element
      *  @return The floating-point value at field position (r, c) */
-    [[nodiscard]] double at(GOptimizableEntity const &ind, std::size_t r, std::size_t c) const {
+    [[nodiscard]] double at(GGenome const &ind, std::size_t r, std::size_t c) const {
         std::vector<double> all;
         ind.streamlineFP(all);
         checkSize(all.size());

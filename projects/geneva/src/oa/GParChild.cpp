@@ -39,7 +39,7 @@
 #include "geneva/oa/GBaseParChildPersonalityTraits.hpp"
 #include "geneva/oa/GAdaption.hpp"
 #include "geneva/oa/GAdaptionConfig.hpp"
-#include "geneva/genome/GOptimizableEntity.hpp"
+#include "geneva/genome/GGenome.hpp"
 #include "geneva/genome/GGenome.hpp"
 #include <algorithm>
 #include <cstddef>
@@ -464,7 +464,7 @@ void GParChild::copyParentsIntoChildrenParallel(const std::vector<std::size_t> &
         const std::size_t child_idx = n_parents_ + c;
         const std::size_t pp = parent_pos[c];
         futures_cnt.push_back(tp->async_schedule([this, child_idx, pp]() {
-            std::unique_ptr<gen::GOptimizableEntity> &child = GOptimizationAlgorithmBase::data_cnt_[child_idx];
+            std::unique_ptr<gen::GGenome> &child = GOptimizationAlgorithmBase::data_cnt_[child_idx];
             child->load(GOptimizationAlgorithmBase::data_cnt_[pp]);
             child->template getPersonalityTraits<GBaseParChildPersonalityTraits>()
                 ->setParentId(pp);
@@ -507,7 +507,7 @@ void GParChild::recombineSerial(const std::vector<double> &threshold) {
         amalgamation_likelihood_
     ); // true with a likelihood of amalgamation_likelihood_
 
-    std::vector<std::unique_ptr<gen::GOptimizableEntity>>::iterator it;
+    std::vector<std::unique_ptr<gen::GGenome>>::iterator it;
     for(it = GOptimizationAlgorithmBase::data_cnt_.begin() + n_parents_;
         it != GOptimizationAlgorithmBase::data_cnt_.end();
         ++it) {
@@ -525,7 +525,7 @@ void GParChild::recombineSerial(const std::vector<double> &threshold) {
  * @param amalgamation_wanted The per-child cross-over decision distribution (drawn once per call)
  */
 void GParChild::recombineOneSerial(
-    const std::unique_ptr<gen::GOptimizableEntity> &child,
+    const std::unique_ptr<gen::GGenome> &child,
     const std::vector<double> &threshold,
     std::bernoulli_distribution &amalgamation_wanted
 ) {
@@ -533,8 +533,8 @@ void GParChild::recombineOneSerial(
     // If we do perform cross-over, we always cross the best individual with another random parent
     if(n_parents_ > 1 &&
        amalgamation_wanted(this->gr_)) { // Create individuals using a cross-over scheme
-        const gen::GOptimizableEntity &best_parent = (*this->front());
-        const gen::GOptimizableEntity &combiner =
+        const gen::GGenome &best_parent = (*this->front());
+        const gen::GGenome &combiner =
             (n_parents_ > 2)
                 ? (*(*(this->begin() + this->uniform_int_distribution_(
                                          this->gr_,
@@ -561,7 +561,7 @@ void GParChild::recombineOneSerial(
  * @param threshold The value-duplication weight vector (see buildRecombinationThresholds())
  */
 void GParChild::duplicateForChild(
-    const std::unique_ptr<gen::GOptimizableEntity> &child, const std::vector<double> &threshold
+    const std::unique_ptr<gen::GGenome> &child, const std::vector<double> &threshold
 ) {
     switch(recombination_method_) {
     case duplicationScheme::DEFAULTDUPLICATIONSCHEME: // we want the RANDOMDUPLICATIONSCHEME behavior
@@ -815,7 +815,7 @@ std::tuple<std::size_t, std::size_t> GParChild::getAdaptionRange() const {
  * @brief This helper function marks the first n_parents_ individuals in the population as parents.
  */
 void GParChild::markParents() {
-    typename std::vector<std::unique_ptr<gen::GOptimizableEntity>>::iterator it;
+    typename std::vector<std::unique_ptr<gen::GGenome>>::iterator it;
     for(it = GOptimizationAlgorithmBase::data_cnt_.begin();
         it != GOptimizationAlgorithmBase::data_cnt_.begin() + n_parents_;
         ++it) {
@@ -996,7 +996,7 @@ void GParChild::adjustPopulation_() {
     }
 
     // Do the smart pointers actually point to any objects ?
-    typename std::vector<std::unique_ptr<gen::GOptimizableEntity>>::iterator it;
+    typename std::vector<std::unique_ptr<gen::GGenome>>::iterator it;
     for(const auto &individual : GOptimizationAlgorithmBase::data_cnt_) {
         if(not individual) { // unique_ptr can be implicitly converted to bool
             throw geneva_exception(
@@ -1053,7 +1053,7 @@ void GParChild::performScheduledPopulationGrowth() {
  *
  * @param child The child slot into which the randomly chosen parent's slot is loaded
  */
-void GParChild::randomRecombine(const std::unique_ptr<gen::GOptimizableEntity> &child) {
+void GParChild::randomRecombine(const std::unique_ptr<gen::GGenome> &child) {
     std::size_t parent_pos = 0;
 
     if(n_parents_ == 1) {
@@ -1092,7 +1092,7 @@ void GParChild::randomRecombine(const std::unique_ptr<gen::GOptimizableEntity> &
  * @param threshold A std::vector<double> holding the cumulative recombination likelihoods for each parent
  */
 void GParChild::valueRecombine(
-    const std::unique_ptr<gen::GOptimizableEntity> &child,
+    const std::unique_ptr<gen::GGenome> &child,
     const std::vector<double> &threshold
 ) {
     bool done = false;

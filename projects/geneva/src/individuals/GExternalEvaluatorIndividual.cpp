@@ -464,7 +464,7 @@ bool GExternalEvaluatorIndividual::getRemoveExecTemporaries() const {
 /**
  * @brief Registers the config-file options, binding them to the passed Config.
  *
- * The base GOptimizableEntity options are registered separately by GIndividualFactory::getObject_
+ * The base GGenome options are registered separately by GIndividualFactory::getObject_
  * (via addConfigurationOptions).
  *
  * @param gpb The GParserBuilder object with which the configuration file options are registered

@@ -54,7 +54,7 @@
 #include "common/GLogger.hpp"
 #include "dietrich/GPlotDesigner.hpp"
 #include "geneva/genome/GParameterPropertyParser.hpp"
-#include "geneva/genome/GOptimizableEntity.hpp"
+#include "geneva/genome/GGenome.hpp"
 #include "geneva/oa/GOptimizationAlgorithmBase.hpp"
 #include "geneva/oa/GAdaption.hpp"
 #include "geneva/oa/GAdaptionConfig.hpp"
@@ -807,8 +807,8 @@ private:
 
         case Gem::Geneva::infoMode::INFOPROCESSING: {
             if(monitor_best_only_) { // Monitor the best individual only
-                std::shared_ptr<gen::GOptimizableEntity> const p =
-                    goa->Interface::GOptimizerIT<oa::GOptimizationAlgorithmBase>::getBestGlobalIndividual<gen::GOptimizableEntity>();
+                std::shared_ptr<gen::GGenome> const p =
+                    goa->Interface::GOptimizerIT<oa::GOptimizationAlgorithmBase>::getBestGlobalIndividual<gen::GGenome>();
                 this->logIndividual_(*p);
             }
             else { // Monitor all individuals
@@ -845,7 +845,7 @@ private:
      *
      * @param ind The individual whose profiled variables are logged
      */
-    void logIndividual_(gen::GOptimizableEntity &ind) {
+    void logIndividual_(gen::GGenome &ind) {
         const double primary_fitness = oa::GBasePluggableOM::use_raw_evaluation_
             ? ind.raw_fitness(0)
             : ind.transformed_fitness(0);
@@ -863,7 +863,7 @@ private:
         // observed window is not logged at all.
         std::array<double, 3> vals{};
         for(std::size_t i = 0; i < n_vars; ++i) {
-            const auto v = ind.GOptimizableEntity::template getVarVal<fp_type>(fp_prof_var_vec_[i].var);
+            const auto v = ind.GGenome::template getVarVal<fp_type>(fp_prof_var_vec_[i].var);
             if(observe_boundaries_ &&
                (v < fp_prof_var_vec_[i].lowerBoundary || v > fp_prof_var_vec_[i].upperBoundary)) {
                 return;
@@ -941,7 +941,7 @@ private:
  * asking the class to only log solutions better than a given set of values. What
  * is considered better depends on whether evaluation criteria are maximized or minimized
  * and is determined from the individual. Note that this class operates on the
- * GOptimizableEntity hierarchy (the flat-genome GGenome / its GenomeData), i.e. on
+ * GGenome hierarchy (the flat-genome GGenome / its GenomeData), i.e. on
  * the optimizable entities managed by the algorithm.
  */
 class GAllSolutionFileLogger // NOLINT(cppcoreguidelines-special-member-functions)
@@ -1736,8 +1736,8 @@ private:
             std::uint32_t const iteration = goa->getIteration();
 
             // Record the current fitness
-            std::shared_ptr<gen::GOptimizableEntity> const p =
-                goa->Interface::GOptimizerIT<oa::GOptimizationAlgorithmBase>::getBestGlobalIndividual<gen::GOptimizableEntity>();
+            std::shared_ptr<gen::GGenome> const p =
+                goa->Interface::GOptimizerIT<oa::GOptimizationAlgorithmBase>::getBestGlobalIndividual<gen::GGenome>();
             fitness_store_.emplace_back(static_cast<double>(iteration), p->raw_fitness(0));
 
             // Update the largest known iteration and the number of recorded iterations

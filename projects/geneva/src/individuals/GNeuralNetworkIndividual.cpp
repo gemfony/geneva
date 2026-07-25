@@ -1402,7 +1402,7 @@ double GNeuralNetworkIndividual::transfer(const double &value) const {
 /******************************************************************************/
 /**
  * @brief Registers the config-file options, binding them to the passed Config. The base
- * GOptimizableEntity options are registered separately by GIndividualFactory::getObject_ (via
+ * GGenome options are registered separately by GIndividualFactory::getObject_ (via
  * addConfigurationOptions).
  *
  * @param gpb The parser builder the file-parameter options are registered with

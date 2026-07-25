@@ -43,7 +43,7 @@
 // Boost header files go here
 
 // Geneva headers go here
-#include "geneva/genome/GOptimizableEntity.hpp"
+#include "geneva/genome/GGenome.hpp"
 
 namespace Gem::Geneva::Interface {
 
@@ -90,11 +90,11 @@ public:
 	  * Note that this function will not allow you to modify the best individual itself as it will
 	  * return a copy to you. Throws if the dynamic_pointer_cast to individual_type fails.
 	  *
-	  * @tparam individual_type The concrete individual type to cast the best individual to (must derive from gen::GOptimizableEntity)
+	  * @tparam individual_type The concrete individual type to cast the best individual to (must derive from gen::GGenome)
 	  * @return A copy of the best individual found in the optimization run
 	  */
     template <typename individual_type>
-        requires std::derived_from<individual_type, gen::GOptimizableEntity>
+        requires std::derived_from<individual_type, gen::GGenome>
     std::shared_ptr<individual_type> getBestGlobalIndividual() const {
         std::scoped_lock<std::mutex> const iteration_best_lock(get_best_mutex_);
         auto result = std::dynamic_pointer_cast<individual_type>(this->getBestGlobalIndividual_());
@@ -115,16 +115,16 @@ public:
 	  * Note that this function will not allow you to modify the best individuals themselves
 	  * as it will return copies to you. Throws if the collection is empty or if any cast fails.
 	  *
-	  * @tparam individual_type The concrete individual type to cast each best individual to (must derive from gen::GOptimizableEntity)
+	  * @tparam individual_type The concrete individual type to cast each best individual to (must derive from gen::GGenome)
 	  * @return A list of copies of the best individuals found in the optimization run
 	  */
     template <typename individual_type>
-        requires std::derived_from<individual_type, gen::GOptimizableEntity>
+        requires std::derived_from<individual_type, gen::GGenome>
     std::vector<std::shared_ptr<individual_type>> getBestGlobalIndividuals() const {
         std::scoped_lock<std::mutex> const iteration_best_lock(get_best_mutex_);
 
         std::vector<std::shared_ptr<individual_type>> best_individuals;
-        std::vector<std::shared_ptr<gen::GOptimizableEntity>> const best_base_individuals =
+        std::vector<std::shared_ptr<gen::GGenome>> const best_base_individuals =
             this->getBestGlobalIndividuals_();
 
         // Cross check that we indeed got a valid set of individuals
@@ -163,11 +163,11 @@ public:
 	  * is retrieved under protection, any action on this individual may then be carried out in parallel).
 	  * Throws if the dynamic_pointer_cast to individual_type fails.
 	  *
-	  * @tparam individual_type The concrete individual type to cast the best individual to (must derive from gen::GOptimizableEntity)
+	  * @tparam individual_type The concrete individual type to cast the best individual to (must derive from gen::GGenome)
 	  * @return A copy of the best individual found in the iteration
 	  */
     template <typename individual_type>
-        requires std::derived_from<individual_type, gen::GOptimizableEntity>
+        requires std::derived_from<individual_type, gen::GGenome>
     std::shared_ptr<individual_type> getBestIterationIndividual() const {
         std::scoped_lock<std::mutex> const iteration_best_lock(get_best_mutex_);
         auto result = std::dynamic_pointer_cast<individual_type>(getBestIterationIndividual_());
@@ -188,16 +188,16 @@ public:
 	  * Note that this function will not allow you to modify the best individuals
 	  * themselves as it will return copies to you. Throws if the collection is empty or if any clone fails.
 	  *
-	  * @tparam individual_type The concrete individual type to clone each best individual into (must derive from gen::GOptimizableEntity)
+	  * @tparam individual_type The concrete individual type to clone each best individual into (must derive from gen::GGenome)
 	  * @return A list of copies of the best individuals found in the iteration
 	  */
     template <typename individual_type>
-        requires std::derived_from<individual_type, gen::GOptimizableEntity>
+        requires std::derived_from<individual_type, gen::GGenome>
     std::vector<std::shared_ptr<individual_type>> getBestIterationIndividuals() const {
         std::scoped_lock<std::mutex> const iteration_best_lock(get_best_mutex_);
 
         std::vector<std::shared_ptr<individual_type>> best_individuals;
-        std::vector<std::shared_ptr<gen::GOptimizableEntity>> const best_base_individuals =
+        std::vector<std::shared_ptr<gen::GGenome>> const best_base_individuals =
             this->getBestIterationIndividuals_();
 
         // Cross check that we indeed got a valid set of individuals
@@ -293,14 +293,14 @@ private:
     virtual void evaluatePopulation_() = 0;
 
     /** @brief Retrieves the best individual found globally */
-    virtual std::shared_ptr<gen::GOptimizableEntity> getBestGlobalIndividual_() const = 0;
+    virtual std::shared_ptr<gen::GGenome> getBestGlobalIndividual_() const = 0;
     /** @brief Retrieves a list of the best individuals found globally*/
-    virtual std::vector<std::shared_ptr<gen::GOptimizableEntity>>
+    virtual std::vector<std::shared_ptr<gen::GGenome>>
     getBestGlobalIndividuals_() const = 0;
     /** @brief Retrieves the best individual found in the current iteration*/
-    virtual std::shared_ptr<gen::GOptimizableEntity> getBestIterationIndividual_() const = 0;
+    virtual std::shared_ptr<gen::GGenome> getBestIterationIndividual_() const = 0;
     /** @brief Retrieves a list of the best individuals found in the current iteration */
-    virtual std::vector<std::shared_ptr<gen::GOptimizableEntity>>
+    virtual std::vector<std::shared_ptr<gen::GGenome>>
     getBestIterationIndividuals_() const = 0;
 
     /** @brief Returns one-word information about the type of optimization algorithm. */

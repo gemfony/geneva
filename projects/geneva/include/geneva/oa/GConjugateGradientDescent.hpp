@@ -45,7 +45,7 @@
 // Geneva headers go here
 #include "common/GExceptions.hpp"
 #include "geneva/GOptimizationEnums.hpp"
-#include "geneva/genome/GOptimizableEntity.hpp"
+#include "geneva/genome/GGenome.hpp"
 #include "geneva/oa/GHesseError.hpp"
 #include "geneva/oa/GLineSearch.hpp"
 #include "geneva/oa/GOptimizationAlgorithmBase.hpp"

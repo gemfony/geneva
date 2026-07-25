@@ -47,7 +47,7 @@
 #include "geneva/GenevaHelperFunctions.hpp"
 #include "geneva/oa/GOptimizationAlgorithmBase.hpp"
 #include "geneva/oa/GConjugateGradientDescent_PersonalityTraits.hpp"
-#include "geneva/genome/GOptimizableEntity.hpp"
+#include "geneva/genome/GGenome.hpp"
 #include <cstddef>
 #include <cstdint>
 #include <memory>
@@ -843,7 +843,7 @@ std::vector<double> GConjugateGradientDescent::evaluateProbes(
     std::size_t starting_point,
     std::vector<std::vector<double>> const &points
 ) {
-    std::vector<std::unique_ptr<gen::GOptimizableEntity>> probes;
+    std::vector<std::unique_ptr<gen::GGenome>> probes;
     probes.reserve(points.size());
     for(auto const &pt : points) {
         auto probe = this->at(starting_point)->clone();

@@ -47,7 +47,7 @@
 #include "geneva/oa/GOptimizationAlgorithmBase.hpp"
 #include "geneva/oa/GFactoryStore.hpp"
 #include "geneva/GModuleLoader.hpp"
-#include "geneva/genome/GOptimizableEntity.hpp"
+#include "geneva/genome/GGenome.hpp"
 #include "hap/GRandomFactory.hpp"
 #include <boost/program_options.hpp>
 #include <algorithm>
@@ -178,7 +178,7 @@ Go2::~Go2() {
  */
 void Go2::releaseConsumer_() {
     if(consumer_) {
-        auto &registry = Gem::Courtier::GConsumerRegistryT<gen::GOptimizableEntity>::instance();
+        auto &registry = Gem::Courtier::GConsumerRegistryT<gen::GGenome>::instance();
         if(registry.consumer() == consumer_) {
             registry.clear();
         }
@@ -338,7 +338,7 @@ int Go2::clientRun_() {
     // Build the networked client for the chosen consumer through the courtier setup layer, from the
     // spec assembled in setupChosenConsumer(). The client is wire-compatible with the courtier socket
     // server. Go2 thus stays free of the concrete consumer/client types and the consumer store.
-    std::shared_ptr<Gem::Courtier::GBaseClientT<gen::GOptimizableEntity>> const p =
+    std::shared_ptr<Gem::Courtier::GBaseClientT<gen::GGenome>> const p =
         Gem::Geneva::buildConsumerClient(consumer_spec_);
 
     if(not p) {
@@ -591,7 +591,7 @@ Go2 &Go2::operator&(std::string const &mn) {
  *
  * @param cc_ptr A smart pointer to a factory that produces optimizable entities (must not be empty)
  */
-void Go2::registerContentCreator(const std::shared_ptr<Gem::Common::GFactoryT<gen::GOptimizableEntity>> &cc_ptr) {
+void Go2::registerContentCreator(const std::shared_ptr<Gem::Common::GFactoryT<gen::GGenome>> &cc_ptr) {
     // A user-compiled-in individual: claim the single slot, so a later plugin load (or a second
     // registration) is refused by the one-individual-per-process guard.
     this->claimContentCreator_(cc_ptr, individualSource::COMPILED_IN);
@@ -604,7 +604,7 @@ void Go2::registerContentCreator(const std::shared_ptr<Gem::Common::GFactoryT<ge
  * registration when a plugin was already loaded, or a second plugin -- throws, naming both sources.
  */
 void Go2::claimContentCreator_(
-    const std::shared_ptr<Gem::Common::GFactoryT<gen::GOptimizableEntity>> &cc_ptr,
+    const std::shared_ptr<Gem::Common::GFactoryT<gen::GGenome>> &cc_ptr,
     individualSource source
 ) {
     auto sourceStr = [](individualSource s) -> const char * {
@@ -823,7 +823,7 @@ void Go2::fillPopulationFromContentCreator() {
  */
 void Go2::createIndividualsFromContentCreator() {
     for(std::size_t ind = 0; ind < algorithms_cnt_.at(0)->getDefaultPopulationSize(); ind++) {
-        std::shared_ptr<gen::GOptimizableEntity> const p_ind = (*content_creator_ptr_)();
+        std::shared_ptr<gen::GGenome> const p_ind = (*content_creator_ptr_)();
         if(p_ind) {
             this->push_back(p_ind);
         }
@@ -894,7 +894,7 @@ void Go2::runAlgorithmChain(std::uint32_t first_algorithm_offset) {
 
         // Unload the individuals from the last algorithm and store them again in this object
         if(copy_best_individuals_only_) {
-            for(const auto &best_ind_ptr : alg_ptr->getBestGlobalIndividuals<gen::GOptimizableEntity>()) {
+            for(const auto &best_ind_ptr : alg_ptr->getBestGlobalIndividuals<gen::GGenome>()) {
                 this->push_back(best_ind_ptr);
             }
         }
@@ -957,7 +957,7 @@ void Go2::sortIndividualsByFitness() {
  *
  * @return The best individual found
  */
-std::shared_ptr<gen::GOptimizableEntity> Go2::getBestGlobalIndividual_() const {
+std::shared_ptr<gen::GGenome> Go2::getBestGlobalIndividual_() const {
     // Do some error checking
     if(this->empty()) {
         throw geneva_exception(
@@ -986,7 +986,7 @@ std::shared_ptr<gen::GOptimizableEntity> Go2::getBestGlobalIndividual_() const {
     }
 
     // Simply return the best individual. This will result in an implicit downcast
-    return this->front()->clone<gen::GOptimizableEntity>();
+    return this->front()->clone<gen::GGenome>();
 }
 
 /******************************************************************************/
@@ -997,7 +997,7 @@ std::shared_ptr<gen::GOptimizableEntity> Go2::getBestGlobalIndividual_() const {
  *
  * @return A vector holding the best individuals found
  */
-std::vector<std::shared_ptr<gen::GOptimizableEntity>> Go2::getBestGlobalIndividuals_() const {
+std::vector<std::shared_ptr<gen::GGenome>> Go2::getBestGlobalIndividuals_() const {
     // Do some error checking
     if(this->empty()) {
         throw geneva_exception(
@@ -1007,7 +1007,7 @@ std::vector<std::shared_ptr<gen::GOptimizableEntity>> Go2::getBestGlobalIndividu
         );
     }
 
-    std::vector<std::shared_ptr<gen::GOptimizableEntity>> best_individuals;
+    std::vector<std::shared_ptr<gen::GGenome>> best_individuals;
     for(auto const &[pos, ind_ptr] : *this | std::views::enumerate) {
         if(ind_ptr->is_due_for_processing() || ind_ptr->has_errors()) {
             throw geneva_exception(
@@ -1019,7 +1019,7 @@ std::vector<std::shared_ptr<gen::GOptimizableEntity>> Go2::getBestGlobalIndividu
         }
 
         // This will result in an implicit downcast
-        best_individuals.push_back(ind_ptr->clone<gen::GOptimizableEntity>());
+        best_individuals.push_back(ind_ptr->clone<gen::GGenome>());
     }
 
     return best_individuals;
@@ -1033,7 +1033,7 @@ std::vector<std::shared_ptr<gen::GOptimizableEntity>> Go2::getBestGlobalIndividu
  *
  * @return Never returns normally; always throws a geneva_exception
  */
-std::shared_ptr<gen::GOptimizableEntity> Go2::getBestIterationIndividual_() const {
+std::shared_ptr<gen::GGenome> Go2::getBestIterationIndividual_() const {
     throw geneva_exception(
         g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
         << "In Go2::getBestIterationIndividual_(): Error!" << '\n'
@@ -1049,7 +1049,7 @@ std::shared_ptr<gen::GOptimizableEntity> Go2::getBestIterationIndividual_() cons
  *
  * @return Never returns normally; always throws a geneva_exception
  */
-std::vector<std::shared_ptr<gen::GOptimizableEntity>> Go2::getBestIterationIndividuals_() const {
+std::vector<std::shared_ptr<gen::GGenome>> Go2::getBestIterationIndividuals_() const {
     throw geneva_exception(
         g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
         << "In Go2::getBestIterationIndividuals_(): Error!" << '\n'
@@ -1412,9 +1412,9 @@ void Go2::emitHelpIfRequested(
  * @param consumer The ready-to-use consumer to register as the process consumer (ownership is moved in)
  */
 void Go2::registerConsumer(
-    std::shared_ptr<Gem::Courtier::GBaseConsumerT<gen::GOptimizableEntity>> consumer) {
+    std::shared_ptr<Gem::Courtier::GBaseConsumerT<gen::GGenome>> consumer) {
     consumer_ = consumer;
-    Gem::Courtier::GConsumerRegistryT<gen::GOptimizableEntity>::instance().setConsumer(
+    Gem::Courtier::GConsumerRegistryT<gen::GGenome>::instance().setConsumer(
         std::move(consumer));
     std::println(
         "Using a custom registered consumer; it replaces the default \"{}\" as the process consumer",

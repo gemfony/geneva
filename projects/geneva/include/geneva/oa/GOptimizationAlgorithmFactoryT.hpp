@@ -40,7 +40,7 @@
 
 // Geneva headers go here
 #include "common/GParserBuilder.hpp"
-#include "geneva/genome/GOptimizableEntity.hpp"
+#include "geneva/genome/GGenome.hpp"
 #include "geneva/oa/GOptimizationAlgorithmBase.hpp"
 #include "geneva/oa/GOAFactoryT.hpp"
 
@@ -89,7 +89,7 @@ public:
      */
     GOptimizationAlgorithmFactoryT(
         std::filesystem::path const &config_file,
-        std::shared_ptr<Gem::Common::GFactoryT<gen::GOptimizableEntity>> content_creator_ptr
+        std::shared_ptr<Gem::Common::GFactoryT<gen::GGenome>> content_creator_ptr
     )
       : GOAFactoryT<GOptimizationAlgorithmBase>(config_file, std::move(content_creator_ptr)) { /* nothing */
     }

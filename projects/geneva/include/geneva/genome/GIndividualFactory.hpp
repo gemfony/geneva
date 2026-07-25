@@ -48,7 +48,7 @@
 #include "common/concurrency/GLoadOnceCellT.hpp"
 #include "geneva/genome/GGenome.hpp"
 #include "geneva/genome/GGenomeBuilder.hpp"
-#include "geneva/genome/GOptimizableEntity.hpp"
+#include "geneva/genome/GGenome.hpp"
 #include "geneva/genome/GOptimizableEntityFactory.hpp"
 
 namespace Gem::Geneva::OptimizationAlgorithms {
@@ -202,7 +202,7 @@ public:
      *
      * @return A shared pointer to a deep copy of this factory
      */
-    std::shared_ptr<Gem::Common::GFactoryT<GOptimizableEntity>> clone() const override {
+    std::shared_ptr<Gem::Common::GFactoryT<GGenome>> clone() const override {
         return std::make_shared<GIndividualFactory<Derived>>(*this);
     }
 
@@ -248,7 +248,7 @@ protected:
      *
      * @param p The freshly produced individual to install the shared genome on (must be a GGenome)
      */
-    void postProcess_(std::shared_ptr<GOptimizableEntity> &p) override {
+    void postProcess_(std::shared_ptr<GGenome> &p) override {
         // Build the shared genome exactly once (the cell serialises the first build; later produces read it
         // lock-free) and reuse it for every produced individual.
         const GenomeData &genome =
@@ -277,7 +277,7 @@ private:
     /***************************************************************************/
     /**
      * Creates an (empty-genome) individual of the desired type and registers its own base
-     * GOptimizableEntity configuration options (eval policy, validity thresholds, maxmode, ...) on the
+     * GGenome configuration options (eval policy, validity thresholds, maxmode, ...) on the
      * parser via target->addConfigurationOptions(gpb).
      * Bound to this freshly produced object, those options are applied to it when GFactoryT parses (or
      * re-applies the cached) configuration. Derived-specific options are registered separately by
@@ -286,7 +286,7 @@ private:
      * @param gpb The parser builder the individual's base configuration options are registered on
      * @return A shared pointer to the freshly produced (empty-genome) individual
      */
-    std::shared_ptr<GOptimizableEntity> getObject_(Gem::Common::GParserBuilder &gpb) override {
+    std::shared_ptr<GGenome> getObject_(Gem::Common::GParserBuilder &gpb) override {
         auto p = std::make_shared<Derived>();
         p->addConfigurationOptions(gpb);
         return p;

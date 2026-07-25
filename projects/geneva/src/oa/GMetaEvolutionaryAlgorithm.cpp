@@ -35,7 +35,7 @@
 #include <thread>
 
 #include "common/GExpectationChecksT.hpp"
-#include "geneva/genome/GOptimizableEntity.hpp"
+#include "geneva/genome/GGenome.hpp"
 
 GEM_REGISTER_ARCHIVABLE(Gem::Geneva::OptimizationAlgorithms::GMetaEvolutionaryAlgorithm) // NOLINT
 

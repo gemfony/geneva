@@ -31,7 +31,7 @@
 
 #include "weft/GArchivePolymorphic.hpp" // GEM_REGISTER_ARCHIVABLE (GArchive polymorphic-pointer dispatch)
 
-// Make sure the instantiation with GOptimizableEntity as template argument can be serialized -- through a
+// Make sure the instantiation with GGenome as template argument can be serialized -- through a
 // Boost archive (BOOST_CLASS_EXPORT_IMPLEMENT) and through a GArchive codec (GEM_REGISTER_ARCHIVABLE); both
 // register the same concrete type in one translation unit.
-GEM_REGISTER_ARCHIVABLE(Gem::Geneva::GCheckCombinerT<gen::GOptimizableEntity>)       // NOLINT
+GEM_REGISTER_ARCHIVABLE(Gem::Geneva::GCheckCombinerT<gen::GGenome>)       // NOLINT

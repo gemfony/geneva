@@ -36,7 +36,7 @@
 #                                        (Go2.hpp, GConsumerSetup.hpp,
 #                                        GPersonalityTraits.hpp, ...)
 #     genome/*.hpp                       genome / entity infrastructure (GGenome,
-#                                        GOptimizableEntity, factories, constraints
+#                                        GGenome, factories, constraints
 #                                        (GMultiConstraintT / GIndividualMultiConstraint),
 #                                        priority queue, parameter-property parser)
 #     oa/*.hpp                           optimization algorithms (EA, SA, Swarm, GD,

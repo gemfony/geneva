@@ -38,7 +38,7 @@
 
 // Geneva headers go here
 #include "common/GFactoryT.hpp"
-#include "geneva/genome/GOptimizableEntity.hpp"
+#include "geneva/genome/GGenome.hpp"
 #include "geneva/oa/GOptimizationAlgorithmFactoryT.hpp"
 
 #include "GRandomSearch.hpp"
@@ -72,7 +72,7 @@ public:
      *  @param content_creator_ptr Factory used to populate the algorithm's population with individuals. */
     GRandomSearchFactory(
         std::filesystem::path const &config_file,
-        std::shared_ptr<Gem::Common::GFactoryT<gen::GOptimizableEntity>> content_creator_ptr
+        std::shared_ptr<Gem::Common::GFactoryT<gen::GGenome>> content_creator_ptr
     )
       : Base(config_file, content_creator_ptr) { /* nothing */ }
     /** @brief The copy constructor

@@ -42,7 +42,7 @@
 #include "geneva/oa/GAdaptionConfig.hpp"
 #include "geneva/oa/GEvolutionaryAlgorithm.hpp"
 #include "geneva/oa/GEvolutionaryAlgorithmFactory.hpp"
-#include "geneva/genome/GOptimizableEntity.hpp"
+#include "geneva/genome/GGenome.hpp"
 #include <memory>
 #include <string>
 
@@ -100,7 +100,7 @@ std::string GEvolutionaryAlgorithmPostOptimizer::getOAConfigFile() const {
  * @param p The individual to be post-processed; on return it carries the refined parameter data
  * @return Always true, indicating that post-processing was performed
  */
-bool GEvolutionaryAlgorithmPostOptimizer::raw_processing_(gen::GOptimizableEntity &p) {
+bool GEvolutionaryAlgorithmPostOptimizer::raw_processing_(gen::GGenome &p) {
     // Make sure p is processed
     if(not p.is_processed()) {
         throw geneva_exception(
@@ -111,7 +111,7 @@ bool GEvolutionaryAlgorithmPostOptimizer::raw_processing_(gen::GOptimizableEntit
     }
 
     // Clone the individual for post-processing
-    auto const p_unopt_ptr = p.template clone<gen::GOptimizableEntity>();
+    auto const p_unopt_ptr = p.template clone<gen::GGenome>();
 
     // Make sure the post-optimization does not trigger post-optimization recursively: the sub-EA's
     // population must carry NO post-processor (the optimization algorithm decides post-processing
@@ -165,7 +165,7 @@ bool GEvolutionaryAlgorithmPostOptimizer::raw_processing_(gen::GOptimizableEntit
     ea_ptr->optimize();
 
     // Retrieve the best individual
-    std::shared_ptr<gen::GOptimizableEntity> const p_opt_ptr = ea_ptr->getBestGlobalIndividual<gen::GOptimizableEntity>();
+    std::shared_ptr<gen::GGenome> const p_opt_ptr = ea_ptr->getBestGlobalIndividual<gen::GGenome>();
 
     // Make sure subsequent optimization cycles may generally perform post-optimization again.
     // This needs to be done on the optimized individual, as it will be loaded into the
@@ -197,7 +197,7 @@ bool GEvolutionaryAlgorithmPostOptimizer::modify_GUnitTests_() {
     bool result = false;
 
     // Call the parent class'es function
-    if(GPostProcessorBaseT<gen::GOptimizableEntity>::modify_GUnitTests_()) {
+    if(GPostProcessorBaseT<gen::GGenome>::modify_GUnitTests_()) {
         result = true;
     }
 
@@ -219,7 +219,7 @@ bool GEvolutionaryAlgorithmPostOptimizer::modify_GUnitTests_() {
 void GEvolutionaryAlgorithmPostOptimizer::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
     // Call the parent class'es function
-    GPostProcessorBaseT<gen::GOptimizableEntity>::specificTestsNoFailureExpected_GUnitTests_();
+    GPostProcessorBaseT<gen::GGenome>::specificTestsNoFailureExpected_GUnitTests_();
 
     //---------------------------------------------------------------------------
 
@@ -238,7 +238,7 @@ void GEvolutionaryAlgorithmPostOptimizer::specificTestsNoFailureExpected_GUnitTe
 void GEvolutionaryAlgorithmPostOptimizer::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
     // Call the parent class'es function
-    GPostProcessorBaseT<gen::GOptimizableEntity>::specificTestsFailuresExpected_GUnitTests_();
+    GPostProcessorBaseT<gen::GGenome>::specificTestsFailuresExpected_GUnitTests_();
 
     //---------------------------------------------------------------------------
 
