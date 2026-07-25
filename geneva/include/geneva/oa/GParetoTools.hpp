@@ -95,13 +95,13 @@ inline bool paretoDominates(
  * @param pop The individuals to rank (non-owning pointers; must all expose the same number of criteria)
  * @return Indices into @p pop, ordered best-first
  */
-inline std::vector<std::size_t> nonDominatedRank(
+namespace detail {
+
+/** @brief nonDominatedRank() step 1: fast non-dominated sort into best-first non-domination fronts. */
+inline std::vector<std::vector<std::size_t>> paretoFronts(
     const std::vector<const Gem::Geneva::Genome::GOptimizableEntity *> &pop
 ) {
     const std::size_t sz = pop.size();
-    const std::size_t n_crit = sz > 0 ? pop[0]->getNStoredResults() : 1;
-
-    // --- fast non-dominated sort ----------------------------------------------
     std::vector<std::vector<std::size_t>> dominated(sz); // who each individual dominates
     std::vector<std::size_t> dom_count(sz, 0);           // how many dominate each individual
     std::vector<std::vector<std::size_t>> fronts(1);
@@ -140,38 +140,60 @@ inline std::vector<std::size_t> nonDominatedRank(
         ++fi;
     }
 
-    // --- crowding distance within each front, then concatenate ----------------
-    std::vector<std::size_t> order;
-    order.reserve(sz);
-    for(auto &front : fronts) {
-        const std::size_t fs = front.size();
-        std::vector<double> crowd(fs, 0.);
-        for(std::size_t c = 0; c < n_crit; ++c) {
-            // Sort this front by criterion c.
-            std::vector<std::size_t> by_c(fs);
-            std::iota(by_c.begin(), by_c.end(), 0);
-            auto val = [&](std::size_t local) { return pop[front[local]]->transformed_fitness(c); };
-            std::ranges::sort(by_c, std::ranges::less{}, val);
-            // Boundary points get infinite crowding (always retained).
-            crowd[by_c.front()] = std::numeric_limits<double>::infinity();
-            crowd[by_c.back()] = std::numeric_limits<double>::infinity();
-            const double span = val(by_c.back()) - val(by_c.front());
-            if(span <= 0.) {
-                continue;
-            }
-            for(std::size_t j = 1; j + 1 < fs; ++j) {
-                crowd[by_c[j]] += (val(by_c[j + 1]) - val(by_c[j - 1])) / span;
-            }
+    return fronts;
+}
+
+/** @brief nonDominatedRank() step 2: append one front's indices to @p order, by decreasing crowding
+ *  distance (boundary points get infinite crowding so they are always retained). */
+inline void appendFrontByCrowding(
+    const std::vector<const Gem::Geneva::Genome::GOptimizableEntity *> &pop,
+    const std::vector<std::size_t> &front,
+    std::size_t n_crit,
+    std::vector<std::size_t> &order
+) {
+    const std::size_t fs = front.size();
+    std::vector<double> crowd(fs, 0.);
+    for(std::size_t c = 0; c < n_crit; ++c) {
+        // Sort this front by criterion c.
+        std::vector<std::size_t> by_c(fs);
+        std::iota(by_c.begin(), by_c.end(), 0);
+        auto val = [&](std::size_t local) { return pop[front[local]]->transformed_fitness(c); };
+        std::ranges::sort(by_c, std::ranges::less{}, val);
+        // Boundary points get infinite crowding (always retained).
+        crowd[by_c.front()] = std::numeric_limits<double>::infinity();
+        crowd[by_c.back()] = std::numeric_limits<double>::infinity();
+        const double span = val(by_c.back()) - val(by_c.front());
+        if(span <= 0.) {
+            continue;
         }
-        // Order this front by decreasing crowding distance.
-        std::vector<std::size_t> local_order(fs);
-        std::iota(local_order.begin(), local_order.end(), 0);
-        std::ranges::sort(local_order, std::ranges::greater{}, [&](std::size_t i) { return crowd[i]; });
-        for(std::size_t const local : local_order) {
-            order.push_back(front[local]);
+        for(std::size_t j = 1; j + 1 < fs; ++j) {
+            crowd[by_c[j]] += (val(by_c[j + 1]) - val(by_c[j - 1])) / span;
         }
     }
+    // Order this front by decreasing crowding distance.
+    std::vector<std::size_t> local_order(fs);
+    std::iota(local_order.begin(), local_order.end(), 0);
+    std::ranges::sort(local_order, std::ranges::greater{}, [&](std::size_t i) { return crowd[i]; });
+    for(std::size_t const local : local_order) {
+        order.push_back(front[local]);
+    }
+}
 
+} // namespace detail
+
+inline std::vector<std::size_t> nonDominatedRank(
+    const std::vector<const Gem::Geneva::Genome::GOptimizableEntity *> &pop
+) {
+    const std::size_t sz = pop.size();
+    const std::size_t n_crit = sz > 0 ? pop[0]->getNStoredResults() : 1;
+
+    const std::vector<std::vector<std::size_t>> fronts = detail::paretoFronts(pop);
+
+    std::vector<std::size_t> order;
+    order.reserve(sz);
+    for(const auto &front : fronts) {
+        detail::appendFrontByCrowding(pop, front, n_crit, order);
+    }
     return order;
 }
 

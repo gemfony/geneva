@@ -378,6 +378,26 @@ void GHesseError::computeCovariance(
     GHesseErrorOptions const &opts,
     std::vector<double> const &hessian_diag
 ) {
+    const std::vector<std::vector<double>> hessian =
+        buildFullHessian(result, eval_fn, x_min, step_sizes, hessian_diag);
+    fillCovarianceFromHessian(result, hessian, opts);
+}
+
+/******************************************************************************/
+/**
+ * @brief computeCovariance() step 1: assemble the full symmetric Hessian.
+ *
+ * The diagonal is @p hessian_diag (from computeDiagonalHessian); the off-diagonals are mixed second
+ * differences H_ij = (f(x+hi+hj) - f(x+hi-hj) - f(x-hi+hj) + f(x-hi-hj)) / (4 hi hj), evaluated in one
+ * batched eval_fn() call.
+ */
+std::vector<std::vector<double>> GHesseError::buildFullHessian(
+    GHesseErrorResult &result,
+    eval_fn_t const &eval_fn,
+    std::vector<double> const &x_min,
+    std::vector<double> const &step_sizes,
+    std::vector<double> const &hessian_diag
+) {
     const std::size_t n = x_min.size();
 
     std::vector<std::vector<double>> off_points;
@@ -416,29 +436,48 @@ void GHesseError::computeCovariance(
         }
     }
 
-    // Covariance V = 2 * UP * H^-1 (the factor 2 follows from the 1/2 in the quadratic expansion
-    // F ~ F_min + 1/2 dx^T H dx; with UP it matches the MINUIT chi^2 convention).
+    return hessian;
+}
+
+/******************************************************************************/
+/**
+ * @brief computeCovariance() step 2: covariance V = 2*UP*H^-1 and the profiled (correlation-aware)
+ * errors from its diagonal. Leaves the covariance empty (and covariance_valid false) if H is singular.
+ *
+ * The factor 2 follows from the 1/2 in the quadratic expansion F ~ F_min + 1/2 dx^T H dx; with UP it
+ * matches the MINUIT chi^2 convention.
+ */
+void GHesseError::fillCovarianceFromHessian(
+    GHesseErrorResult &result,
+    std::vector<std::vector<double>> const &hessian,
+    GHesseErrorOptions const &opts
+) {
+    const std::size_t n = hessian.size();
+
     std::vector<std::vector<double>> inv;
-    if(invertMatrix(hessian, inv)) {
-        result.covariance.assign(n, std::vector<double>(n, 0.));
-        for(std::size_t i = 0; i < n; ++i) {
-            for(std::size_t j = 0; j < n; ++j) {
-                result.covariance[i][j] = 2. * opts.up * inv[i][j];
-            }
-        }
-        // Profiled (correlation-aware) errors from the covariance diagonal.
-        bool all_positive = true;
-        for(std::size_t j = 0; j < n; ++j) {
-            const double var = result.covariance[j][j];
-            if(var > 0.) {
-                result.parameter_errors[j] = std::sqrt(var);
-            }
-            else {
-                all_positive = false;
-            }
-        }
-        result.covariance_valid = all_positive;
+    if(not invertMatrix(hessian, inv)) {
+        return;
     }
+
+    result.covariance.assign(n, std::vector<double>(n, 0.));
+    for(std::size_t i = 0; i < n; ++i) {
+        for(std::size_t j = 0; j < n; ++j) {
+            result.covariance[i][j] = 2. * opts.up * inv[i][j];
+        }
+    }
+
+    // Profiled (correlation-aware) errors from the covariance diagonal.
+    bool all_positive = true;
+    for(std::size_t j = 0; j < n; ++j) {
+        const double var = result.covariance[j][j];
+        if(var > 0.) {
+            result.parameter_errors[j] = std::sqrt(var);
+        }
+        else {
+            all_positive = false;
+        }
+    }
+    result.covariance_valid = all_positive;
 }
 
 /******************************************************************************/

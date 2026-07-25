@@ -505,7 +505,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
 /**
  * @brief Performs self tests that are expected to fail. This is needed for testing purposes.
  */
-// NOLINTNEXTLINE(readability-function-size) -- paired failure-expected self-test entry point for GTestIndividual1: independent, self-scoped CHECK_THROWS_AS blocks covering dirty-evaluation and personality-mismatch error paths; same one-function-per-test-phase convention as specificTestsNoFailureExpected_GUnitTests_
+// NOLINTNEXTLINE(readability-function-size,readability-function-cognitive-complexity) -- paired failure-expected self-test entry point for GTestIndividual1: independent, self-scoped CHECK_THROWS_AS blocks covering dirty-evaluation and personality-mismatch error paths; same one-function-per-test-phase convention as specificTestsNoFailureExpected_GUnitTests_
 void GTestIndividual1::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
     using namespace Gem::Geneva;

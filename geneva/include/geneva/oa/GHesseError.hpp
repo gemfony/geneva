@@ -175,6 +175,20 @@ private:
         GHesseErrorOptions const &opts,
         std::vector<double> const &hessian_diag
     );
+    /** @brief computeCovariance() step 1: the full symmetric Hessian (diagonal + evaluated off-diagonal). */
+    [[nodiscard]] static std::vector<std::vector<double>> buildFullHessian(
+        GHesseErrorResult &result,
+        eval_fn_t const &eval_fn,
+        std::vector<double> const &x_min,
+        std::vector<double> const &step_sizes,
+        std::vector<double> const &hessian_diag
+    );
+    /** @brief computeCovariance() step 2: covariance = 2*UP*H^-1 and the profiled errors from its diagonal. */
+    static void fillCovarianceFromHessian(
+        GHesseErrorResult &result,
+        std::vector<std::vector<double>> const &hessian,
+        GHesseErrorOptions const &opts
+    );
     /** @brief estimate() phase 3 (opt-in, low dimension): the MINOS asymmetric profiled bounds. */
     static void computeMinos(
         GHesseErrorResult &result,
