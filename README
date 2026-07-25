@@ -39,7 +39,7 @@ direct cmake call.
 
 Note: version 2.0 is a ground-up redesign relative to the 1.x series. If you are
 upgrading existing problem definitions, configuration files or checkpoints,
-read GENEVA-2.0-MAJOR-CHANGES.md first -- it collects the source- and
+read docs/CHANGES-2.0.md first -- it collects the source- and
 serialization-breaking changes and how to adapt to them.
 
 

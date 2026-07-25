@@ -708,7 +708,7 @@ ADD_CUSTOM_TARGET(
 # Additional information files to be copied
 
 SET ( INFORMATIONFILES
-	GENEVA-2.0-MAJOR-CHANGES.md
+	docs/CHANGES-2.0.md
 	CHANGES
 	INSTALL
 	LICENSE

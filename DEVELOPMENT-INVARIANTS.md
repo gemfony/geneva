@@ -427,5 +427,30 @@ inert dotfiles at the tree root may be **environment/sandbox mounts** (read-only
 
 ---
 
+## 25. `CHANGES` is an overview — at most 50 lines per version, detail lives in a per-version file
+
+`CHANGES` exists so a reader can see, at a glance, what each release is about. That only works while it
+stays short. **A single version's entry may not exceed 50 lines.** When a release genuinely has more to
+say, the surplus does not get squeezed in or trimmed to a stub — it moves into its own file.
+
+- **The overflow file is `docs/CHANGES-<version>.md`.** It lives under the top-level `docs/` directory and
+  its name carries the version it documents (`docs/CHANGES-2.0.md` for the 2.0 redesign). One file per
+  version that needs one; a release that fits in 50 lines needs none.
+- **The `CHANGES` entry then points at it.** The entry keeps the rationale, the preconditions and a
+  one-line pointer; it never duplicates what the per-version file says (Inv 20, "state each fact once").
+- **Count before committing a release note.** 50 lines is the ceiling for the whole entry — heading,
+  prose, bullets and blank lines together — not a per-section budget.
+- **Historical entries are frozen.** Release notes for versions already shipped are a record of what was
+  said at the time; several pre-1.99 entries predate this rule and exceed the limit. They are left as
+  they are. The rule binds every entry written or revised from now on.
+
+*Why:* a release-note file that grows without bound stops being read, and the one thing it is for — "what
+changed in this version?" — becomes the hardest question to answer from it. A hard line count forces the
+choice the writer would otherwise avoid: what is genuinely the headline, and what is migration detail that
+a porting reader wants in full but a browsing reader does not. Splitting them serves both, and keeps each
+fact in exactly one place.
+
+---
+
 *Add new invariants below as the maintainer establishes them. Keep each rule short, mandatory, and
 general — design decisions for a specific feature belong in that feature's design notes, not here.*
