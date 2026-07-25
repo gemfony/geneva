@@ -58,15 +58,23 @@ GENEVA_MATERIALIZE_CONFIGS(GGenericOptimizer
 	${INSTALL_PREFIX_DATA}/examples/GLoadableIndividual/config
 	--individual $<TARGET_FILE:GLoadableParaboloid>)
 
-# End-to-end test: the generic optimizer loads the just-built individual plugin and optimizes it. This is
-# also the empirical check that the plugin and process share ONE set of singletons / one Boost registry.
-IF(GENEVA_RUN_EXAMPLES_AS_TESTS)
-	ADD_TEST(
-		NAME GLoadableIndividual
-		COMMAND GGenericOptimizer --individual $<TARGET_FILE:GLoadableParaboloid>
-		WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-	)
-ENDIF()
+# Module-ABI smoke test: the generic optimizer dlopen()s the just-built individual plugin through the real
+# loader path and optimizes it. This is also the empirical check that the plugin and process share ONE set of
+# singletons / one serialization registry.
+#
+# Registered UNCONDITIONALLY -- deliberately NOT under GENEVA_RUN_EXAMPLES_AS_TESTS (which is hard-wired FALSE
+# in the top-level CMakeLists.txt), exactly like the GCudaRngShutdownNoise guard below. This trio (examples 19,
+# 21 and 22) is the ONLY automated coverage of the loadable-module ABI, and every change to that ABI must be
+# gated on it. The run uses the materialized default configuration and finishes in well under a second (the
+# stall criterion halts it after a few dozen iterations), so it costs the suite nothing (Inv 22).
+ADD_TEST(
+	NAME GLoadableIndividual
+	COMMAND GGenericOptimizer --individual $<TARGET_FILE:GLoadableParaboloid>
+	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+)
+# A dlopen smoke test that hangs (rather than fails) would otherwise stall the gate for CTest's 25-minute
+# default; a sub-second run gets a generous but finite bound.
+SET_TESTS_PROPERTIES(GLoadableIndividual PROPERTIES LABELS "geneva" TIMEOUT 120)
 
 # Regression guard (Inv 15) for the GCudaRNG teardown race fixed in hap/src/GCUDARng.cu. At process exit the
 # CUDA runtime unloads while the GRandomFactory's producer threads may still be refilling on the GPU; cuRAND

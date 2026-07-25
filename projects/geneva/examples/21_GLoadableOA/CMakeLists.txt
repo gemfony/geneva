@@ -76,16 +76,17 @@ GENEVA_MATERIALIZE_CONFIGS(GLoadableOAOptimizer
 	${INSTALL_PREFIX_DATA}/examples/21_GLoadableOA/config
 	--module $<TARGET_FILE:GRandomSearch>)
 
-# End-to-end test: the generic optimizer loads the just-built OA module and optimizes with its "rsearch"
-# mnemonic. This is also the empirical check that the module and process share ONE set of singletons / one
-# Boost registry (the loaded algorithm submits through the process consumer).
-IF(GENEVA_RUN_EXAMPLES_AS_TESTS)
-	ADD_TEST(
-		NAME GLoadableOA
-		COMMAND GLoadableOAOptimizer --module $<TARGET_FILE:GRandomSearch> --optimizationAlgorithms rsearch
-		WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-	)
-ENDIF()
+# Module-ABI smoke test: the generic optimizer dlopen()s the just-built OA module through the real loader path
+# and optimizes with its "rsearch" mnemonic. This is also the empirical check that the module and process share
+# ONE set of singletons / one serialization registry (the loaded algorithm submits through the process
+# consumer). Registered unconditionally for the reason given in example 19's CMakeLists.txt: this trio is the
+# only automated coverage of the loadable-module ABI, and the run costs well under a second.
+ADD_TEST(
+	NAME GLoadableOA
+	COMMAND GLoadableOAOptimizer --module $<TARGET_FILE:GRandomSearch> --optimizationAlgorithms rsearch
+	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+)
+SET_TESTS_PROPERTIES(GLoadableOA PROPERTIES LABELS "geneva" TIMEOUT 120)
 
 INSTALL(TARGETS GLoadableOAOptimizer GRandomSearch
 	DESTINATION ${INSTALL_PREFIX_DATA}/examples/21_GLoadableOA)

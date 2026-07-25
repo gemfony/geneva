@@ -77,17 +77,24 @@ GENEVA_MATERIALIZE_CONFIGS(GGPUParaboloidOptimizer
 	${INSTALL_PREFIX_DATA}/examples/22_GLoadableGPU/config
 	--module $<TARGET_FILE:GGPUParaboloid>)
 
-# Device-free end-to-end test: the generic optimizer loads the module and optimizes the loaded individual on
-# the CPU (--consumer stc uses the individual's own evaluate()). This exercises the module load (individual +
-# marshaller contributions, single shared Boost registry) without requiring a GPU; the on-device GPU run
-# (--consumer gpu) needs a CUDA device and is verified separately.
-IF(GENEVA_RUN_EXAMPLES_AS_TESTS)
-	ADD_TEST(
-		NAME GLoadableGPU_CPU
-		COMMAND GGPUParaboloidOptimizer --module $<TARGET_FILE:GGPUParaboloid> --consumer stc
-		WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-	)
-ENDIF()
+# Device-free module-ABI smoke test: the generic optimizer dlopen()s the module through the real loader path
+# and optimizes the loaded individual on the CPU (--consumer stc uses the individual's own evaluate()). This
+# exercises the module load (BOTH contributions -- individual + marshaller -- and the single shared
+# serialization registry) without requiring a GPU; the on-device GPU run (--consumer gpu) needs a CUDA device
+# and is verified separately.
+#
+# Registered unconditionally for the reason given in example 19's CMakeLists.txt. The GPU conditionality is
+# handled entirely at CONFIGURE time and one level up: this whole directory is only added under
+# GENEVA_GPU_CONSUMER_ENABLED (geneva/examples/CMakeLists.txt), so where the GPU consumer is not built the
+# test simply does not exist. Where it IS built, the test needs no device -- deliberately, so that a machine
+# with the GPU consumer compiled in but no usable device (a sandbox, a CI container) still gates the module
+# ABI instead of reporting a device problem as an ABI failure.
+ADD_TEST(
+	NAME GLoadableGPU_CPU
+	COMMAND GGPUParaboloidOptimizer --module $<TARGET_FILE:GGPUParaboloid> --consumer stc
+	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+)
+SET_TESTS_PROPERTIES(GLoadableGPU_CPU PROPERTIES LABELS "geneva" TIMEOUT 120)
 
 INSTALL(TARGETS GGPUParaboloidOptimizer GGPUParaboloid
 	DESTINATION ${INSTALL_PREFIX_DATA}/examples/22_GLoadableGPU)
