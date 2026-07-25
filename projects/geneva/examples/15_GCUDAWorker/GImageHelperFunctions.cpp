@@ -118,8 +118,10 @@ bool loadPngToRGB(
     // Update the info struct after transformations
     png_read_update_info(png_ptr, info_ptr);
 
-    // Number of bytes per row in the read data
-    const int rowbytes = png_get_rowbytes(png_ptr, info_ptr);
+    // Number of bytes per row in the read data. Kept as the size_t libpng returns: narrowing it to
+    // int would truncate for a very wide image, and the row-buffer size below would then be
+    // computed as an int product that can overflow before it reaches malloc().
+    const std::size_t rowbytes = png_get_rowbytes(png_ptr, info_ptr);
 
     // Allocate temporary memory for reading row data
     png_byte *image_data = static_cast<png_byte *>(malloc(rowbytes * height));

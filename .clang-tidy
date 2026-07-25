@@ -81,7 +81,7 @@ Checks: >-
 WarningsAsErrors: ''
 # Restrict header warnings to Geneva's own headers; this avoids noise from
 # Boost, system, and third-party headers that appear in the same TU.
-HeaderFilterRegex: '.*/include/(common|hap|dietrich|courtier|geneva)/.*'
+HeaderFilterRegex: '.*/include/(common|hap|dietrich|courtier|geneva|weft)/.*'
 FormatStyle: file
 UseColor: true
 
@@ -197,6 +197,16 @@ CheckOptions:
   # No magic numbers in production code, but allow common literals 0/1/-1
   # in test code without complaining (avoids alarm fatigue).
   cppcoreguidelines-init-variables.IncludeStyle: llvm
+
+  # Narrowing conversions: flag genuine *width* truncation only. Conversions
+  # between types of equal bit width -- size_t -> ptrdiff_t in iterator
+  # arithmetic (`begin() + n`), int -> float for image dimensions -- are
+  # sign/precision concerns rather than truncation: no Geneva container comes
+  # anywhere near PTRDIFF_MAX. Leaving them enabled produced 64 such reports
+  # that buried the findings that matter, namely the 64->32 size_t -> int
+  # truncations at the MPI message-count arguments. Those still warn.
+  bugprone-narrowing-conversions.WarnOnEquivalentBitWidth: 'false'
+
   cppcoreguidelines-special-member-functions.AllowSoleDefaultDtor: 'true'
   cppcoreguidelines-special-member-functions.AllowMissingMoveFunctions: 'true'
   cppcoreguidelines-special-member-functions.AllowMissingMoveFunctionsWhenCopyIsDeleted: 'true'

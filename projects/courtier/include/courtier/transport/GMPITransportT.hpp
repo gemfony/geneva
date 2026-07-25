@@ -42,6 +42,7 @@
 #include <expected>
 #include <functional>
 #include <iostream>
+#include <limits>
 #include <memory>
 #include <mutex>
 #include <optional>
@@ -412,7 +413,9 @@ private:
         // start asynchronous send call to send result of last computation (or GETDATA command if no result available)
         MPI_Isend(
             outgoingMessage_.data(),
-            outgoingMessage_.size(),
+            // MPI counts are int: a payload above INT_MAX must fail loudly rather than wrap
+            // into a negative/truncated count that silently sends the wrong number of bytes.
+            Gem::Common::narrow<int>(outgoingMessage_.size()),
             MPI_CHAR,
             RANK_MASTER_NODE,
             TAG_REQUEST_WORK_ITEM,
@@ -675,11 +678,19 @@ private:
             config_.serializationMode
         );
 
+        // MPI counts are int: a request above INT_MAX would wrap into a negative/truncated count
+        // and silently send the wrong number of bytes. Report it like any other transport failure.
+        if(requestStr.size() > static_cast<std::size_t>(std::numeric_limits<int>::max())) {
+            return std::unexpected("rank=" + std::to_string(commRank_) +
+                                   ": REQUEST_LAYOUT of " + std::to_string(requestStr.size()) +
+                                   " bytes exceeds the maximum MPI message count");
+        }
+
         // Blocking send of the request to the master.
         MPI_Request sendReq{};
         MPI_Isend(
             requestStr.data(),
-            requestStr.size(),
+            static_cast<int>(requestStr.size()),
             MPI_CHAR,
             RANK_MASTER_NODE,
             TAG_REQUEST_LAYOUT,
@@ -1064,7 +1075,7 @@ private:
         // asynchronously start sending the response
         MPI_Isend(
             outgoingMessage_.data(),
-            outgoingMessage_.size(),
+            Gem::Common::narrow<int>(outgoingMessage_.size()), // int count: fail loudly, never wrap
             MPI_CHAR,
             mpiStatus_.MPI_SOURCE,
             TAG_SEND_WORK_ITEM,
@@ -1092,7 +1103,7 @@ private:
 
         MPI_Isend(
             outgoingMessage_.data(),
-            outgoingMessage_.size(),
+            Gem::Common::narrow<int>(outgoingMessage_.size()), // int count: fail loudly, never wrap
             MPI_CHAR,
             mpiStatus_.MPI_SOURCE,
             TAG_SEND_LAYOUT,
