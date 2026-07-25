@@ -391,6 +391,40 @@ into a reason to amputate rather than heal it. This is the public-interface comp
 the whole public header tree, not a curated subset): ship — and maintain — the whole public API, not a subset
 justified by in-tree usage.
 
+## 24. The tree carries only intentional, tracked configuration — never scattered or generated config litter
+
+The source tree is not a scratch pad for configuration any more than for build output (Inv 3, Inv 17). A
+configuration or dotfile is allowed in the tree **only** if it is (a) genuinely a repository input, (b)
+tracked in git, and (c) still serving a live purpose. Everything else — tool/IDE state, run-generated config,
+and configuration for a mechanism that no longer exists — is litter and does not belong.
+
+- **Every in-tree config is tracked and justified.** A committed config is a deliberate repository input (the
+  shared `.clang-format` / `.clang-tidy` / `.gitignore` / `CMakePresets.json`, an example's
+  `config/config-overrides.json`, the `docs/config-reference/` reference set). If a file is not something a
+  fresh clone needs, it does not get committed.
+- **Generated and tool-local config never lands in the tree.** IDE project state (`.idea/`, `.vscode/`),
+  Python caches (`__pycache__/`), in-source build directories (`cmake-build-*/`, `build/`), run-emitted config
+  (`config/*.json` written by a `Go2` program), logs (`GENEVA-EXCEPTION.log`) and coverage artefacts are
+  generated *outside* the checkout — the direct consequence of running every build and binary from an external
+  working directory (Inv 3, Inv 17). When one appears in-tree, it is removed and the activity relocated, not
+  gitignored-and-tolerated in place. (`.gitignore` is a backstop against accidental commits, not a licence to
+  let generated files accumulate on disk.)
+- **A config is removed when the mechanism it configures is gone.** Replacing or retiring a mechanism deletes
+  its configuration in the same change (Inv 20 applied to config): a `.project` for a build system abandoned a
+  decade ago, a config key for a removed option, a preset for a deleted target. An orphaned config outlives
+  its purpose only to mislead.
+- **Centralize; do not scatter.** Configuration that must live in the repository lives at the fewest,
+  best-known locations — the tree root for tree-wide tooling, one reference directory for the config schema —
+  never the same fact copied into many per-directory files (Inv 20, "state each fact once"). Prefer one
+  central source a tool reads over a per-subdirectory sprinkling.
+
+*Why:* scattered and stale configuration is the same disease as a littered build tree — it makes "what does a
+clean checkout actually contain?" unanswerable, hides the few configs that matter among generated noise, and
+lets a dead mechanism's settings linger long enough to be mistaken for live ones. A tree whose every config
+file is tracked, justified, and current is one a newcomer (or a tool) can trust at face value. Note that some
+inert dotfiles at the tree root may be **environment/sandbox mounts** (read-only, empty, and un-removable —
+`rm` reports "busy"); those are harness infrastructure, not tree content, and are left untouched.
+
 ---
 
 *Add new invariants below as the maintainer establishes them. Keep each rule short, mandatory, and
