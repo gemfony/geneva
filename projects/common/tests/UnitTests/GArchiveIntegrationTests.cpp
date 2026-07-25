@@ -69,9 +69,6 @@ public:
     std::string root_s_;
 
 protected:
-    bool modify_GUnitTests_() override { return false; }
-    void specificTestsNoFailureExpected_GUnitTests_() override { /* nothing */ }
-    void specificTestsFailuresExpected_GUnitTests_() override { /* nothing */ }
 };
 
 // Derived: parent is PRoot (another mixin class) -> exercises the gemfonyParent
@@ -97,9 +94,6 @@ public:
     int d_loadonly_ = 0; ///< loaded/compared but NOT serialized (make_load_only_member)
 
 protected:
-    bool modify_GUnitTests_() override { return false; }
-    void specificTestsNoFailureExpected_GUnitTests_() override { /* nothing */ }
-    void specificTestsFailuresExpected_GUnitTests_() override { /* nothing */ }
 };
 
 template <typename OArchive, typename IArchive, typename T>

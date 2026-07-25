@@ -706,9 +706,6 @@ public:
     int transient_ = 0; ///< loaded + compared, but NOT serialized
 
 protected:
-    bool modify_GUnitTests_() override { return false; }
-    void specificTestsNoFailureExpected_GUnitTests_() override { /* nothing */ }
-    void specificTestsFailuresExpected_GUnitTests_() override { /* nothing */ }
 };
 } // anonymous namespace
 
@@ -804,9 +801,6 @@ public:
     int d_ = 0; ///< a plain derived member (serialized + loaded + compared)
 
 protected:
-    bool modify_GUnitTests_() override { return false; }
-    void specificTestsNoFailureExpected_GUnitTests_() override { /* nothing */ }
-    void specificTestsFailuresExpected_GUnitTests_() override { /* nothing */ }
 };
 } // anonymous namespace
 

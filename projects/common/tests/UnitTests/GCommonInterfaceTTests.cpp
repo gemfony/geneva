@@ -72,9 +72,6 @@ protected:
         token.evaluate();
     }
 
-    bool modify_GUnitTests_() override { return false; }
-    void specificTestsNoFailureExpected_GUnitTests_() override {}
-    void specificTestsFailuresExpected_GUnitTests_() override {}
 
 private:
     [[nodiscard]] TestObj *clone_() const override { return new TestObj(*this); }

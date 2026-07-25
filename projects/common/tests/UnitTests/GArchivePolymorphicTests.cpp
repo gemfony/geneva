@@ -71,9 +71,6 @@ public:
     [[nodiscard]] virtual int kind() const { return 0; }
 
 protected:
-    bool modify_GUnitTests_() override { return false; }
-    void specificTestsNoFailureExpected_GUnitTests_() override { /* nothing */ }
-    void specificTestsFailuresExpected_GUnitTests_() override { /* nothing */ }
 };
 
 class PolyA : public GReflectiveInterfaceT<PolyA, PolyBase> {
@@ -92,9 +89,6 @@ public:
     [[nodiscard]] int kind() const override { return 1; }
 
 protected:
-    bool modify_GUnitTests_() override { return false; }
-    void specificTestsNoFailureExpected_GUnitTests_() override { /* nothing */ }
-    void specificTestsFailuresExpected_GUnitTests_() override { /* nothing */ }
 };
 
 class PolyB : public GReflectiveInterfaceT<PolyB, PolyBase> {
@@ -113,9 +107,6 @@ public:
     [[nodiscard]] int kind() const override { return 2; }
 
 protected:
-    bool modify_GUnitTests_() override { return false; }
-    void specificTestsNoFailureExpected_GUnitTests_() override { /* nothing */ }
-    void specificTestsFailuresExpected_GUnitTests_() override { /* nothing */ }
 };
 
 // A derived type whose default constructor is PRIVATE (only de-serialization needs it), befriending
@@ -138,9 +129,6 @@ public:
     [[nodiscard]] int kind() const override { return 3; }
 
 protected:
-    bool modify_GUnitTests_() override { return false; }
-    void specificTestsNoFailureExpected_GUnitTests_() override { /* nothing */ }
-    void specificTestsFailuresExpected_GUnitTests_() override { /* nothing */ }
 
 private:
     PolyC() = default; ///< Private: only reachable through the befriended access shim (de-serialization).
@@ -166,9 +154,6 @@ public:
     [[nodiscard]] int kind() const override { return 4; }
 
 protected:
-    bool modify_GUnitTests_() override { return false; }
-    void specificTestsNoFailureExpected_GUnitTests_() override { /* nothing */ }
-    void specificTestsFailuresExpected_GUnitTests_() override { /* nothing */ }
 };
 
 } // namespace

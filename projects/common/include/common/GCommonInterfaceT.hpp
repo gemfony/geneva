@@ -621,13 +621,33 @@ protected:
     /**
      * @brief Applies modifications to this object. This is needed for testing purposes
      *
+     * The three self-test hooks are opt-in, in the same spirit as addConfigurationOptions_() above: a
+     * class that has specific tests to contribute overrides them, a class that has none simply does not.
+     * They were pure once, which made every derivative -- including every user-written individual --
+     * write all three even when it had nothing to test, and even in a build with GEM_TESTING off, where
+     * the mandatory bodies collapsed to a throw-stub. The obligation was unconditional while the value
+     * was conditional.
+     *
+     * The default is a no-op rather than the condnotset() throw the guarded bodies use, because the two
+     * say different things: "this class adds no tests of its own" is a legitimate state, whereas "a test
+     * hook was called in a non-testing build" is a harness error.
+     *
      * @return A boolean indicating whether modifications were actually made
      */
-    virtual bool modify_GUnitTests_() = 0;
+    virtual bool modify_GUnitTests_() {
+        return false; // no local modifications
+    }
+
     /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-    virtual void specificTestsNoFailureExpected_GUnitTests_() = 0;
+    virtual void specificTestsNoFailureExpected_GUnitTests_() {
+        // no local tests
+    }
+
     /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-    virtual void specificTestsFailuresExpected_GUnitTests_() = 0;
+    virtual void specificTestsFailuresExpected_GUnitTests_() {
+        // no local tests
+    }
+
 
 private:
     /***************************************************************************/

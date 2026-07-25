@@ -307,9 +307,6 @@ protected:
         compare_t(Gem::Common::getIdentity(v_, cp.v_, "v_", "cp.v_"), token);
         token.evaluate();
     }
-    bool modify_GUnitTests_() override { return false; }
-    void specificTestsNoFailureExpected_GUnitTests_() override {}
-    void specificTestsFailuresExpected_GUnitTests_() override {}
 
 private:
     [[nodiscard]] CmpObj *clone_() const override { return new CmpObj(*this); }

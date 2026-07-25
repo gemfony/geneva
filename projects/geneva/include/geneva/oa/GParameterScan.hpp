@@ -376,11 +376,8 @@ protected:
     // GReflectiveInterfaceT the GScanParT scaffold derives; serialize() is the disambiguating one-liner above.
 
     /** @brief Test hook: applies modifications to this object (no-op for this plain value type). */
-    bool modify_GUnitTests_() override { return false; }
     /** @brief Test hook: self tests expected to succeed (none for this plain value type). */
-    void specificTestsNoFailureExpected_GUnitTests_() override { /* nothing */ }
     /** @brief Test hook: self tests expected to fail (none for this plain value type). */
-    void specificTestsFailuresExpected_GUnitTests_() override { /* nothing */ }
 
     /***************************************************************************/
     // Data

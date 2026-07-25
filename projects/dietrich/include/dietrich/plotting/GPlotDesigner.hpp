@@ -261,9 +261,7 @@ protected:
         return true;
     }
     /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-    void specificTestsNoFailureExpected_GUnitTests_() override { /* nothing */ };
     /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-    void specificTestsFailuresExpected_GUnitTests_() override { /* nothing */ };
 
 private:
     /** @brief The default constructor -- only needed for (de-)serialization */

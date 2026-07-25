@@ -103,11 +103,6 @@ protected:
      * @brief Applies modifications to this object. This is needed for testing purposes
      * @return true if a modification was actually performed, false otherwise
      */
-    bool modify_GUnitTests_() override;
-    /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-    void specificTestsNoFailureExpected_GUnitTests_() override;
-    /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-    void specificTestsFailuresExpected_GUnitTests_() override;
 };
 
 /******************************************************************************/
