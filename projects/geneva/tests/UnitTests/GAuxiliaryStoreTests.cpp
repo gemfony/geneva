@@ -93,7 +93,7 @@ TEST_CASE("Individual scratch: clone copies it; compare ignores it; resetPersona
     auto ind = std::make_unique<GTestIndividual3>();
 
     // A clone taken BEFORE installing scratch -> an identical-genome twin with no scratch.
-    auto bare = ind->clone_unique();
+    auto bare = ind->clone();
     REQUIRE_FALSE(bare->scratch().hasAux(KEY));
 
     // Install per-group metadata on the individual's scratch only.
@@ -102,7 +102,7 @@ TEST_CASE("Individual scratch: clone copies it; compare ignores it; resetPersona
     REQUIRE(ind->scratch().hasAux(KEY));
 
     // A clone taken AFTER installing copies the scratch, independently.
-    auto twin = ind->clone_unique();
+    auto twin = ind->clone();
     REQUIRE(twin->scratch().hasAux(KEY));
     CHECK(twin->scratch().metaRecords<AuxGaussRecord>(KEY)[0].sigma == 1.5f);
     twin->scratch().metaRecords<AuxGaussRecord>(KEY)[0].sigma = 9.f;

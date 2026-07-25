@@ -429,7 +429,7 @@ int main(int argc, char **argv) {
 
     // Add individuals to the population
     for(std::size_t p = 0; p < nParents; p++) {
-        pop_ptr->push_back(parentIndividuals[p]->clone_unique());
+        pop_ptr->push_back(parentIndividuals[p]->clone());
     }
 
     // The EA's Gauss adaptor now lives on the OA-owned config (authored here from the shared genome

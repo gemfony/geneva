@@ -184,7 +184,7 @@ GBenchmarkRunResult GAlgorithmBenchmarkRunner::runOne(
     // an unrecognised name is a fatal config error, not a silent fallback.
     auto ind = gind::GFunctionIndividual::buildConfigured(indCfg, cfg_.individualConfigFile);
     ind->setDemoFunction(parseBenchmarkFunction(cfg_.functionName));
-    alg->push_back(ind->clone_unique());
+    alg->push_back(ind->clone());
 
     // The genome carries only structure; its Gauss / bi-Gauss adaptor lives on an OA-owned config built
     // from the same parameters. Hand it to the algorithm (a no-op for non-adapting algorithms like swarm /

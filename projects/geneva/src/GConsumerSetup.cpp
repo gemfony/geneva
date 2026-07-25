@@ -81,13 +81,13 @@ namespace {
 /**
  * @brief Builds the polymorphic clone functor for GOptimizableEntity.
  *
- * Copy-construction would slice the held individual, so a virtual clone_unique() is used instead.
+ * Copy-construction would slice the held individual, so a virtual clone() is used instead.
  *
- * @return A functor that deep-copies a GOptimizableEntity via its virtual clone_unique()
+ * @return A functor that deep-copies a GOptimizableEntity via its virtual clone()
  */
 std::function<std::unique_ptr<gen::GOptimizableEntity>(const std::unique_ptr<gen::GOptimizableEntity> &)>
 individualCloneFunction() {
-    return [](const std::unique_ptr<gen::GOptimizableEntity> &p) { return p->clone_unique(); };
+    return [](const std::unique_ptr<gen::GOptimizableEntity> &p) { return p->clone(); };
 }
 
 /******************************************************************************/

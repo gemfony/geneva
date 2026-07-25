@@ -957,7 +957,7 @@ void GParameterScan::adjustPopulation_() {
 
     // Create the desired number of (identical) individuals in the population.
     for(std::size_t ind = 1; ind < this->getDefaultPopulationSize(); ind++) {
-        this->push_back(this->at(0)->clone_unique());
+        this->push_back(this->at(0)->clone());
     }
 }
 

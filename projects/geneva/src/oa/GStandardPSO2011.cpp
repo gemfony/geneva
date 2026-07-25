@@ -176,7 +176,7 @@ void GStandardPSO2011::adjustPopulation_() {
     }
 
     while(this->size() < swarm_size_) {
-        this->push_back(this->at(0)->clone_unique());
+        this->push_back(this->at(0)->clone());
     }
     if(this->size() > swarm_size_) {
         this->resize(swarm_size_);
@@ -551,7 +551,7 @@ void GStandardPSO2011::specificTestsNoFailureExpected_GUnitTests_() {
     GOptimizationAlgorithmT<GStandardPSO2011>::specificTestsNoFailureExpected_GUnitTests_();
 
     { // Test setting and retrieval of basic strategy parameters
-        std::shared_ptr<GStandardPSO2011> const p_test = this->clone<GStandardPSO2011>();
+        auto const p_test = this->clone<GStandardPSO2011>();
 
         CHECK_NOTHROW(p_test->setSwarmSize(25));
         CHECK(p_test->getSwarmSize() == 25);
@@ -561,7 +561,7 @@ void GStandardPSO2011::specificTestsNoFailureExpected_GUnitTests_() {
     }
 
     { // Setting an invalid swarm size / informant count must throw
-        std::shared_ptr<GStandardPSO2011> const p_test = this->clone<GStandardPSO2011>();
+        auto const p_test = this->clone<GStandardPSO2011>();
         CHECK_THROWS(p_test->setSwarmSize(1));
         CHECK_THROWS(p_test->setNInformants(0));
     }

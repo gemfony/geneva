@@ -113,7 +113,7 @@ double runStockEA(std::size_t pop, std::size_t parents, std::size_t iterations) 
     p->setReportIteration(100000);
     p->setStepControl(stepControl::SELF_ADAPT); // legacy fixed-sigma-self-adaption behaviour
     HighDimSphere<N> const src;
-    p->push_back(src.clone_unique());
+    p->push_back(src.clone());
     p->setAdaptionConfig(src.buildAdaptionConfig());
     p->optimize();
     auto best = p->template getBestGlobalIndividual<HighDimSphere<N>>();
@@ -138,7 +138,7 @@ double runAdaptiveEA(std::size_t pop, std::size_t parents, std::size_t iteration
     p->setReportIteration(100000);
     p->setStepControl(sc);
     HighDimSphere<N> const src;
-    p->push_back(src.clone_unique());
+    p->push_back(src.clone());
     p->setAdaptionConfig(src.buildAdaptionConfig()); // SAME config the stock EA gets (fixed 0.8)
     p->optimize();
     auto best = p->template getBestGlobalIndividual<HighDimSphere<N>>();
@@ -170,7 +170,7 @@ double runEAmode(
     p->setStepControl(sc);
     p->setSortingScheme(sm);
     HighDimSphere<N> const src;
-    p->push_back(src.clone_unique());
+    p->push_back(src.clone());
     p->setAdaptionConfig(src.buildAdaptionConfig());
     p->optimize();
     auto best = p->template getBestGlobalIndividual<HighDimSphere<N>>();
@@ -239,7 +239,7 @@ TEST_CASE("ea Pareto modes still work on a single-objective problem", "[ea][oa][
         p->setReportIteration(100000);
         p->setSortingScheme(mode);
         HighDimSphere<5> const src;
-        p->push_back(src.clone_unique());
+        p->push_back(src.clone());
         p->setAdaptionConfig(src.buildAdaptionConfig());
         CHECK_NOTHROW(p->optimize());
         auto best = p->getBestGlobalIndividual<HighDimSphere<5>>();

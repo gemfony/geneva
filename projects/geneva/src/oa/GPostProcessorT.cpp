@@ -111,7 +111,7 @@ bool GEvolutionaryAlgorithmPostOptimizer::raw_processing_(gen::GOptimizableEntit
     }
 
     // Clone the individual for post-processing
-    std::shared_ptr<gen::GOptimizableEntity> const p_unopt_ptr = p.template clone<gen::GOptimizableEntity>();
+    auto const p_unopt_ptr = p.template clone<gen::GOptimizableEntity>();
 
     // Make sure the post-optimization does not trigger post-optimization recursively: the sub-EA's
     // population must carry NO post-processor (the optimization algorithm decides post-processing
@@ -136,7 +136,7 @@ bool GEvolutionaryAlgorithmPostOptimizer::raw_processing_(gen::GOptimizableEntit
 
     // Add our individual to the algorithm (the population owns its individuals by unique_ptr; this
     // shared_ptr is bridged across the boundary with a clone -- the optimized result is read back below).
-    ea_ptr->push_back(p_unopt_ptr->clone_unique());
+    ea_ptr->push_back(p_unopt_ptr->clone());
 
     // The genome carries only structure -- the adaptors live on an OA-owned config. The post-optimizer is
     // a GENERIC local refiner with no knowledge of the problem's specific adaptor configuration, so it

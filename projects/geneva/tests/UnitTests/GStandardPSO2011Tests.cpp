@@ -102,7 +102,7 @@ TEST_CASE("Standard PSO 2011 optimizes a 5-dim flat sphere", "[spso2011]") {
     pop->setMaxIteration(300);
     pop->setMaxStallIteration(0); // 0 == disabled: run the full budget so the swarm fully converges
     pop->setReportIteration(100000);
-    pop->push_back(SpherePSO<5>().clone_unique());
+    pop->push_back(SpherePSO<5>().clone());
     pop->optimize();
 
     auto best = pop->getBestGlobalIndividual<SpherePSO<5>>();
@@ -118,7 +118,7 @@ TEST_CASE("Standard PSO 2011 optimizes a 10-dim flat sphere", "[spso2011]") {
     pop->setMaxIteration(600);
     pop->setMaxStallIteration(0); // 0 == disabled: run the full budget so the swarm fully converges
     pop->setReportIteration(100000);
-    pop->push_back(SpherePSO<10>().clone_unique());
+    pop->push_back(SpherePSO<10>().clone());
     pop->optimize();
 
     auto best = pop->getBestGlobalIndividual<SpherePSO<10>>();

@@ -121,7 +121,7 @@ TEST_CASE("GProgressPlotterT writes a valid ROOT macro when driven by a real EA"
     p->setMaxIteration(5);
     p->setReportIteration(100000);
     Sphere3 const src;
-    p->push_back(src.clone_unique());
+    p->push_back(src.clone());
     p->setAdaptionConfig(src.buildAdaptionConfig());
     p->registerPluggableOM(monitor);
 
@@ -156,7 +156,7 @@ TEST_CASE("GProgressPlotterT with no profiled variable still writes an (empty) c
     p->setMaxIteration(3);
     p->setReportIteration(100000);
     Sphere3 const src;
-    p->push_back(src.clone_unique());
+    p->push_back(src.clone());
     p->setAdaptionConfig(src.buildAdaptionConfig());
     p->registerPluggableOM(monitor);
 
@@ -182,7 +182,7 @@ TEST_CASE("GFitnessMonitor accumulates over a real EA without the legacy plotter
     p->setMaxIteration(5);
     p->setReportIteration(100000);
     Sphere3 const src;
-    p->push_back(src.clone_unique());
+    p->push_back(src.clone());
     p->setAdaptionConfig(src.buildAdaptionConfig());
     p->registerPluggableOM(monitor);
 
@@ -203,7 +203,7 @@ TEST_CASE("GFitnessMonitor survives a Pareto run (varying best count)", "[monito
     p->setReportIteration(100000);
     p->setSortingScheme(Gem::Geneva::sortingMode::MUPLUSNU_PARETO);
     Sphere3 const src;
-    p->push_back(src.clone_unique());
+    p->push_back(src.clone());
     p->setAdaptionConfig(src.buildAdaptionConfig());
     p->registerPluggableOM(monitor);
 
@@ -227,7 +227,7 @@ TEST_CASE("GNAdpationsLogger writes a histogram + fitness ROOT macro (all indivi
     p->setMaxIteration(5);
     p->setReportIteration(100000);
     Sphere3 const src;
-    p->push_back(src.clone_unique());
+    p->push_back(src.clone());
     p->setAdaptionConfig(src.buildAdaptionConfig());
     p->registerPluggableOM(monitor);
 
@@ -258,7 +258,7 @@ TEST_CASE("GNAdpationsLogger writes a curve + fitness ROOT macro (best only)", "
     p->setMaxIteration(5);
     p->setReportIteration(100000);
     Sphere3 const src;
-    p->push_back(src.clone_unique());
+    p->push_back(src.clone());
     p->setAdaptionConfig(src.buildAdaptionConfig());
     p->registerPluggableOM(monitor);
 
@@ -292,7 +292,7 @@ TEST_CASE("GAdaptorPropertyLoggerT writes a property histogram + fitness ROOT ma
     p->setMaxIteration(5);
     p->setReportIteration(100000);
     Sphere3 const src;
-    p->push_back(src.clone_unique());
+    p->push_back(src.clone());
     p->setAdaptionConfig(src.buildAdaptionConfig());
     p->registerPluggableOM(monitor);
 
@@ -331,7 +331,7 @@ TEST_CASE("GProcessingTimesLogger writes 1-d and 2-d timing ROOT macros + a text
     p->setMaxIteration(5);
     p->setReportIteration(100000);
     Sphere3 const src;
-    p->push_back(src.clone_unique());
+    p->push_back(src.clone());
     p->setAdaptionConfig(src.buildAdaptionConfig());
     p->registerPluggableOM(monitor);
 

@@ -228,7 +228,7 @@ void GAntColonyOptimization::adjustPopulation_() {
     }
 
     while(this->size() < archive_size_) {
-        this->push_back(this->at(0)->clone_unique());
+        this->push_back(this->at(0)->clone());
     }
     if(this->size() > archive_size_) {
         this->resize(archive_size_);
@@ -580,7 +580,7 @@ void GAntColonyOptimization::specificTestsNoFailureExpected_GUnitTests_() {
     GOptimizationAlgorithmT<GAntColonyOptimization>::specificTestsNoFailureExpected_GUnitTests_();
 
     { // Test setting and retrieval of basic strategy parameters
-        std::shared_ptr<GAntColonyOptimization> const p_test = this->clone<GAntColonyOptimization>();
+        auto const p_test = this->clone<GAntColonyOptimization>();
 
         CHECK_NOTHROW(p_test->setArchiveSize(25));
         CHECK(p_test->getArchiveSize() == 25);
@@ -596,7 +596,7 @@ void GAntColonyOptimization::specificTestsNoFailureExpected_GUnitTests_() {
     }
 
     { // Setting invalid strategy parameters must throw
-        std::shared_ptr<GAntColonyOptimization> const p_test = this->clone<GAntColonyOptimization>();
+        auto const p_test = this->clone<GAntColonyOptimization>();
         CHECK_THROWS(p_test->setArchiveSize(1)); // need at least 2 archive members
         CHECK_THROWS(p_test->setNAnts(0));       // need at least 1 ant
         CHECK_THROWS(p_test->setQ(0.));          // q must be > 0

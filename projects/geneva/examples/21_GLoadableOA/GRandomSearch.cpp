@@ -174,7 +174,7 @@ void GRandomSearch::adjustPopulation_() {
         this->resize(1);
     }
     for(std::size_t i = 1; i < this->getDefaultPopulationSize(); ++i) {
-        this->push_back(this->at(0)->clone_unique());
+        this->push_back(this->at(0)->clone());
     }
 }
 

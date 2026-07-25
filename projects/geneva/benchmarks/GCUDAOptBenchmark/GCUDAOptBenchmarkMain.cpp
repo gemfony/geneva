@@ -212,7 +212,7 @@ int main(int argc, char **argv) {
     auto consumer = std::make_shared<Gem::Courtier::GPU::GGPUConsumerT<gen::GOptimizableEntity>>(
         "./config/GGPUConsumer.json", marshaller);
     consumer->setCloneFunction([](const std::unique_ptr<gen::GOptimizableEntity> &p) {
-        return p->clone_unique();
+        return p->clone();
     });
     Gem::Courtier::GConsumerRegistryT<gen::GOptimizableEntity>::instance().setConsumer(consumer);
 

@@ -196,7 +196,7 @@ struct SharedPtrStorage {
  * The unique_ptr counterpart of SharedPtrStorage: same clone()/load() deep-copy protocol, but the
  * stored handles carry sole ownership, so copying/moving/destroying the container costs no atomic
  * reference counting. Deep copy goes through the unique_ptr overload of
- * copyCloneableSmartPointerContainer() (which uses clone_unique()/load()).
+ * copyCloneableSmartPointerContainer() (which uses clone()/load()).
  *
  * @tparam T         The element type (must expose the Gemfony common interface).
  * @tparam Container The underlying sequence container; defaults to std::vector<std::unique_ptr<T>>.
@@ -212,7 +212,7 @@ struct UniquePtrStorage {
     using ContainerType = Container;
 
     /**
-     * @brief Performs a deep copy of the container using the clone_unique()/load() protocol.
+     * @brief Performs a deep copy of the container using the clone()/load() protocol.
      *
      * @param src The source container.
      * @param dst The destination container; its previous contents are replaced.
@@ -810,7 +810,7 @@ public:
         requires(std::same_as<StoredType, std::unique_ptr<ValueType>> &&
                  std::derived_from<U, ValueType>)
     void push_back(const std::shared_ptr<U> &item) {
-        data_cnt_.push_back(item->template clone_unique<ValueType>());
+        data_cnt_.push_back(item->template clone<ValueType>());
     }
 
     /**
@@ -1108,7 +1108,7 @@ public:
      * @brief Clones the pointee of a stored handle into a fresh StoredType.
      *
      * Policy-aware deep clone used by the clone-based pointer operations: shared_ptr storage clones
-     * via clone() (an independent, separately-owned copy), unique_ptr storage via clone_unique()
+     * via clone() (an independent, separately-owned copy), unique_ptr storage via clone()
      * (sole ownership). Caller must ensure @p p is non-null.
      *
      * @param p A non-null stored handle whose pointee is to be cloned.
@@ -1119,7 +1119,7 @@ public:
         requires (!std::same_as<StoredType, ValueType>)
     {
         if constexpr(std::same_as<StoredType, std::unique_ptr<ValueType>>) {
-            return p->template clone_unique<ValueType>();
+            return p->template clone<ValueType>();
         }
         else {
             return p->template clone<ValueType>();
@@ -1719,7 +1719,7 @@ using GPtrContainerT = GContainerT<T, SharedPtrStorage<T, Container>>;
  *
  * The unique_ptr counterpart of GPtrContainerT: same policy-based interface, but elements are
  * sole-owned, so copy/move/destroy incur no atomic reference counting. Deep copy clones via
- * clone_unique()/load(). Boost serialises std::unique_ptr, so serialisation works unchanged.
+ * clone()/load(). Boost serialises std::unique_ptr, so serialisation works unchanged.
  *
  * @tparam T         The base element type (must expose the Gemfony common interface).
  * @tparam Container The underlying sequence container.

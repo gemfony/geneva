@@ -146,7 +146,8 @@ public:
                     << "dynamic_pointer_cast to requested individual_type failed." << '\n'
                 );
             }
-            best_individuals.push_back(cast_ptr);
+            // clone() yields sole ownership; hand it to the shared_ptr collection this accessor returns
+            best_individuals.push_back(std::move(cast_ptr));
         }
 
         return best_individuals;
@@ -219,7 +220,8 @@ public:
                     << "clone<individual_type>() returned null." << '\n'
                 );
             }
-            best_individuals.push_back(cast_ptr);
+            // clone() yields sole ownership; hand it to the shared_ptr collection this accessor returns
+            best_individuals.push_back(std::move(cast_ptr));
         }
 
         return best_individuals;

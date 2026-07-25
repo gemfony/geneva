@@ -546,7 +546,7 @@ void copyCloneableSmartPointer(const std::unique_ptr<T> &from, std::unique_ptr<T
         to.reset();
     }
     else if(not to or typeid(*to) != typeid(*from)) {
-        to = from->template clone_unique<T>();
+        to = from->template clone<T>();
     }
     else {
         to->T::load(*from);
@@ -624,7 +624,7 @@ void copyCloneableSmartPointerContainer(
 /******************************************************************************/
 /**
  * @brief unique_ptr counterpart of copyCloneableSmartPointerContainer(): deep-copies a container of
- * unique_ptrs to cloneable objects via clone_unique()/load().
+ * unique_ptrs to cloneable objects via clone()/load().
  *
  * Reuses existing slots when sizes match (load in place) and resizes the target
  * as needed. No atomic reference counting.
@@ -660,7 +660,7 @@ void copyCloneableSmartPointerContainer(
             copyCloneableSmartPointer(*it_from, *it_to);
         }
         for(auto it = from.begin() + size_to; it != from.end(); ++it) {
-            to.push_back((*it)->template clone_unique<T>());
+            to.push_back((*it)->template clone<T>());
         }
     }
     else { // size_from < size_to

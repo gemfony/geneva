@@ -409,56 +409,32 @@ public:
 
     /***************************************************************************/
     /**
-     * Creates a clone of this object, storing it in a std::shared_ptr<g_class_type>
+     * Creates a deep clone of this object, wrapped into a std::unique_ptr (sole ownership).
      *
-     * @return A deep clone of this object, wrapped into a std::shared_ptr<g_class_type>
-     */
-    [[nodiscard]] std::shared_ptr<g_class_type> clone() const {
-        return std::shared_ptr<g_class_type>(clone_());
-    }
-
-    /***************************************************************************/
-    /**
-     * The function creates a clone of the g_class_type pointer, converts it to a pointer to a derived class
-     * and emits it as a std::shared_ptr<> . Note that this template will only be accessible to the
-     * compiler if g_class_type is a base type of clone_type.
-     *
-     * @tparam clone_type The derived type the clone should be converted to (must derive from g_class_type)
-     * @return A converted clone of this object, wrapped into a std::shared_ptr
-     */
-    template <typename clone_type>
-        requires std::derived_from<clone_type, g_class_type>
-    [[nodiscard]] [[nodiscard]] [[nodiscard]] [[nodiscard]] std::shared_ptr<clone_type> clone() const {
-        return Gem::Common::convertSmartPointer<g_class_type, clone_type>(
-            std::shared_ptr<g_class_type>(this->clone_())
-        );
-    }
-
-    /***************************************************************************/
-    /**
-     * Creates a deep clone of this object, wrapped into a std::unique_ptr (sole ownership). This is
-     * the unique_ptr counterpart of clone(); it is used by the unique-pointer container storage
-     * policy (UniquePtrStorage) so a container of unique_ptr can be deep-copied without the atomic
-     * reference counting that shared_ptr incurs.
+     * A clone is a freshly constructed object, so it has exactly one owner by construction: sole
+     * ownership is the honest return type, and it is what the unique-pointer container storage policy
+     * (UniquePtrStorage) needs in order to deep-copy without shared_ptr's atomic reference counting. A
+     * caller that genuinely wants shared ownership converts at its own site -- unique_ptr converts to
+     * shared_ptr implicitly, so opting in costs nothing and is visible where it happens.
      *
      * @return A deep clone of this object, as a std::unique_ptr<g_class_type>
      */
-    [[nodiscard]] std::unique_ptr<g_class_type> clone_unique() const {
+    [[nodiscard]] std::unique_ptr<g_class_type> clone() const {
         return std::unique_ptr<g_class_type>(this->clone_());
     }
 
     /***************************************************************************/
     /**
-     * The templated counterpart of clone_unique(): creates a deep clone, converts it to a pointer to a
-     * derived class, and emits it as a std::unique_ptr<clone_type> (sole ownership). The unique_ptr
-     * counterpart of clone<clone_type>(); only accessible if g_class_type is a base of clone_type.
+     * The function creates a clone of the g_class_type pointer, converts it to a pointer to a derived
+     * class and emits it as a std::unique_ptr<> (sole ownership). Note that this template will only be
+     * accessible to the compiler if g_class_type is a base type of clone_type.
      *
      * @tparam clone_type The derived type the clone should be converted to (must derive from g_class_type)
      * @return A converted deep clone of this object, wrapped into a std::unique_ptr<clone_type>
      */
     template <typename clone_type>
         requires std::derived_from<clone_type, g_class_type>
-    [[nodiscard]] std::unique_ptr<clone_type> clone_unique() const {
+    [[nodiscard]] std::unique_ptr<clone_type> clone() const {
         // Take ownership immediately, so the clone is released on every exit path (Inv 21)
         std::unique_ptr<g_class_type> raw(this->clone_());
         if(auto *converted = dynamic_cast<clone_type *>(raw.get()); converted != nullptr) {
@@ -467,7 +443,7 @@ public:
         }
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GCommonInterfaceT<>::clone_unique<clone_type>():" << '\n'
+            << "In GCommonInterfaceT<>::clone<clone_type>():" << '\n'
             << "Invalid conversion to type " << typeid(clone_type).name() << '\n'
         );
     }

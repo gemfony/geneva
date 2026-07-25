@@ -104,7 +104,7 @@ TEST_CASE("Ant Colony Optimization optimizes a 5-dim flat sphere", "[acor]") {
     pop->setMaxIteration(2000);
     pop->setMaxStallIteration(0); // 0 == disabled: run the full budget so the archive fully converges
     pop->setReportIteration(100000);
-    pop->push_back(SphereACOR<5>().clone_unique());
+    pop->push_back(SphereACOR<5>().clone());
     pop->optimize();
 
     auto best = pop->getBestGlobalIndividual<SphereACOR<5>>();
@@ -121,7 +121,7 @@ TEST_CASE("Ant Colony Optimization optimizes a 10-dim flat sphere", "[acor]") {
     pop->setMaxIteration(3000);
     pop->setMaxStallIteration(0); // 0 == disabled: run the full budget so the archive fully converges
     pop->setReportIteration(100000);
-    pop->push_back(SphereACOR<10>().clone_unique());
+    pop->push_back(SphereACOR<10>().clone());
     pop->optimize();
 
     auto best = pop->getBestGlobalIndividual<SphereACOR<10>>();

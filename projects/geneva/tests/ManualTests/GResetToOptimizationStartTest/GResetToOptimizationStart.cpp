@@ -91,7 +91,7 @@ int main(int argc, char **argv) {
     for(auto const &alg_ptr : algorithms_cnt) {
         for(std::size_t resetCounter = 0; resetCounter < NRESETS; resetCounter++) {
             auto ind = gfif_ptr->get_as<gind::GFunctionIndividual>();
-            alg_ptr->push_back(ind->clone_unique());
+            alg_ptr->push_back(ind->clone());
             // The genome carries only structure; the adaptor lives on an OA-owned config the factory
             // authors. Hand it to the algorithm (a no-op for non-adapting algorithms; adopted by EA / SA).
             alg_ptr->setAdaptionConfig(gfif_ptr->getAdaptionConfig(*ind));

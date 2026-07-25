@@ -251,7 +251,7 @@ std::size_t GGenome::getCrossOverPos(const std::size_t lower, const std::size_t 
  */
 std::shared_ptr<GOptimizableEntity> GGenome::crossOverWith(GOptimizableEntity const &cp_base) const {
     const auto &cp = dynamic_cast<const GGenome &>(cp_base);
-    std::shared_ptr<GGenome> this_cp = this->clone<GGenome>();
+    auto this_cp = this->clone<GGenome>();
 
     std::vector<double> this_d, cp_d;
     std::vector<float> this_f, cp_f;
@@ -585,14 +585,14 @@ bool GGenome::modify_GUnitTests_() {
 void GGenome::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
     {
-        std::shared_ptr<GGenome> const p_test = this->clone<GGenome>();
+        auto const p_test = this->clone<GGenome>();
         CHECK_NOTHROW(p_test->setMaxMode(maxMode::MAXIMIZE));
         CHECK(p_test->getMaxMode() == maxMode::MAXIMIZE);
         CHECK_NOTHROW(p_test->setMaxMode(maxMode::MINIMIZE));
         CHECK(p_test->getMaxMode() == maxMode::MINIMIZE);
     }
     {
-        std::shared_ptr<GGenome> const p_test = this->clone<GGenome>();
+        auto const p_test = this->clone<GGenome>();
         for(std::uint32_t i = 1; i < 10; i++) {
             CHECK_NOTHROW(p_test->setAssignedIteration(i));
             CHECK(p_test->getAssignedIteration() == i);

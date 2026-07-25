@@ -846,7 +846,7 @@ std::vector<double> GConjugateGradientDescent::evaluateProbes(
     std::vector<std::unique_ptr<gen::GOptimizableEntity>> probes;
     probes.reserve(points.size());
     for(auto const &pt : points) {
-        auto probe = this->at(starting_point)->clone_unique();
+        auto probe = this->at(starting_point)->clone();
         probe->assignFPValueVectorInternal(pt, activityMode::ACTIVEONLY);
         probes.push_back(std::move(probe));
     }
@@ -1167,7 +1167,7 @@ void GConjugateGradientDescent::adjustPopulation_() {
     // Create the requested number of (randomized) starting points
     if(n_start < n_starting_points_) {
         for(std::size_t i = 0; i < (n_starting_points_ - n_start); i++) {
-            this->push_back(this->at(0)->clone_unique());
+            this->push_back(this->at(0)->clone());
             this->back()->randomInit(activityMode::ACTIVEONLY);
         }
     }
@@ -1178,7 +1178,7 @@ void GConjugateGradientDescent::adjustPopulation_() {
     // Add the difference-quotient children for every starting point
     for(std::size_t i = 0; i < n_starting_points_; i++) {
         for(std::size_t k = 0; k < children_per_sp; k++) {
-            this->push_back(this->at(i)->clone_unique());
+            this->push_back(this->at(i)->clone());
         }
     }
 

@@ -647,7 +647,7 @@ void GSwarmAlgorithm::adjustNeighborhoods() {
                     data_cnt_.insert(
                         data_cnt_.begin() + first_ni_pos,
                         (*(last_iteration_individuals_cnt_.begin() + first_ni_pos + i))
-                            ->clone_unique()
+                            ->clone()
                     );
                 }
             }
@@ -669,7 +669,7 @@ void GSwarmAlgorithm::adjustNeighborhoods() {
                     // Insert a clone of the first individual of the collection
                     data_cnt_.insert(
                         data_cnt_.begin() + first_ni_pos,
-                        (this->front())->clone_unique()
+                        (this->front())->clone()
                     );
 
                     // Randomly initialize the item and prevent position updates
@@ -1305,7 +1305,7 @@ void GSwarmAlgorithm::adjustPopulation_() {
     if(current_size == 1) {
         // Fill up with random items to the number of neighborhoods
         for(std::size_t i = 1; i < n_neighborhoods_; i++) {
-            this->push_back(this->front()->clone_unique());
+            this->push_back(this->front()->clone());
             this->back()->randomInit(activityMode::ACTIVEONLY);
         }
 
@@ -1328,7 +1328,7 @@ void GSwarmAlgorithm::adjustPopulation_() {
         if(current_size < n_neighborhoods_) {
             // First fill up the neighborhoods, if required
             for(std::size_t m = 0; m < (n_neighborhoods_ - current_size); m++) {
-                this->push_back(this->front()->clone_unique());
+                this->push_back(this->front()->clone());
                 this->back()->randomInit(activityMode::ACTIVEONLY);
             }
 
@@ -1355,7 +1355,7 @@ void GSwarmAlgorithm::adjustPopulation_() {
                 // round-robin over the user's individuals so their diversity is spread rather than a single
                 // one being duplicated.
                 for(std::size_t k = current_size; k < default_pop_size; k++) {
-                    this->push_back((*(this->begin() + (k % current_size)))->clone_unique());
+                    this->push_back((*(this->begin() + (k % current_size)))->clone());
                     if(random_fill_up_) {
                         this->back()->randomInit(activityMode::ACTIVEONLY);
                     }
@@ -1421,7 +1421,7 @@ void GSwarmAlgorithm::fillUpNeighborhood1() {
         for(std::size_t m = 1; m < default_n_neighborhood_members_;
             m++) { // m stands for "missing"
             // Add a clone of the first individual in the neighborhood to the next position
-            this->insert(this->begin() + n, (*(this->begin() + n))->clone_unique());
+            this->insert(this->begin() + n, (*(this->begin() + n))->clone());
             // Make sure it has a unique value, if requested
             if(random_fill_up_) {
 #ifdef DEBUG

@@ -401,7 +401,7 @@ protected:
                 if(not p_ind) { // No valid item received, the factory has run empty
                     break;
                 }
-                p_alg->push_back(p_ind->clone_unique());
+                p_alg->push_back(p_ind->clone());
                
             }
         }

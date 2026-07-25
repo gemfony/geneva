@@ -211,25 +211,25 @@ void runMatrix(double budget_s) {
     if(want("ea")) {
         auto pop = std::make_shared<oa::GEvolutionaryAlgorithm>();
         pop->setPopulationSizes(256, 64); // (total, nParents)
-        pop->push_back(proto.clone_unique());
+        pop->push_back(proto.clone());
         pop->setAdaptionConfig(proto.buildAdaptionConfig());
         record("EA", pop);
     }
     if(want("sepcma")) {
         auto pop = std::make_shared<oa::GSepCmaEvolutionStrategy>(); // owns its distribution; auto lambda
-        pop->push_back(proto.clone_unique());
+        pop->push_back(proto.clone());
         record("sep-CMA-ES", pop);
     }
     if(want("swarm")) {
         auto pop = std::make_shared<oa::GSwarmAlgorithm>();
         pop->setSwarmSizes(8, 32); // 8 neighborhoods x 32 members
-        pop->push_back(proto.clone_unique());
+        pop->push_back(proto.clone());
         record("swarm (classic)", pop);
     }
     if(want("sa")) {
         auto pop = std::make_shared<oa::GSimulatedAnnealing>();
         pop->setPopulationSizes(256, 64); // (total, nParents)
-        pop->push_back(proto.clone_unique());
+        pop->push_back(proto.clone());
         pop->setAdaptionConfig(proto.buildAdaptionConfig());
         record("SA (classic)", pop);
     }
@@ -237,14 +237,14 @@ void runMatrix(double budget_s) {
     if(want("spso")) {
         auto pop = std::make_shared<oa::GStandardPSO2011>();
         pop->setSwarmSize(128);
-        pop->push_back(proto.clone_unique());
+        pop->push_back(proto.clone());
         record("SPSO-2011", pop);
     }
     if(want("acor")) {
         auto pop = std::make_shared<oa::GAntColonyOptimization>();
         pop->setArchiveSize(100);
         pop->setNAnts(20);
-        pop->push_back(proto.clone_unique());
+        pop->push_back(proto.clone());
         record("ACOR", pop);
     }
     if(want("gsa")) {
@@ -253,7 +253,7 @@ void runMatrix(double budget_s) {
         // Stretch the Tsallis cooling so the chains keep making useful moves across a long,
         // high-dimensional, time-bounded run instead of freezing within the first ~100 steps.
         pop->setCoolingTimescale(300.);
-        pop->push_back(proto.clone_unique());
+        pop->push_back(proto.clone());
         record("Generalized-SA", pop);
     }
 

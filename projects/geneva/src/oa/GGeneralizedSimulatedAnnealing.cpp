@@ -274,7 +274,7 @@ void GGeneralizedSimulatedAnnealing::adjustPopulation_() {
     const std::size_t total_size = n_chains_ * GSA_SLOTS_PER_CHAIN;
 
     while(this->size() < total_size) {
-        this->push_back(this->at(0)->clone_unique());
+        this->push_back(this->at(0)->clone());
     }
     if(this->size() > total_size) {
         this->resize(total_size);
@@ -632,7 +632,7 @@ void GGeneralizedSimulatedAnnealing::specificTestsNoFailureExpected_GUnitTests_(
     GOptimizationAlgorithmT<GGeneralizedSimulatedAnnealing>::specificTestsNoFailureExpected_GUnitTests_();
 
     { // Test setting and retrieval of basic strategy parameters
-        std::shared_ptr<GGeneralizedSimulatedAnnealing> const p_test = this->clone<GGeneralizedSimulatedAnnealing>();
+        auto const p_test = this->clone<GGeneralizedSimulatedAnnealing>();
 
         CHECK_NOTHROW(p_test->setNChains(4));
         CHECK(p_test->getNChains() == 4);
@@ -651,7 +651,7 @@ void GGeneralizedSimulatedAnnealing::specificTestsNoFailureExpected_GUnitTests_(
     }
 
     { // Setting invalid strategy parameters must throw
-        std::shared_ptr<GGeneralizedSimulatedAnnealing> const p_test = this->clone<GGeneralizedSimulatedAnnealing>();
+        auto const p_test = this->clone<GGeneralizedSimulatedAnnealing>();
         CHECK_THROWS(p_test->setNChains(0)); // need at least 1 chain
         CHECK_THROWS(p_test->setQv(1.0));    // q_v must be in ]1,3[
         CHECK_THROWS(p_test->setQv(3.0));    // q_v must be in ]1,3[

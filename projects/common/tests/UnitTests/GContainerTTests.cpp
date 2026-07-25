@@ -101,25 +101,20 @@ struct TestBase : Gem::Common::gemfony_common_interface_indicator {
       : val(v) {}
     virtual ~TestBase() = default;
 
-    template <typename TargetType = TestBase>
-    [[nodiscard]] std::shared_ptr<TargetType> clone() const {
-        return std::make_shared<TargetType>(*static_cast<const TargetType *>(this));
-    }
-
-    // unique_ptr counterpart of clone(), as a real GCommonInterfaceT type provides; virtual so it
-    // clones the dynamic type (used by the UniquePtrStorage deep-copy path).
-    [[nodiscard]] virtual std::unique_ptr<TestBase> clone_unique() const {
+    // clone(), as a real GCommonInterfaceT type provides; virtual so it clones the dynamic type
+    // (used by the UniquePtrStorage deep-copy path).
+    [[nodiscard]] virtual std::unique_ptr<TestBase> clone() const {
         return std::make_unique<TestBase>(val);
     }
 
-    // Typed counterpart, mirroring GCommonInterfaceT::clone_unique<clone_type>(): clones the dynamic
+    // Typed counterpart, mirroring GCommonInterfaceT::clone<clone_type>(): clones the dynamic
     // type (via the virtual overload above) and hands back a unique_ptr to the requested static type.
     template <typename TargetType>
-    [[nodiscard]] std::unique_ptr<TargetType> clone_unique() const {
-        std::unique_ptr<TestBase> base = this->clone_unique();
+    [[nodiscard]] std::unique_ptr<TargetType> clone() const {
+        std::unique_ptr<TestBase> base = this->clone();
         auto *converted = dynamic_cast<TargetType *>(base.get());
         if(converted == nullptr) {
-            throw std::runtime_error("TestBase::clone_unique<TargetType>(): dynamic_cast failed");
+            throw std::runtime_error("TestBase::clone<TargetType>(): dynamic_cast failed");
         }
         base.release();
         return std::unique_ptr<TargetType>(converted);
@@ -170,7 +165,7 @@ struct TestDerived : TestBase {
         return od && TestBase::operator==(o) && derivedVal == od->derivedVal;
     }
 
-    [[nodiscard]] std::unique_ptr<TestBase> clone_unique() const override {
+    [[nodiscard]] std::unique_ptr<TestBase> clone() const override {
         return std::make_unique<TestDerived>(val, derivedVal);
     }
 };
@@ -1874,11 +1869,11 @@ TEST_CASE("GContainerT: GArchive round-trips", "[GContainerT][serialization]") {
 TEST_CASE("GContainerT: UniquePtrStorage + unique_ptr deep-copy helpers", "[GContainerT][ptr][unique]") {
     using Vec = std::vector<std::unique_ptr<TestBase>>;
 
-    SECTION("clone_unique clones the dynamic type into a unique_ptr") {
+    SECTION("clone clones the dynamic type into a unique_ptr") {
         std::unique_ptr<TestBase> b = std::make_unique<TestBase>(7);
         std::unique_ptr<TestBase> d = std::make_unique<TestDerived>(3, 9);
-        auto bc = b->clone_unique();
-        auto dc = d->clone_unique();
+        auto bc = b->clone();
+        auto dc = d->clone();
         REQUIRE(bc);
         REQUIRE(dc);
         CHECK(bc->val == 7);
@@ -1969,14 +1964,14 @@ TEST_CASE("GContainerT: UniquePtrStorage + unique_ptr deep-copy helpers", "[GCon
 
 /******************************************************************************/
 // A populated GUniquePtrContainerT: the pointer API now works for unique_ptr
-// storage -- clone-based ops clone via clone_unique(), move-based ops move the sole-owned handle.
+// storage -- clone-based ops clone via clone(), move-based ops move the sole-owned handle.
 
 TEST_CASE("GContainerT: GUniquePtrContainerT populated container", "[GContainerT][ptr][unique]") {
     SECTION("push (move-in and clone-in), size, element access") {
         ConcreteUniquePtrVec v;
         v.push_back_noclone(std::make_unique<TestBase>(1)); // move-in (sole ownership)
         auto proto = std::make_unique<TestBase>(2);
-        v.push_back_clone(proto);                           // clone-in via clone_unique()
+        v.push_back_clone(proto);                           // clone-in via clone()
         v.push_back(std::make_unique<TestBase>(3));         // push_back(StoredType&&)
         REQUIRE(v.size() == 3);
         CHECK(v[0]->val == 1);

@@ -400,7 +400,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
     { // Check setting and retrieval of the current personality status and whether the personalities
       // themselves can be accessed. The personality is OA scratch carried on the individual itself
       // (in its GAuxiliaryStore), exercised here via the personality surface on GOptimizableEntity.
-        auto ind = this->clone_unique();
+        auto ind = this->clone();
         std::shared_ptr<GPersonalityTraits> p_pt;
 
         // Reset the personality type
@@ -562,7 +562,7 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests_() {
 
 #ifdef DEBUG
     { // Test that retrieval of an EA personality traits object from an uninitialized individual throws in DEBUG mode
-        auto ind = this->clone_unique();
+        auto ind = this->clone();
 
         // Make sure the personality type is set to PERSONALITY_NONE
         CHECK_NOTHROW(ind->resetPersonality());
@@ -580,7 +580,7 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests_() {
 
 #ifdef DEBUG
     { // Test that retrieval of an EA personality traits object from an individual with SWARM personality throws
-        auto ind = this->clone_unique();
+        auto ind = this->clone();
 
         // Make sure the personality type is set to SWARM
         CHECK_NOTHROW(ind->setPersonality(
@@ -599,7 +599,7 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests_() {
 
 #ifdef DEBUG
     { // Test that retrieval of a personality traits base object from an individual without personality throws
-        auto ind = this->clone_unique();
+        auto ind = this->clone();
 
         // Make sure the personality type is set to PERSONALITY_NONE
         CHECK_NOTHROW(ind->resetPersonality());

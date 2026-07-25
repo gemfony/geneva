@@ -152,7 +152,7 @@ TEST_CASE("Generalized Simulated Annealing optimizes a 5-dim flat sphere", "[gsa
     pop->setMaxIteration(3000);
     pop->setMaxStallIteration(0); // 0 == disabled: run the full budget so the chains fully converge
     pop->setReportIteration(100000);
-    pop->push_back(SphereGSA<5>().clone_unique());
+    pop->push_back(SphereGSA<5>().clone());
     pop->optimize();
 
     auto best = pop->getBestGlobalIndividual<SphereGSA<5>>();
@@ -168,7 +168,7 @@ TEST_CASE("Generalized Simulated Annealing optimizes a 10-dim flat sphere", "[gs
     pop->setMaxIteration(4000);
     pop->setMaxStallIteration(0); // 0 == disabled: run the full budget so the chains fully converge
     pop->setReportIteration(100000);
-    pop->push_back(SphereGSA<10>().clone_unique());
+    pop->push_back(SphereGSA<10>().clone());
     pop->optimize();
 
     auto best = pop->getBestGlobalIndividual<SphereGSA<10>>();
@@ -196,7 +196,7 @@ TEST_CASE("Generalized Simulated Annealing: cooling timescale rescues a high-dim
         pop->setMaxIteration(ITER);
         pop->setMaxStallIteration(0); // run the full budget
         pop->setReportIteration(100000);
-        pop->push_back(SphereGSA<N>().clone_unique());
+        pop->push_back(SphereGSA<N>().clone());
         pop->optimize();
         return bestSphere<N>(pop->getBestGlobalIndividual<SphereGSA<N>>());
     };
@@ -222,7 +222,7 @@ TEST_CASE("Generalized Simulated Annealing reaches a good value on a multimodal 
         pop->setMaxStallIteration(0);   // run the full budget
         pop->setReannealingSteps(400);  // periodically re-open the cooling clock to escape local optima
         pop->setReportIteration(100000);
-        pop->push_back(RastriginGSA<5>().clone_unique());
+        pop->push_back(RastriginGSA<5>().clone());
         pop->optimize();
         auto best = pop->getBestGlobalIndividual<RastriginGSA<5>>();
         REQUIRE(best);

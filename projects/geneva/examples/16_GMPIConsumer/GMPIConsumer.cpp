@@ -291,7 +291,7 @@ int main(int argc, char **argv) {
 
     // Add individuals to the population.
     for(const auto &i : parentIndividuals) {
-        pop_ptr->push_back(i->clone_unique());
+        pop_ptr->push_back(i->clone());
     }
 
     // The genome carries only structure; the configured Gauss / bi-Gauss adaptor lives on an OA-owned

@@ -883,13 +883,13 @@ void GType::specificTestsNoFailureExpected_GUnitTests_() {
     GParChild::specificTestsNoFailureExpected_GUnitTests_();
 
     {
-        std::shared_ptr<GType> const p_test = this->template clone<GType>();
+        auto const p_test = this->template clone<GType>();
         p_test->fillWithObjects(100);
         p_test->GParChild::specificTestsNoFailureExpected_GUnitTests_();
     }
 
     {
-        std::shared_ptr<GType> const p_test = this->template clone<GType>();
+        auto const p_test = this->template clone<GType>();
         for(std::size_t n_children = 5; n_children < 10; n_children++) {
             for(std::size_t n_parents = 1; n_parents < n_children; n_parents++) {
                 CHECK_NOTHROW(p_test->clear());

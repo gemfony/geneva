@@ -120,7 +120,7 @@ protected:
         inner->setMaxIteration(2);
         inner->setReportIteration(100000);
         InnerSphere const src;
-        inner->push_back(src.clone_unique());
+        inner->push_back(src.clone());
         inner->setAdaptionConfig(src.buildAdaptionConfig());
         // Deliberately NO setLocalConsumer(): init() defaults to the thread-pool consumer, which is the
         // un-injected path the registry must funnel into the single shared consumer.
@@ -200,7 +200,7 @@ TEST_CASE(
             ea->setMaxIteration(40);
             ea->setReportIteration(100000);
             InnerSphere const src;
-            ea->push_back(src.clone_unique());
+            ea->push_back(src.clone());
             ea->setAdaptionConfig(src.buildAdaptionConfig());
             // No setLocalConsumer(): the default thread-pool consumer is resolved (and shared) via the registry.
             ea->optimize();
@@ -250,7 +250,7 @@ TEST_CASE(
     meta->setReportIteration(100000);
     meta->setNOrchestrationThreads(2);
     MetaSphere const src;
-    meta->push_back(src.clone_unique());
+    meta->push_back(src.clone());
     meta->setAdaptionConfig(src.buildAdaptionConfig());
     meta->optimize();
 

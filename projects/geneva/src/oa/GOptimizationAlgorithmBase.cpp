@@ -1589,7 +1589,7 @@ GOptimizationAlgorithmBase::consumerForSubmission_() {
             auto c = std::make_shared<c2::GStdThreadConsumerT<gen::GOptimizableEntity>>();
             // Polymorphic clone (GOptimizableEntity holds a concrete individual; copy-construction slices).
             c->setCloneFunction([](const std::unique_ptr<gen::GOptimizableEntity> &p) {
-                return p->clone_unique();
+                return p->clone();
             });
             return c;
         });

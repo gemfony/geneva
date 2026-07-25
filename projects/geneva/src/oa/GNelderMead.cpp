@@ -821,7 +821,7 @@ void GNelderMead::adjustPopulation_() {
     // Make sure we have one (randomized) seed individual per simplex first.
     if(n_start < n_simplices_) {
         for(std::size_t i = 0; i < (n_simplices_ - n_start); i++) {
-            this->push_back(this->at(0)->clone_unique());
+            this->push_back(this->at(0)->clone());
             this->back()->randomInit(activityMode::ACTIVEONLY);
         }
     }
@@ -840,9 +840,9 @@ void GNelderMead::adjustPopulation_() {
 
     this->clear();
     for(std::size_t s = 0; s < n_simplices_; s++) {
-        this->push_back(seeds[s]->clone_unique()); // vertex 0 of simplex s
+        this->push_back(seeds[s]->clone()); // vertex 0 of simplex s
         for(std::size_t r = 1; r < block_size; r++) {
-            this->push_back(seeds[s]->clone_unique());
+            this->push_back(seeds[s]->clone());
         }
     }
 

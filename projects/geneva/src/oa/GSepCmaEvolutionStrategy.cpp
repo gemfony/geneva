@@ -320,7 +320,7 @@ void GSepCmaEvolutionStrategy::adjustPopulation_() {
 
     // Grow the population to lambda offspring, all clones of the prototype.
     while(this->size() < lambda_) {
-        this->push_back(this->at(0)->clone_unique());
+        this->push_back(this->at(0)->clone());
     }
     if(this->size() > lambda_) {
         this->resize(lambda_);
@@ -669,7 +669,7 @@ void GSepCmaEvolutionStrategy::specificTestsNoFailureExpected_GUnitTests_() {
     GOptimizationAlgorithmT<GSepCmaEvolutionStrategy>::specificTestsNoFailureExpected_GUnitTests_();
 
     { // Test setting and retrieval of basic strategy parameters
-        std::shared_ptr<GSepCmaEvolutionStrategy> const p_test = this->clone<GSepCmaEvolutionStrategy>();
+        auto const p_test = this->clone<GSepCmaEvolutionStrategy>();
 
         CHECK_NOTHROW(p_test->setLambda(20));
         CHECK(p_test->getLambda() == 20);
@@ -688,7 +688,7 @@ void GSepCmaEvolutionStrategy::specificTestsNoFailureExpected_GUnitTests_() {
     }
 
     { // Setting an invalid initial sigma must throw
-        std::shared_ptr<GSepCmaEvolutionStrategy> const p_test = this->clone<GSepCmaEvolutionStrategy>();
+        auto const p_test = this->clone<GSepCmaEvolutionStrategy>();
         CHECK_THROWS(p_test->setInitialSigma(-1.));
     }
 #else  /* GEM_TESTING */

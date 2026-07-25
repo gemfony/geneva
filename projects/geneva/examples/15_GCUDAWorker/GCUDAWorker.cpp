@@ -182,7 +182,7 @@ int runParityCheck(const std::shared_ptr<Gem::Common::GFactoryT<gen::GOptimizabl
     gpuBatch.reserve(static_cast<std::size_t>(n));
     for(int i = 0; i < n; ++i) {
         auto ind = factory->get(); // a fresh random genome
-        gpuBatch.push_back(ind->clone_unique()); // identical-genome copy for the device path
+        gpuBatch.push_back(ind->clone()); // identical-genome copy for the device path
         cpuInds.push_back(ind);
     }
 
@@ -201,7 +201,7 @@ int runParityCheck(const std::shared_ptr<Gem::Common::GFactoryT<gen::GOptimizabl
     auto consumer =
         std::make_shared<gpu::GGPUConsumerT<GOptimizableEntity, gimage_fp_t>>(consumerConfig, marshaller);
     consumer->setCloneFunction([](const std::unique_ptr<GOptimizableEntity> &p) {
-        return p->clone_unique();
+        return p->clone();
     });
     consumer->processBatch(
         std::span<std::unique_ptr<GOptimizableEntity>>(gpuBatch.data(), gpuBatch.size()),

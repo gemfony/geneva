@@ -435,7 +435,7 @@ void GImageIndividual::specificTestsNoFailureExpected_GUnitTests_() {
 
     {
         // Test that repeated extraction of an object's data results in the same output
-        const std::shared_ptr<GImageIndividual> p_test = this->clone<GImageIndividual>();
+        auto const p_test = this->clone<GImageIndividual>();
 
         const auto circles = p_test->getTriangleData();
 

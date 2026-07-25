@@ -151,7 +151,7 @@ int runParityCheck(int n, const std::string &consumerConfig) {
         auto ind = f.get_as<gind::GFunctionIndividual>();
         ind->randomInit(activityMode::ALLPARAMETERS); // spread the genome across its range (the factory
                                                       // hands back the init value, not a random point)
-        gpuBatch.push_back(ind->clone_unique());      // identical-genome copy for the device path
+        gpuBatch.push_back(ind->clone());      // identical-genome copy for the device path
         cpuInds.push_back(ind);
     }
 
@@ -168,7 +168,7 @@ int runParityCheck(int n, const std::string &consumerConfig) {
     // builds) and evaluate the whole batch in one bulk launch. full_success_or_fatal: every item must be evaluated.
     auto marshaller = std::make_shared<FunctionGPU::GFunctionGPUMarshaller>();
     auto consumer = std::make_shared<gpu::GGPUConsumerT<GOptimizableEntity, double>>(consumerConfig, marshaller);
-    consumer->setCloneFunction([](const std::unique_ptr<GOptimizableEntity> &p) { return p->clone_unique(); });
+    consumer->setCloneFunction([](const std::unique_ptr<GOptimizableEntity> &p) { return p->clone(); });
     consumer->processBatch(
         std::span<std::unique_ptr<GOptimizableEntity>>(gpuBatch.data(), gpuBatch.size()),
         Gem::Courtier::GSubmissionPolicy::full_success_or_fatal());

@@ -1790,7 +1790,7 @@ TEST_CASE("Wire send-once over a real websocket loopback interns one layout", "[
     // The work item is the abstract GOptimizableEntity base, so the consumer needs a polymorphic clone
     // (copy-construction would slice). This mirrors GConsumerSetup's individualCloneFunction().
     consumer->setCloneFunction(
-        [](const std::unique_ptr<GOptimizableEntity> &p) { return p->clone_unique(); }
+        [](const std::unique_ptr<GOptimizableEntity> &p) { return p->clone(); }
     );
     consumer->startServer();
     const unsigned short port = consumer->getPort();
@@ -1869,7 +1869,7 @@ TEST_CASE("Wire send-once over a real ASIO loopback interns one layout", "[flat]
 
     auto consumer = std::make_shared<c2::GAsioConsumerT<GOptimizableEntity>>(/*port=*/0, /*threads=*/2, BIN);
     consumer->setCloneFunction(
-        [](const std::unique_ptr<GOptimizableEntity> &p) { return p->clone_unique(); }
+        [](const std::unique_ptr<GOptimizableEntity> &p) { return p->clone(); }
     );
     consumer->startServer();
     const unsigned short port = consumer->getPort();
@@ -1952,7 +1952,7 @@ TEST_CASE("Networked reconciliation keeps population elements at stable addresse
 
     auto consumer = std::make_shared<c2::GWebsocketConsumerT<GOptimizableEntity>>(/*port=*/0, /*threads=*/2, BIN);
     consumer->setCloneFunction(
-        [](const std::unique_ptr<GOptimizableEntity> &p) { return p->clone_unique(); }
+        [](const std::unique_ptr<GOptimizableEntity> &p) { return p->clone(); }
     );
     consumer->startServer();
     const unsigned short port = consumer->getPort();
@@ -2035,7 +2035,7 @@ TEST_CASE("Wire send-once: many distinct layouts under a bounded registry stay c
 
     auto consumer = std::make_shared<c2::GWebsocketConsumerT<GOptimizableEntity>>(/*port=*/0, /*threads=*/2, BIN);
     consumer->setCloneFunction(
-        [](const std::unique_ptr<GOptimizableEntity> &p) { return p->clone_unique(); }
+        [](const std::unique_ptr<GOptimizableEntity> &p) { return p->clone(); }
     );
     consumer->setInternedLayoutCapacity(2); // below the 4 distinct layouts -> eviction is forced
     consumer->startServer();
@@ -2106,7 +2106,7 @@ TEST_CASE("EA over a websocket consumer with results-only returns keeps full gen
 
     auto consumer = std::make_shared<c2::GWebsocketConsumerT<GOptimizableEntity>>(/*port=*/0, /*threads=*/4, BIN);
     consumer->setCloneFunction(
-        [](const std::unique_ptr<GOptimizableEntity> &p) { return p->clone_unique(); }
+        [](const std::unique_ptr<GOptimizableEntity> &p) { return p->clone(); }
     );
     consumer->startServer();
     const unsigned short port = consumer->getPort();
@@ -2129,7 +2129,7 @@ TEST_CASE("EA over a websocket consumer with results-only returns keeps full gen
     pop->setMaxIteration(120);
     Sphere const proto(8);
     for(std::size_t i = 0; i < 40; ++i) {
-        pop->push_back(proto.clone_unique());
+        pop->push_back(proto.clone());
     }
     pop->setAdaptionConfig(proto.getAdaptionConfig());
     c2::GConsumerRegistryT<GOptimizableEntity>::instance().setConsumer(consumer);

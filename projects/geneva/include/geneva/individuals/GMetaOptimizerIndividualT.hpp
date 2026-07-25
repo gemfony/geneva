@@ -729,7 +729,7 @@ protected:
         ea.setPopulationSizes(pop_size, n_parents);
         for(std::size_t ind = 0; ind < pop_size; ind++) {
             std::shared_ptr<gen::GOptimizableEntity> const gi_ptr = ind_factory_->get();
-            ea.push_back(gi_ptr->clone_unique());
+            ea.push_back(gi_ptr->clone());
         }
         // Drive the sub-individuals' adaption through the OA-owned config, and set the likelihood for work
         // items to be produced through cross-over rather than mutation alone.

@@ -101,7 +101,7 @@ void startReferenceMeasurement(
             auto ea_alg = ea_alg_master->clone<oa::GEvolutionaryAlgorithm>();
 
             // Make the individual known to the optimizer
-            ea_alg->push_back(gdi_ptr->clone_unique());
+            ea_alg->push_back(gdi_ptr->clone());
 
             // GDelay's genome is transport ballast (its values are irrelevant to the timing benchmark),
             // but the EA still mutates + re-evaluates it every generation -- that cycle IS the measured

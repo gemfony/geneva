@@ -298,7 +298,7 @@ void GStarterIndividual::specificTestsNoFailureExpected_GUnitTests_() {
     //------------------------------------------------------------------------------
 
     { // Test setting and retrieval of the target function valie
-        std::shared_ptr<GStarterIndividual> p_test = this->clone<GStarterIndividual>();
+        auto p_test = this->clone<GStarterIndividual>();
 
         CHECK_NOTHROW(p_test->setTargetFunction(targetFunction::PARABOLA));
         CHECK(targetFunction::PARABOLA == p_test->getTargetFunction());

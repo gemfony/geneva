@@ -139,7 +139,7 @@ int main(int argc, char **argv) {
         Gem::Courtier::GCommandContainerT<
             gen::GOptimizableEntity,
             Gem::Courtier::networked_consumer_payload_command>
-            gcc1(Gem::Courtier::networked_consumer_payload_command::COMPUTE, fi_ptr->clone_unique());
+            gcc1(Gem::Courtier::networked_consumer_payload_command::COMPUTE, fi_ptr->clone());
 
         // Prepare a command container for de-serialization
         Gem::Courtier::GCommandContainerT<

@@ -212,7 +212,7 @@ violation:
 2. **The STL container surface** — the container templates mirror `std::`: `push_back`, `pop_back`,
    `emplace_back`, `shrink_to_fit`, `max_size`, `begin`/`end`, and so on. Forcing these to `camelBack` would
    break the drop-in-replacement contract.
-3. **`snake_case` internal helpers** — e.g. `compare_base`, `clone_unique`, and helpers in the newer
+3. **`snake_case` internal helpers** — e.g. `compare_base`, and helpers in the newer
    transport / concurrency layers that mirror an STL/Asio idiom (`async_start_run`).
 
 New code that is **not** one of these cases uses `camelBack`. When a name could go either way, prefer
