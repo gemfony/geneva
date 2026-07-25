@@ -107,7 +107,7 @@ private:
             [self, this]() -> bool { return this->stopped(); },
             serialization_mode_,
             [self, this](bool sign_on) { this->adjustSessionCount(sign_on); },
-            &this->wire_registry_, // layout send-once: the registry shared by all of this server's sessions
+            &this->wire_registry_, // blob send-once: the registry shared by all of this server's sessions
             session_timeout_ // per-exchange connection deadline (configurable; 0 disables it)
         )
             ->async_start_run();

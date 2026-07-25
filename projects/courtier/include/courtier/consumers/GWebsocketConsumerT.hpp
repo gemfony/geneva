@@ -150,7 +150,7 @@ private:
     std::size_t ping_interval_;
     bool verbose_control_frames_;
 
-    /// Hands each session a distinct peer id for the layout send-once registry's per-peer ack tracking.
+    /// Hands each session a distinct peer id for the blob send-once registry's per-peer ack tracking.
     std::atomic<Gem::Courtier::GWirePeerId> next_peer_id_{1};
 };
 

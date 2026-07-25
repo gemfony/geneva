@@ -1379,14 +1379,14 @@ TEST_CASE("GNeuralNetworkArchitecture computes per-layer weight offsets", "[arch
 // local cache or (on a miss) via a fetch callback.
 
 namespace {
-using Gem::Courtier::GWireLayoutId;
-using Gem::Courtier::GWireLayoutRegistry;
+using Gem::Courtier::GWireBlobId;
+using Gem::Courtier::GWireBlobRegistry;
 using Gem::Courtier::GWireSerializationContext;
 using Gem::Courtier::GWireSerializationScope;
 
-GWireLayoutId widOf(const ManyGroups &ind) {
+GWireBlobId widOf(const ManyGroups &ind) {
     const auto lid = ind.getLayout()->layoutId();
-    return GWireLayoutId{lid.hi, lid.lo};
+    return GWireBlobId{lid.hi, lid.lo};
 }
 std::vector<double> valuesOf(ManyGroups &ind) {
     std::vector<double> v;
@@ -1408,7 +1408,7 @@ TEST_CASE("Wire send-once: first item carries the layout, later items only the i
     const std::vector<double> a_vals = valuesOf(a);
     const std::vector<double> c_vals = valuesOf(c);
 
-    GWireLayoutRegistry server_reg;
+    GWireBlobRegistry server_reg;
     GWireSerializationContext server_ctx;
     server_ctx.enabled = true;
     server_ctx.peer = 1;
@@ -1423,12 +1423,12 @@ TEST_CASE("Wire send-once: first item carries the layout, later items only the i
     }
     // The layout was interned once and peer 1 is recorded as holding it.
     CHECK(server_reg.size() == 1);
-    CHECK(server_reg.peerHasLayout(1, widOf(a)));
+    CHECK(server_reg.peerHasBlob(1, widOf(a)));
     // The id-only item is materially smaller (the whole O(groups) layout dropped to a 16-byte id).
     CHECK(s_second.size() < s_first.size());
 
     // Worker side: a fresh cache. The first item installs the layout; the id-only second resolves locally.
-    GWireLayoutRegistry worker_reg;
+    GWireBlobRegistry worker_reg;
     GWireSerializationContext worker_ctx;
     worker_ctx.enabled = true;
     worker_ctx.peer = 0;
@@ -1459,7 +1459,7 @@ TEST_CASE("Wire send-once: a cache miss is resolved by the fetch fallback", "[fl
     const std::vector<double> a_vals = valuesOf(a);
 
     // Server interns the layout and emits an id-only item (peer already "holds" the layout).
-    GWireLayoutRegistry server_reg;
+    GWireBlobRegistry server_reg;
     GWireSerializationContext server_ctx;
     server_ctx.enabled = true;
     server_ctx.peer = 1;
@@ -1472,14 +1472,14 @@ TEST_CASE("Wire send-once: a cache miss is resolved by the fetch fallback", "[fl
     }
 
     // A late-joining / reconnected worker with an EMPTY cache receives the id-only item. Its fetch
-    // callback pulls the blob from the server registry (the REQUEST_LAYOUT/SEND_LAYOUT round trip).
-    GWireLayoutRegistry worker_reg;
+    // callback pulls the blob from the server registry (the REQUEST_BLOB/SEND_BLOB round trip).
+    GWireBlobRegistry worker_reg;
     std::size_t fetch_calls = 0;
     GWireSerializationContext worker_ctx;
     worker_ctx.enabled = true;
     worker_ctx.peer = 0;
     worker_ctx.registry = &worker_reg;
-    worker_ctx.fetch_blob = [&](const GWireLayoutId &id) -> std::expected<std::string, std::string> {
+    worker_ctx.fetch_blob = [&](const GWireBlobId &id) -> std::expected<std::string, std::string> {
         ++fetch_calls;
         std::string blob;
         if(server_reg.tryGet(id, blob)) {
@@ -1505,7 +1505,7 @@ TEST_CASE("Wire send-once: an unresolvable id-only reference throws", "[flat][wi
     using mode = Gem::Common::serializationMode;
 
     ManyGroups const a(16);
-    GWireLayoutRegistry server_reg;
+    GWireBlobRegistry server_reg;
     GWireSerializationContext server_ctx;
     server_ctx.enabled = true;
     server_ctx.peer = 1;
@@ -1519,7 +1519,7 @@ TEST_CASE("Wire send-once: an unresolvable id-only reference throws", "[flat][wi
 
     // Empty cache, no fetch callback -> the miss cannot be resolved and load() must throw rather than
     // silently produce a wrong/empty layout.
-    GWireLayoutRegistry worker_reg;
+    GWireBlobRegistry worker_reg;
     GWireSerializationContext worker_ctx;
     worker_ctx.enabled = true;
     worker_ctx.registry = &worker_reg;
@@ -1549,7 +1549,7 @@ TEST_CASE("Wire send-once: default-off encoding is self-contained and interopera
 
     // A self-contained (interned=false) stream also loads fine UNDER a worker scope (the tag, not the
     // reader's scope, decides the form).
-    GWireLayoutRegistry worker_reg;
+    GWireBlobRegistry worker_reg;
     GWireSerializationContext worker_ctx;
     worker_ctx.enabled = true;
     worker_ctx.registry = &worker_reg;
@@ -1579,7 +1579,7 @@ TEST_CASE("Wire results-only return: genome omitted, grafted from the original",
     const double worker_fitness = worker_copy->getStoredResult(0).rawFitness();
 
     // Worker serializes a RESULT in the default (results-only) return form.
-    GWireLayoutRegistry worker_reg;
+    GWireBlobRegistry worker_reg;
     GWireSerializationContext worker_ctx;
     worker_ctx.enabled = true;
     worker_ctx.registry = &worker_reg;
@@ -1597,7 +1597,7 @@ TEST_CASE("Wire results-only return: genome omitted, grafted from the original",
     CHECK(s_results_only.size() < s_full.size());
 
     // Server deserializes the results-only return: genome omitted, results present.
-    GWireLayoutRegistry server_reg;
+    GWireBlobRegistry server_reg;
     GWireSerializationContext server_ctx;
     server_ctx.enabled = true;
     server_ctx.registry = &server_reg; // returning stays false (the server submits, not returns)
@@ -1672,7 +1672,7 @@ TEST_CASE("Wire results-only return: a client may opt into a full return", "[fla
     worker_copy->setReturnFullIndividual(true); // <-- the opt-in
     const std::vector<double> worker_vals = valuesOf(*worker_copy);
 
-    GWireLayoutRegistry worker_reg;
+    GWireBlobRegistry worker_reg;
     GWireSerializationContext worker_ctx;
     worker_ctx.enabled = true;
     worker_ctx.registry = &worker_reg;
@@ -1683,7 +1683,7 @@ TEST_CASE("Wire results-only return: a client may opt into a full return", "[fla
         s = worker_copy->toString(mode::GEM_BINARY);
     }
 
-    GWireLayoutRegistry server_reg;
+    GWireBlobRegistry server_reg;
     GWireSerializationContext server_ctx;
     server_ctx.enabled = true;
     server_ctx.registry = &server_reg;
@@ -1713,7 +1713,7 @@ TEST_CASE("Wire send-once: large-genome wire-size before/after", "[flat][wire]")
     const std::size_t full_submit = big.toString(mode::GEM_BINARY).size();
 
     // Send-once: the first item to a peer carries the full layout, every later one only the 16-byte id.
-    GWireLayoutRegistry server_reg;
+    GWireBlobRegistry server_reg;
     GWireSerializationContext server_ctx;
     server_ctx.enabled = true;
     server_ctx.peer = 1;
@@ -1728,7 +1728,7 @@ TEST_CASE("Wire send-once: large-genome wire-size before/after", "[flat][wire]")
 
     // --- return direction ---
     big.process(); // give it a result to return
-    GWireLayoutRegistry worker_reg;
+    GWireBlobRegistry worker_reg;
     GWireSerializationContext worker_ctx;
     worker_ctx.enabled = true;
     worker_ctx.registry = &worker_reg;
@@ -1842,7 +1842,7 @@ TEST_CASE("Wire send-once over a real websocket loopback interns one layout", "[
     // Send-once: a single layout served the whole population over all clients (had each item carried its
     // own layout copy this would still be 1, since the blob store keys by content id -- but more to the
     // point, the interning path was exercised and is consistent).
-    CHECK(consumer->getInternedLayoutCount() == 1);
+    CHECK(consumer->getInternedBlobCount() == 1);
 
     consumer->stopServer();
     CHECK_FALSE(any_threw.load());
@@ -1852,7 +1852,7 @@ TEST_CASE("Wire send-once over a real websocket loopback interns one layout", "[
 TEST_CASE("Wire send-once over a real ASIO loopback interns one layout", "[flat][wire][net]") {
     // The ASIO twin of the websocket loopback test. ASIO uses a fresh one-shot connection per exchange,
     // so the server keys its per-peer send-once tracking on a stable id the client announces; with
-    // prefetch + several clients this also exercises the cache-miss REQUEST_LAYOUT/SEND_LAYOUT fetch
+    // prefetch + several clients this also exercises the cache-miss REQUEST_BLOB/SEND_BLOB fetch
     // path. Every item must still come back processed, and the server must intern exactly one layout.
     namespace c2 = Gem::Courtier;
     namespace ccons = Gem::Courtier::Consumers;
@@ -1917,7 +1917,7 @@ TEST_CASE("Wire send-once over a real ASIO loopback interns one layout", "[flat]
     }
     CHECK(processed == N);
     CHECK(with_genome == N); // results-only returns must still leave each item with its full genome
-    CHECK(consumer->getInternedLayoutCount() == 1);
+    CHECK(consumer->getInternedBlobCount() == 1);
 
     consumer->stopServer();
     CHECK_FALSE(any_threw.load());
@@ -2037,7 +2037,7 @@ TEST_CASE("Wire send-once: many distinct layouts under a bounded registry stay c
     consumer->setCloneFunction(
         [](const std::unique_ptr<GGenome> &p) { return p->clone(); }
     );
-    consumer->setInternedLayoutCapacity(2); // below the 4 distinct layouts -> eviction is forced
+    consumer->setInternedBlobCapacity(2); // below the 4 distinct layouts -> eviction is forced
     consumer->startServer();
     const unsigned short port = consumer->getPort();
 
@@ -2086,7 +2086,7 @@ TEST_CASE("Wire send-once: many distinct layouts under a bounded registry stay c
     }
     CHECK(processed == N);                              // correct despite eviction + re-inline mid-run
     CHECK(with_genome == N);                           // each item kept its own full genome
-    CHECK(consumer->getInternedLayoutCount() <= 2);    // the capacity bound was honoured
+    CHECK(consumer->getInternedBlobCount() <= 2);    // the capacity bound was honoured
 
     consumer->stopServer();
     CHECK_FALSE(any_threw.load());

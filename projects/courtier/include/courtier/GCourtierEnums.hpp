@@ -56,9 +56,9 @@ enum class run_state : Gem::Common::ENUMBASETYPE {
 
 /******************************************************************************/
 /** @brief Ids of the allowed commands for the communication of networked consumers.
- *  REQUEST_LAYOUT / SEND_LAYOUT form the layout-send-once cache-miss fetch: a worker that
- *  receives a work item referencing a layout id it does not hold asks the server for it
- *  (REQUEST_LAYOUT), and the server replies with the serialized layout blob (SEND_LAYOUT). */
+ *  REQUEST_BLOB / SEND_BLOB form the blob-send-once cache-miss fetch: a worker that
+ *  receives a work item referencing a blob id it does not hold asks the server for it
+ *  (REQUEST_BLOB), and the server replies with the serialized blob blob (SEND_BLOB). */
 enum class networked_consumer_payload_command : Gem::Common::ENUMBASETYPE {
     NONE = 0,
     GETDATA = 1,
@@ -66,8 +66,8 @@ enum class networked_consumer_payload_command : Gem::Common::ENUMBASETYPE {
     COMPUTE = 3,
     RESULT = 4,
     STOP = 5,
-    REQUEST_LAYOUT = 6,
-    SEND_LAYOUT = 7
+    REQUEST_BLOB = 6,
+    SEND_BLOB = 7
 };
 
 /******************************************************************************/

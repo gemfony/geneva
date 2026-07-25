@@ -92,11 +92,11 @@ std::string pcToStr(const networked_consumer_payload_command &pc) {
     case STOP:
         return "STOP";
 
-    case REQUEST_LAYOUT:
-        return "REQUEST_LAYOUT";
+    case REQUEST_BLOB:
+        return "REQUEST_BLOB";
 
-    case SEND_LAYOUT:
-        return "SEND_LAYOUT";
+    case SEND_BLOB:
+        return "SEND_BLOB";
     }
 
     // Make the compiler happy

@@ -36,12 +36,12 @@
 using namespace Gem::Courtier;
 
 namespace {
-GWireLayoutId id(std::uint64_t hi, std::uint64_t lo) { return GWireLayoutId{hi, lo}; }
+GWireBlobId id(std::uint64_t hi, std::uint64_t lo) { return GWireBlobId{hi, lo}; }
 } // namespace
 
 /******************************************************************************/
-TEST_CASE("GWireLayoutRegistry: blob store put/has/get", "[wire][layout]") {
-    GWireLayoutRegistry reg;
+TEST_CASE("GWireBlobRegistry: blob store put/has/get", "[wire][blob]") {
+    GWireBlobRegistry reg;
     const auto a = id(1, 2);
     const auto b = id(3, 4);
 
@@ -49,56 +49,56 @@ TEST_CASE("GWireLayoutRegistry: blob store put/has/get", "[wire][layout]") {
     std::string out;
     CHECK_FALSE(reg.tryGet(a, out));
 
-    reg.put(a, "layout-A");
+    reg.put(a, "blob-A");
     CHECK(reg.has(a));
     CHECK(reg.tryGet(a, out));
-    CHECK(out == "layout-A");
+    CHECK(out == "blob-A");
     CHECK(reg.size() == 1);
 
     // A second id is distinct; an unrelated id stays a miss.
-    reg.put(b, "layout-B");
+    reg.put(b, "blob-B");
     CHECK(reg.size() == 2);
     CHECK(reg.tryGet(b, out));
-    CHECK(out == "layout-B");
+    CHECK(out == "blob-B");
     CHECK_FALSE(reg.has(id(9, 9)));
 
     // put() of an existing id refreshes the blob, not the count.
-    reg.put(a, "layout-A2");
+    reg.put(a, "blob-A2");
     CHECK(reg.size() == 2);
     CHECK(reg.tryGet(a, out));
-    CHECK(out == "layout-A2");
+    CHECK(out == "blob-A2");
 }
 
 /******************************************************************************/
-TEST_CASE("GWireLayoutRegistry: per-peer ack tracking", "[wire][layout]") {
-    GWireLayoutRegistry reg;
+TEST_CASE("GWireBlobRegistry: per-peer ack tracking", "[wire][blob]") {
+    GWireBlobRegistry reg;
     const auto x = id(10, 0);
     const auto y = id(20, 0);
     const GWirePeerId p1 = 100;
     const GWirePeerId p2 = 200;
 
-    CHECK_FALSE(reg.peerHasLayout(p1, x));
+    CHECK_FALSE(reg.peerHasBlob(p1, x));
 
-    reg.markPeerHasLayout(p1, x);
-    CHECK(reg.peerHasLayout(p1, x));
-    CHECK_FALSE(reg.peerHasLayout(p1, y)); // a different layout for the same peer
-    CHECK_FALSE(reg.peerHasLayout(p2, x)); // the same layout for a different peer
+    reg.markPeerHasBlob(p1, x);
+    CHECK(reg.peerHasBlob(p1, x));
+    CHECK_FALSE(reg.peerHasBlob(p1, y)); // a different blob for the same peer
+    CHECK_FALSE(reg.peerHasBlob(p2, x)); // the same blob for a different peer
     CHECK(reg.trackedPeers() == 1);
 
-    reg.markPeerHasLayout(p2, x);
-    CHECK(reg.peerHasLayout(p2, x));
+    reg.markPeerHasBlob(p2, x);
+    CHECK(reg.peerHasBlob(p2, x));
     CHECK(reg.trackedPeers() == 2);
 
     // Forgetting a peer (session end / reconnect) clears only that peer's acks; others are untouched.
     reg.forgetPeer(p1);
-    CHECK_FALSE(reg.peerHasLayout(p1, x));
-    CHECK(reg.peerHasLayout(p2, x));
+    CHECK_FALSE(reg.peerHasBlob(p1, x));
+    CHECK(reg.peerHasBlob(p2, x));
     CHECK(reg.trackedPeers() == 1);
 }
 
 /******************************************************************************/
-TEST_CASE("GWireLayoutRegistry: LRU eviction respects the capacity bound", "[wire][layout]") {
-    GWireLayoutRegistry reg;
+TEST_CASE("GWireBlobRegistry: LRU eviction respects the capacity bound", "[wire][blob]") {
+    GWireBlobRegistry reg;
     reg.setCapacity(2);
 
     reg.put(id(1, 0), "one");
@@ -121,30 +121,30 @@ TEST_CASE("GWireLayoutRegistry: LRU eviction respects the capacity bound", "[wir
 }
 
 /******************************************************************************/
-TEST_CASE("GWireLayoutRegistry: evicting a blob also clears its per-peer acks", "[wire][layout]") {
-    // Correctness coupling: a server must never keep referencing an evicted layout by id to a peer it
+TEST_CASE("GWireBlobRegistry: evicting a blob also clears its per-peer acks", "[wire][blob]") {
+    // Correctness coupling: a server must never keep referencing an evicted blob by id to a peer it
     // can no longer answer a fetch for. Evicting a blob therefore clears that id from every peer's ack
-    // set, so the next send re-inlines the layout in full.
-    GWireLayoutRegistry reg;
+    // set, so the next send re-inlines the blob in full.
+    GWireBlobRegistry reg;
     reg.setCapacity(2);
     const GWirePeerId p = 7;
 
     reg.put(id(1, 0), "L1");
-    reg.markPeerHasLayout(p, id(1, 0));
+    reg.markPeerHasBlob(p, id(1, 0));
     reg.put(id(2, 0), "L2");
-    reg.markPeerHasLayout(p, id(2, 0));
-    REQUIRE(reg.peerHasLayout(p, id(1, 0)));
-    REQUIRE(reg.peerHasLayout(p, id(2, 0)));
+    reg.markPeerHasBlob(p, id(2, 0));
+    REQUIRE(reg.peerHasBlob(p, id(1, 0)));
+    REQUIRE(reg.peerHasBlob(p, id(2, 0)));
 
     // Inserting a third blob evicts the least-recently-used (id 1) -- and with it, peer p's ack for id 1.
     reg.put(id(3, 0), "L3");
     CHECK_FALSE(reg.has(id(1, 0)));
-    CHECK_FALSE(reg.peerHasLayout(p, id(1, 0))); // ack cleared -> the server will re-inline id 1
-    CHECK(reg.peerHasLayout(p, id(2, 0)));       // id 2 still present -> ack retained
+    CHECK_FALSE(reg.peerHasBlob(p, id(1, 0))); // ack cleared -> the server will re-inline id 1
+    CHECK(reg.peerHasBlob(p, id(2, 0)));       // id 2 still present -> ack retained
 }
 
 /******************************************************************************/
-TEST_CASE("GWireSerializationScope: thread-local install / restore / nesting", "[wire][layout]") {
+TEST_CASE("GWireSerializationScope: thread-local install / restore / nesting", "[wire][blob]") {
     CHECK(GWireSerializationScope::current() == nullptr);
 
     GWireSerializationContext outer;

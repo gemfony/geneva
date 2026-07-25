@@ -132,11 +132,11 @@ protected:
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                     << "In GGPUConsumerT::dispatch_(): Error!" << '\n'
-                    << "The GPU consumer requires a UNIFORM genome geometry across a batch, but item "
+                    << "The GPU consumer requires a UNIFORM item geometry across a batch, but item "
                     << i << " has " << marshaller_->itemDimension(items[i]) << " parameters while item 0"
                     << " has " << dim_sz << "." << '\n'
-                    << "Submit individuals of a single geometry to the GPU consumer (one problem /"
-                    << " genome layout per consumer)." << '\n'
+                    << "Submit work items of a single geometry to the GPU consumer (one problem /"
+                    << " item geometry per consumer)." << '\n'
                 );
             }
         }

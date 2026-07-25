@@ -69,7 +69,7 @@
 #include "courtier/GServerSessionLogic.hpp"       // shared synchronous server dispatch (GETDATA/RESULT/...)
 #include "courtier/GWireCodec.hpp"                // shared scope-wrapped (de)serialization
 #include "courtier/GWireSerializationContext.hpp"
-#include "courtier/transport/GPrefetchingClientT.hpp" // layout send-once: wire (de)serialization scope
+#include "courtier/transport/GPrefetchingClientT.hpp" // blob send-once: wire (de)serialization scope
 
 namespace Gem::Courtier::Consumers {
 
@@ -193,10 +193,10 @@ public:
         // Set the callback to be executed on every incoming control frame.
         ws_.control_callback(f_when_control_frame_arrived_);
 
-        // Engage the layout send-once wire form. The client caches every layout it receives,
+        // Engage the blob send-once wire form. The client caches every blob it receives,
         // keyed by content id, so an id-only work item resolves locally. No fetch_blob is installed: on
-        // websocket the server sends the full layout inline on the first item of each (re)connection and
-        // delivery is ordered, so an id-only item is only ever seen after its layout has been received
+        // websocket the server sends the full blob inline on the first item of each (re)connection and
+        // delivery is ordered, so an id-only item is only ever seen after its blob has been received
         // and cached -- a miss would indicate a protocol error, which load() surfaces by throwing.
         wire_ctx_.enabled = true;
         wire_ctx_.peer = 0; // the single upstream server
@@ -738,7 +738,7 @@ public:
         Gem::Common::serializationMode serialization_mode,
         std::size_t ping_interval,
         bool verbose_control_frames,
-        Gem::Courtier::GWireLayoutRegistry *wire_registry = nullptr,
+        Gem::Courtier::GWireBlobRegistry *wire_registry = nullptr,
         Gem::Courtier::GWirePeerId peer_id = 0
     )
       : ws_(std::move(socket))
@@ -753,11 +753,11 @@ public:
       , verbose_control_frames_(verbose_control_frames)
       , wire_registry_(wire_registry)
       , peer_id_(peer_id) {
-        // Engage the layout send-once wire form for this session's peer: each connection is a
-        // distinct peer, so the server sends a given layout in full only on the first work item to this
+        // Engage the blob send-once wire form for this session's peer: each connection is a
+        // distinct peer, so the server sends a given blob in full only on the first work item to this
         // peer and references it by content id thereafter. A reconnecting / late-joining client is a new
-        // peer and receives the layout fresh, so no separate fetch is needed on the ordered websocket
-        // stream. Disabled (-> self-contained full-layout form) when no registry is supplied.
+        // peer and receives the blob fresh, so no separate fetch is needed on the ordered websocket
+        // stream. Disabled (-> self-contained full-payload form) when no registry is supplied.
         wire_ctx_.enabled = (wire_registry_ != nullptr);
         wire_ctx_.peer = peer_id_;
         wire_ctx_.registry = wire_registry_;
@@ -842,8 +842,8 @@ public:
     //-------------------------------------------------------------------------
     /** @brief The destructor. Signs the session off with the server. */
     ~GWebsocketConsumerSessionT() {
-        // Drop this peer's per-session layout-ack state (the connection is gone). The shared blob store
-        // is left intact for other peers. A reconnect is a fresh peer and re-receives its layouts.
+        // Drop this peer's per-session blob-ack state (the connection is gone). The shared blob store
+        // is left intact for other peers. A reconnect is a fresh peer and re-receives its blobs.
         if(wire_registry_ != nullptr) {
             wire_registry_->forgetPeer(peer_id_);
         }
@@ -1178,7 +1178,7 @@ private:
             // Extract the string from the buffer
             auto message = boost::beast::buffers_to_string(incoming_buffer_.data());
 
-            // De-serialize the object (under the wire scope, so an id-referenced layout in a returned
+            // De-serialize the object (under the wire scope, so an id-referenced blob in a returned
             // result resolves against this server's registry).
             Gem::Courtier::wireDecode(
                 message,
@@ -1191,9 +1191,9 @@ private:
             incoming_buffer_.consume(incoming_buffer_.size());
 
             // Act on the command and produce the response (shared synchronous server dispatch). A
-            // websocket worker never sends REQUEST_LAYOUT (layouts arrive inline on the ordered
+            // websocket worker never sends REQUEST_BLOB (blobs arrive inline on the ordered
             // connection), so only GETDATA / RESULT are exercised here; the response is serialized under
-            // this session's wire scope (layout send-once).
+            // this session's wire scope (blob send-once).
             return Gem::Courtier::handleServerRequest(
                 command_container_,
                 get_payload_item_,
@@ -1262,10 +1262,10 @@ private:
         networked_consumer_payload_command::NONE
     }; ///< Holds the current command and payload (if any)
 
-    /// The shared (consumer-owned) layout registry and this session's peer id, plus the wire scope
-    /// installed around (de)serialisation so a work item's layout is sent to this peer only once
-    /// (layout send-once). wire_registry_ is null when the feature is disabled.
-    Gem::Courtier::GWireLayoutRegistry *wire_registry_ = nullptr;
+    /// The shared (consumer-owned) blob registry and this session's peer id, plus the wire scope
+    /// installed around (de)serialisation so a work item's blob is sent to this peer only once
+    /// (blob send-once). wire_registry_ is null when the feature is disabled.
+    Gem::Courtier::GWireBlobRegistry *wire_registry_ = nullptr;
     Gem::Courtier::GWirePeerId peer_id_ = 0;
     Gem::Courtier::GWireSerializationContext wire_ctx_;
 

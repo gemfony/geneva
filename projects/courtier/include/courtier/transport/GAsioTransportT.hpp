@@ -64,9 +64,9 @@
 #include "courtier/GCourtierEnums.hpp"
 #include "courtier/GCourtierHelperFunctions.hpp"
 #include "courtier/GServerSessionLogic.hpp"       // shared synchronous server dispatch (GETDATA/RESULT/...)
-#include "courtier/GWireCodec.hpp"                // shared scope-wrapped (de)serialization + layout fetch
+#include "courtier/GWireCodec.hpp"                // shared scope-wrapped (de)serialization + blob fetch
 #include "courtier/GWireSerializationContext.hpp"
-#include "courtier/transport/GPrefetchingClientT.hpp" // layout send-once: registry + wire scope
+#include "courtier/transport/GPrefetchingClientT.hpp" // blob send-once: registry + wire scope
 
 namespace Gem::Courtier::Consumers {
 
@@ -141,21 +141,21 @@ public:
       , port_(port)
       , serialization_mode_(serialization_mode)
       , max_reconnects_(max_reconnects) {
-        // layout send-once. ASIO uses a fresh one-shot connection per exchange, so there is no
+        // blob send-once. ASIO uses a fresh one-shot connection per exchange, so there is no
         // persistent per-connection peer identity for the server to key its per-peer "already holds this
-        // layout" tracking on. The client therefore mints ONE stable, process-unique peer id at startup
+        // blob" tracking on. The client therefore mints ONE stable, process-unique peer id at startup
         // and announces it on every request (set_peer_id); the server uses it as the wire peer. The id
         // need only be unique among the server's concurrent clients, so a 64-bit random draw suffices.
         std::uniform_int_distribution<std::uint64_t> id_dist(1, std::numeric_limits<std::uint64_t>::max());
         peer_id_ = id_dist(rng_engine_);
 
-        // Engage the worker-side wire form: cache every received layout (keyed by content id) so an
+        // Engage the worker-side wire form: cache every received blob (keyed by content id) so an
         // id-only work item resolves locally, and install a fetch_blob that resolves a cache miss (the
-        // unavoidable case on ASIO: an id-only item can arrive on a fresh connection before the layout
+        // unavoidable case on ASIO: an id-only item can arrive on a fresh connection before the blob
         // for that id was ever sent to this client, because the server tracks the client across many
-        // short connections and may have marked it as holding the layout in an exchange whose full-layout
+        // short connections and may have marked it as holding the blob in an exchange whose full-payload
         // send was lost, or because the client reconnected). The fetch is a self-contained, blocking
-        // REQUEST_LAYOUT/SEND_LAYOUT round trip on its OWN socket + io_context (see fetch_layout_blob_),
+        // REQUEST_BLOB/SEND_BLOB round trip on its OWN socket + io_context (see fetch_blob_),
         // independent of the async pipeline -- so it can run synchronously from inside load() on the io
         // thread without re-entering the pipeline's connection logic.
         wire_ctx_.enabled = true;
@@ -167,8 +167,8 @@ public:
         // per item via setReturnFullIndividual().
         wire_ctx_.returning = true;
         wire_ctx_.fetch_blob =
-            [this](const Gem::Courtier::GWireLayoutId &id) -> std::expected<std::string, std::string> {
-            return this->fetch_layout_blob_(id);
+            [this](const Gem::Courtier::GWireBlobId &id) -> std::expected<std::string, std::string> {
+            return this->fetch_blob_(id);
         };
     }
 
@@ -492,10 +492,10 @@ private:
     void finish_exchange_() {
         exchanging_ = false;
 
-        // De-serialize the response under the wire scope (layout send-once): a COMPUTE work item referencing a
-        // layout by id resolves it against this client's local cache, or -- on a miss -- via fetch_blob,
-        // which performs a synchronous REQUEST_LAYOUT/SEND_LAYOUT round trip on its own socket (see
-        // fetch_layout_blob_). A malformed or truncated message makes this throw; that must not escape
+        // De-serialize the response under the wire scope (blob send-once): a COMPUTE work item referencing a
+        // blob by id resolves it against this client's local cache, or -- on a miss -- via fetch_blob,
+        // which performs a synchronous REQUEST_BLOB/SEND_BLOB round trip on its own socket (see
+        // fetch_blob_). A malformed or truncated message makes this throw; that must not escape
         // into io_context::run() (it would unwind the client's only io thread).
         try {
             Gem::Courtier::wireDecode(
@@ -562,10 +562,10 @@ private:
     void sendResultAndRefill_(
         GCommandContainerT<processable_type, networked_consumer_payload_command> container
     ) {
-        container.set_peer_id(peer_id_); // announce our stable peer id (layout send-once)
+        container.set_peer_id(peer_id_); // announce our stable peer id (blob send-once)
         try {
-            // Serialize the returned item under the wire scope so its (unchanged) layout is sent in full
-            // to the server only the first time, by id thereafter (layout send-once).
+            // Serialize the returned item under the wire scope so its (unchanged) blob is sent in full
+            // to the server only the first time, by id thereafter (blob send-once).
             exchange_queue_.push_back(
                 Gem::Courtier::wireEncode(container, &wire_ctx_, serialization_mode_)
             );
@@ -585,22 +585,22 @@ private:
 
     //-------------------------------------------------------------------------
     /**
-	  * @brief Worker-side cache-miss fetch (layout send-once): blocks until the server's layout for @p id is in
+	  * @brief Worker-side cache-miss fetch (blob send-once): blocks until the server's blob for @p id is in
 	  * hand, then returns the serialized blob (empty on failure). It opens its OWN short-lived,
 	  * fully-synchronous connection (a separate socket on a throwaway io_context) and performs a
-	  * REQUEST_LAYOUT -> SEND_LAYOUT exchange that mirrors the normal one-shot request/response shape
+	  * REQUEST_BLOB -> SEND_BLOB exchange that mirrors the normal one-shot request/response shape
 	  * (write request, shutdown-send, read until eof). Using a dedicated connection keeps this off the
 	  * main async pipeline: it does not touch socket_ptr_/exchange_queue_, so it is safe to call
 	  * synchronously from inside finish_exchange_'s deserialize on the io thread (the io thread simply
-	  * blocks for the brief round trip; the server answers a REQUEST_LAYOUT promptly from its registry).
+	  * blocks for the brief round trip; the server answers a REQUEST_BLOB promptly from its registry).
 	  *
-	  * @param id The content id of the layout to fetch from the server.
-	  * @return The serialized layout blob, or an empty string if the fetch failed.
+	  * @param id The content id of the blob to fetch from the server.
+	  * @return The serialized blob, or an empty string if the fetch failed.
 	  */
-    std::expected<std::string, std::string> fetch_layout_blob_(const Gem::Courtier::GWireLayoutId &id) {
+    std::expected<std::string, std::string> fetch_blob_(const Gem::Courtier::GWireBlobId &id) {
         try {
             // This runs mid-decode (inside a genome load() under the work-item wire scope). The codec's
-            // build/parse helpers each (de)serialize under a null scope so the REQUEST_LAYOUT/SEND_LAYOUT
+            // build/parse helpers each (de)serialize under a null scope so the REQUEST_BLOB/SEND_BLOB
             // exchange does not recurse into the send-once context of the work item being decoded.
             const std::string request_str =
                 Gem::Courtier::buildLayoutRequest<processable_type>(id, peer_id_, serialization_mode_);
@@ -628,11 +628,11 @@ private:
                 return std::unexpected("read error: " + read_ec.message());
             }
 
-            // De-serialize the SEND_LAYOUT reply (under a null scope) and pull out the blob. An empty blob
-            // means a malformed/empty reply -- a failure, not a usable layout, so report it as such.
+            // De-serialize the SEND_BLOB reply (under a null scope) and pull out the blob. An empty blob
+            // means a malformed/empty reply -- a failure, not a usable blob, so report it as such.
             std::string blob = Gem::Courtier::parseLayoutReply<processable_type>(response_str, serialization_mode_);
             if(blob.empty()) {
-                return std::unexpected(std::string("empty or malformed SEND_LAYOUT reply"));
+                return std::unexpected(std::string("empty or malformed SEND_BLOB reply"));
             }
             return blob;
         }
@@ -684,10 +684,10 @@ private:
         io_context_
     }; ///< Backoff timer for connection retries (async, never blocks the io thread)
 
-    /// layout send-once (worker side): this client's local cache of received layouts, the wire
+    /// blob send-once (worker side): this client's local cache of received blobs, the wire
     /// context engaged around (de)serialisation, and the stable per-client peer id announced on every
     /// request. The context's fetch_blob resolves a cache miss via a synchronous side connection (see
-    /// fetch_layout_blob_). Declared before compute_pool_ so the pool (and its threads) are destroyed
+    /// fetch_blob_). Declared before compute_pool_ so the pool (and its threads) are destroyed
     /// first -- a compute thread never touches these, but keep teardown order unsurprising.
     Gem::Courtier::GWirePeerId peer_id_ = 0;
 
@@ -721,7 +721,7 @@ public:
 	  * @param check_server_stopped Functor returning true once the server is shutting down (suppresses new reads/sessions)
 	  * @param serialization_mode The serialization format used on the wire
 	  * @param sign_on Functor called with true on construction and false on destruction to track the active-session count
-	  * @param wire_registry The consumer-shared layout send-once registry, or nullptr to disable the feature
+	  * @param wire_registry The consumer-shared blob send-once registry, or nullptr to disable the feature
 	  * @param session_timeout The per-exchange connection deadline; a non-positive value disables it
 	  */
     // NOLINTNEXTLINE(readability-function-size) -- one constructor wiring up a session's full collaborator set (socket, timers, four callbacks, serialization mode, wire registry, timeout); the parameter count is the session's dependency set, not splittable
@@ -733,7 +733,7 @@ public:
         std::move_only_function<bool()> check_server_stopped,
         Gem::Common::serializationMode serialization_mode,
         std::move_only_function<void(bool)> sign_on,
-        Gem::Courtier::GWireLayoutRegistry *wire_registry = nullptr,
+        Gem::Courtier::GWireBlobRegistry *wire_registry = nullptr,
         std::chrono::milliseconds session_timeout = std::chrono::milliseconds{300'000}
     )
       : socket_(std::move(socket))
@@ -746,10 +746,10 @@ public:
       , f_sign_on_(std::move(sign_on))
       , serialization_mode_(serialization_mode)
       , wire_registry_(wire_registry) {
-        // Engage the server side of the layout send-once wire form, if a registry was supplied.
+        // Engage the server side of the blob send-once wire form, if a registry was supplied.
         // The peer is the announcing client's stable id, read from each request in process_request()
         // (ASIO has no persistent per-connection identity). With no registry the scope is never installed
-        // and the genome falls back to its self-contained full-layout encoding.
+        // and the genome falls back to its self-contained full-payload encoding.
         wire_ctx_.enabled = (wire_registry_ != nullptr);
         wire_ctx_.peer = 0; // overwritten per request from the announced peer id
         wire_ctx_.registry = wire_registry_;
@@ -965,9 +965,9 @@ private:
 	  */
     std::string process_request() {
         try {
-            // De-serialize the request under the wire scope (layout send-once): a returned RESULT genome may
-            // reference its layout by id, which is resolved against this consumer's shared registry (the
-            // server holds every layout it has sent). The scope's peer does not matter for decoding (only
+            // De-serialize the request under the wire scope (blob send-once): a returned RESULT genome may
+            // reference its blob by id, which is resolved against this consumer's shared registry (the
+            // server holds every blob it has sent). The scope's peer does not matter for decoding (only
             // for re-encoding), so it is left at its default here and set from the announced id below.
             Gem::Courtier::wireDecode(
                 incoming_message_str_,
@@ -985,9 +985,9 @@ private:
             wire_ctx_.peer = command_container_.get_peer_id();
 
             // Act on the command and produce the response (shared synchronous server dispatch:
-            // GETDATA serves an item, RESULT sinks the returned item and serves the next, REQUEST_LAYOUT
+            // GETDATA serves an item, RESULT sinks the returned item and serves the next, REQUEST_BLOB
             // answers from the registry). The COMPUTE/NODATA response is serialized under the wire scope
-            // (peer set above) so a work item's layout is sent send-once.
+            // (peer set above) so a work item's blob is sent send-once.
             return Gem::Courtier::handleServerRequest(
                 command_container_,
                 get_payload_item_,
@@ -1047,12 +1047,12 @@ private:
         networked_consumer_payload_command::NONE
     }; ///< Holds the current command and payload (if any)
 
-    /// layout send-once (server side): the consumer-shared registry (not owned) and the wire
+    /// blob send-once (server side): the consumer-shared registry (not owned) and the wire
     /// scope installed around (de)serialisation. wire_registry_ is null when the feature is disabled, in
     /// which case the scope is never installed and the genome uses its self-contained full encoding. The
     /// scope's peer is set per request from the announcing client's stable id (ASIO one-shot connections
     /// have no persistent per-connection identity).
-    Gem::Courtier::GWireLayoutRegistry *wire_registry_ = nullptr;
+    Gem::Courtier::GWireBlobRegistry *wire_registry_ = nullptr;
     Gem::Courtier::GWireSerializationContext wire_ctx_;
 
     //-------------------------------------------------------------------------

@@ -49,16 +49,16 @@ namespace Gem::Courtier {
 /**
  * Transport-agnostic codec for the networked consumer/worker session protocol. The three networked
  * transports (Asio, websocket, MPI) all (de)serialize a GCommandContainerT and all implement the
- * layout send-once cache-miss fetch (REQUEST_LAYOUT / SEND_LAYOUT). Only the raw byte I/O differs
+ * blob send-once cache-miss fetch (REQUEST_BLOB / SEND_BLOB). Only the raw byte I/O differs
  * between them; the (de)serialization itself -- and in particular the subtle wire-scope discipline
  * around it -- is identical, so it lives here once instead of being copy-pasted into each transport.
  *
  * Two rules this codec encapsulates so no transport has to remember them:
  *
  *  1. A WORK ITEM is (de)serialized inside a GWireSerializationScope bound to the transport's
- *     GWireSerializationContext, so the layout send-once machinery engages (wireEncode / wireDecode).
+ *     GWireSerializationContext, so the blob send-once machinery engages (wireEncode / wireDecode).
  *
- *  2. A LAYOUT FETCH message (REQUEST_LAYOUT from the worker, SEND_LAYOUT from the server) is
+ *  2. A LAYOUT FETCH message (REQUEST_BLOB from the worker, SEND_BLOB from the server) is
  *     (de)serialized under a NULL scope: it carries no genome, and -- crucially on the worker side,
  *     where the fetch happens mid-decode of a work item -- it must NOT recurse into the send-once
  *     logic of the work item being decoded. The build/parse helpers below install that null scope
@@ -70,7 +70,7 @@ namespace Gem::Courtier {
 
 /******************************************************************************/
 /**
- * @brief Serializes a work-item command container under the given wire context (layout send-once).
+ * @brief Serializes a work-item command container under the given wire context (blob send-once).
  * @tparam processable_type The payload type of the command container
  * @tparam command_type The command enumeration of the command container
  * @param container The command container to serialize
@@ -90,7 +90,7 @@ std::string wireEncode(
 
 /******************************************************************************/
 /**
- * @brief De-serializes a work-item command container under the given wire context (layout send-once).
+ * @brief De-serializes a work-item command container under the given wire context (blob send-once).
  * @tparam processable_type The payload type of the command container
  * @tparam command_type The command enumeration of the command container
  * @param descr The serialized representation to load from
@@ -111,44 +111,44 @@ void wireDecode(
 
 /******************************************************************************/
 /**
- * @brief Worker side: builds a serialized REQUEST_LAYOUT message for a layout cache-miss fetch.
+ * @brief Worker side: builds a serialized REQUEST_BLOB message for a blob cache-miss fetch.
  *
- * Serialized under a NULL wire scope (rule 2 above): a REQUEST_LAYOUT carries no genome, and this
+ * Serialized under a NULL wire scope (rule 2 above): a REQUEST_BLOB carries no genome, and this
  * runs mid-decode of a work item, so it must not recurse into the send-once context.
  *
  * @tparam processable_type The payload type of the command container
- * @param id The content id of the layout the worker needs
+ * @param id The content id of the blob the worker needs
  * @param peer The worker's peer id (echoed so the server can answer the right session)
  * @param serMode The serialization format to use
- * @return The serialized REQUEST_LAYOUT message
+ * @return The serialized REQUEST_BLOB message
  */
 template <typename processable_type>
 std::string buildLayoutRequest(
-    const GWireLayoutId &id,
+    const GWireBlobId &id,
     GWirePeerId peer,
     Gem::Common::serializationMode serMode
 ) {
     GWireSerializationScope const no_scope(nullptr);
     GCommandContainerT<processable_type, networked_consumer_payload_command> request{
-        networked_consumer_payload_command::REQUEST_LAYOUT
+        networked_consumer_payload_command::REQUEST_BLOB
     };
-    request.set_layout_id(id);
+    request.set_blob_id(id);
     request.set_peer_id(peer);
     return container_to_string(request, serMode);
 }
 
 /******************************************************************************/
 /**
- * @brief Worker side: parses a SEND_LAYOUT reply and returns the carried layout blob.
+ * @brief Worker side: parses a SEND_BLOB reply and returns the carried blob.
  *
  * De-serialized under a NULL wire scope (rule 2 above). Returns an empty string if the reply could
- * not be parsed or did not carry the expected SEND_LAYOUT command, which the caller treats as a
+ * not be parsed or did not carry the expected SEND_BLOB command, which the caller treats as a
  * failed fetch.
  *
  * @tparam processable_type The payload type of the command container
- * @param reply_str The serialized SEND_LAYOUT reply received from the server
+ * @param reply_str The serialized SEND_BLOB reply received from the server
  * @param serMode The serialization format the reply was produced with
- * @return The serialized layout blob, or an empty string on failure / command mismatch
+ * @return The serialized blob, or an empty string on failure / command mismatch
  */
 template <typename processable_type>
 std::string parseLayoutReply(
@@ -160,33 +160,33 @@ std::string parseLayoutReply(
         networked_consumer_payload_command::NONE
     };
     container_from_string(reply_str, reply, serMode);
-    if(reply.get_command() != networked_consumer_payload_command::SEND_LAYOUT) {
+    if(reply.get_command() != networked_consumer_payload_command::SEND_BLOB) {
         glogger << "In Gem::Courtier::parseLayoutReply():" << '\n'
-                << "expected SEND_LAYOUT but got command " << reply.get_command() << '\n'
+                << "expected SEND_BLOB but got command " << reply.get_command() << '\n'
                 << GWARNING;
         return {};
     }
-    return reply.get_layout_blob();
+    return reply.get_blob();
 }
 
 /******************************************************************************/
 /**
- * @brief Server side: builds a serialized SEND_LAYOUT reply to a worker's REQUEST_LAYOUT.
+ * @brief Server side: builds a serialized SEND_BLOB reply to a worker's REQUEST_BLOB.
  *
  * The blob is copied out of the consumer's shared registry; on a miss (or a null registry) it is left
  * empty and the worker treats the fetch as failed. Serialized under a NULL wire scope: the reply
  * carries only the raw blob, never a genome, so it must not engage the send-once logic.
  *
  * @tparam processable_type The payload type of the command container
- * @param id The content id of the requested layout
- * @param registry The shared layout registry to resolve the blob from (may be nullptr)
+ * @param id The content id of the requested blob
+ * @param registry The shared blob registry to resolve the blob from (may be nullptr)
  * @param serMode The serialization format to use
- * @return The serialized SEND_LAYOUT reply (with the blob if the id was cached, empty otherwise)
+ * @return The serialized SEND_BLOB reply (with the blob if the id was cached, empty otherwise)
  */
 template <typename processable_type>
 std::string buildLayoutReply(
-    const GWireLayoutId &id,
-    GWireLayoutRegistry *registry,
+    const GWireBlobId &id,
+    GWireBlobRegistry *registry,
     Gem::Common::serializationMode serMode
 ) {
     GWireSerializationScope const no_scope(nullptr);
@@ -195,10 +195,10 @@ std::string buildLayoutReply(
         registry->tryGet(id, blob); // leaves blob empty on a miss
     }
     GCommandContainerT<processable_type, networked_consumer_payload_command> reply{
-        networked_consumer_payload_command::SEND_LAYOUT
+        networked_consumer_payload_command::SEND_BLOB
     };
-    reply.set_layout_id(id);
-    reply.set_layout_blob(std::move(blob));
+    reply.set_blob_id(id);
+    reply.set_blob(std::move(blob));
     return container_to_string(reply, serMode);
 }
 

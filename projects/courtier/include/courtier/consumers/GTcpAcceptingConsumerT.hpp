@@ -51,7 +51,7 @@
 #include "common/concurrency/GThreadBudget.hpp"
 #include "common/concurrency/GThreadGroup.hpp"
 #include "courtier/consumers/GNetworkedConsumerT.hpp"
-#include "courtier/GWireSerializationContext.hpp" // layout send-once: shared registry
+#include "courtier/GWireSerializationContext.hpp" // blob send-once: shared registry
 
 namespace Gem::Courtier {
 
@@ -61,7 +61,7 @@ namespace Gem::Courtier {
  * servers that hand out work items from the current batch to connected clients and collect the
  * processed results; the ~90%-identical server lifecycle -- acceptor open/bind/listen, the
  * strand-serialized accept loop with EMFILE backoff, the io-thread group, idempotent shutdown, the
- * session counter and the layout send-once registry -- lives here ONCE. A concrete consumer
+ * session counter and the blob send-once registry -- lives here ONCE. A concrete consumer
  * contributes only its session construction via the start_session_() hook (plus any
  * transport-specific configuration and knobs).
  *
@@ -98,18 +98,18 @@ public:
      *  @return The current count of active sessions. */
     [[nodiscard]] std::size_t getNActiveSessions() const noexcept { return n_active_sessions_.load(); }
 
-    /** @brief The number of distinct genome layouts the server has interned for transport (layout
+    /** @brief The number of distinct blobs the server has interned for transport (blob
      *  send-once). One per distinct genome structure across all clients -- so a whole population of one
-     *  problem type interns a single layout, however many work items and clients are involved.
-     *  @return The count of interned layouts. */
-    [[nodiscard]] std::size_t getInternedLayoutCount() const { return wire_registry_.size(); }
+     *  problem type interns a single blob, however many work items and clients are involved.
+     *  @return The count of interned blobs. */
+    [[nodiscard]] std::size_t getInternedBlobCount() const { return wire_registry_.size(); }
 
-    /** @brief Bounds the number of distinct genome layouts the server caches for transport (layout send-once);
-     *  0 (the default) keeps them all. Beyond the bound the least-recently-used layout is evicted and the
+    /** @brief Bounds the number of distinct blobs the server caches for transport (blob send-once);
+     *  0 (the default) keeps them all. Beyond the bound the least-recently-used blob is evicted and the
      *  next work item that needs it re-sends it in full (or, for a worker that has since dropped it too,
      *  is re-fetched) -- so this only trades a re-send for memory and never affects correctness.
-     *  @param max_layouts The maximum number of cached layouts (0 == unbounded). */
-    void setInternedLayoutCapacity(std::size_t max_layouts) { wire_registry_.setCapacity(max_layouts); }
+     *  @param max_blobs The maximum number of cached blobs (0 == unbounded). */
+    void setInternedBlobCapacity(std::size_t max_blobs) { wire_registry_.setCapacity(max_blobs); }
 
     /***************************************************************************/
     /**
@@ -234,11 +234,11 @@ protected:
     /// The io context all sessions run on; accessible to the concrete session factory.
     boost::asio::io_context io_context_;
 
-    /// The layout send-once registry shared by all of this server's sessions: a content-addressed
-    /// store of the genome layouts the server has sent, with per-peer ack tracking, so a given layout
-    /// travels to a given client only once. A worker that misses (id-only item with no cached layout)
-    /// fetches it back via the REQUEST_LAYOUT / SEND_LAYOUT command pair.
-    Gem::Courtier::GWireLayoutRegistry wire_registry_;
+    /// The blob send-once registry shared by all of this server's sessions: a content-addressed
+    /// store of the blobs the server has sent, with per-peer ack tracking, so a given blob
+    /// travels to a given client only once. A worker that misses (id-only item with no cached blob)
+    /// fetches it back via the REQUEST_BLOB / SEND_BLOB command pair.
+    Gem::Courtier::GWireBlobRegistry wire_registry_;
 
 private:
     /***************************************************************************/

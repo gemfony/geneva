@@ -67,8 +67,8 @@
 #include "courtier/GCourtierEnums.hpp"
 #include "courtier/GCourtierHelperFunctions.hpp"
 #include "courtier/GServerSessionLogic.hpp"       // shared server-side work-item decision (serveWorkItem)
-#include "courtier/GWireCodec.hpp"                // shared scope-wrapped (de)serialization + layout fetch
-#include "courtier/GWireSerializationContext.hpp" // layout send-once: registry + wire scope
+#include "courtier/GWireCodec.hpp"                // shared scope-wrapped (de)serialization + blob fetch
+#include "courtier/GWireSerializationContext.hpp" // blob send-once: registry + wire scope
 
 // TODO: extract double buffering to GBaseConsumerClientT
 
@@ -76,13 +76,13 @@ namespace Gem::Courtier::Consumers {
 // constants that are used by the master and the worker nodes
 constexpr int TAG_REQUEST_WORK_ITEM = 42;
 constexpr int TAG_SEND_WORK_ITEM = 43;
-/// layout send-once cache-miss fetch (worker <-> master). A worker that receives an id-only
-/// work item whose layout it does not hold sends a REQUEST_LAYOUT message on TAG_REQUEST_LAYOUT; the
-/// master's receiver loop picks it up (it matches any tag) and answers with the serialized layout on
-/// TAG_SEND_LAYOUT. A distinct send tag keeps the reply from being mistaken for an ordinary work-item
+/// blob send-once cache-miss fetch (worker <-> master). A worker that receives an id-only
+/// work item whose blob it does not hold sends a REQUEST_BLOB message on TAG_REQUEST_BLOB; the
+/// master's receiver loop picks it up (it matches any tag) and answers with the serialized blob on
+/// TAG_SEND_BLOB. A distinct send tag keeps the reply from being mistaken for an ordinary work-item
 /// response by the worker's (double-buffered) MPI_ANY_TAG receive.
-constexpr int TAG_REQUEST_LAYOUT = 44;
-constexpr int TAG_SEND_LAYOUT = 45;
+constexpr int TAG_REQUEST_BLOB = 44;
+constexpr int TAG_SEND_BLOB = 45;
 constexpr int RANK_MASTER_NODE = 0;
 /// Once the master has been asked to stop, how long it keeps waiting for stragglers (a live worker's
 /// final double-buffered request, or an open session to finish) before abandoning them. Bounds
@@ -285,10 +285,10 @@ public:
         glogger << "GMPIConsumerWorkerNodeT with rank " << commRank_ << " started up" << '\n'
                 << GLOGGING;
 
-        // Engage the worker side of the layout send-once wire form. The worker caches every
-        // layout it receives (keyed by content id) so an id-only work item resolves locally; on a miss
-        // (a late-joining / restarted rank that never saw the full layout, or master-side eviction) the
-        // fetch_blob asks the master for it via a blocking REQUEST_LAYOUT / SEND_LAYOUT round trip. The
+        // Engage the worker side of the blob send-once wire form. The worker caches every
+        // blob it receives (keyed by content id) so an id-only work item resolves locally; on a miss
+        // (a late-joining / restarted rank that never saw the full blob, or master-side eviction) the
+        // fetch_blob asks the master for it via a blocking REQUEST_BLOB / SEND_BLOB round trip. The
         // fetch runs from inside the work-item deserialise, which on this worker is sequenced strictly
         // before that iteration's outgoing send/receive is launched, so it never overlaps other MPI
         // traffic on this rank.
@@ -305,7 +305,7 @@ public:
         // setReturnFullIndividual().
         wireCtx_.returning = true;
         wireCtx_.fetch_blob =
-            [this](const Gem::Courtier::GWireLayoutId &id) -> std::expected<std::string, std::string> {
+            [this](const Gem::Courtier::GWireBlobId &id) -> std::expected<std::string, std::string> {
             return this->fetchLayoutBlob_(id);
         };
     }
@@ -352,9 +352,9 @@ public:
         // stop if server tells this worker to stop or if the optimization stop criteria is fulfilled
         while(!stopRequestReceived_ && !halt_()) {
             // swap messages: serialize the (processed) container into outgoingMessage_, then deserialize
-            // incomingMessage_ into the container. Both run under the layout send-once wire scope
-            // the outgoing RESULT ships its layout to the master in full only the first time
-            // and by id thereafter; the incoming COMPUTE resolves an id-only layout from the local cache
+            // incomingMessage_ into the container. Both run under the blob send-once wire scope
+            // the outgoing RESULT ships its blob to the master in full only the first time
+            // and by id thereafter; the incoming COMPUTE resolves an id-only blob from the local cache
             // or, on a miss, via the fetch round trip. This deserialise is sequenced before the async
             // send/receive below, so a fetch here never overlaps this rank's other MPI traffic.
             outgoingMessage_ =
@@ -454,7 +454,7 @@ private:
 
         // Wait until the master's response is available -- bounded for the same reason (this is where a
         // dead master would otherwise hang the worker indefinitely). Probe first so the response can be
-        // of any size (the master may inline a large full-layout work item); receiveProbedMessage() then
+        // of any size (the master may inline a large full-payload work item); receiveProbedMessage() then
         // sizes the receive to the message exactly, removing the old fixed-size cap.
         if(not probeWithTimeout(RANK_MASTER_NODE, MPI_ANY_TAG, status)) {
             glogger
@@ -653,24 +653,24 @@ private:
     }
 
     /**
-         * @brief Worker-side cache-miss fetch (layout send-once): blocks until the master's layout for @p id is in
+         * @brief Worker-side cache-miss fetch (blob send-once): blocks until the master's blob for @p id is in
          * hand, then returns the serialized blob (empty on failure).
          *
-         * Sends a REQUEST_LAYOUT message (carrying the wanted id) to the master on TAG_REQUEST_LAYOUT and
-         * waits, bounded, for the SEND_LAYOUT reply on TAG_SEND_LAYOUT. The master's receiver loop matches
+         * Sends a REQUEST_BLOB message (carrying the wanted id) to the master on TAG_REQUEST_BLOB and
+         * waits, bounded, for the SEND_BLOB reply on TAG_SEND_BLOB. The master's receiver loop matches
          * any tag, so it picks up the request and dispatches a session that answers from its registry. A
          * distinct send tag keeps the reply out of the worker's ordinary (double-buffered) MPI_ANY_TAG
          * receive. This is called from inside the work-item deserialise, which is sequenced before this
          * iteration's outgoing send/receive is launched, so it does not overlap other MPI traffic on this
          * rank; the dedicated tag is a belt-and-braces guard.
          *
-         * @param id The content id of the layout to fetch from the master.
-         * @return The serialized layout blob, or an empty string if the fetch failed / timed out.
+         * @param id The content id of the blob to fetch from the master.
+         * @return The serialized blob, or an empty string if the fetch failed / timed out.
          */
-    std::expected<std::string, std::string> fetchLayoutBlob_(const Gem::Courtier::GWireLayoutId &id) {
-        // Build and serialise the REQUEST_LAYOUT message (no genome payload, so no nested wire scope).
+    std::expected<std::string, std::string> fetchLayoutBlob_(const Gem::Courtier::GWireBlobId &id) {
+        // Build and serialise the REQUEST_BLOB message (no genome payload, so no nested wire scope).
         std::string requestStr;
-        // Build the REQUEST_LAYOUT message (under a null scope; carries no genome). MPI identifies the
+        // Build the REQUEST_BLOB message (under a null scope; carries no genome). MPI identifies the
         // worker by rank, so no peer id is needed (the default 0 is sent).
         requestStr = Gem::Courtier::buildLayoutRequest<processable_type>(
             id,
@@ -682,7 +682,7 @@ private:
         // and silently send the wrong number of bytes. Report it like any other transport failure.
         if(requestStr.size() > static_cast<std::size_t>(std::numeric_limits<int>::max())) {
             return std::unexpected("rank=" + std::to_string(commRank_) +
-                                   ": REQUEST_LAYOUT of " + std::to_string(requestStr.size()) +
+                                   ": REQUEST_BLOB of " + std::to_string(requestStr.size()) +
                                    " bytes exceeds the maximum MPI message count");
         }
 
@@ -693,31 +693,31 @@ private:
             static_cast<int>(requestStr.size()),
             MPI_CHAR,
             RANK_MASTER_NODE,
-            TAG_REQUEST_LAYOUT,
+            TAG_REQUEST_BLOB,
             MPI_COMMUNICATOR,
             &sendReq
         );
         MPI_Status status{};
         if(not waitForRequestOrTimeout(sendReq, status) || status.MPI_ERROR != MPI_SUCCESS) {
             return std::unexpected("rank=" + std::to_string(commRank_) +
-                                   ": timed out / errored sending a REQUEST_LAYOUT to the master");
+                                   ": timed out / errored sending a REQUEST_BLOB to the master");
         }
 
-        // Receive the SEND_LAYOUT reply on its dedicated tag. Probe first so a layout blob of any size
-        // can be received (a large layout is exactly what would have exceeded the old fixed cap).
-        if(not probeWithTimeout(RANK_MASTER_NODE, TAG_SEND_LAYOUT, status) ||
+        // Receive the SEND_BLOB reply on its dedicated tag. Probe first so a blob of any size
+        // can be received (a large blob is exactly what would have exceeded the old fixed cap).
+        if(not probeWithTimeout(RANK_MASTER_NODE, TAG_SEND_BLOB, status) ||
            status.MPI_ERROR != MPI_SUCCESS) {
             return std::unexpected("rank=" + std::to_string(commRank_) +
-                                   ": timed out / errored waiting for the SEND_LAYOUT reply from the master");
+                                   ": timed out / errored waiting for the SEND_BLOB reply from the master");
         }
 
         // Deserialise the reply (again no nested wire scope) and hand back the blob. An empty blob means a
-        // malformed/empty reply -- a failure, not a usable layout, so report it as such.
+        // malformed/empty reply -- a failure, not a usable blob, so report it as such.
         const std::string replyStr = receiveProbedMessage(status);
         std::string blob = Gem::Courtier::parseLayoutReply<processable_type>(replyStr, config_.serializationMode);
         if(blob.empty()) {
             return std::unexpected("rank=" + std::to_string(commRank_) +
-                                   ": empty or malformed SEND_LAYOUT reply");
+                                   ": empty or malformed SEND_BLOB reply");
         }
         return blob;
     }
@@ -769,10 +769,10 @@ private:
         networked_consumer_payload_command::GETDATA
     };
 
-    /// layout send-once (worker side): this rank's local cache of received layouts and the wire
+    /// blob send-once (worker side): this rank's local cache of received blobs and the wire
     /// context engaged around (de)serialisation. The context's fetch_blob resolves a cache miss via a
-    /// blocking REQUEST_LAYOUT / SEND_LAYOUT MPI round trip (see fetchLayoutBlob_).
-    Gem::Courtier::GWireLayoutRegistry wireRegistry_;
+    /// blocking REQUEST_BLOB / SEND_BLOB MPI round trip (see fetchLayoutBlob_).
+    Gem::Courtier::GWireBlobRegistry wireRegistry_;
     Gem::Courtier::GWireSerializationContext wireCtx_;
 };
 
@@ -809,7 +809,7 @@ public:
         std::move_only_function<void(std::unique_ptr<processable_type>)> putPayloadItem,
         Gem::Common::serializationMode serializationMode,
         bool stopRequested,
-        Gem::Courtier::GWireLayoutRegistry *wireRegistry = nullptr
+        Gem::Courtier::GWireBlobRegistry *wireRegistry = nullptr
     )
       : mpiStatus_{status}
       ,
@@ -821,10 +821,10 @@ public:
       , putPayloadItem_(std::move(putPayloadItem))
       , mpiRequestHandle_{}
       , wireRegistry_{wireRegistry} {
-        // Engage the master side of the layout send-once wire form, if a registry was supplied.
+        // Engage the master side of the blob send-once wire form, if a registry was supplied.
         // MPI ranks are persistent, so the peer id is simply the requesting worker's rank
         // (mpiStatus_.MPI_SOURCE) -- naturally stable across the whole run. With no registry the scope is
-        // never installed and the genome falls back to its self-contained full-layout encoding.
+        // never installed and the genome falls back to its self-contained full-payload encoding.
         wireCtx_.enabled = (wireRegistry_ != nullptr);
         wireCtx_.peer = static_cast<Gem::Courtier::GWirePeerId>(mpiStatus_.MPI_SOURCE);
         wireCtx_.registry = wireRegistry_;
@@ -915,9 +915,9 @@ private:
          */
     bool processRequest() {
         try {
-            // Deserialize the request under the wire scope (layout send-once): a returned RESULT genome may
-            // reference its layout by id, resolved against the master's shared registry (which holds
-            // every layout it has sent). The scope's peer is the requesting rank, set in the constructor.
+            // Deserialize the request under the wire scope (blob send-once): a returned RESULT genome may
+            // reference its blob by id, resolved against the master's shared registry (which holds
+            // every blob it has sent). The scope's peer is the requesting rank, set in the constructor.
             Gem::Courtier::wireDecode(
                 requestMessage_,
                 commandContainer_,
@@ -938,14 +938,14 @@ private:
             case GETDATA: {
                 return true; // no data to process
             }
-            case REQUEST_LAYOUT: {
-                // Layout cache-miss fetch: remember the requested id; sendResponse() will answer with a
-                // SEND_LAYOUT carrying the serialized layout from the registry.
+            case REQUEST_BLOB: {
+                // Blob cache-miss fetch: remember the requested id; sendResponse() will answer with a
+                // SEND_BLOB carrying the serialized blob from the registry.
                 isLayoutRequest_ = true;
-                requestedLayoutId_ = commandContainer_.get_layout_id();
+                requestedLayoutId_ = commandContainer_.get_blob_id();
                 return true;
             }
-            default: { // clients may only send RESULT, GETDATA or REQUEST_LAYOUT commands
+            default: { // clients may only send RESULT, GETDATA or REQUEST_BLOB commands
                 glogger
                     << "GMPIConsumerSessionT<processable_type>::processRequest() connected to rank="
                     << mpiStatus_.MPI_SOURCE << ":" << '\n'
@@ -1030,7 +1030,7 @@ private:
          * so there is no fixed send cap.
          */
     void serializeOutgoingMsg() {
-        // Serialize the response under the wire scope (layout send-once): a COMPUTE work item's layout is shipped
+        // Serialize the response under the wire scope (blob send-once): a COMPUTE work item's blob is shipped
         // in full to this peer (rank) only the first time it is seen and by content id thereafter. A
         // NODATA / STOP carries no genome, so the scope is harmless there.
         outgoingMessage_ = Gem::Courtier::wireEncode(
@@ -1047,7 +1047,7 @@ private:
          * The isCompleted()-method can be used to check for the completion of the send operation.
          */
     void sendResponse() {
-        // A layout cache-miss fetch is answered on its own tag, independent of work-item flow:
+        // A blob cache-miss fetch is answered on its own tag, independent of work-item flow:
         // the requesting worker is mid-decode and blocked waiting for exactly this reply, so it is served
         // even while the master is shutting down.
         if(isLayoutRequest_) {
@@ -1087,13 +1087,13 @@ private:
     }
 
     /**
-         * @brief Answers a worker's REQUEST_LAYOUT with a SEND_LAYOUT carrying the serialized layout from
-         * the master's registry (layout cache-miss fetch). Sent on TAG_SEND_LAYOUT so it is not mistaken
+         * @brief Answers a worker's REQUEST_BLOB with a SEND_BLOB carrying the serialized blob from
+         * the master's registry (blob cache-miss fetch). Sent on TAG_SEND_BLOB so it is not mistaken
          * for a work-item response by the worker's ordinary receive. If the id is not (or no longer)
          * cached the blob is left empty and the worker treats the fetch as failed.
          */
     void sendLayoutResponse() {
-        // Build the SEND_LAYOUT reply from the master's shared registry (under a null scope; the reply
+        // Build the SEND_BLOB reply from the master's shared registry (under a null scope; the reply
         // carries only the raw blob, no genome). Empty blob on a miss -> the worker fails the fetch.
         outgoingMessage_ = Gem::Courtier::buildLayoutReply<processable_type>(
             requestedLayoutId_,
@@ -1106,7 +1106,7 @@ private:
             Gem::Common::narrow<int>(outgoingMessage_.size()), // int count: fail loudly, never wrap
             MPI_CHAR,
             mpiStatus_.MPI_SOURCE,
-            TAG_SEND_LAYOUT,
+            TAG_SEND_BLOB,
             MPI_COMMUNICATOR,
             &mpiRequestHandle_
         );
@@ -1149,14 +1149,14 @@ private:
          */
     std::string outgoingMessage_;
 
-    /// layout send-once (master side): the consumer-shared registry (not owned) and the wire
+    /// blob send-once (master side): the consumer-shared registry (not owned) and the wire
     /// scope installed around (de)serialisation, with the peer set to the requesting worker's rank. When
-    /// the inbound request is a REQUEST_LAYOUT, isLayoutRequest_ is set and requestedLayoutId_ holds the
-    /// wanted id so sendResponse() answers with a SEND_LAYOUT instead of a work item.
-    Gem::Courtier::GWireLayoutRegistry *wireRegistry_ = nullptr;
+    /// the inbound request is a REQUEST_BLOB, isLayoutRequest_ is set and requestedLayoutId_ holds the
+    /// wanted id so sendResponse() answers with a SEND_BLOB instead of a work item.
+    Gem::Courtier::GWireBlobRegistry *wireRegistry_ = nullptr;
     Gem::Courtier::GWireSerializationContext wireCtx_;
     bool isLayoutRequest_ = false;
-    Gem::Courtier::GWireLayoutId requestedLayoutId_{0, 0};
+    Gem::Courtier::GWireBlobId requestedLayoutId_{0, 0};
 };
 
 /**
@@ -1354,8 +1354,8 @@ private:
         while(stopRequestsSendOut < reqNumStops_) {
             // Probe (rather than post a fixed-size receive) so a request of ANY size can be received:
             // MPI_Get_count then tells us the exact length and we allocate to fit. This removes the old
-            // fixed message-size cap, which a large genome's first (full-layout) work item
-            // or a big SEND_LAYOUT reply could exceed. The receive side is single-threaded (only this
+            // fixed message-size cap, which a large genome's first (full-payload) work item
+            // or a big SEND_BLOB reply could exceed. The receive side is single-threaded (only this
             // listener probes/receives; handler threads merely send), so the probe -> receive pair below
             // is race-free.
             int isAvailable{0};
@@ -1446,7 +1446,7 @@ private:
             [this](std::unique_ptr<processable_type> p) { putPayloadItem(std::move(p)); },
             config_.serializationMode,
             stopRequested,
-            &wireRegistry_ // layout send-once: the registry shared by all sessions of this master
+            &wireRegistry_ // blob send-once: the registry shared by all sessions of this master
         );
 
         // runs the session but does not close it
@@ -1579,11 +1579,11 @@ private:
 
 public:
     /**
-         * @brief The number of distinct genome layouts the master has interned for transport (layout
+         * @brief The number of distinct blobs the master has interned for transport (blob
          * send-once). One per distinct genome structure across all worker ranks.
-         * @return The count of interned layouts.
+         * @return The count of interned blobs.
          */
-    [[nodiscard]] std::size_t getInternedLayoutCount() const { return wireRegistry_.size(); }
+    [[nodiscard]] std::size_t getInternedBlobCount() const { return wireRegistry_.size(); }
 
 private:
 
@@ -1631,11 +1631,11 @@ private:
     std::move_only_function<std::unique_ptr<processable_type>()> getPayloadItemFn_;
     std::move_only_function<void(std::unique_ptr<processable_type>)> putPayloadItemFn_;
 
-    /// layout send-once registry shared by every session this master opens. MPI ranks are
+    /// blob send-once registry shared by every session this master opens. MPI ranks are
     /// persistent, so each session keys its per-peer ack tracking on the requesting worker's rank
     /// (status.MPI_SOURCE) -- a naturally stable id for the whole run. A late-joining / restarted rank
-    /// that misses a layout fetches it back via the REQUEST_LAYOUT / SEND_LAYOUT command pair.
-    Gem::Courtier::GWireLayoutRegistry wireRegistry_;
+    /// that misses a blob fetches it back via the REQUEST_BLOB / SEND_BLOB command pair.
+    Gem::Courtier::GWireBlobRegistry wireRegistry_;
 };
 
 

@@ -52,7 +52,7 @@ namespace Gem::Courtier {
 /**
  * Transport-agnostic server-side session logic for the networked consumer protocol. A server session,
  * on receiving a request from a worker, decides what to do with it: serve a work item (GETDATA), sink a
- * returned result and serve the next (RESULT), or answer a layout cache-miss fetch (REQUEST_LAYOUT). The
+ * returned result and serve the next (RESULT), or answer a blob cache-miss fetch (REQUEST_BLOB). The
  * three transports all make the same decisions; only how they pull/sink items (a callable wrapping the
  * consumer's checkout/checkin) and how they drive their I/O differs. The decision pieces live here once.
  *
@@ -104,7 +104,7 @@ void serveWorkItem(
  * serialized response. Used by the request/response transports (Asio, websocket).
  *
  * GETDATA serves a work item; RESULT sinks the returned payload (checkin) and serves the next; both
- * responses are serialized under @p respCtx so a COMPUTE item's layout is sent send-once. REQUEST_LAYOUT
+ * responses are serialized under @p respCtx so a COMPUTE item's blob is sent send-once. REQUEST_BLOB
  * is answered from the shared registry (under a null scope, via the codec). An unknown command logs a
  * warning and yields no response.
  *
@@ -114,7 +114,7 @@ void serveWorkItem(
  * @param container The already-deserialized inbound container (reused to build the response)
  * @param getItem The checkout callable
  * @param putItem The checkin callable
- * @param registry The shared layout registry (for REQUEST_LAYOUT; may be nullptr)
+ * @param registry The shared blob registry (for REQUEST_BLOB; may be nullptr)
  * @param respCtx The wire context to serialize a COMPUTE/NODATA response under (may be nullptr)
  * @param serMode The serialization format to use
  * @return The serialized response, or an empty string on an unknown/invalid command
@@ -124,7 +124,7 @@ std::string handleServerRequest(
     GCommandContainerT<processable_type, networked_consumer_payload_command> &container,
     GetItemF &&getItem,
     PutItemF &&putItem,
-    GWireLayoutRegistry *registry,
+    GWireBlobRegistry *registry,
     const GWireSerializationContext *respCtx,
     Gem::Common::serializationMode serMode
 ) {
@@ -148,10 +148,10 @@ std::string handleServerRequest(
         serveWorkItem(container, std::forward<GetItemF>(getItem));
         return wireEncode(container, respCtx, serMode);
     }
-    case REQUEST_LAYOUT: {
-        // Layout cache-miss fetch: answer with the serialized layout from the shared registry (empty
+    case REQUEST_BLOB: {
+        // Blob cache-miss fetch: answer with the serialized blob from the shared registry (empty
         // blob -> the worker treats the fetch as failed).
-        return buildLayoutReply<processable_type>(container.get_layout_id(), registry, serMode);
+        return buildLayoutReply<processable_type>(container.get_blob_id(), registry, serMode);
     }
     default: {
         glogger << "In Gem::Courtier::handleServerRequest():" << '\n'

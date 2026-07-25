@@ -316,7 +316,7 @@ namespace Gem::Geneva::Genome {
 /**
  * @brief Serializes a (structure-only) layout into a standalone binary blob (the transport "send-once"
  * wire form). The blob is always BINARY and self-contained, independent of the surrounding archive's
- * format: it is carried as the whole body of a SEND_LAYOUT message and cached in the wire registry, so
+ * format: it is carried as the whole body of a SEND_BLOB message and cached in the wire registry, so
  * it is decoded on its own by layoutFromWireBlob(), never embedded in another archive.
  *
  * @param layout The layout to serialize.

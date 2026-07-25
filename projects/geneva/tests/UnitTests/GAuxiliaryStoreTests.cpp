@@ -152,7 +152,7 @@ TEST_CASE("Individual scratch: kept on a checkpoint, omitted on the wire (target
     {
         auto original = withScratch();
 
-        c2::GWireLayoutRegistry send_reg;
+        c2::GWireBlobRegistry send_reg;
         c2::GWireSerializationContext send_ctx;
         send_ctx.enabled = true;
         send_ctx.registry = &send_reg;
@@ -162,7 +162,7 @@ TEST_CASE("Individual scratch: kept on a checkpoint, omitted on the wire (target
             wire = original->toString(mode::GEM_BINARY); // first send: carries the layout, omits the scratch
         }
 
-        c2::GWireLayoutRegistry recv_reg;
+        c2::GWireBlobRegistry recv_reg;
         c2::GWireSerializationContext recv_ctx;
         recv_ctx.enabled = true;
         recv_ctx.registry = &recv_reg;

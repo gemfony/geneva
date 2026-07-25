@@ -52,7 +52,7 @@
 #include "weft/GArchivePolymorphic.hpp" // GArchive codecs for the GEM_BINARY / GEM_JSON wire arm
 #include "courtier/GCourtierEnums.hpp"
 #include "courtier/GProcessable.hpp"
-#include "courtier/GWireSerializationContext.hpp" // GWireLayoutId / GWirePeerId for the layout-fetch commands
+#include "courtier/GWireSerializationContext.hpp" // GWireBlobId / GWirePeerId for the blob-fetch commands
 
 namespace Gem::Courtier {
 
@@ -73,14 +73,14 @@ class GCommandContainerT {
 
     /**
      * @brief Serialization hook that (de-)serializes the command and the payload pointer, plus the
-     * optional layout-fetch fields (a peer id, a layout id and a serialized layout blob).
+     * optional blob-fetch fields (a peer id, a blob id and a serialized blob).
      *
      * The three extra fields are inert for the common COMPUTE / RESULT / GETDATA / NODATA / STOP traffic
-     * (the peer id is 0 / unused, the layout id is all-zero and the blob is empty there): they carry data
-     * only for the REQUEST_LAYOUT (which fills the layout id) and SEND_LAYOUT (which fills the layout id
+     * (the peer id is 0 / unused, the blob id is all-zero and the blob is empty there): they carry data
+     * only for the REQUEST_BLOB (which fills the blob id) and SEND_BLOB (which fills the blob id
      * and the blob) cache-miss-fetch commands, and for transports that announce a stable peer id on every
      * request (ASIO). They are written/read symmetrically and unconditionally, so this stays a single,
-     * version-free format that round-trips for every command. The layout id's two 64-bit halves are
+     * version-free format that round-trips for every command. The blob id's two 64-bit halves are
      * streamed individually so no std::array archive support is required.
      *
      * @tparam Archive The GArchive codec type
@@ -93,9 +93,9 @@ class GCommandContainerT {
         archive_named(ar, "command_", command_);
         archive_named(ar, "payload_ptr_", payload_ptr_);
         archive_named(ar, "peer_id_", peer_id_);
-        archive_named(ar, "layout_id_hi", layout_id_[0]);
-        archive_named(ar, "layout_id_lo", layout_id_[1]);
-        archive_named(ar, "layout_blob_", layout_blob_);
+        archive_named(ar, "blob_id_hi", blob_id_[0]);
+        archive_named(ar, "blob_id_lo", blob_id_[1]);
+        archive_named(ar, "blob_content_", blob_content_);
     }
     ///////////////////////////////////////////////////////////////
 
@@ -159,12 +159,12 @@ public:
     ) {
         command_ = command;
         payload_ptr_ = std::move(payload_ptr);
-        // Also clear the optional layout-fetch fields, so a reused container never carries stale
-        // id / blob / peer data into the next message. A caller that needs them (a SEND_LAYOUT reply)
+        // Also clear the optional blob-fetch fields, so a reused container never carries stale
+        // id / blob / peer data into the next message. A caller that needs them (a SEND_BLOB reply)
         // sets them explicitly AFTER reset().
         peer_id_ = 0;
-        layout_id_ = GWireLayoutId{0, 0};
-        layout_blob_.clear();
+        blob_id_ = GWireBlobId{0, 0};
+        blob_content_.clear();
         return *this;
     }
 
@@ -210,9 +210,9 @@ public:
     }
 
     //-------------------------------------------------------------------------
-    // layout send-once: optional fields carried alongside the command/payload. They are unused
+    // blob send-once: optional fields carried alongside the command/payload. They are unused
     // (peer 0, zero id, empty blob) for ordinary COMPUTE/RESULT/GETDATA/NODATA/STOP traffic and only
-    // populated for the REQUEST_LAYOUT / SEND_LAYOUT cache-miss-fetch commands and for transports that
+    // populated for the REQUEST_BLOB / SEND_BLOB cache-miss-fetch commands and for transports that
     // announce a stable peer id on each request (ASIO).
 
     /** @brief Sets the announcing peer's stable id (used by ASIO, whose one-shot connections have no
@@ -223,19 +223,19 @@ public:
     /** @brief @return The stable peer id announced on this request (0 if none). */
     [[nodiscard]] GWirePeerId get_peer_id() const noexcept { return peer_id_; }
 
-    /** @brief Sets the layout id carried by a REQUEST_LAYOUT / SEND_LAYOUT command.
-     *  @param id The 128-bit content id of the layout being requested / returned. */
-    void set_layout_id(const GWireLayoutId &id) noexcept { layout_id_ = id; }
+    /** @brief Sets the blob id carried by a REQUEST_BLOB / SEND_BLOB command.
+     *  @param id The 128-bit content id of the blob being requested / returned. */
+    void set_blob_id(const GWireBlobId &id) noexcept { blob_id_ = id; }
 
-    /** @brief @return The layout id carried by this command (all-zero if none). */
-    [[nodiscard]] const GWireLayoutId &get_layout_id() const noexcept { return layout_id_; }
+    /** @brief @return The blob id carried by this command (all-zero if none). */
+    [[nodiscard]] const GWireBlobId &get_blob_id() const noexcept { return blob_id_; }
 
-    /** @brief Sets the serialized layout blob carried by a SEND_LAYOUT reply.
-     *  @param blob The serialized layout (moved in). */
-    void set_layout_blob(std::string blob) { layout_blob_ = std::move(blob); }
+    /** @brief Sets the serialized blob carried by a SEND_BLOB reply.
+     *  @param blob The serialized blob (moved in). */
+    void set_blob(std::string blob) { blob_content_ = std::move(blob); }
 
-    /** @brief @return The serialized layout blob carried by this command (empty if none). */
-    [[nodiscard]] const std::string &get_layout_blob() const noexcept { return layout_blob_; }
+    /** @brief @return The serialized blob carried by this command (empty if none). */
+    [[nodiscard]] const std::string &get_blob() const noexcept { return blob_content_; }
 
     //-------------------------------------------------------------------------
     /**
@@ -271,10 +271,10 @@ private:
     command_type command_{command_type(0)};         ///< The command to be exeecuted
     std::unique_ptr<processable_type> payload_ptr_; ///< The actual payload, if any (sole ownership)
 
-    // layout send-once: optional fields (see the accessors above). Inert/zero for normal traffic.
+    // blob send-once: optional fields (see the accessors above). Inert/zero for normal traffic.
     GWirePeerId peer_id_{0};        ///< stable announcing-peer id (ASIO); 0 == none
-    GWireLayoutId layout_id_{0, 0}; ///< layout id for REQUEST_LAYOUT / SEND_LAYOUT (all-zero == none)
-    std::string layout_blob_;       ///< serialized layout blob for a SEND_LAYOUT reply (empty == none)
+    GWireBlobId blob_id_{0, 0}; ///< blob id for REQUEST_BLOB / SEND_BLOB (all-zero == none)
+    std::string blob_content_;       ///< serialized blob for a SEND_BLOB reply (empty == none)
 
     //-------------------------------------------------------------------------
 };
@@ -301,9 +301,9 @@ std::string container_to_string(
         switch(serMode) {
             using enum Gem::Common::serializationMode;
         case GEM_BINARY: {
-            // GArchive flat-binary codec. The layout send-once interning is orthogonal: it lives
+            // GArchive flat-binary codec. The blob send-once interning is orthogonal: it lives
             // inside GGenome::save (an ambient GWireSerializationScope, if any, is honoured there,
-            // and the interned layout travels as an opaque blob), so the outer codec choice is free.
+            // and the interned blob travels as an opaque blob), so the outer codec choice is free.
             Gem::Weft::GBinaryOArchive oa;
             oa &Gem::Weft::make_nvp("command_container", container);
             return oa.str();

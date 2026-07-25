@@ -232,18 +232,18 @@ class GGenome // NOLINT(cppcoreguidelines-special-member-functions)
         }
 
         const LayoutId lid = layout_->layoutId();
-        Gem::Courtier::GWireLayoutId wid{lid.hi, lid.lo};
-        archive_named(ar, "layout_id_hi", wid[0]);
-        archive_named(ar, "layout_id_lo", wid[1]);
+        Gem::Courtier::GWireBlobId wid{lid.hi, lid.lo};
+        archive_named(ar, "blob_id_hi", wid[0]);
+        archive_named(ar, "blob_id_lo", wid[1]);
         if(not ctx->registry->has(wid)) {
             ctx->registry->put(wid, layoutToWireBlob(*layout_));
         }
-        bool layout_present = not ctx->registry->peerHasLayout(ctx->peer, wid);
+        bool layout_present = not ctx->registry->peerHasBlob(ctx->peer, wid);
         archive_named(ar, "layout_present", layout_present);
         if(layout_present) {
             GGenomeLayout layout_copy = *layout_;
             archive_named(ar, "layout_", layout_copy);
-            ctx->registry->markPeerHasLayout(ctx->peer, wid);
+            ctx->registry->markPeerHasBlob(ctx->peer, wid);
         }
     }
 
@@ -287,9 +287,9 @@ class GGenome // NOLINT(cppcoreguidelines-special-member-functions)
             return;
         }
 
-        Gem::Courtier::GWireLayoutId wid{};
-        archive_named(ar, "layout_id_hi", wid[0]);
-        archive_named(ar, "layout_id_lo", wid[1]);
+        Gem::Courtier::GWireBlobId wid{};
+        archive_named(ar, "blob_id_hi", wid[0]);
+        archive_named(ar, "blob_id_lo", wid[1]);
         bool layout_present = false;
         archive_named(ar, "layout_present", layout_present);
 

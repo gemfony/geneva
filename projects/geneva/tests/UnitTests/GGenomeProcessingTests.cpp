@@ -498,7 +498,7 @@ TEST_CASE("GGenome: a results-only return keeps the entity half and drops the ge
     REQUIRE_FALSE(sent_values.empty());
 
     // Worker side, returning a processed item to a server that still holds the original.
-    Gem::Courtier::GWireLayoutRegistry reg;
+    Gem::Courtier::GWireBlobRegistry reg;
     Gem::Courtier::GWireSerializationContext ctx;
     ctx.enabled = true;
     ctx.peer = 0;

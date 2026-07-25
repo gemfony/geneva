@@ -235,10 +235,10 @@ protected:
         networked_consumer_payload_command::NONE
     }; ///< The read/parse target; a COMPUTE item is moved out of it onto the compute pool
 
-    /// Per-client cache of received layouts (keyed by content id), and the wire scope installed around
-    /// every (de)serialisation so an id-referenced layout resolves locally (layout send-once). The
+    /// Per-client cache of received blobs (keyed by content id), and the wire scope installed around
+    /// every (de)serialisation so an id-referenced blob resolves locally (blob send-once). The
     /// concrete client configures the scope (and any cache-miss fetch) in its constructor.
-    Gem::Courtier::GWireLayoutRegistry wire_registry_;
+    Gem::Courtier::GWireBlobRegistry wire_registry_;
     Gem::Courtier::GWireSerializationContext wire_ctx_;
 
     boost::asio::steady_timer halt_timer_{
