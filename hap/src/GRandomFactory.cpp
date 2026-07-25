@@ -54,32 +54,6 @@ namespace Gem::Hap {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * Initialization of static data members
- */
-std::atomic<bool> GRandomFactory::multiple_call_trap_{false};
-
-/******************************************************************************/
-/**
- * @brief The standard constructor.
- *
- * Enforces the single-instantiation contract via the static
- * multiple_call_trap_ flag: a second construction throws a geneva_exception.
- */
-GRandomFactory::GRandomFactory() {
-    if(multiple_call_trap_) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "Error in GRandomFactory::GRandomFactory():" << '\n'
-            << "Class has been instantiated before." << '\n'
-            << "and may be instantiated only once" << '\n'
-        );
-    }
-            multiple_call_trap_.store(true);
-   
-}
-
-/******************************************************************************/
-/**
  * @brief The destructor. All work is done in the finalize() function.
  */
 GRandomFactory::~GRandomFactory() {

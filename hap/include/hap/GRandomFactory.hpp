@@ -308,8 +308,9 @@ private:
  */
 class GRandomFactory {
 public:
-    /** @brief The default constructor */
-    GRandomFactory();
+    /** @brief The default constructor. The single instance is created lazily by
+     *  randomFactory() through the GSingletonT lifetime manager. */
+    GRandomFactory() = default;
     /** @brief The destructor */
     ~GRandomFactory();
 
@@ -458,9 +459,6 @@ private:
     Gem::Common::Concurrency::GMPMCQueueT<std::unique_ptr<random_container>, DEFAULTFACTORYBUFFERSIZE, FACTORYQUEUEBACKEND>
         p_ret_bfr_;
 
-    static std::atomic<bool>
-        multiple_call_trap_; ///< Trap to catch multiple instantiations of this class -- this is mostly for debugging purposes
-
     mutable std::mutex
         thread_creation_mutex_; ///< Synchronization of access to the threads_started_ variable
 
@@ -480,21 +478,16 @@ private:
 /******************************************************************************/
 /**
  * A single, global GRandomFactory exists as a singleton. Access it through
- * randomFactory() (and resetRandomFactory() to drop it); both forward to the
- * GSingletonT<GRandomFactory> lifetime manager. These type-safe, namespaced
- * functions replace the former GRANDOMFACTORY / GRANDOMFACTORY_RESET macros.
+ * randomFactory(), which forwards to the GSingletonT<GRandomFactory> lifetime
+ * manager. This type-safe, namespaced function replaces the former GRANDOMFACTORY
+ * macro. The factory is thread-safe and handed out by shared_ptr, so it is created
+ * once on first access and shared for the life of the process (its destructor joins
+ * the producer threads at static teardown); there is deliberately no reset facility.
  *
  * @return A shared_ptr to the single, global GRandomFactory instance
  */
 [[nodiscard]] inline std::shared_ptr<GRandomFactory> randomFactory() {
     return Gem::Common::GSingletonT<GRandomFactory>::instance();
-}
-
-/**
- * @brief Drops the global GRandomFactory singleton, so a fresh one is created on next access.
- */
-inline void resetRandomFactory() {
-    Gem::Common::GSingletonT<GRandomFactory>::reset();
 }
 
 } /* namespace Gem::Hap */

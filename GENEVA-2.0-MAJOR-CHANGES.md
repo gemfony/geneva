@@ -177,6 +177,13 @@ are in `CHANGES` and `INSTALL`; this file is the practical upgrade guide.
   time: constructing the factory singleton (`Gem::Hap::randomFactory()`) is all that is
   needed, and the producer threads start lazily on the first container request. Drop the
   call; `finalize()` is unchanged.
+- **`Gem::Hap::resetRandomFactory()` was removed** (along with the factory's internal
+  single-instantiation trap). The random-number factory is a process-global, thread-safe
+  singleton handed out by `shared_ptr` and shared for the life of the process; there is no
+  sound way — and no need — to drop and rebuild it mid-run (randomness is non-deterministic
+  by design, the producer-thread count has its own setter, and the singleton's destructor
+  joins the threads at static teardown). Access it only through `Gem::Hap::randomFactory()`.
+  The generic `Gem::Common::GSingletonT<T>::reset()` is unaffected.
 - **The `execMode` enum is gone.** It was the selector of the removed per-algorithm
   broker parallelization model; under the one-consumer model the choice is simply which
   consumer the process registers. The direct-mode examples/benchmark keep their numeric
