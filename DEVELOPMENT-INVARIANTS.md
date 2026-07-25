@@ -28,7 +28,7 @@ example of this rule; apply the same reflex everywhere.
 All concurrency building blocks — **thread pools, thread groups, thread-safe queues, thread-safe keyed
 stores, completion latches, content-addressed/aging stores, and any lock-free structures** — come from
 Geneva's shared concurrency facilities, consolidated in the distinct sub-module
-`common/include/common/concurrency/` (namespace `Gem::Common::Concurrency`) — mirroring geneva's
+`projects/common/include/common/concurrency/` (namespace `Gem::Common::Concurrency`) — mirroring geneva's
 `par`/`ind`/`oa`, so they stay able to use `common`'s facilities yet are clearly separated and impossible to
 overlook. These include `GBlockingMPMCQueueT`, `GPreallocatedMPMCQueueT`, the `GMPMCQueueT` facade + the
 `MPMCQueue` concept, the thread pool/group, `GContentAddressedStoreT`, `GThreadSafeKeyedStoreT`,

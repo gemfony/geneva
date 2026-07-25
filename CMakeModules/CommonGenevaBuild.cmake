@@ -414,12 +414,12 @@ IF(NOT COMMON_GENEVA_BUILD_INCLUDED)
 	# that consumes an installed Geneva via find_package(Geneva). Here (the in-tree build) we point them at
 	# the in-tree source include layout; the installed GenevaConfig.cmake points them at the install prefix.
 	SET(GENEVA_INDIVIDUAL_INCLUDE_DIRS
-		${PROJECT_SOURCE_DIR}/weft/include
-		${PROJECT_SOURCE_DIR}/common/include
-		${PROJECT_SOURCE_DIR}/hap/include
-		${PROJECT_SOURCE_DIR}/courtier/include
-		${PROJECT_SOURCE_DIR}/dietrich/include
-		${PROJECT_SOURCE_DIR}/geneva/include)
+		${PROJECT_SOURCE_DIR}/projects/weft/include
+		${PROJECT_SOURCE_DIR}/projects/common/include
+		${PROJECT_SOURCE_DIR}/projects/hap/include
+		${PROJECT_SOURCE_DIR}/projects/courtier/include
+		${PROJECT_SOURCE_DIR}/projects/dietrich/include
+		${PROJECT_SOURCE_DIR}/projects/geneva/include)
 	SET(GENEVA_INDIVIDUAL_CXX_STANDARD ${CMAKE_CXX_STANDARD})
 
 	# ABI-affecting compile options a loadable individual module MUST match: it links none of the Geneva
