@@ -945,6 +945,11 @@ private:
      *  adoption + the evaluation-policy transform. @param res_vec Optional pre-computed raw results */
     void runEvaluation_(const std::vector<individual_processing_result> &res_vec);
 
+    /** @brief runEvaluation_() feasible branch: adopt the raw results and apply the evaluation-policy
+     *  transform (or worst-case the surface if the user flagged an error). @param res_vec Optional
+     *  pre-computed raw results */
+    void finalizeFeasibleEvaluation_(const std::vector<individual_processing_result> &res_vec);
+
     /** @brief Adopts the raw results into the result store -- either from a non-empty res_vec (external
      *  GPU/network path) or from a local evaluate() -- returning the main (index-0) raw result and storing
      *  the secondary criteria. Worst-cases the whole surface and rethrows on any failure. Extracted from

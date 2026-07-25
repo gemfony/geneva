@@ -480,6 +480,8 @@ private:
     void loadFirstAlgorithmCheckpoint();
     /** @brief Fills the (empty) population from the registered content creator, throwing if none is available. */
     void fillPopulationFromContentCreator();
+    /** @brief fillPopulationFromContentCreator() loop: push default-population-size individuals from the creator. */
+    void createIndividualsFromContentCreator();
     /**
      * @brief Runs the registered algorithms in sequence, threading the individuals between them.
      * @param first_algorithm_offset The iteration offset at which the first algorithm in the chain starts

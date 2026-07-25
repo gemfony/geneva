@@ -36,6 +36,7 @@
 #include <concepts>
 #include <cstdint>
 #include <memory>
+#include <random>
 #include <string_view>
 #include <tuple>
 #include <type_traits>
@@ -365,8 +366,23 @@ private:
     [[nodiscard]] std::vector<double> buildRecombinationThresholds() const;
     /** @brief doRecombine() fast path: sequential parent selection + parallel deep-copy (no cross-over). */
     void recombineParallel(const std::vector<double> &threshold);
+    /** @brief recombineParallel() phase 1: pick each child's parent slot sequentially (on the orchestration thread). */
+    [[nodiscard]] std::vector<std::size_t>
+    selectParentsForChildren(std::size_t n_children, bool value_scheme, const std::vector<double> &threshold);
+    /** @brief selectParentsForChildren() per-child draw: the parent-slot index for one child. */
+    [[nodiscard]] std::size_t selectParentForChild(bool value_scheme, const std::vector<double> &threshold);
+    /** @brief recombineParallel() phase 2: deep-copy each selected parent into its child slot in parallel. */
+    void copyParentsIntoChildrenParallel(const std::vector<std::size_t> &parent_pos);
     /** @brief doRecombine() serial path: per-child cross-over / duplication (original behaviour). */
     void recombineSerial(const std::vector<double> &threshold);
+    /** @brief recombineSerial() body for a single child slot: cross-over (amalgamation) or duplication. */
+    void recombineOneSerial(
+        const std::unique_ptr<gen::GOptimizableEntity> &child,
+        const std::vector<double> &threshold,
+        std::bernoulli_distribution &amalgamation_wanted);
+    /** @brief recombineOneSerial() duplication path: apply the recombination scheme to one child slot. */
+    void duplicateForChild(
+        const std::unique_ptr<gen::GOptimizableEntity> &child, const std::vector<double> &threshold);
 
     /***************************************************************************/
     // Data

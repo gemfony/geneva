@@ -266,32 +266,45 @@ void GOptimizableEntity::runEvaluation_(const std::vector<individual_processing_
     // Find out whether this is a valid solution (must be called first, to fill validity_level_).
     if(this->fulfillsConstraints(validity_level_) ||
        evaluationPolicy::USESIMPLEEVALUATION == this->getEvaluationPolicy()) {
-        // Adopt the raw results (from res_vec, or from a local evaluate()) into the result store.
-        const double main_raw_result = this->adoptRawResults_(res_vec);
-
-        this->setResult(0, main_raw_result);
-        this->modifyStoredResult(0).setTransformedFitnessToRaw();
-
-        if(this->error_flagged_by_user()) {
-            // The user indicated a problem without throwing: worst-case the whole quality surface.
-            this->setAllFitnessTo(this->getWorstCase());
-        }
-        else {
-            for(std::size_t i = 0; i < this->getNStoredResults(); i++) {
-                if(evaluationPolicy::USESIGMOID == this->getEvaluationPolicy()) {
-                    this->modifyStoredResult(i).setTransformedFitnessWith(
-                        [this](const double raw_value) { return policy_->sigmoidTransform(raw_value); }
-                    );
-                }
-                else {
-                    this->modifyStoredResult(i).setTransformedFitnessToRaw();
-                }
-            }
-        }
+        this->finalizeFeasibleEvaluation_(res_vec);
     }
     else {
         // Some constraints were violated. Act on the chosen policy.
         this->applyInvalidityPolicy_();
+    }
+}
+
+/******************************************************************************/
+/**
+ * @brief runEvaluation_() feasible branch: adopt the raw results (from res_vec, or from a local
+ * evaluate()) and apply the evaluation-policy transform to every stored result -- unless the user flagged
+ * an error without throwing, in which case the whole quality surface is worst-cased.
+ *
+ * @param res_vec Optional pre-computed raw results (empty -> a local evaluate() supplies them)
+ */
+void GOptimizableEntity::finalizeFeasibleEvaluation_(
+    const std::vector<individual_processing_result> &res_vec
+) {
+    const double main_raw_result = this->adoptRawResults_(res_vec);
+
+    this->setResult(0, main_raw_result);
+    this->modifyStoredResult(0).setTransformedFitnessToRaw();
+
+    if(this->error_flagged_by_user()) {
+        // The user indicated a problem without throwing: worst-case the whole quality surface.
+        this->setAllFitnessTo(this->getWorstCase());
+        return;
+    }
+
+    for(std::size_t i = 0; i < this->getNStoredResults(); i++) {
+        if(evaluationPolicy::USESIGMOID == this->getEvaluationPolicy()) {
+            this->modifyStoredResult(i).setTransformedFitnessWith(
+                [this](const double raw_value) { return policy_->sigmoidTransform(raw_value); }
+            );
+        }
+        else {
+            this->modifyStoredResult(i).setTransformedFitnessToRaw();
+        }
     }
 }
 

@@ -347,6 +347,8 @@ private:
     std::vector<std::pair<char, std::string>> tokenizeRaw() const;
     /** @brief Applies one parsed (type, content) fragment to the matching per-type spec vector. */
     void applyFragment(char type, std::string const &content);
+    /** @brief applyFragment() 'b' branch: parse a boolean parameter-scan spec (bounds / nSteps / label). */
+    void applyBoolFragment(std::vector<std::string> const &tok, std::string const &content);
 
 public:
 

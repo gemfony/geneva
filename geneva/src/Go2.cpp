@@ -796,42 +796,48 @@ void Go2::loadFirstAlgorithmCheckpoint() {
  * individuals are available.
  */
 void Go2::fillPopulationFromContentCreator() {
-    // Check that individuals have been registered
-    if(this->empty()) {
-        if(content_creator_ptr_) {
-            for(std::size_t ind = 0; ind < algorithms_cnt_.at(0)->getDefaultPopulationSize();
-                ind++) {
-                std::shared_ptr<gen::GOptimizableEntity> const p_ind = (*content_creator_ptr_)();
-                if(p_ind) {
-                    this->push_back(p_ind);
-                }
-                else {                  // No valid item received, the factory has run empty
-                    if(this->empty()) { // Still empty?
-                        throw geneva_exception(
-                            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                            << "In Go2::optimize(): Error!" << '\n'
-                            << "The content creator did not deliver any individuals"
-                            << '\n'
-                            << "and none have been registered so far." << '\n'
-                            << "No way to continue." << '\n'
-                        );
-                    }
-                    break;
-                }
-            }
+    if(not this->empty()) {
+        return; // individuals were already registered directly -- nothing to create
+    }
+    if(not content_creator_ptr_) {
+        throw geneva_exception(
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+            << "In Go2::optimize(): Error!" << '\n'
+            << "No optimization problem (individual) is available: no content creator and no"
+            << '\n'
+            << "individuals have been registered. Provide exactly one of:" << '\n'
+            << "  (1) compile an individual in and call registerContentCreator();" << '\n'
+            << "  (2) add individuals directly via push_back();" << '\n'
+            << "  (3) load one at runtime with --individual <path>.so (or the" << '\n'
+            << "      individual_plugin_path config-file setting)." << '\n'
+        );
+    }
+    createIndividualsFromContentCreator();
+}
+
+/******************************************************************************/
+/**
+ * @brief fillPopulationFromContentCreator() loop: fill up to the first algorithm's default population size
+ * by calling the registered content creator, stopping early if it runs empty (but throwing if it never
+ * produced a single individual).
+ */
+void Go2::createIndividualsFromContentCreator() {
+    for(std::size_t ind = 0; ind < algorithms_cnt_.at(0)->getDefaultPopulationSize(); ind++) {
+        std::shared_ptr<gen::GOptimizableEntity> const p_ind = (*content_creator_ptr_)();
+        if(p_ind) {
+            this->push_back(p_ind);
         }
-        else {
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In Go2::optimize(): Error!" << '\n'
-                << "No optimization problem (individual) is available: no content creator and no"
-                << '\n'
-                << "individuals have been registered. Provide exactly one of:" << '\n'
-                << "  (1) compile an individual in and call registerContentCreator();" << '\n'
-                << "  (2) add individuals directly via push_back();" << '\n'
-                << "  (3) load one at runtime with --individual <path>.so (or the" << '\n'
-                << "      individual_plugin_path config-file setting)." << '\n'
-            );
+        else {                  // No valid item received, the factory has run empty
+            if(this->empty()) { // Still empty?
+                throw geneva_exception(
+                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+                    << "In Go2::optimize(): Error!" << '\n'
+                    << "The content creator did not deliver any individuals" << '\n'
+                    << "and none have been registered so far." << '\n'
+                    << "No way to continue." << '\n'
+                );
+            }
+            break;
         }
     }
 }

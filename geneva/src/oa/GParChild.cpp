@@ -387,39 +387,77 @@ std::vector<double> GParChild::buildRecombinationThresholds() const {
  * @param threshold The value-duplication weight vector (see buildRecombinationThresholds())
  */
 void GParChild::recombineParallel(const std::vector<double> &threshold) {
-    Gem::Common::Concurrency::GThreadPool *tp = this->tp_ptr_.get();
     const std::size_t n_children = GOptimizationAlgorithmBase::data_cnt_.size() - n_parents_;
     const bool value_scheme =
         (duplicationScheme::VALUEDUPLICATIONSCHEME == recombination_method_)
         && not GOptimizationAlgorithmBase::inFirstIteration();
 
-    // (1) Sequential parent selection (same selection semantics as the serial path; Geneva's
-    // RNG is never deterministic, so no draw-for-draw mirroring of that path is attempted).
+    // (1) sequential parent selection on the orchestration thread, then (2) the heavy load() deep-copies
+    // in parallel (parents are read-only and each child slot is written by exactly one task -> no races).
+    const std::vector<std::size_t> parent_pos = selectParentsForChildren(n_children, value_scheme, threshold);
+    copyParentsIntoChildrenParallel(parent_pos);
+}
+
+/******************************************************************************/
+/**
+ * @brief recombineParallel() phase 1: pick each child's parent slot sequentially.
+ *
+ * The draws happen on the orchestration thread, so there is no concurrent use of the algorithm's RNG.
+ * Selection semantics are identical to the serial path; Geneva's RNG is never deterministic, so no
+ * draw-for-draw mirroring of that path is attempted.
+ *
+ * @param n_children The number of child slots to select a parent for
+ * @param value_scheme Whether the value-duplication scheme is active this iteration
+ * @param threshold The value-duplication weight vector (see buildRecombinationThresholds())
+ * @return For each child, the index of its selected parent slot
+ */
+std::vector<std::size_t> GParChild::selectParentsForChildren(
+    std::size_t n_children, bool value_scheme, const std::vector<double> &threshold
+) {
     std::vector<std::size_t> parent_pos(n_children);
     for(std::size_t c = 0; c < n_children; ++c) {
-        std::size_t pp = 0;
-        if(n_parents_ > 1) {
-            if(value_scheme) {
-                const double rand_test = GOptimizationAlgorithmBase::uniform_real_distribution_(this->gr_);
-                pp = n_parents_ - 1; // threshold[n_parents_-1] == 1, so a match is guaranteed
-                for(std::size_t par = 0; par < n_parents_; ++par) {
-                    if(rand_test < threshold[par]) {
-                        pp = par;
-                        break;
-                    }
-                }
-            }
-            else {
-                pp = this->uniform_int_distribution_(
-                    this->gr_,
-                    std::uniform_int_distribution<std::size_t>::param_type(0, n_parents_ - 1)
-                );
+        parent_pos[c] = selectParentForChild(value_scheme, threshold);
+    }
+    return parent_pos;
+}
+
+/******************************************************************************/
+/**
+ * @brief selectParentsForChildren() per-child draw: the index of the parent slot to copy into one child.
+ *
+ * @param value_scheme Whether the value-duplication scheme is active this iteration
+ * @param threshold The value-duplication weight vector (see buildRecombinationThresholds())
+ * @return The chosen parent slot index (0 with a single parent)
+ */
+std::size_t GParChild::selectParentForChild(bool value_scheme, const std::vector<double> &threshold) {
+    if(n_parents_ <= 1) {
+        return 0;
+    }
+    if(value_scheme) {
+        const double rand_test = GOptimizationAlgorithmBase::uniform_real_distribution_(this->gr_);
+        for(std::size_t par = 0; par < n_parents_; ++par) {
+            if(rand_test < threshold[par]) {
+                return par;
             }
         }
-        parent_pos[c] = pp;
+        return n_parents_ - 1; // threshold[n_parents_-1] == 1, so a match is guaranteed
     }
+    return this->uniform_int_distribution_(
+        this->gr_,
+        std::uniform_int_distribution<std::size_t>::param_type(0, n_parents_ - 1)
+    );
+}
 
-    // (2) Parallel deep-copy of the selected parent into each child.
+/******************************************************************************/
+/**
+ * @brief recombineParallel() phase 2: deep-copy each selected parent into its child slot in parallel.
+ *
+ * @param parent_pos For each child (in order), the index of its selected parent slot
+ */
+void GParChild::copyParentsIntoChildrenParallel(const std::vector<std::size_t> &parent_pos) {
+    Gem::Common::Concurrency::GThreadPool *tp = this->tp_ptr_.get();
+    const std::size_t n_children = parent_pos.size();
+
     std::vector<std::future<void>> futures_cnt;
     futures_cnt.reserve(n_children);
     for(std::size_t c = 0; c < n_children; ++c) {
@@ -473,58 +511,82 @@ void GParChild::recombineSerial(const std::vector<double> &threshold) {
     for(it = GOptimizationAlgorithmBase::data_cnt_.begin() + n_parents_;
         it != GOptimizationAlgorithmBase::data_cnt_.end();
         ++it) {
-        // Retrieve a random number so we can decide whether to perform cross-over or duplication
-        // If we do perform cross-over, we always cross the best individual with another random parent
-        if(n_parents_ > 1 &&
-           amalgamation_wanted(this->gr_)) { // Create individuals using a cross-over scheme
-            const gen::GOptimizableEntity &best_parent = (*this->front());
-            const gen::GOptimizableEntity &combiner =
-                (n_parents_ > 2)
-                    ? (*(*(this->begin() + this->uniform_int_distribution_(
-                                             this->gr_,
-                                             std::uniform_int_distribution<std::size_t>::param_type(
-                                                 1,
-                                                 n_parents_ - 1
-                                             )
-                                         ))))
-                    : (*(*(this->begin() + 1)));
+        recombineOneSerial(*it, threshold, amalgamation_wanted);
+    }
+}
 
-            (*it)->load(best_parent.crossOverWith(combiner));
-        }
-        else { // Just perform duplication
-            switch(recombination_method_) {
-            case duplicationScheme::
-                DEFAULTDUPLICATIONSCHEME: // we want the RANDOMDUPLICATIONSCHEME behavior
-            case duplicationScheme::RANDOMDUPLICATIONSCHEME: {
-                // The recombine helpers copy the chosen parent's individual into the child slot's
-                // individual and record the parent id on the child slot's personality.
-                randomRecombine(*it);
-            } break;
+/******************************************************************************/
+/**
+ * @brief recombineSerial() body for a single child slot: either cross over the best parent with another
+ * random parent (amalgamation) or duplicate a chosen parent per the recombination scheme.
+ *
+ * @param child The child slot to (re)fill
+ * @param threshold The value-duplication weight vector (see buildRecombinationThresholds())
+ * @param amalgamation_wanted The per-child cross-over decision distribution (drawn once per call)
+ */
+void GParChild::recombineOneSerial(
+    const std::unique_ptr<gen::GOptimizableEntity> &child,
+    const std::vector<double> &threshold,
+    std::bernoulli_distribution &amalgamation_wanted
+) {
+    // Retrieve a random number so we can decide whether to perform cross-over or duplication
+    // If we do perform cross-over, we always cross the best individual with another random parent
+    if(n_parents_ > 1 &&
+       amalgamation_wanted(this->gr_)) { // Create individuals using a cross-over scheme
+        const gen::GOptimizableEntity &best_parent = (*this->front());
+        const gen::GOptimizableEntity &combiner =
+            (n_parents_ > 2)
+                ? (*(*(this->begin() + this->uniform_int_distribution_(
+                                         this->gr_,
+                                         std::uniform_int_distribution<std::size_t>::param_type(
+                                             1,
+                                             n_parents_ - 1
+                                         )
+                                     ))))
+                : (*(*(this->begin() + 1)));
 
-            case duplicationScheme::VALUEDUPLICATIONSCHEME: {
-                if(n_parents_ == 1) {
-                    // Whole slot (individual + OA adaption scratch) -- see randomRecombine().
-                    (*it)->load(*(GOptimizationAlgorithmBase::data_cnt_.begin()));
-                    (*it)
-                        ->template getPersonalityTraits<GBaseParChildPersonalityTraits>()
-                        ->setParentId(0);
-                }
-                else {
-                    // A recombination taking into account the value does not make
-                    // sense in the first iteration, as parents might not have a suitable
-                    // value. Instead, this function might accidentaly trigger value
-                    // calculation. Hence we fall back to random recombination in iteration 0.
-                    // No value calculation takes place there.
-                    if(GOptimizationAlgorithmBase::inFirstIteration()) {
-                        randomRecombine(*it);
-                    }
-                    else {
-                        valueRecombine(*it, threshold);
-                    }
-                }
-            } break;
-            }
+        child->load(best_parent.crossOverWith(combiner));
+        return;
+    }
+
+    duplicateForChild(child, threshold); // Just perform duplication
+}
+
+/******************************************************************************/
+/**
+ * @brief recombineOneSerial() duplication path: fill the child slot per the recombination scheme
+ * (random-, or value-duplication -- the latter falling back to random in the first iteration).
+ *
+ * @param child The child slot to (re)fill
+ * @param threshold The value-duplication weight vector (see buildRecombinationThresholds())
+ */
+void GParChild::duplicateForChild(
+    const std::unique_ptr<gen::GOptimizableEntity> &child, const std::vector<double> &threshold
+) {
+    switch(recombination_method_) {
+    case duplicationScheme::DEFAULTDUPLICATIONSCHEME: // we want the RANDOMDUPLICATIONSCHEME behavior
+    case duplicationScheme::RANDOMDUPLICATIONSCHEME:
+        // The recombine helpers copy the chosen parent's individual into the child slot's
+        // individual and record the parent id on the child slot's personality.
+        randomRecombine(child);
+        break;
+
+    case duplicationScheme::VALUEDUPLICATIONSCHEME:
+        if(n_parents_ == 1) {
+            // Whole slot (individual + OA adaption scratch) -- see randomRecombine().
+            child->load(*(GOptimizationAlgorithmBase::data_cnt_.begin()));
+            child->template getPersonalityTraits<GBaseParChildPersonalityTraits>()->setParentId(0);
         }
+        // A recombination taking into account the value does not make sense in the first iteration, as
+        // parents might not have a suitable value (and it might accidentally trigger value calculation),
+        // so fall back to random recombination in iteration 0. No value calculation takes place there.
+        else if(GOptimizationAlgorithmBase::inFirstIteration()) {
+            randomRecombine(child);
+        }
+        else {
+            valueRecombine(child, threshold);
+        }
+        break;
     }
 }
 

@@ -385,37 +385,7 @@ void GParameterPropertyParser::applyFragment(char type, std::string const &conte
         ));
     }
     else if(type == 'b') {
-        if(tok.empty() || tok[0].empty()) {
-            fail(content);
-        }
-        parPropSpec<bool> spec;
-        const std::size_t index = toUnsigned(tok[0], content);
-        spec.lowerBoundary = false;
-        spec.upperBoundary = true;
-        spec.nSteps = GPP_DEF_NSTEPS;
-        std::string label;
-        if(tok.size() >= 3) {
-            spec.lowerBoundary = toBool(tok[1], content);
-            spec.upperBoundary = toBool(tok[2], content);
-            for(std::size_t k = 3; k < tok.size(); ++k) {
-                if(isUnsigned(tok[k])) {
-                    spec.nSteps = static_cast<std::size_t>(std::stoul(tok[k]));
-                }
-                else {
-                    label = tok[k];
-                }
-            }
-        }
-        else if(tok.size() == 2) {
-            if(isUnsigned(tok[1])) {
-                spec.nSteps = static_cast<std::size_t>(std::stoul(tok[1]));
-            }
-            else {
-                label = tok[1];
-            }
-        }
-        spec.var = NAMEANDIDTYPE(label.empty() ? 0 : 2, label, index);
-        b_spec_vec_.push_back(spec);
+        applyBoolFragment(tok, content);
     }
     else if(type == 's') {
         if(tok.empty()) {
@@ -428,6 +398,52 @@ void GParameterPropertyParser::applyFragment(char type, std::string const &conte
     else {
         fail(content);
     }
+}
+
+/******************************************************************************/
+/**
+ * @brief applyFragment() 'b' branch: parse a boolean parameter-scan spec.
+ *
+ * Layout: index[,lowerBoundary,upperBoundary][,nSteps][,label] -- the optional trailing tokens
+ * (nSteps as an unsigned, everything else a label) may appear in either order.
+ *
+ * @param tok The comma-split tokens of the fragment content
+ * @param content The original fragment content (for error messages)
+ */
+void GParameterPropertyParser::applyBoolFragment(
+    std::vector<std::string> const &tok, std::string const &content
+) {
+    if(tok.empty() || tok[0].empty()) {
+        fail(content);
+    }
+    parPropSpec<bool> spec;
+    const std::size_t index = toUnsigned(tok[0], content);
+    spec.lowerBoundary = false;
+    spec.upperBoundary = true;
+    spec.nSteps = GPP_DEF_NSTEPS;
+    std::string label;
+    if(tok.size() >= 3) {
+        spec.lowerBoundary = toBool(tok[1], content);
+        spec.upperBoundary = toBool(tok[2], content);
+        for(std::size_t k = 3; k < tok.size(); ++k) {
+            if(isUnsigned(tok[k])) {
+                spec.nSteps = static_cast<std::size_t>(std::stoul(tok[k]));
+            }
+            else {
+                label = tok[k];
+            }
+        }
+    }
+    else if(tok.size() == 2) {
+        if(isUnsigned(tok[1])) {
+            spec.nSteps = static_cast<std::size_t>(std::stoul(tok[1]));
+        }
+        else {
+            label = tok[1];
+        }
+    }
+    spec.var = NAMEANDIDTYPE(label.empty() ? 0 : 2, label, index);
+    b_spec_vec_.push_back(spec);
 }
 
 /******************************************************************************/
