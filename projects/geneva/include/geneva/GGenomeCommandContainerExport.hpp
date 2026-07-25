@@ -36,7 +36,7 @@
 
 // Geneva headers go here
 #include "courtier/GCommandContainerT.hpp"
-#include "courtier/GCourtierHelperFunctions.hpp" // networked_consumer_payload_command
+#include "courtier/GCourtierHelperFunctions.hpp"
 #include "geneva/genome/GGenome.hpp"
 
 /******************************************************************************/

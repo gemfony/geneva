@@ -54,6 +54,8 @@
 #include "common/concurrency/GThreadSafeSetT.hpp" // the per-session in-flight borrow set (CheckoutLease)
 #include "courtier/GCourtierEnums.hpp" // CORRELATION_ID_TYPE, dispatchState
 #include "courtier/GBaseConsumerT.hpp"
+#include "courtier/GCommandContainerT.hpp" // the RETURN frame checkin() consumes
+#include "courtier/GWireProtocolT.hpp"     // the library seam that interprets a return
 #include "courtier/consumers/GNetworkedTimeoutConfig.hpp" // timeoutTreatment + the config struct
 
 namespace Gem::Courtier {
@@ -268,13 +270,10 @@ protected:
             }
             in_flight.insert(p->getCorrelationId());
         }
-        /** @brief Drops an item the session returned normally (nothing left for the lease to reclaim).
-         *  @param p The item the session returned (its correlation id is dropped from the in-flight set; null is ignored) */
-        void remove(const item_ptr &p) {
-            if(not p) {
-                return;
-            }
-            in_flight.erase(p->getCorrelationId());
+        /** @brief Drops an id the session returned normally (nothing left for the lease to reclaim).
+         *  @param id The correlation id of the returned slot, dropped from the in-flight set */
+        void remove(Gem::Courtier::CORRELATION_ID_TYPE id) {
+            in_flight.erase(id);
         }
         ~CheckoutLease() {
             // Atomically take everything still in flight; requeue outside the set's lock.
@@ -314,24 +313,28 @@ protected:
     }
 
     /***************************************************************************/
-    /** @brief Accepts a returned result and writes it into its slot. The result's (batch_id, slot) is
-     *  decoded from its correlation id; a result whose batch is no longer active (timed out / finished)
-     *  or whose slot is no longer IN_FLIGHT (a duplicate) is dropped, which is what makes resubmission
-     *  safe.
-     *  @param p The deserialized result item (ownership transferred); null is ignored. Its correlation id locates the slot to overwrite */
-    void checkin(item_ptr p) {
-        if(not p) {
-            return;
-        }
+    /** @brief Accepts a returned RETURN frame and writes it into its slot. The frame's (batch_id, slot)
+     *  is decoded from the correlation id in its processing outcome; a return whose batch is no longer
+     *  active (timed out / finished) or whose slot is no longer IN_FLIGHT (a duplicate) is dropped,
+     *  which is what makes resubmission safe.
+     *
+     *  The frame is split at exactly the layer boundary: courtier applies the GProcessingOutcome (status,
+     *  errors, timings, routing) itself, and hands the library tag + payload (or the returned work item)
+     *  to the GWireProtocolT seam, which knows what an evaluation RESULT means. Courtier never inspects
+     *  the latter.
+     *
+     *  @param frame The deserialized RETURN frame (ownership transferred) */
+    void checkin(GCommandContainerT<processable_type> &&frame) {
+        item_ptr returned = frame.releaseItem();
         std::scoped_lock const lk(mtx_);
-        const Gem::Courtier::CORRELATION_ID_TYPE id = p->getCorrelationId();
+        const Gem::Courtier::CORRELATION_ID_TYPE id = frame.outcome().correlation_id;
         auto it = batches_.find(decodeBatch(id));
         if(it == batches_.end()) {
             // Batch no longer active: a late arrival from a timed-out/finished batch. Instead of
             // dropping it silently, park it in the bounded late-return buffer for a
             // later getOldWorkItems() to reap. With buffering disabled (the default) this still counts
             // the drop rather than losing it without trace.
-            bufferLateReturn_locked(std::move(p));
+            bufferLateReturn_locked(std::move(returned));
             return;
         }
         BatchState &b = it->second;
@@ -347,26 +350,34 @@ protected:
 
         // Reconcile the return INTO the live slot object in place, keeping its heap address (the slot
         // aliases the live population element). Rather than swapping the returned object in -- which would
-        // free the original and RELOCATE the population element -- we keep the original and absorb only
-        // what the worker computed. The original already holds the submitted parameters and the evolved
-        // OA-owned scratch (the personality object + per-group adaption POD state, which is omitted on the
-        // wire), so:
-        //  - a results-only return leaves the genome untouched; only the computed results are absorbed;
-        //  - a full return (a client that modified the individual, or a transport that always returns the
-        //    whole item, e.g. MPI) first grafts the returned genome onto the original, then absorbs the
-        //    results.
-        // Either way the OA scratch is kept from the original (never re-copied) and, crucially, the
-        // population element never changes address -- so a concurrent per-individual prefetch that holds a
-        // snapshot of population addresses across the submission stays valid.
-        if(not p->inputDataOmitted()) {
-            b.items[slot]->graftInputDataFrom(*p);
-        }
-        b.items[slot]->absorbResultsFrom(*p);
+        // free the original and RELOCATE the population element -- we keep the original and write only
+        // what came back into it. The original already holds the submitted parameters and the evolved
+        // library-owned scratch (omitted on the wire), and address stability is what lets a concurrent
+        // per-item prefetch hold a snapshot of population addresses across the submission.
+        b.items[slot]->applyProcessingOutcome(frame.outcome());
+        Gem::Courtier::GWireProtocolT<processable_type>::applyReturn(
+            *b.items[slot], frame.tag(), frame.libraryPayload(), returned.get()
+        );
         b.items[slot]->setDispatchState(Gem::Courtier::dispatchState::DONE);
         ++b.done;
         if(b.done == b.target) {
             cv_done_.notify_all(); // each waiting dispatch_ re-checks its own batch
         }
+    }
+
+    /***************************************************************************/
+    /** @brief Convenience overload for callers that already hold a processed work item rather than a
+     *  wire frame (the local consumers and the test harnesses): wraps it in the RETURN frame its own
+     *  outcome describes and checks that in.
+     *  @param p The processed work item (ownership transferred); null is ignored */
+    void checkin(item_ptr p) {
+        if(not p) {
+            return;
+        }
+        GCommandContainerT<processable_type> frame{Gem::Courtier::GFrameKind::RETURN};
+        frame.setOutcome(p->processingOutcome());
+        frame.setItem(std::move(p));
+        checkin(std::move(frame));
     }
 
     /***************************************************************************/

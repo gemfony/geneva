@@ -42,8 +42,10 @@
 #include "common/GErrorStreamer.hpp"
 #include "common/GLogger.hpp"
 #include "courtier/GCommandContainerT.hpp"        // GCommandContainerT
-#include "courtier/GCourtierEnums.hpp"            // networked_consumer_payload_command
-#include "courtier/GWireCodec.hpp"                // wireEncode / buildLayoutReply
+#include "courtier/GCourtierEnums.hpp"            // GFrameKind
+#include "courtier/GCourtierHelperFunctions.hpp"  // fkToStr
+#include "courtier/GWireCodec.hpp"                // wireEncode / buildBlobReply
+#include "courtier/GWireProtocolT.hpp"            // the library seam (the WORK tag)
 #include "courtier/GWireSerializationContext.hpp" // GWireSerializationContext / registry
 
 namespace Gem::Courtier {
@@ -51,15 +53,15 @@ namespace Gem::Courtier {
 /******************************************************************************/
 /**
  * Transport-agnostic server-side session logic for the networked consumer protocol. A server session,
- * on receiving a request from a worker, decides what to do with it: serve a work item (GETDATA), sink a
- * returned result and serve the next (RESULT), or answer a blob cache-miss fetch (REQUEST_BLOB). The
+ * on receiving a request from a worker, decides what to do with it: serve a work item (PULL), sink a
+ * returned result and serve the next (RETURN), or answer a blob cache-miss fetch (BLOB_REQUEST). The
  * three transports all make the same decisions; only how they pull/sink items (a callable wrapping the
  * consumer's checkout/checkin) and how they drive their I/O differs. The decision pieces live here once.
  *
  * Two helpers, matching the two server styles:
  *
- *  - serveWorkItem(): the pure container decision -- check a work item out and set the container to
- *    COMPUTE (with the item) or NODATA (queue empty). No serialization, no I/O. Used by every transport
+ *  - serveWorkItem(): the pure frame decision -- check a work item out and set the frame to
+ *    WORK (with the item) or NO_WORK (queue empty). No serialization, no I/O. Used by every transport
  *    (the synchronous ones via handleServerRequest() below; MPI directly, as its decide and send phases
  *    are split across its asynchronous receive/send).
  *
@@ -70,92 +72,94 @@ namespace Gem::Courtier {
  *    call) -- it composes serveWorkItem() + the GWireCodec helpers itself.
  *
  * The item source / sink are passed as callables so this header stays free of any consumer type:
- *   getItem : () -> std::unique_ptr<processable_type>   (checkout; null when the queue is empty)
- *   putItem : (std::unique_ptr<processable_type>) -> void (checkin a returned result)
+ *   getItem : () -> std::unique_ptr<processable_type>          (checkout; null when the queue is empty)
+ *   putItem : (GCommandContainerT<processable_type>&&) -> void (checkin a returned frame)
  */
 
 /******************************************************************************/
 /**
- * @brief Checks a work item out and stores it in the container as COMPUTE, or stores NODATA when the
- * queue is empty. Pure container mutation -- no serialization, no I/O.
+ * @brief Checks a work item out and stores it in the frame as WORK, or stores NO_WORK when the
+ * queue is empty. Pure frame mutation -- no serialization, no I/O.
  *
  * @tparam processable_type The payload type of the command container
  * @tparam GetItemF A callable () -> std::unique_ptr<processable_type> (the checkout)
- * @param container The command container to fill (reset to COMPUTE+item or NODATA)
+ * @param container The frame to fill (reset to WORK+item or NO_WORK)
  * @param getItem The checkout callable
  */
 template <typename processable_type, typename GetItemF>
 void serveWorkItem(
-    GCommandContainerT<processable_type, networked_consumer_payload_command> &container,
+    GCommandContainerT<processable_type> &container,
     GetItemF &&getItem
 ) {
     auto payload_ptr = getItem();
     if(payload_ptr) {
-        container.reset(networked_consumer_payload_command::COMPUTE, std::move(payload_ptr));
+        container.reset(GFrameKind::WORK, std::move(payload_ptr));
+        container.setTag(GWireProtocolT<processable_type>::workTag());
     }
     else {
-        container.reset(networked_consumer_payload_command::NODATA);
+        container.reset(GFrameKind::NO_WORK);
     }
 }
 
 /******************************************************************************/
 /**
- * @brief Synchronous server dispatch: acts on an already-deserialized inbound request and returns the
+ * @brief Synchronous server dispatch: acts on an already-deserialized inbound frame and returns the
  * serialized response. Used by the request/response transports (Asio, websocket).
  *
- * GETDATA serves a work item; RESULT sinks the returned payload (checkin) and serves the next; both
- * responses are serialized under @p respCtx so a COMPUTE item's blob is sent send-once. REQUEST_BLOB
- * is answered from the shared registry (under a null scope, via the codec). An unknown command logs a
- * warning and yields no response.
+ * A PULL serves a work item; a RETURN hands the whole inbound frame to the sink (the consumer applies
+ * its outcome and its library payload to the slot) and then serves the next item; both responses are
+ * serialized under @p respCtx so a WORK item's blob is sent send-once. A BLOB_REQUEST is answered from
+ * the shared registry (under a null scope, via the codec). An unknown frame logs a warning and yields
+ * no response.
  *
  * @tparam processable_type The payload type of the command container
  * @tparam GetItemF A callable () -> std::unique_ptr<processable_type> (the checkout)
- * @tparam PutItemF A callable (std::unique_ptr<processable_type>) -> void (the checkin)
- * @param container The already-deserialized inbound container (reused to build the response)
+ * @tparam PutItemF A callable (GCommandContainerT<processable_type>&&) -> void (the checkin)
+ * @param container The already-deserialized inbound frame (reused to build the response)
  * @param getItem The checkout callable
  * @param putItem The checkin callable
- * @param registry The shared blob registry (for REQUEST_BLOB; may be nullptr)
- * @param respCtx The wire context to serialize a COMPUTE/NODATA response under (may be nullptr)
+ * @param registry The shared blob registry (for BLOB_REQUEST; may be nullptr)
+ * @param respCtx The wire context to serialize a WORK/NO_WORK response under (may be nullptr)
  * @param serMode The serialization format to use
- * @return The serialized response, or an empty string on an unknown/invalid command
+ * @return The serialized response, or an empty string on an unknown/invalid frame
  */
 template <typename processable_type, typename GetItemF, typename PutItemF>
 std::string handleServerRequest(
-    GCommandContainerT<processable_type, networked_consumer_payload_command> &container,
+    GCommandContainerT<processable_type> &container,
     GetItemF &&getItem,
     PutItemF &&putItem,
     GWireBlobRegistry *registry,
     const GWireSerializationContext *respCtx,
     Gem::Common::serializationMode serMode
 ) {
-    switch(container.get_command()) {
-        using enum networked_consumer_payload_command;
-    case GETDATA: {
+    switch(container.kind()) {
+        using enum GFrameKind;
+    case PULL: {
         serveWorkItem(container, std::forward<GetItemF>(getItem));
         return wireEncode(container, respCtx, serMode);
     }
-    case RESULT: {
-        // Sink the returned payload (checkin), then serve the next item.
-        auto payload_ptr = container.release_payload();
-        if(payload_ptr) {
-            putItem(std::move(payload_ptr));
-        }
-        else {
-            glogger << "In Gem::Courtier::handleServerRequest():" << '\n'
-                    << "payload is empty even though a RESULT was expected" << '\n'
-                    << GWARNING;
-        }
+    case RETURN: {
+        // Hand the whole return frame to the sink -- outcome, library tag and payload together -- then
+        // serve the next item from the (now cleared) frame.
+        GCommandContainerT<processable_type> inbound{std::move(container)};
+        container.reset();
+        putItem(std::move(inbound));
         serveWorkItem(container, std::forward<GetItemF>(getItem));
         return wireEncode(container, respCtx, serMode);
     }
-    case REQUEST_BLOB: {
+    case BLOB_REQUEST: {
         // Blob cache-miss fetch: answer with the serialized blob from the shared registry (empty
         // blob -> the worker treats the fetch as failed).
-        return buildLayoutReply<processable_type>(container.get_blob_id(), registry, serMode);
+        const auto *request = container.blobRequest();
+        return buildBlobReply<processable_type>(
+            request != nullptr ? request->id : GWireBlobId{0, 0},
+            registry,
+            serMode
+        );
     }
     default: {
         glogger << "In Gem::Courtier::handleServerRequest():" << '\n'
-                << "Got unknown or invalid command " << container.get_command() << '\n'
+                << "Got unknown or invalid frame " << fkToStr(container.kind()) << '\n'
                 << GWARNING;
         return {};
     }

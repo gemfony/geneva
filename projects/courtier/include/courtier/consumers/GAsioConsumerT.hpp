@@ -103,7 +103,9 @@ private:
             this->io_context_,
             std::move(socket),
             [self, this]() -> std::unique_ptr<processable_type> { return this->checkout(); },
-            [self, this](std::unique_ptr<processable_type> p) { this->checkin(std::move(p)); },
+            [self, this](Gem::Courtier::GCommandContainerT<processable_type> &&frame) {
+                this->checkin(std::move(frame));
+            },
             [self, this]() -> bool { return this->stopped(); },
             serialization_mode_,
             [self, this](bool sign_on) { this->adjustSessionCount(sign_on); },

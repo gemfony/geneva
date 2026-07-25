@@ -52,6 +52,7 @@
 #include "common/GLogger.hpp"
 #include "courtier/GCourtierEnums.hpp"          // processingStatus, dispatchState, the id typedefs
 #include "courtier/GCourtierHelperFunctions.hpp" // psToStr
+#include "courtier/GProcessingOutcome.hpp"       // the transportable lifecycle record
 
 namespace Gem::Courtier {
 
@@ -345,6 +346,49 @@ public:
      * @param original The originally-submitted item supplying the scratch to graft back
      */
     void graftOaScratchFrom(const GProcessable &original) { this->graftOaScratchFrom_(original); }
+
+    /***************************************************************************/
+    // The processing lifecycle as a transportable record (see GProcessingOutcome).
+
+    /**
+     * @brief Snapshots this item's processing lifecycle into a transportable outcome record.
+     *
+     * Taken on the worker once an evaluation has finished, so the RETURN frame carries the status,
+     * error text, timings and routing ids even when the frame ships a small library payload instead of
+     * the whole work item.
+     * @return The lifecycle snapshot of this work item
+     */
+    [[nodiscard]] GProcessingOutcome processingOutcome() const {
+        return GProcessingOutcome{
+            processing_status_,
+            stored_error_descriptions_,
+            pre_processing_time_,
+            processing_time_,
+            post_processing_time_,
+            correlation_id_,
+            submission_uuid_.value
+        };
+    }
+
+    /**
+     * @brief Writes a returned outcome onto this (server-side) work item.
+     *
+     * The counterpart of processingOutcome(), applied by the consumer to the live slot the return belongs
+     * to. The status is assigned DIRECTLY rather than through set_processing_status(), because this is a
+     * remote report of an already-completed evaluation, not a local state transition: the validating
+     * setter would reject e.g. PROCESSED -> PROCESSED and would clear the very results the caller is about
+     * to write. The item KEEPS its own lineage id (the outcome's uuid is informational -- a slot's
+     * identity is not redefined by a return); the transient dispatch state is likewise untouched.
+     * @param outcome The lifecycle record reported by the worker
+     */
+    void applyProcessingOutcome(const GProcessingOutcome &outcome) {
+        processing_status_ = outcome.status;
+        stored_error_descriptions_ = outcome.error_descriptions;
+        pre_processing_time_ = outcome.pre_processing_time;
+        processing_time_ = outcome.processing_time;
+        post_processing_time_ = outcome.post_processing_time;
+        correlation_id_ = outcome.correlation_id;
+    }
 
     /***************************************************************************/
     // In-place, pointer-preserving return reconciliation (server-side).

@@ -66,37 +66,37 @@ std::string psToStr(const processingStatus &ps) {
 
 /******************************************************************************/
 /**
- * @brief Translates a networked_consumer_payload_command into a clear-text string
+ * @brief Translates a protocol frame kind into a clear-text string
  *
- * @param pc The networked_consumer_payload_command to be translated into a std::string
- * @return A string representing the command (empty string for an unrecognized value)
+ * @param fk The GFrameKind to be translated into a std::string
+ * @return A string representing the frame kind (empty string for an unrecognized value)
  */
-std::string pcToStr(const networked_consumer_payload_command &pc) {
-    switch(pc) {
-        using enum Gem::Courtier::networked_consumer_payload_command;
+std::string fkToStr(const GFrameKind &fk) {
+    switch(fk) {
+        using enum Gem::Courtier::GFrameKind;
     case NONE:
         return "NONE";
 
-    case GETDATA:
-        return "GETDATA";
+    case PULL:
+        return "PULL";
 
-    case NODATA:
-        return "NODATA";
+    case NO_WORK:
+        return "NO_WORK";
 
-    case COMPUTE:
-        return "COMPUTE";
+    case WORK:
+        return "WORK";
 
-    case RESULT:
-        return "RESULT";
+    case RETURN:
+        return "RETURN";
 
-    case STOP:
-        return "STOP";
+    case SHUTDOWN:
+        return "SHUTDOWN";
 
-    case REQUEST_BLOB:
-        return "REQUEST_BLOB";
+    case BLOB_REQUEST:
+        return "BLOB_REQUEST";
 
-    case SEND_BLOB:
-        return "SEND_BLOB";
+    case BLOB_REPLY:
+        return "BLOB_REPLY";
     }
 
     // Make the compiler happy

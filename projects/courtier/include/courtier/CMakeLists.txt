@@ -37,9 +37,11 @@ SET ( COMMUNICATIONINCLUDES
     GSubmissionStatusT.hpp
     GProcessable.hpp
     GProcessingContainerT.hpp
+    GProcessingOutcome.hpp
     GServerSessionLogic.hpp
     GSubmissionPolicy.hpp
     GWireCodec.hpp
+    GWireProtocolT.hpp
     GWireSerializationContext.hpp
 )
 

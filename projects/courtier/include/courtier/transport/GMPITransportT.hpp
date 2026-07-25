@@ -77,7 +77,7 @@ namespace Gem::Courtier::Consumers {
 constexpr int TAG_REQUEST_WORK_ITEM = 42;
 constexpr int TAG_SEND_WORK_ITEM = 43;
 /// blob send-once cache-miss fetch (worker <-> master). A worker that receives an id-only
-/// work item whose blob it does not hold sends a REQUEST_BLOB message on TAG_REQUEST_BLOB; the
+/// work item whose blob it does not hold sends a BLOB_REQUEST frame on TAG_REQUEST_BLOB; the
 /// master's receiver loop picks it up (it matches any tag) and answers with the serialized blob on
 /// TAG_SEND_BLOB. A distinct send tag keeps the reply from being mistaken for an ordinary work-item
 /// response by the worker's (double-buffered) MPI_ANY_TAG receive.
@@ -89,7 +89,7 @@ constexpr int RANK_MASTER_NODE = 0;
 /// shutdown so the loss of a worker cannot wedge the master at teardown.
 constexpr std::chrono::seconds GMPICONSUMERSHUTDOWNGRACE{10};
 /// How long a worker waits for the master to complete a send/receive before giving up. The master
-/// always answers a request promptly (work or NODATA), so this only trips when the master has died or
+/// always answers a request promptly (work or NO_WORK), so this only trips when the master has died or
 /// gone silent -- it is generous to avoid ever false-killing a worker while a live master is busy.
 constexpr std::chrono::seconds GMPICONSUMERWORKERMPITIMEOUT{120};
 /// The communicator all MPI transport operations run on. `inline` (not `static`): every translation
@@ -245,8 +245,8 @@ struct MPIConsumerConfig {
      * The simplified workflow of the GMPIConsumerWorkerNodeT can be described as follows:
      *
      * (1) Send an asynchronous GET request (ask for the first work item) \n
-     * (2) Asynchronously receive a message containing either the work item (COMPUTE) or the information that currently
-     *      no items are available (NODATA)\n
+     * (2) Asynchronously receive a message containing either the work item (WORK) or the information that currently
+     *      no items are available (NO_WORK)\n
      * (3) Deserialize the received message\n
      * (4.1) If the message contains DATA (a raw work item): process the received work item\n
      * (4.2) If the message contains no data: poll later again i.e. back to step (1)\n
@@ -288,7 +288,7 @@ public:
         // Engage the worker side of the blob send-once wire form. The worker caches every
         // blob it receives (keyed by content id) so an id-only work item resolves locally; on a miss
         // (a late-joining / restarted rank that never saw the full blob, or master-side eviction) the
-        // fetch_blob asks the master for it via a blocking REQUEST_BLOB / SEND_BLOB round trip. The
+        // fetch_blob asks the master for it via a blocking BLOB_REQUEST / BLOB_REPLY round trip. The
         // fetch runs from inside the work-item deserialise, which on this worker is sequenced strictly
         // before that iteration's outgoing send/receive is launched, so it never overlaps other MPI
         // traffic on this rank.
@@ -296,17 +296,14 @@ public:
         wireCtx_.peer = 0; // worker side: the single upstream master
         wireCtx_.registry = &wireRegistry_;
         wireCtx_.mode = config_.serializationMode;
-        // Return processed items in the lightweight results-only form by default. Like the websocket /
-        // ASIO consumers, the MPI master uses the GNetworkedConsumerT slot model (its getPayloadItem /
-        // putPayloadItem are wired to checkout / checkin), so the input parameters are grafted back from
-        // the still-held original in checkin(). A late results-only return -- one whose batch has already
-        // been reconciled, so no original remains to graft from -- is dropped rather than buffered (see
-        // GNetworkedConsumerT::bufferLateReturn_locked). A work item can force a full return per item via
-        // setReturnFullIndividual().
+        // Mark this endpoint as the RETURNING side, so the using library's serializer may pick a
+        // lightweight return encoding. Like the websocket / ASIO consumers, the MPI master uses the
+        // GNetworkedConsumerT slot model (its getPayloadItem / putPayloadItem are wired to checkout /
+        // checkin), so a return is reconciled against the still-held original in checkin().
         wireCtx_.returning = true;
         wireCtx_.fetch_blob =
             [this](const Gem::Courtier::GWireBlobId &id) -> std::expected<std::string, std::string> {
-            return this->fetchLayoutBlob_(id);
+            return this->fetchBlob_(id);
         };
     }
 
@@ -339,22 +336,22 @@ public:
          * optimization, or if a fatal error has been encountered.
          */
     void run() {
-        // set message for initial GETDATA request (carries no genome, but keep it under the scope for
-        // uniformity -- the scope is harmless for a payload-free command)
+        // set message for the initial PULL frame (carries no work item, but keep it under the scope for
+        // uniformity -- the scope is harmless for a payload-free frame)
         outgoingMessage_ =
             Gem::Courtier::wireEncode(commandContainer_, &wireCtx_, config_.serializationMode);
 
-        // send initial GETDATA request to receive first work item
+        // send the initial PULL frame to receive the first work item
         if(!sendResultAndRequestNewWork()) {
             return; // return if unrecoverable error in networking occurred
         }
 
         // stop if server tells this worker to stop or if the optimization stop criteria is fulfilled
         while(!stopRequestReceived_ && !halt_()) {
-            // swap messages: serialize the (processed) container into outgoingMessage_, then deserialize
-            // incomingMessage_ into the container. Both run under the blob send-once wire scope
-            // the outgoing RESULT ships its blob to the master in full only the first time
-            // and by id thereafter; the incoming COMPUTE resolves an id-only blob from the local cache
+            // swap messages: serialize the (processed) frame into outgoingMessage_, then deserialize
+            // incomingMessage_ into the frame. Both run under the blob send-once wire scope:
+            // the outgoing RETURN ships its blob to the master in full only the first time
+            // and by id thereafter; the incoming WORK resolves an id-only blob from the local cache
             // or, on a miss, via the fetch round trip. This deserialise is sequenced before the async
             // send/receive below, so a fetch here never overlaps this rank's other MPI traffic.
             outgoingMessage_ =
@@ -410,7 +407,7 @@ private:
          *
          */
     [[nodiscard]] bool sendResultAndRequestNewWork() {
-        // start asynchronous send call to send result of last computation (or GETDATA command if no result available)
+        // start asynchronous send call to send the result of the last computation (or a PULL frame if no result is available)
         MPI_Isend(
             outgoingMessage_.data(),
             // MPI counts are int: a payload above INT_MAX must fail loudly rather than wrap
@@ -574,25 +571,25 @@ private:
          * @brief Processes the work item currently stored in commandContainer_.
          *
          * After processing has been finished, the result is put into commandContainer_ i.e. it overrides the old item.
-         * In case that commandContainer_ did not contain any work items this method will store a new GETDATA request
+         * In case that commandContainer_ did not contain any work items this method will store a new PULL frame
          * in commandContainer_ to retrieve new work when sending this message. A STOP command sets the
          * stop flag instead.
          */
     void processWorkItem() {
-        switch(commandContainer_.get_command()) {
-            using enum Gem::Courtier::networked_consumer_payload_command;
-        case COMPUTE: {
-            // process item. This will put the result into the container
+        switch(commandContainer_.kind()) {
+            using enum Gem::Courtier::GFrameKind;
+        case WORK: {
+            // process item. This will put the result into the work item
             commandContainer_.process();
 
             // increment the counter for processed items
             incrementProcessingCounter_();
 
-            // mark the container as "contains a result"
-            commandContainer_.set_command(networked_consumer_payload_command::RESULT);
+            // rewrite the frame into the RETURN the using library wants sent back
+            Gem::Courtier::makeReturnFrame(commandContainer_);
         } break;
-        case NODATA: {
-            // Update the NODATA counter for bookkeeping
+        case NO_WORK: {
+            // Update the NO_WORK counter for bookkeeping
             ++nNoData_;
 
             // sleep for a short random time interval
@@ -603,21 +600,21 @@ private:
             std::this_thread::sleep_for(std::chrono::milliseconds(dist(randomNumberEngine_)));
 
             // Tell the server again we need work
-            commandContainer_.reset(networked_consumer_payload_command::GETDATA);
+            commandContainer_.reset(GFrameKind::PULL);
         } break;
-        case STOP: {
+        case SHUTDOWN: {
             this->stopRequestReceived_ = true;
         } break;
         default: {
             // Emit a warning, ignore item and request new item
             glogger << "GMPIConsumerWorkerNodeT<processable_type>::processWorkItem() with rank="
                     << commRank_ << ":" << '\n'
-                    << "Got unknown or invalid command "
-                    << commandContainer_.get_command()
+                    << "Got unknown or invalid frame "
+                    << Gem::Courtier::fkToStr(commandContainer_.kind())
                     << '\n'
                     << GWARNING;
 
-            commandContainer_.reset(networked_consumer_payload_command::GETDATA);
+            commandContainer_.reset(GFrameKind::PULL);
         }
         }
     }
@@ -640,14 +637,13 @@ private:
             config_.serializationMode
         );
 
-        if(commandContainer_.get_command() != networked_consumer_payload_command::STOP) {
+        if(commandContainer_.kind() != Gem::Courtier::GFrameKind::SHUTDOWN) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                 << "In GMPIConsumerWorkerNodeT<processable_type>::processLastResponse() with rank="
                 << commRank_ << ":" << '\n'
-                << "Expected to receive the last stop request but instead received message with "
-                   "command "
-                << commandContainer_.get_command() << '\n'
+                << "Expected to receive the last stop request but instead received a frame of kind "
+                << Gem::Courtier::fkToStr(commandContainer_.kind()) << '\n'
             );
         }
     }
@@ -656,8 +652,8 @@ private:
          * @brief Worker-side cache-miss fetch (blob send-once): blocks until the master's blob for @p id is in
          * hand, then returns the serialized blob (empty on failure).
          *
-         * Sends a REQUEST_BLOB message (carrying the wanted id) to the master on TAG_REQUEST_BLOB and
-         * waits, bounded, for the SEND_BLOB reply on TAG_SEND_BLOB. The master's receiver loop matches
+         * Sends a BLOB_REQUEST frame (carrying the wanted id) to the master on TAG_REQUEST_BLOB and
+         * waits, bounded, for the BLOB_REPLY on TAG_SEND_BLOB. The master's receiver loop matches
          * any tag, so it picks up the request and dispatches a session that answers from its registry. A
          * distinct send tag keeps the reply out of the worker's ordinary (double-buffered) MPI_ANY_TAG
          * receive. This is called from inside the work-item deserialise, which is sequenced before this
@@ -667,12 +663,12 @@ private:
          * @param id The content id of the blob to fetch from the master.
          * @return The serialized blob, or an empty string if the fetch failed / timed out.
          */
-    std::expected<std::string, std::string> fetchLayoutBlob_(const Gem::Courtier::GWireBlobId &id) {
-        // Build and serialise the REQUEST_BLOB message (no genome payload, so no nested wire scope).
+    std::expected<std::string, std::string> fetchBlob_(const Gem::Courtier::GWireBlobId &id) {
+        // Build and serialise the BLOB_REQUEST frame (no work item, so no nested wire scope).
         std::string requestStr;
-        // Build the REQUEST_BLOB message (under a null scope; carries no genome). MPI identifies the
+        // Build the BLOB_REQUEST frame (under a null scope; carries no work item). MPI identifies the
         // worker by rank, so no peer id is needed (the default 0 is sent).
-        requestStr = Gem::Courtier::buildLayoutRequest<processable_type>(
+        requestStr = Gem::Courtier::buildBlobRequest<processable_type>(
             id,
             /* peer = */ 0,
             config_.serializationMode
@@ -682,7 +678,7 @@ private:
         // and silently send the wrong number of bytes. Report it like any other transport failure.
         if(requestStr.size() > static_cast<std::size_t>(std::numeric_limits<int>::max())) {
             return std::unexpected("rank=" + std::to_string(commRank_) +
-                                   ": REQUEST_BLOB of " + std::to_string(requestStr.size()) +
+                                   ": BLOB_REQUEST of " + std::to_string(requestStr.size()) +
                                    " bytes exceeds the maximum MPI message count");
         }
 
@@ -700,24 +696,24 @@ private:
         MPI_Status status{};
         if(not waitForRequestOrTimeout(sendReq, status) || status.MPI_ERROR != MPI_SUCCESS) {
             return std::unexpected("rank=" + std::to_string(commRank_) +
-                                   ": timed out / errored sending a REQUEST_BLOB to the master");
+                                   ": timed out / errored sending a BLOB_REQUEST to the master");
         }
 
-        // Receive the SEND_BLOB reply on its dedicated tag. Probe first so a blob of any size
+        // Receive the BLOB_REPLY on its dedicated tag. Probe first so a blob of any size
         // can be received (a large blob is exactly what would have exceeded the old fixed cap).
         if(not probeWithTimeout(RANK_MASTER_NODE, TAG_SEND_BLOB, status) ||
            status.MPI_ERROR != MPI_SUCCESS) {
             return std::unexpected("rank=" + std::to_string(commRank_) +
-                                   ": timed out / errored waiting for the SEND_BLOB reply from the master");
+                                   ": timed out / errored waiting for the BLOB_REPLY from the master");
         }
 
         // Deserialise the reply (again no nested wire scope) and hand back the blob. An empty blob means a
         // malformed/empty reply -- a failure, not a usable blob, so report it as such.
         const std::string replyStr = receiveProbedMessage(status);
-        std::string blob = Gem::Courtier::parseLayoutReply<processable_type>(replyStr, config_.serializationMode);
+        std::string blob = Gem::Courtier::parseBlobReply<processable_type>(replyStr, config_.serializationMode);
         if(blob.empty()) {
             return std::unexpected("rank=" + std::to_string(commRank_) +
-                                   ": empty or malformed SEND_BLOB reply");
+                                   ": empty or malformed BLOB_REPLY");
         }
         return blob;
     }
@@ -765,13 +761,13 @@ private:
     std::string incomingMessage_;
     std::string outgoingMessage_;
     // contains the current command and payload (if any)
-    GCommandContainerT<processable_type, networked_consumer_payload_command> commandContainer_{
-        networked_consumer_payload_command::GETDATA
+    GCommandContainerT<processable_type> commandContainer_{
+        Gem::Courtier::GFrameKind::PULL
     };
 
     /// blob send-once (worker side): this rank's local cache of received blobs and the wire
     /// context engaged around (de)serialisation. The context's fetch_blob resolves a cache miss via a
-    /// blocking REQUEST_BLOB / SEND_BLOB MPI round trip (see fetchLayoutBlob_).
+    /// blocking BLOB_REQUEST / BLOB_REPLY MPI round trip (see fetchBlob_).
     Gem::Courtier::GWireBlobRegistry wireRegistry_;
     Gem::Courtier::GWireSerializationContext wireCtx_;
 };
@@ -797,7 +793,7 @@ public:
          * i.e. the rank of the worker node sending the request
          * @param requestMessage the payload of the request this session was opened for
          * @param getPayloadItem a callback function to retrieve payload items (raw work items) from their origin / producer
-         * @param putPayloadItem a callback function to put payload items (processed work items) to their destination
+         * @param putPayloadItem a callback function delivering a RETURN frame to its destination
          * @param serializationMode the mode of serialization between the master nodes and the worker nodes
          * @param stopRequested whether the server is asked to stop and therefore should only send stop requests to clients
          * instead of further work items
@@ -806,7 +802,7 @@ public:
         MPI_Status status,
         std::string requestMessage,
         std::move_only_function<std::unique_ptr<processable_type>()> getPayloadItem,
-        std::move_only_function<void(std::unique_ptr<processable_type>)> putPayloadItem,
+        std::move_only_function<void(GCommandContainerT<processable_type> &&)> putPayloadItem,
         Gem::Common::serializationMode serializationMode,
         bool stopRequested,
         Gem::Courtier::GWireBlobRegistry *wireRegistry = nullptr
@@ -893,21 +889,21 @@ public:
     }
 
     /**
-         * @brief Returns the command this session is sending out to the worker in the response.
-         * @return command that the session is sending out to the client in the response
+         * @brief Returns the frame kind this session is sending out to the worker in the response.
+         * @return the frame kind the session is sending out to the client in the response
          */
-    [[nodiscard]] networked_consumer_payload_command getOutCommand() const {
-        return this->commandContainer_.get_command();
+    [[nodiscard]] Gem::Courtier::GFrameKind getOutFrameKind() const {
+        return this->commandContainer_.kind();
     }
 
 private:
     /**
          * @brief Deserializes and acts on the inbound request.
          *
-         * On a RESULT command the payload is delivered to the payload sink; a GETDATA command carries no
-         * payload. An unknown command or a deserialization failure is logged and marks the session
-         * REFUSED -- the worker still receives a reply (NODATA, or STOP during shutdown) so it retries
-         * through its normal short NODATA back-off instead of blocking for its full receive timeout and
+         * On a RETURN frame the whole frame is delivered to the payload sink; a PULL carries no
+         * payload. An unknown frame or a deserialization failure is logged and marks the session
+         * REFUSED -- the worker still receives a reply (NO_WORK, or SHUTDOWN during shutdown) so it retries
+         * through its normal short NO_WORK back-off instead of blocking for its full receive timeout and
          * shutting itself down as if the master had died.
          *
          * @return true if a response should be sent (also for a refused request), false only when the
@@ -915,7 +911,7 @@ private:
          */
     bool processRequest() {
         try {
-            // Deserialize the request under the wire scope (blob send-once): a returned RESULT genome may
+            // Deserialize the request under the wire scope (blob send-once): a returned work item may
             // reference its blob by id, resolved against the master's shared registry (which holds
             // every blob it has sent). The scope's peer is the requesting rank, set in the constructor.
             Gem::Courtier::wireDecode(
@@ -925,33 +921,34 @@ private:
                 serializationMode_
             ); // may throw
 
-            // Extract the command
-            auto inboundCommand = commandContainer_.get_command();
+            // Extract the frame kind
+            const auto inbound_kind = commandContainer_.kind();
 
             // If we have some payload received, add it to its destination
-            switch(inboundCommand) {
-                using enum Gem::Courtier::networked_consumer_payload_command;
-            case RESULT: {
-                putWorkItem();
+            switch(inbound_kind) {
+                using enum Gem::Courtier::GFrameKind;
+            case RETURN: {
+                putReturnFrame();
                 return true;
             }
-            case GETDATA: {
+            case PULL: {
                 return true; // no data to process
             }
-            case REQUEST_BLOB: {
+            case BLOB_REQUEST: {
                 // Blob cache-miss fetch: remember the requested id; sendResponse() will answer with a
-                // SEND_BLOB carrying the serialized blob from the registry.
-                isLayoutRequest_ = true;
-                requestedLayoutId_ = commandContainer_.get_blob_id();
+                // BLOB_REPLY carrying the serialized blob from the registry.
+                const auto *request = commandContainer_.blobRequest();
+                blobRequested_ = true;
+                requestedBlobId_ = request != nullptr ? request->id : Gem::Courtier::GWireBlobId{0, 0};
                 return true;
             }
-            default: { // clients may only send RESULT, GETDATA or REQUEST_BLOB commands
+            default: { // clients may only send RETURN, PULL or BLOB_REQUEST frames
                 glogger
                     << "GMPIConsumerSessionT<processable_type>::processRequest() connected to rank="
                     << mpiStatus_.MPI_SOURCE << ":" << '\n'
-                    << "Got unknown or invalid command "
-                    << inboundCommand << '\n'
-                    << "The request is refused and answered with NODATA." << '\n'
+                    << "Got unknown or invalid frame "
+                    << Gem::Courtier::fkToStr(inbound_kind) << '\n'
+                    << "The request is refused and answered with NO_WORK." << '\n'
                     << GWARNING;
                 refused_ = true;
                 return true;
@@ -961,8 +958,8 @@ private:
         catch(const std::exception &ex) {
             // A malformed / truncated request must not unwind the master's session machinery (one bad
             // worker message would take down the whole master). Log and REFUSE the request -- but still
-            // answer it (NODATA / STOP via sendResponse), so the worker retries through its short
-            // NODATA back-off instead of blocking for its full receive timeout and then shutting down.
+            // answer it (NO_WORK / SHUTDOWN via sendResponse), so the worker retries through its short
+            // NO_WORK back-off instead of blocking for its full receive timeout and then shutting down.
             // (boost archive exceptions derive from std::exception, not geneva_exception, so the wider
             // catch is required to actually contain deserialization failures.)
             glogger
@@ -970,7 +967,7 @@ private:
                 << mpiStatus_.MPI_SOURCE << ":" << '\n'
                 << "Caught exception while deserializing request" << '\n'
                 << ex.what() << '\n'
-                << "The request is refused and answered with NODATA." << '\n'
+                << "The request is refused and answered with NO_WORK." << '\n'
                 << GWARNING;
             refused_ = true;
             return true;
@@ -980,37 +977,24 @@ private:
     }
 
     /**
-         * @brief Releases the processed payload from the command container and hands it to the payload sink.
-         *
-         * If the container unexpectedly holds no payload, a warning is logged and the request is still
-         * answered normally.
+         * @brief Moves the inbound RETURN frame out of the session container and hands it to the payload
+         * sink, leaving the container cleared and ready to build the response.
          */
-    void putWorkItem() {
-        // Retrieve the payload from the command container
-        auto payloadPtr = commandContainer_.release_payload();
-
-        // Submit the payload to the server (which hands it to the injected payload sink)
-        if(payloadPtr) {
-            putPayloadItem_(std::move(payloadPtr));
-            return;
-        }
-
-        glogger << "GMPIConsumerSessionT<processable_type>::process_request() connected to rank="
-                << mpiStatus_.MPI_SOURCE << ":" << '\n'
-                << "payload is empty even though a result was expected." << '\n'
-                << "However, this request will also be responded normally." << '\n'
-                << GWARNING;
+    void putReturnFrame() {
+        GCommandContainerT<processable_type> inbound{std::move(commandContainer_)};
+        commandContainer_.reset();
+        putPayloadItem_(std::move(inbound));
     }
 
     /**
          * @brief Assigns a new command and payload (if any) to the commandContainer_ member.
          *
-         * Fetches a work item from the injected payload source; on success stores it with a COMPUTE command, otherwise
-         * stores a NODATA command.
+         * Fetches a work item from the injected payload source; on success stores it as a WORK frame,
+         * otherwise as a NO_WORK frame.
          */
     void prepareDataResponse() {
         // Check a work item out of the queue (the callable includes a timeout that may yield nullptr)
-        // and store it as COMPUTE, or NODATA when the queue is empty -- the shared server-side decision.
+        // and store it as WORK, or NO_WORK when the queue is empty -- the shared server-side decision.
         Gem::Courtier::serveWorkItem(commandContainer_, this->getPayloadItem_);
     }
 
@@ -1018,8 +1002,9 @@ private:
          * @brief Assigns a stop request to the commandContainer_ member.
          */
     void prepareStopResponse() {
-        // store a stop request in the command container
-        commandContainer_.reset(networked_consumer_payload_command::STOP);
+        // store a shutdown request in the frame container
+        commandContainer_.reset(Gem::Courtier::GFrameKind::SHUTDOWN);
+        commandContainer_.setTag(Gem::Courtier::GWireProtocolT<processable_type>::shutdownTag());
     }
 
     /**
@@ -1030,9 +1015,9 @@ private:
          * so there is no fixed send cap.
          */
     void serializeOutgoingMsg() {
-        // Serialize the response under the wire scope (blob send-once): a COMPUTE work item's blob is shipped
+        // Serialize the response under the wire scope (blob send-once): a WORK item's blob is shipped
         // in full to this peer (rank) only the first time it is seen and by content id thereafter. A
-        // NODATA / STOP carries no genome, so the scope is harmless there.
+        // NO_WORK / SHUTDOWN carries no work item, so the scope is harmless there.
         outgoingMessage_ = Gem::Courtier::wireEncode(
             commandContainer_,
             wireCtx_.enabled ? &wireCtx_ : nullptr,
@@ -1050,20 +1035,20 @@ private:
         // A blob cache-miss fetch is answered on its own tag, independent of work-item flow:
         // the requesting worker is mid-decode and blocked waiting for exactly this reply, so it is served
         // even while the master is shutting down.
-        if(isLayoutRequest_) {
-            sendLayoutResponse();
+        if(blobRequested_) {
+            sendBlobResponse();
             return;
         }
 
-        // prepare the correct type of message in the outgoing command. A refused request (malformed /
-        // unknown -- see processRequest) is answered with NODATA rather than a fresh work item: the
-        // worker then simply retries after its short NODATA back-off. During shutdown the STOP takes
-        // precedence, so the stop accounting sees the same number of STOP responses either way.
+        // prepare the correct type of outgoing frame. A refused request (malformed / unknown -- see
+        // processRequest) is answered with NO_WORK rather than a fresh work item: the worker then simply
+        // retries after its short NO_WORK back-off. During shutdown the SHUTDOWN takes precedence, so the
+        // stop accounting sees the same number of SHUTDOWN responses either way.
         if(stopRequested_) {
             prepareStopResponse();
         }
         else if(refused_) {
-            commandContainer_.reset(networked_consumer_payload_command::NODATA);
+            commandContainer_.reset(Gem::Courtier::GFrameKind::NO_WORK);
         }
         else {
             prepareDataResponse();
@@ -1087,16 +1072,16 @@ private:
     }
 
     /**
-         * @brief Answers a worker's REQUEST_BLOB with a SEND_BLOB carrying the serialized blob from
+         * @brief Answers a worker's BLOB_REQUEST with a BLOB_REPLY carrying the serialized blob from
          * the master's registry (blob cache-miss fetch). Sent on TAG_SEND_BLOB so it is not mistaken
          * for a work-item response by the worker's ordinary receive. If the id is not (or no longer)
          * cached the blob is left empty and the worker treats the fetch as failed.
          */
-    void sendLayoutResponse() {
-        // Build the SEND_BLOB reply from the master's shared registry (under a null scope; the reply
-        // carries only the raw blob, no genome). Empty blob on a miss -> the worker fails the fetch.
-        outgoingMessage_ = Gem::Courtier::buildLayoutReply<processable_type>(
-            requestedLayoutId_,
+    void sendBlobResponse() {
+        // Build the BLOB_REPLY from the master's shared registry (under a null scope; the reply
+        // carries only the raw blob, no work item). Empty blob on a miss -> the worker fails the fetch.
+        outgoingMessage_ = Gem::Courtier::buildBlobReply<processable_type>(
+            requestedBlobId_,
             wireRegistry_,
             serializationMode_
         );
@@ -1126,7 +1111,7 @@ private:
     const bool stopRequested_;
     /**
          * Whether the inbound request was refused (malformed or unknown -- see processRequest); a refused
-         * request is answered with NODATA (or STOP during shutdown) instead of a fresh work item.
+         * request is answered with NO_WORK (or SHUTDOWN during shutdown) instead of a fresh work item.
          */
     bool refused_ = false;
     /**
@@ -1136,12 +1121,12 @@ private:
     /**
          * function to deliver a processed work item to the injected payload sink
          */
-    std::move_only_function<void(std::unique_ptr<processable_type>)> putPayloadItem_;
+    std::move_only_function<void(GCommandContainerT<processable_type> &&)> putPayloadItem_;
     /**
          * Command and payload received/processed (depends on current state of session)
          */
-    GCommandContainerT<processable_type, networked_consumer_payload_command> commandContainer_{
-        networked_consumer_payload_command::NONE
+    GCommandContainerT<processable_type> commandContainer_{
+        Gem::Courtier::GFrameKind::NONE
     };
     MPI_Request mpiRequestHandle_;
     /**
@@ -1151,12 +1136,12 @@ private:
 
     /// blob send-once (master side): the consumer-shared registry (not owned) and the wire
     /// scope installed around (de)serialisation, with the peer set to the requesting worker's rank. When
-    /// the inbound request is a REQUEST_BLOB, isLayoutRequest_ is set and requestedLayoutId_ holds the
-    /// wanted id so sendResponse() answers with a SEND_BLOB instead of a work item.
+    /// the inbound request is a BLOB_REQUEST, blobRequested_ is set and requestedBlobId_ holds the
+    /// wanted id so sendResponse() answers with a BLOB_REPLY instead of a work item.
     Gem::Courtier::GWireBlobRegistry *wireRegistry_ = nullptr;
     Gem::Courtier::GWireSerializationContext wireCtx_;
-    bool isLayoutRequest_ = false;
-    Gem::Courtier::GWireBlobId requestedLayoutId_{0, 0};
+    bool blobRequested_ = false;
+    Gem::Courtier::GWireBlobId requestedBlobId_{0, 0};
 };
 
 /**
@@ -1223,7 +1208,7 @@ private:
      *  (3.1) Deserialize received object\n
      *  (3.2) If the message from the worker includes a processed item, hand it to the injected payload sink\n
      *  (3.3) Take an item from the non-processed items queue (if currently there is one available)\n
-     *  (3.4) Serialize the response container, which contains a new work item or the NODATA command.\n
+     *  (3.4) Serialize the response frame, which contains a new work item or a NO_WORK frame.\n
      *  (3.5) Asynchronously send the item to the worker node which has requested it.\n
      *  (3.6) Exit the handler. This lets the thread pool use this thread for future incoming requests.\n
      *
@@ -1236,20 +1221,20 @@ public:
          * @brief Constructor to instantiate the GMPIConsumerMasterNodeT.
          *
          * The payload source/sink are REQUIRED constructor parameters: the master node cannot
-         * usefully run without them (an unset source would silently starve the workers with NODATA,
+         * usefully run without them (an unset source would silently starve the workers with NO_WORK,
          * an unset sink would silently drop every processed result), so the former two-phase
          * setPayloadFunctors() seam was retired in favour of construction-time injection.
          *
          * @param commSize number of nodes in the cluster, which is equal to the number of workers + 1
          * @param config configuration for this node specified by the end user
          * @param getPayloadItemFn Source callback returning the next raw work item (or empty pointer)
-         * @param putPayloadItemFn Sink callback receiving each processed work item
+         * @param putPayloadItemFn Sink callback receiving each RETURN frame
          */
     GMPIConsumerMasterNodeT(
         std::int32_t commSize,
         const MPIConsumerConfig &config,
         std::move_only_function<std::unique_ptr<processable_type>()> getPayloadItemFn,
-        std::move_only_function<void(std::unique_ptr<processable_type>)> putPayloadItemFn
+        std::move_only_function<void(GCommandContainerT<processable_type> &&)> putPayloadItemFn
     )
       : commSize_{commSize}
       , config_{config}
@@ -1355,7 +1340,7 @@ private:
             // Probe (rather than post a fixed-size receive) so a request of ANY size can be received:
             // MPI_Get_count then tells us the exact length and we allocate to fit. This removes the old
             // fixed message-size cap, which a large genome's first (full-payload) work item
-            // or a big SEND_BLOB reply could exceed. The receive side is single-threaded (only this
+            // or a big BLOB_REPLY could exceed. The receive side is single-threaded (only this
             // listener probes/receives; handler threads merely send), so the probe -> receive pair below
             // is race-free.
             int isAvailable{0};
@@ -1443,7 +1428,7 @@ private:
             status,
             std::string{buffer.get(), static_cast<size_t>(mpiGetCount(status))},
             [this]() -> std::unique_ptr<processable_type> { return getPayloadItem(); },
-            [this](std::unique_ptr<processable_type> p) { putPayloadItem(std::move(p)); },
+            [this](GCommandContainerT<processable_type> &&frame) { putPayloadItem(std::move(frame)); },
             config_.serializationMode,
             stopRequested,
             &wireRegistry_ // blob send-once: the registry shared by all sessions of this master
@@ -1520,7 +1505,7 @@ private:
             /* no increment */) {
             if((*sessionIter)->isCompleted()) {
                 // track the completed stop requests
-                if((*sessionIter)->getOutCommand() == networked_consumer_payload_command::STOP) {
+                if((*sessionIter)->getOutFrameKind() == Gem::Courtier::GFrameKind::SHUTDOWN) {
                     ++stopSendOutsCompleted;
                 }
 
@@ -1558,23 +1543,14 @@ private:
 
     //-------------------------------------------------------------------------
     /**
-         * @brief Submits a processed work item to the injected external sink.
+         * @brief Submits a returned frame to the injected external sink.
          *
-         * Throws a geneva_exception if @p p is empty. The sink is a required constructor parameter
-         * (validated there), so it is always set.
+         * The sink is a required constructor parameter (validated there), so it is always set.
          *
-         * @param p The processed work item to deliver (must not be empty)
+         * @param frame The RETURN frame to deliver
          */
-    void putPayloadItem(std::unique_ptr<processable_type> p) {
-        if(not p) {
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "GMPIConsumerMasterNodeT<>::putPayloadItem():" << '\n'
-                << "Function called with empty work item" << '\n'
-            );
-        }
-
-        putPayloadItemFn_(std::move(p));
+    void putPayloadItem(GCommandContainerT<processable_type> &&frame) {
+        putPayloadItemFn_(std::move(frame));
     }
 
 public:
@@ -1629,12 +1605,12 @@ private:
     std::atomic_bool isToldToStop_;
     /// External work-item source/sink injected at construction (required; validated in the constructor).
     std::move_only_function<std::unique_ptr<processable_type>()> getPayloadItemFn_;
-    std::move_only_function<void(std::unique_ptr<processable_type>)> putPayloadItemFn_;
+    std::move_only_function<void(GCommandContainerT<processable_type> &&)> putPayloadItemFn_;
 
     /// blob send-once registry shared by every session this master opens. MPI ranks are
     /// persistent, so each session keys its per-peer ack tracking on the requesting worker's rank
     /// (status.MPI_SOURCE) -- a naturally stable id for the whole run. A late-joining / restarted rank
-    /// that misses a blob fetches it back via the REQUEST_BLOB / SEND_BLOB command pair.
+    /// that misses a blob fetches it back via the BLOB_REQUEST / BLOB_REPLY frame pair.
     Gem::Courtier::GWireBlobRegistry wireRegistry_;
 };
 

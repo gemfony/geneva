@@ -55,19 +55,31 @@ enum class run_state : Gem::Common::ENUMBASETYPE {
 };
 
 /******************************************************************************/
-/** @brief Ids of the allowed commands for the communication of networked consumers.
- *  REQUEST_BLOB / SEND_BLOB form the blob-send-once cache-miss fetch: a worker that
- *  receives a work item referencing a blob id it does not hold asks the server for it
- *  (REQUEST_BLOB), and the server replies with the serialized blob blob (SEND_BLOB). */
-enum class networked_consumer_payload_command : Gem::Common::ENUMBASETYPE {
-    NONE = 0,
-    GETDATA = 1,
-    NODATA = 2,
-    COMPUTE = 3,
-    RESULT = 4,
-    STOP = 5,
-    REQUEST_BLOB = 6,
-    SEND_BLOB = 7
+/**
+ * @brief The CLOSED frame vocabulary of the networked consumer/worker session protocol -- the part of a
+ * message courtier itself acts on.
+ *
+ * A frame says what the message does to the *transport*: pull for work, hand work out, check a result
+ * back in, shut a worker down, fetch a blob. What the message MEANS to the using library (evaluate this,
+ * here are the results, …) is not expressed here: it rides the frame as an opaque library tag plus a
+ * library-defined payload that courtier relays without interpreting (see GCommandContainerT).
+ *
+ * BLOB_REQUEST / BLOB_REPLY form the blob-send-once cache-miss fetch: a worker that receives a work item
+ * referencing a blob id it does not hold asks the server for it (BLOB_REQUEST), and the server answers
+ * from its own registry (BLOB_REPLY). Both are served entirely inside courtier, hence frames rather than
+ * library tags.
+ *
+ * NONE is the cleared/default state of a frame container, never a transmitted frame.
+ */
+enum class GFrameKind : Gem::Common::ENUMBASETYPE {
+    NONE = 0,         ///< Cleared / not yet filled in -- never sent
+    PULL = 1,         ///< worker -> server: "give me work" (may carry a result, see RETURN)
+    NO_WORK = 2,      ///< server -> worker: "nothing available right now"
+    WORK = 3,         ///< server -> worker: a work item to process
+    RETURN = 4,       ///< worker -> server: a processed slot's outcome (+ item or library payload)
+    SHUTDOWN = 5,     ///< server -> worker: stop working and terminate
+    BLOB_REQUEST = 6, ///< worker -> server: "send me the blob with this id"
+    BLOB_REPLY = 7    ///< server -> worker: the requested blob (empty on a registry miss)
 };
 
 /******************************************************************************/
@@ -175,7 +187,7 @@ using CORRELATION_ID_TYPE = std::uint64_t;
 using SUBMISSION_UUID_TYPE = std::array<std::uint64_t, 2>;
 
 /******************************************************************************/
-// networked_consumer_payload_command and consumerType stream as their underlying
+// GFrameKind and consumerType stream as their underlying
 // numeric values through the shared machinery in GCommonEnums.hpp (marker
 // specializations after the namespace end). Re-export the operators so ADL
 // finds them for this namespace's enums. processingStatus keeps a hand-written
@@ -196,6 +208,6 @@ std::istream &operator>>(std::istream &i, Gem::Courtier::processingStatus &srm);
 /******************************************************************************/
 // Numeric streaming opt-in (see numeric_enum_io_v in GCommonEnums.hpp)
 namespace Gem::Common {
-template <> inline constexpr bool numeric_enum_io_v<Gem::Courtier::networked_consumer_payload_command> = true;
+template <> inline constexpr bool numeric_enum_io_v<Gem::Courtier::GFrameKind> = true;
 template <> inline constexpr bool numeric_enum_io_v<Gem::Courtier::consumerType> = true;
 } /* namespace Gem::Common */

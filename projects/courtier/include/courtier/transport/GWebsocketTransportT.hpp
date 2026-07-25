@@ -66,7 +66,7 @@
 #include "courtier/GCommandContainerT.hpp"
 #include "courtier/GCourtierEnums.hpp"
 #include "courtier/GCourtierHelperFunctions.hpp"
-#include "courtier/GServerSessionLogic.hpp"       // shared synchronous server dispatch (GETDATA/RESULT/...)
+#include "courtier/GServerSessionLogic.hpp"       // shared synchronous server dispatch (PULL/RETURN/...)
 #include "courtier/GWireCodec.hpp"                // shared scope-wrapped (de)serialization
 #include "courtier/GWireSerializationContext.hpp"
 #include "courtier/transport/GPrefetchingClientT.hpp" // blob send-once: wire (de)serialization scope
@@ -89,9 +89,9 @@ namespace Gem::Courtier::Consumers {
  * io thread; the compute pool threads only ever touch the work-item container handed to them and then
  * post the result back onto the io thread.
  *
- * The wire protocol is unchanged: GETDATA and RESULT are both "pulls" that the server answers with one
- * COMPUTE/NODATA, so the server (and its sessions) need no knowledge of the client's prefetch depth.
- * The client treats a late result as an ordinary RESULT -- whether it still matters is entirely the
+ * The wire protocol is unchanged: PULL and RETURN are both "pulls" that the server answers with one
+ * WORK/NO_WORK, so the server (and its sessions) need no knowledge of the client's prefetch depth.
+ * The client treats a late result as an ordinary RETURN -- whether it still matters is entirely the
  * server's concern (it reconciles by correlation id and silently drops results for finished batches).
  *
  * @tparam processable_type The work-item type exchanged with the server (must be processable)
@@ -264,8 +264,8 @@ private:
         }
 
         // Beast permits only ONE write to be outstanding at a time, but a prefetching client may want
-        // to send several messages close together (a RESULT from a just-finished evaluation plus a
-        // GETDATA top-up). Queue them and let the pump send them one after another.
+        // to send several messages close together (a RETURN from a just-finished evaluation plus a
+        // PULL top-up). Queue them and let the pump send them one after another.
         write_queue_.push_back(std::move(message));
         pump_write();
     }
@@ -408,8 +408,8 @@ private:
         async_start_read();
         start_halt_timer();
 
-        // Prime the pipeline: send up to prefetch_depth_ GETDATA pulls. Further pulls are issued as
-        // RESULTs are returned (finish_compute_()) and as NODATA replies are backed off and retried
+        // Prime the pipeline: send up to prefetch_depth_ PULL frames. Further pulls are issued as
+        // RETURNs are sent (finish_compute_()) and as NO_WORK replies are backed off and retried
         // (schedule_refill_()); the read above is re-armed in when_read().
         request_more_();
     }
@@ -479,8 +479,8 @@ private:
             return;
         }
 
-        // Handle the message: a COMPUTE item is moved to the compute pool (so the io thread stays free
-        // to service pings while the -- possibly long -- evaluation runs); lighter commands (NODATA)
+        // Handle the message: a WORK item is moved to the compute pool (so the io thread stays free
+        // to service pings while the -- possibly long -- evaluation runs); lighter frames (NO_WORK)
         // are answered directly. Then re-arm the read so exactly one read stays outstanding --
         // unless handle_message() shut the connection down (fatal decode failure / bad command).
         handle_message();
@@ -492,8 +492,8 @@ private:
 
     //-------------------------------------------------------------------------
     /**
-	  * @brief Processing of incoming messages and creation of responses takes place here. A COMPUTE
-	  * item is moved to the compute pool; NODATA triggers a backoff refill; bad messages shut down.
+	  * @brief Processing of incoming messages and creation of responses takes place here. A WORK
+	  * item is moved to the compute pool; NO_WORK triggers a backoff refill; bad messages shut down.
 	  */
     void handle_message() {
         // Extract the string from the buffer
@@ -518,16 +518,16 @@ private:
             return;
         }
 
-        // Both COMPUTE and NODATA are answers to a pull (a GETDATA or RESULT we sent earlier), so one
+        // Both WORK and NO_WORK are answers to a pull (a PULL or RETURN we sent earlier), so one
         // pull is now resolved.
         if(pending_pulls_ > 0) {
             --pending_pulls_;
         }
 
-        // Act on the command received
-        switch(command_container_.get_command()) {
-            using enum Gem::Courtier::networked_consumer_payload_command;
-        case COMPUTE:
+        // Act on the frame received
+        switch(command_container_.kind()) {
+            using enum Gem::Courtier::GFrameKind;
+        case WORK:
             // Work arrived. Move it out (so command_container_ is free for the next read) and hand the
             // (possibly long-running, unbounded) evaluation to the compute pool, so the io thread stays
             // free to service pings -> auto-pong while it runs. The result is written back from
@@ -537,7 +537,7 @@ private:
             dispatch_compute_(std::move(command_container_));
             break;
 
-        case NODATA:
+        case NO_WORK:
             // No work available yet. The in-flight total has dropped by one; back off, then top up
             // again. The wait is an async timer (NOT a blocking sleep): at depth > 1 other items are
             // still computing and their results / pings must not be stalled on the io thread.
@@ -546,10 +546,10 @@ private:
             break;
 
         default:
-            // An unknown/invalid command is unrecoverable; log and shut down cleanly (do NOT throw
+            // An unknown/invalid frame is unrecoverable; log and shut down cleanly (do NOT throw
             // -- that would unwind the io thread).
             glogger << "In GWebsocketClientT<processable_type>::handle_message():" << '\n'
-                    << "Received invalid command " << pcToStr(command_container_.get_command())
+                    << "Received invalid frame " << fkToStr(command_container_.kind())
                     << '\n'
                     << "The client will shut down." << '\n'
                     << GWARNING;
@@ -561,17 +561,15 @@ private:
 
     //-------------------------------------------------------------------------
     /**
-		  * Issues GETDATA pulls until the number of in-flight items (sent-but-unanswered pulls plus
+		  * Issues PULL frames until the number of in-flight items (sent-but-unanswered pulls plus
 		  * items currently being evaluated) reaches the configured prefetch depth. At depth 1 this keeps
 		  * exactly one item in flight -- the classic strictly-serial behaviour. Runs on the io thread.
 		  */
     void request_more_() {
         while(not this->halt() && (pending_pulls_ + computing_) < prefetch_depth_) {
             ++pending_pulls_;
-            GCommandContainerT<processable_type, networked_consumer_payload_command> const getdata{
-                networked_consumer_payload_command::GETDATA
-            };
-            send_command_(getdata);
+            GCommandContainerT<processable_type> const pull{GFrameKind::PULL};
+            send_command_(pull);
         }
     }
 
@@ -581,7 +579,7 @@ private:
 	 *
 	 *  @param container The command container to serialize and transmit */
     void send_command_(
-        const GCommandContainerT<processable_type, networked_consumer_payload_command> &container
+        const GCommandContainerT<processable_type> &container
     ) {
         try {
             this->async_start_write(
@@ -601,12 +599,12 @@ private:
 
     //-------------------------------------------------------------------------
     /**
-	  * @brief Closes the connection to the peer, cancelling the halt and NODATA timers first.
+	  * @brief Closes the connection to the peer, cancelling the halt and NO_WORK timers first.
 	  *
 	  * @param cc The close code to be sent to the peer
 	  */
     void do_close(close_code cc) {
-        // Stop the halt-poll and NODATA-backoff timers; if either has already fired this is a no-op.
+        // Stop the halt-poll and NO_WORK-backoff timers; if either has already fired this is a no-op.
         halt_timer_.cancel();
         nodata_timer_.cancel();
 
@@ -636,15 +634,15 @@ private:
     //-------------------------------------------------------------------------
     // The transport hooks the pipeline base drives (see GPrefetchingClientT)
 
-    /** @brief Pipeline-refill hook: issues GETDATA pulls until the in-flight total reaches the
+    /** @brief Pipeline-refill hook: issues PULL frames until the in-flight total reaches the
      *  prefetch depth (see request_more_()). */
     void refill_() { request_more_(); }
 
-    /** @brief Result-transmission hook: writes the RESULT to the server and tops the pipeline
-     *  back up (the RESULT itself is a pull; request_more_ covers any NODATA-left deficit).
-     *  @param container The evaluated work item, already marked as a RESULT by the base */
+    /** @brief Result-transmission hook: writes the RETURN to the server and tops the pipeline
+     *  back up (the RETURN itself is a pull; request_more_ covers any NO_WORK-left deficit).
+     *  @param container The RETURN frame the base built from the evaluated work item */
     void sendResultAndRefill_(
-        GCommandContainerT<processable_type, networked_consumer_payload_command> container
+        GCommandContainerT<processable_type> container
     ) {
         send_command_(container);
         request_more_();
@@ -715,7 +713,7 @@ public:
 	  * @param io_context The io_context whose executor drives this session's async operations
 	  * @param socket The already-accepted TCP socket, moved into the session's websocket stream
 	  * @param get_payload_item Callback that hands out the next work item (or null when none is available)
-	  * @param put_payload_item Callback that returns a completed work item to the server/broker
+	  * @param put_payload_item Callback that hands a RETURN frame back to the server/broker
 	  * @param check_server_stopped Callback returning true when the server has reached a stop condition
 	  * @param server_sign_on Callback notifying the server of session start (true) and termination (false)
 	  * @param serialization_mode Which serialization format (binary/XML/text) the wire protocol uses
@@ -726,7 +724,7 @@ public:
      *  server, and signs itself on/off. Bundled so the constructor stays within the parameter budget. */
     struct SessionHooks {
         std::move_only_function<std::unique_ptr<processable_type>()> get_payload_item;
-        std::move_only_function<void(std::unique_ptr<processable_type>)> put_payload_item;
+        std::move_only_function<void(GCommandContainerT<processable_type> &&)> put_payload_item;
         std::move_only_function<bool()> check_server_stopped;
         std::move_only_function<void(bool)> server_sign_on;
     };
@@ -1168,10 +1166,10 @@ private:
 
     //-------------------------------------------------------------------------
     /**
-	  * @brief Processing of incoming messages and creation of a response-string. Handles GETDATA
-	  * (hands out a work item) and RESULT (submits the returned payload, then hands out the next item).
+	  * @brief Processing of incoming messages and creation of a response-string. Handles PULL
+	  * (hands out a work item) and RETURN (sinks the returned result, then hands out the next item).
 	  *
-	  * @return The response to be sent to the peer; an empty string on an unknown command or on error
+	  * @return The response to be sent to the peer; an empty string on an unknown frame or on error
 	  */
     std::string process_request() {
         try {
@@ -1190,9 +1188,9 @@ private:
             // Clear the buffer, so we may later fill it with data to be sent
             incoming_buffer_.consume(incoming_buffer_.size());
 
-            // Act on the command and produce the response (shared synchronous server dispatch). A
-            // websocket worker never sends REQUEST_BLOB (blobs arrive inline on the ordered
-            // connection), so only GETDATA / RESULT are exercised here; the response is serialized under
+            // Act on the frame and produce the response (shared synchronous server dispatch). A
+            // websocket worker never sends BLOB_REQUEST (blobs arrive inline on the ordered
+            // connection), so only PULL / RETURN are exercised here; the response is serialized under
             // this session's wire scope (blob send-once).
             return Gem::Courtier::handleServerRequest(
                 command_container_,
@@ -1236,7 +1234,7 @@ private:
     boost::asio::steady_timer timer_;
 
     std::move_only_function<std::unique_ptr<processable_type>()> get_payload_item_;
-    std::move_only_function<void(std::unique_ptr<processable_type>)> put_payload_item_;
+    std::move_only_function<void(GCommandContainerT<processable_type> &&)> put_payload_item_;
     std::move_only_function<bool()> check_server_stopped_;
     std::move_only_function<void(bool)> server_sign_on_;
 
@@ -1258,9 +1256,9 @@ private:
     unsigned int missed_pings_ = 0;
     static constexpr unsigned int max_missed_pings_ = 3;
 
-    GCommandContainerT<processable_type, networked_consumer_payload_command> command_container_{
-        networked_consumer_payload_command::NONE
-    }; ///< Holds the current command and payload (if any)
+    GCommandContainerT<processable_type> command_container_{
+        GFrameKind::NONE
+    }; ///< Holds the current frame and its payload (if any)
 
     /// The shared (consumer-owned) blob registry and this session's peer id, plus the wire scope
     /// installed around (de)serialisation so a work item's blob is sent to this peer only once

@@ -57,15 +57,15 @@ namespace Gem::Courtier::Consumers {
 /**
  * The shared prefetch/compute pipeline of the socket clients (websocket and ASIO). Both keep up to
  * prefetch_depth_ work items in flight (requested-but-unanswered pulls + items computing on the
- * compute pool), overlap network transfer with evaluation, back off on NODATA and poll halt() on a
+ * compute pool), overlap network transfer with evaluation, back off on NO_WORK and poll halt() on a
  * timer. That whole pipeline -- the in-flight bookkeeping, the compute-pool dispatch with its
- * work-guard discipline, the shared result prologue, the jittered NODATA refill timer and the
+ * work-guard discipline, the shared result prologue, the jittered NO_WORK refill timer and the
  * halt-poll timer -- lives here ONCE, as a CRTP base between GBaseClientT and the concrete client.
  * A concrete client contributes only its transport specifics through three hooks it befriends the
  * base for:
  *
  *  - refill_()                       -- issue pulls until the pipeline is at depth (transport send)
- *  - sendResultAndRefill_(container) -- transmit a finished RESULT and top the pipeline back up
+ *  - sendResultAndRefill_(container) -- transmit a finished RETURN and top the pipeline back up
  *  - haltShutdown_()                 -- tear the transport down when halt() is reached
  *
  * @tparam Derived The concrete client type (CRTP; must also inherit enable_shared_from_this)
@@ -85,7 +85,7 @@ protected:
       , compute_pool_(prefetch_depth_) { /* nothing */ }
 
     //-------------------------------------------------------------------------
-    /** @brief The destructor. Logs a shutdown summary (items processed, NODATA count, prefetch depth). */
+    /** @brief The destructor. Logs a shutdown summary (items processed, NO_WORK count, prefetch depth). */
     ~GPrefetchingClientT() override {
         glogger << '\n'
                 << client_name_ << " is shutting down. Processed " << this->getNProcessed()
@@ -106,10 +106,10 @@ protected:
      * container travels back to the io thread for the result transmission (all connection state must
      * only be touched there).
      *
-     * @param container The command container holding the COMPUTE work item to evaluate (moved into the worker)
+     * @param container The frame holding the WORK item to evaluate (moved into the worker)
      */
     void dispatch_compute_(
-        GCommandContainerT<processable_type, networked_consumer_payload_command> container
+        GCommandContainerT<processable_type> container
     ) {
         auto self = derived().shared_from_this();
         auto guard = boost::asio::make_work_guard(io_context_);
@@ -144,25 +144,27 @@ protected:
 
     //-------------------------------------------------------------------------
     /** @brief Runs on the io thread once an evaluation has completed: accounts for the finished item,
-     *  marks the container as a RESULT pull (the server answers a RESULT with the next item) and hands
-     *  it to the transport-specific sendResultAndRefill_() hook. The work guard captured by the
-     *  posting lambda is released when this returns.
+     *  rewrites the frame into the RETURN the using library wants (makeReturnFrame -- this is where the
+     *  library, not courtier, decides whether the whole item or a payload of its own travels back) and
+     *  hands it to the transport-specific sendResultAndRefill_() hook. A RETURN doubles as a pull: the
+     *  server answers it with the next item. The work guard captured by the posting lambda is released
+     *  when this returns.
      *
-     *  @param container The command container holding the just-evaluated work item, sent back as a RESULT */
+     *  @param container The frame holding the just-evaluated work item, rewritten into a RETURN */
     void finish_compute_(
-        GCommandContainerT<processable_type, networked_consumer_payload_command> container
+        GCommandContainerT<processable_type> container
     ) {
         this->incrementProcessingCounter();
         if(computing_ > 0) {
             --computing_;
         }
-        container.set_command(networked_consumer_payload_command::RESULT);
-        ++pending_pulls_; // the RESULT we are about to send is a pull (the server replies with an item)
+        Gem::Courtier::makeReturnFrame(container);
+        ++pending_pulls_; // the RETURN we are about to send is a pull (the server replies with an item)
         derived().sendResultAndRefill_(std::move(container));
     }
 
     //-------------------------------------------------------------------------
-    /** @brief After a NODATA reply, waits a short randomized backoff and then tops the pipeline back
+    /** @brief After a NO_WORK reply, waits a short randomized backoff and then tops the pipeline back
      *  up. A single timer suffices: refill_() covers the whole deficit at once. */
     void schedule_refill_() {
         std::uniform_int_distribution<> dist(50, 200);
@@ -223,17 +225,17 @@ protected:
     /// depth overlaps network transfer with computation.
     std::size_t prefetch_depth_ = 1;
 
-    /// In-flight bookkeeping, touched on the io thread only (no locking needed): pulls (GETDATA/RESULT)
+    /// In-flight bookkeeping, touched on the io thread only (no locking needed): pulls (PULL/RETURN)
     /// sent but not yet answered, and items currently being evaluated on the compute pool. The client
     /// keeps pending_pulls_ + computing_ == prefetch_depth_ whenever work is available.
     std::size_t pending_pulls_ = 0;
     std::size_t computing_ = 0;
 
-    std::uint64_t n_nodata_ = 0; ///< How often a NODATA reply was received (reported at shutdown)
+    std::uint64_t n_nodata_ = 0; ///< How often a NO_WORK reply was received (reported at shutdown)
 
-    GCommandContainerT<processable_type, networked_consumer_payload_command> command_container_{
-        networked_consumer_payload_command::NONE
-    }; ///< The read/parse target; a COMPUTE item is moved out of it onto the compute pool
+    GCommandContainerT<processable_type> command_container_{
+        GFrameKind::NONE
+    }; ///< The read/parse target; a WORK item is moved out of it onto the compute pool
 
     /// Per-client cache of received blobs (keyed by content id), and the wire scope installed around
     /// every (de)serialisation so an id-referenced blob resolves locally (blob send-once). The
@@ -246,7 +248,7 @@ protected:
     }; ///< Periodically polls halt() so a stop is noticed even while all items are computing
     boost::asio::steady_timer nodata_timer_{
         io_context_
-    }; ///< Backoff timer that retries a GETDATA top-up after a NODATA reply (async, never blocks)
+    }; ///< Backoff timer that retries a PULL top-up after a NO_WORK reply (async, never blocks)
 
     /// The compute pool's reservation in the process-wide thread budget: Fixed, because the pool
     /// must hold exactly prefetch_depth_ workers to keep prefetch_depth_ items computing. Declared

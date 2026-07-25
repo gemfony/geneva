@@ -135,17 +135,12 @@ int main(int argc, char **argv) {
         // Randomly initialize the object
         fi_ptr->randomInit(activityMode::ALLPARAMETERS);
 
-        // Add the object to a new command container
-        Gem::Courtier::GCommandContainerT<
-            gen::GGenome,
-            Gem::Courtier::networked_consumer_payload_command>
-            gcc1(Gem::Courtier::networked_consumer_payload_command::COMPUTE, fi_ptr->clone());
+        // Add the object to a new WORK frame
+        Gem::Courtier::GCommandContainerT<gen::GGenome> gcc1(
+            Gem::Courtier::GFrameKind::WORK, fi_ptr->clone());
 
-        // Prepare a command container for de-serialization
-        Gem::Courtier::GCommandContainerT<
-            gen::GGenome,
-            Gem::Courtier::networked_consumer_payload_command>
-            gcc2(Gem::Courtier::networked_consumer_payload_command::NONE);
+        // Prepare a frame for de-serialization
+        Gem::Courtier::GCommandContainerT<gen::GGenome> gcc2(Gem::Courtier::GFrameKind::NONE);
 
         // Serialize and de-serialize the object
         Gem::Courtier::container_from_string(
@@ -155,13 +150,13 @@ int main(int argc, char **argv) {
         );
 
         // Check that payloads 1+2 point to different objects
-        if(gcc1.get_payload().get() == gcc2.get_payload().get()) {
+        if(gcc1.item() == gcc2.item()) {
             std::cout << "Error: payload 1+2 seem to point to the same object" << '\n';
             return 1; // Indicate an error to the calling process
         }
 
         // Check that the payloads of gcc1 and gcc2 are identical
-        if(*(gcc1.get_payload()) != *(gcc2.get_payload())) {
+        if(*(gcc1.item()) != *(gcc2.item())) {
             std::cout << "Error: Content of payload 1+2 differs" << '\n';
             return 1; // Indicate an error to the calling process
         }
@@ -169,16 +164,13 @@ int main(int argc, char **argv) {
         // Process payloads 1+2 and compare -- they should now again be identical
         gcc1.process();
         gcc2.process();
-        if(gcc1.get_payload().get() == gcc2.get_payload().get()) {
+        if(gcc1.item() == gcc2.item()) {
             std::cout << "Error: payload 1+2 seem to point to the same object" << '\n';
             return 1; // Indicate an error to the calling process
         }
 
-        // Prepare a command container for de-serialization
-        Gem::Courtier::GCommandContainerT<
-            gen::GGenome,
-            Gem::Courtier::networked_consumer_payload_command>
-            gcc3(Gem::Courtier::networked_consumer_payload_command::NONE);
+        // Prepare a frame for de-serialization
+        Gem::Courtier::GCommandContainerT<gen::GGenome> gcc3(Gem::Courtier::GFrameKind::NONE);
 
         // Serialize and de-serialize the object
         Gem::Courtier::container_from_string(
@@ -188,19 +180,19 @@ int main(int argc, char **argv) {
         );
 
         // Check that payloads 2+3 point to different objects
-        if(gcc2.get_payload().get() == gcc3.get_payload().get()) {
+        if(gcc2.item() == gcc3.item()) {
             std::cout << "Error: payload 2+3 seem to point to the same object" << '\n';
             return 1; // Indicate an error to the calling process
         }
 
         // Check that the payloads of gcc2 and gcc3 are identical
-        if(*(gcc2.get_payload()) != *(gcc3.get_payload())) {
+        if(*(gcc2.item()) != *(gcc3.item())) {
             std::cout << "Error: Content of payload 2+3 differs" << '\n';
             return 1; // Indicate an error to the calling process
         }
 
         // Check that the payloads of gcc1 and gcc3 are identical
-        if(*(gcc1.get_payload()) != *(gcc3.get_payload())) {
+        if(*(gcc1.item()) != *(gcc3.item())) {
             std::cout << "Error: Content of payload 1+3 differs" << '\n';
             return 1; // Indicate an error to the calling process
         }

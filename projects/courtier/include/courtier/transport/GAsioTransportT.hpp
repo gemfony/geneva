@@ -63,7 +63,7 @@
 #include "courtier/GCommandContainerT.hpp"
 #include "courtier/GCourtierEnums.hpp"
 #include "courtier/GCourtierHelperFunctions.hpp"
-#include "courtier/GServerSessionLogic.hpp"       // shared synchronous server dispatch (GETDATA/RESULT/...)
+#include "courtier/GServerSessionLogic.hpp"       // shared synchronous server dispatch (PULL/RETURN/...)
 #include "courtier/GWireCodec.hpp"                // shared scope-wrapped (de)serialization + blob fetch
 #include "courtier/GWireSerializationContext.hpp"
 #include "courtier/transport/GPrefetchingClientT.hpp" // blob send-once: registry + wire scope
@@ -78,7 +78,7 @@ namespace Gem::Courtier::Consumers {
  * them on a compute pool and returns the results.
  *
  * One exchange equals one short-lived connection (resolve, connect, write request, read response,
- * close). A GETDATA exchange fetches an item; a RESULT exchange returns a finished item and fetches
+ * close). A PULL exchange fetches an item; a RETURN exchange returns a finished result and fetches
  * the next in the same connection. A configurable prefetch depth keeps spare items in flight so the
  * evaluation of one item overlaps the fetch/return connections of others (a depth of 1 reproduces
  * the classic strictly-serial behaviour).
@@ -144,7 +144,7 @@ public:
         // blob send-once. ASIO uses a fresh one-shot connection per exchange, so there is no
         // persistent per-connection peer identity for the server to key its per-peer "already holds this
         // blob" tracking on. The client therefore mints ONE stable, process-unique peer id at startup
-        // and announces it on every request (set_peer_id); the server uses it as the wire peer. The id
+        // and announces it on every request (setPeerId); the server uses it as the wire peer. The id
         // need only be unique among the server's concurrent clients, so a 64-bit random draw suffices.
         std::uniform_int_distribution<std::uint64_t> id_dist(1, std::numeric_limits<std::uint64_t>::max());
         peer_id_ = id_dist(rng_engine_);
@@ -155,7 +155,7 @@ public:
         // for that id was ever sent to this client, because the server tracks the client across many
         // short connections and may have marked it as holding the blob in an exchange whose full-payload
         // send was lost, or because the client reconnected). The fetch is a self-contained, blocking
-        // REQUEST_BLOB/SEND_BLOB round trip on its OWN socket + io_context (see fetch_blob_),
+        // BLOB_REQUEST/BLOB_REPLY round trip on its OWN socket + io_context (see fetch_blob_),
         // independent of the async pipeline -- so it can run synchronously from inside load() on the io
         // thread without re-entering the pipeline's connection logic.
         wire_ctx_.enabled = true;
@@ -194,9 +194,9 @@ private:
 	  * in io_context::run() until shutdown releases the work guard.
 	  */
     void run_() override {
-        // Prime the pipeline: enqueue up to prefetch_depth_ GETDATA pulls and start the first
+        // Prime the pipeline: enqueue up to prefetch_depth_ PULL frames and start the first
         // connection cycle. Each connection performs exactly one exchange (the classic one-shot ASIO
-        // session): a GETDATA fetches an item, a RESULT returns a finished item AND fetches the next in
+        // session): a PULL fetches an item, a RETURN returns a finished result AND fetches the next in
         // the same exchange. Evaluations run on a pool, so while one item computes a spare is already in
         // hand -- when it finishes, a connection returns it and fetches a replacement, and meanwhile the
         // spare is already computing. A depth of 1 reproduces the classic strictly-serial behaviour.
@@ -213,22 +213,20 @@ private:
     }
 
     //-------------------------------------------------------------------------
-    /** @brief Enqueues GETDATA pulls until the number of in-flight items (queued/in-progress exchanges
+    /** @brief Enqueues PULL frames until the number of in-flight items (queued/in-progress exchanges
 		 *  plus items currently being evaluated) reaches the prefetch depth, then starts a connection if
 		 *  none is running. Runs on the io thread. */
     void maintain_() {
         while(not this->halt() && (pending_pulls_ + computing_) < prefetch_depth_) {
             ++pending_pulls_;
-            GCommandContainerT<processable_type, networked_consumer_payload_command> getdata{
-                networked_consumer_payload_command::GETDATA
-            };
+            GCommandContainerT<processable_type> pull{GFrameKind::PULL};
             // Announce this client's stable peer id so the server can key its per-peer send-once
             // tracking on it across our many short connections.
-            getdata.set_peer_id(peer_id_);
+            pull.setPeerId(peer_id_);
             try {
-                // A GETDATA carries no genome, so no wire context is engaged (null scope).
+                // A PULL carries no work item, so no wire context is engaged (null scope).
                 exchange_queue_.push_back(
-                    Gem::Courtier::wireEncode(getdata, nullptr, serialization_mode_)
+                    Gem::Courtier::wireEncode(pull, nullptr, serialization_mode_)
                 );
             }
             catch(const std::exception &e) {
@@ -245,7 +243,7 @@ private:
     //-------------------------------------------------------------------------
     // The transport hooks the pipeline base drives (see GPrefetchingClientT)
 
-    /** @brief Pipeline-refill hook: enqueues GETDATA pulls up to the prefetch depth (see maintain_()). */
+    /** @brief Pipeline-refill hook: enqueues PULL frames up to the prefetch depth (see maintain_()). */
     void refill_() { maintain_(); }
 
     /** @brief Halt hook: shuts the client down when a halt condition is reached. */
@@ -375,7 +373,7 @@ private:
         n_reconnects_ = 0;
 
         // Disable Nagle's algorithm (TCP_NODELAY). Geneva's wire protocol is a strict, small
-        // request/response exchange (GETDATA/COMPUTE/RESULT). With Nagle enabled, a small segment
+        // request/response exchange (PULL/WORK/RETURN). With Nagle enabled, a small segment
         // is held back until the previous one is ACKed; combined with the peer's delayed ACKs this
         // can add tens of milliseconds of latency to every round-trip for no throughput benefit
         // (there is no second small write to coalesce with). We therefore disable it. Best-effort:
@@ -459,7 +457,7 @@ private:
             socket_ptr_.reset();
 
             // The exchange is complete: process the response (dispatch the item to the compute pool or
-            // back off on NODATA), then start the next queued exchange.
+            // back off on NO_WORK), then start the next queued exchange.
             finish_exchange_();
         }
         else {
@@ -485,16 +483,16 @@ private:
     //-------------------------------------------------------------------------
     /**
 	  * @brief Completes the current exchange: de-serializes the server's response and acts on it. A
-	  * COMPUTE item is handed to the compute pool (so the io thread stays free to run further exchanges
-	  * while it evaluates); a NODATA is backed off and retried. The connection is now free, so the next
+	  * WORK item is handed to the compute pool (so the io thread stays free to run further exchanges
+	  * while it evaluates); a NO_WORK is backed off and retried. The connection is now free, so the next
 	  * queued exchange (if any) is started.
 	  */
     void finish_exchange_() {
         exchanging_ = false;
 
-        // De-serialize the response under the wire scope (blob send-once): a COMPUTE work item referencing a
+        // De-serialize the response under the wire scope (blob send-once): a WORK item referencing a
         // blob by id resolves it against this client's local cache, or -- on a miss -- via fetch_blob,
-        // which performs a synchronous REQUEST_BLOB/SEND_BLOB round trip on its own socket (see
+        // which performs a synchronous BLOB_REQUEST/BLOB_REPLY round trip on its own socket (see
         // fetch_blob_). A malformed or truncated message makes this throw; that must not escape
         // into io_context::run() (it would unwind the client's only io thread).
         try {
@@ -518,15 +516,15 @@ private:
         // Clear the buffer, ready for the next exchange's response.
         incoming_message_str_.clear();
 
-        // The exchange (a GETDATA or RESULT pull) has been answered.
+        // The exchange (a PULL or RETURN pull) has been answered.
         if(pending_pulls_ > 0) {
             --pending_pulls_;
         }
 
-        const auto inboundCommand = command_container_.get_command();
-        switch(inboundCommand) {
-            using enum Gem::Courtier::networked_consumer_payload_command;
-        case COMPUTE:
+        const auto inbound_kind = command_container_.kind();
+        switch(inbound_kind) {
+            using enum Gem::Courtier::GFrameKind;
+        case WORK:
             // Work arrived. Move it out (so command_container_ is free for the next exchange's response)
             // and evaluate it on the compute pool. One pull became one computation, so the in-flight
             // total is unchanged; no top-up needed. Start the next queued exchange.
@@ -535,18 +533,18 @@ private:
             kick_exchange_();
             break;
 
-        case NODATA:
+        case NO_WORK:
             // No work available yet. The in-flight total dropped by one; back off (async timer, never a
-            // blocking sleep) and top up later. Still start any queued RESULT exchange now.
+            // blocking sleep) and top up later. Still start any queued RETURN exchange now.
             n_nodata_++;
             schedule_refill_();
             kick_exchange_();
             break;
 
         default:
-            // An unknown/invalid command is unrecoverable; log and shut down cleanly.
+            // An unknown/invalid frame is unrecoverable; log and shut down cleanly.
             glogger << "In GAsioConsumerClientT<processable_type>::finish_exchange_():" << '\n'
-                    << "Got unknown or invalid command " << inboundCommand << '\n'
+                    << "Got unknown or invalid frame " << Gem::Courtier::fkToStr(inbound_kind) << '\n'
                     << "The client will shut down." << '\n'
                     << GWARNING;
             this->shutdown();
@@ -555,14 +553,14 @@ private:
     }
 
     //-------------------------------------------------------------------------
-    /** @brief Result-transmission hook driven by the pipeline base: queues a RESULT exchange that
-		 *  returns the item AND fetches a replacement in one connection, then tops the pipeline up.
+    /** @brief Result-transmission hook driven by the pipeline base: queues a RETURN exchange that
+		 *  returns the result AND fetches a replacement in one connection, then tops the pipeline up.
 		 *
-		 *  @param container The evaluated work item, already marked as a RESULT by the base */
+		 *  @param container The RETURN frame the base built from the evaluated work item */
     void sendResultAndRefill_(
-        GCommandContainerT<processable_type, networked_consumer_payload_command> container
+        GCommandContainerT<processable_type> container
     ) {
-        container.set_peer_id(peer_id_); // announce our stable peer id (blob send-once)
+        container.setPeerId(peer_id_); // announce our stable peer id (blob send-once)
         try {
             // Serialize the returned item under the wire scope so its (unchanged) blob is sent in full
             // to the server only the first time, by id thereafter (blob send-once).
@@ -580,7 +578,7 @@ private:
             return;
         }
         kick_exchange_();
-        maintain_(); // cover any deficit left by an earlier NODATA (a no-op when already at full depth)
+        maintain_(); // cover any deficit left by an earlier NO_WORK (a no-op when already at full depth)
     }
 
     //-------------------------------------------------------------------------
@@ -588,11 +586,11 @@ private:
 	  * @brief Worker-side cache-miss fetch (blob send-once): blocks until the server's blob for @p id is in
 	  * hand, then returns the serialized blob (empty on failure). It opens its OWN short-lived,
 	  * fully-synchronous connection (a separate socket on a throwaway io_context) and performs a
-	  * REQUEST_BLOB -> SEND_BLOB exchange that mirrors the normal one-shot request/response shape
+	  * BLOB_REQUEST -> BLOB_REPLY exchange that mirrors the normal one-shot request/response shape
 	  * (write request, shutdown-send, read until eof). Using a dedicated connection keeps this off the
 	  * main async pipeline: it does not touch socket_ptr_/exchange_queue_, so it is safe to call
 	  * synchronously from inside finish_exchange_'s deserialize on the io thread (the io thread simply
-	  * blocks for the brief round trip; the server answers a REQUEST_BLOB promptly from its registry).
+	  * blocks for the brief round trip; the server answers a BLOB_REQUEST promptly from its registry).
 	  *
 	  * @param id The content id of the blob to fetch from the server.
 	  * @return The serialized blob, or an empty string if the fetch failed.
@@ -600,10 +598,10 @@ private:
     std::expected<std::string, std::string> fetch_blob_(const Gem::Courtier::GWireBlobId &id) {
         try {
             // This runs mid-decode (inside a genome load() under the work-item wire scope). The codec's
-            // build/parse helpers each (de)serialize under a null scope so the REQUEST_BLOB/SEND_BLOB
+            // build/parse helpers each (de)serialize under a null scope so the BLOB_REQUEST/BLOB_REPLY
             // exchange does not recurse into the send-once context of the work item being decoded.
             const std::string request_str =
-                Gem::Courtier::buildLayoutRequest<processable_type>(id, peer_id_, serialization_mode_);
+                Gem::Courtier::buildBlobRequest<processable_type>(id, peer_id_, serialization_mode_);
 
             // A self-contained synchronous exchange on its own io_context/socket.
             boost::asio::io_context fetch_ctx;
@@ -628,11 +626,11 @@ private:
                 return std::unexpected("read error: " + read_ec.message());
             }
 
-            // De-serialize the SEND_BLOB reply (under a null scope) and pull out the blob. An empty blob
+            // De-serialize the BLOB_REPLY (under a null scope) and pull out the blob. An empty blob
             // means a malformed/empty reply -- a failure, not a usable blob, so report it as such.
-            std::string blob = Gem::Courtier::parseLayoutReply<processable_type>(response_str, serialization_mode_);
+            std::string blob = Gem::Courtier::parseBlobReply<processable_type>(response_str, serialization_mode_);
             if(blob.empty()) {
-                return std::unexpected(std::string("empty or malformed SEND_BLOB reply"));
+                return std::unexpected(std::string("empty or malformed BLOB_REPLY"));
             }
             return blob;
         }
@@ -676,7 +674,7 @@ private:
     std::string outgoing_message_str_; ///< Holds the current exchange's request (one exchange at a time)
 
     /// Serialized requests waiting for a connection (only one connection runs at a time, so completed
-    /// evaluations and GETDATA top-ups queue here and are sent one after another).
+    /// evaluations and PULL top-ups queue here and are sent one after another).
     std::deque<std::string> exchange_queue_;
     bool exchanging_ = false; ///< Whether a connection cycle is currently in progress
 
@@ -700,7 +698,7 @@ private:
  * @brief Consumer-side handling of a single client connection. A new session is started for each
  * new connection and is shut down when the request has been served.
  *
- * It reads one request (GETDATA or RESULT), sources/sinks work items through the functors supplied
+ * It reads one request (PULL or RETURN), sources/sinks work items through the functors supplied
  * by the consumer, and writes the response. A per-session deadline timer reclaims the socket of a
  * stalled or half-open client.
  *
@@ -717,7 +715,7 @@ public:
 	  * @param io_context The io_context driving the asynchronous operations of this session
 	  * @param socket The accepted client socket (ownership is taken by move)
 	  * @param get_payload_item Functor that returns the next work item to hand to the client (empty pointer if none available)
-	  * @param put_payload_item Functor that receives a finished work item returned by the client
+	  * @param put_payload_item Functor that receives a RETURN frame handed back by the client
 	  * @param check_server_stopped Functor returning true once the server is shutting down (suppresses new reads/sessions)
 	  * @param serialization_mode The serialization format used on the wire
 	  * @param sign_on Functor called with true on construction and false on destruction to track the active-session count
@@ -729,7 +727,7 @@ public:
         boost::asio::io_context &io_context,
         boost::asio::ip::tcp::socket socket,
         std::move_only_function<std::unique_ptr<processable_type>()> get_payload_item,
-        std::move_only_function<void(std::unique_ptr<processable_type>)> put_payload_item,
+        std::move_only_function<void(GCommandContainerT<processable_type> &&)> put_payload_item,
         std::move_only_function<bool()> check_server_stopped,
         Gem::Common::serializationMode serialization_mode,
         std::move_only_function<void(bool)> sign_on,
@@ -958,14 +956,14 @@ private:
     //-------------------------------------------------------------------------
     /**
 	  * @brief Steps to be taken when a request was received from the client: de-serializes the
-	  * command container, acts on the command (GETDATA serves an item, RESULT sinks the returned item
-	  * and serves the next) and produces the response.
+	  * frame, acts on it (PULL serves an item, RETURN sinks the returned result and serves the next)
+	  * and produces the response.
 	  *
-	  * @return Serialized data to be sent to the client as a response to the request (empty on error or unknown command)
+	  * @return Serialized data to be sent to the client as a response to the request (empty on error or unknown frame)
 	  */
     std::string process_request() {
         try {
-            // De-serialize the request under the wire scope (blob send-once): a returned RESULT genome may
+            // De-serialize the request under the wire scope (blob send-once): a returned work item may
             // reference its blob by id, which is resolved against this consumer's shared registry (the
             // server holds every blob it has sent). The scope's peer does not matter for decoding (only
             // for re-encoding), so it is left at its default here and set from the announced id below.
@@ -982,11 +980,11 @@ private:
             // Learn the announcing client's stable peer id (ASIO has no persistent per-connection
             // identity) and use it as the wire peer for the response, so the send-once tracking keys on
             // the client across its many short connections.
-            wire_ctx_.peer = command_container_.get_peer_id();
+            wire_ctx_.peer = command_container_.peerId();
 
-            // Act on the command and produce the response (shared synchronous server dispatch:
-            // GETDATA serves an item, RESULT sinks the returned item and serves the next, REQUEST_BLOB
-            // answers from the registry). The COMPUTE/NODATA response is serialized under the wire scope
+            // Act on the frame and produce the response (shared synchronous server dispatch:
+            // PULL serves an item, RETURN sinks the returned result and serves the next, BLOB_REQUEST
+            // answers from the registry). The WORK/NO_WORK response is serialized under the wire scope
             // (peer set above) so a work item's blob is sent send-once.
             return Gem::Courtier::handleServerRequest(
                 command_container_,
@@ -1037,15 +1035,15 @@ private:
     std::chrono::milliseconds session_timeout_{300'000};
 
     std::move_only_function<std::unique_ptr<processable_type>()> get_payload_item_;
-    std::move_only_function<void(std::unique_ptr<processable_type>)> put_payload_item_;
+    std::move_only_function<void(GCommandContainerT<processable_type> &&)> put_payload_item_;
     std::move_only_function<bool()> check_server_stopped_;
     std::move_only_function<void(bool)> f_sign_on_; ///< Signs the session on (true) / off (false) with the consumer
 
     Gem::Common::serializationMode serialization_mode_ = Gem::Common::serializationMode::GEM_BINARY;
 
-    GCommandContainerT<processable_type, networked_consumer_payload_command> command_container_{
-        networked_consumer_payload_command::NONE
-    }; ///< Holds the current command and payload (if any)
+    GCommandContainerT<processable_type> command_container_{
+        GFrameKind::NONE
+    }; ///< Holds the current frame and its payload (if any)
 
     /// blob send-once (server side): the consumer-shared registry (not owned) and the wire
     /// scope installed around (de)serialisation. wire_registry_ is null when the feature is disabled, in

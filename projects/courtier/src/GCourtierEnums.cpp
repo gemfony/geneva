@@ -36,7 +36,7 @@
 namespace Gem::Courtier {
 
 /******************************************************************************/
-// The numeric enum stream operators (networked_consumer_payload_command,
+// The numeric enum stream operators (GFrameKind,
 // consumerType) are supplied by the shared numeric_enum_io_v machinery in
 // GCommonEnums.hpp. Only processingStatus needs hand-written operators (its
 // insertion operator prints the enumerator name for diagnostics).

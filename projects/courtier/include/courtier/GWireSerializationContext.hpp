@@ -47,6 +47,7 @@
 
 // Geneva headers go here
 
+#include "common/GArchiveNamed.hpp" // archive_named (the blob-frame payload structs)
 #include "common/GCommonEnums.hpp" // Gem::Common::serializationMode
 #include "common/GMemberReflectionT.hpp" // member_desc / load_copy_ptr / cmp_skip (the wire-omitted-ptr descriptor)
 #include "common/concurrency/GContentAddressedStoreT.hpp" // the generic store GWireBlobRegistry specializes
@@ -83,6 +84,55 @@ using GWireBlobId = std::array<std::uint64_t, 2>;
 /** @brief Identifies a transport peer (a server-side session / a connected client). 0 == "no specific
  *  peer", used on the worker side where there is only the single upstream server. */
 using GWirePeerId = std::uint64_t;
+
+/******************************************************************************/
+/**
+ * The payload of a BLOB_REQUEST frame: the content id of a blob a worker needs but does not hold.
+ * The id's two 64-bit halves are streamed individually, so no std::array archive support is required.
+ */
+struct GBlobRequest {
+    ///////////////////////////////////////////////////////////////////////
+    friend struct Gem::Weft::access;
+
+    /** @brief (De)serialises the requested blob id.
+     *  @tparam Archive The GArchive codec type
+     *  @param ar The archive to read from / write to
+     *  @param version The (unused) serialization version number */
+    template <typename Archive>
+    void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
+        Gem::Common::archive_named(ar, "blob_id_hi", id[0]);
+        Gem::Common::archive_named(ar, "blob_id_lo", id[1]);
+    }
+    ///////////////////////////////////////////////////////////////////////
+
+    GWireBlobId id{0, 0}; ///< The content id of the requested blob
+};
+
+/******************************************************************************/
+/**
+ * The payload of a BLOB_REPLY frame: the requested content id plus the serialized blob. The blob is
+ * left EMPTY when the server's registry no longer holds the id -- the worker then treats the fetch as
+ * failed (and says so), rather than silently decoding nothing.
+ */
+struct GBlobReply {
+    ///////////////////////////////////////////////////////////////////////
+    friend struct Gem::Weft::access;
+
+    /** @brief (De)serialises the blob id and the blob itself.
+     *  @tparam Archive The GArchive codec type
+     *  @param ar The archive to read from / write to
+     *  @param version The (unused) serialization version number */
+    template <typename Archive>
+    void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
+        Gem::Common::archive_named(ar, "blob_id_hi", id[0]);
+        Gem::Common::archive_named(ar, "blob_id_lo", id[1]);
+        Gem::Common::archive_named(ar, "blob", blob);
+    }
+    ///////////////////////////////////////////////////////////////////////
+
+    GWireBlobId id{0, 0}; ///< The content id the reply answers
+    std::string blob;     ///< The serialized blob (empty on a registry miss)
+};
 
 /******************************************************************************/
 /** @brief Hashes a GWireBlobId (which is already a strong hash) into a size_t for the registry maps. */

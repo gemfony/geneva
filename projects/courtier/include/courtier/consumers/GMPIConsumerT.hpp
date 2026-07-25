@@ -96,7 +96,9 @@ public:
                 [this]() -> std::unique_ptr<processable_type> {
                     return this->checkoutWait(checkout_wait_);
                 },
-                [this](std::unique_ptr<processable_type> p) { this->checkin(std::move(p)); }
+                [this](Gem::Courtier::GCommandContainerT<processable_type> &&frame) {
+                    this->checkin(std::move(frame));
+                }
             );
         }
         else {

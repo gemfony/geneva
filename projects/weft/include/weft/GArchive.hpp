@@ -590,6 +590,12 @@ private:
         } else if constexpr (detail::is_bitset<U>::value) {
             std::string bits = v.to_string();
             process(bits);
+        } else if constexpr (std::is_same_v<U, std::monostate>) {
+            // The canonical EMPTY variant alternative. It carries no state, but the codecs are
+            // structural (the JSON driver needs a value for every member it opened), so it is written
+            // as an empty object -- the same shape a stateless serializable class produces.
+            d().begin_object();
+            d().end_object();
         } else if constexpr (detail::is_variant<U>::value) {
             std::size_t idx = v.index();
             d().begin_object();
@@ -834,6 +840,11 @@ private:
             std::string bits;
             process(bits);
             v = U{bits};
+        } else if constexpr (std::is_same_v<U, std::monostate>) {
+            // The canonical EMPTY variant alternative -- written as an empty object (see the saving
+            // side); consume that object so the stream position stays in step.
+            d().enter_object();
+            d().leave_object();
         } else if constexpr (detail::is_variant<U>::value) {
             d().enter_object();
             std::size_t idx = 0;

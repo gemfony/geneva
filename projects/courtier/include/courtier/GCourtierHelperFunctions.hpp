@@ -51,11 +51,11 @@ namespace Gem::Courtier {
 std::string psToStr(const processingStatus &ps);
 
 /**
- * @brief Translates the networked_consumer_payload_command into a clear-text string.
- * @param pc The networked_consumer_payload_command to be translated
- * @return A string representing the command (empty for an unrecognized value)
+ * @brief Translates a protocol frame kind into a clear-text string.
+ * @param fk The GFrameKind to be translated
+ * @return A string representing the frame kind (empty for an unrecognized value)
  */
-std::string pcToStr(const networked_consumer_payload_command &pc);
+std::string fkToStr(const GFrameKind &fk);
 
 /******************************************************************************/
 

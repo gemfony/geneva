@@ -129,9 +129,10 @@ private:
                         return p;
                     },
                 .put_payload_item =
-                    [self, this, lease](std::unique_ptr<processable_type> p) {
-                        lease->remove(p); // returned normally -> nothing for the lease to reclaim
-                        this->checkin(std::move(p));
+                    [self, this, lease](Gem::Courtier::GCommandContainerT<processable_type> &&frame) {
+                        // returned normally -> nothing for the lease to reclaim
+                        lease->remove(frame.outcome().correlation_id);
+                        this->checkin(std::move(frame));
                     },
                 .check_server_stopped = [self, this]() -> bool { return this->stopped(); },
                 .server_sign_on = [self, this](bool sign_on) { this->adjustSessionCount(sign_on); },
