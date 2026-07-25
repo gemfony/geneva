@@ -360,6 +360,37 @@ actually buys information. In practice this also means gating a contract-level c
 subset (e.g. the serialization/comparison contract cases) rather than re-running the convergence suites that
 the change cannot affect.
 
+## 23. Geneva is a library — a complete public API is the contract, not "used" code
+
+Geneva is a **toolkit**: it is linked into downstream applications whose needs this repository does not know
+and cannot see. A public API therefore exists to serve callers who are **not** in this tree, and its value is
+not measured by the presence of a local caller.
+
+- **"No caller inside Geneva" is not a defect, and not grounds for deletion.** A public function, overload,
+  accessor, or class that no example/test/benchmark happens to call is still part of the shipped interface and
+  may be exactly what an out-of-tree consumer relies on. Do **not** treat a whole-tree "unused" result
+  (Invariant 11) as a licence to remove a *public* API — that search proves only that *this repository* has no
+  caller, which is the expected condition for a general-purpose library, not evidence the API is dead.
+- **Buggy-but-public → fix it, don't delete it.** If a public API is discovered to be broken (a re-init trap,
+  a wrong default, a lifecycle hazard), the correct response is to **repair** it (and add the regression test
+  Invariant 15 requires), not to excise it because "nothing here calls it." Deleting a broken public entry
+  point silently narrows the contract and breaks the very downstream callers who most needed the fix.
+- **Completeness and symmetry are themselves API value.** A public setter implies a getter, an `add` implies a
+  `remove`, a `reset` completes a factory/singleton accessor — the rounded-out surface is part of what makes
+  the toolkit usable, even where the in-tree code exercises only one direction.
+
+This does **not** license dead **internal** machinery: a genuinely private helper, an inner-workings detail
+with no public exposure, or the periphery of a *replaced* mechanism (Invariant 20) is still removed once the
+whole-tree search comes back empty. The distinction is exposure, not local call count — public interface is
+kept and fixed; private orphans and abandoned peripheries are deleted.
+
+*Why:* a library curated down to "only what our own examples call" is a library that fails its actual users —
+the ones downstream. Confusing "no local caller" with "obsolete" would strip the interface of exactly the
+general, reusable entry points a toolkit exists to provide, and would turn a discovered bug in a public API
+into a reason to amputate rather than heal it. This is the public-interface complement of Invariant 19 (ship
+the whole public header tree, not a curated subset): ship — and maintain — the whole public API, not a subset
+justified by in-tree usage.
+
 ---
 
 *Add new invariants below as the maintainer establishes them. Keep each rule short, mandatory, and
