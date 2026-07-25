@@ -41,7 +41,7 @@
 
 /******************************************************************************/
 /**
- * Boost.Serialization export of the command container instantiated for GOptimizableEntity, the work-item
+ * The command container instantiated for GOptimizableEntity, the work-item
  * payload type carried over the wire by the networked consumers / clients. The matching
  * BOOST_CLASS_EXPORT_IMPLEMENT lives in GOptimizableEntityCommandContainerExport.cpp (one translation unit
  * in the geneva library). Including this header makes the registration visible at every networked

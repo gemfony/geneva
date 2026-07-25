@@ -470,7 +470,7 @@ class GDecoratorContainer<dimensions::Dim2, coordinate_type>
      * clone_ still fold onto the mixin.
      * @tparam Archive The GArchive codec type
      * @param ar The archive to serialize to / from
-     * @param version The (unused) class version supplied by Boost.Serialization
+     * @param version The (unused) serialization format version
      */
     template <typename Archive>
     void serialize(Archive &ar, [[maybe_unused]] unsigned int const version) {
@@ -662,7 +662,7 @@ class GDecoratorContainer<dimensions::Dim3, coordinate_type>
      * same single vector base_object<GPtrContainerT> used to. load_/compare_/name_/clone_ fold onto the mixin.
      * @tparam Archive The GArchive codec type
      * @param ar The archive to serialize to / from
-     * @param version The (unused) class version supplied by Boost.Serialization
+     * @param version The (unused) serialization format version
      */
     template <typename Archive>
     void serialize(Archive &ar, [[maybe_unused]] unsigned int const version) {

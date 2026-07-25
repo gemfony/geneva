@@ -150,7 +150,7 @@ private:
 /**
  * This class holds all necessary information for the training of the neural network individual,
  * including the network's geometry. For intermediate storage on disk, we can serialize the
- * entire object using the Boost.Serialization library. networkData objects can themselves be
+ * entire object using the GArchive serialization. networkData objects can themselves be
  * treated as std::vector. The idea is that the architecture is appended to the object, with
  * the first attached number being the input layer and the last one the output layer. In-between
  * numbers are hidden layers.

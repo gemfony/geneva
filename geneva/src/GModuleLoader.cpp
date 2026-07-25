@@ -63,7 +63,7 @@ namespace {
 /******************************************************************************/
 /**
  * A process-lifetime store of loaded module handles. A loaded .so backs live objects AND their
- * Boost.Serialization type registrations, so it must never be unloaded while the program runs; the store
+ * GArchive type registrations, so it must never be unloaded while the program runs; the store
  * is therefore intentionally never cleared. Guarded by a mutex so concurrent loads are safe (loads are
  * rare -- once at startup -- so a plain mutex is ample).
  */

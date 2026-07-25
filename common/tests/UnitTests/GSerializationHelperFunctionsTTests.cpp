@@ -47,7 +47,7 @@
 using namespace Gem::Common;
 
 // ---------------------------------------------------------------------------
-// Tiny Boost.Serialization-friendly payload type used to exercise the
+// Tiny GArchive-serializable payload type used to exercise the
 // sharedPtrToString / sharedPtrFromString round-trip.
 
 namespace {

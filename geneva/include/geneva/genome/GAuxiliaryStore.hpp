@@ -314,7 +314,7 @@ private:
     /**
      * @brief Full-state (de)serialization of the personality object and the opaque POD blocks
      *
-     * @tparam Archive The archive type (Boost.Serialization or a GArchive codec)
+     * @tparam Archive The GArchive codec type
      * @param ar The archive to serialize to / from
      * @param version The serialization version (unused)
      */

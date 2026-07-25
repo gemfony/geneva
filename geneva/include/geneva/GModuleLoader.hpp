@@ -50,12 +50,12 @@ namespace Gem::Geneva {
  *
  * This is the low-level module primitive -- it dlopens and gates but does NOT dispatch any contribution;
  * @c loadModule() below builds on it. It:
- *  - loads the shared object with @c RTLD_GLOBAL (one symbol namespace: a single Boost.Serialization
+ *  - loads the shared object with @c RTLD_GLOBAL (one symbol namespace: a single GArchive
  *    registry and single Geneva singletons) and @c RTLD_NOW (eager resolution);
  *  - resolves @c geneva_module_manifest() and validates its @c GenevaCompat **before touching any C++
  *    contribution** -- a compiler/stdlib/Boost/build-mode mismatch is rejected with a diagnostic naming the
  *    offending axis, rather than being mis-loaded and crashing later;
- *  - keeps the library resident for the process lifetime (its code + Boost.Serialization registrations back
+ *  - keeps the library resident for the process lifetime (its code + GArchive registrations back
  *    live objects) and never unloads it.
  *
  * The returned manifest (and everything it points to) lives for the process lifetime.

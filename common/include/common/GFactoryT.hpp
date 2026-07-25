@@ -455,10 +455,3 @@ private:
 
 } /* namespace Gem::Common */
 
-/******************************************************************************/
-/** @brief Mark this class as abstract. This is the content of
- * BOOST_SERIALIZATION_ASSUME_ABSTRACT(T) */
-
-
-
-/******************************************************************************/

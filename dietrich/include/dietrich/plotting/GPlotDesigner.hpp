@@ -296,7 +296,4 @@ private:
 
 } /* namespace Gem::Dietrich */
 
-/******************************************************************************/
-// Declare abstract or export class names for Boost.Serialization
-
 

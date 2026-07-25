@@ -59,9 +59,8 @@ namespace Gem::Common {
  * exactly as the hand-written serialize()/load_()/compare_() were. The mixins
  * below live in the base class and therefore cannot see a derived class's
  * private members directly, so each managed class grants friendship to this one
- * empty struct (a single `friend struct Gem::Common::GReflectiveInterfaceAccess;` line,
- * replacing the `friend class boost::serialization::access;` line the folded
- * serialize() used to need). Routing every access through this single shim keeps
+ * empty struct (a single `friend struct Gem::Common::GReflectiveInterfaceAccess;` line
+ * the folded serialize() needs). Routing every access through this single shim keeps
  * the friendship declaration short and identical across all managed classes.
  */
 struct GReflectiveInterfaceAccess {
@@ -125,10 +124,8 @@ struct GReflectiveInterfaceAccess {
      * @brief Reconstructs a default-constructed managed object on the heap,
      * reaching a *private* default constructor through this friend shim.
      *
-     * The GArchive analogue of Boost's @c access::construct: a managed class keeps
-     * its default constructor private (only de-serialization needs it) and
-     * befriends this struct, exactly as it once befriended
-     * @c boost::serialization::access. The polymorphic-pointer registry factory
+     * A managed class keeps its default constructor private (only de-serialization
+     * needs it) and befriends this struct. The polymorphic-pointer registry factory
      * therefore reconstructs the type *here* -- where the friendship grants ctor
      * access -- rather than at the (non-friend) @c GEM_REGISTER_ARCHIVABLE site.
      * @c register_archivable routes through this whenever the concrete type is not
@@ -170,8 +167,8 @@ concept ReflectiveInterfaceManaged =
  * This is the base half of the reflective-interface mixin, used directly by *abstract*
  * classes (those whose clone_() stays pure) and inherited by GReflectiveInterfaceT for
  * *concrete* classes. It derives from the class's real Parent and inserts no
- * data of its own, so it is transparent to Boost.Serialization: the folded
- * serialize() writes base_object<Parent> (skipping this stateless layer) plus
+ * data of its own, so it is transparent to serialization: the folded
+ * serialize() writes the Parent base slice (skipping this stateless layer) plus
  * the class's own members, exactly as the hand-written code did.
  *
  * The three overriders and the folded serialize() are single-sourced here from
@@ -263,9 +260,7 @@ protected:
 private:
     ///////////////////////////////////////////////////////////////////////
     friend struct Gem::Common::GReflectiveInterfaceAccess;
-    // Lets a GArchive codec reach this generated serialize (the GArchive analogue
-    // of the boost::serialization::access friendship), so the same generated
-    // sweep serves both serialization backends while they coexist.
+    // Lets a GArchive codec reach this generated serialize().
     friend struct Gem::Weft::access;
 
     /**
@@ -290,9 +285,9 @@ private:
      * Archive-generic: the same body serves a Boost archive or a @c GArchive codec
      * (the boost-vs-GArchive branch lives once in @c archive_named_base /
      * @c serialize_members), so the two backends coexist without a second sweep.
-     * @tparam Archive The Boost.Serialization archive or GArchive codec type
+     * @tparam Archive The GArchive codec type
      * @param ar The archive being read from or written to
-     * @param version The (unused) class version supplied by Boost.Serialization
+     * @param version The (unused) serialization format version
      */
     template <typename Archive>
     void serialize(Archive &ar, [[maybe_unused]] unsigned int const version) {

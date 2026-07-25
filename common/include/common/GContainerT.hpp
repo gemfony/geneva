@@ -261,7 +261,7 @@ class GContainerT {
      *
      * The trailing unsigned int is the class version; it is intentionally unnamed and unused.
      *
-     * @tparam Archive The archive type (Boost.Serialization or a GArchive codec).
+     * @tparam Archive The GArchive codec type.
      * @param ar The archive to read from or write to.
      */
     template <typename Archive>
@@ -1734,13 +1734,4 @@ using GUniquePtrContainerT = GContainerT<T, UniquePtrStorage<T, Container>>;
 
 } /* namespace Gem::Common */
 
-/******************************************************************************/
-/**
- * @brief Boost.Serialization abstract-type declarations for GContainerT.
- *
- * Required so that Boost.Serialization correctly handles the abstract base
- * class during serialisation of derived types.
- */
 
-
-/******************************************************************************/

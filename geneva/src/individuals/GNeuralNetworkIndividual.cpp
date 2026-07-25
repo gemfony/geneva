@@ -235,7 +235,7 @@ void networkData::compare(
 /**
  * @brief Saves the data of this struct to disc
  *
- * @param network_data_file The name of the file the data should be saved to (Boost.Serialization XML)
+ * @param network_data_file The name of the file the data should be saved to (GArchive JSON)
  */
 void networkData::saveToDisk(const std::string &network_data_file) const {
     std::ofstream tr_dat(network_data_file);
@@ -262,7 +262,7 @@ void networkData::saveToDisk(const std::string &network_data_file) const {
 /**
  * @brief Loads training data from the disc
  *
- * @param network_data_file The name of the file from which the data should be loaded (Boost.Serialization XML)
+ * @param network_data_file The name of the file from which the data should be loaded (GArchive JSON)
  */
 void networkData::loadFromDisk(const std::string &network_data_file) {
     std::ifstream tr_dat(network_data_file.c_str());

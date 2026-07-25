@@ -182,7 +182,7 @@ private:
      *  root and GOptimizerIT interface contribute nothing.
      *  @tparam Archive The archive type used for (de-)serialization
      *  @param ar The archive to serialize to / from
-     *  @param version The (unused) class version supplied by Boost.Serialization */
+     *  @param version The (unused) serialization format version */
     template <typename Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         Gem::Common::serialize_members(ar, this->localMembers_());
@@ -1143,9 +1143,4 @@ private:
 
 } /* namespace Gem::Geneva::OptimizationAlgorithms */
 
-/******************************************************************************/
-// Some serialization-related exports and declarations. Note that namespace
-// specifiers are included in the macros, no need for an explicit namespace boost::serialization
-
-// GBasePluggableOM's BOOST_SERIALIZATION_ASSUME_ABSTRACT lives in geneva/oa/GBasePluggableOM.hpp.
 /******************************************************************************/

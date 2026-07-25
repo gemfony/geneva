@@ -222,7 +222,7 @@ enum class tribool : Gem::Common::ENUMBASETYPE {
  */
 inline bool indeterminate(tribool t) noexcept { return t == tribool::Indeterminate; }
 
-/** @brief Intermediate enum used for Boost.Serialization of Gem::Common::tribool (preserves wire format) */
+/** @brief Intermediate enum giving Gem::Common::tribool a stable numeric wire representation */
 enum class triboolStates : Gem::Common::ENUMBASETYPE {
     TBS_FALSE        = 0,
     TBS_INDETERMINATE = 1,

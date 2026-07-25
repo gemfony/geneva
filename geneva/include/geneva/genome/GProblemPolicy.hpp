@@ -86,7 +86,7 @@ class GProblemPolicy {
 
     /**
      * @brief Serialises the shared policy: the four scalar rules plus the (polymorphic) constraint.
-     * @tparam Archive The archive type (Boost.Serialization or a GArchive codec)
+     * @tparam Archive The GArchive codec type
      * @param ar The archive to (de)serialise with
      * @param version The (unused) serialization version number
      */

@@ -62,7 +62,7 @@ class GRandomSearch_PersonalityTraits // NOLINT(cppcoreguidelines-special-member
      *  serves a Boost archive or a GArchive codec (the backend branch lives inside archive_named_base).
      *  @tparam Archive The archive type used for (de-)serialization
      *  @param ar The archive to serialize to / from
-     *  @param version The (unused) class version supplied by Boost.Serialization */
+     *  @param version The (unused) serialization format version */
     template <typename Archive>
     void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
         Gem::Common::archive_named_base<GPersonalityTraits>(ar, "GPersonalityTraits", *this);

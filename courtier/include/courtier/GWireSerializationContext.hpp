@@ -212,7 +212,7 @@ struct ser_wire_omitted_ptr {
     /**
      * @brief (De)serialises the pointer, omitting it (saving null) under an active, enabled wire scope; on
      * load an omitted (null) member leaves the target pointer untouched.
-     * @tparam Archive The archive type (Boost.Serialization or a GArchive codec)
+     * @tparam Archive The GArchive codec type
      * @tparam PtrT The smart-pointer member type (e.g. std::unique_ptr<T>)
      * @param ar The archive to (de)serialize through
      * @param name The NVP tag

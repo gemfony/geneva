@@ -50,7 +50,7 @@
 
 /******************************************************************************/
 // File-scope serializable element type for GPtrContainerT serialization tests.
-// Must be at file scope (not anonymous namespace): Boost.Serialization pointer
+// Must be at file scope (not anonymous namespace): the GArchive smart-pointer arm
 // tracking uses external linkage. SerBase is non-polymorphic (no virtual
 // destructor), so shared_ptr<SerBase> serializes without BOOST_CLASS_EXPORT.
 
@@ -802,7 +802,7 @@ TEST_CASE("GContainerT: GPodContainerT<int> with std::deque backend", "[GContain
         CHECK(a[2] == 8);
     }
 
-    SECTION("Boost.Serialization round-trip via GContainerT::serialize()") {
+    SECTION("GArchive round-trip via GContainerT::serialize()") {
         ConcretePodDeque src;
         src.assign({4, 5, 6});
         src[1] = 99;
@@ -1495,7 +1495,7 @@ TEST_CASE("GContainerT: GPodContainerT<int> with std::list backend", "[GContaine
         CHECK(b.size() == 3u);
     }
 
-    SECTION("Boost.Serialization TEXT round-trip via GContainerT::serialize()") {
+    SECTION("GArchive round-trip via GContainerT::serialize()") {
         ConcretePodList src;
         src.assign({11, 22, 33, 44});
         *std::next(src.begin(), 2) = 99;
@@ -1666,9 +1666,9 @@ TEST_CASE("GContainerT: edge cases", "[GContainerT][edge]") {
 /******************************************************************************/
 // ─────────────────────────── [serialization] ──────────────────────────────
 
-TEST_CASE("GContainerT: Boost.Serialization round-trips", "[GContainerT][serialization]") {
+TEST_CASE("GContainerT: GArchive round-trips", "[GContainerT][serialization]") {
     // GContainerT is abstract. ConcretePodVec inherits GContainerT<int, PodStorage<int>>'s
-    // template serialize() method which archives data_cnt_ via BOOST_SERIALIZATION_NVP.
+    // template serialize() method which archives data_cnt_ via archive_named.
     // These tests verify the full serialize/deserialize cycle for GPodContainerT.
     //
     // GPtrContainerT serialization (with cloneable, pointer-held elements) is covered indirectly
@@ -1779,8 +1779,8 @@ TEST_CASE("GContainerT: Boost.Serialization round-trips", "[GContainerT][seriali
     }
 
     // GPtrContainerT<SerBase> round-trips.
-    // SerBase is non-polymorphic (no virtual destructor), so Boost.Serialization
-    // handles shared_ptr<SerBase> directly without BOOST_CLASS_EXPORT.
+    // SerBase is non-polymorphic (no virtual destructor), so the GArchive codec
+    // handles shared_ptr<SerBase> directly (no polymorphic registration needed).
 
     SECTION("GPtrContainerT<SerBase> — TEXT archive round-trip") {
         ConcretePtrSerializable src;

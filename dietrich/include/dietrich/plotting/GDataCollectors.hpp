@@ -819,7 +819,7 @@ using GDataCollector4T = GDataCollectorT<x_type, y_type, z_type, w_type>;
  * error_y). Its tuple layout (X, X, Y, Y) would otherwise be indistinguishable
  * from a four-axis GDataCollector4T<X, X, Y, Y>, so it is realized as a distinct,
  * trivial subclass of the variadic base rather than as a bare alias. This keeps
- * its identity (and its is_abstract<> Boost.Serialization marker) separate while
+ * its identity (and its is_abstract<> abstract-type marker) separate while
  * inheriting all of the shared collector machinery unchanged.
  *
  * @tparam x_type The numeric type of the x-component and its error

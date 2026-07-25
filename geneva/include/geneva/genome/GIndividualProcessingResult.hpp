@@ -59,7 +59,7 @@ class individual_processing_result {
 
     /**
      * @brief Serializes this object to/from a Boost archive or a GArchive codec
-     * @tparam Archive The archive type (Boost.Serialization or a GArchive codec)
+     * @tparam Archive The GArchive codec type
      * @param ar The archive to read from or write to
      * @param version The serialization version (unused)
      */
@@ -196,6 +196,6 @@ private:
 
 /******************************************************************************/
 /**
- * @brief Needed for Boost.Serialization
+ * @brief Needed for GArchive serialization
  */
 /******************************************************************************/

@@ -72,7 +72,7 @@ class GCommandContainerT {
     friend struct Gem::Weft::access;
 
     /**
-     * @brief Boost.Serialization hook that (de-)serializes the command and the payload pointer, plus the
+     * @brief Serialization hook that (de-)serializes the command and the payload pointer, plus the
      * optional layout-fetch fields (a peer id, a layout id and a serialized layout blob).
      *
      * The three extra fields are inert for the common COMPUTE / RESULT / GETDATA / NODATA / STOP traffic

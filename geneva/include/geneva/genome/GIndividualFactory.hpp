@@ -140,7 +140,7 @@ class GIndividualFactory // NOLINT(cppcoreguidelines-special-member-functions)
     /**
      * @brief Serialises only the factory base; Config and the genome cache are transient.
      *
-     * @tparam Archive The archive type (Boost.Serialization or a GArchive codec)
+     * @tparam Archive The GArchive codec type
      * @param ar The archive to read from / write to
      * @param version The (unused) serialization version number
      */

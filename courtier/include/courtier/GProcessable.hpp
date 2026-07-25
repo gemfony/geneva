@@ -138,7 +138,7 @@ class GProcessable {
      * @brief Serialises the non-generic lifecycle state (status, errors, routing ids, timing).
      * The transient dispatch-scheduling state (dispatch_state_) is deliberately NOT serialised.
      *
-     * @tparam Archive The archive type (Boost.Serialization or a GArchive codec)
+     * @tparam Archive The GArchive codec type
      * @param ar The archive to (de)serialise the lifecycle state with
      * @param version The (unused) serialization version number
      */

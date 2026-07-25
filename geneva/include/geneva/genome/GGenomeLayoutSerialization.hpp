@@ -60,7 +60,7 @@ namespace Gem::Geneva::Genome {
 
 /**
  * @brief Serializes a GaussConfig (the static Gauss adaptor configuration) field by field.
- * @tparam Archive The archive type (Boost.Serialization or a GArchive codec).
+ * @tparam Archive The GArchive codec type.
  * @tparam T The Gauss config's floating-point type.
  * @param ar The archive to read from / write to.
  * @param g The GaussConfig to serialize.
@@ -81,7 +81,7 @@ void gem_archive_serialize(Archive &ar, GaussConfig<T> &g) {
 
 /**
  * @brief Serializes a BiGaussConfig (the static bi-gaussian adaptor configuration) field by field.
- * @tparam Archive The archive type (Boost.Serialization or a GArchive codec).
+ * @tparam Archive The GArchive codec type.
  * @tparam T The bi-gaussian config's floating-point type.
  * @param ar The archive to read from / write to.
  * @param g The BiGaussConfig to serialize.
@@ -109,7 +109,7 @@ void gem_archive_serialize(Archive &ar, BiGaussConfig<T> &g) {
 
 /**
  * @brief Serializes a FlipConfig (the static flip adaptor configuration) field by field.
- * @tparam Archive The archive type (Boost.Serialization or a GArchive codec).
+ * @tparam Archive The GArchive codec type.
  * @param ar The archive to read from / write to.
  * @param g The FlipConfig to serialize.
  */
@@ -126,7 +126,7 @@ void gem_archive_serialize(Archive &ar, FlipConfig &g) {
 // non-serialized) OA-owned GAdaptionConfig, so only the structure is serialized here.
 /**
  * @brief Serializes a GroupStructure (structure only: start / len / label_id / active).
- * @tparam Archive The archive type (Boost.Serialization or a GArchive codec).
+ * @tparam Archive The GArchive codec type.
  * @tparam T The group's value type.
  * @param ar The archive to read from / write to.
  * @param g The GroupStructure to serialize.
@@ -177,7 +177,7 @@ bool channelGroupsUniform(const ChannelLayout<T> &c) {
 /**
  * @brief Saves a ChannelLayout, using the compact one-value-set-per-group encoding when groups are
  * uniform and falling back to full per-value arrays otherwise (flagged by the `compact` field).
- * @tparam Archive The saving archive type (Boost.Serialization or a GArchive codec).
+ * @tparam Archive The saving GArchive codec type.
  * @tparam T The channel's value type.
  * @param ar The archive to write to.
  * @param c The channel to save.
@@ -224,7 +224,7 @@ void saveChannelLayout(Archive &ar, const ChannelLayout<T> &c) {
 /**
  * @brief Loads a ChannelLayout, rebuilding the per-value arrays from the compact per-group encoding
  * when `compact` is set, or reading the full per-value arrays directly otherwise.
- * @tparam Archive The loading archive type (Boost.Serialization or a GArchive codec).
+ * @tparam Archive The loading GArchive codec type.
  * @tparam T The channel's value type.
  * @param ar The archive to read from.
  * @param c The channel to populate.
@@ -294,7 +294,7 @@ void gem_archive_serialize(Archive &ar, ChannelLayout<T> &c) {
 
 /**
  * @brief Serializes a whole GGenomeLayout: its four value channels (d / f / i / b) plus the interned labels.
- * @tparam Archive The archive type (Boost.Serialization or a GArchive codec).
+ * @tparam Archive The GArchive codec type.
  * @param ar The archive to read from / write to.
  * @param l The layout to serialize.
  */
@@ -309,14 +309,6 @@ void gem_archive_serialize(Archive &ar, GGenomeLayout &l) {
 }
 
 } /* namespace Gem::Geneva::Genome */
-
-/******************************************************************************/
-/**
- * Thin Boost.Serialization wrappers: they let a Boost archive reach the archive-generic
- * gem_archive_serialize() bodies above (Boost's access looks in boost::serialization, not the type's
- * namespace). Each simply forwards; all are deleted when Boost.Serialization is removed.
- */
-
 
 namespace Gem::Geneva::Genome {
 

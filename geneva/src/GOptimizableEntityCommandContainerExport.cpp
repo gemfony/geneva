@@ -29,6 +29,6 @@
 
 #include "geneva/GOptimizableEntityCommandContainerExport.hpp"
 
-// This translation unit previously held the Boost.Serialization export implementation of the
+// This translation unit previously held the polymorphic export implementation of the
 // command container instantiated for GOptimizableEntity; the GArchive registration now lives with
 // the type (GEM_REGISTER_ARCHIVABLE), so nothing is emitted here.

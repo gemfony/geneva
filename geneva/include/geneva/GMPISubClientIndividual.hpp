@@ -69,7 +69,7 @@ enum ClientMode {
      */
 class GMPISubClientIndividual // NOLINT(cppcoreguidelines-special-member-functions)
   : public Gem::Common::GReflectiveInterfaceBaseT<GMPISubClientIndividual, gen::GGenome> {
-    /** @brief Make the class accessible to Boost.Serialization */
+    /** @brief Make the class accessible to the GArchive serializer */
 
     /**
          * GMPISubClientOptimizer must be able to set the communicator, other classes should not.
