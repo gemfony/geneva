@@ -61,7 +61,7 @@ using GPlotColumn = std::variant<const std::vector<double> *, const std::vector<
 class GBasePlotter : public Gem::Common::GReflectiveInterfaceBaseT<GBasePlotter, Gem::Common::GCommonInterfaceT<GBasePlotter>> {
     ///////////////////////////////////////////////////////////////////////
     // GReflectiveInterfaceAccess lets the GReflectiveInterfaceBaseT base reach this class's
-    // private localMembers_(); this (abstract) root is never Boost-constructed.
+    // private localMembers_(); this (abstract) root is never reconstructed on load.
     friend struct Gem::Common::GReflectiveInterfaceAccess;
 
     /**

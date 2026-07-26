@@ -1153,7 +1153,7 @@ double GGenome::weighedSquaredSumCombiner(std::vector<double> const &weights) co
  * @param gpb The parser builder the configuration options are registered with
  */
 void GGenome::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) {
-    // Call our CRTP base class's function (the category root has no GObject parent).
+    // Call our CRTP base class's function (the category root has no parent above it).
     Gem::Common::GCommonInterfaceT<GGenome>::addConfigurationOptions_(gpb);
 
     gpb.registerFileParameter<evaluationPolicy>(

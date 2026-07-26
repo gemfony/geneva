@@ -63,18 +63,17 @@ class GOptimizationAlgorithmBase;
  * The base class -- and the CRTP category root -- of all pluggable optimization
  * monitors.
  *
- * As part of the GObject-decomposition effort, the pluggable-monitor hierarchy
- * is its own category root: it derives directly from
- * Gem::Common::GCommonInterfaceT<GBasePluggableOM> instead of from GObject, so a
- * GBasePluggableOM pointer is an unrelated type to a GObject pointer. The common
- * infrastructure (clone/load/compare/name/IO/serialize) is supplied by the CRTP
- * base, instantiated for this root.
+ * The pluggable-monitor hierarchy is its own category root: it derives directly from
+ * Gem::Common::GCommonInterfaceT<GBasePluggableOM>, so its pointers are unrelated to
+ * those of any other category. The common infrastructure
+ * (clone/load/compare/name/IO/serialize) is supplied by the CRTP base, instantiated for
+ * this root.
  */
 class GBasePluggableOM
   : public Gem::Common::GReflectiveInterfaceBaseT<GBasePluggableOM, Gem::Common::GCommonInterfaceT<GBasePluggableOM>> {
     ///////////////////////////////////////////////////////////////////////
     // GReflectiveInterfaceAccess lets the GReflectiveInterfaceBaseT base reach this class's
-    // localMembers_(); this abstract root is never Boost-constructed.
+    // localMembers_(); this abstract root is never reconstructed on load.
     friend struct Gem::Common::GReflectiveInterfaceAccess;
 
 public:

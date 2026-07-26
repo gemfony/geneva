@@ -53,8 +53,6 @@
 // Boost header files go here
 
 // Geneva header files go here
-// (GCanvas.hpp removed: unused -- it was only needed by the old example 15.s
-//  on-screen/file rendering path, replaced here by the shared rasteriser in GMonaLisaProblem.hpp.)
 #include "common/GCommonHelperFunctionsT.hpp"
 #include "common/GCommonMathHelperFunctionsT.hpp"
 #include "common/GExceptions.hpp"
@@ -143,7 +141,7 @@ class GImageIndividual final
   : public gen::GGenomeT<GImageIndividual>
   , public Gem::Common::GSelfTestable {
     ///////////////////////////////////////////////////////////////////////
-    // Boost still default-constructs the concrete type on load; GReflectiveInterfaceAccess lets the mixin reach
+    // The archive still default-constructs the concrete type on load; GReflectiveInterfaceAccess lets the mixin reach
     // the private localMembers_() below (from which serialize/load_/compare_/clone_/name_ are generated).
     friend struct Gem::Common::GReflectiveInterfaceAccess;
 

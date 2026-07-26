@@ -1198,7 +1198,7 @@ TEST_CASE("Parameter scan compare detects scan-state differences", "[flat][oa][p
 
 /******************************************************************************/
 
-TEST_CASE("Parameter scan survives a Boost serialization round-trip", "[flat][oa][ps]") {
+TEST_CASE("Parameter scan survives a serialization round-trip", "[flat][oa][ps]") {
     using Gem::Common::expectation;
     using Gem::Common::serializationMode;
 

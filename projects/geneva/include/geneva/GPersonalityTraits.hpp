@@ -52,18 +52,17 @@ namespace Gem::Geneva {
  * on more than one role or personality. Note that this class is purely virtual.
  * It can only be used in conjunction with a derived personality.
  *
- * As part of the GObject-decomposition effort, the personality-traits hierarchy
- * is its own category root: it derives directly from
- * Gem::Common::GCommonInterfaceT<GPersonalityTraits> instead of from GObject, so
- * a GPersonalityTraits pointer is an unrelated type to a GObject pointer. The
- * common infrastructure (clone/load/compare/name/IO/serialize) is supplied by
- * the CRTP base, instantiated for this root.
+ * The personality-traits hierarchy is its own category root: it derives directly from
+ * Gem::Common::GCommonInterfaceT<GPersonalityTraits>, so its pointers are unrelated to
+ * those of any other category. The common infrastructure
+ * (clone/load/compare/name/IO/serialize) is supplied by the CRTP base, instantiated for
+ * this root.
  */
 class GPersonalityTraits // NOLINT(cppcoreguidelines-special-member-functions)
   : public Gem::Common::GReflectiveInterfaceBaseT<GPersonalityTraits, Gem::Common::GCommonInterfaceT<GPersonalityTraits>> {
     ///////////////////////////////////////////////////////////////////////
     // GReflectiveInterfaceAccess lets the GReflectiveInterfaceBaseT base reach this class's
-    // (empty) localMembers_(); this abstract category root is never Boost-constructed.
+    // (empty) localMembers_(); this abstract category root is never reconstructed on load.
     friend struct Gem::Common::GReflectiveInterfaceAccess;
 
     /**

@@ -62,7 +62,7 @@ class GPositionPersonalityTraits // NOLINT(cppcoreguidelines-special-member-func
   , public Gem::Common::GSelfTestable {
     ///////////////////////////////////////////////////////////////////////
     // GReflectiveInterfaceAccess lets the GReflectiveInterfaceBaseT base reach this class's
-    // localMembers_() (pop_pos_); this abstract base is never Boost-constructed.
+    // localMembers_() (pop_pos_); this abstract base is never reconstructed on load.
     friend struct Gem::Common::GReflectiveInterfaceAccess;
 
 public:

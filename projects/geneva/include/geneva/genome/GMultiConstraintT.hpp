@@ -66,7 +66,7 @@ class GPreEvaluationValidityCheckT // NOLINT(cppcoreguidelines-special-member-fu
     > {
     ///////////////////////////////////////////////////////////////////////
     // GReflectiveInterfaceAccess lets the mixin reach localMembers_(); this abstract root is
-    // never Boost-constructed.
+    // never reconstructed on load.
     friend struct Gem::Common::GReflectiveInterfaceAccess;
     ///////////////////////////////////////////////////////////////////////
 
@@ -249,7 +249,7 @@ protected:
      */
     bool modify_GUnitTests_() {
 #ifdef GEM_TESTING
-        // This is the category root; there is no modifiable GObject parent class.
+        // This is the category root; there is no modifiable parent class above it.
         bool result = false;
 
         if(not this->getAllowNegative()) {
@@ -284,7 +284,7 @@ class GValidityCheckContainerT
   : public Gem::Common::GReflectiveInterfaceBaseT<GValidityCheckContainerT<ind_type>, GPreEvaluationValidityCheckT<ind_type>> {
     ///////////////////////////////////////////////////////////////////////
     // GReflectiveInterfaceAccess lets the mixin reach localMembers_(); this abstract class is
-    // never Boost-constructed.
+    // never reconstructed on load.
     friend struct Gem::Common::GReflectiveInterfaceAccess;
 
     /** @brief Single declaration of this class's local data (the validity checks), feeding the

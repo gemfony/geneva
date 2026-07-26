@@ -73,7 +73,7 @@ class GDecorator<dimensions::Dim2, coordinate_type>
     > {
     ///////////////////////////////////////////////////////////////////////
     // GReflectiveInterfaceAccess lets the GReflectiveInterfaceBaseT base reach this class's
-    // (empty) localMembers_(); this abstract root is never Boost-constructed.
+    // (empty) localMembers_(); this abstract root is never reconstructed on load.
     friend struct Gem::Common::GReflectiveInterfaceAccess;
 
     /**
@@ -329,7 +329,7 @@ class GDecorator<dimensions::Dim3, coordinate_type>
     > {
     ///////////////////////////////////////////////////////////////////////
     // GReflectiveInterfaceAccess lets the GReflectiveInterfaceBaseT base reach this class's
-    // (empty) localMembers_(); this abstract root is never Boost-constructed.
+    // (empty) localMembers_(); this abstract root is never reconstructed on load.
     friend struct Gem::Common::GReflectiveInterfaceAccess;
 
     /**

@@ -398,7 +398,7 @@ namespace Gem::Weft {
  * hierarchy root. Defined here, in the reflection layer, so @c GArchivePolymorphic.hpp
  * can call the seam without a reflection-layer include (see the declaration's note on
  * the broken include cycle). It lives in a @c Gem::Weft block outside @c Gem::Common
- * because @c Gem::Weft no longer nests inside @c Gem::Common after the library split.
+ * because @c Gem::Weft is its own library and does not nest inside @c Gem::Common.
  * @tparam T The concrete reflection-managed type to reconstruct.
  */
 template <typename T>

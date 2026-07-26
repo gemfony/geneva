@@ -68,7 +68,7 @@ template <typename... Ts>
 class GDataCollectorT : public Gem::Common::GReflectiveInterfaceBaseT<GDataCollectorT<Ts...>, GBasePlotter> {
     ///////////////////////////////////////////////////////////////////////
     // GReflectiveInterfaceAccess lets the GReflectiveInterfaceBaseT base reach this class's
-    // private localMembers_(); this abstract collector is never Boost-constructed.
+    // private localMembers_(); this abstract collector is never reconstructed on load.
     friend struct Gem::Common::GReflectiveInterfaceAccess;
 
     /** @brief The number of axes / components of each stored data item */
@@ -833,7 +833,7 @@ class GDataCollector2ET
     > {
     ///////////////////////////////////////////////////////////////////////
     // GReflectiveInterfaceAccess lets the GReflectiveInterfaceBaseT base reach this class's
-    // (empty) localMembers_(); this abstract collector is never Boost-constructed.
+    // (empty) localMembers_(); this abstract collector is never reconstructed on load.
     friend struct Gem::Common::GReflectiveInterfaceAccess;
 
     /**

@@ -70,8 +70,8 @@ namespace po = boost::program_options;
 
 /******************************************************************************/
 // Default settings
-// The parallelization mode selected on the command line (the former execMode enum, retired
-// with the per-algorithm broker model): 0 = serial, 1 = multi-threaded, 2 = networked
+// The parallelization mode selected on the command line (a plain code, not an enum: the
+// per-algorithm execution-mode enum is gone): 0 = serial, 1 = multi-threaded, 2 = networked
 constexpr std::uint16_t PM_SERIAL = 0;
 constexpr std::uint16_t PM_MULTITHREADED = 1;
 constexpr std::uint16_t PM_NETWORKED = 2;

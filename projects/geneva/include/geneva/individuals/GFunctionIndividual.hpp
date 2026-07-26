@@ -325,7 +325,7 @@ class GFunctionIndividual
   , public Gem::Common::GSelfTestable
 {
     ///////////////////////////////////////////////////////////////////////
-    // Boost still default-constructs the concrete type on load; GReflectiveInterfaceAccess lets the mixin
+    // The archive still default-constructs the concrete type on load; GReflectiveInterfaceAccess lets the mixin
     // reach the private localMembers_() (from which serialize/load_/compare_/clone_/name_ derive).
     friend struct Gem::Common::GReflectiveInterfaceAccess;
 

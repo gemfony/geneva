@@ -118,7 +118,7 @@ class GFixedSizePriorityQueueT
         GCommonInterfaceT<GFixedSizePriorityQueueT<T, StoragePolicy>>> {
     ///////////////////////////////////////////////////////////////////////
     // GReflectiveInterfaceAccess lets the mixin reach localMembers_(); this abstract root is
-    // never Boost-constructed.
+    // never reconstructed on load.
     friend struct GReflectiveInterfaceAccess;
 
 public:

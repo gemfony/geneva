@@ -558,7 +558,7 @@ class GNeuralNetworkIndividual // NOLINT(cppcoreguidelines-special-member-functi
   : public gen::GGenomeT<GNeuralNetworkIndividual> {
     /////////////////////////////////////////////////////////////////////////////
 
-    // Boost still default-constructs the concrete type on load; GReflectiveInterfaceAccess lets the mixin reach
+    // The archive still default-constructs the concrete type on load; GReflectiveInterfaceAccess lets the mixin reach
     // the private localMembers_() below (serialize/load_/compare_/clone_/name_ are all generated).
     friend struct Gem::Common::GReflectiveInterfaceAccess;
 

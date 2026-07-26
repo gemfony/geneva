@@ -1118,7 +1118,7 @@ std::size_t GOptimizationAlgorithmBase::getNProcessableItems_() const {
  */
 // NOLINTNEXTLINE(readability-function-size) -- one coherent config-registration sweep binding every base-class optimization option (iteration limits, checkpointing, termination file, quality threshold, ...); splitting would scatter the option list
 void GOptimizationAlgorithmBase::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) {
-    // Call our CRTP base class'es function (the category root has no GObject parent)
+    // Call our CRTP base class'es function (the category root has no parent above it)
     Gem::Common::GCommonInterfaceT<GOptimizationAlgorithmBase>::addConfigurationOptions_(gpb);
 
     // The number of threads used for parallel organizational work (adaption, recombination, ...).

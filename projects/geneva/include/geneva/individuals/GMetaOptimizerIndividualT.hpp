@@ -183,7 +183,7 @@ class GMetaOptimizerIndividualT // NOLINT(cppcoreguidelines-special-member-funct
   : public gen::GGenomeT<GMetaOptimizerIndividualT<ind_type>>
   , public Gem::Common::GSelfTestable {
     ///////////////////////////////////////////////////////////////////////
-    // Boost still default-constructs the concrete type on load; GReflectiveInterfaceAccess lets the mixin reach
+    // The archive still default-constructs the concrete type on load; GReflectiveInterfaceAccess lets the mixin reach
     // the private localMembers_() below (load_/compare_/clone_/name_ are generated from it). serialize()
     // is kept BY HAND: it also emits ind_factory_, which localMembers_ deliberately omits (the factory is
     // kept-not-copied on load and ignored by compare) -- an asymmetry serialize_members() cannot express.

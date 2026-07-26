@@ -111,11 +111,10 @@ void GFileLogger::log(std::string const &msg) const {
         ofstr.close();
     }
     else {
-        // Transient file-open failures (disk full, EACCES, etc.) used to
-        // call std::terminate() and bring the whole optimisation down. We
-        // now fall back to std::cerr so the message is at least visible,
-        // emitting a one-line diagnostic to make the lost-log-target
-        // condition visible to the operator.
+        // A transient file-open failure (disk full, EACCES, ...) must never bring the
+        // optimisation down: fall back to std::cerr so the message is at least visible,
+        // with a one-line diagnostic that makes the lost log target visible to the
+        // operator. Do NOT turn this back into a fatal path.
         std::cerr << "[GFileLogger::log] could not open \"" << fname_
                   << "\" for appending — falling back to stderr:" << '\n'
                   << msg;

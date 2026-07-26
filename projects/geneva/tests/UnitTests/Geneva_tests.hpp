@@ -81,14 +81,12 @@ namespace Gem::Geneva::Tests {
 /**
  * Deduces the CRTP category root of a tested type T.
  *
- * Historically the standard tests hard-coded `GObject` as the common base of every
- * tested type. With the GObject decomposition (one CRTP root per logical category)
- * that no longer holds: e.g. personality-traits types now bottom out at
- * GPersonalityTraits, not GObject. The category root is the type parameter of the
- * Gem::Common::GCommonInterfaceT<Root> base, and it is exactly the element_type of
- * the std::shared_ptr returned by the public (inherited) clone() method. Deducing it
- * this way works for every category root uniformly (GObject-based types still resolve
- * to GObject), so the standard-test template stays category-agnostic.
+ * There is no single common base to hard-code: each logical category has its own CRTP
+ * root (personality traits bottom out at GPersonalityTraits, genomes at GGenome, and so
+ * on). The category root is the type parameter of the Gem::Common::GCommonInterfaceT<Root>
+ * base, and it is exactly the element_type of the std::shared_ptr returned by the public
+ * (inherited) clone() method. Deducing it this way works uniformly for every root, so the
+ * standard-test template stays category-agnostic.
  */
 template <typename T>
 using category_root_t = typename decltype(std::declval<const T &>().clone())::element_type;
@@ -112,9 +110,8 @@ void StandardTests_no_failure_expected() {
         "(inherit it and override modify_GUnitTests_() -- chaining to the category root's protected "
         "helper if the root is where the perturbation lives)."
     );
-    // The CRTP category root of the tested type (GObject for most categories,
-    // GPersonalityTraits for personality traits, etc.). Used wherever the test
-    // previously hard-coded `GObject` / `GObject::`.
+    // The CRTP category root of the tested type (GGenome for individuals,
+    // GPersonalityTraits for personality traits, and so on).
     using root_t = category_root_t<T>;
     // Prepare printing of error messages in object comparisons
     GEqualityPrinter gep(

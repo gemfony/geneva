@@ -59,7 +59,7 @@ class GGenomeConstraint // NOLINT(cppcoreguidelines-special-member-functions)
   : public Gem::Common::GReflectiveInterfaceBaseT<GGenomeConstraint, GPreEvaluationValidityCheckT<GGenome>> {
     ///////////////////////////////////////////////////////////////////////
     // GReflectiveInterfaceAccess lets the mixin reach localMembers_(); this abstract class is
-    // never Boost-constructed.
+    // never reconstructed on load.
     friend struct Gem::Common::GReflectiveInterfaceAccess;
 
     /** @brief This class adds no own members; the explicit empty declaration is required

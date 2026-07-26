@@ -122,7 +122,7 @@ class GExternalEvaluatorIndividual
   , public Gem::Common::GSelfTestable { // NOLINT(cppcoreguidelines-special-member-functions)
     ///////////////////////////////////////////////////////////////////////
 
-    // Boost still default-constructs the concrete type on load; GReflectiveInterfaceAccess lets the mixin
+    // The archive still default-constructs the concrete type on load; GReflectiveInterfaceAccess lets the mixin
     // reach the private localMembers_() below (from which serialize/load_/compare_/clone_/name_ derive).
     friend struct Gem::Common::GReflectiveInterfaceAccess;
 

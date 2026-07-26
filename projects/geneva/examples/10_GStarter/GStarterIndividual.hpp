@@ -106,14 +106,14 @@ class GStarterIndividual
   : public gen::GGenomeT<GStarterIndividual>
   , public Gem::Common::GSelfTestable {
     ///////////////////////////////////////////////////////////////////////
-    // Boost still default-constructs the concrete type on load; GReflectiveInterfaceAccess lets the mixin
+    // The archive still default-constructs the concrete type on load; GReflectiveInterfaceAccess lets the mixin
     // reach the private localMembers_() below (from which serialize/load_/compare_/clone_/name_ derive).
     friend struct Gem::Common::GReflectiveInterfaceAccess;
 
     /**
      * @brief Single declaration of this class'es local data members. The GReflectiveInterfaceT mixin (via
      * GGenomeT) generates serialize() / load_() / compare_() / clone_() / name_() from this one list
-     * (plus base_object<GGenome>), so a stateful flat individual now lives in exactly one place -- no
+     * (plus the GGenome base slice), so a stateful flat individual lives in exactly one place -- no
      * hand-written quartet, no silently-dropped member.
      * @return A tuple of named member references
      */
