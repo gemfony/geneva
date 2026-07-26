@@ -405,26 +405,11 @@ public:
      * submission. The lifecycle (status / errors / timing / correlation id) is copied
      * while THIS item keeps its own stable lineage id; a result-bearing derived class additionally copies
      * its result store, and -- as documented on the geneva override -- deliberately keeps its own input
-     * data (results-only return) and OA scratch.
+     * data and OA scratch.
      *
      * @param src The returned, evaluated item whose results + lifecycle are absorbed into this one
      */
     void absorbResultsFrom(const GProcessable &src) { this->absorbResultsFrom_(src); }
-
-    /**
-     * @brief Whether this item arrived without its input data (a results-only return), so the server
-     * must graft the input data back on via graftInputDataFrom() before using the item. Default
-     * false; a work-item type supporting the lightweight return form overrides the hook.
-     * @return true iff the input data was omitted on the wire and must be grafted
-     */
-    [[nodiscard]] bool inputDataOmitted() const { return this->inputDataOmitted_(); }
-
-    /**
-     * @brief Grafts the input data of @p original onto this (results-only) item. A no-op in the
-     * base; a work-item type supporting the lightweight return form overrides the hook.
-     * @param original The originally-submitted item supplying the input data
-     */
-    void graftInputDataFrom(const GProcessable &original) { this->graftInputDataFrom_(original); }
 
     /**
      * @brief Replaces this work item's content in place with a deep copy of @p src, keeping this item's
@@ -573,14 +558,6 @@ protected:
      * @param src The returned item whose lifecycle state is absorbed
      */
     virtual void absorbResultsFrom_(const GProcessable &src) { GProcessable::operator=(src); }
-
-    /** @brief Hook behind inputDataOmitted(): whether this item is a results-only return. Default false.
-     *  @return false in the base */
-    [[nodiscard]] virtual bool inputDataOmitted_() const { return false; }
-
-    /** @brief Hook behind graftInputDataFrom(): grafts @p original's input data onto this item. Default no-op.
-     *  @param original The originally-submitted item supplying the input data (unused in the default) */
-    virtual void graftInputDataFrom_([[maybe_unused]] const GProcessable &original) { /* nothing */ }
 
     /**
      * @brief Hook behind loadContentFrom(): performs an in-place deep copy of @p src into this item.

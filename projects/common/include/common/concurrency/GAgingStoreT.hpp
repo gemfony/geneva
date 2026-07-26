@@ -62,7 +62,7 @@ namespace Gem::Common::Concurrency {
  *
  * This was lifted from the courtier networked-consumer late-return facility, where a result that arrives
  * after its batch retired is @e parked for the algorithm to reap, and a clone of each un-returned
- * original is @e retained (keyed by correlation id) so a late results-only return can still be grafted.
+ * original is @e retained (keyed by correlation id) so a late payload-only return can still be applied.
  * That domain policy (graft-or-drop, drop accounting) stays in the consumer; this primitive owns only
  * the two aging containers and their eviction. All operations are individually atomic; callers that need
  * a compound action atomic with @e their own state (e.g. retiring a batch while retaining its originals)

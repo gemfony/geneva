@@ -111,26 +111,25 @@ class GGenome // NOLINT(cppcoreguidelines-special-member-functions)
     friend struct Gem::Weft::access;
     friend struct Gem::Common::GReflectiveInterfaceAccess;
 
-    /** @brief The entity half of this class's data -- the processing lifecycle, veto/feasibility flags,
-     *  pre-/post-processors, shared policy, result store and OA scratch -- formerly the whole of the
-     *  GGenome category root's localMembers_().
-     *
-     *  It is declared separately from the genome half because save()/load() need the two groups at
-     *  DIFFERENT points in the stream: this group is emitted unconditionally and BEFORE the
-     *  `genome_omitted` marker, so that a results-only return still carries the computed results even
-     *  when the input parameters are dropped. Reflection sees both groups as one list via localMembers_().
+    /** @brief Single declaration of ALL this class's data, feeding the GReflectiveInterfaceBaseT-generated
+     *  name_()/load_()/compare_() as well as save()/load() below.
      *
      *  - the GProcessable lifecycle base (a stateful non-container base) rides make_base_object_member<>;
      *  - the four plain veto/feasibility members are ordinary make_member (serialized + loaded + compared);
      *  - the cloneable pre-/post-processors, the shared 1:N policy and the result store are state but not
      *    per-individual identity, so they use the cmp_skip factories (serialized + loaded, not compared);
      *  - the OA scratch is copy-loaded and not compared, and its wire form (serialized on a checkpoint,
-     *    omitted on the wire) rides make_wire_omitted_ptr_member.
+     *    omitted on the wire) rides make_wire_omitted_ptr_member;
+     *  - the four value channels are plain members;
+     *  - the shared structural layout_ is a load-only member (make_load_only_member): plain-assigned on
+     *    load (it is SHARED, not value-copied) and excluded from compare_() (it is problem metadata, not
+     *    per-individual identity) and from the folded serialize() -- save()/load() below emit it through
+     *    the bespoke send-once wire protocol.
      *  @tparam Self The (const or non-const) deduced type of *this
      *  @param self A reference to *this whose members are tied into the tuple
      *  @return A tuple of named member references */
     template <typename Self>
-    static auto entityMembers_(Self &self) {
+    auto localMembers_(this Self &self) {
         return std::make_tuple(
             Gem::Common::make_base_object_member<Gem::Courtier::GProcessable>("GProcessable", self),
             Gem::Common::make_member("pre_processing_disabled_", self.pre_processing_disabled_),
@@ -141,44 +140,13 @@ class GGenome // NOLINT(cppcoreguidelines-special-member-functions)
             Gem::Common::make_uncompared_cloneable_member("post_processor_ptr_", self.post_processor_ptr_),
             Gem::Common::make_uncompared_member("policy_", self.policy_),
             Gem::Common::make_uncompared_member("stored_results_cnt_", self.stored_results_cnt_),
-            Gem::Courtier::make_wire_omitted_ptr_member("scratch_", self.scratch_)
-        );
-    }
-
-    /** @brief The genome half: the four value channels plus the shared structural layout. Emitted AFTER
-     *  the `genome_omitted` marker, so it is exactly the part a results-only return drops.
-     *
-     *  The four value channels are plain members. The shared layout_ and the transient input_omitted_ are
-     *  load-only members (make_load_only_member): plain-assigned on load (layout_ is SHARED, not
-     *  value-copied; input_omitted_ copied), but excluded from compare_() (the shared layout is problem
-     *  metadata, not per-individual identity; input_omitted_ is a wire transient) and from the folded
-     *  serialize() -- save()/load() below emit the layout through the bespoke send-once wire protocol and
-     *  set input_omitted_ explicitly.
-     *  @tparam Self The (const or non-const) deduced type of *this
-     *  @param self A reference to *this whose members are tied into the tuple
-     *  @return A tuple of named member references */
-    template <typename Self>
-    static auto genomeMembers_(Self &self) {
-        return std::make_tuple(
+            Gem::Courtier::make_wire_omitted_ptr_member("scratch_", self.scratch_),
             Gem::Common::make_member("dv_", self.dv_),
             Gem::Common::make_member("fv_", self.fv_),
             Gem::Common::make_member("iv_", self.iv_),
             Gem::Common::make_member("bv_", self.bv_),
-            Gem::Common::make_load_only_member("layout_", self.layout_),
-            Gem::Common::make_load_only_member("input_omitted_", self.input_omitted_)
+            Gem::Common::make_load_only_member("layout_", self.layout_)
         );
-    }
-
-    /** @brief Single declaration of ALL this class's data, feeding the GReflectiveInterfaceBaseT-generated
-     *  name_()/load_()/compare_(). It is the concatenation of the two groups above, so each member is
-     *  still declared exactly once even though save()/load() emit the groups at different stream
-     *  positions.
-     *  @tparam Self The (const or non-const) deduced type of *this
-     *  @param self A reference to *this whose members are tied into the tuple
-     *  @return A tuple of named member references */
-    template <typename Self>
-    auto localMembers_(this Self &self) {
-        return std::tuple_cat(entityMembers_(self), genomeMembers_(self));
     }
 
     /** @brief Post-load hook (invoked by the GReflectiveInterfaceBaseT-generated load_() after the members are
@@ -189,9 +157,9 @@ class GGenome // NOLINT(cppcoreguidelines-special-member-functions)
     void postLoad_() { counts_layout_sp_.reset(); }
 
     /**
-     * @brief Serialises the genome: the four value channels plus the shared structural layout, the latter
-     * either by value (self-contained form) or by content id (transport send-once form), as selected by
-     * the active wire-serialisation scope. See the body for the two forms.
+     * @brief Serialises the genome: every member plus the shared structural layout, the latter either by
+     * value (self-contained form) or by content id (transport send-once form), as selected by the active
+     * wire-serialisation scope. See the body for the two forms.
      * @tparam Archive The GArchive codec type
      * @param ar The archive to write the genome into
      * @param version The (unused) serialization version number
@@ -199,31 +167,16 @@ class GGenome // NOLINT(cppcoreguidelines-special-member-functions)
     template <typename Archive>
     void save(Archive &ar, [[maybe_unused]] const unsigned int version) const {
         using Gem::Common::archive_named;
-        // The entity half goes out FIRST and unconditionally: a results-only return drops the input
-        // parameters below, but the computed results must still travel.
-        Gem::Common::serialize_members(ar, entityMembers_(*this));
+        Gem::Common::serialize_members(ar, localMembers_());
 
         const auto *ctx = Gem::Courtier::GWireSerializationScope::current();
-
-        // RESULTS-ONLY RETURN: when a worker returns a processed item (ctx->returning) and the genome was
-        // not modified, omit the (potentially large) input parameters + layout -- only the computed
-        // results (already written via the base) travel; the server grafts the input back on. A leading
-        // `genome_omitted` marker makes the stream self-describing.
-        bool genome_omitted =
-            (ctx != nullptr) && ctx->enabled && ctx->returning && not this->getReturnFullIndividual();
-        archive_named(ar, "genome_omitted", genome_omitted);
-        if(genome_omitted) {
-            return;
-        }
-
-        Gem::Common::serialize_members(ar, genomeMembers_(*this));
 
         // The layout is shared & immutable in memory; sharing does not survive serialisation. Two wire
         // forms (see GGenome's historical note): SELF-CONTAINED (full layout by value, the only form
         // with no active scope -- checkpoint / file) and SEND-ONCE (referenced by content id, shipped to a
         // peer only the first time the id is seen). A leading `layout_interned` tag is self-describing.
-        bool interned =
-            (ctx != nullptr) && ctx->enabled && (ctx->registry != nullptr) && (layout_ != nullptr);
+        bool interned = (ctx != nullptr) && ctx->enabled && ctx->may_intern_blobs &&
+                        (ctx->registry != nullptr) && (layout_ != nullptr);
         archive_named(ar, "layout_interned", interned);
         if(not interned) {
             GGenomeLayout layout_copy = layout_ ? *layout_ : GGenomeLayout{};
@@ -256,27 +209,10 @@ class GGenome // NOLINT(cppcoreguidelines-special-member-functions)
      * @param version The (unused) serialization version number
      */
     template <typename Archive>
-    // NOLINTNEXTLINE(readability-function-size) -- one coherent serialization sweep: the self-describing wire-format tag dispatch (omitted / by-value / interned-by-id, with cache-miss fetch) must stay in lockstep with save()'s tag order; splitting would scatter tightly coupled archive-decode branches
+    // NOLINTNEXTLINE(readability-function-size) -- one coherent serialization sweep: the self-describing wire-format tag dispatch (by-value / interned-by-id, with cache-miss fetch) must stay in lockstep with save()'s tag order; splitting would scatter tightly coupled archive-decode branches
     void load(Archive &ar, [[maybe_unused]] const unsigned int version) {
         using Gem::Common::archive_named;
-        // The entity half goes out FIRST and unconditionally: a results-only return drops the input
-        // parameters below, but the computed results must still travel.
-        Gem::Common::serialize_members(ar, entityMembers_(*this));
-
-        bool genome_omitted = false;
-        archive_named(ar, "genome_omitted", genome_omitted);
-        if(genome_omitted) {
-            input_omitted_ = true;
-            dv_.clear();
-            fv_.clear();
-            iv_.clear();
-            bv_.clear();
-            this->setLayout(std::make_shared<const GGenomeLayout>());
-            return;
-        }
-        input_omitted_ = false;
-
-        Gem::Common::serialize_members(ar, genomeMembers_(*this));
+        Gem::Common::serialize_members(ar, localMembers_());
 
         bool interned = false;
         archive_named(ar, "layout_interned", interned);
@@ -452,12 +388,23 @@ public:
      *  @param cp_base The entity whose evaluation-relevant parameters are absorbed into this one */
     virtual void cannibalize(GGenome &cp_base);
 
-    /** @brief Whether a full return was requested for this individual (transient transport hint).
-     *  @return true if the full individual should be returned; false for the results-only form */
-    bool getReturnFullIndividual() const { return return_full_individual_; }
-    /** @brief Requests that this individual be returned to the server in FULL (input parameters included).
-     *  @param full true to force a full return; false for the lightweight results-only form */
-    void setReturnFullIndividual(bool full) { return_full_individual_ = full; }
+    /** @brief Absorbs the parameter values and the shared structural layout of @p src into this genome,
+     *  in place (no relocation), leaving this genome's results, lifecycle and OA scratch alone.
+     *
+     *  The genome-half counterpart of absorbResultsFrom(): a worker that MODIFIED its copy returns the
+     *  whole individual, and the server writes those parameters into the population element it already
+     *  holds rather than swapping the element out (its address is load-bearing).
+     *  @param src The returned genome supplying the parameter values + layout */
+    void absorbGenomeFrom(const GGenome &src) {
+        dv_ = src.dv_;
+        fv_ = src.fv_;
+        iv_ = src.iv_;
+        bv_ = src.bv_;
+        // The LAYOUT is deliberately NOT taken: it is immutable problem metadata owned by the problem
+        // definition and SHARED by the whole population, so a worker cannot have changed it -- and
+        // installing the returned copy would silently de-share it for this one element (costing both
+        // memory and the send-once id sharing that the shared handle buys).
+    }
 
     /***************************************************************************/
     // Deleted functions
@@ -467,10 +414,10 @@ public:
 
 protected:
     // load_() and compare_() are generated by the Gem::Common::GReflectiveInterfaceBaseT base from
-    // localMembers_() (the value channels compare/load normally; layout_ and input_omitted_ are
-    // load-only members: shared/copied on load, excluded from compare_()). The post-load count-cache
-    // re-key is done by postLoad_() above. serialize() is NOT generated -- save()/load() above keep the
-    // bespoke send-once layout wire protocol.
+    // localMembers_() (the value channels compare/load normally; layout_ is a load-only member: shared
+    // on load, excluded from compare_()). The post-load count-cache re-key is done by postLoad_() above.
+    // serialize() is NOT generated -- save()/load() above keep the bespoke send-once layout wire
+    // protocol.
 
     /** @brief Random initialization of the genome's parameter values.
      *  @param am The activity mode selecting which parameters are randomly initialised
@@ -485,21 +432,6 @@ protected:
     void specificTestsFailuresExpected_GUnitTests_() override;
 
 private:
-
-    /** @brief Whether this genome was deserialised from a results-only return (input data omitted).
-     *  @return true iff the input parameters were omitted on the wire and must be grafted. */
-    bool inputDataOmitted_() const override { return input_omitted_; }
-    /** @brief Grafts the input parameters of @p original onto this results-only genome.
-     *  @param original The originally-submitted item (a GGenome) supplying the input data. */
-    void graftInputDataFrom_(const Gem::Courtier::GProcessable &original) override {
-        const auto &src = dynamic_cast<const GGenome &>(original);
-        dv_ = src.dv_;
-        fv_ = src.fv_;
-        iv_ = src.iv_;
-        bv_ = src.bv_;
-        this->setLayout(src.layout_);
-        input_omitted_ = false;
-    }
 
     /** @brief Installs a new shared layout and invalidates the parameter-count cache.
      *  @param layout The new shared, immutable layout (the count cache is re-keyed to it) */
@@ -901,11 +833,6 @@ private:
     /** @brief The shared, immutable structural descriptor (bounds / grouping / adaption config) */
     std::shared_ptr<const GGenomeLayout> layout_ = std::make_shared<const GGenomeLayout>();
 
-    /** @brief Transient (NOT serialized): set by load() when a results-only return arrived. */
-    bool input_omitted_ = false;
-
-    /** @brief Transient transport hint (NOT serialized / compared / loaded): force a full return. */
-    bool return_full_individual_ = false;
 
     /***************************************************************************/
     // The layout-keyed parameter-count cache (watertight: re-keyed whenever the shared layout changes;
@@ -1699,4 +1626,13 @@ private:
 /**
  * @brief Needed for GArchive serialization
  */
+/******************************************************************************/
+
+/******************************************************************************/
+// The wire-protocol seam: what a courtier message MEANS to Geneva (the geneva_command vocabulary and
+// the GWireProtocolT<GGenome> specialization). Included HERE, at the end of the type's own header, so
+// that no translation unit can instantiate a courtier transport for a Geneva individual without the
+// specialization being visible -- the primary template must never be picked up by accident.
+#include "geneva/genome/GGenomeWireProtocol.hpp"
+
 /******************************************************************************/

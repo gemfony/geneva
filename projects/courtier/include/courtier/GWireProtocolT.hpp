@@ -129,11 +129,6 @@ struct GWireProtocolT {
         const processable_type *item
     ) {
         if(item != nullptr) {
-            // A returned item that still carries its input data replaces the slot's; one that arrived
-            // without it (a lightweight results-only encoding) leaves the slot's input data alone.
-            if(not item->inputDataOmitted()) {
-                slot.graftInputDataFrom(*item);
-            }
             slot.absorbResultsFrom(*item);
         }
     }

@@ -376,7 +376,7 @@ atomic_member_t<T> make_atomic_member(const char *name, T &ref) {
  *    class emits through its OWN hand-written serialize() (e.g. GGenome's structural layout, which
  *    travels via a bespoke send-once-by-content-id protocol);
  *  - a transient marker set during (de)serialization that a load_()-based copy must propagate but
- *    that must not affect equality (e.g. GGenome's input_omitted_ results-only flag).
+ *    that must not affect equality (e.g. GGenome's shared structural layout).
  *
  * @tparam T The (deduced) type of the referenced member
  * @param name The member's name (kept for symmetry / diagnostics; not emitted, as the member is not serialized here)

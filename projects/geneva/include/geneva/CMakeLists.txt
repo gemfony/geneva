@@ -37,6 +37,7 @@ SET ( IND_INCLUDES
     genome/GGenomeBuilder.hpp
     genome/GGenomeArchitecture.hpp
     genome/GGenome.hpp
+    genome/GGenomeWireProtocol.hpp
     genome/GIndividualFactory.hpp
     genome/GIndividualPlugin.hpp
     genome/GMultiConstraintT.hpp

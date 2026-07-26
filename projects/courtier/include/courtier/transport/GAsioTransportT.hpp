@@ -162,10 +162,9 @@ public:
         wire_ctx_.peer = 0; // worker side: the single upstream server
         wire_ctx_.registry = &wire_registry_;
         wire_ctx_.mode = serialization_mode_;
-        // Return processed items in the lightweight results-only form by default (the server still holds
-        // the originally-submitted item and grafts the parameters back on); a work item can override
-        // per item via setReturnFullIndividual().
-        wire_ctx_.returning = true;
+        // A worker never interns: it does not own the registry the server resolves against, so a
+        // blob it echoes back must always travel inline (see may_intern_blobs).
+        wire_ctx_.may_intern_blobs = false;
         wire_ctx_.fetch_blob =
             [this](const Gem::Courtier::GWireBlobId &id) -> std::expected<std::string, std::string> {
             return this->fetch_blob_(id);

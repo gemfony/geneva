@@ -697,7 +697,7 @@ TEST_CASE("GGenome: serialization round-trip", "[flat]") {
 /******************************************************************************/
 // CHARACTERIZATION NET (B0, 2026-06-28): outcome-pins for the individual-architecture swap. These
 // assert behaviour that must survive the GProcessable / GGenome / GGenome rebuild,
-// independent of the mechanisms being retired (results-only wire form, the population slot, genome_omitted).
+// independent of the mechanisms being retired (the results-only wire form and the population slot).
 // See prompts/2026-06-28-characterization-net.md.
 
 // External-result acceptance (D14): a precomputed evaluation injected via process(res_vec) is taken
@@ -1563,60 +1563,6 @@ TEST_CASE("Wire send-once: default-off encoding is self-contained and interopera
     CHECK(worker_reg.size() == 0); // a full-form stream does not populate the cache by id
 }
 
-/******************************************************************************/
-TEST_CASE("Wire results-only return: genome omitted, grafted from the original", "[flat][wire]") {
-    using mode = Gem::Common::serializationMode;
-
-    // The originally-submitted item the server still holds (full genome).
-    ManyGroups original(24);
-    original.randomInit(activityMode::ALLPARAMETERS);
-    const std::vector<double> original_vals = valuesOf(original);
-
-    // The worker's processed copy: same genome, plus a computed result.
-    auto worker_copy = original.clone<ManyGroups>();
-    worker_copy->process(); // evaluates -> PROCESSED with a stored result
-    REQUIRE(worker_copy->is_processed());
-    const double worker_fitness = worker_copy->getStoredResult(0).rawFitness();
-
-    // Worker serializes a RESULT in the default (results-only) return form.
-    GWireBlobRegistry worker_reg;
-    GWireSerializationContext worker_ctx;
-    worker_ctx.enabled = true;
-    worker_ctx.registry = &worker_reg;
-    worker_ctx.returning = true; // this endpoint returns results to the server
-    std::string s_results_only;
-    {
-        GWireSerializationScope const scope(&worker_ctx);
-        s_results_only = worker_copy->toString(mode::GEM_BINARY);
-    }
-
-    // A full serialization of the same item is materially larger (it carries the 24-group genome).
-    auto full_copy = original.clone<ManyGroups>();
-    full_copy->process();
-    const std::string s_full = full_copy->toString(mode::GEM_BINARY); // no scope -> self-contained
-    CHECK(s_results_only.size() < s_full.size());
-
-    // Server deserializes the results-only return: genome omitted, results present.
-    GWireBlobRegistry server_reg;
-    GWireSerializationContext server_ctx;
-    server_ctx.enabled = true;
-    server_ctx.registry = &server_reg; // returning stays false (the server submits, not returns)
-    ManyGroups received;
-    {
-        GWireSerializationScope const scope(&server_ctx);
-        received.fromString(s_results_only, mode::GEM_BINARY);
-    }
-    CHECK(received.inputDataOmitted());
-    CHECK(received.countParameters<double>() == 0);   // no input parameters arrived
-    CHECK(received.is_processed());                    // but the computed result did
-    CHECK(received.getStoredResult(0).rawFitness() == worker_fitness);
-
-    // Graft the parameters from the originally-submitted item (what checkin() does on the server).
-    received.graftInputDataFrom(original);
-    CHECK_FALSE(received.inputDataOmitted());
-    CHECK(valuesOf(received) == original_vals);         // parameters restored from the original
-    CHECK(received.getStoredResult(0).rawFitness() == worker_fitness); // result preserved
-}
 
 /******************************************************************************/
 TEST_CASE("In-place return-reconciliation primitives keep genome / relocate nothing", "[flat][identity]") {
@@ -1658,51 +1604,74 @@ TEST_CASE("In-place return-reconciliation primitives keep genome / relocate noth
     CHECK(failed.getStoredResult(0).rawFitness() == returned_fitness);
 }
 
+
 /******************************************************************************/
-TEST_CASE("Wire results-only return: a client may opt into a full return", "[flat][wire]") {
+TEST_CASE("Wire send-once: a worker never references a blob by id", "[flat][wire][regression]") {
+    // A full return re-encodes the genome on the WORKER, so the send-once machinery runs in the return
+    // direction too -- and there it MUST NOT intern. Interning is a source-side optimization: the
+    // worker's ack bookkeeping is its own, so it cannot see the SERVER evict a blob from its bounded
+    // registry, and an id-only return referencing an evicted blob is unresolvable (the server is the
+    // source; it has no fetch path). This pins the rule that a returning endpoint always inlines.
     using mode = Gem::Common::serializationMode;
 
-    // A network-tiered client modifies the individual (here: re-initialises it) and returns it in full.
-    ManyGroups submitted(24);
-    submitted.randomInit(activityMode::ALLPARAMETERS);
-
-    auto worker_copy = submitted.clone<ManyGroups>();
-    worker_copy->randomInit(activityMode::ALLPARAMETERS); // a "better" individual the worker found
-    worker_copy->process();
-    worker_copy->setReturnFullIndividual(true); // <-- the opt-in
-    const std::vector<double> worker_vals = valuesOf(*worker_copy);
-
-    GWireBlobRegistry worker_reg;
-    GWireSerializationContext worker_ctx;
-    worker_ctx.enabled = true;
-    worker_ctx.registry = &worker_reg;
-    worker_ctx.returning = true;
-    std::string s;
-    {
-        GWireSerializationScope const scope(&worker_ctx);
-        s = worker_copy->toString(mode::GEM_BINARY);
-    }
+    ManyGroups original(40);
+    original.randomInit(activityMode::ALLPARAMETERS);
 
     GWireBlobRegistry server_reg;
     GWireSerializationContext server_ctx;
     server_ctx.enabled = true;
+    server_ctx.peer = 1;
     server_ctx.registry = &server_reg;
-    ManyGroups received;
+
+    // Server -> worker: the first dispatch carries the layout in full.
+    std::string submitted;
     {
         GWireSerializationScope const scope(&server_ctx);
-        received.fromString(s, mode::GEM_BINARY);
+        submitted = original.toString(mode::GEM_BINARY);
     }
-    // A full return carried the (modified) genome -- no graft needed.
-    CHECK_FALSE(received.inputDataOmitted());
-    CHECK(received.countParameters<double>() == 24);
-    CHECK(valuesOf(received) == worker_vals); // the worker's modified parameters travelled back
+
+    GWireBlobRegistry worker_reg;
+    GWireSerializationContext worker_ctx;
+    worker_ctx.enabled = true;
+    worker_ctx.peer = 0; // the single upstream server
+    worker_ctx.registry = &worker_reg;
+    worker_ctx.may_intern_blobs = false; // as every worker client configures itself
+
+    ManyGroups on_worker;
+    {
+        GWireSerializationScope const scope(&worker_ctx);
+        on_worker.fromString(submitted, mode::GEM_BINARY);
+    }
+    on_worker.process();
+
+    // Worker -> server, twice: the first return may still carry the layout, the second must be id-only.
+    std::string first_return;
+    std::string second_return;
+    {
+        GWireSerializationScope const scope(&worker_ctx);
+        first_return = on_worker.toString(mode::GEM_BINARY);
+        second_return = on_worker.toString(mode::GEM_BINARY);
+    }
+    CHECK(second_return.size() == first_return.size()); // neither is an id-only reference
+    CHECK(worker_reg.trackedPeers() == 0);              // the worker recorded no acks toward the server
+
+    // Both decode on a server whose registry has been CLEARED in the meantime -- the situation a bounded
+    // registry produces when it evicts. An id-only return would be unresolvable here and throw.
+    server_reg.clear();
+    {
+        GWireSerializationScope const scope(&server_ctx);
+        ManyGroups back1;
+        REQUIRE_NOTHROW(back1.fromString(first_return, mode::GEM_BINARY));
+        ManyGroups back2;
+        REQUIRE_NOTHROW(back2.fromString(second_return, mode::GEM_BINARY));
+        CHECK(back2.getLayout()->sameStructure(*original.getLayout()));
+    }
 }
 
 /******************************************************************************/
 TEST_CASE("Wire send-once: large-genome wire-size before/after", "[flat][wire]") {
     // Quantifies the headline win on a large structured genome (2000 single-value groups -> an O(2000)
-    // layout). Reports and guards the per-item wire size for the submit direction (full layout vs
-    // id-only) and the return direction (full individual vs results-only).
+    // layout): the per-item wire size for the submit direction, full layout vs id-only.
     using mode = Gem::Common::serializationMode;
 
     ManyGroups big(2000);
@@ -1726,29 +1695,10 @@ TEST_CASE("Wire send-once: large-genome wire-size before/after", "[flat][wire]")
         idonly_submit = big.toString(mode::GEM_BINARY).size();  // id-only
     }
 
-    // --- return direction ---
-    big.process(); // give it a result to return
-    GWireBlobRegistry worker_reg;
-    GWireSerializationContext worker_ctx;
-    worker_ctx.enabled = true;
-    worker_ctx.registry = &worker_reg;
-    worker_ctx.returning = true;
-    std::size_t full_return = 0;
-    std::size_t results_only_return = 0;
-    {
-        GWireSerializationScope const scope(&worker_ctx);
-        big.setReturnFullIndividual(true);
-        full_return = big.toString(mode::GEM_BINARY).size();
-        big.setReturnFullIndividual(false);
-        results_only_return = big.toString(mode::GEM_BINARY).size();
-    }
-
     WARN("Wire size (2000-group genome, binary bytes):"
          << "\n  submit  full=" << full_submit << "  first=" << first_submit
          << "  id-only=" << idonly_submit
-         << "  (id-only is " << (100 * idonly_submit / full_submit) << "% of full)"
-         << "\n  return  full=" << full_return << "  results-only=" << results_only_return
-         << "  (results-only is " << (100 * results_only_return / full_return) << "% of full)");
+         << "  (id-only is " << (100 * idonly_submit / full_submit) << "% of full)");
 
     // The id-only submit drops the whole O(2000) layout, keeping only the values + a 16-byte id.
     CHECK(idonly_submit < full_submit);
@@ -1761,9 +1711,6 @@ TEST_CASE("Wire send-once: large-genome wire-size before/after", "[flat][wire]")
     CHECK(first_submit > idonly_submit);
     CHECK(full_submit >= first_submit);
     CHECK(full_submit - first_submit < 256);
-    // The results-only return drops both the values and the layout, keeping only the computed results.
-    CHECK(results_only_return < full_return);
-    CHECK(results_only_return < idonly_submit); // no parameter values at all on a results-only return
 }
 
 /******************************************************************************/

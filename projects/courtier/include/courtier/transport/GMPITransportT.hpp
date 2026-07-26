@@ -296,11 +296,9 @@ public:
         wireCtx_.peer = 0; // worker side: the single upstream master
         wireCtx_.registry = &wireRegistry_;
         wireCtx_.mode = config_.serializationMode;
-        // Mark this endpoint as the RETURNING side, so the using library's serializer may pick a
-        // lightweight return encoding. Like the websocket / ASIO consumers, the MPI master uses the
-        // GNetworkedConsumerT slot model (its getPayloadItem / putPayloadItem are wired to checkout /
-        // checkin), so a return is reconciled against the still-held original in checkin().
-        wireCtx_.returning = true;
+        // A worker never interns: it does not own the registry the server resolves against, so a
+        // blob it echoes back must always travel inline (see may_intern_blobs).
+        wireCtx_.may_intern_blobs = false;
         wireCtx_.fetch_blob =
             [this](const Gem::Courtier::GWireBlobId &id) -> std::expected<std::string, std::string> {
             return this->fetchBlob_(id);

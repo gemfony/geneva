@@ -185,19 +185,22 @@ void deliver_late(LateNetConsumer &consumer, std::size_t stored, c2::CORRELATION
     consumer.checkin(std::move(p));
 }
 
-/** @brief Delivers a single late RESULTS-ONLY return (input data omitted) with the given correlation id.
- *  Its stored id is omitted (0); a successful graft from a retained original restores the original's id. */
-void deliver_late_resultsonly(LateNetConsumer &consumer, c2::CORRELATION_ID_TYPE corr) {
-    auto p = std::make_unique<GFaultyContainer>(/*stored*/ 0, fault_mode::NONE);
-    p->set_input_omitted(true);
-    p->setCorrelationId(corr);
-    consumer.checkin(std::move(p));
+/** @brief Delivers a single late PAYLOAD-ONLY return: a RETURN frame that names a slot by its
+ *  correlation id but carries no work item, so the consumer must apply it to the retained original. */
+void deliver_late_payloadonly(LateNetConsumer &consumer, c2::CORRELATION_ID_TYPE corr) {
+    c2::GCommandContainerT<GFaultyContainer> frame{c2::GFrameKind::RETURN};
+    c2::GProcessingOutcome outcome;
+    outcome.status = c2::processingStatus::PROCESSED;
+    outcome.correlation_id = corr;
+    frame.setOutcome(outcome);
+    frame.setLibraryPayload({}); // the library's own return payload (empty for the demo containers)
+    consumer.checkin(std::move(frame));
 }
 
 /** @brief Runs an n-item batch but ABANDONS the victim slot forever (never checks it in). The batch
  *  therefore retires with that slot still MISSING, which -- with the late-return buffer enabled -- makes
  *  the consumer retain a clone of the victim's original (keyed by its correlation id) so a later
- *  results-only return can be grafted. The other slots are processed normally (so at least one return is
+ *  payload-only return can be applied to it. The other slots are processed normally (so at least one return is
  *  observed and the give-up window engages). The first (only) dispatch round has batch_id 0, so the
  *  victim slot's correlation id is simply its slot index. */
 void run_abandoning_forever(LateNetConsumer &consumer, std::vector<item_ptr> &batch,
@@ -355,12 +358,12 @@ TEST_CASE("courtier(late): a buffered entry is evicted once it ages past its TTL
 /******************************************************************************/
 
 /******************************************************************************/
-// Results-only late returns: a slow-but-alive worker's late results-only return is graftable from a
+// Payload-only late returns: a slow-but-alive worker's late payload-only return is applicable to a
 // retained original (the un-returned clone the consumer keeps when a batch retires MISSING), so it is
-// reaped rather than dropped; only one with no retained original to graft from is dropped.
+// reaped rather than dropped; only one with no retained original to apply it to is dropped.
 /******************************************************************************/
 
-TEST_CASE("courtier(late): a results-only late return is grafted from a retained original",
+TEST_CASE("courtier(late): a payload-only late return is applied to a retained original",
           "[courtier][latereturn]") {
     LateNetConsumer consumer;
     consumer.setLateReturnBuffer(/*cap*/ 8, /*ttl_rounds*/ 100); // buffering on -> originals are retained
@@ -371,33 +374,34 @@ TEST_CASE("courtier(late): a results-only late return is grafted from a retained
     run_abandoning_forever(consumer, batch, /*victim_stored*/ 2);
     REQUIRE(consumer.retainedOriginalCount() == 1); // the un-returned original was retained
 
-    // The slow worker's result finally arrives, results-only (its input id omitted). It must be grafted
-    // from the retained original (recovering stored id 2) and parked -- not dropped.
-    deliver_late_resultsonly(consumer, /*corr*/ 2);
+    // The slow worker's result finally arrives carrying only a payload, no work item. It must be applied
+    // to the retained original (which supplies the item, stored id 2) and parked -- not dropped.
+    deliver_late_payloadonly(consumer, /*corr*/ 2);
     CHECK(consumer.lateReturnBufferSize() == 1);
     CHECK(consumer.lateReturnDroppedCount() == 0);
-    CHECK(consumer.retainedOriginalCount() == 0); // the retained original was consumed by the graft
+    CHECK(consumer.retainedOriginalCount() == 0); // the retained original became the parked return
 
     auto reaped = consumer.getLateReturns();
     REQUIRE(reaped.size() == 1);
-    CHECK(reaped[0]->get_stored_number() == 2); // the omitted input id was restored from the original
+    CHECK(reaped[0]->get_stored_number() == 2);  // the item came from the retained original
+    CHECK(reaped[0]->is_processed());            // ... carrying the returned outcome
 }
 
-TEST_CASE("courtier(late): a results-only late return with no retained original is dropped",
+TEST_CASE("courtier(late): a payload-only late return with no retained original is dropped",
           "[courtier][latereturn]") {
     LateNetConsumer consumer;
     consumer.setLateReturnBuffer(/*cap*/ 8, /*ttl_rounds*/ 100);
 
-    // No batch ever ran, so nothing is retained: a results-only late return cannot be reconstructed and
-    // must be dropped (counted), never parked (an input-less individual would corrupt the population).
-    deliver_late_resultsonly(consumer, /*corr*/ 12345);
+    // No batch ever ran, so nothing is retained: a payload-only late return has nothing to be applied
+    // to and must be dropped (counted), never parked (there would be no item for the algorithm to reap).
+    deliver_late_payloadonly(consumer, /*corr*/ 12345);
     CHECK(consumer.lateReturnBufferSize() == 0);
     CHECK(consumer.lateReturnDroppedCount() == 1);
 }
 
 /******************************************************************************/
-// The retained-originals store is itself TTL-bounded: a clone kept so a slow worker's later results-only
-// return can be grafted must not be held forever if that worker never returns. The late_returns_ FIFO
+// The retained-originals store is itself TTL-bounded: a clone kept so a slow worker's later payload-only
+// return can be applied must not be held forever if that worker never returns. The late_returns_ FIFO
 // aging is pinned above; this is its retained-store counterpart (evictRetainedOriginals_locked), so the
 // Phase-6 aging-store consolidation has the retention aging characterized directly, not just indirectly.
 /******************************************************************************/
@@ -408,12 +412,12 @@ TEST_CASE("courtier(late): a retained original ages out of the retention store p
     consumer.setLateReturnBuffer(/*cap*/ 8, /*ttl_rounds*/ 2); // small TTL: the retained clone must age out
 
     // Abandon slot 2 forever so the batch retires with it MISSING -> its original is retained (as in the
-    // graft case above), but here the slow worker NEVER returns a result to graft.
+    // applied case above), but here the slow worker NEVER returns a result to apply.
     auto batch = make_batch(3);
     run_abandoning_forever(consumer, batch, /*victim_stored*/ 2);
     REQUIRE(consumer.retainedOriginalCount() == 1);
 
-    // Advance the dispatch-round epoch well past the TTL. With no results-only return ever arriving, the
+    // Advance the dispatch-round epoch well past the TTL. With no payload-only return ever arriving, the
     // retained clone must be swept rather than held indefinitely.
     for(int round = 0; round < 4; ++round) {
         run_full_batch(consumer, 1);

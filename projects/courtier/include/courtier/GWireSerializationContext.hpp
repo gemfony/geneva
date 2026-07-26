@@ -196,12 +196,15 @@ struct GWireSerializationContext {
     GWirePeerId peer = 0;       ///< server: the destination session; worker: 0 (single upstream)
     GWireBlobRegistry *registry = nullptr; ///< the shared blob store + ack tracker (not owned)
 
-    /// Set on the WORKER side: serialising a work item here means returning a processed RESULT to the
-    /// server, which still holds the originally-submitted item. The default (lightweight) return then
-    /// omits the input parameters/genome and ships only the computed results -- unless the individual
-    /// itself requests a full return (it was modified, e.g. by a nested/tiered optimisation). False on
-    /// the server side, where serialising means SUBMITTING work (the full genome must travel).
-    bool returning = false;
+    /// Whether this endpoint may reference a blob BY ID instead of inlining it.
+    ///
+    /// Interning is a SOURCE-side optimization: only the endpoint that owns the registry the receiver
+    /// resolves against -- and that can therefore answer a cache-miss fetch, and observes its own
+    /// evictions -- may send an id in place of the content. A peer that merely echoes content back to
+    /// that source must always inline it: its ack bookkeeping is its own, so it cannot see the source
+    /// evict the id, and referencing an evicted id would leave the source with an unresolvable
+    /// reference and no way to fetch it back. True on the server/source, false on a worker.
+    bool may_intern_blobs = true;
 
     /** @brief Worker-side cache-miss fetch: given a blob id whose content is absent locally, performs the
      *  blocking round trip to the server (REQUEST_BLOB -> SEND_BLOB) and returns the serialized blob on
