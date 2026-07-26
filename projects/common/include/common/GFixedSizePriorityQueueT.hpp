@@ -421,6 +421,35 @@ public:
 
     /***************************************************************************/
     /**
+     * @brief Gives non-owning access to the item at a given RANK in the ordered sequence
+     *
+     * Rank 0 is the best item and rank size()-1 the worst, so this is the general form of which
+     * best() and worst() are the two ends. It exists because a ranked archive is read by rank --
+     * a rank-weighted roulette selection over the elite set names a rank and then needs the
+     * item behind it -- and iterating to it by hand at every such site would state the queue's
+     * "best first" ordering once per caller.
+     *
+     * Read-only by construction: handing out a mutable item would let a caller change the
+     * evaluation the ordering rests on and silently break the queue's invariant.
+     *
+     * @param rank The zero-based position in the ordered sequence (0 == best)
+     * @return A constant reference to the stored handle at that rank
+     * @throw geneva_exception if rank is out of range
+     */
+    [[nodiscard]] StoredType const &at(std::size_t rank) const {
+        if(rank >= data_cnt_.size()) {
+            throw geneva_exception(
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+                << "In GFixedSizePriorityQueueT<T>::at(): Error!" << '\n'
+                << "Requested rank " << rank << " but the queue holds " << data_cnt_.size()
+                << " items." << '\n'
+            );
+        }
+        return data_cnt_[rank];
+    }
+
+    /***************************************************************************/
+    /**
      * @brief Allows to set the priority mode. A value of "HIGHERISBETTER" means that higher
      * values are considered better, "LOWERISBETTER" means that lower values are
      * considered to be better.

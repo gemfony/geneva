@@ -223,7 +223,46 @@ TEMPLATE_TEST_CASE(
     CHECK(pq.begin() == pq.end());
     CHECK_THROWS_AS(pq.best(), geneva_exception);
     CHECK_THROWS_AS(pq.worst(), geneva_exception);
+    CHECK_THROWS_AS(pq.at(0), geneva_exception);
     CHECK_THROWS_AS(pq.pop(), geneva_exception);
+}
+
+// ---------------------------------------------------------------------------
+// Rank-indexed access: the general form of best() / worst()
+
+TEMPLATE_TEST_CASE(
+    "GFixedSizePriorityQueueT: at() reads the ordered sequence by rank",
+    "[common][priority-queue]",
+    GFSPQ_ALL_HOLDERS
+) {
+    TestType pq(10); // LOWERISBETTER
+    pq.add(item<TestType>(5.0));
+    pq.add(item<TestType>(1.0));
+    pq.add(item<TestType>(3.0));
+
+    REQUIRE(pq.size() == 3);
+    CHECK(valueOf(pq.at(0)) == 1.0);
+    CHECK(valueOf(pq.at(1)) == 3.0);
+    CHECK(valueOf(pq.at(2)) == 5.0);
+
+    // The two ends agree with best() / worst(), and iteration agrees with at().
+    CHECK(&pq.at(0) == &pq.best());
+    CHECK(&pq.at(pq.size() - 1) == &pq.worst());
+    std::size_t rank = 0;
+    for(auto const &stored : pq) {
+        CHECK(valueOf(stored) == valueOf(pq.at(rank)));
+        ++rank;
+    }
+    CHECK(rank == pq.size());
+
+    // The sort order decides what rank 0 means.
+    pq.setSortOrder(sortOrder::HIGHERISBETTER);
+    pq.add(item<TestType>(4.0)); // re-sorts under the new order
+    CHECK(valueOf(pq.at(0)) == 5.0);
+
+    // Out of range throws rather than reading past the end.
+    CHECK_THROWS_AS(pq.at(pq.size()), geneva_exception);
+    CHECK_THROWS_AS(pq.at(1000), geneva_exception);
 }
 
 // ---------------------------------------------------------------------------

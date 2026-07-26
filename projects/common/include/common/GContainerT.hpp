@@ -118,20 +118,28 @@ concept HasFrontInsertion = requires(C c, typename C::value_type v) {
 /******************************************************************************/
 
 /**
- * @brief Storage policy for POD (plain-old-data) types.
+ * @brief Storage policy for elements held BY VALUE.
  *
  * Wraps a plain sequence container whose element type is @p T. A simple
- * value-copy is sufficient for deep-copy semantics because POD objects have
- * no ownership semantics.
+ * value-copy is sufficient for deep-copy semantics because a value owns
+ * whatever it owns through its own members -- there is no handle to share.
  *
- * @tparam T         The element type. Must satisfy std::is_trivial and
- *                   std::is_standard_layout (i.e., be a POD type).
+ * @par What @p T has to be
+ * Only that a value copy IS a deep copy, i.e. @c std::copyable. The policy's
+ * every operation is an assignment; nothing here inspects an object
+ * representation, so triviality and standard layout are not required (they
+ * were originally demanded, which kept out perfectly well-behaved value types
+ * such as a record holding a @c std::vector). The name says POD because the
+ * POD case is the overwhelmingly common one and because renaming a public
+ * type is a separate, deliberate decision -- read it as "held by value".
+ *
+ * @tparam T         The element type. Must be @c std::copyable.
  * @tparam Container The underlying sequence container. Defaults to
  *                   std::vector<T>. Any container with a compatible STL
  *                   sequence interface may be used (e.g., std::deque<T>).
  */
 template <typename T, typename Container = std::vector<T>>
-    requires std::is_trivial_v<T> && std::is_standard_layout_v<T>
+    requires std::copyable<T>
 struct PodStorage {
     /** @brief The logical element type exposed by the container interface. */
     using ValueType = T;
