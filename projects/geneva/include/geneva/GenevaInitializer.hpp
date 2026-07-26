@@ -38,7 +38,6 @@
 // Boost header files go here
 
 // Geneva headers go here
-#include "geneva/GGenomeCommandContainerExport.hpp"
 #include "geneva/genome/GGenome.hpp"
 #include "geneva/oa/GFactoryStore.hpp"
 #include "geneva/oa/GInitializerT.hpp"

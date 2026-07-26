@@ -1,7 +1,6 @@
 SET ( OPTIMIZATIONINCLUDES
     GenevaHelperFunctions.hpp
 	GenevaInitializer.hpp
-	GGenomeCommandContainerExport.hpp
 	Go2.hpp
 	GConsumerSetup.hpp
 	GMarshallerSetup.hpp

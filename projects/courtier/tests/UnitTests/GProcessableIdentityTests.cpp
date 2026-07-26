@@ -79,8 +79,8 @@ TEST_CASE("GProcessable lineage id: fresh on copy, kept on assign, preserved on 
     }
     CHECK(restored.getSubmissionUuid() == a.getSubmissionUuid());
 
-    // setSubmissionUuid() restores a chosen identity onto a fresh clone -- the mechanism a retention clone
-    // (cloneForRetention) uses to stand in for the original it retains.
+    // setSubmissionUuid() restores a chosen identity onto a fresh clone -- the mechanism by which a copy
+    // stands in for the item it represents.
     GSimpleContainer retention(copy); // a fresh id
     REQUIRE(retention.getSubmissionUuid() != a.getSubmissionUuid());
     retention.setSubmissionUuid(a.getSubmissionUuid());

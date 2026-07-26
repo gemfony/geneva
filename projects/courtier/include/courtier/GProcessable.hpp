@@ -289,9 +289,10 @@ public:
      */
     [[nodiscard]] SUBMISSION_UUID_TYPE getSubmissionUuid() const noexcept { return submission_uuid_.value; }
     /**
-     * @brief Overwrites the lineage id. Used only to RESTORE a source's identity onto a retention clone
-     * (cloneForRetention): a plain clone mints a fresh id, but a retained original must keep the lineage of
-     * the item it stands in for. Not for general use -- the id is otherwise immutable after construction.
+     * @brief Overwrites the lineage id. Used only to RESTORE a source's identity onto a stand-in copy:
+     * a plain clone mints a fresh id, but a copy that stands in for an existing item (a consumer's
+     * retained original, a checkpoint restore) must keep the lineage of the item it represents. Not for
+     * general use -- the id is otherwise immutable after construction.
      * @param uuid The lineage id to stamp onto this work item
      */
     void setSubmissionUuid(const SUBMISSION_UUID_TYPE &uuid) noexcept { submission_uuid_.value = uuid; }

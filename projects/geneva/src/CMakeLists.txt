@@ -33,7 +33,6 @@ SET ( OPTIMIZATIONSOURCES
 	GConsumerSetup.cpp
 	GFaultInjector.cpp
 	GenevaInitializer.cpp
-	GGenomeCommandContainerExport.cpp
 	Go2.cpp
     oa/GBasePluggableOM.cpp
     oa/GPluggableOptimizationMonitors.cpp
