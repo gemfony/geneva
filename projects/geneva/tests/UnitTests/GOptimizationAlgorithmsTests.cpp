@@ -774,6 +774,40 @@ TEST_CASE("Swarm optimization optimizes a flat individual", "[flat][oa]") {
 
 /******************************************************************************/
 
+TEST_CASE("Swarm neighborhood-best accessor hands out a sole-owned copy, not the stored best", "[flat][oa]") {
+    // getBestNeighborhoodIndividual<>() was the one getBest*-named accessor that returned a co-owning
+    // handle to the algorithm's own stored best, mutable behind its back. It now clones like its
+    // siblings. Pin both halves: the caller owns a fresh copy, and mutating it leaves the algorithm's
+    // stored best untouched (a second retrieval still shows the original values).
+    auto pop = std::make_shared<oa::GSwarmAlgorithm>();
+    pop->setSwarmSizes(2, 4);
+    pop->setMaxIteration(10);
+    pop->setReportIteration(100000);
+    pop->push_back(SphereOA().clone());
+    pop->optimize();
+
+    std::unique_ptr<SphereOA> first = pop->getBestNeighborhoodIndividual<SphereOA>(0);
+    REQUIRE(first);
+    std::vector<double> original_values;
+    first->streamline<double>(original_values);
+    REQUIRE_FALSE(original_values.empty());
+
+    // Mutate the handed-out copy (within the sphere's bounded range [-5,5), which
+    // assignValueVector enforces); the algorithm's stored best must not see it
+    std::vector<double> mutated = original_values;
+    mutated[0] = (original_values[0] < 0.25) ? 4.5 : -4.5; // guaranteed different, in range
+    first->assignValueVector<double>(mutated);
+
+    auto second = pop->getBestNeighborhoodIndividual<SphereOA>(0);
+    REQUIRE(second);
+    std::vector<double> second_values;
+    second->streamline<double>(second_values);
+    CHECK(second_values[0] == original_values[0]);
+    CHECK(second.get() != first.get()); // distinct objects, each solely owned
+}
+
+/******************************************************************************/
+
 TEST_CASE("Swarm load() reproduces a POPULATED state (neighborhood + global bests past iteration 0)", "[flat][oa]") {
     // After the fold, the neighborhood bests (neighborhood_bests_cnt_) and the global best (global_best_ptr_)
     // are deep-cloned and compared through the generic cloneable-member policies rather than the old

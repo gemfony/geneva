@@ -290,13 +290,16 @@ public:
 	  * `requires std::derived_from` constraint below makes this overload visible to the compiler only when
 	  * individual_type is a derivative of GGenome.
 	  *
+	  * The individual handed back is a fresh copy, solely owned by the caller — like every other
+	  * getBest* accessor, it cannot be used to modify the algorithm's own stored best.
+	  *
 	  * @tparam individual_type The target type to which the best individual is cast (must derive from gen::GGenome)
 	  * @param neighborhood The neighborhood, whose best individual should be returned
-	  * @return A converted shared_ptr to the best individual of a given neighborhood
+	  * @return A copy of the best individual of a given neighborhood, as sole owner
 	  */
     template <typename individual_type>
         requires std::derived_from<individual_type, gen::GGenome>
-    std::shared_ptr<individual_type> getBestNeighborhoodIndividual(std::size_t neighborhood) {
+    std::unique_ptr<individual_type> getBestNeighborhoodIndividual(std::size_t neighborhood) {
 #ifdef DEBUG
         // Check that the neighborhood is in a valid range
         if(neighborhood >= n_neighborhoods_) {
@@ -309,10 +312,8 @@ public:
         }
 #endif /* DEBUG */
 
-        // Does error checks on the conversion internally
-        return Gem::Common::convertSmartPointer<gen::GGenome, individual_type>(
-            neighborhood_bests_cnt_[neighborhood]
-        );
+        // clone<>() deep-copies and checks the conversion internally (throws on a type mismatch)
+        return neighborhood_bests_cnt_[neighborhood]->template clone<individual_type>();
     }
 
 protected:
