@@ -34,6 +34,7 @@
 // Standard header files go here
 #include <cmath>
 #include <fstream>
+#include <future>
 #include <iostream>
 #include <sstream>
 #include <string>
@@ -174,6 +175,18 @@ void startParallelMeasurement(
             gind::GDelayIndividual::tupleToTime(sleep_time_tuple)
         );
 
+        // The parallel half needs the same OA-owned adaption config as the reference half above: the
+        // genome carries structure only, so an evolutionary algorithm that is handed none refuses to
+        // init(). Authoring the identical Gauss adaptor on both sides is also what makes the two halves
+        // comparable at all -- the measured workload is the adapt + re-evaluate cycle.
+        {
+            auto cfg = oa::makeAdaptionConfig<oa::GAdaptionConfigBase>(*gdi_ptr);
+            for(std::size_t j = 0; j < cfg->doubleGroups().size(); j++) {
+                cfg->groupDouble(j).gauss(0.025, 0.1, 0., 1., 1.);
+            }
+            go.registerAdaptionConfig("PERSONALITY_EA", cfg);
+        }
+
         std::vector<double> delaySummary;
         for(std::uint32_t i = 0; i < nMeasurementsPerIteration; i++) {
             std::cout << "Parallel measurement " << i << " in iteration " << iter << std::endl;
@@ -289,14 +302,19 @@ int main(int argc, char **argv) {
     // Threadpool for two threads
     Gem::Common::Concurrency::GThreadPool tp(2);
 
-    // Start the reference and parallel threads
-    tp.async_schedule([&]() { startReferenceMeasurement(delay_config_ref, ab); });
-    tp.async_schedule([&]() {
+    // Start the reference and parallel threads. The futures are KEPT and get()-ed below: a half that
+    // throws would otherwise be swallowed by the pool, and the benchmark would go on to write an empty
+    // plot and exit 0 -- a run that measured nothing while reporting success. (That is exactly what a
+    // missing adaption config on the parallel half used to do.)
+    auto reference_done = tp.async_schedule([&]() { startReferenceMeasurement(delay_config_ref, ab); });
+    auto parallel_done  = tp.async_schedule([&]() {
         startParallelMeasurement(go_parallel, delay_config_par, parallelExecutionTimes);
     });
     std::cout << "Waiting for threads to return" << std::endl;
-    // And wait for their return
+    // And wait for their return, re-throwing whatever either of them failed with
     tp.wait();
+    reference_done.get();
+    parallel_done.get();
 
     // Calculate reference times from the line parameters
     referenceExecutionTimes = getReferenceTimes(ab, parallelExecutionTimes);
