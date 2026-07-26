@@ -242,7 +242,7 @@ private:
     double sigmoid_extremes_ = Gem::Geneva::WORSTALLOWEDVALIDFITNESS;
 
     /** @brief The shared constraint-check applied to every candidate (empty == always valid) */
-    std::shared_ptr<GPreEvaluationValidityCheckT<GGenome>> constraint_ptr_;
+    std::unique_ptr<GPreEvaluationValidityCheckT<GGenome>> constraint_ptr_;
 };
 
 /******************************************************************************/

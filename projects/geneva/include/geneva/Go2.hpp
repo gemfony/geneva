@@ -290,7 +290,7 @@ public:
      * Carries no per-individual state and is a no-op on production runs where none is registered.
      * @param injector The fault injector to consult during each individual's process() (nullptr clears)
      */
-    void registerFaultInjector(std::shared_ptr<GFaultInjector> injector) {
+    void registerFaultInjector(std::unique_ptr<GFaultInjector> injector) {
         if(injector) {
             GFaultInjectorRegistry::set(std::move(injector));
         }

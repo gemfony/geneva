@@ -671,7 +671,7 @@ protected:
      * created in init() (sized by n_threads_) and released in finalize(), so it only
      * lives for the duration of a run and is neither serialized nor cloned.
      */
-    std::shared_ptr<Gem::Common::Concurrency::GThreadPool> tp_ptr_;
+    std::unique_ptr<Gem::Common::Concurrency::GThreadPool> tp_ptr_;
     /** @brief The number of threads used for parallel organizational work. */
     std::uint16_t n_threads_ = Gem::Common::DEFAULTNHARDWARETHREADS;
 

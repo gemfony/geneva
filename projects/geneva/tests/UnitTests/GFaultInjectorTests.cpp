@@ -117,7 +117,7 @@ TEST_CASE("fault injector: default (none registered) leaves evaluation untouched
 
 /******************************************************************************/
 TEST_CASE("fault injector: a THROW fault surfaces as EXCEPTION_CAUGHT", "[faultinj]") {
-    GFaultInjectorRegistry::set(std::make_shared<ConstantInjector>(GFaultInjector::Fault::THROW));
+    GFaultInjectorRegistry::set(std::make_unique<ConstantInjector>(GFaultInjector::Fault::THROW));
 
     FISphere ind;
     REQUIRE(ind.is_due_for_processing());
@@ -130,7 +130,7 @@ TEST_CASE("fault injector: a THROW fault surfaces as EXCEPTION_CAUGHT", "[faulti
 
 /******************************************************************************/
 TEST_CASE("fault injector: a FLAG_ERROR fault surfaces as ERROR_FLAGGED", "[faultinj]") {
-    GFaultInjectorRegistry::set(std::make_shared<ConstantInjector>(GFaultInjector::Fault::FLAG_ERROR));
+    GFaultInjectorRegistry::set(std::make_unique<ConstantInjector>(GFaultInjector::Fault::FLAG_ERROR));
 
     FISphere ind;
     REQUIRE(ind.is_due_for_processing());
@@ -143,7 +143,7 @@ TEST_CASE("fault injector: a FLAG_ERROR fault surfaces as ERROR_FLAGGED", "[faul
 
 /******************************************************************************/
 TEST_CASE("fault injector: an explicit NONE fault is a pass-through", "[faultinj]") {
-    GFaultInjectorRegistry::set(std::make_shared<ConstantInjector>(GFaultInjector::Fault::NONE));
+    GFaultInjectorRegistry::set(std::make_unique<ConstantInjector>(GFaultInjector::Fault::NONE));
 
     FISphere ind;
     CHECK_NOTHROW(ind.process());
@@ -155,7 +155,7 @@ TEST_CASE("fault injector: an explicit NONE fault is a pass-through", "[faultinj
 
 /******************************************************************************/
 TEST_CASE("fault injector: clearing restores the zero-cost default", "[faultinj]") {
-    GFaultInjectorRegistry::set(std::make_shared<ConstantInjector>(GFaultInjector::Fault::THROW));
+    GFaultInjectorRegistry::set(std::make_unique<ConstantInjector>(GFaultInjector::Fault::THROW));
     REQUIRE(GFaultInjectorRegistry::get() != nullptr);
 
     GFaultInjectorRegistry::clear();

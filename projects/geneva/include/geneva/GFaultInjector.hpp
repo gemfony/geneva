@@ -101,7 +101,7 @@ public:
 class GFaultInjectorRegistry {
 public:
     /** @brief Registers (or replaces) the process-global injector. @param injector The injector to hold */
-    static void set(std::shared_ptr<GFaultInjector> injector);
+    static void set(std::unique_ptr<GFaultInjector> injector);
     /** @brief @return A non-owning pointer to the active injector, or nullptr if none is registered */
     static GFaultInjector *get() noexcept;
     /** @brief Removes any registered injector (restores the zero-cost default). */

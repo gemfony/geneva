@@ -35,11 +35,11 @@ namespace Gem::Geneva {
 
 namespace {
 /** @brief The single process-global injector. Owned here; handed out non-owning via get(). */
-std::shared_ptr<GFaultInjector> g_fault_injector; // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
+std::unique_ptr<GFaultInjector> g_fault_injector; // NOLINT(cppcoreguidelines-avoid-non-const-global-variables)
 } // namespace
 
 /******************************************************************************/
-void GFaultInjectorRegistry::set(std::shared_ptr<GFaultInjector> injector) {
+void GFaultInjectorRegistry::set(std::unique_ptr<GFaultInjector> injector) {
     g_fault_injector = std::move(injector);
 }
 

@@ -1886,7 +1886,7 @@ void GOptimizationAlgorithmBase::init() {
 
     // Create the shared thread pool used for parallel organizational work (adaption,
     // recombination, ...). Derived algorithms that call GOptimizationAlgorithmBase::init() first get it for free.
-    tp_ptr_ = std::make_shared<Gem::Common::Concurrency::GThreadPool>(
+    tp_ptr_ = std::make_unique<Gem::Common::Concurrency::GThreadPool>(
         "oa:tp",
         n_threads_,
         Gem::Common::Concurrency::ThreadElasticity::Elastic
