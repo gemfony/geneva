@@ -61,6 +61,9 @@ ADD_TEST(NAME ${EXECUTABLENAME}
                 ${MPIEXEC_PREFLAGS} $<TARGET_FILE:${EXECUTABLENAME}> ${MPIEXEC_POSTFLAGS}
                 --maxIterations 5
         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
-SET_TESTS_PROPERTIES(${EXECUTABLENAME} PROPERTIES LABELS "geneva;example" TIMEOUT 300)
+#
+# PROCESSORS 4 tells the `ctest -j` scheduler what this entry really costs: one CTest slot but four
+# live ranks. Without it the scheduler counts it as one and oversubscribes the machine.
+SET_TESTS_PROPERTIES(${EXECUTABLENAME} PROPERTIES LABELS "geneva;example" TIMEOUT 300 PROCESSORS 4)
 
 INSTALL(TARGETS ${EXECUTABLENAME} DESTINATION ${INSTALL_PREFIX_DATA}/examples/${EXECUTABLENAME})

@@ -51,6 +51,12 @@ ENDFUNCTION()
 # Submission-path unit tests (formerly courtier2/tests/UnitTests, merged in at Stage E). The test
 # executable / file names still carry the "2" until the Stage-E identifier rename (E2); the CTest
 # labels and install paths are already "courtier".
+#
+# None of these needs a RESOURCE_LOCK under `ctest -j`, including the two that really put a server on
+# the loopback interface: GCourtierAsioTests and GCourtierWebsocketTests construct their consumer with
+# port 0 and ask the bound socket for the port it actually got (getPort()), so the kernel hands every
+# concurrent instance a distinct ephemeral port. Keep it that way -- a test that hard-codes a port
+# number is the thing that would need serializing.
 geneva_courtier_test(GWireBlobRegistryTests  GWireBlobRegistryTests.cpp)
 geneva_courtier_test(GProcessableIdentityTests GProcessableIdentityTests.cpp)
 geneva_courtier_test(GCommandContainerSerializationTests GCommandContainerSerializationTests.cpp)
@@ -88,7 +94,9 @@ IF(GENEVA_BUILD_WITH_MPI_CONSUMER)
 	ADD_TEST(NAME GCourtierMpiTest
 			COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 3
 					${MPIEXEC_PREFLAGS} $<TARGET_FILE:GCourtierMpiExerciser> ${MPIEXEC_POSTFLAGS})
-	SET_TESTS_PROPERTIES(GCourtierMpiTest PROPERTIES LABELS "courtier")
+	# PROCESSORS tells the `ctest -j` scheduler what this entry really costs: one CTest slot but three
+	# live processes. Without it the scheduler counts it as one and oversubscribes the machine.
+	SET_TESTS_PROPERTIES(GCourtierMpiTest PROPERTIES LABELS "courtier" PROCESSORS 3)
 
 	# Large-payload variant: each work item far exceeds the former fixed 20 KB MPI message cap,
 	# so this covers the dynamically-sized (MPI_Iprobe + MPI_Get_count) receive path.
@@ -99,7 +107,7 @@ IF(GENEVA_BUILD_WITH_MPI_CONSUMER)
 	ADD_TEST(NAME GCourtierMpiLargePayloadTest
 			COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 3
 					${MPIEXEC_PREFLAGS} $<TARGET_FILE:GCourtierMpiLargePayloadExerciser> ${MPIEXEC_POSTFLAGS})
-	SET_TESTS_PROPERTIES(GCourtierMpiLargePayloadTest PROPERTIES LABELS "courtier")
+	SET_TESTS_PROPERTIES(GCourtierMpiLargePayloadTest PROPERTIES LABELS "courtier" PROCESSORS 3)
 ENDIF()
 
 GENEVA_AGGREGATE_TARGET( "tests-courtier-unit" )
