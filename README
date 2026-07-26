@@ -52,9 +52,11 @@ from the chosen (out-of-source) build directory. Generating the reference
 documentation requires a full Doxygen installation (including its tools) and,
 for the typeset output, a LaTeX system.
 
-The examples shipped under each library's examples/ directory are the best
-practical starting point for writing your own problems; see in particular
-docs/writing-optimization-problems.md and projects/geneva/examples/10_GStarter.
+The quickstart in projects/geneva/quickstart is the best practical starting
+point for writing your own problems: a self-contained project that consumes an
+installed Geneva via find_package(Geneva) and can be copied out of this tree.
+See also docs/writing-optimization-problems.md and the examples shipped under
+each library's examples/ directory.
 
 
 Contributing

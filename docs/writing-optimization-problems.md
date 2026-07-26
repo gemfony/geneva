@@ -5,7 +5,7 @@ fixed structure) from **how** it is mutated (the adaptors — owned by the optim
 the genome). This guide covers the current API after the "config-strip": the genome builder is
 **structure-only**, and adaptors live on an **OA-owned `GAdaptionConfig`**.
 
-Canonical examples: `examples/10_GStarter` (minimal), `examples/03_GParameterObjectUsagePatterns`
+Canonical examples: `quickstart/` (minimal), `examples/03_GParameterObjectUsagePatterns`
 (parameter patterns), `examples/09_GNeuralNetwork` (an architecture-decoded flat genome).
 
 ## 1. Subclass `GGenomeT` and override `evaluate()`

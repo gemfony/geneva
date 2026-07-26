@@ -138,8 +138,9 @@ are structured stubs with explicit TODOs:
   round-trip; checkpoint
   save/restore identity. Wiring + example mapping present; checkpoint-identity
   comparison is a STUB (TODO: byte/objective compare of two runs).
-* `checks/examples.py` — `10_GStarter` build+run; one networked example
-  (client+server on localhost); CUDA example `15_GCUDAWorker` (GPU-gated).
+* `checks/examples.py` — `01_GSimpleOptimizer` build+run; one networked example
+  (client+server on localhost); CUDA example `15_GCUDAWorker` (GPU-gated). The
+  quickstart's own build+run is `checks/outoftree.py` (it is not built in-tree).
 
 ## Phase 6 — Install / out-of-tree / linking (STUBBED)
 

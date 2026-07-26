@@ -243,6 +243,11 @@ The imported targets are Geneva::common, Geneva::hap, Geneva::courtier and
 Geneva::geneva; linking Geneva::geneva pulls in the layers beneath it, the C++23
 requirement and the Boost dependency transitively.
 
+projects/geneva/quickstart/ is a working project of exactly this shape and the
+recommended starting point: it is not built by the in-tree build, it locates
+Geneva only through the installed package, and it can be copied out of the tree
+as-is. Its README has the step-by-step standalone build.
+
 
 Recommended software
 ====================

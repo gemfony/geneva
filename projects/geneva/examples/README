@@ -2,8 +2,13 @@ Geneva library - Examples
 =========================
 
 This directory contains some examples of how to use the Geneva library for
-performing parametric optimization. You will also find here some more complete
-programs, which are intended as starting points for your own work.
+performing parametric optimization.
+
+If you are looking for a starting point for your own work, use the quickstart
+in ../quickstart instead: it is a self-contained project that consumes an
+*installed* Geneva via find_package(Geneva) and can be copied out of this tree
+as-is. The examples below are built as part of the Geneva tree and illustrate
+individual aspects of the library.
 
 The following examples are provided:
 
@@ -51,9 +56,6 @@ parameters are specified. There is a whole family of parameter objects.
 09_GNeuralNetwork:
 ------------------
 
-10_GStarter:
-------------
-
 11_GMetaOptimizer:
 ------------------
 
@@ -74,8 +76,8 @@ parameters are specified. There is a whole family of parameter objects.
 
 This example shows how the MPI consumer can be used directly without using Go2.
 Usually using Go2 is recommended, but this example serves as a demonstration of direct interaction with the consumer framework and
-is similar to the example 06_GDirectEA. If you would like to explore the MPI-Consumer with Go2, you can use the example
-10_GStarter and call the executable with --help --showAll to explore all options.
+is similar to the example 06_GDirectEA. If you would like to explore the MPI-Consumer with Go2, you can use the
+quickstart in ../quickstart and call the executable with --help --showAll to explore all options.
 
 17_GMPISubClients:
 ------------------

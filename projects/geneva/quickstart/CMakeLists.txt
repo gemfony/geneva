@@ -27,13 +27,13 @@
 #
 ################################################################################
 #
-# Standalone build for the GStarter example.
+# The Geneva quickstart -- a self-contained downstream project.
 #
-# This directory ships with the Geneva sources but is NOT compiled by the
-# in-tree Geneva build. It is the canonical template showing how an external
-# project consumes an *installed* Geneva. To build it you first need to install
-# Geneva (see the project's CLAUDE.md / INSTALL notes), then point this project
-# at that installation:
+# This directory is not part of the in-tree Geneva build and does not belong to
+# the numbered examples: it is the canonical template showing how an external
+# project consumes an *installed* Geneva. Copy it out of the tree and it still
+# builds. To build it you first need to install Geneva (see INSTALL), then point
+# this project at that installation:
 #
 #   mkdir build && cd build
 #   cmake -DCMAKE_PREFIX_PATH=<geneva-install-prefix> ..
@@ -101,7 +101,7 @@ TARGET_COMPILE_FEATURES(GStarter PRIVATE cxx_std_23)
 INSTALL(TARGETS GStarter DESTINATION bin)
 
 # (2) The LOADABLE variant's runner: a generic optimizer with NO problem compiled in, which loads the
-# just-built module at runtime via --individual (the example-19 pattern). ENABLE_EXPORTS so a plugin loaded
+# just-built module at runtime via --individual (the GLoadableIndividual example's pattern). ENABLE_EXPORTS so a plugin loaded
 # RTLD_GLOBAL resolves against one symbol namespace (single archive registry + Geneva singletons).
 ADD_EXECUTABLE(GStarterGenericOptimizer GStarterGenericOptimizer.cpp)
 SET_TARGET_PROPERTIES(GStarterGenericOptimizer PROPERTIES ENABLE_EXPORTS TRUE)
@@ -135,7 +135,7 @@ FIND_PACKAGE(Catch2 3 QUIET)
 # Locate the internal test scaffolding header. By default it is taken from the
 # in-tree location relative to this directory; a different Geneva source tree
 # can be supplied via GENEVA_TEST_INCLUDE_DIR.
-SET(GENEVA_TEST_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/../../../tests/geneva/UnitTests"
+SET(GENEVA_TEST_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/../tests/UnitTests"
 	CACHE PATH "Directory holding the internal Geneva_tests.hpp test scaffolding header")
 
 IF (Catch2_FOUND AND EXISTS "${GENEVA_TEST_INCLUDE_DIR}/Geneva_tests.hpp")

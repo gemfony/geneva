@@ -56,7 +56,7 @@ def _run_job(ctx: JobContext, log) -> list[CheckResult]:
     results.append(algorithms.checkpoint_identity(ctx))
 
     # Examples
-    results.append(examples.gstarter(ctx))
+    results.append(examples.simple_optimizer(ctx))
     results.append(examples.networked(ctx))
     results.append(examples.cuda(ctx))
 

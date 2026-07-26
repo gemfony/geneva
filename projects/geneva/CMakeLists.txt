@@ -48,7 +48,9 @@
 #   geneva/src/*.cpp                   implementation (flat, mirrors the
 #                                        top-level header set); 73 sources
 #   geneva/tests/                      UnitTests + ManualTests
-#   geneva/examples/{01_..18_}/        all numbered examples
+#   geneva/examples/{01_..22_}/        all numbered examples
+#   geneva/quickstart/                 the self-contained downstream template
+#                                        (find_package(Geneva); NOT built in tree)
 #   geneva/benchmarks/                 6 benchmark binaries
 #
 # Tests / examples / benchmarks gated on the top-level options. The

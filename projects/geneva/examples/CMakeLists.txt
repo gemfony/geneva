@@ -73,9 +73,6 @@ ADD_SUBDIRECTORY( 06_GDirectSwarm )
 ADD_SUBDIRECTORY( 07_GFunctionMinimizer )
 ADD_SUBDIRECTORY( 08_GPostProcessing )
 ADD_SUBDIRECTORY( 09_GNeuralNetwork )
-# 10_GStarter is intentionally NOT built in-tree: it ships as the canonical
-# standalone downstream template that consumes an installed Geneva via
-# find_package(Geneva). See projects/geneva/examples/10_GStarter/README.
 ADD_SUBDIRECTORY( 11_GMetaOptimizer )
 ADD_SUBDIRECTORY( 12_GExternalEvaluator )
 ADD_SUBDIRECTORY( 13_GPluggableOptimizationMonitors )
@@ -118,7 +115,6 @@ ADD_SUBDIRECTORY( 18_GAlgorithmChaining )
 #   03_GParameterObjectUsagePatterns -- a parameter-object demo; it never constructs Go2, so the switch
 #                                       never engages (its lone config is unaffected either way);
 #   06_GDirect{EA,SA,Swarm}          -- drive an optimization algorithm directly, without Go2;
-#   10_GStarter                      -- not built in-tree (standalone "consumes an installed Geneva");
 #   12_GExternalEvaluator            -- building its individual EXECUTES an external evaluator program;
 #   15_GCUDAWorker / 20_GFunctionGPU -- need a CUDA device;
 #   16_GMPIConsumer / 17_GMPISubClients -- need mpirun;
