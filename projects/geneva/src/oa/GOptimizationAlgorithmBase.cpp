@@ -1325,7 +1325,6 @@ void GOptimizationAlgorithmBase::addConfigurationOptions_(Gem::Common::GParserBu
 void GOptimizationAlgorithmBase::updateGlobalBestsPQ_(
     gen::GGenomeFixedSizePriorityQueue &best_individuals
 ) {
-    constexpr bool clone = true;
     constexpr bool donotreplace = false;
 
 #ifdef DEBUG
@@ -1339,10 +1338,10 @@ void GOptimizationAlgorithmBase::updateGlobalBestsPQ_(
     }
 #endif /* DEBUG */
 
-    // We simply add all individuals to the queue -- only the best ones will actually be added (and cloned)
-    // Unless we have asked for the queue to have an unlimited size, the queue will be resized as required
-    // by its maximum allowed size.
-    best_individuals.add(this->data_cnt_, clone, donotreplace);
+    // We simply offer all individuals to the archive -- it admits only the processed ones, keeps only
+    // the best, and holds independent copies, so a later generation cannot mutate what was recorded.
+    // Unless the queue has an unlimited size, it will be trimmed to its maximum allowed size.
+    best_individuals.addClone(this->data_cnt_, donotreplace);
 }
 
 /******************************************************************************/
@@ -1357,7 +1356,6 @@ void GOptimizationAlgorithmBase::updateGlobalBestsPQ_(
 void GOptimizationAlgorithmBase::updateIterationBestsPQ_(
     gen::GGenomeFixedSizePriorityQueue &best_individuals
 ) {
-    constexpr bool clone = true;
     constexpr bool replace = true;
 
 #ifdef DEBUG
@@ -1371,8 +1369,8 @@ void GOptimizationAlgorithmBase::updateIterationBestsPQ_(
     }
 #endif /* DEBUG */
 
-    // We simply add all individuals to the queue. They will automatically be sorted.
-    best_individuals.add(this->data_cnt_, clone, replace);
+    // We simply offer all individuals to the archive. They will automatically be sorted.
+    best_individuals.addClone(this->data_cnt_, replace);
 }
 
 /******************************************************************************/
@@ -1388,15 +1386,12 @@ void GOptimizationAlgorithmBase::updateIterationBestsPQ_(
 void GOptimizationAlgorithmBase::addCleanStoredBests(
     gen::GGenomeFixedSizePriorityQueue &best_individuals
 ) {
-    constexpr bool clone = true;
-
-    // We simply add all *clean* individuals to the queue -- only the best ones will actually be added
-    // (and cloned) Unless we have asked for the queue to have an unlimited size, the queue will be
-    // resized as required by its maximum allowed size.
+    // We simply offer every individual of this population to the archive: it admits only the
+    // processed ones (its own isValid() rule), keeps only the best, and stores independent copies --
+    // this population goes on evolving and must not be aliased by the archive. Unless the queue has
+    // an unlimited size, it will be trimmed to its maximum allowed size.
     for(auto const &ind_ptr : *this) {
-        if(ind_ptr->is_processed()) {
-            best_individuals.add(ind_ptr, clone);
-        }
+        best_individuals.addClone(ind_ptr);
     }
 }
 
@@ -1727,18 +1722,9 @@ GOptimizationAlgorithmBase::extractOptAlgFromPath(const std::filesystem::path &p
  * @return A cloned shared pointer to the globally best individual found so far
  */
 std::shared_ptr<gen::GGenome> GOptimizationAlgorithmBase::getBestGlobalIndividual_() const {
-    std::shared_ptr<gen::GGenome> const p = best_global_individuals_pq_.best();
-#ifdef DEBUG
-    if(!p) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GOptimizationAlgorithmBase<T>::getBestGlobalIndividual_(): Error!" << '\n'
-            << "Best individual seems to be empty" << '\n'
-        );
-    }
-#endif
-    // Always clone: callers must not alias the internal priority-queue entry.
-    return p->clone<gen::GGenome>();
+    // best() throws on an empty archive and the archive never admits an empty handle, so the entry
+    // is known to be there. Always clone: the archive solely owns its entries and callers get a copy.
+    return best_global_individuals_pq_.best()->clone<gen::GGenome>();
 }
 
 /******************************************************************************/
@@ -1751,8 +1737,9 @@ std::shared_ptr<gen::GGenome> GOptimizationAlgorithmBase::getBestGlobalIndividua
 std::vector<std::shared_ptr<gen::GGenome>>
 GOptimizationAlgorithmBase::getBestGlobalIndividuals_() const {
     std::vector<std::shared_ptr<gen::GGenome>> best_individuals_vec;
+    best_individuals_vec.reserve(best_global_individuals_pq_.size());
 
-    for(const auto &ind_ptr : best_global_individuals_pq_.toVector()) {
+    for(const auto &ind_ptr : best_global_individuals_pq_) {
         best_individuals_vec.push_back(ind_ptr->clone<gen::GGenome>());
     }
 
@@ -1767,19 +1754,8 @@ GOptimizationAlgorithmBase::getBestGlobalIndividuals_() const {
  * @return A cloned shared pointer to the best individual found in the current iteration
  */
 std::shared_ptr<gen::GGenome> GOptimizationAlgorithmBase::getBestIterationIndividual_() const {
-    std::shared_ptr<gen::GGenome> const p = best_iteration_individuals_pq_.best();
-#ifdef DEBUG
-    if(!p) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GOptimizationAlgorithmBase<T>::getBestIterationIndividual_(): Error!"
-            << '\n'
-            << "Best individual seems to be empty" << '\n'
-        );
-    }
-#endif
-    // Always clone: callers must not alias the internal priority-queue entry.
-    return p->clone<gen::GGenome>();
+    // See getBestGlobalIndividual_(): best() throws on an empty archive, and the caller gets a copy.
+    return best_iteration_individuals_pq_.best()->clone<gen::GGenome>();
 }
 
 /******************************************************************************/
@@ -1787,11 +1763,21 @@ std::shared_ptr<gen::GGenome> GOptimizationAlgorithmBase::getBestIterationIndivi
  * @brief Retrieves a list of the best individuals found in the iteration (equal to the content of
  * the priority queue)
  *
- * @return A vector of shared pointers to the best individuals found in the current iteration
+ * @return A vector of cloned shared pointers to the best individuals found in the current iteration
  */
 std::vector<std::shared_ptr<gen::GGenome>>
 GOptimizationAlgorithmBase::getBestIterationIndividuals_() const {
-    return best_iteration_individuals_pq_.toVector();
+    std::vector<std::shared_ptr<gen::GGenome>> best_individuals_vec;
+    best_individuals_vec.reserve(best_iteration_individuals_pq_.size());
+
+    // Clone, exactly like the global-best accessor above: this used to hand out the archive's own
+    // entries, which contradicted both the documented contract ("copies") and its own sibling. The
+    // archive owns its individuals outright now, so the copy is no longer optional.
+    for(const auto &ind_ptr : best_iteration_individuals_pq_) {
+        best_individuals_vec.push_back(ind_ptr->clone<gen::GGenome>());
+    }
+
+    return best_individuals_vec;
 }
 
 /******************************************************************************/

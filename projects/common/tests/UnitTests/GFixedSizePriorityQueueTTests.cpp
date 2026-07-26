@@ -28,333 +28,794 @@
  ********************************************************************************/
 
 #include <catch2/catch_test_macros.hpp>
+#include <catch2/catch_template_test_macros.hpp>
+#include <catch2/generators/catch_generators.hpp>
 
+#include <algorithm>
 #include <memory>
+#include <ranges>
+#include <string>
+#include <type_traits>
 #include <vector>
 
+#include "common/GArchiveNamed.hpp"     // archive_named
+#include "weft/GArchivePolymorphic.hpp" // GEM_REGISTER_ARCHIVABLE
+
+#include "common/GCommonEnums.hpp"
+#include "common/GCommonInterfaceT.hpp"
 #include "common/GExceptions.hpp"
 #include "common/GExpectationChecksT.hpp"
 #include "common/GFixedSizePriorityQueueT.hpp"
-#include "common/GTypeTraitsT.hpp"
+#include "common/GReflectiveInterfaceT.hpp"
 
 using namespace Gem::Common;
 
-// ---------------------------------------------------------------------------
-// Minimal item type. The priority queue requires items to satisfy
-// has_gemfony_common_interface (so load/clone helpers compile) and to expose
-// clone<U>(), load(shared_ptr<T>) and compare(T, expectation, double).
+// ===========================================================================
+// The fixtures. One item type carrying the Gemfony common interface, and one
+// concrete priority queue per storage policy: by value, by shared handle and
+// solely owned. Every behavioural case below is then written ONCE per holder,
+// so a semantic that silently differs between the three shows up as a red.
+// ===========================================================================
 
 namespace {
 
-class TestItem : public gemfony_common_interface_indicator {
+/** @brief A minimal Geneva-style work item: one double, which is also its priority. */
+class TestItem : public GCommonInterfaceT<TestItem> {
 public:
-    double value{0.0};
     TestItem() = default;
-    explicit TestItem(double v) : value(v) {}
-
-    template <typename U = TestItem>
-    [[nodiscard]] std::shared_ptr<U> clone() const {
-        return std::make_shared<U>(value);
+    explicit TestItem(double v)
+      : value_(v) {
     }
 
-    void load(std::shared_ptr<TestItem> const &cp) {
-        if(cp) {
-            value = cp->value;
-        }
+    [[nodiscard]] double value() const {
+        return value_;
     }
-
-    void compare(TestItem const &other, expectation e, [[maybe_unused]] double limit) const {
-        bool const eq = (value == other.value);
-        if(e == expectation::INEQUALITY ? eq : not eq) {
-            throw g_expectation_violation("TestItem compare mismatch");
-        }
+    void setValue(double v) {
+        value_ = v;
     }
-};
-
-// Concrete subclass — fills in the pure-virtual surface (isValid /
-// evaluation / clone_) and inherits load_ / compare_ from the base.
-
-class TestPQ : public GFixedSizePriorityQueueT<TestItem> {
-public:
-    TestPQ() = default;
-    explicit TestPQ(std::size_t maxSize)
-      : GFixedSizePriorityQueueT<TestItem>(maxSize) {}
-    TestPQ(std::size_t maxSize, sortOrder so)
-      : GFixedSizePriorityQueueT<TestItem>(maxSize, so) {}
 
 protected:
-    [[nodiscard]] bool   isValid   ([[maybe_unused]] std::shared_ptr<TestItem> const &p) const override { return true; }
-    [[nodiscard]] double evaluation(std::shared_ptr<TestItem> const &p) const override { return p->value; }
+    void load_(TestItem const *cp) override {
+        if(cp != nullptr) {
+            value_ = cp->value_;
+        }
+    }
+
+    void compare_(
+        TestItem const &cp,
+        expectation const &e,
+        [[maybe_unused]] double const &limit
+    ) const override {
+        GToken token("TestItem", e);
+        compare_base_t<GCommonInterfaceT<TestItem>>(*this, cp, token);
+        compare_t(Gem::Common::getIdentity(value_, cp.value_, "value_", "cp.value_"), token);
+        token.evaluate();
+    }
 
 private:
-    [[nodiscard]] TestPQ *clone_() const override {
-        return new TestPQ(*this);
+    [[nodiscard]] TestItem *clone_() const override {
+        return new TestItem(*this);
     }
+
+    friend struct Gem::Weft::access;
+    template <class Archive>
+    void serialize(Archive &ar, [[maybe_unused]] unsigned int version) {
+        Gem::Common::archive_named(ar, "value_", value_);
+    }
+
+    double value_{0.0};
 };
 
-std::shared_ptr<TestItem> make_item(double v) {
+/******************************************************************************/
+/**
+ * @brief The concrete queues under test.
+ *
+ * Each is spelled exactly the way a production subclass is (GReflectiveInterfaceT
+ * over the corresponding queue alias), so the generated clone_/load_/compare_/
+ * serialize path is what the tests exercise -- not a hand-written stand-in.
+ */
+#define GFSPQ_TEST_QUEUE(NAME, BASE, PARAM)                                                       \
+    class NAME : public Gem::Common::GReflectiveInterfaceT<NAME, BASE> {                           \
+        friend struct Gem::Common::GReflectiveInterfaceAccess;                                     \
+        template <typename Self>                                                                   \
+        auto localMembers_(this Self &) {                                                          \
+            return std::make_tuple();                                                              \
+        }                                                                                          \
+                                                                                                   \
+    public:                                                                                        \
+        static constexpr std::string_view class_name = #NAME;                                      \
+        NAME() = default;                                                                          \
+        explicit NAME(std::size_t max_size)                                                        \
+          : Gem::Common::GReflectiveInterfaceT<NAME, BASE>(max_size) {                             \
+        }                                                                                          \
+        NAME(std::size_t max_size, sortOrder so)                                                   \
+          : Gem::Common::GReflectiveInterfaceT<NAME, BASE>(max_size, so) {                         \
+        }                                                                                          \
+        NAME(NAME const &cp) = default;                                                            \
+        NAME(NAME &&cp) noexcept = default;                                                        \
+        ~NAME() override = default;                                                                \
+                                                                                                   \
+    protected:                                                                                     \
+        [[nodiscard]] double evaluation(PARAM item) const override {                               \
+            return evaluationOf(item);                                                             \
+        }                                                                                          \
+    };
+
+/** @brief Priority of a value-held item: the value is its own priority. */
+inline double evaluationOf(double v) {
+    return v;
+}
+/** @brief Priority of a pointer-held item. */
+inline double evaluationOf(std::shared_ptr<TestItem> const &p) {
+    return p->value();
+}
+/** @brief Priority of a solely-owned item. */
+inline double evaluationOf(std::unique_ptr<TestItem> const &p) {
+    return p->value();
+}
+
+GFSPQ_TEST_QUEUE(PodPQ, Gem::Common::GPodFixedSizePriorityQueueT<double>, double const &)
+GFSPQ_TEST_QUEUE(SharedPQ, Gem::Common::GPtrFixedSizePriorityQueueT<TestItem>, std::shared_ptr<TestItem> const &)
+GFSPQ_TEST_QUEUE(UniquePQ, Gem::Common::GUniquePtrFixedSizePriorityQueueT<TestItem>, std::unique_ptr<TestItem> const &)
+
+#undef GFSPQ_TEST_QUEUE
+
+/******************************************************************************/
+// Holder-generic helpers, so one case body can be written for all three queues.
+
+/** @brief Builds a value-held item. */
+inline double makeStored(double v, double /*tag*/) {
+    return v;
+}
+/** @brief Builds a shared-handle item. */
+inline std::shared_ptr<TestItem> makeStored(double v, std::shared_ptr<TestItem> const & /*tag*/) {
     return std::make_shared<TestItem>(v);
+}
+/** @brief Builds a solely-owned item. */
+inline std::unique_ptr<TestItem> makeStored(double v, std::unique_ptr<TestItem> const & /*tag*/) {
+    return std::make_unique<TestItem>(v);
+}
+
+/** @brief The numeric value behind a stored handle, whatever the holder. */
+template <typename Stored>
+double valueOf(Stored const &s) {
+    if constexpr(std::is_arithmetic_v<Stored>) {
+        return s;
+    }
+    else {
+        return s->value();
+    }
+}
+
+/** @brief Builds one item of the queue's own storage type. */
+template <typename Queue>
+typename Queue::StoredType item(double v) {
+    typename Queue::StoredType const tag{};
+    return makeStored(v, tag);
 }
 
 } // namespace
 
-// ---------------------------------------------------------------------------
-// Empty queue accessors
+GEM_REGISTER_ARCHIVABLE(TestItem)  // NOLINT
+GEM_REGISTER_ARCHIVABLE(PodPQ)     // NOLINT
+GEM_REGISTER_ARCHIVABLE(SharedPQ)  // NOLINT
+GEM_REGISTER_ARCHIVABLE(UniquePQ)  // NOLINT
 
-TEST_CASE("GFixedSizePriorityQueueT: empty queue reports empty/size 0 and throws on accessors",
-          "[common][priority-queue]") {
-    TestPQ pq(5);
+// ===========================================================================
+// Behaviour that must be identical for all three holders. Each TEMPLATE_TEST_CASE
+// body runs three times, once per storage policy.
+// ===========================================================================
+
+#define GFSPQ_ALL_HOLDERS PodPQ, SharedPQ, UniquePQ
+
+// ---------------------------------------------------------------------------
+// Degenerate case: the empty queue
+
+TEMPLATE_TEST_CASE(
+    "GFixedSizePriorityQueueT: an empty queue reports empty and throws on every accessor",
+    "[common][priority-queue]",
+    GFSPQ_ALL_HOLDERS
+) {
+    TestType pq(5);
     CHECK(pq.empty());
-    CHECK(pq.empty());
-    CHECK_THROWS_AS(pq.best(),  geneva_exception);
+    CHECK(pq.size() == 0);
+    CHECK(pq.cloneToVector().empty());
+    CHECK(pq.begin() == pq.end());
+    CHECK_THROWS_AS(pq.best(), geneva_exception);
     CHECK_THROWS_AS(pq.worst(), geneva_exception);
-    CHECK_THROWS_AS(pq.pop(),   geneva_exception);
+    CHECK_THROWS_AS(pq.pop(), geneva_exception);
 }
 
 // ---------------------------------------------------------------------------
-// Insertion + LOWERISBETTER ordering (default)
+// Ordering / comparator
 
-TEST_CASE("GFixedSizePriorityQueueT: LOWERISBETTER orders best=min, worst=max",
-          "[common][priority-queue]") {
-    TestPQ pq(10);   // default sortOrder is LOWERISBETTER
-    pq.add(make_item(5.0), false);
-    pq.add(make_item(1.0), false);
-    pq.add(make_item(3.0), false);
+TEMPLATE_TEST_CASE(
+    "GFixedSizePriorityQueueT: LOWERISBETTER puts the smallest evaluation first",
+    "[common][priority-queue]",
+    GFSPQ_ALL_HOLDERS
+) {
+    TestType pq(10); // LOWERISBETTER is the default
+    pq.add(item<TestType>(5.0));
+    pq.add(item<TestType>(1.0));
+    pq.add(item<TestType>(3.0));
 
     REQUIRE(pq.size() == 3);
-    CHECK(pq.best()->value  == 1.0);
-    CHECK(pq.worst()->value == 5.0);
+    CHECK(valueOf(pq.best()) == 1.0);
+    CHECK(valueOf(pq.worst()) == 5.0);
 }
 
-TEST_CASE("GFixedSizePriorityQueueT: HIGHERISBETTER inverts best/worst",
-          "[common][priority-queue]") {
-    TestPQ pq(10, sortOrder::HIGHERISBETTER);
-    pq.add(make_item(5.0), false);
-    pq.add(make_item(1.0), false);
-    pq.add(make_item(3.0), false);
+TEMPLATE_TEST_CASE(
+    "GFixedSizePriorityQueueT: HIGHERISBETTER inverts best and worst",
+    "[common][priority-queue]",
+    GFSPQ_ALL_HOLDERS
+) {
+    TestType pq(10, sortOrder::HIGHERISBETTER);
+    pq.add(item<TestType>(5.0));
+    pq.add(item<TestType>(1.0));
+    pq.add(item<TestType>(3.0));
 
     REQUIRE(pq.size() == 3);
-    CHECK(pq.best()->value  == 5.0);
-    CHECK(pq.worst()->value == 1.0);
+    CHECK(valueOf(pq.best()) == 5.0);
+    CHECK(valueOf(pq.worst()) == 1.0);
+}
+
+TEMPLATE_TEST_CASE(
+    "GFixedSizePriorityQueueT: setSortOrder round-trips",
+    "[common][priority-queue]",
+    GFSPQ_ALL_HOLDERS
+) {
+    TestType pq(5);
+    CHECK(pq.getSortOrder() == sortOrder::LOWERISBETTER);
+    pq.setSortOrder(sortOrder::HIGHERISBETTER);
+    CHECK(pq.getSortOrder() == sortOrder::HIGHERISBETTER);
 }
 
 // ---------------------------------------------------------------------------
-// Size cap: when the queue is full, only items that are strictly better than
-// the current worst replace it.
+// Insertion and eviction at capacity
 
-TEST_CASE("GFixedSizePriorityQueueT: full queue rejects items worse than current worst",
-          "[common][priority-queue]") {
-    TestPQ pq(3); // LOWERISBETTER
-    pq.add(make_item(1.0), false);
-    pq.add(make_item(2.0), false);
-    pq.add(make_item(3.0), false);
+TEMPLATE_TEST_CASE(
+    "GFixedSizePriorityQueueT: a full queue evicts the worst rather than growing",
+    "[common][priority-queue]",
+    GFSPQ_ALL_HOLDERS
+) {
+    TestType pq(3); // LOWERISBETTER
+    pq.add(item<TestType>(1.0));
+    pq.add(item<TestType>(2.0));
+    pq.add(item<TestType>(3.0));
     REQUIRE(pq.size() == 3);
 
-    pq.add(make_item(5.0), false);  // worse than worst (3.0) → rejected (or trimmed)
+    pq.add(item<TestType>(5.0)); // worse than the worst -> not kept
     REQUIRE(pq.size() == 3);
-    CHECK(pq.worst()->value == 3.0);
+    CHECK(valueOf(pq.worst()) == 3.0);
 
-    pq.add(make_item(0.5), false);  // better than best → kept; worst now drops
+    pq.add(item<TestType>(0.5)); // better than the best -> kept, 3.0 is evicted
     REQUIRE(pq.size() == 3);
-    CHECK(pq.best()->value  == 0.5);
-    CHECK(pq.worst()->value <= 3.0);
+    CHECK(valueOf(pq.best()) == 0.5);
+    CHECK(valueOf(pq.worst()) == 2.0);
 }
 
-// ---------------------------------------------------------------------------
-// pop semantics
-
-TEST_CASE("GFixedSizePriorityQueueT: pop returns best item and shrinks the queue",
-          "[common][priority-queue]") {
-    TestPQ pq(5);
-    pq.add(make_item(7.0), false);
-    pq.add(make_item(3.0), false);
-    pq.add(make_item(5.0), false);
-
-    auto top = pq.pop();
-    REQUIRE(top);
-    CHECK(top->value == 3.0);
-    CHECK(pq.size() == 2);
-}
-
-// ---------------------------------------------------------------------------
-// Bulk add via iterators + add(vector, ..., replace).
-
-TEST_CASE("GFixedSizePriorityQueueT: bulk add (vector, replace=true) starts a fresh queue",
-          "[common][priority-queue]") {
-    TestPQ pq(5);
-    pq.add(make_item(99.0), false);   // pre-existing content
-
-    std::vector<std::shared_ptr<TestItem>> const items{
-        make_item(4.0), make_item(1.0), make_item(7.0)
-    };
-    pq.add(items, /*do_clone*/ false, /*replace*/ true);
-
-    REQUIRE(pq.size() == 3);
-    CHECK(pq.best()->value  == 1.0);
-    CHECK(pq.worst()->value == 7.0);
-}
-
-TEST_CASE("GFixedSizePriorityQueueT: bulk add (replace=false) merges with existing items",
-          "[common][priority-queue]") {
-    TestPQ pq(5);
-    pq.add(make_item(10.0), false);
-
-    std::vector<std::shared_ptr<TestItem>> const items{
-        make_item(4.0), make_item(20.0)
-    };
-    pq.add(items, false, /*replace*/ false);
-
-    // 10, 4, 20 → best=4, worst=20 (LOWERISBETTER)
-    REQUIRE(pq.size() == 3);
-    CHECK(pq.best()->value  == 4.0);
-    CHECK(pq.worst()->value == 20.0);
-}
-
-TEST_CASE("GFixedSizePriorityQueueT: bulk add skips null shared_ptrs",
-          "[common][priority-queue]") {
-    TestPQ pq(5);
-    std::vector<std::shared_ptr<TestItem>> items;
-    items.push_back(make_item(3.0));
-    items.push_back(nullptr);
-    items.push_back(make_item(1.0));
-
-    pq.add(items, false, true);
-    CHECK(pq.size() == 2);
-}
-
-// ---------------------------------------------------------------------------
-// add(..., do_clone=true): each inserted shared_ptr should be a *clone*, not
-// the original pointee. The original pointer and the stored pointer must not
-// alias.
-
-TEST_CASE("GFixedSizePriorityQueueT: do_clone=true inserts a copy, not the original pointer",
-          "[common][priority-queue]") {
-    TestPQ pq(5);
-    auto src = make_item(2.5);
-    pq.add(src, /*do_clone*/ true);
-
-    REQUIRE(pq.size() == 1);
-    auto stored = pq.best();
-    CHECK(stored.get() != src.get());      // distinct shared_ptrs
-    CHECK(stored->value == src->value);    // same logical value
-}
-
-// ---------------------------------------------------------------------------
-// Duplicate removal: adding the same shared_ptr twice (do_clone=false) must
-// not produce duplicates.
-
-TEST_CASE("GFixedSizePriorityQueueT: same shared_ptr is not duplicated when do_clone=false",
-          "[common][priority-queue]") {
-    TestPQ pq(5);
-    auto src = make_item(4.0);
-    pq.add(src, false);
-    pq.add(src, false);
+TEMPLATE_TEST_CASE(
+    "GFixedSizePriorityQueueT: capacity 1 keeps exactly the single best item",
+    "[common][priority-queue]",
+    GFSPQ_ALL_HOLDERS
+) {
+    TestType pq(1);
+    pq.add(item<TestType>(4.0));
     CHECK(pq.size() == 1);
+
+    pq.add(item<TestType>(9.0)); // worse -> ignored
+    REQUIRE(pq.size() == 1);
+    CHECK(valueOf(pq.best()) == 4.0);
+
+    pq.add(item<TestType>(2.0)); // better -> replaces the incumbent
+    REQUIRE(pq.size() == 1);
+    CHECK(valueOf(pq.best()) == 2.0);
+    CHECK(valueOf(pq.worst()) == 2.0);
 }
 
-// ---------------------------------------------------------------------------
-// Unlimited size: maxSize_=0
-
-TEST_CASE("GFixedSizePriorityQueueT: maxSize=0 means unlimited",
-          "[common][priority-queue]") {
-    TestPQ pq(0);
+TEMPLATE_TEST_CASE(
+    "GFixedSizePriorityQueueT: a maximum size of 0 means unlimited",
+    "[common][priority-queue]",
+    GFSPQ_ALL_HOLDERS
+) {
+    TestType pq(0);
     for(int i = 0; i < 50; ++i) {
-        pq.add(make_item(static_cast<double>(i)), false);
+        pq.add(item<TestType>(static_cast<double>(i)));
     }
     CHECK(pq.size() == 50);
-    CHECK(pq.best()->value  == 0.0);
-    CHECK(pq.worst()->value == 49.0);
+    CHECK(valueOf(pq.best()) == 0.0);
+    CHECK(valueOf(pq.worst()) == 49.0);
 }
 
-// ---------------------------------------------------------------------------
-// setMaxSize trims the queue when the new size is smaller.
-
-TEST_CASE("GFixedSizePriorityQueueT: setMaxSize shrinks the queue to the new bound",
-          "[common][priority-queue]") {
-    TestPQ pq(0);
+TEMPLATE_TEST_CASE(
+    "GFixedSizePriorityQueueT: setMaxSize trims to the new bound, keeping the best",
+    "[common][priority-queue]",
+    GFSPQ_ALL_HOLDERS
+) {
+    TestType pq(0);
     for(int i = 0; i < 10; ++i) {
-        pq.add(make_item(static_cast<double>(i)), false);
+        pq.add(item<TestType>(static_cast<double>(i)));
     }
     REQUIRE(pq.size() == 10);
 
     pq.setMaxSize(4);
     CHECK(pq.size() == 4);
     CHECK(pq.getMaxSize() == 4);
-
-    // The trimmed survivors must be the four best (lowest) values.
-    CHECK(pq.best()->value  == 0.0);
-    CHECK(pq.worst()->value == 3.0);
+    CHECK(valueOf(pq.best()) == 0.0);
+    CHECK(valueOf(pq.worst()) == 3.0);
 }
 
 // ---------------------------------------------------------------------------
-// clear, toVector
+// Degenerate case: several items of identical priority
 
-TEST_CASE("GFixedSizePriorityQueueT: clear drops every item",
-          "[common][priority-queue]") {
-    TestPQ pq(3);
-    pq.add(make_item(1.0), false);
-    pq.add(make_item(2.0), false);
+TEMPLATE_TEST_CASE(
+    "GFixedSizePriorityQueueT: items of equal priority are all distinct entries",
+    "[common][priority-queue]",
+    GFSPQ_ALL_HOLDERS
+) {
+    TestType pq(4);
+    for(int i = 0; i < 4; ++i) {
+        pq.add(item<TestType>(7.0));
+    }
+    // Four separate items that happen to share a priority: none of them is a
+    // duplicate of another (duplicate removal is about object identity, not value).
+    CHECK(pq.size() == 4);
+    CHECK(valueOf(pq.best()) == 7.0);
+    CHECK(valueOf(pq.worst()) == 7.0);
+
+    // An equal evaluation is not "better", so it cannot displace an incumbent.
+    pq.add(item<TestType>(7.0));
+    CHECK(pq.size() == 4);
+}
+
+// ---------------------------------------------------------------------------
+// pop / cloneToVector / clear
+
+TEMPLATE_TEST_CASE(
+    "GFixedSizePriorityQueueT: pop hands out the best item and shrinks the queue",
+    "[common][priority-queue]",
+    GFSPQ_ALL_HOLDERS
+) {
+    TestType pq(5);
+    pq.add(item<TestType>(7.0));
+    pq.add(item<TestType>(3.0));
+    pq.add(item<TestType>(5.0));
+
+    auto top = pq.pop();
+    CHECK(valueOf(top) == 3.0);
+    CHECK(pq.size() == 2);
+    CHECK(valueOf(pq.best()) == 5.0);
+}
+
+TEMPLATE_TEST_CASE(
+    "GFixedSizePriorityQueueT: cloneToVector yields independent copies in priority order",
+    "[common][priority-queue]",
+    GFSPQ_ALL_HOLDERS
+) {
+    TestType pq(5);
+    pq.add(item<TestType>(7.0));
+    pq.add(item<TestType>(1.0));
+    pq.add(item<TestType>(3.0));
+
+    auto v = pq.cloneToVector();
+    REQUIRE(v.size() == 3);
+    CHECK(valueOf(v[0]) == 1.0);
+    CHECK(valueOf(v[1]) == 3.0);
+    CHECK(valueOf(v[2]) == 7.0);
+
+    // Copies, not the archive's own entries: for the pointer holders the addresses differ.
+    if constexpr(not TestType::holds_values) {
+        CHECK(v[0].get() != pq.best().get());
+    }
+}
+
+TEMPLATE_TEST_CASE(
+    "GFixedSizePriorityQueueT: clear drops every item",
+    "[common][priority-queue]",
+    GFSPQ_ALL_HOLDERS
+) {
+    TestType pq(3);
+    pq.add(item<TestType>(1.0));
+    pq.add(item<TestType>(2.0));
     pq.clear();
     CHECK(pq.empty());
 }
 
-TEST_CASE("GFixedSizePriorityQueueT: toVector returns items in priority order",
-          "[common][priority-queue]") {
-    TestPQ pq(5);
-    pq.add(make_item(7.0), false);
-    pq.add(make_item(1.0), false);
-    pq.add(make_item(3.0), false);
+// ---------------------------------------------------------------------------
+// Bulk insertion: replace vs merge
 
-    auto v = pq.toVector();
-    REQUIRE(v.size() == 3);
-    CHECK(v[0]->value == 1.0);     // best first under LOWERISBETTER
-    CHECK(v[2]->value == 7.0);
+TEMPLATE_TEST_CASE(
+    "GFixedSizePriorityQueueT: a bulk add with replace=true starts from an empty queue",
+    "[common][priority-queue]",
+    GFSPQ_ALL_HOLDERS
+) {
+    TestType pq(5);
+    pq.add(item<TestType>(99.0)); // pre-existing content
+
+    typename TestType::ContainerType items;
+    items.push_back(item<TestType>(4.0));
+    items.push_back(item<TestType>(1.0));
+    items.push_back(item<TestType>(7.0));
+    pq.addClone(items, /*replace=*/true);
+
+    REQUIRE(pq.size() == 3);
+    CHECK(valueOf(pq.best()) == 1.0);
+    CHECK(valueOf(pq.worst()) == 7.0);
+}
+
+TEMPLATE_TEST_CASE(
+    "GFixedSizePriorityQueueT: a bulk add with replace=false merges into the queue",
+    "[common][priority-queue]",
+    GFSPQ_ALL_HOLDERS
+) {
+    TestType pq(5);
+    pq.add(item<TestType>(10.0));
+
+    typename TestType::ContainerType items;
+    items.push_back(item<TestType>(4.0));
+    items.push_back(item<TestType>(20.0));
+    pq.addClone(items, /*replace=*/false);
+
+    // 10, 4, 20 -> best 4, worst 20 under LOWERISBETTER
+    REQUIRE(pq.size() == 3);
+    CHECK(valueOf(pq.best()) == 4.0);
+    CHECK(valueOf(pq.worst()) == 20.0);
+}
+
+TEMPLATE_TEST_CASE(
+    "GFixedSizePriorityQueueT: a bulk add of a sub-range adds only that range",
+    "[common][priority-queue]",
+    GFSPQ_ALL_HOLDERS
+) {
+    TestType pq(10);
+    typename TestType::ContainerType items;
+    for(int i = 0; i < 6; ++i) {
+        items.push_back(item<TestType>(static_cast<double>(i)));
+    }
+    pq.addClone(items.begin(), items.begin() + 3, /*replace=*/false);
+
+    REQUIRE(pq.size() == 3);
+    CHECK(valueOf(pq.best()) == 0.0);
+    CHECK(valueOf(pq.worst()) == 2.0);
+}
+
+TEMPLATE_TEST_CASE(
+    "GFixedSizePriorityQueueT: a bulk add respects the capacity bound",
+    "[common][priority-queue]",
+    GFSPQ_ALL_HOLDERS
+) {
+    TestType pq(3);
+    typename TestType::ContainerType items;
+    for(int i = 9; i >= 0; --i) { // 9, 8, ..., 0 -- deliberately worst-first
+        items.push_back(item<TestType>(static_cast<double>(i)));
+    }
+    pq.addClone(items, /*replace=*/true);
+
+    REQUIRE(pq.size() == 3);
+    CHECK(valueOf(pq.best()) == 0.0);
+    CHECK(valueOf(pq.worst()) == 2.0);
 }
 
 // ---------------------------------------------------------------------------
-// Copy / move semantics
+// Copy semantics: a copy of a queue never shares its entries, whatever the holder
 
-TEST_CASE("GFixedSizePriorityQueueT: copy ctor produces an independent queue",
-          "[common][priority-queue]") {
-    TestPQ src(5);
-    src.add(make_item(2.0), false);
-    src.add(make_item(8.0), false);
+TEMPLATE_TEST_CASE(
+    "GFixedSizePriorityQueueT: the copy constructor produces an independent queue",
+    "[common][priority-queue]",
+    GFSPQ_ALL_HOLDERS
+) {
+    TestType src(5);
+    src.add(item<TestType>(2.0));
+    src.add(item<TestType>(8.0));
 
-    TestPQ cp(src);
-    CHECK(cp.size() == 2);
-    CHECK(cp.best()->value  == 2.0);
-    CHECK(cp.worst()->value == 8.0);
+    TestType cp(src);
+    REQUIRE(cp.size() == 2);
+    CHECK(valueOf(cp.best()) == 2.0);
+    CHECK(valueOf(cp.worst()) == 8.0);
+    if constexpr(not TestType::holds_values) {
+        CHECK(cp.best().get() != src.best().get()); // deep-copied, not co-owned
+    }
 
-    // Mutating the copy must not affect the source.
     cp.clear();
     CHECK(cp.empty());
     CHECK(src.size() == 2);
 }
 
-TEST_CASE("GFixedSizePriorityQueueT: move ctor resets the source to default state",
-          "[common][priority-queue]") {
-    TestPQ src(7, sortOrder::HIGHERISBETTER);
-    src.add(make_item(1.0), false);
-    src.add(make_item(9.0), false);
+TEMPLATE_TEST_CASE(
+    "GFixedSizePriorityQueueT: the move constructor resets the source to defaults",
+    "[common][priority-queue]",
+    GFSPQ_ALL_HOLDERS
+) {
+    TestType src(7, sortOrder::HIGHERISBETTER);
+    src.add(item<TestType>(1.0));
+    src.add(item<TestType>(9.0));
 
-    TestPQ const dst(std::move(src));
+    TestType const dst(std::move(src));
     CHECK(dst.size() == 2);
     CHECK(dst.getMaxSize() == 7);
     CHECK(dst.getSortOrder() == sortOrder::HIGHERISBETTER);
 
-    // Moved-from object reset to defaults.
-    CHECK(src.empty());
-    CHECK(src.getMaxSize()   == GFSPQ_DEF_MAX_SIZE);
+    CHECK(src.empty()); // NOLINT(bugprone-use-after-move) -- the reset state is the contract
+    CHECK(src.getMaxSize() == GFSPQ_DEF_MAX_SIZE);
     CHECK(src.getSortOrder() == GFSPQ_DEF_SORT_ORDER);
 }
 
 // ---------------------------------------------------------------------------
-// Sort-order setter / getter
+// Serialization round-trip, both codecs, every holder
 
-TEST_CASE("GFixedSizePriorityQueueT: setSortOrder + getSortOrder round-trip",
+TEMPLATE_TEST_CASE(
+    "GFixedSizePriorityQueueT: round-trips through both GArchive codecs",
+    "[common][priority-queue][serialize]",
+    GFSPQ_ALL_HOLDERS
+) {
+    auto const mode =
+        GENERATE(serializationMode::GEM_BINARY, serializationMode::GEM_JSON);
+
+    TestType src(4, sortOrder::HIGHERISBETTER);
+    src.add(item<TestType>(3.0));
+    src.add(item<TestType>(1.0));
+    src.add(item<TestType>(9.0));
+
+    std::string const s = src.toString(mode);
+    REQUIRE_FALSE(s.empty());
+
+    TestType dst(1); // deliberately different capacity and sort order
+    dst.fromString(s, mode);
+
+    CHECK(dst.getMaxSize() == 4);
+    CHECK(dst.getSortOrder() == sortOrder::HIGHERISBETTER);
+    REQUIRE(dst.size() == 3);
+    CHECK(valueOf(dst.best()) == 9.0);
+    CHECK(valueOf(dst.worst()) == 1.0);
+
+    // The reconstructed queue is a peer of the original, not an alias of it.
+    CHECK_NOTHROW(src.compare(dst, expectation::EQUALITY, 0.));
+    if constexpr(not TestType::holds_values) {
+        CHECK(dst.best().get() != src.best().get());
+    }
+}
+
+// ===========================================================================
+// Per-holder semantics: this is exactly where the three storage policies are
+// allowed to differ, so each is pinned on its own.
+// ===========================================================================
+
+// ---------------------------------------------------------------------------
+// Value storage
+
+TEST_CASE("GFixedSizePriorityQueueT<POD>: values are copied in, never aliased",
+          "[common][priority-queue][pod]") {
+    PodPQ pq(5);
+    double v = 2.5;
+    pq.addClone(v);
+    v = 100.0; // mutating the source must not touch the stored entry
+
+    REQUIRE(pq.size() == 1);
+    CHECK(pq.best() == 2.5);
+}
+
+TEST_CASE("GFixedSizePriorityQueueT<POD>: equal values are never deduplicated",
+          "[common][priority-queue][pod]") {
+    PodPQ pq(5);
+    double const v = 4.0;
+    pq.addClone(v);
+    pq.addClone(v);
+    // Two insertions of the same VALUE are two entries -- a value has no identity,
+    // so there is nothing here that could be "the same object twice".
+    CHECK(pq.size() == 2);
+}
+
+// ---------------------------------------------------------------------------
+// Shared storage
+
+TEST_CASE("GFixedSizePriorityQueueT<shared_ptr>: addClone stores a copy, add co-owns the original",
+          "[common][priority-queue][shared]") {
+    SharedPQ pq(5);
+
+    SECTION("addClone leaves the caller's object untouched") {
+        auto src = std::make_shared<TestItem>(2.5);
+        pq.addClone(src);
+
+        REQUIRE(pq.size() == 1);
+        CHECK(pq.best().get() != src.get()); // a distinct object
+        CHECK(pq.best()->value() == src->value());
+        CHECK(src.use_count() == 1);         // the queue did not become an owner
+
+        src->setValue(42.0);
+        CHECK(pq.best()->value() == 2.5);    // the stored copy is independent
+    }
+
+    SECTION("add(handle) makes the queue a second owner of the same object") {
+        auto src = std::make_shared<TestItem>(2.5);
+        pq.add(std::shared_ptr<TestItem>{src}); // an explicit second owner
+
+        REQUIRE(pq.size() == 1);
+        CHECK(pq.best().get() == src.get());
+        CHECK(src.use_count() == 2);
+    }
+}
+
+TEST_CASE("GFixedSizePriorityQueueT<shared_ptr>: the same object handed over twice is one entry",
+          "[common][priority-queue][shared]") {
+    SharedPQ pq(5);
+    auto src = std::make_shared<TestItem>(4.0);
+    pq.add(std::shared_ptr<TestItem>{src});
+    pq.add(std::shared_ptr<TestItem>{src});
+    // Object identity, not value: the second insertion refers to the very same object.
+    CHECK(pq.size() == 1);
+}
+
+TEST_CASE("GFixedSizePriorityQueueT<shared_ptr>: an empty handle is never admitted",
+          "[common][priority-queue][shared]") {
+    SharedPQ pq(5);
+
+    // Single item: silently skipped -- and, crucially, never dereferenced. The
+    // pre-generalization code evaluated an item before checking it, so a null
+    // handle offered to a full queue dereferenced a nullptr.
+    pq.addClone(std::shared_ptr<TestItem>{});
+    CHECK(pq.empty());
+
+    pq.add(item<SharedPQ>(1.0));
+    pq.add(item<SharedPQ>(2.0));
+    REQUIRE(pq.size() == 2);
+    pq.setMaxSize(2); // now full, so the admission gate is reached with a full queue
+    CHECK_NOTHROW(pq.addClone(std::shared_ptr<TestItem>{}));
+    CHECK(pq.size() == 2);
+
+    // Bulk: the empty handles are skipped, the rest are kept.
+    std::vector<std::shared_ptr<TestItem>> items;
+    items.push_back(std::make_shared<TestItem>(3.0));
+    items.emplace_back();
+    items.push_back(std::make_shared<TestItem>(1.0));
+    pq.addClone(items, /*replace=*/true);
+    CHECK(pq.size() == 2);
+}
+
+// ---------------------------------------------------------------------------
+// Unique storage
+
+TEST_CASE("GFixedSizePriorityQueueT<unique_ptr>: add takes ownership, addClone does not",
+          "[common][priority-queue][unique]") {
+    UniquePQ pq(5);
+
+    SECTION("add(std::move(handle)) transfers sole ownership into the queue") {
+        auto src = std::make_unique<TestItem>(2.5);
+        auto const *raw = src.get();
+        pq.add(std::move(src));
+
+        REQUIRE(pq.size() == 1);
+        CHECK(src == nullptr);                 // NOLINT(bugprone-use-after-move)
+        CHECK(pq.best().get() == raw);         // the very object, not a copy
+    }
+
+    SECTION("addClone leaves the caller owning its object") {
+        auto src = std::make_unique<TestItem>(2.5);
+        pq.addClone(src);
+
+        REQUIRE(pq.size() == 1);
+        REQUIRE(src != nullptr);
+        CHECK(pq.best().get() != src.get());
+        CHECK(pq.best()->value() == 2.5);
+
+        src->setValue(42.0);
+        CHECK(pq.best()->value() == 2.5);
+    }
+}
+
+TEST_CASE("GFixedSizePriorityQueueT<unique_ptr>: pop hands sole ownership back out",
+          "[common][priority-queue][unique]") {
+    UniquePQ pq(5);
+    auto src = std::make_unique<TestItem>(1.0);
+    auto const *raw = src.get();
+    pq.add(std::move(src));
+
+    std::unique_ptr<TestItem> const out = pq.pop();
+    REQUIRE(out != nullptr);
+    CHECK(out.get() == raw);
+    CHECK(pq.empty());
+}
+
+TEST_CASE("GFixedSizePriorityQueueT<unique_ptr>: a bulk take-over empties the source handles",
+          "[common][priority-queue][unique]") {
+    UniquePQ pq(10);
+    std::vector<std::unique_ptr<TestItem>> items;
+    for(int i = 0; i < 4; ++i) {
+        items.push_back(std::make_unique<TestItem>(static_cast<double>(i)));
+    }
+    std::vector<TestItem const *> const raws{
+        items[0].get(), items[1].get(), items[2].get(), items[3].get()
+    };
+
+    pq.add(std::move(items), /*replace=*/false);
+    REQUIRE(pq.size() == 4);
+
+    // Every stored entry IS one of the handed-over objects -- nothing was cloned.
+    for(auto const &stored : pq) {
+        CHECK(std::ranges::find(raws, stored.get()) != raws.end());
+    }
+}
+
+TEST_CASE("GFixedSizePriorityQueueT<unique_ptr>: a bulk clone leaves the source population intact",
+          "[common][priority-queue][unique]") {
+    UniquePQ pq(10);
+    std::vector<std::unique_ptr<TestItem>> items;
+    for(int i = 0; i < 4; ++i) {
+        items.push_back(std::make_unique<TestItem>(static_cast<double>(i)));
+    }
+
+    pq.addClone(items, /*replace=*/false);
+    REQUIRE(pq.size() == 4);
+
+    for(auto const &src : items) {
+        REQUIRE(src != nullptr); // the caller still owns its population
+        for(auto const &stored : pq) {
+            CHECK(stored.get() != src.get()); // and the archive holds copies of it
+        }
+    }
+}
+
+// ---------------------------------------------------------------------------
+// The admission gate is a single, overridable rule
+
+namespace {
+
+/** @brief A queue that admits only items with a non-negative value. */
+class GatedPQ : public Gem::Common::GReflectiveInterfaceT<
+                    GatedPQ,
+                    Gem::Common::GUniquePtrFixedSizePriorityQueueT<TestItem>> {
+    friend struct Gem::Common::GReflectiveInterfaceAccess;
+    template <typename Self>
+    auto localMembers_(this Self &) {
+        return std::make_tuple();
+    }
+
+public:
+    static constexpr std::string_view class_name = "GatedPQ";
+    GatedPQ() = default;
+    explicit GatedPQ(std::size_t max_size)
+      : Gem::Common::GReflectiveInterfaceT<
+            GatedPQ,
+            Gem::Common::GUniquePtrFixedSizePriorityQueueT<TestItem>>(max_size) {
+    }
+    GatedPQ(GatedPQ const &cp) = default;
+    ~GatedPQ() override = default;
+
+protected:
+    [[nodiscard]] bool isValid(std::unique_ptr<TestItem> const &item_ptr) const override {
+        return Gem::Common::GUniquePtrFixedSizePriorityQueueT<TestItem>::isValid(item_ptr) &&
+               item_ptr->value() >= 0.0;
+    }
+    [[nodiscard]] double evaluation(std::unique_ptr<TestItem> const &item_ptr) const override {
+        return item_ptr->value();
+    }
+};
+
+} // namespace
+
+GEM_REGISTER_ARCHIVABLE(GatedPQ) // NOLINT
+
+TEST_CASE("GFixedSizePriorityQueueT: a derived admission rule governs every insertion path",
           "[common][priority-queue]") {
-    TestPQ pq(5);
-    CHECK(pq.getSortOrder() == sortOrder::LOWERISBETTER);
-    pq.setSortOrder(sortOrder::HIGHERISBETTER);
-    CHECK(pq.getSortOrder() == sortOrder::HIGHERISBETTER);
+    GatedPQ pq(10);
+
+    // single, clone
+    auto rejected = std::make_unique<TestItem>(-1.0);
+    pq.addClone(rejected);
+    CHECK(pq.empty());
+
+    // single, take-over
+    pq.add(std::make_unique<TestItem>(-2.0));
+    CHECK(pq.empty());
+
+    // bulk: only the admissible items enter
+    std::vector<std::unique_ptr<TestItem>> items;
+    items.push_back(std::make_unique<TestItem>(-3.0));
+    items.push_back(std::make_unique<TestItem>(5.0));
+    items.push_back(std::make_unique<TestItem>(-4.0));
+    items.push_back(std::make_unique<TestItem>(2.0));
+    pq.addClone(items, /*replace=*/false);
+
+    REQUIRE(pq.size() == 2);
+    CHECK(pq.best()->value() == 2.0);
+    CHECK(pq.worst()->value() == 5.0);
 }

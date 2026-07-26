@@ -277,9 +277,10 @@ public:
     bool getSigmaRecombination() const;
 
     /** @brief Extracts all individuals on the pareto front.
-     *  @param pareto_inds Output vector filled with the individuals currently tagged as on the front */
+     *  @param pareto_inds Output vector filled with freshly cloned copies of the individuals
+     *         currently on the front; the caller takes sole ownership of them */
     void extractCurrentParetoIndividuals(
-        std::vector<std::shared_ptr<gen::GGenome>> &pareto_inds
+        std::vector<std::unique_ptr<gen::GGenome>> &pareto_inds
     );
 
     /** @brief The knobs a meta-optimizer may tune. @return The ordered list of tunable parameters. */

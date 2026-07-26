@@ -33,6 +33,8 @@
 #include "common/GGlobalDefines.hpp"
 
 // Standard header files go here
+#include <memory>
+#include <vector>
 
 // Boost header files go here
 
@@ -46,12 +48,26 @@ namespace Gem::Geneva::Genome {
 
 /******************************************************************************/
 /**
- * This class implements a fixed size priority queue for GGenome objects,
- * based on the maximization/minimization property and the current fitness of
- * the objects.
+ * @brief The archive of best individuals an optimization algorithm keeps.
+ *
+ * A fixed-size priority queue over GGenome objects, ordered by the min-only
+ * transformed fitness (optimization algorithms only understand minimization, so
+ * "lower is better" is this queue's only mode of operation).
+ *
+ * The archive **solely owns** its individuals: it is a
+ * Gem::Common::GUniquePtrFixedSizePriorityQueueT, matching the unique_ptr-owned
+ * population it is fed from, so no handle ever crosses an ownership boundary. An
+ * algorithm that wants its population recorded calls addClone() — the archive then
+ * holds independent copies that later generations cannot mutate underneath it — and
+ * an algorithm that genuinely hands an individual over calls add() with an rvalue.
+ *
+ * Only individuals that have actually been processed are admitted; that rule lives
+ * in the isValid() override, which is the base class's single admission gate.
  */
 class GGenomeFixedSizePriorityQueue // NOLINT(cppcoreguidelines-special-member-functions)
-  : public Gem::Common::GReflectiveInterfaceT<GGenomeFixedSizePriorityQueue, Gem::Common::GFixedSizePriorityQueueT<GGenome>> {
+  : public Gem::Common::GReflectiveInterfaceT<
+        GGenomeFixedSizePriorityQueue,
+        Gem::Common::GUniquePtrFixedSizePriorityQueueT<GGenome>> {
     ///////////////////////////////////////////////////////////////////////
     // Gem::Weft::access default-constructs this concrete type on load;
     // GReflectiveInterfaceAccess lets the mixin reach the (empty) localMembers_().
@@ -75,7 +91,7 @@ public:
     /**
      * @brief Initialization with the maximum size
      *
-     * @param maxSize The maximum number of items the priority queue is allowed to hold
+     * @param max_size The maximum number of items the priority queue is allowed to hold
      */
     explicit GGenomeFixedSizePriorityQueue(const std::size_t & max_size);
     /**
@@ -101,92 +117,25 @@ public:
      */
     [[nodiscard]] std::string getCleanStatus() const;
 
-    /**
-     * @brief Adds items in a range to the priority queue
-     *
-     * @param begin A const_iterator pointing to the start of the range of items to be added
-     * @param end A const_iterator pointing one past the end of the range of items to be added
-     * @param do_clone If true, the items are cloned before being added; otherwise the shared pointers are stored as-is
-     * @param replace If true, the queue's existing content is replaced rather than merged with the new items
-     */
-    void
-    add(std::vector<std::shared_ptr<GGenome>>::const_iterator begin,
-        std::vector<std::shared_ptr<GGenome>>::const_iterator end,
-        bool do_clone,
-        bool do_replace) override;
-
-    /**
-     * @brief Adds the items in the items_cnt container to the queue
-     *
-     * @param items_cnt A constant reference to a vector of items to be added to the queue
-     * @param do_clone If true, the items are cloned before being added; otherwise the shared pointers are stored as-is
-     * @param replace If true, the queue's existing content is replaced rather than merged with the new items
-     */
-    void
-    add(std::vector<std::shared_ptr<GGenome>> const &items_cnt,
-        const bool do_clone,
-        const bool do_replace) override;
-
-    /**
-     * @brief Adds a single item to the queue
-     *
-     * @param item A constant reference to the item to be added to the queue
-     * @param do_clone If true, the item is cloned before being added; otherwise the shared pointer is stored as-is
-     */
-    void add(std::shared_ptr<GGenome> const &item_ptr, const bool do_clone) override;
-
-    /***************************************************************************/
-    // Boundary overloads for the unique_ptr population. The OA population now owns its individuals
-    // by unique_ptr; this archive keeps its own (shared_ptr) clones, so these adapters clone each
-    // individual across the ownership boundary and delegate to the shared_ptr implementations above.
-    /**
-     * @brief Adds a unique_ptr population sub-range to the queue (cloning across the boundary)
-     *
-     * @param begin A const_iterator pointing to the start of the unique_ptr-owned range to be added
-     * @param end A const_iterator pointing one past the end of the unique_ptr-owned range to be added
-     * @param do_clone If true, each individual is cloned before being added (always effectively cloned here, since ownership cannot be transferred)
-     * @param replace If true, the queue's existing content is replaced rather than merged with the new items
-     */
-    void
-    add(std::vector<std::unique_ptr<GGenome>>::const_iterator begin,
-        std::vector<std::unique_ptr<GGenome>>::const_iterator end,
-        bool do_clone,
-        bool do_replace);
-    /**
-     * @brief Adds the individuals of a unique_ptr population to the queue (cloning across the boundary)
-     *
-     * @param items_cnt A constant reference to a vector of unique_ptr-owned individuals to be added
-     * @param do_clone If true, each individual is cloned before being added
-     * @param replace If true, the queue's existing content is replaced rather than merged with the new items
-     */
-    void add(std::vector<std::unique_ptr<GGenome>> const &items_cnt, bool do_clone, bool do_replace);
-    /**
-     * @brief Adds a single unique_ptr-owned individual to the queue (cloning across the boundary)
-     *
-     * @param item A constant reference to the unique_ptr-owned individual to be added
-     * @param do_clone If true, the individual is cloned before being added
-     */
-    void add(std::unique_ptr<GGenome> const &item_ptr, bool do_clone);
-
 protected:
     // load_(), compare_(), name_() and clone_() are generated by the
     // Gem::Common::GReflectiveInterfaceT base from class_name and the empty localMembers_().
 
     /***************************************************************************/
     /**
-     * @brief Checks whether an Item is valid
+     * @brief The archive's admission rule: only individuals that carry a result belong in it
      *
-     * @param item A constant reference to the work item to be checked
-     * @return true if the item is valid (e.g. has no dirty flag set), false otherwise
+     * @param item_ptr A constant reference to the individual to be checked
+     * @return true if the individual exists and has been processed, false otherwise
      */
-    [[nodiscard]] bool isValid(const std::shared_ptr<GGenome> & item_ptr) const override;
+    [[nodiscard]] bool isValid(const std::unique_ptr<GGenome> & item_ptr) const override;
     /**
      * @brief Evaluates a single work item, so that it can be sorted
      *
-     * @param item A constant reference to the work item to be evaluated
+     * @param item_ptr A constant reference to the individual to be evaluated
      * @return The fitness value of the item used as the sorting criterion within the priority queue
      */
-    [[nodiscard]] double evaluation(const std::shared_ptr<GGenome> & item_ptr) const override;
+    [[nodiscard]] double evaluation(const std::unique_ptr<GGenome> & item_ptr) const override;
 
 };
 

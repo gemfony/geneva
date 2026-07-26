@@ -30,20 +30,14 @@
 #include "geneva/genome/GGenomeFixedSizePriorityQueue.hpp"
 #include "weft/GArchivePolymorphic.hpp" // GEM_REGISTER_ARCHIVABLE (GArchive polymorphic-pointer dispatch)
 #include "common/GCommonMathHelperFunctionsT.hpp"
-#include "common/GExceptions.hpp"
-#include "common/GExpectationChecksT.hpp"
 #include "common/GFixedSizePriorityQueueT.hpp"
-#include "common/GLogger.hpp"
 #include "geneva/GenevaHelperFunctions.hpp"
 #include "geneva/genome/GGenome.hpp"
-#include <algorithm>
 #include <cstddef>
 #include <format>
-#include <iterator>
 #include <memory>
 #include <ranges>
 #include <string>
-#include <vector>
 
 GEM_REGISTER_ARCHIVABLE(Gem::Geneva::Genome::GGenomeFixedSizePriorityQueue) // NOLINT
 
@@ -60,7 +54,9 @@ namespace Gem::Geneva::Genome {
 GGenomeFixedSizePriorityQueue::GGenomeFixedSizePriorityQueue(
     const std::size_t &max_size
 )
-  : Gem::Common::GReflectiveInterfaceT<GGenomeFixedSizePriorityQueue, Gem::Common::GFixedSizePriorityQueueT<GGenome>>(
+  : Gem::Common::GReflectiveInterfaceT<
+        GGenomeFixedSizePriorityQueue,
+        Gem::Common::GUniquePtrFixedSizePriorityQueueT<GGenome>>(
         max_size,
         Gem::Common::sortOrder::LOWERISBETTER
     ) { /* nothing */
@@ -78,7 +74,7 @@ GGenomeFixedSizePriorityQueue::GGenomeFixedSizePriorityQueue(
 	 */
 bool GGenomeFixedSizePriorityQueue::allClean(std::size_t &pos) const {
     pos = 0;
-    for(const auto &item_ptr : data_deq_) {
+    for(const auto &item_ptr : data_cnt_) {
         if(not item_ptr->is_processed()) {
             return false;
         }
@@ -96,7 +92,7 @@ bool GGenomeFixedSizePriorityQueue::allClean(std::size_t &pos) const {
 	 */
 std::string GGenomeFixedSizePriorityQueue::getCleanStatus() const {
     std::string result;
-    for(auto const &[pos, item_ptr] : data_deq_ | std::views::enumerate) {
+    for(auto const &[pos, item_ptr] : data_cnt_ | std::views::enumerate) {
         result += std::format("({}, {}) ", pos, item_ptr->is_processed() ? "c" : "d");
     }
 
@@ -105,24 +101,23 @@ std::string GGenomeFixedSizePriorityQueue::getCleanStatus() const {
 
 /******************************************************************************/
 /**
-	 * @brief Checks whether an Item is valid, i.e. holds a GGenome item and has
-	 * already been evaluated.
+	 * @brief Checks whether an item is admissible, i.e. holds a GGenome item that has
+	 * already been evaluated. This is the base class's single admission gate, so every
+	 * insertion path -- single or bulk, cloning or taking over -- goes through it.
 	 *
-	 * @param item_ptr A shared pointer to the item to be checked
+	 * @param item_ptr A constant reference to the individual to be checked
 	 * @return true if the pointer is non-empty and its item has been processed, false otherwise
 	 */
 bool GGenomeFixedSizePriorityQueue::isValid(
-    const std::shared_ptr<GGenome> &item_ptr
+    const std::unique_ptr<GGenome> &item_ptr
 ) const {
-    if(not item_ptr) {
-        return false; // Empty
-    }
-    if(not item_ptr->is_processed()) {
+    // The base implementation rejects an empty handle
+    if(not Gem::Common::GUniquePtrFixedSizePriorityQueueT<GGenome>::isValid(item_ptr)) {
         return false;
-    } // The item has not been worked on
+    }
 
-    // Everything ok
-    return true;
+    // The item must have been worked on
+    return item_ptr->is_processed();
 }
 
 /******************************************************************************/
@@ -131,182 +126,13 @@ bool GGenomeFixedSizePriorityQueue::isValid(
 	 * will throw in DEBUG mode, if the dirty flag of item is set. Note that the function
 	 * uses the primary evaluation criterion only.
 	 *
-	 * @param item_ptr A shared pointer to the item to be evaluated
+	 * @param item_ptr A constant reference to the individual to be evaluated
 	 * @return The min-only transformed fitness of the item (its primary evaluation criterion)
 	 */
 double GGenomeFixedSizePriorityQueue::evaluation(
-    const std::shared_ptr<GGenome> &item_ptr
+    const std::unique_ptr<GGenome> &item_ptr
 ) const {
     return minOnly_transformed_fitness(*item_ptr);
-}
-
-/******************************************************************************/
-/**
-	 * @brief Adds items in a range to the priority queue. Only processed ("clean") items are added.
-	 *
-	 * @param begin An iterator to the first item of the range to be added
-	 * @param end An iterator one past the last item of the range to be added
-	 * @param do_clone If true, each added item is deep-cloned into the queue rather than co-owned
-	 * @param do_replace If true, the queue's existing content is replaced rather than merged
-	 */
-void GGenomeFixedSizePriorityQueue::add(
-    std::vector<std::shared_ptr<GGenome>>::const_iterator begin,
-    std::vector<std::shared_ptr<GGenome>>::const_iterator end,
-    bool do_clone,
-    bool do_replace
-) {
-    // Create a std::vector containing only processed items. We only want
-    // to add "clean" (i.e. processed) individuals to the queue.
-    std::vector<std::shared_ptr<GGenome>> processed_cnt(std::distance(begin, end));
-    auto it = std::copy_if(
-        begin,
-        end,
-        processed_cnt.begin(),
-        [](const std::shared_ptr<GGenome> &item_ptr) { return item_ptr->is_processed(); }
-    );
-    processed_cnt.resize(std::distance(processed_cnt.begin(), it));
-
-    // Some error checking -- it should not happen that no processed items are found
-    if(processed_cnt.empty()) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GGenomeFixedSizePriorityQueue::add(range): Error!" << '\n'
-            << "Container is empty when it should not be!" << '\n'
-        );
-    }
-
-    Gem::Common::GFixedSizePriorityQueueT<GGenome>::add(
-        processed_cnt.begin(),
-        processed_cnt.end(),
-        do_clone,
-        do_replace
-    );
-}
-
-/******************************************************************************/
-/**
-	 * @brief Adds the items in the items_cnt vector to the queue. This overload makes sure
-	 * that only processed items (i.e. without errors and with the PROCESSED flag) are
-	 * entered into the priority queue.
-	 *
-	 * @param items_cnt A vector of shared pointers to the items to be added
-	 * @param do_clone If true, each added item is deep-cloned into the queue rather than co-owned
-	 * @param do_replace If true, the queue's existing content is replaced rather than merged
-	 */
-void GGenomeFixedSizePriorityQueue::add(
-    std::vector<std::shared_ptr<GGenome>> const &items_cnt,
-    const bool do_clone,
-    const bool do_replace
-) {
-    // Create a std::vector containing only processed items. We only want
-    // to add "clean" (i.e. processed) individuals to the queue.
-    std::vector<std::shared_ptr<GGenome>> processed_cnt(items_cnt.size());
-    auto it = std::copy_if(
-        items_cnt.begin(),
-        items_cnt.end(),
-        processed_cnt.begin(),
-        [](const std::shared_ptr<GGenome> &item_ptr) { return item_ptr->is_processed(); }
-    );
-    processed_cnt.resize(std::distance(processed_cnt.begin(), it));
-
-    // Some error checking -- it should not happen that no processed items are found
-    if(processed_cnt.empty()) {
-        throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GGenomeFixedSizePriorityQueue::add(vec): Error!" << '\n'
-            << "Container is empty when it should not be!" << '\n'
-        );
-    }
-
-    Gem::Common::GFixedSizePriorityQueueT<GGenome>::add(processed_cnt, do_clone, do_replace);
-}
-
-/******************************************************************************/
-/**
-	 * @brief Adds a single item to the queue. This overload makes sure
-	 * that only processed items (i.e. without errors and with the PROCESSED flag) are
-	 * entered into the priority queue.
-	 *
-	 * @param item_ptr A shared pointer to the item to be added (ignored if empty or not processed)
-	 * @param do_clone If true, the item is deep-cloned into the queue rather than co-owned
-	 */
-void GGenomeFixedSizePriorityQueue::add(
-    std::shared_ptr<GGenome> const &item_ptr,
-    const bool do_clone
-) {
-    if(item_ptr && item_ptr->is_processed()) {
-        Gem::Common::GFixedSizePriorityQueueT<GGenome>::add(item_ptr, do_clone);
-    }
-}
-
-/******************************************************************************/
-/**
-	 * @brief Boundary overload: adds the individuals of a unique_ptr-owned population. The population owns its
-	 * individuals by unique_ptr, while this archive keeps its own shared_ptr clones, so we clone each
-	 * individual across the ownership boundary and hand the (already-cloned) shared_ptrs to the
-	 * shared_ptr overload with do_clone == false -- the archive co-owns the clones directly, no second
-	 * copy. (do_clone is intentionally ignored: cloning at the boundary is exactly what do_clone asks for.)
-	 *
-	 * @param items_cnt A vector of unique_ptr-owned individuals to be cloned into the queue
-	 * @param do_replace If true, the queue's existing content is replaced rather than merged
-	 */
-void GGenomeFixedSizePriorityQueue::add(
-    std::vector<std::unique_ptr<GGenome>> const &items_cnt,
-    const bool /* do_clone */,
-    const bool do_replace
-) {
-    std::vector<std::shared_ptr<GGenome>> bridge;
-    bridge.reserve(items_cnt.size());
-    for(auto const &item_ptr : items_cnt) {
-        if(item_ptr) {
-            bridge.push_back(item_ptr->clone<GGenome>());
-        }
-    }
-    this->add(bridge, false, do_replace);
-}
-
-/******************************************************************************/
-/**
-	 * @brief Boundary overload: adds a unique_ptr population sub-range [begin, end). See the vector overload above.
-	 *
-	 * @param begin An iterator to the first individual of the range to be cloned into the queue
-	 * @param end An iterator one past the last individual of the range
-	 * @param do_replace If true, the queue's existing content is replaced rather than merged
-	 */
-void GGenomeFixedSizePriorityQueue::add(
-    std::vector<std::unique_ptr<GGenome>>::const_iterator begin,
-    std::vector<std::unique_ptr<GGenome>>::const_iterator end,
-    const bool /* do_clone */,
-    const bool do_replace
-) {
-    std::vector<std::shared_ptr<GGenome>> bridge;
-    bridge.reserve(static_cast<std::size_t>(std::distance(begin, end)));
-    for(auto it = begin; it != end; ++it) {
-        if(*it) {
-            bridge.push_back((*it)->clone<GGenome>());
-        }
-    }
-    this->add(bridge, false, do_replace);
-}
-
-/******************************************************************************/
-/**
-	 * @brief Boundary overload: adds a single unique_ptr-owned individual. See the vector overload above.
-	 *
-	 * @param item_ptr A unique_ptr-owned individual that is cloned into the queue (ignored if empty or not processed)
-	 */
-void GGenomeFixedSizePriorityQueue::add(
-    std::unique_ptr<GGenome> const &item_ptr,
-    const bool /* do_clone */
-) {
-    if(item_ptr && item_ptr->is_processed()) {
-        // The clone must be named as a std::shared_ptr BEFORE it is handed on: clone<>() yields a
-        // std::unique_ptr, which is an exact match for THIS overload's parameter and only a
-        // user-defined conversion away from the shared_ptr one -- so passing it directly would
-        // re-select this function and recurse until the stack is exhausted.
-        std::shared_ptr<GGenome> const bridge = item_ptr->clone<GGenome>();
-        this->add(bridge, false);
-    }
 }
 
 /******************************************************************************/

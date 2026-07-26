@@ -2770,15 +2770,17 @@ TEST_CASE("GGenomeFactory copy retains BOTH pre- and post-processors", "[flat][f
 }
 
 /******************************************************************************/
-TEST_CASE("GGenomeFixedSizePriorityQueue: the unique_ptr boundary overloads terminate",
+TEST_CASE("GGenomeFixedSizePriorityQueue: the archive owns its individuals outright",
           "[flat][pq][regression]") {
-    // GGenomeFixedSizePriorityQueue offers three unique_ptr "boundary" overloads that clone the OA's
-    // unique_ptr-owned individuals into the queue's own shared_ptr storage. clone<>() yields a
-    // std::unique_ptr, which is an EXACT match for the unique_ptr overloads and only a user-defined
-    // conversion away from the shared_ptr ones -- so a clone handed straight on re-selects the
-    // unique_ptr overload. The single-item overload did exactly that and recursed until the stack was
-    // exhausted; GAlgorithmChaining (the only in-tree caller, via addCleanStoredBests()) segfaulted on
-    // every run. This pins all three overloads on their intended targets.
+    // AMENDED (Inv 7, deliberate contract change): this case was written when the archive held
+    // shared_ptr clones while the population owned unique_ptrs, and three "boundary" overloads
+    // cloned across that mismatch -- the single-item one recursed into itself (clone<>() returns a
+    // unique_ptr, an EXACT match for its own parameter) until the stack was exhausted, and
+    // GAlgorithmChaining segfaulted on every run. The mismatch is gone: the archive is a
+    // GUniquePtrFixedSizePriorityQueueT<GGenome>, so no handle crosses an ownership boundary and
+    // there is no adapter left to recurse. The case now drives the unique_ptr-native API and pins
+    // what actually matters -- addClone() copies, add() takes over, and the archive admits only
+    // processed individuals.
     auto make_processed = [] {
         std::unique_ptr<GGenome> ind = std::make_unique<Gem::Tests::Sphere>(3);
         ind->randomInit(activityMode::ALLPARAMETERS);
@@ -2787,13 +2789,24 @@ TEST_CASE("GGenomeFixedSizePriorityQueue: the unique_ptr boundary overloads term
         return ind;
     };
 
-    SECTION("single item") {
+    SECTION("addClone leaves the population owning its individual") {
         GGenomeFixedSizePriorityQueue q(5);
         auto const ind = make_processed();
-        q.add(ind, true); // stack-overflowed on the unfixed code
-        CHECK(q.size() == 1);
-        // A clone was taken -- the queue must not alias the population's individual.
+        q.addClone(ind);
+        REQUIRE(q.size() == 1);
+        REQUIRE(ind != nullptr);
+        // A copy was taken -- the archive must not alias the population's individual.
         CHECK(q.best().get() != ind.get());
+    }
+
+    SECTION("add takes the individual over") {
+        GGenomeFixedSizePriorityQueue q(5);
+        auto ind = make_processed();
+        auto const *raw = ind.get();
+        q.add(std::move(ind));
+        REQUIRE(q.size() == 1);
+        CHECK(ind == nullptr); // NOLINT(bugprone-use-after-move)
+        CHECK(q.best().get() == raw);
     }
 
     SECTION("whole population and sub-range") {
@@ -2803,12 +2816,26 @@ TEST_CASE("GGenomeFixedSizePriorityQueue: the unique_ptr boundary overloads term
         }
 
         GGenomeFixedSizePriorityQueue q_all(10);
-        q_all.add(pop, true, false);
+        q_all.addClone(pop, false);
         CHECK(q_all.size() == 4);
 
         GGenomeFixedSizePriorityQueue q_range(10);
-        q_range.add(pop.begin(), pop.begin() + 2, true, false);
+        q_range.addClone(pop.begin(), pop.begin() + 2, false);
         CHECK(q_range.size() == 2);
+
+        // The population is untouched by either call.
+        for(auto const &ind : pop) {
+            CHECK(ind != nullptr);
+        }
+    }
+
+    SECTION("an unprocessed individual is never admitted") {
+        GGenomeFixedSizePriorityQueue q(5);
+        std::unique_ptr<GGenome> dirty = std::make_unique<Gem::Tests::Sphere>(3);
+        dirty->randomInit(activityMode::ALLPARAMETERS);
+        REQUIRE_FALSE(dirty->is_processed());
+        q.addClone(dirty);
+        CHECK(q.empty());
     }
 }
 

@@ -135,7 +135,7 @@ bool GType::getSigmaRecombination() const {
 /******************************************************************************/
 
 void GType::extractCurrentParetoIndividuals(
-    std::vector<std::shared_ptr<gen::GGenome>> &pareto_inds
+    std::vector<std::unique_ptr<gen::GGenome>> &pareto_inds
 ) {
     pareto_inds.clear();
     // An individual is on the (first) Pareto front iff no other individual strictly dominates it. Computed
@@ -199,7 +199,6 @@ void GType::updateGlobalBestsPQ_(
     gen::GGenomeFixedSizePriorityQueue &best_individuals
 ) {
     constexpr bool donotreplace = false;
-    constexpr bool clone = true;
     constexpr bool replace = true;
 
 #ifdef DEBUG
@@ -216,19 +215,20 @@ void GType::updateGlobalBestsPQ_(
     case sortingMode::MUPLUSNU_SINGLEEVAL:
     case sortingMode::MUNU1PRETAIN_SINGLEEVAL:
     case sortingMode::MUCOMMANU_SINGLEEVAL:
-        best_individuals.add(
+        best_individuals.addClone(
             this->data_cnt_.begin(),
             this->data_cnt_.begin() + this->getNParents(),
-            clone,
             donotreplace
         );
         break;
 
     case sortingMode::MUPLUSNU_PARETO:
     case sortingMode::MUCOMMANU_PARETO: {
-        std::vector<std::shared_ptr<gen::GGenome>> pareto_inds;
+        // extractCurrentParetoIndividuals() already hands out fresh clones, so the archive takes
+        // those over rather than cloning them a second time.
+        std::vector<std::unique_ptr<gen::GGenome>> pareto_inds;
         this->extractCurrentParetoIndividuals(pareto_inds);
-        best_individuals.add(pareto_inds, clone, replace);
+        best_individuals.add(std::move(pareto_inds), replace);
     } break;
     }
 }
@@ -238,7 +238,6 @@ void GType::updateGlobalBestsPQ_(
 void GType::updateIterationBestsPQ_(
     gen::GGenomeFixedSizePriorityQueue &best_individuals
 ) {
-    constexpr bool clone = true;
     constexpr bool donotreplace = false;
     constexpr bool replace = true;
 
@@ -256,19 +255,19 @@ void GType::updateIterationBestsPQ_(
     case sortingMode::MUPLUSNU_SINGLEEVAL:
     case sortingMode::MUNU1PRETAIN_SINGLEEVAL:
     case sortingMode::MUCOMMANU_SINGLEEVAL: {
-        best_individuals.add(
+        best_individuals.addClone(
             this->data_cnt_.begin(),
             this->data_cnt_.begin() + this->getNParents(),
-            clone,
             donotreplace
         );
     } break;
 
     case sortingMode::MUPLUSNU_PARETO:
     case sortingMode::MUCOMMANU_PARETO: {
-        std::vector<std::shared_ptr<gen::GGenome>> pareto_inds;
+        // See updateGlobalBestsPQ_(): the extracted individuals are already clones.
+        std::vector<std::unique_ptr<gen::GGenome>> pareto_inds;
         this->extractCurrentParetoIndividuals(pareto_inds);
-        best_individuals.add(pareto_inds, clone, replace);
+        best_individuals.add(std::move(pareto_inds), replace);
     } break;
     }
 }
