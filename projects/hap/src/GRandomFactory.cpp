@@ -317,7 +317,7 @@ void GRandomFactory::producer(std::uint32_t seed) {
                 if(not p) {
                     throw geneva_exception(
                         g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                        << "In RandomFactory::producer(): Error!" << '\n'
+                        << "In GRandomFactory::producer(): Error!" << '\n'
                         << "Got empty recycling pointer" << '\n'
                     );
                 }

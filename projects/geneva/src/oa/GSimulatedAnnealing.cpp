@@ -44,7 +44,6 @@
 #include "geneva/oa/GAdaption.hpp"
 #include "geneva/oa/GAdaptionConfig.hpp"
 #include "geneva/genome/GGenome.hpp"
-#include "geneva/genome/GGenome.hpp"
 #include <algorithm>
 #include <cmath>
 #include <cstddef>

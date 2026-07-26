@@ -48,7 +48,6 @@
 #include "common/concurrency/GLoadOnceCellT.hpp"
 #include "geneva/genome/GGenome.hpp"
 #include "geneva/genome/GGenomeBuilder.hpp"
-#include "geneva/genome/GGenome.hpp"
 #include "geneva/genome/GGenomeFactory.hpp"
 
 namespace Gem::Geneva::OptimizationAlgorithms {

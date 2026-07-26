@@ -75,8 +75,7 @@ public:
 
     /** @brief The default constructor */
     GSimulatedAnnealing_PersonalityTraits() = default;
-    /** @brief The copy contructor */
-    
+    /** @brief The copy constructor */
     GSimulatedAnnealing_PersonalityTraits(const GSimulatedAnnealing_PersonalityTraits &) = default;
 
     /** @brief The standard destructor */

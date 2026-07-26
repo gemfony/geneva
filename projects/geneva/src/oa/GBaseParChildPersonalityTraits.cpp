@@ -164,12 +164,11 @@ std::size_t GBaseParChildPersonalityTraits::getParentId() const {
     if(parent_id_ >= 0) {
         return parent_id_;
     }
-            throw geneva_exception(
-            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GBaseParChildPersonalityTraits::getParentId():" << '\n'
-            << "parent_id_ is unset" << '\n'
-        );
-   
+    throw geneva_exception(
+        g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+        << "In GBaseParChildPersonalityTraits::getParentId():" << '\n'
+        << "parent_id_ is unset" << '\n'
+    );
 
     // Make the compiler happy
     return static_cast<std::size_t>(0);
@@ -189,7 +188,6 @@ std::size_t GBaseParChildPersonalityTraits::getParentId() const {
  */
 bool GBaseParChildPersonalityTraits::parentIdSet() const {
     return parent_id_ >= 0;
-   
 }
 
 /* ----------------------------------------------------------------------------------

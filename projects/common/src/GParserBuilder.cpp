@@ -157,7 +157,7 @@ std::string GParsableI::comment(std::size_t pos) const {
     if(comment_.size() <= pos) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GParsableI::comment_(std::size_t): Error!" << '\n'
+            << "In GParsableI::comment(std::size_t): Error!" << '\n'
             << "Tried to access item at position " << pos << '\n'
             << "where the size of the vector is " << comment_.size() << '\n'
         );
@@ -690,7 +690,7 @@ void GParserBuilder::reportAndRewriteConfigFile(
         }
     }
     if(not dropped.empty()) {
-        glogger << "Note: In GParserBuilder::updateConfigFile(): " << config_path.string() << '\n'
+        glogger << "Note: In GParserBuilder::reportAndRewriteConfigFile(): " << config_path.string() << '\n'
                 << "dropping " << dropped.size()
                 << " stale key(s) no registered parameter consumes: "
                 << (dropped | std::views::join_with(std::string(", ")) | std::ranges::to<std::string>())

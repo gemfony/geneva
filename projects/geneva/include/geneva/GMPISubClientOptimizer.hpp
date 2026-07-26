@@ -27,8 +27,7 @@
  *
  ********************************************************************************/
 
-#ifndef GENEVA_LIBRARY_COLLECTION_GMPISUBCLIENTOPTIMIZER_H
-#define GENEVA_LIBRARY_COLLECTION_GMPISUBCLIENTOPTIMIZER_H
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -181,5 +180,3 @@ private:
     const int M_MPI_GENEVA_COLOR{0};
 };
 } /* namespace Gem::Geneva */
-
-#endif //GENEVA_LIBRARY_COLLECTION_GMPISUBCLIENTOPTIMIZER_H

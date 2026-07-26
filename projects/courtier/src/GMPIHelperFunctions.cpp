@@ -107,8 +107,7 @@ MPICompletionStatus waitForRequestCompletionWhile(
             if(status.MPI_ERROR == MPI_SUCCESS) {
                 return MPICompletionStatus{.statusCode=MPIStatusCode::SUCCESS, .mpiStatus=status};
             }
-                            return MPICompletionStatus{.statusCode=MPIStatusCode::ERROR, .mpiStatus=status};
-           
+            return MPICompletionStatus{.statusCode=MPIStatusCode::ERROR, .mpiStatus=status};
         }
 
         // sleep some time before polling again for completion status

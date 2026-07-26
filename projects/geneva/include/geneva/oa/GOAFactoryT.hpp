@@ -54,7 +54,6 @@
 
 #ifdef GEM_TESTING
 #include <catch2/catch_test_macros.hpp>
-#include <utility>
 #endif /* GEM_TESTING */
 
 namespace Gem::Geneva::OptimizationAlgorithms {

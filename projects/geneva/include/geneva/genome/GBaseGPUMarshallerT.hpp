@@ -46,7 +46,6 @@
 #include "common/GLogger.hpp"
 #include "courtier/gpu/GGPUEvaluableI.hpp"
 #include "geneva/genome/GGenome.hpp"
-#include "geneva/genome/GGenome.hpp"
 
 namespace Gem::Geneva {
 

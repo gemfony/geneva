@@ -425,7 +425,7 @@ void GBasePlotter::registerSecondaryPlotter(const std::shared_ptr<GBasePlotter>&
     if(not sp) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GBasePlotter::registerSecondaryPlot(): Error!" << '\n'
+            << "In GBasePlotter::registerSecondaryPlotter(): Error!" << '\n'
             << "Got empty secondary plot" << '\n'
         );
     }
@@ -434,7 +434,7 @@ void GBasePlotter::registerSecondaryPlotter(const std::shared_ptr<GBasePlotter>&
     if(not this->isCompatible(sp)) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GBasePlotter::registerSecondaryPlot(): Error!" << '\n'
+            << "In GBasePlotter::registerSecondaryPlotter(): Error!" << '\n'
             << "Received incompatible secondary plotter" << '\n'
             << sp->getPlotterName() << " in plotter " << this->getPlotterName() << '\n'
         );

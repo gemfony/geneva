@@ -39,7 +39,6 @@
 #include "geneva/oa/GConjugateGradientDescent_PersonalityTraits.hpp"
 #include "geneva/oa/GSwarmAlgorithm_PersonalityTraits.hpp"
 #include "geneva/genome/GGenome.hpp"
-#include "geneva/genome/GGenome.hpp"
 #include "geneva/genome/GGenomeBuilder.hpp"
 #include "geneva/oa/GAdaption.hpp"
 #include <algorithm>

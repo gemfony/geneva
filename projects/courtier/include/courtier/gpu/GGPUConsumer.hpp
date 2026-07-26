@@ -173,7 +173,7 @@ private:
         if(not backendAvailable(kind)) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In Gem::Courtier::GPU::GGPUConsumer::ensureBackend_(): Error!" << '\n'
+                << "In Gem::Courtier::GPU::GGPUConsumerT::ensureBackend_(): Error!" << '\n'
                 << "The '" << toString(kind) << "' backend was not compiled into this build (its"
                 << " toolkit was not found at configure time)." << '\n'
                 << "The GPU consumer is device-only; to run on the CPU use a CPU consumer instead"

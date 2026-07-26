@@ -1013,7 +1013,7 @@ private:
         if(cfg.size() != layout.size()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GAdaptionConfigBase::checkConsistency(): Error!" << '\n'
+                << "In GAdaptionConfigBase::checkChannel(): Error!" << '\n'
                 << "Group count mismatch on the " << channel << " channel: config has " << cfg.size()
                 << ", genome has " << layout.size() << '\n'
             );
@@ -1022,7 +1022,7 @@ private:
             if(c.start != l.start || c.len != l.len || c.label_id != l.label_id) {
                 throw geneva_exception(
                     g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                    << "In GAdaptionConfigBase::checkConsistency(): Error!" << '\n'
+                    << "In GAdaptionConfigBase::checkChannel(): Error!" << '\n'
                     << "Structural mismatch on the " << channel << " channel, group " << gi << '\n'
                 );
             }

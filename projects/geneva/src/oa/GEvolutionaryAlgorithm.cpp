@@ -51,7 +51,6 @@
 #include "geneva/oa/GAdaptionConfig.hpp"
 #include "geneva/oa/GParetoTools.hpp"
 #include "geneva/genome/GGenome.hpp"
-#include "geneva/genome/GGenome.hpp"
 #include "geneva/genome/GGenomeFixedSizePriorityQueue.hpp"
 #include <algorithm>
 #include <cmath>

@@ -816,8 +816,8 @@ void GGraph4D::setMaxMarkerSize(const double &max_marker_size) {
     if(max_marker_size < 0. || max_marker_size < min_marker_size_) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GGraph4D::setMinMarkerSize(): Error!" << '\n'
-            << "Received invalid minimum marker size: " << min_marker_size_ << " " << max_marker_size
+            << "In GGraph4D::setMaxMarkerSize(): Error!" << '\n'
+            << "Received invalid maximum marker size: " << min_marker_size_ << " " << max_marker_size
             << "." << '\n'
             << "Always set the lower boundary first." << '\n'
         );
