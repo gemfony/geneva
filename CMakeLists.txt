@@ -645,9 +645,11 @@ INSTALL(
 	FILE GenevaTargets.cmake
 )
 
-# Record whether this install was built with testing support. A testing-enabled
-# libgemfony-geneva references Catch2 symbols, so the config package must re-find
-# Catch2 for consumers in that case (see GenevaConfig.cmake.in).
+# Record whether this install was built with testing support, so the config
+# package can report the build flavor to consumers as GENEVA_TESTING: a
+# testing-enabled libgemfony-geneva references Catch2 symbols and must re-find
+# Catch2, and only a testing-enabled install carries working self-test hook
+# bodies for a consumer to drive (see GenevaConfig.cmake.in).
 IF (GENEVA_BUILD_TESTS)
 	SET(GENEVA_INSTALLED_WITH_TESTING TRUE)
 ELSE ()

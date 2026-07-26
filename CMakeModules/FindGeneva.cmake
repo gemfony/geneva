@@ -65,6 +65,7 @@
 # GENEVA_LIBS                 - The bare library names (not paths) that were found
 # GENEVA_VERSION              - The Geneva version found by this module
 # GENEVA_TESTING              - TRUE if the libraries were built with testing support
+#                               (the same build-flavor variable the config package exports)
 # GENEVA_FOUND                - TRUE if all required Geneva components were found
 #
 # Note: the former GENEVA_INDIVIDUAL_LIBRARY is gone -- the geneva-individuals
@@ -218,6 +219,13 @@ ENDIF ()
 # geneva library and references Catch2 symbols. We approximate the test build
 # by probing the installed library for a Catch2 symbol; the consumer is then
 # responsible for linking Catch2 (see the message below).
+#
+# This mirrors the GENEVA_TESTING variable the config package records exactly at
+# generate time. Here it can only be inferred, so the probe answers
+# conservatively: when the library cannot be inspected at all (no nm, no
+# readable library) the flavor stays unknown and the variable reads FALSE. A
+# consumer gating optional test code on it therefore skips rather than builds
+# something that would throw -- which is the safe direction.
 SET (GENEVA_TESTING "FALSE")
 IF (GENEVA_GENEVA_LIBRARY)
 	EXECUTE_PROCESS(

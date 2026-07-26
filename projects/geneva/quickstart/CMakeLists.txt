@@ -124,11 +124,25 @@ GENEVA_MATERIALIZE_CONFIGS(GStarter bin/config)
 ################################################################################
 # Optional unit test.
 #
-# The unit test uses Catch2 and the internal Geneva test scaffolding header
-# Geneva_tests.hpp, which is part of the Geneva *sources* (not installed). The
-# test target is therefore only built when both Catch2 and that header are
-# available. A minimal Geneva install (without testing) still builds the
-# GStarter executable above.
+# The unit test drives the individual's Geneva self-test hooks through Catch2
+# and the internal Geneva test scaffolding header Geneva_tests.hpp, which is
+# part of the Geneva *sources* (not installed). Three things must line up:
+#
+#   (1) Catch2 v3 is available;
+#   (2) the scaffolding header can be located;
+#   (3) the INSTALLED Geneva was built with testing support -- reported by
+#       find_package(Geneva) above as GENEVA_TESTING.
+#
+# (3) cannot be worked around from here: the self-test hooks are declared
+# unconditionally (ABI stability -- both flavors share one vtable layout), but a
+# Geneva built without GEM_TESTING compiles the throwing "no test code" branch
+# of their bodies into the library, and a consumer defining GEM_TESTING for its
+# own sources cannot change what is already inside libgemfony-geneva. Building
+# the test against such an install would only produce a binary that throws, so
+# the test is not registered at all -- it is skipped, with a notice.
+#
+# A minimal Geneva install (without testing) still builds the GStarter
+# executables above; only this optional test drops out.
 
 FIND_PACKAGE(Catch2 3 QUIET)
 
@@ -138,8 +152,12 @@ FIND_PACKAGE(Catch2 3 QUIET)
 SET(GENEVA_TEST_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/../tests/UnitTests"
 	CACHE PATH "Directory holding the internal Geneva_tests.hpp test scaffolding header")
 
-IF (Catch2_FOUND AND EXISTS "${GENEVA_TEST_INCLUDE_DIR}/Geneva_tests.hpp")
-	MESSAGE(STATUS "Catch2 and Geneva test scaffolding found - building GStarterIndividualUnitTests")
+# Unconditional, so that a build in which the test is skipped still answers
+# "ctest" with an empty test set rather than "no test configuration file found".
+ENABLE_TESTING()
+
+IF (Catch2_FOUND AND EXISTS "${GENEVA_TEST_INCLUDE_DIR}/Geneva_tests.hpp" AND GENEVA_TESTING)
+	MESSAGE(STATUS "Catch2, Geneva test scaffolding and a testing-enabled Geneva install found - building GStarterIndividualUnitTests")
 
 	SET(TESTNAME GStarterIndividualUnitTests)
 
@@ -162,8 +180,12 @@ IF (Catch2_FOUND AND EXISTS "${GENEVA_TEST_INCLUDE_DIR}/Geneva_tests.hpp")
 
 	TARGET_INCLUDE_DIRECTORIES(${TESTNAME} PRIVATE "${GENEVA_TEST_INCLUDE_DIR}")
 
-	ENABLE_TESTING()
 	ADD_TEST(NAME ${TESTNAME} COMMAND ${TESTNAME})
+ELSEIF (NOT GENEVA_TESTING)
+	MESSAGE(STATUS "Skipping GStarterIndividualUnitTests: the installed Geneva was built without test code "
+		"(GENEVA_BUILD_TESTS off, or the install does not report its flavor), so its self-test hook "
+		"bodies throw by design - defining GEM_TESTING here cannot change the installed library")
 ELSE ()
-	MESSAGE(STATUS "Catch2 and/or Geneva test scaffolding not found - skipping GStarterIndividualUnitTests")
+	MESSAGE(STATUS "Skipping GStarterIndividualUnitTests: Catch2 v3 and/or the Geneva test scaffolding "
+		"header ${GENEVA_TEST_INCLUDE_DIR}/Geneva_tests.hpp were not found")
 ENDIF ()
