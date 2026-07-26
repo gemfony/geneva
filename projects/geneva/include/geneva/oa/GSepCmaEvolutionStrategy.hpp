@@ -51,6 +51,7 @@
 
 #ifdef GEM_TESTING
 #include "geneva/individuals/GTestIndividual1.hpp"
+#include "common/GSelfTestable.hpp"
 #endif /* GEM_TESTING */
 
 namespace Gem::Geneva::OptimizationAlgorithms {
@@ -162,7 +163,8 @@ constexpr std::size_t DEFAULTSEPCMALAMBDA = 0;
  *   Selection for Evolution Strategies", Parallel Problem Solving from Nature (PPSN XI), 2010.
  */
 class GSepCmaEvolutionStrategy // NOLINT(cppcoreguidelines-special-member-functions)
-  : public GOptimizationAlgorithmT<GSepCmaEvolutionStrategy> {
+  : public GOptimizationAlgorithmT<GSepCmaEvolutionStrategy>
+  , public Gem::Common::GSelfTestable {
 public:
     // Identifiers consumed by the GOptimizationAlgorithmT scaffold.
     static constexpr std::string_view class_name = "GSepCmaEvolutionStrategy";

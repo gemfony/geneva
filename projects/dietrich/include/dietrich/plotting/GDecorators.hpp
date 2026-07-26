@@ -31,6 +31,7 @@
 
 #include "common/GReflectiveInterfaceT.hpp"
 #include "dietrich/plotting/GPlotEnums.hpp"
+#include "common/GSelfTestable.hpp"
 
 namespace Gem::Dietrich {
 
@@ -162,7 +163,8 @@ class GMarker
         // clone_() returns the hierarchy root (GDecorator<Dim2>). A covariant return to the
         // CRTP-self would need GMarker complete at the base's clone_ declaration, which it
         // is not; clone_ is private, so the wider return is not observable.
-    > {
+    >
+  , public Gem::Common::GSelfTestable {
     ///////////////////////////////////////////////////////////////////////
     // Gem::Weft::access default-constructs this concrete type on load;
     // GReflectiveInterfaceAccess lets the GReflectiveInterfaceT base reach this class's localMembers_().
@@ -564,7 +566,8 @@ class GDecoratorContainer_2D
   : public Gem::Common::GReflectiveInterfaceT<
         GDecoratorContainer_2D<coordinate_type>,
         GDecoratorContainer<dimensions::Dim2, coordinate_type>
-    > {
+    >
+  , public Gem::Common::GSelfTestable {
     ///////////////////////////////////////////////////////////////////////
     // Gem::Weft::access default-constructs this concrete type on load;
     // GReflectiveInterfaceAccess lets the GReflectiveInterfaceT base reach this class's (empty) localMembers_().
@@ -756,7 +759,8 @@ class GDecoratorContainer_3D
   : public Gem::Common::GReflectiveInterfaceT<
         GDecoratorContainer_3D<coordinate_type>,
         GDecoratorContainer<dimensions::Dim3, coordinate_type>
-    > {
+    >
+  , public Gem::Common::GSelfTestable {
     ///////////////////////////////////////////////////////////////////////
     // Gem::Weft::access default-constructs this concrete type on load;
     // GReflectiveInterfaceAccess lets the GReflectiveInterfaceT base reach this class's (empty) localMembers_().

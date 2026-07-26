@@ -219,7 +219,7 @@ protected:
     }
 
     /** @brief Applies modifications to this object. This is needed for testing purposes */
-    bool modify_GUnitTests_() override {
+    bool modify_GUnitTests_() {
         return false;
     };
     /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */

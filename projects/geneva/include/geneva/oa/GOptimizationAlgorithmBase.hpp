@@ -676,11 +676,11 @@ protected:
     std::uint16_t n_threads_ = Gem::Common::DEFAULTNHARDWARETHREADS;
 
     /** @brief Applies modifications to this object */
-    bool modify_GUnitTests_() override;
+    bool modify_GUnitTests_();
     /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-    void specificTestsNoFailureExpected_GUnitTests_() override;
+    void specificTestsNoFailureExpected_GUnitTests_();
     /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-    void specificTestsFailuresExpected_GUnitTests_() override;
+    void specificTestsFailuresExpected_GUnitTests_();
 
     /***************************************************************************/
 

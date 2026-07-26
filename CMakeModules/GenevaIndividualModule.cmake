@@ -96,8 +96,17 @@ IF(NOT GENEVA_INDIVIDUAL_MODULE_INCLUDED)
 		# Catch2 (REQUIRE/CHECK) into any individual whose *_GUnitTests_ bodies use it -- and since the module
 		# links no Geneva libraries and the loader dlopens RTLD_NOW (eager), those unresolvable Catch2 symbols
 		# would abort the load. Undefine GEM_TESTING for the module so its sources compile the non-testing
-		# branch. This is ABI-safe: the *_GUnitTests_ hooks are declared unconditionally on GCommonInterfaceT
-		# (only their bodies are GEM_TESTING-conditional), so the vtable / layout is identical either way.
+		# branch.
+		#
+		# This is ABI-safe by CONSTRUCTION, not by discipline. The self-test hooks live on their own
+		# opt-in interface, Gem::Common::GSelfTestable (projects/common/include/common/GSelfTestable.hpp),
+		# which a class inherits UNCONDITIONALLY or not at all -- no member of it is preprocessor-gated, so
+		# core and module can never disagree about its layout. The category roots an individual actually
+		# derives from (GGenome, GPersonalityTraits, GOptimizationAlgorithmBase, ...) do not inherit it, so
+		# an individual that writes no tests has no test-related slots at all; one that does write them
+		# inherits the same interface on both sides of the GEM_TESTING line, with only the BODIES of its
+		# overrides conditional. The GSelfTestableTests unit test pins the "not a base of GCommonInterfaceT"
+		# half of this guarantee.
 		TARGET_COMPILE_OPTIONS(${_target} PRIVATE -UGEM_TESTING)
 		# Boost_INCLUDE_DIRS is read here (call time), not when this module was included, so it is set even
 		# if Boost is found after this module (in-tree) / by the config package's find_dependency (out-of-tree).

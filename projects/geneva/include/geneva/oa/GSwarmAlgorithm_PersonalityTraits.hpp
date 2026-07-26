@@ -39,6 +39,7 @@
 // Geneva headers go here
 #include "geneva/genome/GGenome.hpp"
 #include "geneva/GPersonalityTraits.hpp"
+#include "common/GSelfTestable.hpp"
 
 namespace Gem::Geneva::OptimizationAlgorithms {
 
@@ -48,7 +49,8 @@ namespace Gem::Geneva::OptimizationAlgorithms {
  * to swarm optimization.
  */
 class GSwarmAlgorithm_PersonalityTraits // NOLINT(cppcoreguidelines-special-member-functions)
-  : public Gem::Common::GReflectiveInterfaceT<GSwarmAlgorithm_PersonalityTraits, GPersonalityTraits> {
+  : public Gem::Common::GReflectiveInterfaceT<GSwarmAlgorithm_PersonalityTraits, GPersonalityTraits>
+  , public Gem::Common::GSelfTestable {
     ///////////////////////////////////////////////////////////////////////
     // Gem::Weft::access default-constructs this concrete type on load;
     // GReflectiveInterfaceAccess lets the base reach localMembers_() for the generated

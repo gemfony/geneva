@@ -31,6 +31,7 @@
 
 #include "common/GReflectiveInterfaceT.hpp"
 #include "dietrich/plotting/GDataCollectors.hpp"
+#include "common/GSelfTestable.hpp"
 
 
 namespace Gem::Dietrich {
@@ -40,7 +41,9 @@ namespace Gem::Dietrich {
 /**
  * A wrapper for ROOT's TH1D class (1-d double data). This will result in a 2D-plot.
  */
-class GHistogram1D : public Gem::Common::GReflectiveInterfaceT<GHistogram1D, GDataCollector1T<double>> {
+class GHistogram1D
+  : public Gem::Common::GReflectiveInterfaceT<GHistogram1D, GDataCollector1T<double>>
+  , public Gem::Common::GSelfTestable {
     ///////////////////////////////////////////////////////////////////////
     // Gem::Weft::access default-constructs this concrete type (its
     // private default ctor) on load; GReflectiveInterfaceAccess lets the GReflectiveInterfaceT
@@ -192,7 +195,9 @@ private:
 /**
  * A wrapper for ROOT's TH1I class (1-d integer data)
  */
-class GHistogram1I : public Gem::Common::GReflectiveInterfaceT<GHistogram1I, GDataCollector1T<std::int32_t>> {
+class GHistogram1I
+  : public Gem::Common::GReflectiveInterfaceT<GHistogram1I, GDataCollector1T<std::int32_t>>
+  , public Gem::Common::GSelfTestable {
     ///////////////////////////////////////////////////////////////////////
     friend struct Gem::Common::GReflectiveInterfaceAccess;
 
@@ -338,7 +343,9 @@ private:
  * A wrapper for ROOT's TH2D class (2-d double data). This will result in a
  * 3D plot.
  */
-class GHistogram2D : public Gem::Common::GReflectiveInterfaceT<GHistogram2D, GDataCollector2T<double, double>> {
+class GHistogram2D
+  : public Gem::Common::GReflectiveInterfaceT<GHistogram2D, GDataCollector2T<double, double>>
+  , public Gem::Common::GSelfTestable {
     ///////////////////////////////////////////////////////////////////////
     friend struct Gem::Common::GReflectiveInterfaceAccess;
 

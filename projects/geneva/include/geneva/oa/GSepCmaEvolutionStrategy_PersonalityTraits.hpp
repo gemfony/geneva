@@ -42,6 +42,7 @@
 #include "geneva/genome/GGenome.hpp"
 #include "geneva/GPersonalityTraits.hpp"
 #include "geneva/oa/GParetoTag.hpp"
+#include "common/GSelfTestable.hpp"
 
 namespace Gem::Geneva::OptimizationAlgorithms {
 
@@ -54,7 +55,8 @@ namespace Gem::Geneva::OptimizationAlgorithms {
  */
 class GSepCmaEvolutionStrategy_PersonalityTraits // NOLINT(cppcoreguidelines-special-member-functions)
   : public Gem::Common::GReflectiveInterfaceT<GSepCmaEvolutionStrategy_PersonalityTraits, GPersonalityTraits>
-  , public GParetoTag {
+  , public GParetoTag
+  , public Gem::Common::GSelfTestable {
     ///////////////////////////////////////////////////////////////////////
     // Gem::Weft::access default-constructs this concrete type on load;
     // GReflectiveInterfaceAccess lets the GReflectiveInterfaceT base reach localMembers_(). GParetoTag

@@ -35,6 +35,7 @@
 #include "dietrich/plotting/GDataLog.hpp"
 #include "dietrich/plotting/GPlotEmitter.hpp"
 #include "dietrich/plotting/GPlots.hpp"
+#include "common/GSelfTestable.hpp"
 
 namespace Gem::Dietrich {
 
@@ -55,7 +56,8 @@ namespace Gem::Dietrich {
  * dietrich/README.md.
  */
 class GPlotDesigner
-  : public Gem::Common::GReflectiveInterfaceT<GPlotDesigner, Gem::Common::GCommonInterfaceT<GPlotDesigner>> {
+  : public Gem::Common::GReflectiveInterfaceT<GPlotDesigner, Gem::Common::GCommonInterfaceT<GPlotDesigner>>
+  , public Gem::Common::GSelfTestable {
     ///////////////////////////////////////////////////////////////////////
     // Gem::Weft::access default-constructs this concrete type on load;
     // GReflectiveInterfaceAccess lets the GReflectiveInterfaceT base reach this class's private localMembers_().

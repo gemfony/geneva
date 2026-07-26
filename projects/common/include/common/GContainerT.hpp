@@ -1652,7 +1652,7 @@ protected:
      *
      * @return true if any modification was made, false otherwise.
      */
-    virtual bool modify_GUnitTests_() {
+    bool modify_GUnitTests_() {
         return false;
     }
 
@@ -1661,14 +1661,14 @@ protected:
      *
      * Override in subclasses to add test logic that must succeed.
      */
-    virtual void specificTestsNoFailureExpected_GUnitTests_() {}
+    void specificTestsNoFailureExpected_GUnitTests_() {}
 
     /**
      * @brief Runs self-tests that are expected to throw or trigger assertions.
      *
      * Override in subclasses to add test logic that must fail gracefully.
      */
-    virtual void specificTestsFailuresExpected_GUnitTests_() {}
+    void specificTestsFailuresExpected_GUnitTests_() {}
 
     ContainerType data_cnt_; ///< The underlying sequence container holding the data.
 };

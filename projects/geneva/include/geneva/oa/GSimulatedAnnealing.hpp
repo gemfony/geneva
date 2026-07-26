@@ -45,6 +45,7 @@
 #include "geneva/oa/GParChild.hpp"
 #include "geneva/oa/GOptimizationAlgorithmT.hpp"
 #include "geneva/oa/GSimulatedAnnealing_PersonalityTraits.hpp"
+#include "common/GSelfTestable.hpp"
 
 namespace Gem::Geneva::OptimizationAlgorithms {
 
@@ -81,7 +82,8 @@ namespace Gem::Geneva::OptimizationAlgorithms {
  * generation.
  */
 class GSimulatedAnnealing // NOLINT(cppcoreguidelines-special-member-functions)
-  : public GOptimizationAlgorithmT<GSimulatedAnnealing, GParChild> {
+  : public GOptimizationAlgorithmT<GSimulatedAnnealing, GParChild>
+  , public Gem::Common::GSelfTestable {
 public:
     // Identifiers consumed by the GOptimizationAlgorithmT scaffold.
     static constexpr std::string_view class_name = "GSimulatedAnnealing";
@@ -145,6 +147,22 @@ public:
     double getT() const;
 
 protected:
+    /***************************************************************************/
+    /**
+     * @brief Applies modifications to this object. This is needed for testing purposes
+     *
+     * This class contributes no checks of its own; it opts into the self-test facet so that the
+     * category root's modify_GUnitTests_() keeps running for it under the standard tests.
+     */
+    bool modify_GUnitTests_() override {
+#ifdef GEM_TESTING
+        return GOptimizationAlgorithmBase::modify_GUnitTests_();
+#else  /* GEM_TESTING */
+        Gem::Common::condnotset("GSimulatedAnnealing::modify_GUnitTests", "GEM_TESTING");
+        return false;
+#endif /* GEM_TESTING */
+    }
+
     /***************************************************************************/
     // Virtual or overridden protected functions
 

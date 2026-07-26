@@ -31,6 +31,7 @@
 
 #include "common/GReflectiveInterfaceT.hpp"
 #include "dietrich/plotting/GDataCollectors.hpp"
+#include "common/GSelfTestable.hpp"
 
 
 namespace Gem::Dietrich {
@@ -42,7 +43,9 @@ namespace Gem::Dietrich {
  * also adds the option to draw arrows between consecutive points. This results
  * in a 2D plot.
  */
-class GGraph2D : public Gem::Common::GReflectiveInterfaceT<GGraph2D, GDataCollector2T<double, double>> {
+class GGraph2D
+  : public Gem::Common::GReflectiveInterfaceT<GGraph2D, GDataCollector2T<double, double>>
+  , public Gem::Common::GSelfTestable {
     ///////////////////////////////////////////////////////////////////////
     friend struct Gem::Common::GReflectiveInterfaceAccess;
 
@@ -169,7 +172,9 @@ private:
  * A wrapper for the ROOT TGraphErrors class (2d data and curve-like structures).
  * This results in a 2D plot.
  */
-class GGraph2ED : public Gem::Common::GReflectiveInterfaceT<GGraph2ED, GDataCollector2ET<double, double>> {
+class GGraph2ED
+  : public Gem::Common::GReflectiveInterfaceT<GGraph2ED, GDataCollector2ET<double, double>>
+  , public Gem::Common::GSelfTestable {
     ///////////////////////////////////////////////////////////////////////
     friend struct Gem::Common::GReflectiveInterfaceAccess;
 
@@ -283,7 +288,9 @@ private:
  * also adds the option to draw lines between consecutive points. This class
  * only allows a single plot mode. This results in a 3D plot.
  */
-class GGraph3D : public Gem::Common::GReflectiveInterfaceT<GGraph3D, GDataCollector3T<double, double, double>> {
+class GGraph3D
+  : public Gem::Common::GReflectiveInterfaceT<GGraph3D, GDataCollector3T<double, double, double>>
+  , public Gem::Common::GSelfTestable {
     ///////////////////////////////////////////////////////////////////////
     friend struct Gem::Common::GReflectiveInterfaceAccess;
 
@@ -396,7 +403,9 @@ private:
  * data component is represented as the size of the markers. The class will by
  * default only draw a selection of items. This results in a 3D plot.
  */
-class GGraph4D : public Gem::Common::GReflectiveInterfaceT<GGraph4D, GDataCollector4T<double, double, double, double>> {
+class GGraph4D
+  : public Gem::Common::GReflectiveInterfaceT<GGraph4D, GDataCollector4T<double, double, double, double>>
+  , public Gem::Common::GSelfTestable {
     ///////////////////////////////////////////////////////////////////////
     friend struct Gem::Common::GReflectiveInterfaceAccess;
 
@@ -551,7 +560,9 @@ private:
  * A wrapper for the ROOT TF1 1d-function plotter.
  * TODO: Add ability to add markers!
  */
-class GFunctionPlotter1D : public Gem::Common::GReflectiveInterfaceT<GFunctionPlotter1D, GBasePlotter> {
+class GFunctionPlotter1D
+  : public Gem::Common::GReflectiveInterfaceT<GFunctionPlotter1D, GBasePlotter>
+  , public Gem::Common::GSelfTestable {
     ///////////////////////////////////////////////////////////////////////
     friend struct Gem::Common::GReflectiveInterfaceAccess;
 
@@ -573,6 +584,11 @@ class GFunctionPlotter1D : public Gem::Common::GReflectiveInterfaceT<GFunctionPl
 public:
     /** @brief The class name, consumed by the GReflectiveInterfaceT-generated name_() / compare token. */
     static constexpr std::string_view class_name = "GFunctionPlotter1D";
+
+    /** @brief Applies test-only modifications. This plotter adds no state of its own that the
+     *  standard tests could perturb, so it opts into the self-test facet purely to keep the base
+     *  plotter's perturbation -- and with it the generic round-trip check -- in effect. */
+    bool modify_GUnitTests_() override { return GBasePlotter::modify_GUnitTests_(); }
 
     /**
 	 * @brief The standard constructor
@@ -665,7 +681,9 @@ private:
 /**
  * A wrapper for the ROOT TF2 2d-function plotter
  */
-class GFunctionPlotter2D : public Gem::Common::GReflectiveInterfaceT<GFunctionPlotter2D, GBasePlotter> {
+class GFunctionPlotter2D
+  : public Gem::Common::GReflectiveInterfaceT<GFunctionPlotter2D, GBasePlotter>
+  , public Gem::Common::GSelfTestable {
     ///////////////////////////////////////////////////////////////////////
     friend struct Gem::Common::GReflectiveInterfaceAccess;
 
@@ -689,6 +707,11 @@ class GFunctionPlotter2D : public Gem::Common::GReflectiveInterfaceT<GFunctionPl
 public:
     /** @brief The class name, consumed by the GReflectiveInterfaceT-generated name_() / compare token. */
     static constexpr std::string_view class_name = "GFunctionPlotter2D";
+
+    /** @brief Applies test-only modifications. This plotter adds no state of its own that the
+     *  standard tests could perturb, so it opts into the self-test facet purely to keep the base
+     *  plotter's perturbation -- and with it the generic round-trip check -- in effect. */
+    bool modify_GUnitTests_() override { return GBasePlotter::modify_GUnitTests_(); }
 
     /**
 	 * @brief The standard constructor

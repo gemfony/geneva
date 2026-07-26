@@ -51,6 +51,7 @@
 
 #ifdef GEM_TESTING
 #include "geneva/individuals/GTestIndividual1.hpp"
+#include "common/GSelfTestable.hpp"
 #endif /* GEM_TESTING */
 
 namespace Gem::Geneva::OptimizationAlgorithms {
@@ -191,7 +192,8 @@ constexpr double DEFAULTACORXI = 0.85;             ///< Evaporation / convergenc
  *   European Journal of Operational Research, 185(3):1155-1173, 2008.
  */
 class GAntColonyOptimization // NOLINT(cppcoreguidelines-special-member-functions)
-  : public GOptimizationAlgorithmT<GAntColonyOptimization> {
+  : public GOptimizationAlgorithmT<GAntColonyOptimization>
+  , public Gem::Common::GSelfTestable {
 public:
     // Identifiers consumed by the GOptimizationAlgorithmT scaffold.
     static constexpr std::string_view class_name = "GAntColonyOptimization";

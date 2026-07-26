@@ -52,6 +52,7 @@
 
 #ifdef GEM_TESTING
 #include "geneva/individuals/GTestIndividual1.hpp"
+#include "common/GSelfTestable.hpp"
 #endif /* GEM_TESTING */
 
 #endif /* GEM_TESTING */
@@ -143,7 +144,8 @@ constexpr std::size_t NM_OCONTRACT = 3; ///< outside contraction
  * become near-coplanar and progress stops); at a genuine optimum it simply re-converges.
  */
 class GNelderMead // NOLINT(cppcoreguidelines-special-member-functions)
-  : public GOptimizationAlgorithmT<GNelderMead> {
+  : public GOptimizationAlgorithmT<GNelderMead>
+  , public Gem::Common::GSelfTestable {
     ///////////////////////////////////////////////////////////////////////
     friend struct Gem::Common::GReflectiveInterfaceAccess;
 
@@ -266,6 +268,22 @@ public:
     std::uint32_t getRestartThreshold() const;
 
 protected:
+    /***************************************************************************/
+    /**
+     * @brief Applies modifications to this object. This is needed for testing purposes
+     *
+     * This class contributes no checks of its own; it opts into the self-test facet so that the
+     * category root's modify_GUnitTests_() keeps running for it under the standard tests.
+     */
+    bool modify_GUnitTests_() override {
+#ifdef GEM_TESTING
+        return GOptimizationAlgorithmBase::modify_GUnitTests_();
+#else  /* GEM_TESTING */
+        Gem::Common::condnotset("GNelderMead::modify_GUnitTests", "GEM_TESTING");
+        return false;
+#endif /* GEM_TESTING */
+    }
+
     /***************************************************************************/
     // Virtual or overridden protected functions
 

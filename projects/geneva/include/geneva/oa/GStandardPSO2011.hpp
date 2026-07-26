@@ -51,6 +51,7 @@
 
 #ifdef GEM_TESTING
 #include "geneva/individuals/GTestIndividual1.hpp"
+#include "common/GSelfTestable.hpp"
 #endif /* GEM_TESTING */
 
 namespace Gem::Geneva::OptimizationAlgorithms {
@@ -169,7 +170,8 @@ constexpr std::size_t DEFAULTSPSOK = 3;          ///< The default number of part
  * - M. Clerc, "Standard Particle Swarm Optimisation", 2012 (the SPSO-2011 specification).
  */
 class GStandardPSO2011 // NOLINT(cppcoreguidelines-special-member-functions)
-  : public GOptimizationAlgorithmT<GStandardPSO2011> {
+  : public GOptimizationAlgorithmT<GStandardPSO2011>
+  , public Gem::Common::GSelfTestable {
 public:
     // Identifiers consumed by the GOptimizationAlgorithmT scaffold.
     static constexpr std::string_view class_name = "GStandardPSO2011";

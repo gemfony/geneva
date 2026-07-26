@@ -69,6 +69,7 @@
 
 // Example-local headers
 #include "GImageScalar.hpp"
+#include "common/GSelfTestable.hpp"
 
 namespace Gem::Geneva {
 
@@ -138,7 +139,9 @@ std::ostream &operator<<(std::ostream &, const CircleTriangle &);
      * that most closely resembles a given picture. It was developed
      * for evaluation using CUDA on a GPU.
      */
-class GImageIndividual final : public gen::GGenomeT<GImageIndividual> {
+class GImageIndividual final
+  : public gen::GGenomeT<GImageIndividual>
+  , public Gem::Common::GSelfTestable {
     ///////////////////////////////////////////////////////////////////////
     // Boost still default-constructs the concrete type on load; GReflectiveInterfaceAccess lets the mixin reach
     // the private localMembers_() below (from which serialize/load_/compare_/clone_/name_ are generated).

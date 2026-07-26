@@ -6,7 +6,7 @@
  * Helper template functions used by Geneva's internal test drivers
  * (projects/geneva/tests/UnitTests/ and projects/geneva/examples/.../Tests/UnitTests/).
  * External users should write their own Catch2 test drivers directly
- * against the public Geneva methods specificTestsNoFailureExpected_GUnitTests()
+ * against the Gem::Common::GSelfTestable methods specificTestsNoFailureExpected_GUnitTests()
  * and specificTestsFailuresExpected_GUnitTests() — see the project's
  * test driver in tests/geneva/UnitTests/GenevaStandardTests.cpp for the
  * pattern.
@@ -51,6 +51,7 @@
 #include <cmath>
 #include <iostream>
 #include <sstream>
+#include <concepts>
 #include <string>
 #include <tuple>
 #include <typeinfo>
@@ -64,6 +65,7 @@ using namespace Gem::Geneva;
 
 // Geneva headers go here
 #include "common/GCommonEnums.hpp"
+#include "common/GSelfTestable.hpp"
 #include "common/GExceptions.hpp"
 #include "common/GSerializationHelperFunctionsT.hpp"
 #include "common/GTupleIO.hpp"
@@ -99,6 +101,17 @@ using category_root_t = typename decltype(std::declval<const T &>().clone())::el
  */
 template <typename T>
 void StandardTests_no_failure_expected() {
+    // The self-test facet is an OPT-IN base (Gem::Common::GSelfTestable), not a member of the
+    // universal interface. Requiring it here rather than skipping the hooks when absent is
+    // deliberate: modify_GUnitTests() is what makes the (de-)serialization round-trip blocks below
+    // meaningful, so a type that quietly lost the facet would keep passing this test while no longer
+    // exercising it. Failing to compile names the problem instead.
+    static_assert(
+        std::derived_from<T, Gem::Common::GSelfTestable>,
+        "StandardTests_no_failure_expected<T>: T must opt into the Gem::Common::GSelfTestable facet "
+        "(inherit it and override modify_GUnitTests_() -- chaining to the category root's protected "
+        "helper if the root is where the perturbation lives)."
+    );
     // The CRTP category root of the tested type (GObject for most categories,
     // GPersonalityTraits for personality traits, etc.). Used wherever the test
     // previously hard-coded `GObject` / `GObject::`.
@@ -143,12 +156,20 @@ void StandardTests_no_failure_expected() {
     { // Test cloning to the category root
         std::shared_ptr<root_t> T_ptr, T_ptr_clone;
 
-        // Default construction
-        REQUIRE_NOTHROW(T_ptr = TFactory_GUnitTests<T>());
-        REQUIRE(T_ptr); // must point somewhere
+        // Default construction. The perturbation runs through the DERIVED type: the category root
+        // deliberately does not carry the self-test facet (that is what keeps it out of the vtable
+        // of every user class), so the hook is only reachable before the upcast.
+        {
+            std::shared_ptr<T> T_derived;
+            REQUIRE_NOTHROW(T_derived = TFactory_GUnitTests<T>());
+            REQUIRE(T_derived); // must point somewhere
 
-        // Make sure the object is not in pristine condition
-        REQUIRE_NOTHROW(T_ptr->modify_GUnitTests());
+            // Make sure the object is not in pristine condition
+            REQUIRE_NOTHROW(T_derived->modify_GUnitTests());
+
+            T_ptr = T_derived; // the sole remaining owner once T_derived goes out of scope
+        }
+        REQUIRE(T_ptr); // must point somewhere
 
         // Cloning
         REQUIRE_NOTHROW(T_ptr_clone = T_ptr->clone());
@@ -404,6 +425,10 @@ void StandardTests_no_failure_expected() {
  */
 template <typename T>
 void StandardTests_failures_expected() {
+    static_assert(
+        std::derived_from<T, Gem::Common::GSelfTestable>,
+        "StandardTests_failures_expected<T>: T must opt into the Gem::Common::GSelfTestable facet."
+    );
     // Prepare printing of error messages in object comparisons
     GEqualityPrinter gep(
         "StandardTests_failures_expected",

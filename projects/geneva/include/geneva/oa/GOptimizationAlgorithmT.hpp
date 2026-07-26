@@ -94,7 +94,7 @@ public:
 
 protected:
     /** @brief Applies modifications to this object (test scaffold). Override for real tests. */
-    bool modify_GUnitTests_() override {
+    bool modify_GUnitTests_() {
 #ifdef GEM_TESTING
         return Parent::modify_GUnitTests_();
 #else  /* GEM_TESTING */
@@ -104,7 +104,7 @@ protected:
     }
 
     /** @brief Performs self tests that are expected to succeed. Override for real tests. */
-    void specificTestsNoFailureExpected_GUnitTests_() override {
+    void specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
         Parent::specificTestsNoFailureExpected_GUnitTests_();
 #else  /* GEM_TESTING */
@@ -116,7 +116,7 @@ protected:
     }
 
     /** @brief Performs self tests that are expected to fail. Override for real tests. */
-    void specificTestsFailuresExpected_GUnitTests_() override {
+    void specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
         Parent::specificTestsFailuresExpected_GUnitTests_();
 #else  /* GEM_TESTING */

@@ -162,7 +162,7 @@ protected:
      *
      * @return A boolean which indicates whether modifications were made
      */
-    bool modify_GUnitTests_() override {
+    bool modify_GUnitTests_() {
 #ifdef GEM_TESTING
         bool result = false;
 
@@ -183,11 +183,9 @@ protected:
     /**
      * @brief Performs self tests that are expected to succeed. This is needed for testing purposes
      */
-    void specificTestsNoFailureExpected_GUnitTests_() override {
+    void specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
-        // Call the parent classes' functions
-        Gem::Common::GSerializableFunctionObjectT<
-            base_type>::specificTestsNoFailureExpected_GUnitTests_();
+        // Nothing to delegate: the GSerializableFunctionObjectT root has no self-tests of its own.
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
         Gem::Common::condnotset(
@@ -201,11 +199,9 @@ protected:
     /**
      * @brief Performs self tests that are expected to fail. This is needed for testing purposes
      */
-    void specificTestsFailuresExpected_GUnitTests_() override {
+    void specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
-        // Call the parent classes' functions
-        Gem::Common::GSerializableFunctionObjectT<
-            base_type>::specificTestsFailuresExpected_GUnitTests_();
+        // Nothing to delegate: the GSerializableFunctionObjectT root has no self-tests of its own.
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
         Gem::Common::condnotset(
@@ -311,11 +307,11 @@ protected:
      *
      * @return A boolean which indicates whether modifications were made
      */
-    bool modify_GUnitTests_() override;
+    bool modify_GUnitTests_();
     /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-    void specificTestsNoFailureExpected_GUnitTests_() override;
+    void specificTestsNoFailureExpected_GUnitTests_();
     /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-    void specificTestsFailuresExpected_GUnitTests_() override;
+    void specificTestsFailuresExpected_GUnitTests_();
 
 private:
     /** @brief The standard constructor */

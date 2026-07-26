@@ -583,7 +583,7 @@ protected:
              *
              * @return A boolean indicating whether the object was modified (always false here)
              */
-    bool modify_GUnitTests_() override {
+    bool modify_GUnitTests_() {
         return false;
     }
 
@@ -591,7 +591,7 @@ protected:
     /**
              * @brief Performs self tests that are expected to succeed. This is needed for testing purposes
              */
-    void specificTestsNoFailureExpected_GUnitTests_() override {
+    void specificTestsNoFailureExpected_GUnitTests_() {
         /* nothing */
     }
 
@@ -599,7 +599,7 @@ protected:
     /**
              * @brief Performs self tests that are expected to fail. This is needed for testing purposes
              */
-    void specificTestsFailuresExpected_GUnitTests_() override {
+    void specificTestsFailuresExpected_GUnitTests_() {
         /* nothing */
     }
 

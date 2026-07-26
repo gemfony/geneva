@@ -409,7 +409,7 @@ bool GImageIndividual::modify_GUnitTests_() {
     // Call the parent classes' functions. This already random-initialises every genome parameter, so
     // the object is changed. The Gauss adaptor configuration is OA-owned and not exercised here (the
     // individual carries no adaptor data).
-    gen::GGenome::modify_GUnitTests();
+    gen::GGenome::modify_GUnitTests_();
 
     return true;
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
@@ -427,7 +427,7 @@ void GImageIndividual::specificTestsNoFailureExpected_GUnitTests_() {
     using namespace Gem::Geneva;
 
     // Call the parent classes' functions
-    gen::GGenome::specificTestsNoFailureExpected_GUnitTests();
+    gen::GGenome::specificTestsNoFailureExpected_GUnitTests_();
 
     const std::size_t NTESTS = 100;
 
@@ -460,7 +460,7 @@ void GImageIndividual::specificTestsFailuresExpected_GUnitTests_() {
     using namespace Gem::Geneva;
 
     // Call the parent classes' functions
-    gen::GGenome::specificTestsFailuresExpected_GUnitTests();
+    gen::GGenome::specificTestsFailuresExpected_GUnitTests_();
 
     //------------------------------------------------------------------------------
     //------------------------------------------------------------------------------

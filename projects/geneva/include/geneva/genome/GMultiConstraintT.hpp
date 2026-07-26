@@ -247,7 +247,7 @@ protected:
      *
      * @return A boolean indicating whether this object was actually modified
      */
-    bool modify_GUnitTests_() override {
+    bool modify_GUnitTests_() {
 #ifdef GEM_TESTING
         // This is the category root; there is no modifiable GObject parent class.
         bool result = false;
@@ -269,7 +269,7 @@ protected:
     /**
      * @brief Performs self tests that are expected to succeed. This is needed for testing purposes.
      */
-    void specificTestsNoFailureExpected_GUnitTests_() override {
+    void specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
         // This is the category root; there is no GObject parent class to delegate to.
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
@@ -284,7 +284,7 @@ protected:
     /**
      * @brief Performs self tests that are expected to fail. This is needed for testing purposes.
      */
-    void specificTestsFailuresExpected_GUnitTests_() override {
+    void specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
         // This is the category root; there is no GObject parent class to delegate to.
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw

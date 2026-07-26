@@ -50,6 +50,7 @@
 #include "geneva/oa/GOptimizationAlgorithmT.hpp"
 #include "geneva/oa/GParameterScan_PersonalityTraits.hpp"
 #include "hap/GRandomT.hpp"
+#include "common/GSelfTestable.hpp"
 
 namespace Gem::Geneva::OptimizationAlgorithms {
 
@@ -689,7 +690,8 @@ std::ostream &operator<<(std::ostream &os, const parSet &p_s);
  * The associated optimization monitor stores all parameters and results in an XML file.
  */
 class GParameterScan // NOLINT(cppcoreguidelines-special-member-functions)
-  : public GOptimizationAlgorithmT<GParameterScan> {
+  : public GOptimizationAlgorithmT<GParameterScan>
+  , public Gem::Common::GSelfTestable {
     ///////////////////////////////////////////////////////////////////////
     friend struct Gem::Weft::access;
     friend struct Gem::Common::GReflectiveInterfaceAccess;
@@ -766,6 +768,22 @@ public:
     bool getScanRandomly() const;
 
 protected:
+    /***************************************************************************/
+    /**
+     * @brief Applies modifications to this object. This is needed for testing purposes
+     *
+     * This class contributes no checks of its own; it opts into the self-test facet so that the
+     * category root's modify_GUnitTests_() keeps running for it under the standard tests.
+     */
+    bool modify_GUnitTests_() override {
+#ifdef GEM_TESTING
+        return GOptimizationAlgorithmBase::modify_GUnitTests_();
+#else  /* GEM_TESTING */
+        Gem::Common::condnotset("GParameterScan::modify_GUnitTests", "GEM_TESTING");
+        return false;
+#endif /* GEM_TESTING */
+    }
+
     /***************************************************************************/
     // Virtual or overridden protected functions
 

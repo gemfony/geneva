@@ -52,6 +52,7 @@
 
 #ifdef GEM_TESTING
 #include "geneva/individuals/GTestIndividual1.hpp"
+#include "common/GSelfTestable.hpp"
 #endif /* GEM_TESTING */
 
 namespace Gem::Geneva::OptimizationAlgorithms {
@@ -228,7 +229,8 @@ constexpr std::size_t GSA_PROPOSAL = 1;
  *   233(3):216-220, 1997.
  */
 class GGeneralizedSimulatedAnnealing // NOLINT(cppcoreguidelines-special-member-functions)
-  : public GOptimizationAlgorithmT<GGeneralizedSimulatedAnnealing> {
+  : public GOptimizationAlgorithmT<GGeneralizedSimulatedAnnealing>
+  , public Gem::Common::GSelfTestable {
 public:
     // Identifiers consumed by the GOptimizationAlgorithmT scaffold.
     static constexpr std::string_view class_name = "GGeneralizedSimulatedAnnealing";

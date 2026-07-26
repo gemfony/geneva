@@ -344,7 +344,7 @@ protected:
      *  Mutates this base class'es serialized members (the labels, drawing arguments, data-structure
      *  marker and id); derived plotters call it and then mutate their own state. As a test-only
      *  hook it is never invoked on the rendered objects, so it does not affect emitted output. */
-    bool modify_GUnitTests_() override {
+    bool modify_GUnitTests_() {
         drawing_arguments_ += "_m";
         x_axis_label_ += "_m";
         y_axis_label_ += "_m";

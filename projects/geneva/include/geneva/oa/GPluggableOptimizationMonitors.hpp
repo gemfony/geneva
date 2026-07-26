@@ -58,6 +58,7 @@
 #include "geneva/oa/GOptimizationAlgorithmBase.hpp"
 #include "geneva/oa/GAdaption.hpp"
 #include "geneva/oa/GAdaptionConfig.hpp"
+#include "common/GSelfTestable.hpp"
 
 namespace Gem::Geneva {
 
@@ -70,7 +71,8 @@ namespace Gem::Geneva {
  * you instantiate a new optimization algorithm.
  */
 class GStandardMonitor // NOLINT(cppcoreguidelines-special-member-functions)
-  : public Gem::Common::GReflectiveInterfaceT<GStandardMonitor, oa::GBasePluggableOM> {
+  : public Gem::Common::GReflectiveInterfaceT<GStandardMonitor, oa::GBasePluggableOM>
+  , public Gem::Common::GSelfTestable {
     ///////////////////////////////////////////////////////////////////////
     // Gem::Weft::access default-constructs this concrete type on load;
     // GReflectiveInterfaceAccess lets the GReflectiveInterfaceT base reach this class's (empty) localMembers_().
@@ -136,7 +138,8 @@ private:
  * and for the best individual(s) of each iteration.
  */
 class GFitnessMonitor // NOLINT(cppcoreguidelines-special-member-functions)
-  : public Gem::Common::GReflectiveInterfaceT<GFitnessMonitor, oa::GBasePluggableOM> {
+  : public Gem::Common::GReflectiveInterfaceT<GFitnessMonitor, oa::GBasePluggableOM>
+  , public Gem::Common::GSelfTestable {
     ///////////////////////////////////////////////////////////////////////
     friend struct Gem::Common::GReflectiveInterfaceAccess;
 
@@ -271,7 +274,8 @@ private:
  * in sequence.
  */
 class GCollectiveMonitor // NOLINT(cppcoreguidelines-special-member-functions)
-  : public Gem::Common::GReflectiveInterfaceT<GCollectiveMonitor, oa::GBasePluggableOM> {
+  : public Gem::Common::GReflectiveInterfaceT<GCollectiveMonitor, oa::GBasePluggableOM>
+  , public Gem::Common::GSelfTestable {
     ///////////////////////////////////////////////////////////////////////
     // Gem::Weft::access default-constructs this concrete type on load;
     // GReflectiveInterfaceAccess lets the GReflectiveInterfaceT base reach localMembers_() for the
@@ -362,7 +366,8 @@ private:
  */
 template <typename fp_type>
 class GProgressPlotterT // NOLINT(cppcoreguidelines-special-member-functions)
-  : public Gem::Common::GReflectiveInterfaceT<GProgressPlotterT<fp_type>, oa::GBasePluggableOM> {
+  : public Gem::Common::GReflectiveInterfaceT<GProgressPlotterT<fp_type>, oa::GBasePluggableOM>
+  , public Gem::Common::GSelfTestable {
     ///////////////////////////////////////////////////////////////////////
     // Gem::Weft::access default-constructs this concrete type on load;
     // GReflectiveInterfaceAccess lets the GReflectiveInterfaceT base reach localMembers_().
@@ -945,7 +950,8 @@ private:
  * the optimizable entities managed by the algorithm.
  */
 class GAllSolutionFileLogger // NOLINT(cppcoreguidelines-special-member-functions)
-  : public Gem::Common::GReflectiveInterfaceT<GAllSolutionFileLogger, oa::GBasePluggableOM> {
+  : public Gem::Common::GReflectiveInterfaceT<GAllSolutionFileLogger, oa::GBasePluggableOM>
+  , public Gem::Common::GSelfTestable {
     ///////////////////////////////////////////////////////////////////////
     friend struct Gem::Common::GReflectiveInterfaceAccess;
 
@@ -1149,7 +1155,8 @@ private:
  * eval0_0, eval0_1, ... ,eval0_n, ..., evalm_0, evalm_1, ... ,evalm_n
  */
 class GIterationResultsFileLogger // NOLINT(cppcoreguidelines-special-member-functions)
-  : public Gem::Common::GReflectiveInterfaceT<GIterationResultsFileLogger, oa::GBasePluggableOM> {
+  : public Gem::Common::GReflectiveInterfaceT<GIterationResultsFileLogger, oa::GBasePluggableOM>
+  , public Gem::Common::GSelfTestable {
     ///////////////////////////////////////////////////////////////////////
     friend struct Gem::Common::GReflectiveInterfaceAccess;
 
@@ -1264,7 +1271,8 @@ private:
  * number of adaptions made is a good measure for the adaption probability.
  */
 class GNAdpationsLogger // NOLINT(cppcoreguidelines-special-member-functions)
-  : public Gem::Common::GReflectiveInterfaceT<GNAdpationsLogger, oa::GBasePluggableOM> {
+  : public Gem::Common::GReflectiveInterfaceT<GNAdpationsLogger, oa::GBasePluggableOM>
+  , public Gem::Common::GSelfTestable {
     ///////////////////////////////////////////////////////////////////////
     friend struct Gem::Common::GReflectiveInterfaceAccess;
 
@@ -1423,7 +1431,8 @@ private:
  */
 template <typename num_type>
 class GAdaptorPropertyLoggerT // NOLINT(cppcoreguidelines-special-member-functions)
-  : public Gem::Common::GReflectiveInterfaceT<GAdaptorPropertyLoggerT<num_type>, oa::GBasePluggableOM> {
+  : public Gem::Common::GReflectiveInterfaceT<GAdaptorPropertyLoggerT<num_type>, oa::GBasePluggableOM>
+  , public Gem::Common::GSelfTestable {
     ///////////////////////////////////////////////////////////////////////
     friend struct Gem::Common::GReflectiveInterfaceAccess;
 
@@ -1873,7 +1882,8 @@ private:
  * each iteration in a 2D histogram
  */
 class GProcessingTimesLogger // NOLINT(cppcoreguidelines-special-member-functions)
-  : public Gem::Common::GReflectiveInterfaceT<GProcessingTimesLogger, oa::GBasePluggableOM> {
+  : public Gem::Common::GReflectiveInterfaceT<GProcessingTimesLogger, oa::GBasePluggableOM>
+  , public Gem::Common::GSelfTestable {
     ///////////////////////////////////////////////////////////////////////
 
     friend struct Gem::Common::GReflectiveInterfaceAccess;

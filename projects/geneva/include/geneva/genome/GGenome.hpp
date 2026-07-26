@@ -429,11 +429,11 @@ protected:
     virtual bool randomInit_(activityMode const &am);
 
     /** @brief Applies modifications to this object. This is needed for testing purposes */
-    bool modify_GUnitTests_() override;
+    bool modify_GUnitTests_();
     /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-    void specificTestsNoFailureExpected_GUnitTests_() override;
+    void specificTestsNoFailureExpected_GUnitTests_();
     /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-    void specificTestsFailuresExpected_GUnitTests_() override;
+    void specificTestsFailuresExpected_GUnitTests_();
 
 private:
 

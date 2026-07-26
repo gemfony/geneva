@@ -56,6 +56,7 @@
 #include "GImageHelperFunctions.hpp"
 #include "GImageScalar.hpp"
 #include "GMonaLisaProblem.hpp"
+#include "common/GSelfTestable.hpp"
 
 namespace Gem::Geneva {
 /******************************************************************************/
@@ -129,7 +130,9 @@ private:
  * raw_fitness() are needed, so the monitor is problem-type-agnostic and can be registered by a launcher
  * that loads the concrete image individual from a runtime module (it never names GImageIndividual).
  */
-class GImagePOM final : public oa::GBasePluggableOM {
+class GImagePOM final
+  : public oa::GBasePluggableOM
+  , public Gem::Common::GSelfTestable {
     ///////////////////////////////////////////////////////////////////////
 
     /**
@@ -246,7 +249,7 @@ protected:
     bool modify_GUnitTests_() override {
 #ifdef GEM_TESTING
         bool result = false;
-        if(oa::GBasePluggableOM::modify_GUnitTests()) {
+        if(oa::GBasePluggableOM::modify_GUnitTests_()) {
             result = true;
         }
         return result;
@@ -260,7 +263,7 @@ protected:
     /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
     void specificTestsNoFailureExpected_GUnitTests_() override {
 #ifdef GEM_TESTING
-        oa::GBasePluggableOM::specificTestsNoFailureExpected_GUnitTests();
+        oa::GBasePluggableOM::specificTestsNoFailureExpected_GUnitTests_();
 #else /* GEM_TESTING */
         condnotset("GImagePOM::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
@@ -270,7 +273,7 @@ protected:
     /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
     void specificTestsFailuresExpected_GUnitTests_() override {
 #ifdef GEM_TESTING
-        oa::GBasePluggableOM::specificTestsFailuresExpected_GUnitTests();
+        oa::GBasePluggableOM::specificTestsFailuresExpected_GUnitTests_();
 #else /* GEM_TESTING */
         condnotset("GImagePOM::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */

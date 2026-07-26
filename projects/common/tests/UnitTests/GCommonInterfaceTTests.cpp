@@ -247,13 +247,3 @@ TEST_CASE("GCommonInterfaceT::report: returns non-empty JSON",
     CHECK(r.contains("v_"));
 }
 
-// ---------------------------------------------------------------------------
-// Test-framework hooks (default no-op overrides in TestObj)
-
-TEST_CASE("GCommonInterfaceT: test-framework hooks are callable",
-          "[common][interface][unit-framework]") {
-    TestObj a;
-    CHECK_FALSE(a.modify_GUnitTests());
-    CHECK_NOTHROW(a.specificTestsNoFailureExpected_GUnitTests());
-    CHECK_NOTHROW(a.specificTestsFailuresExpected_GUnitTests());
-}

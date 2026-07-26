@@ -127,12 +127,6 @@ public:
         }
     }
 
-    /* ----------------------------------------------------------------------------------
-     * Tested in GCommonInterfaceT::specificTestsNoFailureExpected_GUnitTests()
-     * Tested indirectly through standard tests of toString
-     * ----------------------------------------------------------------------------------
-     */
-
     /***************************************************************************/
     /**
      * Loads the object from a stream.
@@ -179,12 +173,6 @@ public:
         this->load_(local.get());
     }
 
-    /* ----------------------------------------------------------------------------------
-         * Tested in GCommonInterfaceT::specificTestsNoFailureExpected_GUnitTests()
-         * Tested indirectly through standard tests of fromString
-         * ----------------------------------------------------------------------------------
-         */
-
     /***************************************************************************/
     /**
      * Converts the class to a text representation, using the currently set serialization mode for this
@@ -203,12 +191,6 @@ public:
         return oarchive_stream.str();
     }
 
-    /* ----------------------------------------------------------------------------------
-         * Tested in GCommonInterfaceT::specificTestsNoFailureExpected_GUnitTests()
-         * Tested as part of standard serialization tests in Geneva standard test suite
-         * ----------------------------------------------------------------------------------
-         */
-
     /***************************************************************************/
     /**
      * Initializes the object from its string representation, using the currently set serialization mode.
@@ -223,12 +205,6 @@ public:
         std::istringstream istr(descr);
         fromStream(istr, ser_mod);
     }
-
-    /* ----------------------------------------------------------------------------------
-         * Tested in GCommonInterfaceT::specificTestsNoFailureExpected_GUnitTests()
-         * Tested as part of standard serialization tests in Geneva standard test suite
-         * ----------------------------------------------------------------------------------
-         */
 
     /***************************************************************************/
     /**
@@ -267,12 +243,6 @@ public:
 #endif
     }
 
-    /* ----------------------------------------------------------------------------------
-         * Tested in GCommonInterfaceT::specificTestsNoFailureExpected_GUnitTests()
-         * Part of the regular Geneva standard tests for every tested object
-         * ----------------------------------------------------------------------------------
-         */
-
     /***************************************************************************/
     /**
      * Loads a serial representation of this object from file. Can be used for check-pointing.
@@ -304,12 +274,6 @@ public:
         fromStream(ifstr, ser_mod);
     }
 
-    /* ----------------------------------------------------------------------------------
-         * Tested in GCommonInterfaceT::specificTestsNoFailureExpected_GUnitTests()
-         * Part of the regular Geneva standard tests for every tested object
-         * ----------------------------------------------------------------------------------
-         */
-
     /***************************************************************************/
     /**
      * Returns an XML description of the derivative it is called for
@@ -322,13 +286,6 @@ public:
     std::string report(this const Self &self) {
         return self.toString(Gem::Common::serializationMode::GEM_JSON);
     }
-
-    /* ----------------------------------------------------------------------------------
-         * Tested in GCommonInterfaceT::specificTestsNoFailureExpected_GUnitTests() // Check that
-         * the function does return a non-empty description. Content is not checked
-         * automatically.
-         * ----------------------------------------------------------------------------------
-         */
 
     /******************************************************************************/
     /**
@@ -492,32 +449,6 @@ public:
         load_(&cp);
     }
 
-    /***************************************************************************/
-    /**
-     * Applies modifications to this object. This is needed for testing purposes
-     *
-     * @return A boolean indicating whether modifications were actually made
-     */
-    bool modify_GUnitTests() {
-        return this->modify_GUnitTests_();
-    }
-
-    /***************************************************************************/
-    /**
-     * Performs self tests that are expected to succeed. This is needed for testing purposes
-     */
-    void specificTestsNoFailureExpected_GUnitTests() {
-        this->specificTestsNoFailureExpected_GUnitTests_();
-    }
-
-    /***************************************************************************/
-    /**
-     * Performs self tests that are expected to fail. This is needed for testing purposes
-     */
-    void specificTestsFailuresExpected_GUnitTests() {
-        this->specificTestsFailuresExpected_GUnitTests_();
-    }
-
 protected:
     /***************************************************************************/
     // Defaulted constructors -- rule of five
@@ -616,38 +547,6 @@ protected:
     virtual void addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) {
         // No local data, no relevant parent classes, hence nothing to do
     }
-
-    /***************************************************************************/
-    /**
-     * @brief Applies modifications to this object. This is needed for testing purposes
-     *
-     * The three self-test hooks are opt-in, in the same spirit as addConfigurationOptions_() above: a
-     * class that has specific tests to contribute overrides them, a class that has none simply does not.
-     * They were pure once, which made every derivative -- including every user-written individual --
-     * write all three even when it had nothing to test, and even in a build with GEM_TESTING off, where
-     * the mandatory bodies collapsed to a throw-stub. The obligation was unconditional while the value
-     * was conditional.
-     *
-     * The default is a no-op rather than the condnotset() throw the guarded bodies use, because the two
-     * say different things: "this class adds no tests of its own" is a legitimate state, whereas "a test
-     * hook was called in a non-testing build" is a harness error.
-     *
-     * @return A boolean indicating whether modifications were actually made
-     */
-    virtual bool modify_GUnitTests_() {
-        return false; // no local modifications
-    }
-
-    /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-    virtual void specificTestsNoFailureExpected_GUnitTests_() {
-        // no local tests
-    }
-
-    /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-    virtual void specificTestsFailuresExpected_GUnitTests_() {
-        // no local tests
-    }
-
 
 private:
     /***************************************************************************/

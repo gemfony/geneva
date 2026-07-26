@@ -52,6 +52,7 @@
 #include "geneva/genome/GGenomeBuilder.hpp"
 #include "geneva/genome/GGenomeFactory.hpp"
 #include "geneva/genome/GGenomeMultiConstraint.hpp"
+#include "common/GSelfTestable.hpp"
 
 namespace Gem::Geneva::OptimizationAlgorithms {
 class GAdaptionConfigBase;
@@ -321,6 +322,7 @@ const solverFunction GO_DEF_EVALFUNCTION = solverFunction::PARABOLA;
  */
 class GFunctionIndividual
   : public gen::GGenomeT<GFunctionIndividual> // NOLINT(cppcoreguidelines-special-member-functions)
+  , public Gem::Common::GSelfTestable
 {
     ///////////////////////////////////////////////////////////////////////
     // Boost still default-constructs the concrete type on load; GReflectiveInterfaceAccess lets the mixin
@@ -678,7 +680,8 @@ using GFunctionIndividualFactory =
  * than a given constant.
  */
 class GDoubleSumConstraint
-  : public Gem::Common::GReflectiveInterfaceT<GDoubleSumConstraint, gen::GGenomeConstraint> { // NOLINT(cppcoreguidelines-special-member-functions)
+  : public Gem::Common::GReflectiveInterfaceT<GDoubleSumConstraint, gen::GGenomeConstraint>
+  , public Gem::Common::GSelfTestable { // NOLINT(cppcoreguidelines-special-member-functions)
     ///////////////////////////////////////////////////////////////////////
     friend struct Gem::Common::GReflectiveInterfaceAccess;
 
@@ -709,6 +712,22 @@ public:
     ~GDoubleSumConstraint() override = default;
 
 protected:
+    /***************************************************************************/
+    /**
+     * @brief Applies modifications to this object. This is needed for testing purposes
+     *
+     * This class contributes no checks of its own; it opts into the self-test facet so that the
+     * category root's modify_GUnitTests_() keeps running for it under the standard tests.
+     */
+    bool modify_GUnitTests_() override {
+#ifdef GEM_TESTING
+        return Gem::Geneva::GPreEvaluationValidityCheckT<gen::GGenome>::modify_GUnitTests_();
+#else  /* GEM_TESTING */
+        Gem::Common::condnotset("GDoubleSumConstraint::modify_GUnitTests", "GEM_TESTING");
+        return false;
+#endif /* GEM_TESTING */
+    }
+
     /**
      * @brief Checks whether the constraint (sum of parameters below the constant) is fulfilled.
      * @param cp The individual whose parameters are checked
@@ -736,7 +755,8 @@ private:
  * sign!) for double variables
  */
 class GDoubleSumGapConstraint
-  : public Gem::Common::GReflectiveInterfaceT<GDoubleSumGapConstraint, gen::GGenomeConstraint> { // NOLINT(cppcoreguidelines-special-member-functions)
+  : public Gem::Common::GReflectiveInterfaceT<GDoubleSumGapConstraint, gen::GGenomeConstraint>
+  , public Gem::Common::GSelfTestable { // NOLINT(cppcoreguidelines-special-member-functions)
     ///////////////////////////////////////////////////////////////////////
     friend struct Gem::Common::GReflectiveInterfaceAccess;
 
@@ -770,6 +790,22 @@ public:
     ~GDoubleSumGapConstraint() override = default;
 
 protected:
+    /***************************************************************************/
+    /**
+     * @brief Applies modifications to this object. This is needed for testing purposes
+     *
+     * This class contributes no checks of its own; it opts into the self-test facet so that the
+     * category root's modify_GUnitTests_() keeps running for it under the standard tests.
+     */
+    bool modify_GUnitTests_() override {
+#ifdef GEM_TESTING
+        return Gem::Geneva::GPreEvaluationValidityCheckT<gen::GGenome>::modify_GUnitTests_();
+#else  /* GEM_TESTING */
+        Gem::Common::condnotset("GDoubleSumGapConstraint::modify_GUnitTests", "GEM_TESTING");
+        return false;
+#endif /* GEM_TESTING */
+    }
+
     /**
      * @brief Checks whether the equality constraint (sum of parameters near the constant) is fulfilled.
      * @param cp The individual whose parameters are checked
@@ -798,7 +834,8 @@ private:
  * a given constraint. Here, valid solutions lie in a sphere around 0
  */
 class GSphereConstraint
-  : public Gem::Common::GReflectiveInterfaceT<GSphereConstraint, gen::GGenomeConstraint> { // NOLINT(cppcoreguidelines-special-member-functions)
+  : public Gem::Common::GReflectiveInterfaceT<GSphereConstraint, gen::GGenomeConstraint>
+  , public Gem::Common::GSelfTestable { // NOLINT(cppcoreguidelines-special-member-functions)
     ///////////////////////////////////////////////////////////////////////
     friend struct Gem::Common::GReflectiveInterfaceAccess;
 
@@ -829,6 +866,22 @@ public:
     ~GSphereConstraint() override = default;
 
 protected:
+    /***************************************************************************/
+    /**
+     * @brief Applies modifications to this object. This is needed for testing purposes
+     *
+     * This class contributes no checks of its own; it opts into the self-test facet so that the
+     * category root's modify_GUnitTests_() keeps running for it under the standard tests.
+     */
+    bool modify_GUnitTests_() override {
+#ifdef GEM_TESTING
+        return Gem::Geneva::GPreEvaluationValidityCheckT<gen::GGenome>::modify_GUnitTests_();
+#else  /* GEM_TESTING */
+        Gem::Common::condnotset("GSphereConstraint::modify_GUnitTests", "GEM_TESTING");
+        return false;
+#endif /* GEM_TESTING */
+    }
+
     /**
      * @brief Checks whether the constraint (solution within a sphere around 0) is fulfilled.
      * @param cp The individual whose parameters are checked

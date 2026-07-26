@@ -239,11 +239,11 @@ protected:
 
     /** @brief Applies modifications to this object
      *  @return true if the object was modified, false otherwise */
-    bool modify_GUnitTests_() override;
+    bool modify_GUnitTests_();
     /** @brief Performs self tests that are expected to succeed */
-    void specificTestsNoFailureExpected_GUnitTests_() override;
+    void specificTestsNoFailureExpected_GUnitTests_();
     /** @brief Performs self tests that are expected to fail */
-    void specificTestsFailuresExpected_GUnitTests_() override;
+    void specificTestsFailuresExpected_GUnitTests_();
 
     /***************************************************************************/
 

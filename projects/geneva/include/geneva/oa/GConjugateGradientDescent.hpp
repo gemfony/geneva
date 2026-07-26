@@ -56,6 +56,7 @@
 
 #ifdef GEM_TESTING
 #include "geneva/individuals/GTestIndividual1.hpp"
+#include "common/GSelfTestable.hpp"
 #endif /* GEM_TESTING */
 
 #endif /* GEM_TESTING */
@@ -170,7 +171,8 @@ constexpr std::size_t DEFAULTCGDLBFGSMEMORY = 10; ///< Default L-BFGS history si
  * FULL / MINOS) can be computed from the Hessian but do not influence the optimization itself.
  */
 class GConjugateGradientDescent // NOLINT(cppcoreguidelines-special-member-functions)
-  : public GOptimizationAlgorithmT<GConjugateGradientDescent> {
+  : public GOptimizationAlgorithmT<GConjugateGradientDescent>
+  , public Gem::Common::GSelfTestable {
 public:
     // Identifiers consumed by the GOptimizationAlgorithmT scaffold.
     static constexpr std::string_view class_name = "GConjugateGradientDescent";
@@ -342,6 +344,22 @@ public:
     GHesseErrorResult getLastErrorEstimate() const;
 
 protected:
+    /***************************************************************************/
+    /**
+     * @brief Applies modifications to this object. This is needed for testing purposes
+     *
+     * This class contributes no checks of its own; it opts into the self-test facet so that the
+     * category root's modify_GUnitTests_() keeps running for it under the standard tests.
+     */
+    bool modify_GUnitTests_() override {
+#ifdef GEM_TESTING
+        return GOptimizationAlgorithmBase::modify_GUnitTests_();
+#else  /* GEM_TESTING */
+        Gem::Common::condnotset("GConjugateGradientDescent::modify_GUnitTests", "GEM_TESTING");
+        return false;
+#endif /* GEM_TESTING */
+    }
+
     /***************************************************************************/
     // Virtual or overridden protected functions
 

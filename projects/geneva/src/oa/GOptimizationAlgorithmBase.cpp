@@ -40,6 +40,7 @@
 #include "common/GExpectationChecksT.hpp"
 #include "common/GLogger.hpp"
 #include "common/GParserBuilder.hpp"
+#include "common/GSelfTestable.hpp"
 #include "common/GSerializationHelperFunctionsT.hpp"
 #include "courtier/GCourtierEnums.hpp"
 #include "courtier/GSubmissionStatusT.hpp"
@@ -2356,9 +2357,14 @@ bool GOptimizationAlgorithmBase::modify_GUnitTests_() {
         result = true;
     }
 
-    // Try to change the objects contained in the collection
+    // Try to change the objects contained in the collection. The population is heterogeneous and
+    // its element type -- the gen::GGenome category root -- deliberately does not carry the
+    // self-test facet, so an element contributes only if it opted into GSelfTestable. Skipping the
+    // others is the correct semantics: it is exactly what the facet's no-op default produced when
+    // the hooks still sat on every object.
     for(auto const &o_ptr : *this) {
-        if(o_ptr->modify_GUnitTests()) {
+        if(auto *self_testable = dynamic_cast<Gem::Common::GSelfTestable *>(o_ptr.get());
+           self_testable != nullptr && self_testable->modify_GUnitTests()) {
             result = true;
         }
     }

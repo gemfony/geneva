@@ -137,13 +137,3 @@ TEST_CASE("GSerializableFunctionObjectT::name: non-empty",
     CHECK_FALSE(d.name().empty());
 }
 
-// ---------------------------------------------------------------------------
-// Test-framework hooks — defaults inherited from the base.
-
-TEST_CASE("GSerializableFunctionObjectT: test-framework hooks are callable",
-          "[common][serializable-fobj]") {
-    Doubler d;
-    CHECK_FALSE(d.modify_GUnitTests());
-    CHECK_NOTHROW(d.specificTestsNoFailureExpected_GUnitTests());
-    CHECK_NOTHROW(d.specificTestsFailuresExpected_GUnitTests());
-}

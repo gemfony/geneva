@@ -60,6 +60,7 @@
 #include "geneva/oa/GEvolutionaryAlgorithm.hpp"
 #include "geneva/oa/GEvolutionaryAlgorithmFactory.hpp"
 #include "geneva/oa/GTunableManifest.hpp"
+#include "common/GSelfTestable.hpp"
 
 namespace Gem::Geneva::Individuals {
 
@@ -179,7 +180,8 @@ const std::string GMETAOPT_DEF_SUBEACONFIG =
  */
 template <typename ind_type = Gem::Geneva::Individuals::GFunctionIndividual>
 class GMetaOptimizerIndividualT // NOLINT(cppcoreguidelines-special-member-functions)
-  : public gen::GGenomeT<GMetaOptimizerIndividualT<ind_type>> {
+  : public gen::GGenomeT<GMetaOptimizerIndividualT<ind_type>>
+  , public Gem::Common::GSelfTestable {
     ///////////////////////////////////////////////////////////////////////
     // Boost still default-constructs the concrete type on load; GReflectiveInterfaceAccess lets the mixin reach
     // the private localMembers_() below (load_/compare_/clone_/name_ are generated from it). serialize()
@@ -1596,7 +1598,8 @@ constexpr std::size_t P_YDIM = 1400;
  */
 template <typename ind_type>
 class GOptOptMonitorT // NOLINT(cppcoreguidelines-special-member-functions)
-  : public oa::GBasePluggableOM {
+  : public oa::GBasePluggableOM
+  , public Gem::Common::GSelfTestable {
     // Make sure this class can only be instantiated if individual_type is an optimizable entity
     // (the monitor reads individuals only through the genome-agnostic interface, so any genome model
     // -- tree or flat -- qualifies).

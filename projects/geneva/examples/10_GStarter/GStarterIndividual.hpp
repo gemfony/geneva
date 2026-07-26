@@ -52,6 +52,7 @@
 #include "geneva/genome/GGenomeT.hpp"
 #include "geneva/genome/GIndividualFactory.hpp"
 #include "geneva/genome/GGenomeBuilder.hpp"
+#include "common/GSelfTestable.hpp"
 #include <filesystem>
 #include <memory>
 #include <string>
@@ -101,7 +102,9 @@ const targetFunction GO_DEF_TARGETFUNCTION = targetFunction::PARABOLA;
  * This individual searches for a minimum of a number of predefined functions, each capable
  * of processing their input in multiple dimensions.
  */
-class GStarterIndividual : public gen::GGenomeT<GStarterIndividual> {
+class GStarterIndividual
+  : public gen::GGenomeT<GStarterIndividual>
+  , public Gem::Common::GSelfTestable {
     ///////////////////////////////////////////////////////////////////////
     // Boost still default-constructs the concrete type on load; GReflectiveInterfaceAccess lets the mixin
     // reach the private localMembers_() below (from which serialize/load_/compare_/clone_/name_ derive).
@@ -250,11 +253,11 @@ protected:
     std::vector<double> evaluate() final;
 
     /** @brief Applies modifications to this object. */
-    virtual bool modify_GUnitTests_();
+    bool modify_GUnitTests_() override;
     /** @brief Performs self tests that are expected to succeed. */
-    virtual void specificTestsNoFailureExpected_GUnitTests_();
+    void specificTestsNoFailureExpected_GUnitTests_() override;
     /** @brief Performs self tests that are expected to fail. */
-    virtual void specificTestsFailuresExpected_GUnitTests_();
+    void specificTestsFailuresExpected_GUnitTests_() override;
 
 private:
     /***************************************************************************/

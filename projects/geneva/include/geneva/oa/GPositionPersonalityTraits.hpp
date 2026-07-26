@@ -39,6 +39,7 @@
 // Geneva headers go here
 #include "common/GReflectiveInterfaceT.hpp"
 #include "geneva/GPersonalityTraits.hpp"
+#include "common/GSelfTestable.hpp"
 
 namespace Gem::Geneva::OptimizationAlgorithms {
 
@@ -57,7 +58,8 @@ namespace Gem::Geneva::OptimizationAlgorithms {
  * to one another merely because they share this base.
  */
 class GPositionPersonalityTraits // NOLINT(cppcoreguidelines-special-member-functions)
-  : public Gem::Common::GReflectiveInterfaceBaseT<GPositionPersonalityTraits, GPersonalityTraits> {
+  : public Gem::Common::GReflectiveInterfaceBaseT<GPositionPersonalityTraits, GPersonalityTraits>
+  , public Gem::Common::GSelfTestable {
     ///////////////////////////////////////////////////////////////////////
     // GReflectiveInterfaceAccess lets the GReflectiveInterfaceBaseT base reach this class's
     // localMembers_() (pop_pos_); this abstract base is never Boost-constructed.

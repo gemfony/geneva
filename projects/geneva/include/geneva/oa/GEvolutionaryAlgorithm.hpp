@@ -51,6 +51,7 @@
 
 #ifdef GEM_TESTING
 #include "geneva/individuals/GTestIndividual1.hpp"
+#include "common/GSelfTestable.hpp"
 #endif /* GEM_TESTING */
 
 namespace Gem::Geneva::OptimizationAlgorithms {
@@ -207,7 +208,8 @@ constexpr auto DEFAULTEASORTINGMODE = sortingMode::MUCOMMANU_SINGLEEVAL;
  *   NSGA-II", IEEE Trans. Evolutionary Computation 6(2):182-197, 2002 (the Pareto selection).
  */
 class GEvolutionaryAlgorithm // NOLINT(cppcoreguidelines-special-member-functions)
-  : public GOptimizationAlgorithmT<GEvolutionaryAlgorithm, GParChild> {
+  : public GOptimizationAlgorithmT<GEvolutionaryAlgorithm, GParChild>
+  , public Gem::Common::GSelfTestable {
 public:
     // Identifiers consumed by the GOptimizationAlgorithmT scaffold.
     static constexpr std::string_view class_name = "GEvolutionaryAlgorithm";

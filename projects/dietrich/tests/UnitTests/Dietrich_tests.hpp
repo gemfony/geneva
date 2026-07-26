@@ -8,7 +8,7 @@
  * standard-tests driver (geneva/tests/UnitTests/Geneva_tests.hpp) but depend ONLY
  * on common -- dietrich sits below geneva in the library stack and must not pull it
  * in. External users should write their own Catch2 drivers directly against the
- * public methods modify_GUnitTests() / specificTests*_GUnitTests().
+ * Gem::Common::GSelfTestable methods modify_GUnitTests() / specificTests*_GUnitTests().
  */
 
 /********************************************************************************
@@ -47,6 +47,7 @@
 
 // Standard header files go here
 #include <cmath>
+#include <concepts>
 #include <iostream>
 #include <memory>
 #include <string>
@@ -58,6 +59,7 @@
 // Common headers go here (dietrich depends only on common)
 #include "common/GCommonEnums.hpp"
 #include "common/GExceptions.hpp"
+#include "common/GSelfTestable.hpp"
 #include "common/GSerializationHelperFunctionsT.hpp"
 #include "common/GUnitTestFrameworkT.hpp"
 
@@ -89,6 +91,14 @@ using category_root_t = typename decltype(std::declval<const T &>().clone())::el
  */
 template <typename T>
 void StandardTests_no_failure_expected() {
+    // The self-test facet is an OPT-IN base (Gem::Common::GSelfTestable), not part of the universal
+    // interface. Requiring it instead of skipping the hooks when absent is deliberate:
+    // modify_GUnitTests() is what makes the round-trip blocks below meaningful, so a type that
+    // quietly lost the facet would keep passing while no longer exercising it.
+    static_assert(
+        std::derived_from<T, Gem::Common::GSelfTestable>,
+        "StandardTests_no_failure_expected<T>: T must opt into the Gem::Common::GSelfTestable facet."
+    );
     using root_t = category_root_t<T>;
     GEqualityPrinter gep(
         "StandardTests_no_failure_expected",
@@ -124,10 +134,17 @@ void StandardTests_no_failure_expected() {
     { // Test cloning to the category root
         std::shared_ptr<root_t> T_ptr, T_ptr_clone;
 
-        REQUIRE_NOTHROW(T_ptr = TFactory_GUnitTests<T>());
+        // The perturbation runs through the DERIVED type: the category root deliberately does not
+        // carry the self-test facet, so the hook is only reachable before the upcast.
+        {
+            std::shared_ptr<T> T_derived;
+            REQUIRE_NOTHROW(T_derived = TFactory_GUnitTests<T>());
+            REQUIRE(T_derived);
+            REQUIRE_NOTHROW(T_derived->modify_GUnitTests());
+            T_ptr = T_derived; // the sole remaining owner once T_derived goes out of scope
+        }
         REQUIRE(T_ptr);
 
-        REQUIRE_NOTHROW(T_ptr->modify_GUnitTests());
         REQUIRE_NOTHROW(T_ptr_clone = T_ptr->clone());
 
         CHECK(gep.isEqual(*T_ptr_clone, *T_ptr));
@@ -314,6 +331,10 @@ void StandardTests_no_failure_expected() {
  */
 template <typename T>
 void StandardTests_failures_expected() {
+    static_assert(
+        std::derived_from<T, Gem::Common::GSelfTestable>,
+        "StandardTests_failures_expected<T>: T must opt into the Gem::Common::GSelfTestable facet."
+    );
     GEqualityPrinter gep(
         "StandardTests_failures_expected",
         pow(10, -10),

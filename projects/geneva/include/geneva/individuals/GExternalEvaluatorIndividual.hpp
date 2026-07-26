@@ -54,6 +54,7 @@
 #include "geneva/genome/GGenomeBuilder.hpp"
 #include "geneva/genome/GGenomeMultiConstraint.hpp"
 #include "hap/GRandomT.hpp"
+#include "common/GSelfTestable.hpp"
 
 namespace Gem::Geneva::OptimizationAlgorithms {
 class GAdaptionConfigBase;
@@ -117,7 +118,8 @@ constexpr bool GEEI_DEF_REMOVETEMPORARIES = true;
  * program needs to read and write this JSON format.
  */
 class GExternalEvaluatorIndividual
-  : public gen::GGenomeT<GExternalEvaluatorIndividual> { // NOLINT(cppcoreguidelines-special-member-functions)
+  : public gen::GGenomeT<GExternalEvaluatorIndividual>
+  , public Gem::Common::GSelfTestable { // NOLINT(cppcoreguidelines-special-member-functions)
     ///////////////////////////////////////////////////////////////////////
 
     // Boost still default-constructs the concrete type on load; GReflectiveInterfaceAccess lets the mixin
@@ -316,6 +318,37 @@ public:
     static void archive(const std::vector<std::shared_ptr<GExternalEvaluatorIndividual>> &arch);
 
 protected:
+    /***************************************************************************/
+    /**
+     * @brief Applies modifications to this object. This is needed for testing purposes
+     *
+     * This class contributes no checks of its own; it opts into the self-test facet so that the
+     * category root's modify_GUnitTests_() keeps running for it under the standard tests.
+     */
+    bool modify_GUnitTests_() override {
+#ifdef GEM_TESTING
+        return gen::GGenome::modify_GUnitTests_();
+#else  /* GEM_TESTING */
+        Gem::Common::condnotset("GExternalEvaluatorIndividual::modify_GUnitTests", "GEM_TESTING");
+        return false;
+#endif /* GEM_TESTING */
+    }
+
+    /***************************************************************************/
+    /**
+     * @brief Performs self tests that are expected to succeed. This is needed for testing purposes
+     *
+     * This class contributes no checks of its own; it opts into the self-test facet so that the
+     * category root's specificTestsNoFailureExpected_GUnitTests_() keeps running for it under the standard tests.
+     */
+    void specificTestsNoFailureExpected_GUnitTests_() override {
+#ifdef GEM_TESTING
+        gen::GGenome::specificTestsNoFailureExpected_GUnitTests_();
+#else  /* GEM_TESTING */
+        Gem::Common::condnotset("GExternalEvaluatorIndividual::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
+    }
+
     /***************************************************************************/
     /**
      * @brief The evaluation hook: runs the external evaluation program and returns its per-criterion results.
