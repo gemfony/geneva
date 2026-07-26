@@ -207,7 +207,7 @@ TEST_CASE("courtier(websocket): a client whose server vanishes terminates on its
             return;
         }
         boost::beast::flat_buffer buf;
-        ws.read(buf, ec); // the client's first GETDATA pull
+        ws.read(buf, ec); // the client's first PULL frame
         // No reply, no close frame: slam the TCP connection shut like a killed server process.
         ws.next_layer().close(ec);
     });

@@ -937,7 +937,7 @@ void GConjugateGradientDescent::addConfigurationOptions_(Gem::Common::GParserBui
 
 /******************************************************************************/
 /**
- * @brief Triggers fitness calculation of all individuals via the broker.
+ * @brief Triggers fitness calculation of all individuals through the process consumer.
  *
  * Throws a geneva_exception if no complete set of evaluated items is received or if any individual reports errors.
  */

@@ -701,7 +701,8 @@ void GParameterScan::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) 
 
 /******************************************************************************/
 /**
- * @brief Triggers fitness calculation of a number of individuals by delegating work to the broker.
+ * @brief Triggers fitness calculation of a number of individuals by delegating work to the process
+ * consumer.
  *
  * Items are evaluated up to a maximum position in the vector. Note that we always start the
  * evaluation with the first item in the vector. Throws if not every work item returned or if

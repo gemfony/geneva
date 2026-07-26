@@ -219,7 +219,7 @@ void GSimulatedAnnealing::populationSanityChecks_() const {
 
 /******************************************************************************/
 /**
-  * @brief We submit individuals to the broker connector and wait for processed items.
+  * @brief We submit individuals to the process consumer and wait for processed items.
  */
 void GSimulatedAnnealing::evaluatePopulation_() {
     //--------------------------------------------------------------------------------

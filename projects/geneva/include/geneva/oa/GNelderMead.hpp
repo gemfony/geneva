@@ -133,7 +133,7 @@ constexpr std::size_t NM_OCONTRACT = 3; ///< outside contraction
  * iteration all four candidates are proposed and submitted @e together with the vertices, and the
  * acceptance rules above are applied in the @e next iteration once their fitnesses are known. This costs
  * a one-iteration evaluation lag (the same approximation style as GConjugateGradientDescent's difference
- * quotients) but lets the method exploit the batch/broker evaluation model and converge to a local
+ * quotients) but lets the method exploit the batch evaluation model and converge to a local
  * optimum without any gradient information. \f$ n_\text{simplices} \f$ such blocks run simultaneously
  * (analogous to the multiple starting points of the gradient descents).
  *

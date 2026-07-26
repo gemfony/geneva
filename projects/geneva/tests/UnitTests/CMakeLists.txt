@@ -62,7 +62,7 @@ SET(LIBRARIES_TO_LINK
 		${Boost_LIBRARIES}
 		Catch2::Catch2WithMain
 		# These individuals are no longer compiled into the geneva library; the tests construct and serialize
-		# them directly, so they link the individuals' object libraries (which carry their BOOST_CLASS_EXPORT_IMPLEMENT).
+		# them directly, so they link the individuals' object libraries (which carry their GEM_REGISTER_ARCHIVABLE).
 		GLineFitIndividual-obj
 		GNeuralNetworkIndividual-obj
 		GExternalEvaluatorIndividual-obj

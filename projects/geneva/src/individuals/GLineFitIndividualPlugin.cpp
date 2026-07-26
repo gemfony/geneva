@@ -33,9 +33,9 @@
  *
  * This translation unit is compiled into the module .so ONLY (never the object library): it holds the fixed
  * extern "C" entry point geneva_module_manifest(), whose symbol name is fixed for the loader's dlsym and so
- * must be unique per process. It deliberately does NOT re-emit the individual's BOOST_CLASS_EXPORT -- that
- * lives once in GLineFitIndividual.cpp (the individual's own, compiled into both the module and any
- * compile-in consumer), so there is exactly one serialization-GUID registration per type.
+ * must be unique per process. It deliberately does NOT re-emit the individual's GEM_REGISTER_ARCHIVABLE --
+ * that lives once in GLineFitIndividual.cpp (the individual's own, compiled into both the module and any
+ * compile-in consumer), so there is exactly one archive-tag registration per type.
  *
  * The manifest itself is built by the typed helper individualManifest<Factory, Config, Name>(): the factory
  * is the standard config-driven flat-individual factory on GLineFitIndividual (which reads its data-point

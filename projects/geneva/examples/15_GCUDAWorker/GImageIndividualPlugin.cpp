@@ -39,7 +39,7 @@
  * one-entry manifest; a module carrying SEVERAL contributions hand-assembles the manifest from the same
  * building blocks, as shown here -- a plain array of GenevaContribution the loader walks by kind.
  *
- * Unlike example 19 / 22, the individual's serialization GUID is registered by its OWN translation unit
+ * Unlike example 19 / 22, the individual's archive tag is registered by its OWN translation unit
  * (GEM_REGISTER_ARCHIVABLE in GImageIndividual.cpp,
  * compiled into this same module), so this glue TU only assembles the manifest -- it must NOT export the
  * class again.

@@ -53,7 +53,7 @@ IF(GENEVA_BUILD_WITH_MPI_CONSUMER)
 ENDIF()
 
 # (1) The loadable OA module -> libGRandomSearch.so. It carries the algorithm + its personality traits + the
-# serialization GUIDs + the manifest entry point. GENEVA_ADD_INDIVIDUAL_MODULE is kind-agnostic -- it builds
+# archive tags + the manifest entry point. GENEVA_ADD_INDIVIDUAL_MODULE is kind-agnostic -- it builds
 # a shared MODULE that links none of the Geneva libraries (it resolves their symbols from the HOST PROCESS at
 # load time via RTLD_GLOBAL, needing only their headers, with pinned ABI flags) -- so it serves an OA module
 # exactly as it serves an individual module.

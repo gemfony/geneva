@@ -50,7 +50,7 @@ IF(GENEVA_BUILD_WITH_MPI_CONSUMER)
 ENDIF()
 
 # (1) The loadable GPU-problem module -> libGGPUParaboloid.so. It carries the individual, its GPU marshaller,
-# the individual's serialization GUID and a TWO-contribution manifest entry point. GENEVA_ADD_INDIVIDUAL_MODULE
+# the individual's archive tag and a TWO-contribution manifest entry point. GENEVA_ADD_INDIVIDUAL_MODULE
 # is kind-agnostic -- it builds a shared MODULE that links none of the Geneva libraries (resolving their
 # symbols from the HOST PROCESS at load time via RTLD_GLOBAL, needing only their headers, with pinned ABI
 # flags) -- so it serves an individual-plus-marshaller module exactly as it serves any other.

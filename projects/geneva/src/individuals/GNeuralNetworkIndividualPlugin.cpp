@@ -33,8 +33,8 @@
  *
  * Compiled into the module .so ONLY (never the object library): it holds the fixed extern "C" entry point
  * geneva_module_manifest(), whose symbol name must be unique per process. It does NOT re-emit the
- * individual's BOOST_CLASS_EXPORT -- those (trainingSet, networkData, GNeuralNetworkIndividual) live once in
- * GNeuralNetworkIndividual.cpp, compiled into both the module and any compile-in consumer. The neural network
+ * individual's GEM_REGISTER_ARCHIVABLE -- that lives once in GNeuralNetworkIndividual.cpp, compiled into
+ * both the module and any compile-in consumer. The neural network
  * reads its training data from the config-named networkDataFile at construction (in the factory hooks).
  */
 

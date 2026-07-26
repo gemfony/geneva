@@ -27,8 +27,8 @@
 #
 ################################################################################
 #
-# Per-library Doxygen target for the Courtier library (broker / consumer
-# parallelisation framework).
+# Per-library Doxygen target for the Courtier library (the consumer /
+# transport parallelisation framework).
 
 IF (NOT DOXYGEN_FOUND)
 	RETURN ()

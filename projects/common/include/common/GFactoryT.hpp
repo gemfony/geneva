@@ -67,7 +67,7 @@ class GFactoryT {
     friend struct Gem::Weft::access;
 
     /**
-     * @brief Loads the factory's persistent state, from a Boost archive or a GArchive codec
+     * @brief Loads the factory's persistent state from a GArchive codec
      * @tparam Archive The input archive type being read from
      * @param ar The input archive supplying the serialized data
      * @param version The (unused) class version
@@ -82,7 +82,7 @@ class GFactoryT {
     }
 
     /**
-     * @brief Saves the factory's persistent state, to a Boost archive or a GArchive codec
+     * @brief Saves the factory's persistent state to a GArchive codec
      * @tparam Archive The output archive type being written to
      * @param ar The output archive receiving the serialized data
      * @param version The (unused) class version

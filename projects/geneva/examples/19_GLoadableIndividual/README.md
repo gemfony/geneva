@@ -58,7 +58,9 @@ the binary in the cloud):
    `GEM_REGISTER_ARCHIVABLE` registers the serialization tag so the individual can cross the wire and a
    checkpoint — you write it yourself, exactly as for a compiled-in individual.
 
-3. **Package it** with `GENEVA_DECLARE_INDIVIDUAL(... MODE load ...)` (see `CMakeLists.txt`). The module
+3. **Package it** with `GENEVA_ADD_INDIVIDUAL_MODULE(<target> <glue.cpp>)` (see `CMakeLists.txt`; use
+   `GENEVA_DECLARE_INDIVIDUAL(... MODE both ...)` instead when the same individual is also to be
+   compiled in). The module
    links **none** of the Geneva libraries — it needs only their headers, and resolves their symbols from the
    host process at load time.
 

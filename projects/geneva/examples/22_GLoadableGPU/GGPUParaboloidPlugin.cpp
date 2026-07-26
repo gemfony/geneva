@@ -58,7 +58,7 @@
 
 GEM_REGISTER_ARCHIVABLE(GGPUParaboloid) // NOLINT
 
-// Serialization GUID for wire / checkpoint transport of the individual (the marshaller is not serialized).
+// The archive tag for wire / checkpoint transport of the individual (the marshaller is not serialized).
 
 namespace {
 

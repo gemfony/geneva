@@ -165,7 +165,7 @@ constexpr std::size_t DEFAULTCGDLBFGSMEMORY = 10; ///< Default L-BFGS history si
  * \f$ \mathbf{g}_k^{\!\top}\mathbf{d}_k<0 \f$, after which the next point is
  * \f$ \mathbf{x}_{k+1}=\mathbf{x}_k+\lambda\,\mathbf{d}_k \f$. The line search uses a fixed,
  * range-scaled trial step \f$ \lambda \f$ (configurable multiplier) rather than a Wolfe line search,
- * which keeps the whole method compatible with Geneva's batch/broker evaluation model (one submission of
+ * which keeps the whole method compatible with Geneva's batch evaluation model (one submission of
  * the entire population per iteration). Only difference quotients of the objective are used; no analytic
  * gradient is required. Optional post-run parameter-error estimates (errorEstimationMode: DIAGONAL /
  * FULL / MINOS) can be computed from the Hessian but do not influence the optimization itself.

@@ -59,7 +59,7 @@
  * knowledge of the concrete individual type.
  *
  * Because there is no network involved, this example is also a convenient stress-test harness for the
- * courtier framework, the broker, and Hap.
+ * courtier framework, the device consumer, and Hap.
  *
  * PARITY-CHECK MODE (config key "parity_check_n", default 0 == off): when set to a positive N, the
  * program does NOT optimise. Instead it draws N random individuals from the loaded factory and, for each,

@@ -732,11 +732,10 @@ TEST_CASE("GGenome: external evaluation result is accepted verbatim (no local ev
     CHECK(ind.getStoredResult(0).rawFitness() == injected); // external value taken verbatim
 }
 
-// A derived individual round-trips its value identity in ALL THREE archive formats. The basic
-// round-trip above exercises XML only; the swap rewrites the individual inheritance graph, and Boost
-// class export/tracking is sensitive to that exact graph, so a re-run of this same test post-swap
-// proves the new export macros produce valid archives in text, XML and binary alike.
-TEST_CASE("GGenome: a derived individual round-trips in TEXT, XML and BINARY",
+// A derived individual round-trips its value identity through EVERY serialization mode the string
+// interface offers, not just the one the basic round-trip above happens to use: the individual's
+// archive-tag registration has to produce a readable archive in each codec alike.
+TEST_CASE("GGenome: a derived individual round-trips through toString/fromString in every codec",
           "[flat][serialize][formats]") {
     using mode = Gem::Common::serializationMode;
     const std::vector<double> vals{1., -2., 3., -4., 5.};
@@ -804,11 +803,10 @@ TEST_CASE("GGenomeLayout: round-trips through the GArchive codecs (binary + JSON
 
 /******************************************************************************/
 // A whole derived individual round-trips its value identity + structural layout through BOTH GArchive
-// codecs, with no wire scope active (the self-contained checkpoint form). This is the end-to-end proof of
-// the 3d-A individual-tree port: the object graph the Boost path serializes -- GGenome + its layout,
-// GGenome, the GProcessable lifecycle base, the result store, and the null-by-default
-// polymorphic owned members (constraint / processors / OA scratch) -- now serializes identically through
-// a GArchive codec, reconstructing an equal (compare()) individual.
+// codecs, with no wire scope active (the self-contained checkpoint form). This is the end-to-end proof
+// that the whole object graph -- GGenome + its layout, the GProcessable lifecycle base, the result store,
+// and the null-by-default polymorphic owned members (constraint / processors / OA scratch) -- survives a
+// GArchive codec, reconstructing an equal (compare()) individual.
 TEST_CASE("GGenome: a derived individual round-trips through the GArchive codecs (binary + JSON)",
           "[flat][garchive][individual]") {
     using namespace Gem::Weft;

@@ -319,7 +319,7 @@ private:
     /***************************************************************************/
     // Overloaded or virtual base functions (mirror GEvolutionaryAlgorithm).
 
-    /** @brief We submit individuals to the broker connector and wait for processed items */
+    /** @brief We submit individuals to the process consumer and wait for processed items */
     void evaluatePopulation_() override;
 
     /** @brief Evaluates the population's [start, end) range and returns the executor status. */

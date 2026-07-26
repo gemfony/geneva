@@ -39,7 +39,7 @@ IF(GENEVA_BUILD_WITH_MPI_CONSUMER)
 ENDIF()
 
 # (1) The loadable individual plugin -> libGLoadableParaboloid.so. It carries the problem code + its
-# serialization GUID + the plugin entry points. GENEVA_ADD_INDIVIDUAL_MODULE builds it as a shared MODULE
+# archive-tag registration + the plugin entry points. GENEVA_ADD_INDIVIDUAL_MODULE builds it as a shared MODULE
 # that links none of the Geneva libraries (it resolves their symbols from the HOST PROCESS at load time via
 # RTLD_GLOBAL, needing only their headers) -- the reusable recipe every modularised individual now shares.
 GENEVA_ADD_INDIVIDUAL_MODULE(GLoadableParaboloid GLoadableParaboloidPlugin.cpp)

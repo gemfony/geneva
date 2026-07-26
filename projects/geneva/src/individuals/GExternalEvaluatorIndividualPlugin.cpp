@@ -33,7 +33,7 @@
  *
  * Compiled into the module .so ONLY (never the object library): it holds the fixed extern "C" entry point
  * geneva_module_manifest(), whose symbol name must be unique per process. It does NOT re-emit the
- * individual's BOOST_CLASS_EXPORT -- that lives once in GExternalEvaluatorIndividual.cpp, compiled into both
+ * individual's GEM_REGISTER_ARCHIVABLE -- that lives once in GExternalEvaluatorIndividual.cpp, compiled into both
  * the module and any compile-in consumer. The individual launches an external evaluator program named in its
  * config (buildGenome even discovers the genome geometry by querying it) -- a loaded module has full runtime
  * access to do so.

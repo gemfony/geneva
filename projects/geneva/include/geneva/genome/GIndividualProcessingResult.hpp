@@ -58,7 +58,7 @@ class individual_processing_result {
     friend struct Gem::Weft::access;
 
     /**
-     * @brief Serializes this object to/from a Boost archive or a GArchive codec
+     * @brief Serializes this object to/from a GArchive codec
      * @tparam Archive The GArchive codec type
      * @param ar The archive to read from or write to
      * @param version The serialization version (unused)

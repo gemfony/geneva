@@ -58,7 +58,7 @@
 
 GEM_REGISTER_ARCHIVABLE(GLoadableParaboloid) // NOLINT
 
-// (1) Serialization GUID for wire / checkpoint transport of this individual.
+// (1) The archive tag for wire / checkpoint transport of this individual.
 
 // (2) The module entry point. The extern "C" wrapper is the only irreducible boilerplate (fixed symbol name
 // for the loader's dlsym); everything else is the typed individualManifest<> helper. The template arguments

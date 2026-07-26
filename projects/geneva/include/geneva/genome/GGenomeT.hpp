@@ -44,9 +44,9 @@ namespace Gem::Geneva::Genome {
 /******************************************************************************/
 /**
  * The sole CRTP base a concrete flat individual derives. It is a thin adaptor over the GReflectiveInterfaceT
- * mixin (with CloneReturn = GGenome so the generated clone_ returns GGenome* covariantly): clone_, name_,
+ * mixin (with GGenome as the parent, so the generated clone_ returns the hierarchy root): clone_, name_,
  * load_, compare_ and serialize are all GENERATED, so a minimal flat individual is just a constructor that
- * builds its genome, an evaluate(), the opt-in flat tag, and one BOOST_CLASS_EXPORT(Derived).
+ * builds its genome, an evaluate(), the opt-in flat tag, and one GEM_REGISTER_ARCHIVABLE(Derived).
  *
  * Because GGenome holds all genome state generically, a genome-only individual adds no members of its own.
  * It opts into GGenomeT's generated empty member list by declaring the marker
@@ -66,7 +66,13 @@ namespace Gem::Geneva::Genome {
  *       }
  *       std::vector<double> evaluate() override { ... }
  *   };
- *   BOOST_CLASS_EXPORT(MyIndividual)
+ * @endcode
+ * plus, at file scope in the individual's own .cpp (never in a header: the macro's stringized argument
+ * IS the wire/checkpoint tag, so it must be spelled fully qualified and emitted in exactly one
+ * translation unit):
+ * @code
+ *   #include "weft/GArchivePolymorphic.hpp"
+ *   GEM_REGISTER_ARCHIVABLE(Gem::Geneva::MyIndividual)
  * @endcode
  *
  * Usage (with extra state): declare localMembers_() listing the extra members (do NOT declare the marker),

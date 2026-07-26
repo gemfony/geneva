@@ -62,7 +62,7 @@
 #include <utility>
 #include <vector>
 
-// GArchive registration accompanies each BOOST_CLASS_EXPORT_IMPLEMENT, EXCEPT the factory:
+// Every concrete type this translation unit defines is GArchive-registered, EXCEPT the factory:
 // GFunctionIndividualFactory (= GIndividualFactory<...>) is a config object, not a
 // GCommonInterfaceT-hierarchy type (no gemfony_common_root_t) and is never serialized through a
 // hierarchy-root pointer, so it takes no GArchive polymorphic registration.

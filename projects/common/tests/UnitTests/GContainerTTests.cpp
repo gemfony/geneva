@@ -52,7 +52,7 @@
 // File-scope serializable element type for GPtrContainerT serialization tests.
 // Must be at file scope (not anonymous namespace): the GArchive smart-pointer arm
 // tracking uses external linkage. SerBase is non-polymorphic (no virtual
-// destructor), so shared_ptr<SerBase> serializes without BOOST_CLASS_EXPORT.
+// destructor), so shared_ptr<SerBase> needs no polymorphic-type registration.
 
 struct SerBase : Gem::Common::gemfony_common_interface_indicator {
     int v = 0;

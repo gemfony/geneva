@@ -76,7 +76,7 @@ public:
 /**
  * This individual waits for a predefined amount of time before returning the result of the evaluation
  * (which is random). Its purpose is to measure the overhead of the parallelization, compared
- * to the serial execution. It may also be used to track down problems in the broker, as the execution
+ * to the serial execution. It may also be used to track down problems in a consumer, as the execution
  * time is well-defined, and the calculation of wait factors depends on fewer variables. Apart from fixed
  * "processing times" the individual may also wait random amounts of time in a predefined window, or may
  * crash with a predefined likelihood. This allows to test the stability of the communication between

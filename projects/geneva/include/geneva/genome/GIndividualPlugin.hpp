@@ -75,8 +75,9 @@ using Gem::Common::GFixedString;
  * touching any C++ contribution) and a single INDIVIDUAL contribution whose factory thunk hands back a
  * heap-allocated content-creator factory as a @c void* (so the boundary stays plain C); the loader
  * moves-from and deletes it. The statics live for the process; the .so is kept resident by the loader. This
- * function does NOT emit the individual's @c BOOST_CLASS_EXPORT -- the individual's own translation unit
- * carries it (the same registration a compiled-in individual needs), so there is no double registration.
+ * function does NOT emit the individual's @c GEM_REGISTER_ARCHIVABLE -- the individual's own translation
+ * unit carries it (the same registration a compiled-in individual needs), so there is no double
+ * registration.
  *
  * @tparam FactoryType The content-creator factory (a GFactoryT<GGenome>, e.g.
  *         GIndividualFactory<MyProblem>)

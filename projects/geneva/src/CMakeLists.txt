@@ -80,7 +80,7 @@ ENDIF()
 # ships zero concrete GGenome subclasses). Each MODE-both declaration builds an OBJECT library
 # <name>-obj (linked by the individual's compile-in consumers -- examples / tests / benchmarks) and a
 # runtime-loadable module lib<name>.so (loaded by the generic optimizer via --individual). One
-# BOOST_CLASS_EXPORT_IMPLEMENT (in the individual's own .cpp) serves both; each module-only glue TU carries the
+# GEM_REGISTER_ARCHIVABLE (in the individual's own .cpp) serves both; each module-only glue TU carries the
 # extern "C" manifest entry point.
 GENEVA_DECLARE_INDIVIDUAL(GLineFitIndividual
 	MODE    both
@@ -279,8 +279,8 @@ TARGET_LINK_LIBRARIES(${GENEVA_LIBNAME} PUBLIC ${COURTIER_LIBNAME})
 TARGET_LINK_LIBRARIES(${GENEVA_LIBNAME} PUBLIC ${DIETRICH_LIBNAME})
 
 # The runtime module loader (GModuleLoader) uses Boost.DLL, which needs the dynamic
-# loading library (libdl) on platforms that provide it. Boost.Filesystem (already a Geneva Boost
-# component) supplies the rest of Boost.DLL's needs.
+# loading library (libdl) on platforms that provide it. Boost.DLL is otherwise header-only, so
+# libdl is its only link-time requirement here.
 TARGET_LINK_LIBRARIES(${GENEVA_LIBNAME} PRIVATE ${CMAKE_DL_LIBS})
 
 IF ( GENEVA_BUILD_TESTS )

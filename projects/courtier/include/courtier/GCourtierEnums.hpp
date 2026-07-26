@@ -117,7 +117,7 @@ constexpr std::size_t GBEASTCONSUMERPINGINTERVAL = 15;
  * Constants specifically for the GMPIConsumerT:
  */
 /**
- * When GMPIConsumerWorkerNodeT does retrieve a NODATA response from GMPIConsumerMasterNodeT it waits for a random number
+ * When GMPIConsumerWorkerNodeT does retrieve a NO_WORK frame from GMPIConsumerMasterNodeT it waits for a random number
  * of milliseconds which is distributed between GMPICONSUMERWORKERNODERETRYINTERVALLOWERBOUNDARYMSEC and
  * GMPICONSUMERWORKERNODERETRYINTERVALUPPERBOUNDARYMSEC.
  */

@@ -33,7 +33,7 @@
 # problem, run an algorithm, print the best" is exactly what the generic optimizer already does. All
 # configuration (Go2, the algorithm, the individual) is auto-created from code defaults on first run.
 
-# The loadable problem module -> libGFMinIndividual.so (problem code + serialization GUID + manifest glue),
+# The loadable problem module -> libGFMinIndividual.so (problem code + archive tag + manifest glue),
 # linking none of the Geneva libraries (their symbols resolve from the generic optimizer at load).
 GENEVA_DECLARE_INDIVIDUAL(GFMinIndividual
 	MODE    load

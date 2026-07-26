@@ -285,7 +285,7 @@ public:
     void resetPluggableOM();
 
     /**
-     * @brief Registers a process-global evaluation fault injector (for testing broker / algorithm
+     * @brief Registers a process-global evaluation fault injector (for testing consumer / algorithm
      * error-handling and recovery paths). Registered like a pluggable monitor; pass nullptr to clear.
      * Carries no per-individual state and is a no-op on production runs where none is registered.
      * @param injector The fault injector to consult during each individual's process() (nullptr clears)

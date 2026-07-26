@@ -123,10 +123,15 @@ concept HasApplyConfigHook =
  *           return b.build();
  *       }
  *   };
- *   BOOST_CLASS_EXPORT(MyIndividual)
  *
  *   GIndividualFactory<MyIndividual> f("config/MyIndividual.json");
  *   auto ind = f.get_as<MyIndividual>();
+ * @endcode
+ * The individual additionally carries its archive tag at file scope in its own .cpp (fully qualified,
+ * in exactly one translation unit -- the stringized argument is the wire/checkpoint tag):
+ * @code
+ *   #include "weft/GArchivePolymorphic.hpp"
+ *   GEM_REGISTER_ARCHIVABLE(Gem::Geneva::MyIndividual)
  * @endcode
  *
  * @tparam Derived The concrete flat individual type, supplying the Config / describeConfig / buildGenome hooks

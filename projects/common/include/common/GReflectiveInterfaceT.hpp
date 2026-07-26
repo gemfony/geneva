@@ -282,9 +282,9 @@ private:
     /**
      * @brief Serializes the parent slice (unless this is the hierarchy root) and
      * this class's own members, derived from the single localMembers_() declaration.
-     * Archive-generic: the same body serves a Boost archive or a @c GArchive codec
-     * (the boost-vs-GArchive branch lives once in @c archive_named_base /
-     * @c serialize_members), so the two backends coexist without a second sweep.
+     * Codec-generic: the same body serves every @c GArchive codec (the codec-specific
+     * spellings live once in @c archive_named_base / @c serialize_members), so adding a
+     * codec never touches a serialize() body.
      * @tparam Archive The GArchive codec type
      * @param ar The archive being read from or written to
      * @param version The (unused) serialization format version
@@ -296,11 +296,9 @@ private:
             "GReflectiveInterfaceBaseT: Derived must declare its own localMembers_() and a static class_name"
         );
         if constexpr (!std::same_as<Parent, Gem::Common::GCommonInterfaceT<Root>>) {
-            // Cast to Derived& (not the mixin type) so Boost registers the void_cast
-            // between the *concrete* Derived and Parent -- exactly as the hand-written
-            // serialize (base_object<Parent>(*this) with *this a Derived&) did. Passing
-            // the mixin subobject instead leaves Derived<->Parent unregistered and the
-            // polymorphic downcast through the hierarchy root throws "unregistered void cast".
+            // The Parent slice is taken from the *concrete* Derived reference, so what crosses the
+            // archive is exactly what a hand-written archive_named_base<Parent>(ar, "gemfonyParent",
+            // *this) inside Derived would write -- the codec narrows to the Parent sub-object itself.
             Gem::Common::archive_named_base<Parent>(ar, "gemfonyParent", static_cast<Derived &>(*this));
         }
         Gem::Common::serialize_members(ar, GReflectiveInterfaceAccess::members(static_cast<Derived &>(*this)));

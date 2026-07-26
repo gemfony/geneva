@@ -180,11 +180,11 @@ void GOptimizationAlgorithmBase::loadCheckpoint(std::filesystem::path const &cp_
         );
     }
 
-    // Deserialize the checkpoint. A checkpoint is a Boost archive of this algorithm AND its polymorphic
+    // Deserialize the checkpoint. A checkpoint is a GArchive of this algorithm AND its polymorphic
     // population, so the concrete individual type must be registered (compiled in, or loaded from an
-    // --individual plugin) BEFORE this point -- exactly like the networked wire. If it is not, Boost throws
-    // deep inside deserialization (typically unregistered_class); translate that into actionable guidance
-    // rather than an opaque archive error, while preserving the original message.
+    // --individual plugin) BEFORE this point -- exactly like the networked wire. If it is not, the codec
+    // throws deep inside deserialization (an unknown archive tag); translate that into actionable
+    // guidance rather than an opaque archive error, while preserving the original message.
     try {
         this->fromFile(cp_file, this->getCheckpointSerializationMode());
     }
@@ -1902,7 +1902,7 @@ void GOptimizationAlgorithmBase::init() {
 void GOptimizationAlgorithmBase::finalize() {
     // Release the shared thread pool created in init().
     tp_ptr_.reset();
-    // Otherwise nothing to do: courtier needs no executor teardown (the consumer/broker are released by RAII).
+    // Otherwise nothing to do: courtier needs no executor teardown (the process consumer is released by RAII).
 }
 
 /******************************************************************************/

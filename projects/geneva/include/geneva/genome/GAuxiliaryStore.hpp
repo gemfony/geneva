@@ -75,9 +75,9 @@ struct AuxBlock {
     std::vector<std::byte> bytes;                      ///< stride * record_count bytes
 
     /**
-     * @brief Boost serialization of one opaque POD block (used for full-state checkpointing of the
-     * per-individual OA scratch). The raw bytes are written as a binary blob (base64 in the XML / text
-     * archives). The type tag is DELIBERATELY NOT serialized: it is a typeid().hash_code() that is only
+     * @brief Serialization of one opaque POD block (used for full-state checkpointing of the
+     * per-individual OA scratch). The raw bytes are written as a binary blob (a hex string in the
+     * JSON codec). The type tag is DELIBERATELY NOT serialized: it is a typeid().hash_code() that is only
      * stable within a single process, so a checkpoint written by one run would never match the reader's
      * tag. It therefore stays at its default 0 on load, which metaRecords()'s debug check treats as
      * "type-unchecked" (the stride / size check, which IS stable, still applies).

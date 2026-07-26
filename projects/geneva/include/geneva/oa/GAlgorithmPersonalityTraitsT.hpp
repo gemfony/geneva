@@ -58,12 +58,11 @@ namespace Gem::Geneva::OptimizationAlgorithms {
  * };
  * @endcode
  *
- * plus the usual BOOST_CLASS_EXPORT pair in its header/source.
+ * plus the usual GEM_REGISTER_ARCHIVABLE in its source file.
  *
  * Serialization note: the inherited serialize() emits the GPositionPersonalityTraits base under the
- * same NVP tag the per-class boilerplate produced, and the base_object<> call is made on the
- * DERIVED type (via the CRTP cast) so Boost registers the derived-to-base void-cast chain --
- * archives are unchanged by this fold.
+ * same NVP tag the per-class boilerplate produced, and the base slice is taken from the DERIVED type
+ * (via the CRTP cast), so the archives a concrete traits class reads and writes are unchanged.
  *
  * @tparam derived_type The concrete personality-traits class (CRTP)
  */

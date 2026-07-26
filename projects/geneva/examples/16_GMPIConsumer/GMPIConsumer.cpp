@@ -36,23 +36,23 @@
  * This example demonstrates how to use the MPI consumer with the geneva library
  * to solve an example optimization problem.
  *
- * The GMPIConsumerT combines the qualities of a brokered consumer and a corresponding
- * client. If running in server mode (internally that means it is the rank 0 node),
- * the consumer must be enrolled with the broker infrastructure of geneva.
+ * The GMPIConsumerT combines the qualities of a consumer and its corresponding
+ * client in one type. If running in server mode (internally that means it is the rank 0
+ * node), it is the process consumer the optimization algorithms submit to.
  * If running in client mode (MPI rank 1-n) then the node just needs to run.
  * The consumer itself figures out its position in the computation cluster and will
  * connect to the master node (rank 0).
  * The master node will then wait for worker nodes to request work items. If a request
- * arrives it will retrieve a new work item from the broker and send it to the worker node.
+ * arrives it will hand a new work item to the worker node.
  * Once the worker node has processed the work item it will send it back to the master node
- * and simultaneously request a new work item. At this point the master node will deliver the
- * processed work item to the broker and provide the worker with a new raw work item.
+ * and simultaneously request a new work item. At this point the master node will return the
+ * processed work item to the submitter and provide the worker with a new raw work item.
  *
  *
  * This example's basic structure is
  * taken from the example `06_DirectEA`. The example `06_DirectEA` concerning
  * consumers only provides the options of local serial execution, local multicore
- * execution and brokered execution using the GAsioConsumer. As the GMPIConsumerT
+ * execution and networked execution using the GAsioConsumer. As the GMPIConsumerT
  * was developed at a later point in time and has another dependency (MPI library),
  * we decided to create this example separate example of how to use the GMPIConsumerT.
  * 
@@ -253,7 +253,8 @@ int main(int argc, char **argv) {
     randomFactory()->setNProducerThreads(nProducerThreads);
 
     // Instantiate the MPI consumer through the shared courtier factory. It is built on every rank and
-    // branches by rank: a worker yields a run_worker loop, the master a broker to submit through.
+    // branches by rank: a worker yields a run_worker loop, the master the process consumer to submit
+    // through.
     auto mpiSetup = Gem::Geneva::buildConsumerSetup(Gem::Geneva::ConsumerSpec{.mnemonic = "mpi"});
 
     /****************************************************************************/
