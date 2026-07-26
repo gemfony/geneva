@@ -37,22 +37,21 @@
 #include "common/GGlobalDefines.hpp"
 
 // Standard header files go here
-#include <iostream>
-
-// Boost header files go here
-
-// Geneva header files go here
-#include <common/GCommonHelperFunctions.hpp>
-#include <common/GParserBuilder.hpp>
 #include <filesystem>
+#include <iostream>
 #include <memory>
 #include <string>
 #include <vector>
 
-#include <geneva/genome/GGenome.hpp>
-#include <geneva/genome/GGenomeT.hpp>
-#include <geneva/genome/GIndividualFactory.hpp>
-#include <geneva/genome/GGenomeBuilder.hpp>
+// Boost header files go here
+
+// Geneva header files go here
+#include "common/GCommonHelperFunctions.hpp"
+#include "common/GParserBuilder.hpp"
+#include "geneva/genome/GGenome.hpp"
+#include "geneva/genome/GGenomeT.hpp"
+#include "geneva/genome/GIndividualFactory.hpp"
+#include "geneva/genome/GGenomeBuilder.hpp"
 
 namespace Gem::Geneva {
 

@@ -35,8 +35,6 @@
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
-#include "weft/GArchivePolymorphic.hpp"
-#include "common/GArchiveNamed.hpp"
 
 // Standard header files go here
 #include <chrono>
@@ -49,14 +47,16 @@
 #include <vector>
 
 // Geneva headers go here
-#include "geneva/oa/GPluggableOptimizationMonitors.hpp"
+#include "common/GArchiveNamed.hpp"
+#include "common/GSelfTestable.hpp"
 #include "geneva/genome/GGenome.hpp"
+#include "geneva/oa/GPluggableOptimizationMonitors.hpp"
+#include "weft/GArchivePolymorphic.hpp"
 
 // Example-local headers
 #include "GImageHelperFunctions.hpp"
 #include "GImageScalar.hpp"
 #include "GMonaLisaProblem.hpp"
-#include "common/GSelfTestable.hpp"
 
 namespace Gem::Geneva {
 /******************************************************************************/

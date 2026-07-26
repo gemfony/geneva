@@ -41,10 +41,10 @@
 // Boost header files go here
 
 // Geneva header files go here
-#include <geneva/Go2.hpp>
+#include "geneva/Go2.hpp"
 
 // The individual that should be optimized
-#include <geneva/individuals/GNeuralNetworkIndividual.hpp>
+#include "geneva/individuals/GNeuralNetworkIndividual.hpp"
 
 using namespace Gem::Geneva;
 using namespace Gem::Courtier;

@@ -37,8 +37,8 @@
 // Boost header files go here
 
 // Geneva header files go here
-#include <geneva/oa/GPluggableOptimizationMonitors.hpp>
-#include <geneva/Go2.hpp>
+#include "geneva/oa/GPluggableOptimizationMonitors.hpp"
+#include "geneva/Go2.hpp"
 
 // The individual that should be optimized
 #include "GStarterIndividual.hpp"

@@ -38,16 +38,15 @@
 
 // Standard header files go here
 #include <iostream>
+#include <memory>
 #include <optional>
 
 // Boost header files go here
 
 // Geneva header files go here
-#include <courtier/GMPIHelperFunctions.hpp>
-#include <geneva/genome/GGenomeBuilder.hpp>
-#include <geneva/GMPISubClientIndividual.hpp>
-
-#include <memory>
+#include "courtier/GMPIHelperFunctions.hpp"
+#include "geneva/genome/GGenomeBuilder.hpp"
+#include "geneva/GMPISubClientIndividual.hpp"
 
 namespace Gem::Geneva {
 

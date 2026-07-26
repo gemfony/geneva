@@ -29,10 +29,11 @@
 
 #pragma once
 
+// Global checks, defines and includes needed for all of Geneva
+#include "common/GGlobalDefines.hpp"
+
 // Standard headers
 #include <algorithm>
-#include "weft/GArchivePolymorphic.hpp"
-#include "common/GArchiveNamed.hpp"
 #include <cstddef>
 #include <functional>
 #include <memory>
@@ -42,7 +43,9 @@
 // Boost headers
 
 // Geneva headers
+#include "common/GArchiveNamed.hpp"
 #include "common/GParserBuilder.hpp"
+#include "weft/GArchivePolymorphic.hpp"
 #include "geneva/genome/GGenomeT.hpp"
 #include "geneva/genome/GGenomeBuilder.hpp"
 #include "geneva/oa/GAdaption.hpp"        // makeAdaptionConfig()

@@ -38,16 +38,15 @@
 
 // Standard header files go here
 #include <iostream>
+#include <memory>
 
 // Boost header files go here
 
 // Geneva header files go here
-#include <memory>
-
-#include <common/GParserBuilder.hpp>
-#include <geneva/genome/GGenome.hpp>
-#include <geneva/genome/GGenomeT.hpp>
-#include <geneva/genome/GGenomeBuilder.hpp>
+#include "common/GParserBuilder.hpp"
+#include "geneva/genome/GGenome.hpp"
+#include "geneva/genome/GGenomeT.hpp"
+#include "geneva/genome/GGenomeBuilder.hpp"
 
 namespace Gem {
 namespace Geneva {
