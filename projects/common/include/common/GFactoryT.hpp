@@ -49,6 +49,7 @@
 #include "common/GExceptions.hpp"
 #include "common/GParserBuilder.hpp"
 #include "common/GSerializationHelperFunctionsT.hpp" // serialization of std::atomic<T>
+#include "common/concurrency/GLoadOnceCellT.hpp"    // the transient config-parse cache
 
 namespace Gem::Common {
 
@@ -79,6 +80,9 @@ class GFactoryT {
         Gem::Common::archive_named(ar, "initialized_", initialized_);
         // Transfer the string to the path
         config_path_ = std::filesystem::path(configFile);
+        // The path was replaced wholesale: a cache filled from the previous one must not survive
+        // (loading into an already-used factory is the case a default member initialiser cannot cover).
+        config_document_cell_.reset();
     }
 
     /**
@@ -168,8 +172,7 @@ public:
             // init_mutex_ deliberately not copied: synchronisation primitives
             // do not carry over with the logical value of the object.
             // Invalidate the parse cache: config_path_ may have changed.
-            config_document_ = {};
-            config_document_cached_ = false;
+            config_document_cell_.reset();
         }
         return *this;
     }
@@ -185,8 +188,7 @@ public:
             config_path_ = std::move(cp.config_path_);
             initialized_ = cp.initialized_;
             // Invalidate the parse cache: config_path_ may have changed.
-            config_document_ = {};
-            config_document_cached_ = false;
+            config_document_cell_.reset();
         }
         return *this;
     }
@@ -225,12 +227,17 @@ public:
     /***************************************************************************/
     /**
 	  * Sets a new name for the configuration file. Will only have an effect for
-	  * the next individual
+	  * the next produced object.
+	  *
+	  * Re-keying the factory drops the transient parse cache, so the next get() really does read the
+	  * new file -- otherwise the document parsed from the previous path would keep being re-applied
+	  * and this call would have no effect at all.
 	  *
 	  * @param configFile The new configuration-file name (interpreted as a filesystem path)
 	  */
     void setConfigFile(const std::string& configFile) {
         config_path_ = std::filesystem::path(configFile);
+        config_document_cell_.reset();
     }
 
     /***************************************************************************/
@@ -376,27 +383,30 @@ protected:
         std::shared_ptr<prod_type> p = this->getObject_(gpb);
 
         // Read + parse the configuration file only ONCE: the first call captures the
-        // parsed document, every subsequent call re-applies the cached document to the
-        // freshly created object (no disk I/O / JSON re-parse). The file does not
-        // change between produce() calls, so this is purely an efficiency win.
-        {
-            std::scoped_lock const config_lock(init_mutex_);
-            if(config_document_cached_) {
-                // Re-apply the cached document to this freshly produced object. The
-                // unknown-key diagnostic already ran on the first (real) parse, so
-                // skip it here -- otherwise it would re-run per produced object.
-                gpb.loadFromDocument(config_document_, config_path_, /* run_unknown_key_check = */ false);
-            }
-            else {
-                if(not gpb.parseConfigFile(config_path_, &config_document_)) {
+        // parsed document in the load-once cell, every subsequent call re-applies that
+        // document to the freshly created object (no disk I/O / JSON re-parse). The file
+        // does not change between produce() calls, so this is purely an efficiency win.
+        // A failing parse throws out of the producer, which leaves the cell unfilled, so
+        // the next call retries rather than caching a failure.
+        bool this_call_parsed = false;
+        boost::json::value const &config_document =
+            config_document_cell_.getOrCompute([this, &gpb, &this_call_parsed]() {
+                boost::json::value parsed;
+                if(not gpb.parseConfigFile(config_path_, &parsed)) {
                     throw geneva_exception(
                         g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                         << "In GFactoryT<prod_type>::operator(): Error!" << '\n'
                         << "Could not parse configuration file " << config_path_.string() << '\n'
                     );
                 }
-                config_document_cached_ = true;
-            }
+                this_call_parsed = true;
+                return parsed;
+            });
+        if(not this_call_parsed) {
+            // Somebody else did the real parse (this call or an earlier one), so this gpb still
+            // needs the values. The unknown-key diagnostic already ran on the first (real) parse,
+            // so skip it here -- otherwise it would re-run per produced object.
+            gpb.loadFromDocument(config_document, config_path_, /* run_unknown_key_check = */ false);
         }
 
         // Allow the factory to act on configuration options received
@@ -442,13 +452,15 @@ private:
 
     std::filesystem::path config_path_; ///< The name and path of the configuration file
     bool initialized_ = false; ///< Indicates whether the initialization work has already been done
-    mutable std::mutex init_mutex_; ///< Serialises concurrent first calls to globalInit() and the config-parse cache
+    mutable std::mutex init_mutex_; ///< Serialises concurrent first calls to globalInit()
 
-    // Transient parse cache (NOT serialized; reset to empty/false on copy, move and
-    // deserialization via the default member initialisers). The config file is read
-    // and parsed only on the first get_(); later calls re-apply this cached document.
-    boost::json::value config_document_; ///< Cached parsed configuration document (transient)
-    bool config_document_cached_ = false;  ///< Whether config_document_ has been populated
+    /** @brief Transient parse cache: the configuration file is read and parsed on the first get_(),
+     *  and every later call re-applies this document (NOT serialized). It is the sanctioned load-once
+     *  cell rather than a hand-rolled mutex+value+flag triple -- unlike the neighbouring initialized_
+     *  flag, which IS serialized and therefore genuinely cannot be one (see globalInit()). A copy or
+     *  move starts with a fresh, cold cell; assignment and deserialize-into re-key the factory and
+     *  therefore reset() it explicitly. */
+    Concurrency::GLoadOnceCellT<boost::json::value> config_document_cell_;
 };
 
 /******************************************************************************/

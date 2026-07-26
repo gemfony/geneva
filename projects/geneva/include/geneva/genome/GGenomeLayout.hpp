@@ -386,10 +386,11 @@ public:
     std::vector<std::string> labels;///< the interned, distinct group-label strings (label_id indexes this)
 
     /***************************************************************************/
-    // Special members. The layout caches its content id lazily in a GLoadOnceCellT (which owns a
-    // std::once_flag and is thus neither copyable nor movable), so the value-member copy/move are spelled
-    // out and simply leave the copy's cache cold -- a structural copy recomputes the (identical) id on
-    // first use.
+    // Special members. The layout caches its content id lazily in a GLoadOnceCellT (which owns a mutex
+    // and is thus neither copyable nor movable), so the value-member copy/move are spelled out. A newly
+    // CONSTRUCTED copy starts with a fresh, cold cell and recomputes the (identical) id on first use; an
+    // ASSIGNED-TO layout may already have answered layoutId() for its previous structure, so both
+    // assignment operators explicitly invalidate the cache (see invalidateId()).
 
     /** @brief The default constructor (empty layout). */
     GGenomeLayout() = default;
@@ -400,20 +401,24 @@ public:
     GGenomeLayout(GGenomeLayout &&cp) noexcept
       : d(std::move(cp.d)), f(std::move(cp.f)), i(std::move(cp.i)), b(std::move(cp.b)),
         labels(std::move(cp.labels)) {}
-    /** @brief Copy assignment: copies the structural members; the id cache is left cold.
+    /** @brief Copy assignment: copies the structural members and drops the cached id, which described
+     *  the structure this layout used to have.
      *  @param cp The layout to copy from. @return A reference to this layout. */
     GGenomeLayout &operator=(const GGenomeLayout &cp) {
         if(this != &cp) {
             d = cp.d; f = cp.f; i = cp.i; b = cp.b; labels = cp.labels;
+            id_cell_.reset();
         }
         return *this;
     }
-    /** @brief Move assignment: moves the structural members; the id cache is left cold.
+    /** @brief Move assignment: moves the structural members and drops the cached id, which described
+     *  the structure this layout used to have.
      *  @param cp The layout to move from. @return A reference to this layout. */
     GGenomeLayout &operator=(GGenomeLayout &&cp) noexcept {
         if(this != &cp) {
             d = std::move(cp.d); f = std::move(cp.f); i = std::move(cp.i); b = std::move(cp.b);
             labels = std::move(cp.labels);
+            id_cell_.reset();
         }
         return *this;
     }
@@ -433,6 +438,23 @@ public:
      */
     const LayoutId &layoutId() const {
         return id_cell_.getOrCompute([this] { return computeLayoutId(); });
+    }
+
+    /**
+     * @brief Drops the cached content id, so the next layoutId() recomputes it from the current structure.
+     *
+     * The structural members (`d`, `f`, `i`, `b`, `labels`) are public and therefore mutable from outside;
+     * a caller that changes them after layoutId() has already been read must say so with this call, or the
+     * layout keeps reporting the id of the structure it used to have. The two assignment operators and the
+     * non-intrusive deserializer do it for their own wholesale replacements. This matters beyond tidiness:
+     * the transport's send-once machinery keys a cached layout blob on this id, so a stale id references
+     * the wrong layout on the wire.
+     *
+     * @note Like the underlying cell's reset(), this is a single-threaded lifecycle operation: it must not
+     *       race a concurrent layoutId() reader.
+     */
+    void invalidateId() {
+        id_cell_.reset();
     }
 
     /**
@@ -658,8 +680,9 @@ private:
     /***************************************************************************/
     // The lazily-computed, cached content id. mutable because layoutId() is logically const on the
     // immutable layout; the load-once cell makes the first concurrent computation thread-safe and every
-    // later read lock-free. A copied/moved layout leaves this cold (the copy/move members do not touch it),
-    // so it recomputes its id from the copied structure on first use.
+    // later read lock-free. A copy/move-CONSTRUCTED layout gets a fresh, cold cell and recomputes its id
+    // from the copied structure on first use; an assigned-to or deserialized-into layout has its cell
+    // invalidated explicitly (invalidateId()), because it may already have answered for its old structure.
     mutable Gem::Common::Concurrency::GLoadOnceCellT<LayoutId> id_cell_;
 };
 

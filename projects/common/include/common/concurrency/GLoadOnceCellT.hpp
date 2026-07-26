@@ -59,8 +59,8 @@ namespace Gem::Common::Concurrency {
  * sites Inv-2 compliant (concurrency primitives come only from @c common/concurrency/) and gives every
  * "immutable-after-load constant" one properly-homed facility.
  *
- * Two access flavours share the same one-time fill (guarded by a single @c std::once_flag, so concurrent
- * first calls are serialised and only one producer wins):
+ * Two access flavours share the same one-time fill (guarded by a single mutex, so concurrent first calls
+ * are serialised and only one producer wins):
  *
  *  - @b externally-filled -- call @c ensureLoaded(fill) to populate the cell from a data source (a file, a
  *    parsed configuration), then read it on a hot path with @c get() (a plain acquire-load of the ready flag
@@ -72,8 +72,17 @@ namespace Gem::Common::Concurrency {
  *
  * The ready flag is stored with @c release inside the one-time fill and acquire-loaded by @c loaded() /
  * @c get(), so a reader that observes @c loaded() @c == @c true is guaranteed to see the fully-written
- * payload. The cell is non-copyable and non-movable (it owns a @c std::once_flag); an owner that is itself
- * copyable simply leaves the cell cold in its copy (the copy recomputes / reloads on first use).
+ * payload -- and observing it lets a reader skip the mutex entirely. The cell is non-copyable and
+ * non-movable (it owns a mutex); an owner that is itself copyable simply leaves the cell cold in its copy
+ * (the copy recomputes / reloads on first use).
+ *
+ * @par Re-keying: reset()
+ * A cell whose owner can be *re-keyed* -- assigned a new configuration path, loaded with a different
+ * structure -- must be able to drop a payload that belonged to the previous key, or it would keep
+ * answering for the object the owner no longer is. @c reset() does that, and is deliberately a
+ * **single-threaded lifecycle operation** (assignment, deserialize-into, re-keying), never a concurrent
+ * one: it invalidates references handed out by earlier @c get() / @c getOrCompute() calls, in the same
+ * way @c GContentAddressedStoreT::clear() does. The fill path itself stays load-once between resets.
  *
  * @tparam T The (default-constructible) payload type held by the cell
  */
@@ -86,9 +95,9 @@ public:
     /** @brief The destructor. */
     ~GLoadOnceCellT() = default;
 
-    /** @brief The cell owns a std::once_flag and is therefore non-copyable. */
+    /** @brief The cell owns a mutex and is therefore non-copyable. */
     GLoadOnceCellT(const GLoadOnceCellT &) = delete;
-    /** @brief The cell owns a std::once_flag and is therefore non-copy-assignable. */
+    /** @brief The cell owns a mutex and is therefore non-copy-assignable. */
     GLoadOnceCellT &operator=(const GLoadOnceCellT &) = delete;
 
     /***************************************************************************/
@@ -96,9 +105,11 @@ public:
      * @brief Returns the payload, computing it from @p compute on the first call and returning the cached
      * value thereafter (the lazily-self-computed flavour).
      *
-     * The producer is invoked at most once for the lifetime of the cell, under a @c std::once_flag, so
-     * concurrent first calls are serialised and only one wins; every caller (first or later) sees the same
-     * fully-written payload before the reference is returned.
+     * The producer is invoked at most once per fill cycle (i.e. until the next @c reset()): concurrent
+     * first calls are serialised by the fill mutex and only one wins; every caller (first or later) sees
+     * the same fully-written payload before the reference is returned. A producer that **throws** does
+     * not consume the cycle -- the cell stays unloaded and the next call retries, which is what a caller
+     * filling from a failure-prone source (a file, a parse) relies on.
      *
      * @tparam ComputeFn A callable returning a @c T (the derived payload)
      * @param compute The producer invoked (once) to compute the payload
@@ -106,11 +117,32 @@ public:
      */
     template <typename ComputeFn>
     const T &getOrCompute(ComputeFn &&compute) {
-        std::call_once(once_, [&]() {
+        // Fast path: an acquire-load that sees the ready flag also sees the fully-written payload,
+        // so a loaded cell is read without touching the mutex at all.
+        if(this->loaded()) {
+            return data_;
+        }
+        std::scoped_lock const fill_lock(fill_mutex_);
+        if(not loaded_.load(std::memory_order_relaxed)) { // re-check under the lock
             data_ = std::forward<ComputeFn>(compute)();
             loaded_.store(true, std::memory_order_release);
-        });
+        }
         return data_;
+    }
+
+    /***************************************************************************/
+    /**
+     * @brief Drops the payload, so the next @c getOrCompute() / @c ensureLoaded() fills the cell afresh.
+     *
+     * This is the re-keying operation described in the class documentation: a
+     * **single-threaded lifecycle** call made when the owning object's identity changed (assignment,
+     * deserialize-into, a new configuration path), never a concurrent one. References previously
+     * returned by @c get() / @c getOrCompute() are invalidated.
+     */
+    void reset() {
+        std::scoped_lock const fill_lock(fill_mutex_);
+        loaded_.store(false, std::memory_order_release);
+        data_ = T{};
     }
 
     /***************************************************************************/
@@ -154,8 +186,8 @@ private:
     /***************************************************************************/
     // Data
 
-    T data_{};                         ///< The immutable-after-load payload
-    std::once_flag once_;              ///< Serialises the single fill (self-contained safety)
+    T data_{};                         ///< The immutable-between-resets payload
+    mutable std::mutex fill_mutex_;    ///< Serialises the fill (and reset) -- never taken on a loaded read
     std::atomic<bool> loaded_{false};  ///< Ready flag; readers acquire-load it before touching data_
 };
 

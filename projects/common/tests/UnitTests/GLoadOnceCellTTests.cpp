@@ -30,6 +30,7 @@
 #include <catch2/catch_test_macros.hpp>
 
 #include <atomic>
+#include <stdexcept>
 #include <thread>
 #include <type_traits>
 #include <vector>
@@ -44,7 +45,7 @@ using namespace Gem::Common::Concurrency;
 TEST_CASE("GLoadOnceCellT: non-copyable and non-movable", "[common][cell]") {
     static_assert(not std::is_copy_constructible_v<GLoadOnceCellT<int>>);
     static_assert(not std::is_copy_assignable_v<GLoadOnceCellT<int>>);
-    // A std::once_flag member also makes the cell non-movable.
+    // The mutex member also makes the cell non-movable.
     static_assert(not std::is_move_constructible_v<GLoadOnceCellT<int>>);
     static_assert(not std::is_move_assignable_v<GLoadOnceCellT<int>>);
 }
@@ -97,6 +98,59 @@ TEST_CASE("GLoadOnceCellT: getOrCompute computes once and returns a stable refer
 
     // get() now succeeds and agrees with the cached value.
     CHECK(cell.get() == 42);
+}
+
+// ---------------------------------------------------------------------------
+// Re-keying: reset() drops the payload so the next access fills afresh
+
+TEST_CASE("GLoadOnceCellT: reset() re-opens the cell for a new fill", "[common][cell]") {
+    GLoadOnceCellT<int> cell;
+    int computeCount = 0;
+    const auto compute = [&computeCount]() { return ++computeCount; };
+
+    CHECK(cell.getOrCompute(compute) == 1);
+    CHECK(cell.getOrCompute(compute) == 1); // still load-once between resets
+
+    cell.reset();
+    CHECK_FALSE(cell.loaded());
+    CHECK_THROWS(cell.get()); // an unloaded cell refuses get() again
+
+    CHECK(cell.getOrCompute(compute) == 2); // the producer runs once more, exactly once
+    CHECK(cell.getOrCompute(compute) == 2);
+    CHECK(cell.get() == 2);
+    CHECK(computeCount == 2);
+}
+
+TEST_CASE("GLoadOnceCellT: reset() on an unloaded cell is harmless", "[common][cell]") {
+    GLoadOnceCellT<std::vector<double>> cell;
+
+    cell.reset();
+    CHECK_FALSE(cell.loaded());
+    CHECK_THROWS(cell.get());
+
+    cell.ensureLoaded([]() { return std::vector<double>{4.25}; });
+    CHECK(cell.get() == std::vector<double>{4.25});
+
+    cell.reset();
+    cell.reset(); // and repeated resets are equally harmless
+    CHECK_FALSE(cell.loaded());
+    cell.ensureLoaded([]() { return std::vector<double>{8.5}; });
+    CHECK(cell.get() == std::vector<double>{8.5});
+}
+
+TEST_CASE("GLoadOnceCellT: a throwing producer does not consume the fill", "[common][cell]") {
+    GLoadOnceCellT<int> cell;
+    int attempts = 0;
+
+    // The load-once guarantee must not turn a *failed* fill into a permanently empty cell: this is
+    // what a caller filling from a failure-prone source (a config file, a parse) relies on.
+    CHECK_THROWS(cell.getOrCompute([&attempts]() -> int { ++attempts; throw std::runtime_error("nope"); }));
+    CHECK_FALSE(cell.loaded());
+    CHECK(attempts == 1);
+
+    CHECK(cell.getOrCompute([&attempts]() { ++attempts; return 5; }) == 5);
+    CHECK(cell.loaded());
+    CHECK(attempts == 2);
 }
 
 // ---------------------------------------------------------------------------

@@ -286,6 +286,109 @@ TEST_CASE("GFactoryT: move assignment is supported",
 }
 
 // ---------------------------------------------------------------------------
+// The transient parse cache: parsed once, but never carried across a re-keying
+
+namespace {
+
+/** @brief A factory that reads one integer option, so the applied configuration is observable. */
+class ValueReadingFactory : public GFactoryT<Product> {
+public:
+    explicit ValueReadingFactory(std::filesystem::path const &p) : GFactoryT<Product>(p) {}
+
+    int last_value = -1; ///< the value the most recent get() saw in the configuration
+
+protected:
+    void describeLocalOptions_(GParserBuilder &gpb) override {
+        gpb.registerFileParameter<int>("observed", -1, [this](int v) { last_value = v; })
+            << "An observable integer option";
+    }
+    void postProcess_([[maybe_unused]] std::shared_ptr<Product> &p) override {}
+
+private:
+    std::shared_ptr<Product> getObject_([[maybe_unused]] GParserBuilder &gpb) override {
+        return std::make_shared<Product>();
+    }
+};
+
+/** @brief Builds a config file holding a single "value" entry, in GParserBuilder's own layout. */
+std::filesystem::path make_value_config(std::string const &tag, int value) {
+    const std::string v = std::to_string(value);
+    return make_config(tag, R"({"observed": {"default": )" + v + R"(, "value": )" + v + "}}");
+}
+
+} // namespace
+
+TEST_CASE("GFactoryT: the config document is parsed once and re-applied to every product",
+          "[common][factory]") {
+    auto p = make_value_config("cache_reuse", 11);
+    ValueReadingFactory f(p);
+
+    (void)f.get();
+    CHECK(f.last_value == 11);
+
+    // The second get() must apply the SAME configuration although the file is no longer read.
+    f.last_value = -1;
+    (void)f.get();
+    CHECK(f.last_value == 11);
+}
+
+TEST_CASE("GFactoryT: assignment re-keys the factory and drops the parse cache",
+          "[common][factory]") {
+    auto p_a = make_value_config("cache_key_a", 1);
+    auto p_b = make_value_config("cache_key_b", 2);
+
+    SECTION("copy assignment") {
+        ValueReadingFactory target(p_a);
+        (void)target.get();
+        REQUIRE(target.last_value == 1); // warms the cache with A's document
+
+        ValueReadingFactory const source(p_b);
+        target = source;
+        (void)target.get();
+        CHECK(target.last_value == 2); // A's cached document must not survive the re-keying
+    }
+
+    SECTION("move assignment") {
+        ValueReadingFactory target(p_a);
+        (void)target.get();
+        REQUIRE(target.last_value == 1);
+
+        ValueReadingFactory source(p_b);
+        target = std::move(source);
+        (void)target.get();
+        CHECK(target.last_value == 2);
+    }
+
+    // Regression: setConfigFile() promises to take effect for the next produced object. With a warm
+    // parse cache keyed to the OLD path it used to have no effect at all -- the document parsed from
+    // the previous file kept being re-applied.
+    SECTION("setConfigFile") {
+        ValueReadingFactory f(p_a);
+        (void)f.get();
+        REQUIRE(f.last_value == 1);
+
+        f.setConfigFile(p_b.string());
+        (void)f.get();
+        CHECK(f.last_value == 2);
+    }
+}
+
+TEST_CASE("GFactoryT: a failed parse is not cached -- the next get() retries",
+          "[common][factory]") {
+    // A file that does not exist: the parse throws out of the fill, which must leave the cache
+    // empty rather than record a failure. (The load-once cell's throwing-producer contract.)
+    ValueReadingFactory f(std::filesystem::path("/no/such/path/geneva_does_not_exist.json"));
+    CHECK_THROWS_AS(f.get(), geneva_exception);
+    CHECK_THROWS_AS(f.get(), geneva_exception);
+
+    // Once the factory is pointed at a readable file, the very next get() succeeds.
+    auto p = make_value_config("retry_after_failure", 5);
+    f.setConfigFile(p.string());
+    (void)f.get();
+    CHECK(f.last_value == 5);
+}
+
+// ---------------------------------------------------------------------------
 // Concurrency: globalInit() must call init_() exactly once even under racing
 // first-get() calls. Use a custom counter type to observe this.
 

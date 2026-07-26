@@ -294,6 +294,11 @@ void gem_archive_serialize(Archive &ar, ChannelLayout<T> &c) {
 
 /**
  * @brief Serializes a whole GGenomeLayout: its four value channels (d / f / i / b) plus the interned labels.
+ *
+ * Loading replaces the structure wholesale, so the target's cached content id is dropped afterwards: a
+ * layout that had already answered layoutId() would otherwise keep reporting the id of the structure it
+ * held before the load, and that id is exactly what the transport's send-once machinery keys on.
+ *
  * @tparam Archive The GArchive codec type.
  * @param ar The archive to read from / write to.
  * @param l The layout to serialize.
@@ -306,6 +311,10 @@ void gem_archive_serialize(Archive &ar, GGenomeLayout &l) {
     archive_named(ar, "i", l.i);
     archive_named(ar, "b", l.b);
     archive_named(ar, "labels", l.labels);
+
+    if constexpr (not Archive::is_saving) {
+        l.invalidateId();
+    }
 }
 
 } /* namespace Gem::Geneva::Genome */

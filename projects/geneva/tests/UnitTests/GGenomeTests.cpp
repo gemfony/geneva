@@ -379,6 +379,67 @@ TEST_CASE("GGenomeLayout::layoutId is a stable content hash", "[flat][layoutid]"
 }
 
 /******************************************************************************/
+/**
+ * Regression: a layout that has already answered layoutId() and is then REPLACED wholesale -- by
+ * assignment or by a deserialize-into -- used to keep reporting the id of the structure it no longer
+ * has. The id cache was left untouched by the assignment operators and by the non-intrusive
+ * gem_archive_serialize load path (only the CONSTRUCTORS started a copy with a cold cache). The layout
+ * assignment operators and that serializer are public API, and the transport's send-once machinery keys
+ * a cached layout blob on this id, so a stale id references the wrong layout on the wire.
+ */
+// NOLINTNEXTLINE(readability-function-cognitive-complexity) -- one property (a wholesale structural replacement invalidates the cached id) checked over the three replacement paths against the SAME pair of layouts; splitting would only duplicate the fixture
+TEST_CASE("GGenomeLayout: replacing the structure invalidates the cached id", "[flat][layoutid][regression]") {
+    auto buildLayout = [](std::size_t n, double lo, double hi) {
+        GGenomeBuilder b;
+        b.addDoubleGroup(n, lo, hi);
+        return b.build().layout;
+    };
+
+    const auto structure_a = buildLayout(5, -10., 10.);
+    const auto structure_b = buildLayout(7, -1., 1.);
+    const LayoutId id_a = structure_a->layoutId();
+    const LayoutId id_b = structure_b->layoutId();
+    REQUIRE(id_a != id_b);
+
+    SECTION("copy assignment") {
+        GGenomeLayout target(*structure_a);
+        REQUIRE(target.layoutId() == id_a); // warms the cache for structure A
+        target = *structure_b;
+        CHECK(target.sameStructure(*structure_b));
+        CHECK(target.layoutId() == id_b);
+    }
+
+    SECTION("move assignment") {
+        GGenomeLayout target(*structure_a);
+        REQUIRE(target.layoutId() == id_a);
+        GGenomeLayout donor(*structure_b);
+        target = std::move(donor);
+        CHECK(target.sameStructure(*structure_b));
+        CHECK(target.layoutId() == id_b);
+    }
+
+    SECTION("deserialize into a layout whose id was already read") {
+        GGenomeLayout target(*structure_a);
+        REQUIRE(target.layoutId() == id_a);
+
+        std::string const blob = Gem::Geneva::Genome::layoutToWireBlob(*structure_b);
+        Gem::Weft::GBinaryIArchive ia(blob);
+        ia &Gem::Weft::make_nvp("layout", target);
+
+        CHECK(target.sameStructure(*structure_b));
+        CHECK(target.layoutId() == id_b);
+    }
+
+    SECTION("invalidateId() covers a direct edit of the public structural members") {
+        GGenomeLayout target(*structure_a);
+        REQUIRE(target.layoutId() == id_a);
+        target.labels.emplace_back("added-after-the-id-was-read");
+        target.invalidateId();
+        CHECK(target.layoutId() != id_a);
+    }
+}
+
+/******************************************************************************/
 // NOLINTNEXTLINE(readability-function-cognitive-complexity) -- one coherent wire-blob round-trip (encode -> decode -> re-hash) verified from several angles against the SAME layout; the steps are sequentially coupled and would only be scattered by splitting
 TEST_CASE("GGenomeLayout::layoutId survives the WIRE-BLOB round-trip", "[flat][layoutid][wireblob]") {
     using Gem::Geneva::Genome::layoutToWireBlob;
