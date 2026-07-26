@@ -1727,6 +1727,101 @@ TEST_CASE("An evaluation return carries the computed results to the live slot", 
 }
 
 /******************************************************************************/
+namespace Gem::Tests {
+
+/** @brief A GNetworkedConsumerT with no real transport, exposing the endpoints and the late-return
+ *  knobs so a test can drive the dispatch machinery directly (mirrors the courtier suite's harness). */
+class LateReturnConsumer : public Gem::Courtier::GNetworkedConsumerT<GGenome> {
+public:
+    using Gem::Courtier::GNetworkedConsumerT<GGenome>::checkout;
+    using Gem::Courtier::GNetworkedConsumerT<GGenome>::checkin;
+    using Gem::Courtier::GNetworkedConsumerT<GGenome>::setLateReturnBuffer;
+    using Gem::Courtier::GNetworkedConsumerT<GGenome>::retainedOriginalCount;
+    using Gem::Courtier::GNetworkedConsumerT<GGenome>::setLeaseBootstrap;
+    using Gem::Courtier::GNetworkedConsumerT<GGenome>::setLeaseBounds;
+    using Gem::Courtier::GNetworkedConsumerT<GGenome>::setSweepTick;
+};
+
+} // namespace Gem::Tests
+
+TEST_CASE("A late evaluation return is applied to the retained original", "[flat][wire][latereturn]") {
+    // Ruling R3(i): clone retention stays, and a LATE `evaluation` -- one whose batch has already been
+    // reconciled, so the live element is gone -- is applied to the clone the consumer retained for
+    // exactly this case. The result is a complete individual (the retained genome plus the worker's
+    // computed results) that the algorithm can reap, instead of a dropped evaluation.
+    namespace c2 = Gem::Courtier;
+    using namespace std::chrono_literals;
+
+    Gem::Tests::LateReturnConsumer consumer;
+    consumer.setCloneFunction([](const std::unique_ptr<GGenome> &p) { return p->clone(); });
+    consumer.setLateReturnBuffer(/*cap*/ 8, /*ttl_rounds*/ 100); // buffering on -> originals are retained
+    consumer.setLeaseBootstrap(20ms);
+    consumer.setLeaseBounds(10ms, 200ms);
+    consumer.setSweepTick(5ms);
+
+    constexpr std::size_t N = 3;
+    constexpr std::size_t VICTIM = 1; // first dispatch round -> batch id 0 -> correlation id == slot index
+    std::vector<std::unique_ptr<GGenome>> batch;
+    for(std::size_t i = 0; i < N; ++i) {
+        auto ind = std::make_unique<ManyGroups>(8);
+        ind->randomInit(activityMode::ALLPARAMETERS);
+        batch.push_back(std::move(ind));
+    }
+    std::vector<double> victim_vals;
+    batch[VICTIM]->streamline<double>(victim_vals);
+
+    // Drive the batch, abandoning the victim slot forever: it retires MISSING, so its original is
+    // retained under its correlation id.
+    std::atomic<bool> finished{false};
+    std::jthread driver([&] {
+        consumer.processBatch(std::span<std::unique_ptr<GGenome>>(batch.data(), batch.size()),
+                              c2::GSubmissionPolicy::clone_on_partial_return());
+        finished.store(true);
+    });
+    std::unique_ptr<GGenome> slow_worker_copy;
+    while(not finished.load()) {
+        auto p = consumer.checkout();
+        if(not p) {
+            std::this_thread::sleep_for(1ms);
+            continue;
+        }
+        if(p->getCorrelationId() == VICTIM) {
+            // The slow worker keeps computing and never checks in -- neither on the first hand-out nor
+            // on any re-dispatch -- so the slot is still unreturned when the batch retires.
+            if(not slow_worker_copy) {
+                slow_worker_copy = std::move(p);
+            }
+            continue;
+        }
+        p->process();
+        consumer.checkin(std::move(p));
+    }
+    driver.join();
+    REQUIRE(slow_worker_copy);
+    REQUIRE(consumer.retainedOriginalCount() == 1);
+
+    // The slow worker finally finishes and answers with an `evaluation` -- results only, no individual.
+    slow_worker_copy->process();
+    const double late_fitness = slow_worker_copy->getStoredResult(0).rawFitness();
+    c2::GCommandContainerT<GGenome> frame{c2::GFrameKind::WORK, std::move(slow_worker_copy)};
+    c2::makeReturnFrame(frame);
+    REQUIRE(frame.item() == nullptr); // it really is the payload-only message
+    consumer.checkin(std::move(frame));
+
+    // It was applied to the retained clone and parked, not dropped.
+    CHECK(consumer.lateReturnDroppedCount() == 0);
+    auto reaped = consumer.getLateReturns();
+    REQUIRE(reaped.size() == 1);
+    CHECK(reaped[0]->is_processed());
+    auto *reaped_genome = dynamic_cast<GGenome *>(reaped[0].get());
+    REQUIRE(reaped_genome != nullptr);
+    CHECK(reaped_genome->getStoredResult(0).rawFitness() == late_fitness); // the worker's result ...
+    std::vector<double> reaped_vals;
+    reaped_genome->streamline<double>(reaped_vals);
+    CHECK(reaped_vals == victim_vals);                                    // ... on the retained genome
+}
+
+/******************************************************************************/
 TEST_CASE("Wire send-once: a worker never references a blob by id", "[flat][wire][regression]") {
     // A full return re-encodes the genome on the WORKER, so the send-once machinery runs in the return
     // direction too -- and there it MUST NOT intern. Interning is a source-side optimization: the
