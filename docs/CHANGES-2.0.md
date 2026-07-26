@@ -31,6 +31,16 @@ are in `CHANGES` and `INSTALL`; this file is the practical upgrade guide.
   requiring the 13.3 toolkit).
 - **Processors:** 64-bit **x86-64** or **AArch64** (both first-class). SIMD (AVX2/NEON)
   and a CUDA GPU are used when present but never required.
+- **Build and test hygiene changed in ways a 1.11 build script will notice.** Builds are
+  **out-of-source only** — `scripts/prepareBuild.sh` refuses to run inside the checkout,
+  so a script that configured in place must be pointed at a separate build directory. The
+  **installed header set is self-contained**: a consumer includes from the install prefix
+  only and never reaches back into the source tree, so an install directory is now a
+  complete SDK. And the **test suite is registered with CTest in full and tiered by
+  label** — a subset is chosen with `ctest -L` / `-LE` rather than by rebuilding with a
+  different CMake flag; the flags that used to hide whole groups of tests behind an
+  always-false option are gone, so those tests simply run. `INSTALL` names the tiers and
+  the commands.
 
 ## 2. Defining a problem (the individual model)
 
