@@ -284,7 +284,7 @@ GParsableI &GParsableI::operator<<(commentLevel const &cl) {
  * Increments the current comment level by one; subsequent streamed text is
  * appended to the comment at the new level.
  *
- * @param nC A nextComment tag object that triggers the level increment (unused)
+ * @param nc A nextComment tag object that triggers the level increment (unused)
  * @return A reference to this object (to allow chaining)
  */
 GParsableI &GParsableI::operator<<([[maybe_unused]] nextComment const & nc) {
@@ -292,7 +292,7 @@ GParsableI &GParsableI::operator<<([[maybe_unused]] nextComment const & nc) {
     if(comment_.empty()) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GParsableI::operator<< (nextComment const& nC): Error!" << '\n'
+            << "In GParsableI::operator<< (nextComment const& nc): Error!" << '\n'
             << "No comments in vector" << '\n'
         );
     }
@@ -300,7 +300,7 @@ GParsableI &GParsableI::operator<<([[maybe_unused]] nextComment const & nc) {
     if(comment_.size() <= (cl_ + 1)) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-            << "In GParsableI::operator<< (nextComment const& nC): Error!" << '\n'
+            << "In GParsableI::operator<< (nextComment const& nc): Error!" << '\n'
             << "Invalid comment level " << cl_ + 1 << " requested, where the maximum is "
             << comment_.size() - 1 << '\n'
         );

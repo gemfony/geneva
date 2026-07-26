@@ -231,7 +231,7 @@ public:
 
     /**
      * @brief Allows to specify whether temporary files should be removed
-     * @param remove_temporaries Whether the temporary exchange files should be deleted after use
+     * @param remove_exec_temporaries Whether the temporary exchange files should be deleted after use
      */
     void setRemoveExecTemporaries(bool remove_exec_temporaries);
     /**

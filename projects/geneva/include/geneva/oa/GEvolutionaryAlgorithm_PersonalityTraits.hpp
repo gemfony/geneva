@@ -76,10 +76,7 @@ public:
 
     /** @brief The default constructor */
     GEvolutionaryAlgorithm_PersonalityTraits() = default;
-    /**
-     * @brief The copy contructor.
-     * @param The object to be copied
-     */
+    /** @brief The copy constructor */
     GEvolutionaryAlgorithm_PersonalityTraits(
         const GEvolutionaryAlgorithm_PersonalityTraits &
     ) = default;

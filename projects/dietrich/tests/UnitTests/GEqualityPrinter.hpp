@@ -133,7 +133,6 @@ public:
 	 *
 	 * @param x The first parameter to compare
 	 * @param y The second parameter to compare
-	 * @param limit A limit used to determine similarity in fp comparisons
 	 * @return A boolean indicating whether both parameters are similar
 	 */
     template <typename geneva_type>
@@ -161,7 +160,6 @@ public:
 	 *
 	 * @param x The first parameter to compare
 	 * @param y The second parameter to compare
-	 * @param limit A limit used to determine similarity in fp comparisons
 	 * @return A boolean indicating whether both parameters are similar
 	 */
     template <typename geneva_simplecontainer_type>

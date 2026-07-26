@@ -81,7 +81,7 @@ public:
 
     /** @brief The default constructor */
     GBaseParChildPersonalityTraits() = default;
-    /** @brief The copy contructor */
+    /** @brief The copy constructor */
     GBaseParChildPersonalityTraits(const GBaseParChildPersonalityTraits &) = default;
     /** @brief The standard destructor */
     ~GBaseParChildPersonalityTraits() override = default;

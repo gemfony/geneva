@@ -341,7 +341,7 @@ public:
     GFunctionIndividual() = default;
     /**
      * @brief Initialization with the desired demo function.
-     * @param df The solverFunction this individual should evaluate
+     * @param d_f The solverFunction this individual should evaluate
      */
     explicit GFunctionIndividual(const solverFunction &d_f);
     /**
@@ -355,7 +355,7 @@ public:
 
     /**
      * @brief Allows setting the demo function to be evaluated.
-     * @param df The solverFunction this individual should evaluate
+     * @param d_f The solverFunction this individual should evaluate
      */
     void setDemoFunction(solverFunction d_f);
     /**

@@ -86,10 +86,7 @@ public:
 
     /** @brief The default constructor */
     GTestIndividual1();
-    /**
-     * @brief The copy constructor
-     * @param cp Another GTestIndividual1 object whose data is copied into this one
-     */
+    /** @brief The copy constructor */
     GTestIndividual1(const GTestIndividual1 &) = default;
     /** @brief The standard destructor */
     ~GTestIndividual1() override = default;

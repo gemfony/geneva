@@ -125,7 +125,7 @@ public:
 
     /**
      * @brief Sets the sleep-time to a user-defined value
-     * @param sleepTime The fixed amount of time (in seconds) the fitness function should sleep
+     * @param sleep_time The fixed amount of time (in seconds) the fitness function should sleep
      */
     void setFixedSleepTime(const std::chrono::duration<double> &sleep_time);
     /**
@@ -136,8 +136,8 @@ public:
 
     /**
      * @brief Indicate that the fitness function may crash at the end of the sleep time
-     * @param mayCrash Whether the fitness function is allowed to throw
-     * @param likelihood The probability with which a crash is triggered
+     * @param may_crash Whether the fitness function is allowed to throw
+     * @param throw_likelihood The probability with which a crash is triggered
      */
     void setMayCrash(bool may_crash, double throw_likelihood);
     /**
@@ -153,8 +153,8 @@ public:
 
     /**
      * @brief Indicates that the fitness function should sleep for a random time
-     * @param randomSleep Whether random sleeps are enabled (instead of the fixed sleep time)
-     * @param window The (min, max) time window in seconds within which random sleeps are drawn
+     * @param sleep_randomly Whether random sleeps are enabled (instead of the fixed sleep time)
+     * @param rand_sleep_boundaries The (min, max) time window in seconds within which random sleeps are drawn
      */
     void setRandomSleep(bool sleep_randomly, std::tuple<double, double> rand_sleep_boundaries);
     /**

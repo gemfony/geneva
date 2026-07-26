@@ -57,7 +57,7 @@ GFMinIndividual::GFMinIndividual() { /* nothing */
 /**
  * A standard copy constructor
  *
- * @param cp A copy of another GFunctionIndidivual
+ * @param cp A copy of another GFMinIndividual
  */
 GFMinIndividual::GFMinIndividual(const GFMinIndividual &cp)
   : gen::GGenomeT<GFMinIndividual>(cp)
@@ -76,7 +76,7 @@ GFMinIndividual::~GFMinIndividual() { /* nothing */
 /**
  * Allows to set the demo function
  *
- * @param tF The id if the demo function
+ * @param tF The id of the demo function
  */
 void GFMinIndividual::setTargetFunction(targetFunction tF) {
     targetFunction_ = tF;
@@ -113,7 +113,6 @@ double GFMinIndividual::getAverageSigma() const {
 /**
  * The actual value calculation takes place here
  *
- * @param The id of the target function (ignored here)
  * @return The value of this object, as calculated with the evaluation function
  */
 std::vector<double> GFMinIndividual::evaluate() {

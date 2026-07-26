@@ -518,8 +518,8 @@ private:
 
     /***************************************************************************/
     /**
-		  * @brief Specifies tasks to be performed before the process_ call. Note: This function
-		  * will reset the mayBePreProcessed_-flag.
+		  * @brief Runs the registered pre-processor, if pre-processing is both permitted for this
+		  * object and configured. It resets nothing -- the permission flags are the caller's.
   		  */
     void preProcess_() {
         if(this->mayBePreProcessed() && pre_processor_ptr_) {
@@ -530,8 +530,8 @@ private:
 
     /***************************************************************************/
     /**
-	  * @brief Specifies tasks to be performed after the process_ call. Note: This function
-	  * will reset the mayBePostProcessed_-flag.
+	  * @brief Runs the registered post-processor, if post-processing is both permitted for this
+	  * object and configured. It resets nothing -- the permission flags are the caller's.
   	  */
     void postProcess_() {
         if(this->mayBePostProcessed() && post_processor_ptr_) {

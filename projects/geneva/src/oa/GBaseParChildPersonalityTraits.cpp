@@ -81,7 +81,7 @@ bool GBaseParChildPersonalityTraits::isParent() const {
 }
 
 /* ----------------------------------------------------------------------------------
- * Tested in GBaseParChildPersonalityTraits::specificTestsNoFailuresExpected_GUnitTests()
+ * Tested in GBaseParChildPersonalityTraits::specificTestsNoFailureExpected_GUnitTests()
  * ----------------------------------------------------------------------------------
  */
 
@@ -96,7 +96,7 @@ std::uint32_t GBaseParChildPersonalityTraits::getParentCounter() const {
 }
 
 /* ----------------------------------------------------------------------------------
- * Tested in GBaseParChildPersonalityTraits::specificTestsNoFailuresExpected_GUnitTests()
+ * Tested in GBaseParChildPersonalityTraits::specificTestsNoFailureExpected_GUnitTests()
  * ----------------------------------------------------------------------------------
  */
 
@@ -115,7 +115,7 @@ bool GBaseParChildPersonalityTraits::setIsParent() {
 }
 
 /* ----------------------------------------------------------------------------------
- * Tested in GBaseParChildPersonalityTraits::specificTestsNoFailuresExpected_GUnitTests()
+ * Tested in GBaseParChildPersonalityTraits::specificTestsNoFailureExpected_GUnitTests()
  * ----------------------------------------------------------------------------------
  */
 
@@ -134,7 +134,7 @@ bool GBaseParChildPersonalityTraits::setIsChild() {
 }
 
 /* ----------------------------------------------------------------------------------
- * Tested in GBaseParChildPersonalityTraits::specificTestsNoFailuresExpected_GUnitTests()
+ * Tested in GBaseParChildPersonalityTraits::specificTestsNoFailureExpected_GUnitTests()
  * ----------------------------------------------------------------------------------
  */
 
@@ -149,7 +149,7 @@ void GBaseParChildPersonalityTraits::setParentId(const std::size_t &parent_id) {
 }
 
 /* ----------------------------------------------------------------------------------
- * Tested in GBaseParChildPersonalityTraits::specificTestsNoFailuresExpected_GUnitTests()
+ * Tested in GBaseParChildPersonalityTraits::specificTestsNoFailureExpected_GUnitTests()
  * ----------------------------------------------------------------------------------
  */
 
@@ -175,7 +175,7 @@ std::size_t GBaseParChildPersonalityTraits::getParentId() const {
 }
 
 /* ----------------------------------------------------------------------------------
- * Tested in GBaseParChildPersonalityTraits::specificTestsNoFailuresExpected_GUnitTests()
+ * Tested in GBaseParChildPersonalityTraits::specificTestsNoFailureExpected_GUnitTests()
  * Tested in GBaseParChildPersonalityTraits::specificTestsFailuresExpected_GUnitTests()
  * ----------------------------------------------------------------------------------
  */
@@ -191,7 +191,7 @@ bool GBaseParChildPersonalityTraits::parentIdSet() const {
 }
 
 /* ----------------------------------------------------------------------------------
- * Tested in GBaseParChildPersonalityTraits::specificTestsNoFailuresExpected_GUnitTests()
+ * Tested in GBaseParChildPersonalityTraits::specificTestsNoFailureExpected_GUnitTests()
  * ----------------------------------------------------------------------------------
  */
 
@@ -204,7 +204,7 @@ void GBaseParChildPersonalityTraits::unsetParentId() {
 }
 
 /* ----------------------------------------------------------------------------------
- * Tested in GBaseParChildPersonalityTraits::specificTestsNoFailuresExpected_GUnitTests()
+ * Tested in GBaseParChildPersonalityTraits::specificTestsNoFailureExpected_GUnitTests()
  * Tested in GBaseParChildPersonalityTraits::specificTestsFailuresExpected_GUnitTests()
  * ----------------------------------------------------------------------------------
  */

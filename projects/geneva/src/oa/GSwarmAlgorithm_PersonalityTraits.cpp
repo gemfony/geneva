@@ -93,7 +93,7 @@ void GSwarmAlgorithm_PersonalityTraits::setNoPositionUpdate() {
 }
 
 /* ----------------------------------------------------------------------------------
- * Tested in GSwarmAlgorithm_PersonalityTraits::specificTestsNoFailuresExpected_GUnitTests()
+ * Tested in GSwarmAlgorithm_PersonalityTraits::specificTestsNoFailureExpected_GUnitTests()
  * ----------------------------------------------------------------------------------
  */
 
@@ -108,7 +108,7 @@ bool GSwarmAlgorithm_PersonalityTraits::noPositionUpdate() const {
 }
 
 /* ----------------------------------------------------------------------------------
- * Tested in GSwarmAlgorithm_PersonalityTraits::specificTestsNoFailuresExpected_GUnitTests()
+ * Tested in GSwarmAlgorithm_PersonalityTraits::specificTestsNoFailureExpected_GUnitTests()
  * ----------------------------------------------------------------------------------
  */
 
@@ -127,7 +127,7 @@ bool GSwarmAlgorithm_PersonalityTraits::checkNoPositionUpdateAndReset() {
 }
 
 /* ----------------------------------------------------------------------------------
- * Tested in GSwarmAlgorithm_PersonalityTraits::specificTestsNoFailuresExpected_GUnitTests()
+ * Tested in GSwarmAlgorithm_PersonalityTraits::specificTestsNoFailureExpected_GUnitTests()
  * ----------------------------------------------------------------------------------
  */
 

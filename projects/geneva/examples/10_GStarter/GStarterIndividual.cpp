@@ -114,7 +114,7 @@ GStarterIndividual::~GStarterIndividual() { /* nothing */
 /**
  * Allows to set the demo function
  *
- * @param tF The id if the demo function
+ * @param tF The id of the demo function
  */
 void GStarterIndividual::setTargetFunction(targetFunction tF) {
     targetFunction_ = tF;

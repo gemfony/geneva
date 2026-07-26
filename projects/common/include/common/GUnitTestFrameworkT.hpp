@@ -37,7 +37,7 @@
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
-// Standard heades go here
+// Standard headers go here
 #include <memory>
 
 // Boost headers go here

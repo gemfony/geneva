@@ -82,10 +82,7 @@ public:
 
     /** @brief The default constructor */
     GSepCmaEvolutionStrategy_PersonalityTraits() = default;
-    /**
-     * @brief The copy constructor.
-     * @param The object to be copied
-     */
+    /** @brief The copy constructor */
     GSepCmaEvolutionStrategy_PersonalityTraits(
         const GSepCmaEvolutionStrategy_PersonalityTraits &
     ) = default;
