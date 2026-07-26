@@ -55,8 +55,20 @@ TARGET_LINK_LIBRARIES (${EXECUTABLENAME}
 
 GENEVA_MATERIALIZE_CONFIGS ( ${EXECUTABLENAME} ${INSTALL_PREFIX_DATA}/examples/${EXECUTABLENAME}/config )
 
-IF (GENEVA_RUN_EXAMPLES_AS_TESTS)
-	ADD_TEST(${EXECUTABLENAME} ${EXECUTABLENAME})
-ENDIF ()
+# Run as a multi-process program under the detected launcher, like example 16 and the courtier MPI
+# tests. The rank count is dictated by the example's own topology: sub_client_group_size is 4, so 9
+# ranks = 1 master + two groups of (1 geneva client + 3 sub-clients). The consumer must be named
+# explicitly -- without it the example builds the default local consumer and every rank throws.
+#
+# --eaMaxIterations 1 is the budget. This individual deliberately SIMULATES an expensive evaluation
+# (a 50 ms sleep per parameter, spread over the sub-client group), so a full run costs minutes; one
+# generation already exercises the whole sub-client path -- scatter, per-rank work, gather, shutdown
+# barrier -- which is what the example demonstrates (Inv 22).
+ADD_TEST(NAME ${EXECUTABLENAME}
+	COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 9
+			${MPIEXEC_PREFLAGS} $<TARGET_FILE:${EXECUTABLENAME}> ${MPIEXEC_POSTFLAGS}
+			--consumer mpi --eaMaxIterations 1
+	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+SET_TESTS_PROPERTIES(${EXECUTABLENAME} PROPERTIES LABELS "geneva" TIMEOUT 600)
 
 INSTALL ( TARGETS ${EXECUTABLENAME} DESTINATION ${INSTALL_PREFIX_DATA}/examples/${EXECUTABLENAME} )

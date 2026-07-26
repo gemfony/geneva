@@ -48,8 +48,19 @@ TARGET_LINK_LIBRARIES(${EXECUTABLENAME}
 
 GENEVA_MATERIALIZE_CONFIGS ( ${EXECUTABLENAME} ${INSTALL_PREFIX_DATA}/examples/${EXECUTABLENAME}/config )
 
-IF (GENEVA_RUN_EXAMPLES_AS_TESTS)
-    ADD_TEST(${EXECUTABLENAME} ${EXECUTABLENAME})
-ENDIF ()
+# The MPI consumer fixes its rank layout at launch, so this example is exercised as a multi-process
+# program under the launcher CMake detected (1 master + 3 workers) rather than as a plain binary --
+# the same shape as the courtier MPI tests. The whole directory is already conditional on
+# GENEVA_BUILD_WITH_MPI_CONSUMER (geneva/examples/CMakeLists.txt), which implies FIND_PACKAGE(MPI),
+# so MPIEXEC_EXECUTABLE is a real, configure-time-detected dependency here.
+#
+# --maxIterations caps the run at 5 iterations; the example's own default is 200, which takes half a
+# minute and verifies nothing the first few iterations do not (Inv 22).
+ADD_TEST(NAME ${EXECUTABLENAME}
+        COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 4
+                ${MPIEXEC_PREFLAGS} $<TARGET_FILE:${EXECUTABLENAME}> ${MPIEXEC_POSTFLAGS}
+                --maxIterations 5
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+SET_TESTS_PROPERTIES(${EXECUTABLENAME} PROPERTIES LABELS "geneva" TIMEOUT 300)
 
 INSTALL(TARGETS ${EXECUTABLENAME} DESTINATION ${INSTALL_PREFIX_DATA}/examples/${EXECUTABLENAME})

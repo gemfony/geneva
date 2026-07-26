@@ -57,8 +57,11 @@ TARGET_LINK_LIBRARIES (${EXECUTABLENAME}
 
 GENEVA_MATERIALIZE_CONFIGS ( ${EXECUTABLENAME} ${INSTALL_PREFIX_DATA}/examples/${EXECUTABLENAME}/config )
 
-IF (GENEVA_RUN_EXAMPLES_AS_TESTS)
-	ADD_TEST(${EXECUTABLENAME} ${EXECUTABLENAME})
-ENDIF ()
+# End-to-end test of the algorithm CHAIN: each algorithm halts on the stall criterion and hands its
+# best individuals to the next, so the whole chain finishes in well under a second. This is the only
+# in-tree exercise of GOptimizationAlgorithmBase::addCleanStoredBests() -- the hand-over path.
+ADD_TEST(NAME ${EXECUTABLENAME} COMMAND ${EXECUTABLENAME}
+	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+SET_TESTS_PROPERTIES(${EXECUTABLENAME} PROPERTIES LABELS "geneva" TIMEOUT 120)
 
 INSTALL ( TARGETS ${EXECUTABLENAME} DESTINATION ${INSTALL_PREFIX_DATA}/examples/${EXECUTABLENAME} )

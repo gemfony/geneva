@@ -72,13 +72,14 @@ ADD_CUSTOM_COMMAND(TARGET GMultiCriterionParabolaIndividual POST_BUILD
 	COMMENT "Materializing GMultiCriterionParabola configs (Pareto sorting_method)"
 	VERBATIM)
 
-IF (GENEVA_RUN_EXAMPLES_AS_TESTS)
-	ADD_TEST(
-		NAME GMultiCriterionParabola
-		COMMAND $<TARGET_FILE:GGenericOptimizer> --individual $<TARGET_FILE:GMultiCriterionParabolaIndividual>
-		WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-	)
-ENDIF ()
+# End-to-end test on the materialized configuration (whose overlay selects the Pareto sorting scheme
+# this problem needs): the stall criterion halts the run in well under a second.
+ADD_TEST(
+	NAME GMultiCriterionParabola
+	COMMAND $<TARGET_FILE:GGenericOptimizer> --individual $<TARGET_FILE:GMultiCriterionParabolaIndividual>
+	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+)
+SET_TESTS_PROPERTIES(GMultiCriterionParabola PROPERTIES LABELS "geneva" TIMEOUT 120)
 
 INSTALL ( TARGETS GMultiCriterionParabolaIndividual DESTINATION ${INSTALL_PREFIX_DATA}/examples/GMultiCriterionParabola )
 INSTALL ( DIRECTORY ${_mc_cfg_dir}/ DESTINATION ${INSTALL_PREFIX_DATA}/examples/GMultiCriterionParabola/config )

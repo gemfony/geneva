@@ -1,0 +1,11 @@
+{
+    "GMetaOptimizerIndividual.json": {
+        "n_runs_per_optimization": 1,
+        "init_n_children": 5,
+        "n_children_ub": 20
+    },
+    "GSubEvolutionaryAlgorithm.json": {
+        "max_iteration": 5,
+        "max_stall_iteration": 3
+    }
+}

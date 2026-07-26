@@ -62,11 +62,10 @@ GENEVA_MATERIALIZE_CONFIGS(GGenericOptimizer
 # loader path and optimizes it. This is also the empirical check that the plugin and process share ONE set of
 # singletons / one serialization registry.
 #
-# Registered UNCONDITIONALLY -- deliberately NOT under GENEVA_RUN_EXAMPLES_AS_TESTS (which is hard-wired FALSE
-# in the top-level CMakeLists.txt), exactly like the GCudaRngShutdownNoise guard below. This trio (examples 19,
-# 21 and 22) is the ONLY automated coverage of the loadable-module ABI, and every change to that ABI must be
-# gated on it. The run uses the materialized default configuration and finishes in well under a second (the
-# stall criterion halts it after a few dozen iterations), so it costs the suite nothing (Inv 22).
+# This trio (examples 19, 21 and 22) is the ONLY automated coverage of the loadable-module ABI, and every
+# change to that ABI must be gated on it. The run uses the materialized default configuration and finishes
+# in well under a second (the stall criterion halts it after a few dozen iterations), so it costs the suite
+# nothing (Inv 22).
 ADD_TEST(
 	NAME GLoadableIndividual
 	COMMAND GGenericOptimizer --individual $<TARGET_FILE:GLoadableParaboloid>
@@ -81,8 +80,8 @@ SET_TESTS_PROPERTIES(GLoadableIndividual PROPERTIES LABELS "geneva" TIMEOUT 120)
 # reports that as CURAND_STATUS_LAUNCH_FAILURE, which used to leak "cuRAND call failed" to stderr because the
 # cuRAND error path could not recognise shutdown on its own. This module optimizer keeps those producer
 # threads saturated until it exits -- the reproducer that reliably provokes the race -- so we run it many
-# times and fail if the noise reappears in ANY run. Registered only when the CUDA RNG backend is built (the
-# defect cannot occur otherwise) and always exercised, independent of GENEVA_RUN_EXAMPLES_AS_TESTS.
+# times and fail if the noise reappears in ANY run. Registered only when the CUDA RNG backend is built -- the
+# defect cannot occur otherwise -- which is a real, configure-time-detected condition.
 IF(GENEVA_USE_CUDA_RNG_ENABLED)
 	ADD_TEST(
 		NAME GCudaRngShutdownNoise

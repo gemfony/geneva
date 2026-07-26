@@ -59,8 +59,10 @@ TARGET_LINK_LIBRARIES (${EXECUTABLENAME}
 # config/config-overrides.json), instead of copying a hand-maintained set of shipped config files.
 GENEVA_MATERIALIZE_CONFIGS ( ${EXECUTABLENAME} ${INSTALL_PREFIX_DATA}/examples/${EXECUTABLENAME}/config )
 
-IF (GENEVA_RUN_EXAMPLES_AS_TESTS)
-	ADD_TEST(${EXECUTABLENAME} ${EXECUTABLENAME})
-ENDIF ()
+# End-to-end test on the materialized default configuration: the stall criterion halts the run after a
+# few dozen iterations, well inside a second (Inv 22).
+ADD_TEST(NAME ${EXECUTABLENAME} COMMAND ${EXECUTABLENAME}
+	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+SET_TESTS_PROPERTIES(${EXECUTABLENAME} PROPERTIES LABELS "geneva" TIMEOUT 120)
 
 INSTALL ( TARGETS ${EXECUTABLENAME} DESTINATION ${INSTALL_PREFIX_DATA}/examples/${EXECUTABLENAME} )

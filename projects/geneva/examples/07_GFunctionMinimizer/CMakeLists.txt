@@ -43,12 +43,12 @@ GENEVA_DECLARE_INDIVIDUAL(GFMinIndividual
 
 # End-to-end test: the generic optimizer loads this problem module and optimizes it (configs auto-create in
 # the build directory). GGenericOptimizer is provided by example 19.
-IF (GENEVA_RUN_EXAMPLES_AS_TESTS)
-	ADD_TEST(
-		NAME GFunctionMinimizer
-		COMMAND $<TARGET_FILE:GGenericOptimizer> --individual $<TARGET_FILE:GFMinIndividual>
-		WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-	)
-ENDIF ()
+ADD_TEST(
+	NAME GFunctionMinimizer
+	COMMAND $<TARGET_FILE:GGenericOptimizer> --individual $<TARGET_FILE:GFMinIndividual>
+	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+)
+# Configs auto-create on the first run and the stall criterion halts it in well under a second.
+SET_TESTS_PROPERTIES(GFunctionMinimizer PROPERTIES LABELS "geneva" TIMEOUT 120)
 
 INSTALL ( TARGETS GFMinIndividual DESTINATION ${INSTALL_PREFIX_DATA}/examples/GFunctionMinimizer )

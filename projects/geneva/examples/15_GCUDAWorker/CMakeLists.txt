@@ -125,13 +125,19 @@ GENEVA_MATERIALIZE_CONFIGS ( ${EXECUTABLENAME} ${INSTALL_PREFIX_DATA}/examples/1
 # (--consumer stc uses the individual's own evaluate()). This exercises the module load (individual +
 # marshaller contributions, single shared Boost registry) without requiring a GPU; the on-device GPU run
 # (--consumer gpu) needs a CUDA device and is verified separately.
-IF ( GENEVA_RUN_EXAMPLES_AS_TESTS )
-	ADD_TEST (
-		NAME GCUDAWorker_CPU
-		COMMAND ${EXECUTABLENAME} --module $<TARGET_FILE:GImageIndividual> --consumer stc
-		WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-	)
-ENDIF ()
+#
+# --eaMaxIterations bounds the run to two generations: the shipped configuration deliberately has no
+# iteration cap (the point of the example is to keep refining the picture until it stalls), and a
+# single Mona-Lisa evaluation is expensive enough that the default run takes minutes. Two generations
+# still cover the whole path -- module load, adapt, evaluate, select -- which is what this test is for
+# (Inv 22). The budget lives on the command line rather than in config-overrides.json so the SHIPPED
+# example keeps producing a picture.
+ADD_TEST (
+	NAME GCUDAWorker_CPU
+	COMMAND ${EXECUTABLENAME} --module $<TARGET_FILE:GImageIndividual> --consumer stc --eaMaxIterations 2
+	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+)
+SET_TESTS_PROPERTIES ( GCUDAWorker_CPU PROPERTIES LABELS "geneva" TIMEOUT 300 )
 
 INSTALL ( TARGETS ${EXECUTABLENAME} GImageIndividual
 	DESTINATION ${INSTALL_PREFIX_DATA}/examples/15_GCUDAWorker )

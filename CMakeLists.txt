@@ -379,12 +379,14 @@ if(CMAKE_CUDA_COMPILER_LOADED AND CMAKE_CXX_COMPILER)
 endif()
 
 ################################################################################
-# Set these variables to make all examples and/or benchmarks run as part of the
-# testing with CTest.
+# Set this variable to make all benchmarks run as part of the testing with CTest.
+# Benchmarks are convergence- and throughput-scale runs (minutes each), so they are
+# not part of the default suite.
+#
+# There is deliberately no counterpart for the examples: every example registers its
+# test unconditionally (or conditionally on a real, configure-time-detected dependency
+# such as an MPI launcher or a Python interpreter), with a budget that keeps it short.
 
-# NOTE: Not yet functional
-
-SET(GENEVA_RUN_EXAMPLES_AS_TESTS FALSE)
 SET(GENEVA_RUN_BENCHMARKS_AS_TESTS FALSE)
 
 ################################################################################

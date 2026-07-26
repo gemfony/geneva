@@ -58,8 +58,19 @@ TARGET_LINK_LIBRARIES (${EXECUTABLENAME}
 GENEVA_MATERIALIZE_CONFIGS ( ${EXECUTABLENAME} ${INSTALL_PREFIX_DATA}/examples/${EXECUTABLENAME}/config )
 ADD_SUBDIRECTORY (evaluator)
 
-IF (GENEVA_RUN_EXAMPLES_AS_TESTS)
-	ADD_TEST(${EXECUTABLENAME} ${EXECUTABLENAME})
+# This example delegates every evaluation to an EXTERNAL program -- the shipped evaluator/evaluator.py,
+# started through its "#!/usr/bin/env python3" shebang. A Python 3 interpreter is therefore a genuine
+# external dependency of the test (not of the build), so the test is registered only where configure
+# time finds one; everything else about it is unconditional (Inv 9). The run itself halts on the stall
+# criterion after a couple of seconds.
+FIND_PACKAGE ( Python3 COMPONENTS Interpreter QUIET )
+IF ( Python3_Interpreter_FOUND )
+	ADD_TEST(NAME ${EXECUTABLENAME} COMMAND ${EXECUTABLENAME}
+		WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+	SET_TESTS_PROPERTIES(${EXECUTABLENAME} PROPERTIES LABELS "geneva" TIMEOUT 300)
+ELSE ()
+	MESSAGE ( STATUS
+		"Example 12 (GExternalEvaluator): no Python 3 interpreter found -- its end-to-end test is not registered" )
 ENDIF ()
 
 INSTALL ( TARGETS ${EXECUTABLENAME} DESTINATION ${INSTALL_PREFIX_DATA}/examples/${EXECUTABLENAME} )

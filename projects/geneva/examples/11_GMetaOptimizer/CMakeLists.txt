@@ -58,8 +58,17 @@ TARGET_LINK_LIBRARIES (${EXECUTABLENAME}
 
 GENEVA_MATERIALIZE_CONFIGS ( ${EXECUTABLENAME} ${INSTALL_PREFIX_DATA}/examples/${EXECUTABLENAME}/config )
 
-IF (GENEVA_RUN_EXAMPLES_AS_TESTS)
-	ADD_TEST(${EXECUTABLENAME} ${EXECUTABLENAME})
-ENDIF ()
+# A meta-optimization is an optimization whose every EVALUATION is itself a full optimization run, so
+# its cost is the product of three budgets. The code defaults multiply out to a run of well over ten
+# minutes, which is a convergence-scale run, not a development one (Inv 22). config-overrides.json
+# therefore ships the demo with one sub-run per evaluation, a small child population and a short
+# sub-EA -- the whole meta loop is still exercised, in seconds instead of minutes. Unlike example 15 the
+# budget belongs in the configuration rather than on the test's command line: none of these three
+# knobs is reachable from the command line (the meta level is driven by a directly constructed
+# GMetaEvolutionaryAlgorithm, and the sub-EA comes from its own factory), and a user who wants a
+# convergence-scale meta-optimization raises them in the config, which is what it is for.
+ADD_TEST(NAME ${EXECUTABLENAME} COMMAND ${EXECUTABLENAME}
+	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+SET_TESTS_PROPERTIES(${EXECUTABLENAME} PROPERTIES LABELS "geneva" TIMEOUT 300)
 
 INSTALL ( TARGETS ${EXECUTABLENAME} DESTINATION ${INSTALL_PREFIX_DATA}/examples/${EXECUTABLENAME} )
