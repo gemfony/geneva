@@ -55,6 +55,13 @@ class GBaseClientT; // the networked client base (wire-compatible with the court
 namespace Gem::Geneva {
 
 /******************************************************************************/
+/** @brief The mnemonic of the consumer a process falls back to when none was chosen -- the local
+ *  thread-pool consumer. Stated once, here, because this layer owns the consumer catalog: it is both the
+ *  command-line default (Go2's GO2_DEF_CONSUMER binds to it) and the consumer ensureProcessConsumer()
+ *  builds for a standalone algorithm that was never given one. */
+const std::string GDEFAULTCONSUMERMNEMONIC{"stc"}; // NOLINT
+
+/******************************************************************************/
 /**
  * A transport-agnostic description of the courtier consumer to build, assembled from configuration
  * / command-line parameters by the caller (Go2 or a standalone example). Keeps the caller free of the
@@ -177,6 +184,24 @@ public:
  *   process must serve as a worker. An unknown mnemonic yields an empty setup (both fields null).
  */
 ConsumerSetup buildConsumerSetup(const ConsumerSpec &spec);
+
+/******************************************************************************/
+/**
+ * @brief Returns the process's single consumer, building and registering the default one if none was
+ * established yet.
+ *
+ * This is where the "what is the default consumer" decision lives -- with the layer that owns the
+ * consumer catalog, not with the optimization algorithms (which are transport-agnostic and never build or
+ * select a consumer) and not with courtier (whose registry knows only that there must be exactly one
+ * consumer, never which). A process that went through Go2, through buildConsumerSetup(), or through
+ * GConsumerRegistry::setConsumer() already has its consumer and gets it back unchanged; a standalone
+ * algorithm that was never given one gets @c GDEFAULTCONSUMERMNEMONIC built from the provider store,
+ * so a bare alg->optimize() works out of the box. Idempotent and race-free: the registry runs the build
+ * at most once per process.
+ *
+ * @return The process's single consumer (never null)
+ */
+std::shared_ptr<Gem::Courtier::GBaseConsumerT<gen::GGenome>> ensureProcessConsumer();
 
 /******************************************************************************/
 /**

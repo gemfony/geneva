@@ -446,7 +446,7 @@ private:
 struct ConsumerProviderRegistrar {
     ConsumerProviderRegistrar() {
         auto store = consumerProviderStore();
-        store->setOnce("stc", std::make_shared<GStdThreadConsumerProvider>());
+        store->setOnce(GDEFAULTCONSUMERMNEMONIC, std::make_shared<GStdThreadConsumerProvider>());
         store->setOnce("asio", std::make_shared<GAsioConsumerProvider>());
         store->setOnce("beast", std::make_shared<GWebsocketConsumerProvider>());
 #ifdef GENEVA_BUILD_WITH_MPI_CONSUMER
@@ -553,6 +553,34 @@ ConsumerSetup buildConsumerSetup(const ConsumerSpec &spec) {
     }
 
     return setup;
+}
+
+/******************************************************************************/
+/**
+ * @brief Returns the process consumer, building the default one on first use.
+ *
+ * The default choice is this layer's, not the algorithms' and not courtier's: the registry is asked for
+ * the one consumer and, only if the process has none, hands the build back here, where the concrete
+ * consumer types are known. The build goes through the provider store like every other consumer, so a
+ * registered replacement for the default mnemonic is honoured.
+ *
+ * @return The process's single consumer (never null)
+ */
+std::shared_ptr<Gem::Courtier::GBaseConsumerT<gen::GGenome>> ensureProcessConsumer() {
+    return c2::GConsumerRegistryT<gen::GGenome>::instance().ensureConsumer(
+        []() -> std::shared_ptr<c2::GBaseConsumerT<gen::GGenome>> {
+            auto provider = lookupConsumerProvider(GDEFAULTCONSUMERMNEMONIC);
+            if(not provider) {
+                throw geneva_exception(
+                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+                    << "In Gem::Geneva::ensureProcessConsumer(): Error!" << '\n'
+                    << "The default consumer \"" << GDEFAULTCONSUMERMNEMONIC << "\" is not registered"
+                    << '\n'
+                    << "in the consumer-provider store." << '\n'
+                );
+            }
+            return provider->setup(ConsumerSpec{.mnemonic = GDEFAULTCONSUMERMNEMONIC}).consumer;
+        });
 }
 
 /******************************************************************************/

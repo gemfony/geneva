@@ -63,7 +63,6 @@
 #include "courtier/GBaseConsumerT.hpp"
 #include "courtier/GConsumerRegistry.hpp"
 #include "courtier/GSubmissionPolicy.hpp"
-#include "courtier/consumers/GStdThreadConsumerT.hpp" // the default consumer built when none was set
 #include "geneva/genome/GGenome.hpp"
 #include "geneva/genome/GGenomeFixedSizePriorityQueue.hpp"
 #include "geneva/GPersonalityTraits.hpp"
@@ -1117,7 +1116,7 @@ private:
 
     /**
      * @brief Submits the contiguous sub-range [start, end) of @p work_items through the one process-wide
-     * consumer (GConsumerRegistry), building a default local thread-pool consumer if none was set.
+     * consumer (GConsumerRegistry), which the setup layer establishes if the process was never given one.
      * @param work_items The work-item vector whose sub-range is submitted (reconciled in place)
      * @param start The (inclusive) start index of the range to evaluate
      * @param end The (exclusive) end index of the range to evaluate
@@ -1129,8 +1128,8 @@ private:
         std::size_t end
     );
 
-    /** @brief Returns the one process-wide consumer, lazily building+registering a default local
-     *  thread-pool consumer (with the polymorphic clone function) if none has been established yet.
+    /** @brief Returns the one process-wide consumer (established by the setup layer if the process was
+     *  never given one) with this algorithm's late-return budget applied.
      *  @return The shared consumer this algorithm submits through */
     std::shared_ptr<Gem::Courtier::GBaseConsumerT<gen::GGenome>> consumerForSubmission_();
 };

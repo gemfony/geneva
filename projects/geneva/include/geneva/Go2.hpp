@@ -72,7 +72,9 @@ const std::string GO2_DEF_DEFAULTCONFIGFILE{"config/Go2.json"}; // NOLINT
 constexpr bool GO2_DEF_CLIENTMODE = false;
 constexpr std::uint16_t GO2_DEF_NPRODUCERTHREADS = 0;
 const std::string GO2_DEF_NOCONSUMER{"none"}; // NOLINT
-const std::string GO2_DEF_CONSUMER{"stc"};    // NOLINT: default consumer mnemonic when none is chosen
+// The default consumer mnemonic is the setup layer's (GConsumerSetup.hpp), stated once there: the
+// command line and a standalone algorithm must fall back to the same consumer.
+const std::string GO2_DEF_CONSUMER{GDEFAULTCONSUMERMNEMONIC}; // NOLINT
 constexpr bool GO2_DEF_COPYBESTINDIVIDUALSONLY = true;
 
 /******************************************************************************/
