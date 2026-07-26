@@ -5,7 +5,7 @@
  *
  * The whole population of each generation is scored in one bulk, runtime-compiled kernel launch
  * through the unified courtier GPU consumer (Gem::Courtier::GPU::GGPUConsumerT) -- the SAME consumer
- * example 15 uses. There is no build-time CUDA compilation unit any more: the kernel
+ * example 14 uses. There is no build-time CUDA compilation unit any more: the kernel
  * (kernels/benchmark_eval.cu via NVRTC) is loaded at run time from config/GGPUConsumer.json. The GPU
  * consumer is device-only (backend cuda); a CPU run uses the individual's own evaluate() via a CPU
  * consumer such as --consumer stc.
@@ -204,7 +204,7 @@ int main(int argc, char **argv) {
     // Initialize Geneva — must outlive the runner and all optimization.
     Gem::Geneva::GenevaInitializer const gi;
 
-    // Build the unified GPU consumer (the SAME GGPUConsumerT example 15 uses) and register it as the
+    // Build the unified GPU consumer (the SAME GGPUConsumerT example 14 uses) and register it as the
     // process consumer. The whole population is scored in one bulk, runtime-compiled kernel launch; the
     // kernel is selected in config/GGPUConsumer.json (the GPU consumer is device-only). The clone function
     // is the polymorphic GGenome clone needed by the clone-on-partial-return policy.

@@ -32,7 +32,7 @@
  * @brief Module "glue" that makes GParaboloidIndividual2D a runtime-loadable Geneva individual.
  *
  * This builds the GParaboloid2D-module artifact (libGParaboloid2D-module.so), the loadable-module packaging
- * of the same problem the GParaboloid2D-fixed executable compiles in; the generic optimizer (example 19's
+ * of the same problem the GParaboloid2D-fixed executable compiles in; the generic optimizer (example 18's
  * GGenericOptimizer) runs it via --individual. This translation unit holds only the fixed extern "C" entry
  * point geneva_module_manifest(); it does NOT re-emit GParaboloidIndividual2D's archive registration (that
  * lives in GParaboloidIndividual2D.cpp, compiled into both artifacts).

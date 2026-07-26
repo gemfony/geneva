@@ -72,7 +72,7 @@ IF(NOT GENEVA_INDIVIDUAL_MODULE_INCLUDED)
 	# GENEVA_ADD_INDIVIDUAL_MODULE(<target> <source> [<source> ...])
 	#
 	# Builds a runtime-loadable individual (optimization-problem) plugin as a shared MODULE, following the
-	# reference pattern of example 19. The .so carries the problem code + its archive registration + the
+	# reference pattern of example 18. The .so carries the problem code + its archive registration + the
 	# geneva_module_manifest() entry point, and links NONE of the Geneva libraries -- it needs only their
 	# HEADERS at compile time and resolves their symbols from the host process at load (the loader uses
 	# RTLD_GLOBAL). Linking no Geneva libs also sidesteps the non-PIC static Catch2 that a testing-enabled

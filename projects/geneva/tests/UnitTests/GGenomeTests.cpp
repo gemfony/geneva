@@ -2582,7 +2582,7 @@ TEST_CASE("A built-in and a module register an algorithm through the same seam",
 
     // (b) The module path (the author helper an OA plugin's manifest entry point calls) produces the very
     // same handle: one contribution, tagged as the OA kind, whose thunk hands back the factory across the
-    // plain-C void* boundary. Exercised here without a .so; example 21 covers the dlopen half.
+    // plain-C void* boundary. Exercised here without a .so; example 20 covers the dlopen half.
     const GenevaModuleManifest *manifest =
         Gem::Geneva::oaManifest<ea_factory_t, "EAProbe">();
     REQUIRE(manifest != nullptr);

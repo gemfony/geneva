@@ -87,7 +87,7 @@ int main(int argc, char **argv) {
 
     //---------------------------------------------------------------------------
     // Register pluggable optimization monitors, if requested by the user
-    // See example 13 for more monitors
+    // See example 12 for more monitors
 
     if(monitorTimings != "empty") {
         std::shared_ptr<GProcessingTimesLogger> const processingTimesLogger_ptr(

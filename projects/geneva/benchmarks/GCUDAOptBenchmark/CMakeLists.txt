@@ -28,7 +28,7 @@
 ################################################################################
 
 # Multi-algorithm GPU optimisation benchmark. It is evaluated through the SAME unified courtier GPU
-# consumer (folded into gemfony-courtier when GENEVA_BUILD_WITH_GPU_CONSUMER is ON) that example 15 uses
+# consumer (folded into gemfony-courtier when GENEVA_BUILD_WITH_GPU_CONSUMER is ON) that example 14 uses
 # -- a whole population scored in one bulk,
 # runtime-compiled kernel launch. The kernel (kernels/benchmark_eval.cu via NVRTC)
 # is loaded at run time, so this target no longer enables the CUDA language at build time: it builds

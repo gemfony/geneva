@@ -1662,7 +1662,7 @@ private:
             // NOTE: the "best only" path reads the globally best individual from the OA's archive, which
             // holds pure individual clones detached from any slot, so the live sigma is not available
             // there; it falls back to the configured SEED sigma (a freshly seeded scratch). The "all
-            // individuals" path (the data-oriented monitor demo, e.g. example 13) reads the live evolved
+            // individuals" path (the data-oriented monitor demo, e.g. example 12) reads the live evolved
             // sigma straight from the population slots.
             // The adaptor settings live on the OA-owned config now (the genome is structure-only), so read
             // it from the algorithm. A non-adapting algorithm returns null and no sigma is logged.

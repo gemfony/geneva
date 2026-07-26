@@ -59,11 +59,11 @@ IF(GENEVA_GPU_CONSUMER_ENABLED)
 ENDIF()
 
 ADD_SUBDIRECTORY( 01_GSimpleOptimizer )
-# The generic optimizer (example 19) is the shared runtime driver the collapsed, load-from-disk examples
+# The generic optimizer (example 18) is the shared runtime driver the collapsed, load-from-disk examples
 # (02/04/07, ...) run their problem modules on; it is configured first so those examples can depend on it
 # (e.g. to materialize their configs from its code defaults at build time).
-ADD_SUBDIRECTORY( 19_GLoadableIndividual )
-ADD_SUBDIRECTORY( 21_GLoadableOA )
+ADD_SUBDIRECTORY( 18_GLoadableIndividual )
+ADD_SUBDIRECTORY( 20_GLoadableOA )
 ADD_SUBDIRECTORY( 02_GParaboloid2D )
 ADD_SUBDIRECTORY( 03_GParameterObjectUsagePatterns )
 ADD_SUBDIRECTORY( 04_GMultiCriterionParabola )
@@ -73,32 +73,32 @@ ADD_SUBDIRECTORY( 06_GDirectSwarm )
 ADD_SUBDIRECTORY( 07_GFunctionMinimizer )
 ADD_SUBDIRECTORY( 08_GPostProcessing )
 ADD_SUBDIRECTORY( 09_GNeuralNetwork )
-ADD_SUBDIRECTORY( 11_GMetaOptimizer )
-ADD_SUBDIRECTORY( 12_GExternalEvaluator )
-ADD_SUBDIRECTORY( 13_GPluggableOptimizationMonitors )
-ADD_SUBDIRECTORY( 14_GDependentConstraints )
+ADD_SUBDIRECTORY( 10_GMetaOptimizer )
+ADD_SUBDIRECTORY( 11_GExternalEvaluator )
+ADD_SUBDIRECTORY( 12_GPluggableOptimizationMonitors )
+ADD_SUBDIRECTORY( 13_GDependentConstraints )
 
-# Example 15 (Mona-Lisa) drives the courtier GPU consumer, so it is built only when that consumer is
+# Example 14 (Mona-Lisa) drives the courtier GPU consumer, so it is built only when that consumer is
 # (GENEVA_BUILD_WITH_GPU_CONSUMER -- the opt-in add-on folded into gemfony-courtier). Its kernel is
 # runtime-compiled (NVRTC), so it needs no CUDA language at build time -- it builds with an
 # ordinary C++ toolchain and selects CPU/CUDA at run time. It also requires libpng (its own
 # CMakeLists skips the example if libpng is absent).
 IF(GENEVA_GPU_CONSUMER_ENABLED)
-	ADD_SUBDIRECTORY(15_GCUDAWorker)
-	# Example 20: a stock GFunctionIndividual evaluated on the GPU purely via "--consumer gpu" -- the
-	# store-based GPU path for an ordinary library individual. Needs no libpng (unlike example 15).
-	ADD_SUBDIRECTORY(20_GFunctionGPU)
-	# Example 22: the GPU North Star -- ONE loadable module carries both the individual and its GPU
+	ADD_SUBDIRECTORY(14_GCUDAWorker)
+	# Example 19: a stock GFunctionIndividual evaluated on the GPU purely via "--consumer gpu" -- the
+	# store-based GPU path for an ordinary library individual. Needs no libpng (unlike example 14).
+	ADD_SUBDIRECTORY(19_GFunctionGPU)
+	# Example 21: the GPU North Star -- ONE loadable module carries both the individual and its GPU
 	# marshaller; a generic optimizer loads it via --module and runs it on the device with --consumer gpu.
-	ADD_SUBDIRECTORY(22_GLoadableGPU)
+	ADD_SUBDIRECTORY(21_GLoadableGPU)
 ENDIF()
 
 IF(GENEVA_BUILD_WITH_MPI_CONSUMER)
-	ADD_SUBDIRECTORY( 16_GMPIConsumer )
-	ADD_SUBDIRECTORY( 17_GMPISubClients )
+	ADD_SUBDIRECTORY( 15_GMPIConsumer )
+	ADD_SUBDIRECTORY( 16_GMPISubClients )
 ENDIF()
 
-ADD_SUBDIRECTORY( 18_GAlgorithmChaining )
+ADD_SUBDIRECTORY( 17_GAlgorithmChaining )
 
 # ---------------------------------------------------------------------------------------------------
 # Optional: refresh every shipped example config in place via the Go2 --update-configs switch.
@@ -115,10 +115,10 @@ ADD_SUBDIRECTORY( 18_GAlgorithmChaining )
 #   03_GParameterObjectUsagePatterns -- a parameter-object demo; it never constructs Go2, so the switch
 #                                       never engages (its lone config is unaffected either way);
 #   06_GDirect{EA,SA,Swarm}          -- drive an optimization algorithm directly, without Go2;
-#   12_GExternalEvaluator            -- building its individual EXECUTES an external evaluator program;
-#   15_GCUDAWorker / 20_GFunctionGPU -- need a CUDA device;
-#   16_GMPIConsumer / 17_GMPISubClients -- need mpirun;
-#   19_GLoadableIndividual           -- a plugin loader (needs --individual <plugin.so>).
+#   11_GExternalEvaluator            -- building its individual EXECUTES an external evaluator program;
+#   14_GCUDAWorker / 19_GFunctionGPU -- need a CUDA device;
+#   15_GMPIConsumer / 16_GMPISubClients -- need mpirun;
+#   18_GLoadableIndividual           -- a plugin loader (needs --individual <plugin.so>).
 # Those are refreshed by hand (or via their own run) when needed.
 OPTION(GENEVA_UPDATE_CONFIGS
 	"Add a 'geneva_update_configs' target that refreshes eligible example configs in place (build tree only) via Go2 --update-configs"

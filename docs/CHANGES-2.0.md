@@ -123,7 +123,7 @@ are in `CHANGES` and `INSTALL`; this file is the practical upgrade guide.
   `setBroker` / `setLocalConsumer` and the `GBrokerT` / `GExecutorT` wrappers — has been
   **removed**. Serial execution is just the local thread consumer (`stc`) with one worker.
 - **Meta-optimization** (tuning an algorithm's own parameters) is now the single facility
-  `GMetaEvolutionaryAlgorithm` (example 11), which evaluates its umbrella individuals on
+  `GMetaEvolutionaryAlgorithm` (example 10), which evaluates its umbrella individuals on
   its own orchestration pool while their sub-optimizations submit to the one process
   consumer — so the consumer is never re-entered.
 - **The GPU consumer is a first-class mnemonic** (`--consumer gpu`, when built with
@@ -187,8 +187,8 @@ are in `CHANGES` and `INSTALL`; this file is the practical upgrade guide.
   runtime-loadable `.so` modules** (`GENEVA_DECLARE_INDIVIDUAL` /
   `GENEVA_ADD_INDIVIDUAL_MODULE`, `individualManifest<>` / `oaManifest<>` /
   `marshallerManifest<>`), loaded with `--module <path>.so` (repeatable) — or, for the one
-  module that carries the optimization problem, with `--individual <path>.so`. Example 21's
-  `README.md` is the reference author path for an algorithm module, example 19's for a problem.
+  module that carries the optimization problem, with `--individual <path>.so`. Example 20's
+  `README.md` is the reference author path for an algorithm module, example 18's for a problem.
 - **A module load either succeeds or says exactly what is wrong with the module.** Two gates run
   before any of a module's C++ is touched: the toolchain-compatibility fingerprint
   (`GenevaCompat` — compiler, standard library, Boost, build-mode ABI switches and Geneva version,

@@ -88,7 +88,7 @@ ENDIF ()
 # backend .cpp files -> link them PRIVATE so they do not leak into courtier's exported interface. The
 # GPUGEN_HAVE_* feature macros are likewise PRIVATE: only GGPUBackendFactory.cpp (a courtier translation
 # unit) switches on them to register the available backends; no public GPU header references them, so a
-# program that builds a GPU marshaller (e.g. example 15) does not need them.
+# program that builds a GPU marshaller (e.g. example 14) does not need them.
 IF (GENEVA_GPU_CONSUMER_ENABLED)
     IF (COURTIER_GPU_HAVE_CUDA)
         TARGET_COMPILE_DEFINITIONS(${COURTIER_LIBNAME} PRIVATE GPUGEN_HAVE_CUDA)

@@ -15,7 +15,7 @@ For each configured algorithm entry and each repetition the benchmark:
    config file.
 2. Creates a `GFunctionIndividual` seeded with the chosen benchmark function.
 3. Calls `optimize()`. Every generation the algorithm submits the population to the unified
-   courtier GPU consumer (`Gem::Courtier::GPU::GGPUConsumerT`, the SAME one example 15 uses),
+   courtier GPU consumer (`Gem::Courtier::GPU::GGPUConsumerT`, the SAME one example 14 uses),
    which evaluates all individuals in one bulk, runtime-compiled kernel launch and returns the
    fitness values to the algorithm without invoking the CPU-side `evaluate()`.
 4. A pluggable monitor (`GBenchmarkTerminationMonitor`) records the final fitness,
@@ -223,7 +223,7 @@ GCUDAOptBenchmarkMain.cpp   (C++23, compiled by GCC)
   main() — parses config, creates GenevaInitializer, builds a
            Gem::Courtier::GPU::GGPUConsumerT<GOptimizableEntity> + GBenchmarkGPUMarshaller
            and registers it as the process consumer (GConsumerRegistry)
-           (the SAME unified GPU consumer example 15 uses), runs
+           (the SAME unified GPU consumer example 14 uses), runs
            GAlgorithmBenchmarkRunner, writes output via GBenchmarkResultWriter.
            There is no build-time CUDA compilation unit any more.
 

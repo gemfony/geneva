@@ -208,7 +208,7 @@ that turns out to be wrong is an ordinary review fix: correct the letter, do not
 work around it. Sizes are re-measured when a test's cost genuinely changes.
 
 A handful of tests are registered only when what they need was actually found at
-configure time -- the two MPI examples need an MPI launcher, example 12 needs a
+configure time -- the two MPI examples need an MPI launcher, example 11 needs a
 Python 3 interpreter, and the GPU examples and the GPU benchmark exist only in a
 build with the GPU consumer enabled. Configure says so for each one it leaves
 out, so a missing test always has a stated reason.

@@ -12,6 +12,6 @@ optimization algorithm.
 NOTE: This example does not include the GMPIConsumerT. The reason for this is that we want to be able to build
 this example even when geneva is build without the mpi consumer. We could use preprocessor macros to make this
 work, but this would confuse the user. Therefore we have a separate example on how to directly use the GMPIConsumerT
-located at ../16_GMPIConsumer/
+located at ../15_GMPIConsumer/
 
 Call the example program with --help to find out about available options.

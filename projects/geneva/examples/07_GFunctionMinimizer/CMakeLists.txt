@@ -28,7 +28,7 @@
 ################################################################################
 
 # This example demonstrates the load-from-disk model: the optimization problem (GFMinIndividual) is a
-# runtime-loadable module, and it is optimized by the generic optimizer (example 19's GGenericOptimizer)
+# runtime-loadable module, and it is optimized by the generic optimizer (example 18's GGenericOptimizer)
 # via --individual, rather than by a bespoke main. There is no example-specific executable -- "load a
 # problem, run an algorithm, print the best" is exactly what the generic optimizer already does. All
 # configuration (Go2, the algorithm, the individual) is auto-created from code defaults on first run.
@@ -42,7 +42,7 @@ GENEVA_DECLARE_INDIVIDUAL(GFMinIndividual
 	CONFIG  ./config/GFMinIndividual.json)
 
 # End-to-end test: the generic optimizer loads this problem module and optimizes it (configs auto-create in
-# the build directory). GGenericOptimizer is provided by example 19.
+# the build directory). GGenericOptimizer is provided by example 18.
 ADD_TEST(
 	NAME GFunctionMinimizer
 	COMMAND $<TARGET_FILE:GGenericOptimizer> --individual $<TARGET_FILE:GFMinIndividual>

@@ -2,7 +2,7 @@
 
 A usable GPU normally means ``nvidia-smi`` returns success. On this host
 ``nvidia-smi`` may instead report a *driver/library version mismatch* while
-CUDA compute still works (e.g. the CUDA example 15 runs). That degraded state
+CUDA compute still works (e.g. the CUDA example 14 runs). That degraded state
 is therefore treated as *usable-with-warning*, not absent, so CUDA matrix
 entries are not skipped purely because NVML is stale. When there is no GPU at
 all, CUDA matrix entries are skipped gracefully rather than failed.

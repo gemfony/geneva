@@ -67,7 +67,7 @@ set_property(CACHE GENEVA_USE_CUDA_RNG PROPERTY STRINGS auto on off)
 # the "gpu" consumer mnemonic: auto|on|off (legacy 0/1 still accepted). Like the MPI consumer this
 # is an opt-in add-on: when enabled the courtier library dynamically links the CUDA (NVRTC + driver
 # API) device backend when present; when disabled no GPU code is compiled and "gpu" is not a
-# selectable consumer (example 15 and the GPU benchmark are skipped too). A CPU backend is always
+# selectable consumer (example 14 and the GPU benchmark are skipped too). A CPU backend is always
 # available when the consumer is built. Independent of GENEVA_USE_CUDA_RNG (a separate Hap feature);
 # honours GENEVA_SKIP_CUDA, which forces the whole consumer off.
 #   auto -> build the consumer when a CUDA toolkit is present (and GENEVA_SKIP_CUDA is OFF), else off

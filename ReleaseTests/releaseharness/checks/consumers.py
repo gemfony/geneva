@@ -8,7 +8,7 @@ Runs a simple optimization under each consumer via example 01
 The StdThread consumer's thread count is taken from the JSON config, not a CLI
 flag, so the threaded check simply runs the stc consumer to completion.
 
-The MPI consumer is exercised via example 16 (GMPIConsumer), launched with
+The MPI consumer is exercised via example 15 (GMPIConsumer), launched with
 ``mpirun`` (rank 0 = server/broker, ranks 1..n = clients) to completion. The
 websocket split remains a structured stub (needs server+client orchestration on
 a localhost port).
@@ -27,9 +27,9 @@ from ..runner import GUEST_BUILD, JobContext
 _EX01_DIR = "projects/geneva/examples/01_GSimpleOptimizer"
 _EX01 = "./GSimpleOptimizer"
 
-# Example 16 drives the GMPIConsumerT directly via mpirun (rank 0 = server,
+# Example 15 drives the GMPIConsumerT directly via mpirun (rank 0 = server,
 # ranks 1..n = clients); it reads ./config/*.json relative to its build dir.
-_EX16_DIR = "projects/geneva/examples/16_GMPIConsumer"
+_EX16_DIR = "projects/geneva/examples/15_GMPIConsumer"
 _EX16 = "./GMPIConsumer"
 
 
@@ -80,7 +80,7 @@ def websocket(ctx: JobContext) -> CheckResult:
 
 
 def mpi(ctx: JobContext) -> CheckResult:
-    """GMPIConsumerT via example 16, launched with mpirun (only when MPI built).
+    """GMPIConsumerT via example 15, launched with mpirun (only when MPI built).
 
     Runs one MPI process group to completion: rank 0 is the server/broker, the
     other ranks are clients. ``-np 3`` => 1 server + 2 clients. Flags needed in

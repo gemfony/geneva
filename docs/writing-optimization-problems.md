@@ -218,7 +218,7 @@ GENEVA_DECLARE_INDIVIDUAL(MyProblem
 allows exactly one optimization problem per process and refuses the second claim, naming both sources. (The
 same `.cpp` compiled into several *separate* binaries is fine; each is its own process.)
 
-See `examples/19_GLoadableIndividual/` for the end-to-end reference: a loadable problem `.so`, a
+See `examples/18_GLoadableIndividual/` for the end-to-end reference: a loadable problem `.so`, a
 generic optimizer that loads it, and the CTest that doubles as the single-process-singleton proof. To ship
-an *optimization algorithm* rather than a problem, `examples/21_GLoadableOA/README.md` is the same story one
+an *optimization algorithm* rather than a problem, `examples/20_GLoadableOA/README.md` is the same story one
 layer up.

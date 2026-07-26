@@ -22,7 +22,7 @@ from ..runner import GUEST_BUILD, JobContext
 # outoftree/findgeneva check).
 _SIMPLE_DIR = "projects/geneva/examples/01_GSimpleOptimizer"
 _SIMPLE = "./GSimpleOptimizer"
-_GCUDA_DIR = "projects/geneva/examples/15_GCUDAWorker"
+_GCUDA_DIR = "projects/geneva/examples/14_GCUDAWorker"
 _GCUDA = "./GCUDAWorker"
 
 
@@ -52,7 +52,7 @@ def networked(ctx: JobContext) -> CheckResult:
 
 
 def cuda(ctx: JobContext) -> CheckResult:
-    """CUDA example 15 — runs only when a GPU is available and CUDA was built."""
+    """CUDA example 14 — runs only when a GPU is available and CUDA was built."""
     tier = Tier.LONG
     if not ctx.job.spec.with_cuda_rng:
         return ctx.skipped("example/cuda", tier, "CUDA not enabled / no GPU on host")

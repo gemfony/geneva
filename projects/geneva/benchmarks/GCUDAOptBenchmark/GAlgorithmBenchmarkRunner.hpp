@@ -167,7 +167,7 @@ private:
  *   1. Creating a GenevaInitializer (must outlive this runner).
  *   2. Registering the process consumer (GConsumerRegistryT::setConsumer) before calling run().
  *
- * The GPU consumer (Gem::Courtier::GPU::GGPUConsumerT, the same one example 15 uses) is created and
+ * The GPU consumer (Gem::Courtier::GPU::GGPUConsumerT, the same one example 14 uses) is created and
  * registered as the process consumer by the caller; each algorithm submits through it automatically.
  * The runner itself is pure C++ and free of any CUDA build-time dependency (the kernel is
  * runtime-compiled by the consumer's backend).

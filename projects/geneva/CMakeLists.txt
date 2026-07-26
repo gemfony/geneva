@@ -48,7 +48,7 @@
 #   geneva/src/*.cpp                   implementation (flat, mirrors the
 #                                        top-level header set); 73 sources
 #   geneva/tests/                      UnitTests + ManualTests
-#   geneva/examples/{01_..22_}/        all numbered examples
+#   geneva/examples/{01_..21_}/        all numbered examples
 #   geneva/quickstart/                 the self-contained downstream template
 #                                        (find_package(Geneva); NOT built in tree)
 #   geneva/benchmarks/                 6 benchmark binaries
@@ -75,7 +75,7 @@ ENDIF ()
 # The unified GPU consumer framework (CPU/CUDA backends, runtime kernel loading) lives in the
 # Courtier library (courtier/include/courtier/gpu + courtier/src/gpu). It is an opt-in add-on folded
 # INTO gemfony-courtier when GENEVA_BUILD_WITH_GPU_CONSUMER is ON (like the MPI consumer); there is no
-# separate GPU library. It is exercised by example 15 (the Mona-Lisa problem) and the GPU optimisation
+# separate GPU library. It is exercised by example 14 (the Mona-Lisa problem) and the GPU optimisation
 # benchmark, both built only when the GPU consumer is.
 
 # Per-library Doxygen target (doc-geneva).

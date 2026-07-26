@@ -32,7 +32,7 @@
  * @brief Module "glue" that makes GFMinIndividual a runtime-loadable Geneva individual.
  *
  * This example ships its problem as a loadable module and runs it with the generic optimizer
- * (example 19's GGenericOptimizer) via --individual, instead of a bespoke main -- the load-from-disk model.
+ * (example 18's GGenericOptimizer) via --individual, instead of a bespoke main -- the load-from-disk model.
  * This translation unit holds only the fixed extern "C" entry point geneva_module_manifest(); it does NOT
  * re-emit GFMinIndividual's archive registration (that lives in GFMinIndividual.cpp).
  */

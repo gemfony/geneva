@@ -35,7 +35,7 @@ ADD_SUBDIRECTORY ( GSerializationOverhead )
 
 # The GPU optimisation benchmark drives the courtier GPU consumer, so it is built only when that
 # consumer is (GENEVA_BUILD_WITH_GPU_CONSUMER -- the opt-in add-on folded into gemfony-courtier). Like
-# example 15 its kernel is runtime-compiled (NVRTC), so it needs no CUDA language at build time
+# example 14 its kernel is runtime-compiled (NVRTC), so it needs no CUDA language at build time
 # -- it builds with an ordinary C++ toolchain and selects CPU/CUDA at run time.
 IF ( GENEVA_GPU_CONSUMER_ENABLED )
 	ADD_SUBDIRECTORY ( GCUDAOptBenchmark )

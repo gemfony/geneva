@@ -139,7 +139,7 @@ are structured stubs with explicit TODOs:
   save/restore identity. Wiring + example mapping present; checkpoint-identity
   comparison is a STUB (TODO: byte/objective compare of two runs).
 * `checks/examples.py` — `01_GSimpleOptimizer` build+run; one networked example
-  (client+server on localhost); CUDA example `15_GCUDAWorker` (GPU-gated). The
+  (client+server on localhost); CUDA example `14_GCUDAWorker` (GPU-gated). The
   quickstart's own build+run is `checks/outoftree.py` (it is not built in-tree).
 
 ## Phase 6 — Install / out-of-tree / linking (STUBBED)
@@ -208,7 +208,7 @@ Host: Ubuntu 26.04 LTS ("resolute"), Python 3.14.4, PyYAML 6.0.3.
   `sudo usermod -aG docker $USER && newgrp docker` (or simply use Podman).
 * `multipass`: present but not used; the container backends cover the matrix.
 * GPU: `nvidia-smi` reports a **driver/library version mismatch** (NVML stale),
-  but CUDA compute still works (example 15 runs). `doctor` reports this as
+  but CUDA compute still works (example 14 runs). `doctor` reports this as
   VERSION_MISMATCH (usable-with-warning) and recommends a reboot / kernel-module
   reload, plus `video`/`render` group membership. CUDA matrix entries are NOT
   skipped solely on the NVML mismatch.

@@ -28,7 +28,7 @@
 ################################################################################
 
 # Load-from-disk model: the multi-criterion problem is a runtime-loadable module optimized by the generic
-# optimizer (example 19's GGenericOptimizer) via --individual, not by a bespoke main.
+# optimizer (example 18's GGenericOptimizer) via --individual, not by a bespoke main.
 GENEVA_DECLARE_INDIVIDUAL(GMultiCriterionParabolaIndividual
 	MODE    load
 	SOURCES GMultiCriterionParabolaIndividual.cpp

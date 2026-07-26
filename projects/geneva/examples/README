@@ -47,31 +47,34 @@ parameters are specified. There is a whole family of parameter objects.
 06_GDirectSwarm:
 -------------
 
-06_GSimpleSwarm:
-----------------
-
 07_GFunctionMinimizer:
 ----------------------
+
+08_GPostProcessing:
+-------------------
+
+Demonstrates serializable post-processing workers: each work item undergoes a
+sub-optimization by a nested evolutionary algorithm.
 
 09_GNeuralNetwork:
 ------------------
 
-11_GMetaOptimizer:
+10_GMetaOptimizer:
 ------------------
 
-12_GExternalEvaluator:
+11_GExternalEvaluator:
 ----------------------
 
-13_GPluggableOptimizationMonitors:
+12_GPluggableOptimizationMonitors:
 ----------------------------------
 
-14_GDependentConstraints:
+13_GDependentConstraints:
 -------------------------
 
-15_GCUDAWorker:
+14_GCUDAWorker:
 ---------------
 
-16_GMPIConsumer:
+15_GMPIConsumer:
 ----------------
 
 This example shows how the MPI consumer can be used directly without using Go2.
@@ -79,13 +82,44 @@ Usually using Go2 is recommended, but this example serves as a demonstration of 
 is similar to the example 06_GDirectEA. If you would like to explore the MPI-Consumer with Go2, you can use the
 quickstart in ../quickstart and call the executable with --help --showAll to explore all options.
 
-17_GMPISubClients:
+16_GMPISubClients:
 ------------------
 
 This example shows how to use the GMPISubClientOptimizer.
 It offers all functionality of Go2 but additionally adds the functionality of
 creating MPI-sub-clients, which can be used to parallelize computation on the level
 of individuals in a user-defined fashion.
+
+17_GAlgorithmChaining:
+----------------------
+
+Shows how several optimization algorithms are chained in a single run, each
+one handed the best individuals its predecessor found.
+
+18_GLoadableIndividual:
+-----------------------
+
+The reference example for a runtime-loadable optimization problem: the problem
+is built as a module and a generic optimizer with nothing compiled in loads it
+with --individual.
+
+19_GFunctionGPU:
+----------------
+
+A stock library individual evaluated on the GPU purely by selecting the GPU
+consumer (--consumer gpu). Requires a CUDA device.
+
+20_GLoadableOA:
+---------------
+
+The same story one level up: a runtime-loadable optimization ALGORITHM, loaded
+with --module by an optimizer that has no algorithm compiled in.
+
+21_GLoadableGPU:
+----------------
+
+One loadable module carrying both an individual and its GPU marshaller, run on
+the device by a generic optimizer. Requires a CUDA device.
 
 
 Please check each directory's README for further information. The main source

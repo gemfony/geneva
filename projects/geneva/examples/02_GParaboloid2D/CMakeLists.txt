@@ -34,7 +34,7 @@
 #     model the Geneva manual introduces (subclass GGenome, override evaluate(), compile it in).
 #
 #   GParaboloid2D-module -- the individual built as a runtime-loadable module (libGParaboloid2D-module.so),
-#     optimized by the generic optimizer (example 19's GGenericOptimizer) via --individual, with no bespoke
+#     optimized by the generic optimizer (example 18's GGenericOptimizer) via --individual, with no bespoke
 #     driver. Configuration is auto-created from code defaults on first run.
 #
 # One source serves both: the individual supplies the Tier-2 factory hooks (Config / describeConfig /

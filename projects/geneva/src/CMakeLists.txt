@@ -115,12 +115,12 @@ GENEVA_DECLARE_INDIVIDUAL(GFunctionIndividual
 	PLUGIN  individuals/GFunctionIndividualPlugin.cpp
 	CONFIG  ./config/GFunctionIndividual.json)
 
-# GMetaOptimizerIndividualT is the meta-optimization umbrella individual (example 11). It is a class template
+# GMetaOptimizerIndividualT is the meta-optimization umbrella individual (example 10). It is a class template
 # whose default and only exported instantiation is GMetaOptimizerIndividualT<GFunctionIndividual>, so it needs
 # GFunctionIndividual at compile and link time and must never be loaded (loading a meta-umbrella individual is
 # meaningless). Hence MODE compile: an object library its consumers link, no module. A consumer that links this
 # object library must ALSO link GFunctionIndividual-obj (its instantiation's symbols); the two meta consumers
-# (example 11 and the unit tests) do so explicitly.
+# (example 10 and the unit tests) do so explicitly.
 GENEVA_DECLARE_INDIVIDUAL(GMetaOptimizerIndividualT
 	MODE    compile
 	SOURCES individuals/GMetaOptimizerIndividualT.cpp)
