@@ -49,7 +49,7 @@
 #include "geneva/genome/GGenome.hpp"
 #include "weft/GArchivePolymorphic.hpp" // GEM_REGISTER_ARCHIVABLE + archive-generic dispatch
 #include "geneva/genome/GGenomeT.hpp"
-#include "courtier/GWireSerializationContext.hpp" // results-only return: the worker-side wire scope
+#include "courtier/GWireSerializationContext.hpp" // the worker-side wire scope
 #include "geneva/genome/GGenomeBuilder.hpp"
 #include "geneva/genome/GProblemStoreT.hpp"
 

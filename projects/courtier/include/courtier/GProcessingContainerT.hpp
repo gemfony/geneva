@@ -70,7 +70,7 @@ namespace Gem::Courtier {
 	 * and has no process() and no result store, so it is not by itself a submittable work item. This class
 	 * adds the missing half: a typed result store (one or more processing_result_type values), the
 	 * process() orchestration (timing, the configured pre-/post-processors, error/exception handling around
-	 * the user's process_() hook) and the results-only return graft -- i.e. the full contract the courtier
+	 * the user's process_() hook) and the return reconciliation -- i.e. the full contract the courtier
 	 * consumers require of an item they evaluate. Derive this (CRTP-style, passing yourself as
 	 * processable_type) to make your OWN type runnable on any courtier consumer; re-implement the pure
 	 * virtual process_() and make the derived class serializable so it travels on the networked transports.

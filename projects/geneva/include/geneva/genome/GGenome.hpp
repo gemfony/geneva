@@ -52,6 +52,7 @@
 #include "common/GExceptions.hpp"
 #include "common/GExpectationChecksT.hpp"
 #include "common/GLogger.hpp"
+#include "courtier/GWireProtocolT.hpp"           // the wire-protocol seam (befriended below)
 #include "courtier/GWireSerializationContext.hpp" // layout send-once: the wire (de)serialization context
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/genome/GAdaptionKernels.hpp"
@@ -110,6 +111,9 @@ class GGenome // NOLINT(cppcoreguidelines-special-member-functions)
     ///////////////////////////////////////////////////////////////////////
     friend struct Gem::Weft::access;
     friend struct Gem::Common::GReflectiveInterfaceAccess;
+    /// The wire-protocol seam (GGenomeWireProtocol.hpp) writes a returned evaluation onto a live
+    /// population element, which is exactly what the protected result/validity setters exist for.
+    friend struct Gem::Courtier::GWireProtocolT<GGenome>;
 
     /** @brief Single declaration of ALL this class's data, feeding the GReflectiveInterfaceBaseT-generated
      *  name_()/load_()/compare_() as well as save()/load() below.
@@ -1529,7 +1533,7 @@ private:
 
     /** @brief In-place return reconciliation (see Gem::Courtier::GProcessable::absorbResultsFrom): absorbs
      *  the returned item's computed results + evaluation-derived local state + processing lifecycle, while
-     *  KEEPING this live population element's own genome value channels (a results-only return leaves them
+     *  KEEPING this live population element's own genome value channels (an `evaluation` return leaves them
      *  untouched; a full return grafts the genome separately, see GNetworkedConsumerT::checkin) and its
      *  OA-owned scratch. Keeping the object in place (rather than swapping in the deserialized return) is
      *  what preserves its heap address across a networked round-trip.

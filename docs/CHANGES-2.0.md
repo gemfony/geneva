@@ -120,10 +120,24 @@ are in `CHANGES` and `INSTALL`; this file is the practical upgrade guide.
   `GENEVA_BUILD_WITH_GPU_CONSUMER`). A GPU problem contributes only its device marshaller
   via `Gem::Geneva::registerGPUMarshaller<...>(...)`; Go2 builds/selects the consumer
   like any other.
-- **Wire transport optimizations.** The shared genome layout is sent **once per client**
-  and referenced by a content id thereafter; on the websocket/Asio consumers a processed
-  item returns **results-only** by default (the server grafts the original parameters
-  back on). Checkpoint/file serialization stays self-contained (full layout by value).
+- **The networked protocol is two-layered: courtier frames, Geneva messages.** Courtier owns
+  a closed frame vocabulary (`GFrameKind`: pull / no-work / work / return / shutdown /
+  blob-request / blob-reply) plus the per-slot `GProcessingOutcome` it reconciles on, and
+  nothing else. What a message *means* is Geneva's: a numeric tag (`geneva_command`:
+  `evaluate` / `evaluation` / `evaluated_and_modified` / `terminate`) and a per-command
+  payload, both relayed by courtier without interpretation. A library plugs its own answers
+  in by specializing `Gem::Courtier::GWireProtocolT<work_item_type>`; courtier links no
+  Geneva code and knows no Geneva vocabulary.
+- **A processed item returns its RESULTS, not a hollowed-out copy of itself.** The ordinary
+  return is an `evaluation` carrying the computed result store plus the validity level --
+  a few hundred bytes whose size does not grow with the individual, its parameters or any
+  data the problem definition carries. A worker that genuinely modified the genome answers
+  `evaluated_and_modified` with the whole individual instead; the choice is a message type,
+  so the per-item `setReturnFullIndividual` flag, the `genome_omitted` encoding and the
+  entity/genome member-group split it forced are all **removed**.
+- **The shared genome layout is sent once per client** and referenced by a content id
+  thereafter. Interning is source-side only: a worker always inlines what it sends back.
+  Checkpoint/file serialization stays self-contained (full layout by value).
 - **Networked consumers' timeout / death-detection is now user-configurable** through a
   config file.
 - **The EA post-optimizer always refines inline.** `GEvolutionaryAlgorithmPostOptimizer`

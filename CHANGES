@@ -16,6 +16,9 @@ Why the redesign:
 - To add long-missing capabilities: runtime-loadable problem / algorithm / GPU modules, a
   first-class GPU consumer, strict-JSON configuration with a generated reference, and a
   unified local / remote / GPU evaluation path.
+- To draw the library boundaries where they belong: the networked transport layer
+  (`courtier`) now carries frames and opaque payloads and knows nothing of optimization,
+  and a processed work item returns its computed results rather than a copy of itself.
 - To greatly improve test coverage and build hygiene: Catch2 v3 unit tests across all
   libraries, a self-contained installed header set, and out-of-source-only builds.
 

@@ -1215,8 +1215,8 @@ void GGenome::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) {
  * The pointer-preserving counterpart of a networked return: the server keeps the originally-submitted
  * population element (its address, its genome, its evolved OA scratch) and copies in only what the worker
  * computed -- the processing lifecycle (via the base), the evaluation-derived local state (validity level,
- * …) and the result store. Deliberately NOT copied: the genome value channels (kept for a results-only
- * return; grafted separately for a full return) and the OA scratch. This mirrors the subset of load_()
+ * …) and the result store. Deliberately NOT copied: the genome value channels (absorbed separately, and
+ * only for an `evaluated_and_modified` return) and the OA scratch. This mirrors the subset of load_()
  * that a return legitimately carries, minus the genome and scratch.
  */
 void GGenome::absorbResultsFrom_(const Gem::Courtier::GProcessable &src) {
@@ -1229,7 +1229,7 @@ void GGenome::absorbResultsFrom_(const Gem::Courtier::GProcessable &src) {
         return; // a non-individual return carries nothing more we can absorb
     }
 
-    // A results-only return carries exactly the two evaluation OUTPUTS a worker computes: the result store
+    // An `evaluation` return carries exactly the two evaluation OUTPUTS a worker computes: the result store
     // and the feasibility (validity) level. Everything else the server already holds correctly and keeps:
     // the genome and OA scratch (kept by not re-copying them), and the config veto flags / assigned
     // iteration (unchanged by processing, so identical on both sides). Expressed through the public

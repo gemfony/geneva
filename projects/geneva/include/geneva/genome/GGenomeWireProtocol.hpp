@@ -34,11 +34,14 @@
 
 // Standard headers go here
 #include <cstdint>
+#include <vector>
 
 // Geneva headers go here
+#include "common/GArchiveNamed.hpp" // archive_named
 #include "common/GLogger.hpp"
 #include "courtier/GWireProtocolT.hpp"
 #include "geneva/genome/GGenome.hpp"
+#include "geneva/genome/GIndividualProcessingResult.hpp"
 
 namespace Gem::Geneva::Genome {
 
@@ -59,6 +62,39 @@ enum class geneva_command : std::uint32_t {
 };
 
 /******************************************************************************/
+/**
+ * The payload of an `evaluation` message: exactly the two OUTPUTS an evaluation produces.
+ *
+ * A worker that did not change the genome has nothing to return but these -- the result store and the
+ * feasibility level. Everything else about the individual (its parameters, its structural layout, its
+ * pre-/post-processors, the shared problem policy, the algorithm-owned scratch) the server already holds
+ * and keeps. Shipping the individual back to carry two small arrays was what the old degenerate
+ * "individual with its genome omitted" encoding did; this says the same thing in the size it deserves,
+ * and -- unlike that encoding -- its size does not grow with whatever data a derived individual happens
+ * to carry.
+ *
+ * Courtier never reads this: it is the library payload of a RETURN frame, relayed as opaque content.
+ */
+struct GEvaluationResults {
+    ///////////////////////////////////////////////////////////////////////
+    friend struct Gem::Weft::access;
+
+    /** @brief (De)serialises the results and the validity level.
+     *  @tparam Archive The GArchive codec type
+     *  @param ar The archive to read from / write to
+     *  @param version The (unused) serialization version number */
+    template <typename Archive>
+    void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
+        Gem::Common::archive_named(ar, "results", results);
+        Gem::Common::archive_named(ar, "validity_level", validity_level);
+    }
+    ///////////////////////////////////////////////////////////////////////
+
+    std::vector<individual_processing_result> results; ///< one {raw, transformed, set} per criterion
+    double validity_level = 0.;                        ///< the computed feasibility level (<= 1 == feasible)
+};
+
+/******************************************************************************/
 
 } /* namespace Gem::Geneva::Genome */
 
@@ -74,9 +110,8 @@ namespace Gem::Courtier {
  */
 template <>
 struct GWireProtocolT<Gem::Geneva::Genome::GGenome> {
-    /** @brief Geneva ships whole individuals in both directions for now; the results-only return
-     *  becomes a payload of its own in a following change. */
-    using payload_type = GNoLibraryPayload;
+    /** @brief An ordinary return carries only what an evaluation produced. */
+    using payload_type = Gem::Geneva::Genome::GEvaluationResults;
 
     /** @brief @return The tag on a dispatched work item: evaluate it. */
     static std::uint32_t workTag() {
@@ -90,18 +125,26 @@ struct GWireProtocolT<Gem::Geneva::Genome::GGenome> {
 
     /**
      * @brief Worker side: chooses the message a processed individual comes back as.
+     *
+     * An evaluation that left the genome alone -- the overwhelmingly common case -- answers with an
+     * `evaluation`: the two computed outputs, nothing else. A worker that MODIFIED the individual (a
+     * nested / tiered optimization that found a better point) has to send the whole thing back, and says
+     * so with `evaluated_and_modified`. The choice is a message type, not a flag inside a payload.
+     *
      * @param item The processed individual
      * @param tag Receives the geneva_command describing the return
-     * @param payload Unused while every return ships the whole individual
-     * @return true -- the individual itself travels back
+     * @param payload Receives the computed results, for an `evaluation`
+     * @return true if the whole individual travels back, false if @p payload replaces it
      */
     static bool buildReturn(
-        [[maybe_unused]] const Gem::Geneva::Genome::GGenome &item,
+        const Gem::Geneva::Genome::GGenome &item,
         std::uint32_t &tag,
-        [[maybe_unused]] payload_type &payload
+        payload_type &payload
     ) {
-        tag = static_cast<std::uint32_t>(Gem::Geneva::Genome::geneva_command::evaluated_and_modified);
-        return true;
+        tag = static_cast<std::uint32_t>(Gem::Geneva::Genome::geneva_command::evaluation);
+        payload.results = item.getStoredResults();
+        payload.validity_level = item.getValidityLevel();
+        return false;
     }
 
     /**
@@ -114,17 +157,26 @@ struct GWireProtocolT<Gem::Geneva::Genome::GGenome> {
      *
      * @param slot The live population element the return belongs to
      * @param tag The geneva_command the worker chose
-     * @param payload Unused while every return ships the whole individual
-     * @param item The returned individual, or nullptr if none travelled
+     * @param payload The computed results, for an `evaluation`
+     * @param item The returned individual, for an `evaluated_and_modified`
      */
     static void applyReturn(
         Gem::Geneva::Genome::GGenome &slot,
         std::uint32_t tag,
-        [[maybe_unused]] const payload_type *payload,
+        const payload_type *payload,
         const Gem::Geneva::Genome::GGenome *item
     ) {
         using Gem::Geneva::Genome::geneva_command;
         switch(static_cast<geneva_command>(tag)) {
+        case geneva_command::evaluation:
+            if(payload != nullptr) {
+                // The genome, the layout and the algorithm-owned scratch stay the element's own: the
+                // worker changed none of them, and the server has held them correctly all along.
+                slot.setStoredResults(payload->results);
+                slot.setValidityLevel(payload->validity_level);
+            }
+            break;
+
         case geneva_command::evaluated_and_modified:
             if(item != nullptr) {
                 slot.absorbGenomeFrom(*item); // the worker changed the genome -> take it

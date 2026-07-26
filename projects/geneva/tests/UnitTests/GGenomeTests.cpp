@@ -697,7 +697,7 @@ TEST_CASE("GGenome: serialization round-trip", "[flat]") {
 /******************************************************************************/
 // CHARACTERIZATION NET (B0, 2026-06-28): outcome-pins for the individual-architecture swap. These
 // assert behaviour that must survive the GProcessable / GGenome / GGenome rebuild,
-// independent of the mechanisms being retired (the results-only wire form and the population slot).
+// independent of the mechanisms being retired (the old degenerate return encoding and the population slot).
 // See prompts/2026-06-28-characterization-net.md.
 
 // External-result acceptance (D14): a precomputed evaluation injected via process(res_vec) is taken
@@ -1111,11 +1111,48 @@ private:
     }
 };
 
+/** @brief A ManyGroups whose LEAF carries an arbitrary amount of problem data of its own (the shape of
+ *  every real problem definition: GLineFitIndividual's data points, a neural network's training set).
+ *  That data is serialized by the leaf's own serialize() and therefore rides every full encoding of the
+ *  individual -- which is exactly what an `evaluation` return must not scale with. */
+class BulkyLeaf : public GGenomeT<BulkyLeaf> {
+public:
+    using gemfony_flat_individual = void; // b2: genome-only flat leaf -- opt into GGenomeT's empty localMembers_()
+
+    BulkyLeaf() = default;
+    explicit BulkyLeaf(std::size_t n_params, std::size_t n_data_points)
+      : data_points_(n_data_points, 1.25) {
+        GGenomeBuilder b;
+        b.addDoubleArray(n_params, -10., 10.);
+        this->setGenome(b.build());
+    }
+    BulkyLeaf(const BulkyLeaf &) = default;
+
+protected:
+    std::vector<double> evaluate() override {
+        std::vector<double> v;
+        this->streamline<double>(v);
+        return {std::ranges::fold_left(
+            v | std::views::transform([](double x) { return x * x; }), 0., std::plus{})};
+    }
+
+private:
+    std::vector<double> data_points_; ///< the leaf's own problem data
+
+    friend struct Gem::Weft::access;
+    template <typename Archive>
+    void serialize(Archive &ar, [[maybe_unused]] const unsigned int version) {
+        Gem::Common::archive_named_base<GGenomeT<BulkyLeaf>>(ar, "GGenomeT", *this);
+        Gem::Common::archive_named(ar, "data_points_", data_points_);
+    }
+};
+
 } // namespace Gem::Tests
 
 GEM_REGISTER_ARCHIVABLE(Gem::Tests::Mixed) // NOLINT
 GEM_REGISTER_ARCHIVABLE(Gem::Tests::IntGauss) // NOLINT
 GEM_REGISTER_ARCHIVABLE(Gem::Tests::ManyGroups) // NOLINT
+GEM_REGISTER_ARCHIVABLE(Gem::Tests::BulkyLeaf) // NOLINT
 
 using Gem::Tests::ManyGroups;
 using Gem::Tests::Mixed;
@@ -1589,7 +1626,7 @@ TEST_CASE("In-place return-reconciliation primitives keep genome / relocate noth
     server_item.absorbResultsFrom(*returned);
     CHECK(server_item.is_processed());
     CHECK(server_item.getStoredResult(0).rawFitness() == returned_fitness);
-    CHECK(valuesOf(server_item) == server_vals);   // genome untouched (results-only semantics)
+    CHECK(valuesOf(server_item) == server_vals);   // genome untouched (`evaluation` semantics)
 
     // loadContentFrom(): full in-place deep copy; the object is not relocated (its address is fixed here,
     // documenting the contract the networked refill relies on) and returns true for a geneva individual.
@@ -1604,6 +1641,90 @@ TEST_CASE("In-place return-reconciliation primitives keep genome / relocate noth
     CHECK(failed.getStoredResult(0).rawFitness() == returned_fitness);
 }
 
+
+/******************************************************************************/
+TEST_CASE("An evaluation return is small and does not scale with the individual", "[flat][wire]") {
+    // The point of the `evaluation` message: a worker that only evaluated has two outputs to report, and
+    // the frame it sends back is the size of those two outputs -- NOT the size of the individual, and in
+    // particular NOT growing with whatever problem data the leaf class carries. The old encoding (an
+    // individual with its genome branch omitted) shipped the whole entity half, including every derived
+    // leaf member and the pre-/post-processors and shared policy the server already held.
+    namespace c2 = Gem::Courtier;
+    using mode = Gem::Common::serializationMode;
+
+    // Two individuals with the SAME parameter count but wildly different leaf data.
+    auto lean = std::make_unique<Gem::Tests::BulkyLeaf>(/*n_params=*/32, /*n_data_points=*/1);
+    auto bulky = std::make_unique<Gem::Tests::BulkyLeaf>(/*n_params=*/32, /*n_data_points=*/20000);
+    lean->process();
+    bulky->process();
+    REQUIRE(lean->is_processed());
+    REQUIRE(bulky->is_processed());
+
+    const std::size_t lean_item_size = lean->toString(mode::GEM_BINARY).size();
+    const std::size_t bulky_item_size = bulky->toString(mode::GEM_BINARY).size();
+    REQUIRE(bulky_item_size > 10 * lean_item_size); // the leaf data really does dominate
+
+    // Build the RETURN frame each of them produces, exactly as a worker client does.
+    auto frame_size = [](std::unique_ptr<GGenome> item) {
+        c2::GCommandContainerT<GGenome> frame{c2::GFrameKind::WORK, std::move(item)};
+        c2::makeReturnFrame(frame);
+        CHECK(frame.kind() == c2::GFrameKind::RETURN);
+        CHECK(frame.tag() ==
+              static_cast<std::uint32_t>(Gem::Geneva::Genome::geneva_command::evaluation));
+        CHECK(frame.item() == nullptr);          // no individual travels back
+        REQUIRE(frame.libraryPayload() != nullptr);
+        return c2::container_to_string(frame, mode::GEM_BINARY).size();
+    };
+    const std::size_t lean_return = frame_size(std::move(lean));
+    const std::size_t bulky_return = frame_size(std::move(bulky));
+
+    WARN("evaluation return: lean item=" << lean_item_size << " -> return=" << lean_return
+         << " | bulky item=" << bulky_item_size << " -> return=" << bulky_return);
+
+    // Smaller than the item it reports on ...
+    CHECK(lean_return < lean_item_size);
+    CHECK(bulky_return < bulky_item_size);
+    // ... and INDEPENDENT of the leaf's data size: the two returns are byte-for-byte the same size.
+    CHECK(lean_return == bulky_return);
+}
+
+/******************************************************************************/
+TEST_CASE("An evaluation return carries the computed results to the live slot", "[flat][wire]") {
+    // The round-trip contract of the `evaluation` message: the worker's results and validity level
+    // arrive, and NOTHING else about the server-side element is disturbed -- its parameters, its shared
+    // layout and its lifecycle stay the server's own.
+    namespace c2 = Gem::Courtier;
+    using mode = Gem::Common::serializationMode;
+
+    ManyGroups server_item(16);
+    server_item.randomInit(activityMode::ALLPARAMETERS);
+    const std::vector<double> server_vals = valuesOf(server_item);
+    server_item.setCorrelationId(4711);
+
+    // The worker's copy is evaluated on a DIFFERENT genome, so "the server keeps its own" is observable.
+    auto worker_copy = server_item.clone<ManyGroups>();
+    worker_copy->randomInit(activityMode::ALLPARAMETERS);
+    worker_copy->process();
+    const double worker_fitness = worker_copy->getStoredResult(0).rawFitness();
+
+    c2::GCommandContainerT<GGenome> frame{c2::GFrameKind::WORK, std::move(worker_copy)};
+    c2::makeReturnFrame(frame);
+    CHECK(frame.outcome().correlation_id == 4711); // the routing token rides the frame, not the item
+
+    // Wire round-trip, then apply to the live element exactly as the consumer's checkin() does.
+    c2::GCommandContainerT<GGenome> received{c2::GFrameKind::NONE};
+    REQUIRE_NOTHROW(c2::container_from_string(
+        c2::container_to_string(frame, mode::GEM_BINARY), received, mode::GEM_BINARY));
+    REQUIRE(received.libraryPayload() != nullptr);
+
+    server_item.applyProcessingOutcome(received.outcome());
+    c2::GWireProtocolT<GGenome>::applyReturn(
+        server_item, received.tag(), received.libraryPayload(), nullptr);
+
+    CHECK(server_item.is_processed());
+    CHECK(server_item.getStoredResult(0).rawFitness() == worker_fitness); // the results arrived ...
+    CHECK(valuesOf(server_item) == server_vals);                          // ... and nothing else moved
+}
 
 /******************************************************************************/
 TEST_CASE("Wire send-once: a worker never references a blob by id", "[flat][wire][regression]") {
@@ -1784,7 +1905,7 @@ TEST_CASE("Wire send-once over a real websocket loopback interns one layout", "[
         }
     }
     CHECK(processed == N); // correctness: every item came back evaluated
-    CHECK(with_genome == N); // results-only returns must still leave each item with its full genome
+    CHECK(with_genome == N); // `evaluation` returns must still leave each item with its full genome
 
     // Send-once: a single layout served the whole population over all clients (had each item carried its
     // own layout copy this would still be 1, since the blob store keys by content id -- but more to the
@@ -1863,7 +1984,7 @@ TEST_CASE("Wire send-once over a real ASIO loopback interns one layout", "[flat]
         }
     }
     CHECK(processed == N);
-    CHECK(with_genome == N); // results-only returns must still leave each item with its full genome
+    CHECK(with_genome == N); // `evaluation` returns must still leave each item with its full genome
     CHECK(consumer->getInternedBlobCount() == 1);
 
     consumer->stopServer();
@@ -1951,7 +2072,7 @@ TEST_CASE("Networked reconciliation keeps population elements at stable addresse
     }
     CHECK(processed == N);       // every item came back evaluated
     CHECK(stable_address == N);  // and at its ORIGINAL heap address (in-place reconciliation)
-    CHECK(with_genome == N);     // results-only return still leaves each item its full genome
+    CHECK(with_genome == N);     // an `evaluation` return still leaves each item its full genome
 
     consumer->stopServer();
     c2::GConsumerRegistryT<GGenome>::instance().clear();
@@ -2040,8 +2161,8 @@ TEST_CASE("Wire send-once: many distinct layouts under a bounded registry stay c
 }
 
 /******************************************************************************/
-TEST_CASE("EA over a websocket consumer with results-only returns keeps full genomes", "[wire][net][ea]") {
-    // Isolation test for the results-only-return path under a REAL optimization (many generations,
+TEST_CASE("EA over a websocket consumer with evaluation returns keeps full genomes", "[wire][net][ea]") {
+    // Isolation test for the `evaluation`-return path under a REAL optimization (many generations,
     // selection + adaption), as opposed to the single-batch executor.workOn loopbacks above. Runs an EA
     // over the websocket consumer for enough generations to pass the point where the MPI path was seen
     // to collapse, then asserts the best individual still has its full genome (not an empty one that
