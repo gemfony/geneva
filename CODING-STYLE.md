@@ -112,6 +112,12 @@ Geneva's own headers — so a file's dependencies read at a glance:
 #include "common/GLogger.hpp"
 ```
 
+**Carve-out — Catch2 test drivers (maintainer ruling 2026-07-26).** Files under a library's `tests/`
+tree follow the test-suite convention instead: the Catch2 headers may come first and
+`common/GGlobalDefines.hpp` may be omitted — a test driver consumes the already-built library interface
+rather than participating in it. This blesses the existing, uniform pattern across the test suites; do
+not "normalize" test drivers to the library layout, and do not flag them for it in reviews.
+
 ### 2.3 File names and extensions
 
 Header files use the extension `.hpp` and implementation files `.cpp`. A file is named after the principal
