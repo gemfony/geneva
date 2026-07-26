@@ -36,7 +36,6 @@
 SET(GLOADABLEOA_INCLUDES
 	GRandomSearch.hpp
 	GRandomSearch_PersonalityTraits.hpp
-	GRandomSearchFactory.hpp
 )
 ADD_CUSTOM_TARGET(CLION_EXAMPLE21_HEADERS SOURCES ${GLOADABLEOA_INCLUDES})
 

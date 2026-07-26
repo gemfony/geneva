@@ -24,37 +24,36 @@ analogue of example 19 (a loadable problem) and has two artifacts:
 
 1. **Write the algorithm and its personality traits** (`GRandomSearch.hpp/.cpp`,
    `GRandomSearch_PersonalityTraits.hpp/.cpp`). Nothing about either is module-specific — the same classes
-   could be compiled into Geneva. The traits' `nickname` is the mnemonic users will type.
+   could be compiled into Geneva. The traits' `nickname` is the mnemonic users will type, and the algorithm
+   names them with a `using personality_traits_type = GMyAlgorithm_PersonalityTraits;` alias, exactly as
+   Geneva's built-in algorithms do.
 
-2. **Name its factory.** For almost every algorithm this is one line — the scaffold generates the config
-   path, `getMnemonic()`, `getAlgorithmName()`, `getObject_()` and the constructors:
-
-   ```cpp
-   using GMyAlgorithmFactory =
-       Gem::Geneva::OptimizationAlgorithms::GOptimizationAlgorithmFactoryT<GMyAlgorithm, GMyAlgorithm_PersonalityTraits>;
-   ```
-
-   Derive from that instantiation instead if your algorithm needs more of its factory — extra command-line
-   options or a `postProcess_()` step (`GParameterScanFactory` in the Geneva library is the in-tree example).
-   Either way the factory **is** the provider Geneva's algorithm store holds, so nothing wraps it.
-
-3. **Add one translation unit** (`GRandomSearchPlugin.cpp`) with the serialization registrations and the
-   manifest entry point:
+2. **Add one translation unit** (`GRandomSearchPlugin.cpp`) with the serialization registrations and the
+   manifest entry point. There is no factory to write: for almost every algorithm the factory *is* the
+   `GOptimizationAlgorithmFactoryT` scaffold instantiated for it, written straight into the manifest call —
+   the scaffold generates the config path, `getMnemonic()`, `getAlgorithmName()`, `getObject_()` and the
+   constructors, and a factory **is** the provider Geneva's algorithm store holds, so nothing wraps it:
 
    ```cpp
    #include "weft/GArchivePolymorphic.hpp"
    #include "geneva/oa/GOAPlugin.hpp"
+   #include "geneva/oa/GOptimizationAlgorithmFactoryT.hpp"
    #include "GMyAlgorithm.hpp"
-   #include "GMyAlgorithmFactory.hpp"
    #include "GMyAlgorithm_PersonalityTraits.hpp"
 
    GEM_REGISTER_ARCHIVABLE(GMyAlgorithm)                    // checkpoint tags: the algorithm ...
    GEM_REGISTER_ARCHIVABLE(GMyAlgorithm_PersonalityTraits)  // ... and its personality traits
 
    extern "C" BOOST_SYMBOL_EXPORT const GenevaModuleManifest *geneva_module_manifest() {
-       return Gem::Geneva::oaManifest<GMyAlgorithmFactory, "GMyAlgorithm">();
+       return Gem::Geneva::oaManifest<
+           Gem::Geneva::OptimizationAlgorithms::GOptimizationAlgorithmFactoryT<GMyAlgorithm>,
+           "GMyAlgorithm">();
    }
    ```
+
+   Write a factory class of your own — deriving from that instantiation — only if your algorithm needs more
+   of its factory: extra command-line options or a `postProcess_()` step (`GParameterScanFactory` in the
+   Geneva library is the in-tree example).
 
    The `extern "C"` `geneva_module_manifest()` is the only irreducible boilerplate (the loader resolves this
    fixed, unmangled symbol via `dlsym`); everything else is the typed helper
@@ -64,7 +63,7 @@ analogue of example 19 (a loadable problem) and has two artifacts:
    your factory. The registrations are the same ones a compiled-in algorithm needs, so a checkpoint written
    with the module loaded resumes with it loaded.
 
-4. **Package it** with `GENEVA_ADD_INDIVIDUAL_MODULE` (see `CMakeLists.txt` — the helper is kind-agnostic).
+3. **Package it** with `GENEVA_ADD_INDIVIDUAL_MODULE` (see `CMakeLists.txt` — the helper is kind-agnostic).
    The module links **none** of the Geneva libraries: it needs only their headers and resolves their symbols
    from the host process at load time.
 

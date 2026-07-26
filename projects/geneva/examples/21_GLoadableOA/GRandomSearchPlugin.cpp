@@ -46,10 +46,10 @@
 #include "common/GModuleManifest.hpp"
 #include "weft/GArchivePolymorphic.hpp" // GEM_REGISTER_ARCHIVABLE (GArchive polymorphic-pointer dispatch)
 #include "geneva/oa/GOAPlugin.hpp" // Gem::Geneva::oaManifest
+#include "geneva/oa/GOptimizationAlgorithmFactoryT.hpp" // the whole factory this module needs
 
 // The algorithm shipped by this module
 #include "GRandomSearch.hpp"
-#include "GRandomSearchFactory.hpp"
 #include "GRandomSearch_PersonalityTraits.hpp"
 
 // Serialization registrations for the algorithm and its personality traits (checkpoint payloads).
@@ -64,6 +64,13 @@ GEM_REGISTER_ARCHIVABLE(Gem::Geneva::OptimizationAlgorithms::GRandomSearch_Perso
  */
 extern "C" BOOST_SYMBOL_EXPORT const GenevaModuleManifest *geneva_module_manifest();
 extern "C" BOOST_SYMBOL_EXPORT const GenevaModuleManifest *geneva_module_manifest() {
-    return Gem::Geneva::oaManifest<Gem::Geneva::OptimizationAlgorithms::GRandomSearchFactory,
-                                   "GRandomSearch">();
+    // The factory is the GOptimizationAlgorithmFactoryT scaffold instantiated for this algorithm, spelled
+    // right here -- it generates the config path, getMnemonic(), getAlgorithmName(), getObject_() and the
+    // constructors, and a factory IS the provider the algorithm store holds, so nothing wraps it. An
+    // algorithm that needs more from its factory -- extra command-line options, a postProcess_() step --
+    // derives a class from this instantiation instead (see GParameterScanFactory in the Geneva library).
+    return Gem::Geneva::oaManifest<
+        Gem::Geneva::OptimizationAlgorithms::GOptimizationAlgorithmFactoryT<
+            Gem::Geneva::OptimizationAlgorithms::GRandomSearch>,
+        "GRandomSearch">();
 }
