@@ -300,7 +300,12 @@ void GGenomeFixedSizePriorityQueue::add(
     const bool /* do_clone */
 ) {
     if(item_ptr && item_ptr->is_processed()) {
-        this->add(item_ptr->clone<GGenome>(), false);
+        // The clone must be named as a std::shared_ptr BEFORE it is handed on: clone<>() yields a
+        // std::unique_ptr, which is an exact match for THIS overload's parameter and only a
+        // user-defined conversion away from the shared_ptr one -- so passing it directly would
+        // re-select this function and recurse until the stack is exhausted.
+        std::shared_ptr<GGenome> const bridge = item_ptr->clone<GGenome>();
+        this->add(bridge, false);
     }
 }
 

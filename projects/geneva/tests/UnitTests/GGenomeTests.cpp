@@ -71,6 +71,7 @@
 #include "hap/GRandomT.hpp"
 #include "hap/GRandomFactory.hpp"
 #include "geneva/genome/GGenome.hpp"
+#include "geneva/genome/GGenomeFixedSizePriorityQueue.hpp"
 #include "geneva/genome/GIndividualFactory.hpp"
 #include "geneva/GModuleLoader.hpp"
 #include "geneva/GMarshallerPlugin.hpp" // marshallerManifest / GMarshallerProviderPtr / the marshaller store
@@ -2637,6 +2638,49 @@ TEST_CASE("GGenomeFactory copy retains BOTH pre- and post-processors", "[flat][f
     CHECK(copy.post().get() != orig.post().get());
     // ...and the pre slot must not have been aliased to the (double-copied) post processor.
     CHECK(copy.pre().get() != copy.post().get());
+}
+
+/******************************************************************************/
+TEST_CASE("GGenomeFixedSizePriorityQueue: the unique_ptr boundary overloads terminate",
+          "[flat][pq][regression]") {
+    // GGenomeFixedSizePriorityQueue offers three unique_ptr "boundary" overloads that clone the OA's
+    // unique_ptr-owned individuals into the queue's own shared_ptr storage. clone<>() yields a
+    // std::unique_ptr, which is an EXACT match for the unique_ptr overloads and only a user-defined
+    // conversion away from the shared_ptr ones -- so a clone handed straight on re-selects the
+    // unique_ptr overload. The single-item overload did exactly that and recursed until the stack was
+    // exhausted; GAlgorithmChaining (the only in-tree caller, via addCleanStoredBests()) segfaulted on
+    // every run. This pins all three overloads on their intended targets.
+    auto make_processed = [] {
+        std::unique_ptr<GGenome> ind = std::make_unique<Gem::Tests::Sphere>(3);
+        ind->randomInit(activityMode::ALLPARAMETERS);
+        ind->process();
+        REQUIRE(ind->is_processed());
+        return ind;
+    };
+
+    SECTION("single item") {
+        GGenomeFixedSizePriorityQueue q(5);
+        auto const ind = make_processed();
+        q.add(ind, true); // stack-overflowed on the unfixed code
+        CHECK(q.size() == 1);
+        // A clone was taken -- the queue must not alias the population's individual.
+        CHECK(q.best().get() != ind.get());
+    }
+
+    SECTION("whole population and sub-range") {
+        std::vector<std::unique_ptr<GGenome>> pop;
+        for(std::size_t i = 0; i < 4; i++) {
+            pop.push_back(make_processed());
+        }
+
+        GGenomeFixedSizePriorityQueue q_all(10);
+        q_all.add(pop, true, false);
+        CHECK(q_all.size() == 4);
+
+        GGenomeFixedSizePriorityQueue q_range(10);
+        q_range.add(pop.begin(), pop.begin() + 2, true, false);
+        CHECK(q_range.size() == 2);
+    }
 }
 
 /******************************************************************************/
