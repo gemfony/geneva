@@ -55,12 +55,14 @@ namespace Gem::Geneva::OptimizationAlgorithms {
  *     class GFoo : public GOptimizationAlgorithmT<GFoo>             // direct-from-base algorithms
  *     class GBar : public GOptimizationAlgorithmT<GBar, GParChild>  // mu/lambda algorithms
  *
- * and supplies its member list (localMembers_()) plus three static string identifiers (public, so
- * this layer and the mixin can read them):
+ * and supplies its member list (localMembers_()) plus three static string identifiers and the alias
+ * naming its personality traits (all public, so this layer, the mixin and the algorithm factory
+ * scaffold can read them):
  *
  *     static constexpr std::string_view class_name          = "GFoo";  // read by GReflectiveInterfaceT
  *     static constexpr std::string_view oa_algorithm_name   = "Foo Optimizer";
  *     static constexpr std::string_view oa_personality_type = "PERSONALITY_FOO";
+ *     using personality_traits_type = GFoo_PersonalityTraits;  // what getPersonalityTraits_() hands out
  *
  * The mixin holds NO data of its own; clone_() returns a GOptimizationAlgorithmBase pointer (the
  * hierarchy root, the default GReflectiveInterfaceT clone-return). The GUnitTests stubs are ordinary

@@ -319,7 +319,7 @@ std::size_t GAntColonyOptimization::getNProcessableItems_() const {
  * Retrieve a GPersonalityTraits object belonging to this algorithm.
  */
 std::shared_ptr<GPersonalityTraits> GAntColonyOptimization::getPersonalityTraits_() const {
-    return std::make_shared<GAntColonyOptimization_PersonalityTraits>();
+    return std::make_shared<personality_traits_type>();
 }
 
 /******************************************************************************/

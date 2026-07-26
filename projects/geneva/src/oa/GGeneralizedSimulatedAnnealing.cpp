@@ -348,7 +348,7 @@ void GGeneralizedSimulatedAnnealing::finalize() {
  * Retrieve a GPersonalityTraits object belonging to this algorithm.
  */
 std::shared_ptr<GPersonalityTraits> GGeneralizedSimulatedAnnealing::getPersonalityTraits_() const {
-    return std::make_shared<GGeneralizedSimulatedAnnealing_PersonalityTraits>();
+    return std::make_shared<personality_traits_type>();
 }
 
 /******************************************************************************/

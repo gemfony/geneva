@@ -89,6 +89,9 @@ public:
     static constexpr std::string_view class_name = "GSimulatedAnnealing";
     static constexpr std::string_view oa_algorithm_name = "Simulated Annealing";
     static constexpr std::string_view oa_personality_type = "PERSONALITY_SA";
+    /** @brief This algorithm's own personality traits -- what getPersonalityTraits_() hands out,
+     *  and the default second template argument of the algorithm factory scaffold. */
+    using personality_traits_type = GSimulatedAnnealing_PersonalityTraits;
 
 private:
     ///////////////////////////////////////////////////////////////////////

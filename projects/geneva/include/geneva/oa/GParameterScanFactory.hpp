@@ -58,8 +58,8 @@ namespace Gem::Geneva::OptimizationAlgorithms {
  * algorithm. It will only return objects which perform all evaluation through the process consumer.
  */
 class GParameterScanFactory // NOLINT(cppcoreguidelines-special-member-functions)
-  : public GOptimizationAlgorithmFactoryT<GParameterScan, GParameterScan_PersonalityTraits> {
-    using Base = GOptimizationAlgorithmFactoryT<GParameterScan, GParameterScan_PersonalityTraits>;
+  : public GOptimizationAlgorithmFactoryT<GParameterScan> {
+    using Base = GOptimizationAlgorithmFactoryT<GParameterScan>;
 
 public:
     /** @brief The default constructor */

@@ -52,7 +52,7 @@ namespace Gem::Geneva::OptimizationAlgorithms {
  * postProcess_() step -- makes this instantiation its base class instead (see GParameterScanFactory in the
  * Geneva library).
  */
-using GRandomSearchFactory = GOptimizationAlgorithmFactoryT<GRandomSearch, GRandomSearch_PersonalityTraits>;
+using GRandomSearchFactory = GOptimizationAlgorithmFactoryT<GRandomSearch>;
 
 /******************************************************************************/
 

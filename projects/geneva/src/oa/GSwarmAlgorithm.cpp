@@ -543,7 +543,7 @@ void GSwarmAlgorithm::finalize() {
  * Retrieve a GPersonalityTraits object belonging to this algorithm
  */
 std::shared_ptr<GPersonalityTraits> GSwarmAlgorithm::getPersonalityTraits_() const {
-    return std::make_shared<GSwarmAlgorithm_PersonalityTraits>();
+    return std::make_shared<personality_traits_type>();
 }
 
 /******************************************************************************/

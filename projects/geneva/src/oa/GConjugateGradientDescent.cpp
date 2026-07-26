@@ -1135,7 +1135,7 @@ void GConjugateGradientDescent::finalize() {
  * @return A new GConjugateGradientDescent_PersonalityTraits object, camouflaged as a GPersonalityTraits
  */
 std::shared_ptr<GPersonalityTraits> GConjugateGradientDescent::getPersonalityTraits_() const {
-    return std::make_shared<GConjugateGradientDescent_PersonalityTraits>();
+    return std::make_shared<personality_traits_type>();
 }
 
 /******************************************************************************/

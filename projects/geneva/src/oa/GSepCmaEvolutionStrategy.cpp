@@ -633,7 +633,7 @@ std::tuple<double, double> GSepCmaEvolutionStrategy::cycleLogic_() {
  * Retrieve a GPersonalityTraits object belonging to this algorithm.
  */
 std::shared_ptr<GPersonalityTraits> GSepCmaEvolutionStrategy::getPersonalityTraits_() const {
-    return std::make_shared<GSepCmaEvolutionStrategy_PersonalityTraits>();
+    return std::make_shared<personality_traits_type>();
 }
 
 /******************************************************************************/

@@ -211,10 +211,7 @@ TEST_CASE("ea self-registers its mnemonic in the OA factory store", "[ea][oa]") 
     // (src/oa/GBuiltinAlgorithms.cpp) runs at library load and inserts the "ea" mnemonic into the global
     // store, so Go2 / the examples can select it by name.
     CHECK(oaFactoryStore()->exists("ea"));
-    CHECK((oa::GOptimizationAlgorithmFactoryT<
-              oa::GEvolutionaryAlgorithm,
-              oa::GEvolutionaryAlgorithm_PersonalityTraits>{}
-               .getMnemonic() == "ea"));
+    CHECK((oa::GOptimizationAlgorithmFactoryT<oa::GEvolutionaryAlgorithm>{}.getMnemonic() == "ea"));
 }
 
 /******************************************************************************/

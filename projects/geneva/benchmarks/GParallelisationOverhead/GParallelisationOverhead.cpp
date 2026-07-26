@@ -77,9 +77,7 @@ void startReferenceMeasurement(
     std::vector<std::tuple<double, double>> referenceExecutionTimes;
 
     // Create a factory for serial EA algorithms
-    oa::GOptimizationAlgorithmFactoryT<
-        oa::GEvolutionaryAlgorithm,
-        oa::GEvolutionaryAlgorithm_PersonalityTraits>
+    oa::GOptimizationAlgorithmFactoryT<oa::GEvolutionaryAlgorithm>
         ea_serial_factory("./config/GEvolutionaryAlgorithm.json");
 
     // Create an evolutionary algorithm

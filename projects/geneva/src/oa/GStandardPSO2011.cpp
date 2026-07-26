@@ -263,7 +263,7 @@ void GStandardPSO2011::finalize() {
  * Retrieve a GPersonalityTraits object belonging to this algorithm.
  */
 std::shared_ptr<GPersonalityTraits> GStandardPSO2011::getPersonalityTraits_() const {
-    return std::make_shared<GStandardPSO2011_PersonalityTraits>();
+    return std::make_shared<personality_traits_type>();
 }
 
 /******************************************************************************/

@@ -91,8 +91,7 @@ int main(int argc, char **argv) {
     // runs below.
     if(go.updateConfigsMode()) {
         OptimizationAlgorithms::GOptimizationAlgorithmFactoryT<
-            OptimizationAlgorithms::GEvolutionaryAlgorithm,
-            OptimizationAlgorithms::GEvolutionaryAlgorithm_PersonalityTraits>(
+            OptimizationAlgorithms::GEvolutionaryAlgorithm>(
             "./config/GPostEvolutionaryAlgorithm.json"
         ).get<OptimizationAlgorithms::GOptimizationAlgorithmBase>();
     }

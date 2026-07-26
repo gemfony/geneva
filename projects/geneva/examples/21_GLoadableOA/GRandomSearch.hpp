@@ -46,6 +46,8 @@
 #include "geneva/oa/GOptimizationAlgorithmBase.hpp"
 #include "geneva/oa/GOptimizationAlgorithmT.hpp"
 
+#include "GRandomSearch_PersonalityTraits.hpp"
+
 namespace Gem::Common {
 class GParserBuilder;
 } /* namespace Gem::Common */
@@ -92,6 +94,9 @@ public:
     static constexpr std::string_view class_name = "GRandomSearch";
     static constexpr std::string_view oa_algorithm_name = "Random Search";
     static constexpr std::string_view oa_personality_type = "PERSONALITY_RSEARCH";
+    /** @brief This algorithm's own personality traits -- what getPersonalityTraits_() hands out,
+     *  and the default second template argument of the algorithm factory scaffold. */
+    using personality_traits_type = GRandomSearch_PersonalityTraits;
 
     /** @brief The default constructor; sets a default population size. */
     GRandomSearch();

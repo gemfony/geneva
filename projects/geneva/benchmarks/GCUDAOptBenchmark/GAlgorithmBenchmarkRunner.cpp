@@ -220,29 +220,21 @@ GBenchmarkRunResult GAlgorithmBenchmarkRunner::runOne(
 std::shared_ptr<oa::GOptimizationAlgorithmBase>
 GAlgorithmBenchmarkRunner::makeAlgorithm(const AlgorithmEntry &entry) {
     if (entry.mnemonic == "ea") {
-        return oa::GOptimizationAlgorithmFactoryT<
-                   oa::GEvolutionaryAlgorithm,
-                   oa::GEvolutionaryAlgorithm_PersonalityTraits>(entry.configFile)
+        return oa::GOptimizationAlgorithmFactoryT<oa::GEvolutionaryAlgorithm>(entry.configFile)
             .get<oa::GOptimizationAlgorithmBase>();
     }
     if (entry.mnemonic == "sa") {
-        return oa::GOptimizationAlgorithmFactoryT<
-                   oa::GSimulatedAnnealing,
-                   oa::GSimulatedAnnealing_PersonalityTraits>(entry.configFile)
+        return oa::GOptimizationAlgorithmFactoryT<oa::GSimulatedAnnealing>(entry.configFile)
             .get<oa::GOptimizationAlgorithmBase>();
     }
     if (entry.mnemonic == "swarm") {
-        return oa::GOptimizationAlgorithmFactoryT<
-                   oa::GSwarmAlgorithm,
-                   oa::GSwarmAlgorithm_PersonalityTraits>(entry.configFile)
+        return oa::GOptimizationAlgorithmFactoryT<oa::GSwarmAlgorithm>(entry.configFile)
             .get<oa::GOptimizationAlgorithmBase>();
     }
     if (entry.mnemonic == "gd" || entry.mnemonic == "cgd") {
         // "gd" was retired as a separate algorithm; it is the steepest-descent mode of the conjugate
         // gradient descent. Produce a CGD and, for the legacy "gd" tag, force steepest descent.
-        auto p = oa::GOptimizationAlgorithmFactoryT<
-                     oa::GConjugateGradientDescent,
-                     oa::GConjugateGradientDescent_PersonalityTraits>(entry.configFile)
+        auto p = oa::GOptimizationAlgorithmFactoryT<oa::GConjugateGradientDescent>(entry.configFile)
                      .get<oa::GOptimizationAlgorithmBase>();
         if (entry.mnemonic == "gd") {
             if (auto cgd = std::dynamic_pointer_cast<oa::GConjugateGradientDescent>(p)) {

@@ -74,7 +74,7 @@ namespace Gem::Geneva {
  * compiled-in OA needs), so a checkpoint written with the module loaded resumes with it loaded.
  *
  * @tparam FactoryType The concrete OA factory (a @c GOAFactoryT<GOptimizationAlgorithmBase> subclass, e.g.
- *         @c GOptimizationAlgorithmFactoryT<MyOA, MyOA_PersonalityTraits>); default-constructed here
+ *         @c GOptimizationAlgorithmFactoryT<MyOA>); default-constructed here
  * @tparam Name The module/contribution name, for diagnostics (a string literal); the store key is the
  *         factory's mnemonic, not this
  * @return A pointer to this module's process-lifetime manifest

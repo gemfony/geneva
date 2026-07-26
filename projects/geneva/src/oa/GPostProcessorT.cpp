@@ -122,9 +122,7 @@ bool GEvolutionaryAlgorithmPostOptimizer::raw_processing_(gen::GGenome &p) {
     p_unopt_ptr->vetoPostProcessing(true);
 
     // Retrieve an evolutionary algorithm
-    oa::GOptimizationAlgorithmFactoryT<
-        oa::GEvolutionaryAlgorithm,
-        oa::GEvolutionaryAlgorithm_PersonalityTraits> ea_factory(oa_config_file_);
+    oa::GOptimizationAlgorithmFactoryT<oa::GEvolutionaryAlgorithm> ea_factory(oa_config_file_);
     auto ea_ptr = ea_factory.get<oa::GEvolutionaryAlgorithm>();
 
     // Post-processing refines each individual locally, inside the individual's own process() -- which

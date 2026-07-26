@@ -57,24 +57,26 @@ namespace Gem::Geneva::OptimizationAlgorithms {
  * For the great majority of algorithms that IS the whole factory, so the factory is nothing but this
  * instantiation and needs no name of its own -- every built-in algorithm is registered as
  *
- *   GOptimizationAlgorithmFactoryT<GFoo, GFoo_PersonalityTraits>
+ *   GOptimizationAlgorithmFactoryT<GFoo>
  *
  * in src/oa/GBuiltinAlgorithms.cpp. An algorithm that needs more -- extra command-line options, a
  * postProcess_() step -- derives from the instantiation instead (GParameterScanFactory is the one
  * in-tree example):
  *
- *   class GFooFactory : public GOptimizationAlgorithmFactoryT<GFoo, GFoo_PersonalityTraits> { ... };
+ *   class GFooFactory : public GOptimizationAlgorithmFactoryT<GFoo> { ... };
  *
  * Either way the result is the provider the algorithm store holds -- GOAFactoryT implements
  * Gem::Common::GProviderT -- so registering it (GInitializerT for a built-in, oaManifest() for a module)
  * needs no wrapper of any kind.
  *
  * @tparam oa_type                 The concrete algorithm. Must expose the GOptimizationAlgorithmT
- *                                 identifiers class_name and oa_algorithm_name.
- * @tparam personality_traits_type The algorithm's personality traits, whose static `nickname` is the
- *                                 command-line mnemonic.
+ *                                 identifiers class_name and oa_algorithm_name, and the member alias
+ *                                 personality_traits_type naming its own personality traits.
+ * @tparam personality_traits_type The personality traits whose static `nickname` is the command-line
+ *                                 mnemonic. Defaults to the algorithm's own traits, which is what every
+ *                                 factory wants; spell it only to give an algorithm a second mnemonic.
  */
-template <typename oa_type, typename personality_traits_type>
+template <typename oa_type, typename personality_traits_type = typename oa_type::personality_traits_type>
 class GOptimizationAlgorithmFactoryT : public GOAFactoryT<GOptimizationAlgorithmBase> {
 public:
     /** @brief The default constructor: derives the config-file path from the algorithm's class name. */

@@ -211,8 +211,8 @@ are in `CHANGES` and `INSTALL`; this file is the practical upgrade guide.
   types and their headers (`GEvolutionaryAlgorithmFactory`, `GSwarmAlgorithmFactory`, … and
   `geneva/oa/G*Factory.hpp`) are **gone**. For every algorithm but one the factory added nothing to
   the scaffold, so the factory *is* the scaffold: write
-  `GOptimizationAlgorithmFactoryT<GTheAlgorithm, GTheAlgorithm_PersonalityTraits>` where the old type
-  name stood, and include the algorithm's header, its personality-traits header and
+  `GOptimizationAlgorithmFactoryT<GTheAlgorithm>` where the old type name stood (the algorithm's
+  own personality traits are the default second argument), and include the algorithm's header and
   `geneva/oa/GOptimizationAlgorithmFactoryT.hpp`. `GParameterScanFactory` is the exception and remains
   a class of its own — it adds the parameter-spec command-line option; a user-written factory that
   derived from one of the removed types derives from the instantiation instead. `GOAFactoryT` gains

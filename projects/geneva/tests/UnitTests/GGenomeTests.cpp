@@ -2569,8 +2569,7 @@ TEST_CASE("Marshaller module manifest contributes a registrable GPU marshaller",
 TEST_CASE("A built-in and a module register an algorithm through the same seam", "[oa][plugin]") {
     using oa_provider_t = Gem::Common::GProviderT<oa::GOptimizationAlgorithmBase>;
     using oa_factory_t = oa::GOAFactoryT<oa::GOptimizationAlgorithmBase>;
-    using ea_factory_t = oa::GOptimizationAlgorithmFactoryT<
-        oa::GEvolutionaryAlgorithm, oa::GEvolutionaryAlgorithm_PersonalityTraits>;
+    using ea_factory_t = oa::GOptimizationAlgorithmFactoryT<oa::GEvolutionaryAlgorithm>;
 
     // (a) What the built-in path put into the store is the factory itself, not an adapter around it.
     std::shared_ptr<oa_provider_t> stored;

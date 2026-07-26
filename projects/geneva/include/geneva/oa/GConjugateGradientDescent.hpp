@@ -178,6 +178,9 @@ public:
     static constexpr std::string_view class_name = "GConjugateGradientDescent";
     static constexpr std::string_view oa_algorithm_name = "Conjugate Gradient Descent";
     static constexpr std::string_view oa_personality_type = "PERSONALITY_CGD";
+    /** @brief This algorithm's own personality traits -- what getPersonalityTraits_() hands out,
+     *  and the default second template argument of the algorithm factory scaffold. */
+    using personality_traits_type = GConjugateGradientDescent_PersonalityTraits;
 
 private:
     ///////////////////////////////////////////////////////////////////////

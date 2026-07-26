@@ -185,7 +185,7 @@ void GRandomSearch::adjustPopulation_() {
  * @return A shared pointer to a new GRandomSearch_PersonalityTraits object
  */
 std::shared_ptr<GPersonalityTraits> GRandomSearch::getPersonalityTraits_() const {
-    return std::make_shared<GRandomSearch_PersonalityTraits>();
+    return std::make_shared<personality_traits_type>();
 }
 
 /******************************************************************************/

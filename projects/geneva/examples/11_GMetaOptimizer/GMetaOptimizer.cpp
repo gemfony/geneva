@@ -99,9 +99,8 @@ int main(int argc, char **argv) {
     // individual config and the (sub-)evolutionary-algorithm config the umbrella individuals run.
     if(go.updateConfigsMode()) {
         gfi_ptr->get();
-        oa::GOptimizationAlgorithmFactoryT<
-            oa::GEvolutionaryAlgorithm,
-            oa::GEvolutionaryAlgorithm_PersonalityTraits>("./config/GSubEvolutionaryAlgorithm.json")
+        oa::GOptimizationAlgorithmFactoryT<oa::GEvolutionaryAlgorithm>(
+            "./config/GSubEvolutionaryAlgorithm.json")
             .get<oa::GOptimizationAlgorithmBase>();
     }
 

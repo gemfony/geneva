@@ -79,7 +79,6 @@ GEM_REGISTER_ARCHIVABLE(Gem::Geneva::OptimizationAlgorithms::GEvolutionaryAlgori
 namespace Gem::Geneva::OptimizationAlgorithms {
 
 using GType = GEvolutionaryAlgorithm;
-using TraitsType = GEvolutionaryAlgorithm_PersonalityTraits;
 
 /******************************************************************************/
 /**
@@ -457,7 +456,7 @@ void GType::selectBest_() {
 /******************************************************************************/
 
 std::shared_ptr<GPersonalityTraits> GType::getPersonalityTraits_() const {
-    return std::make_shared<TraitsType>();
+    return std::make_shared<personality_traits_type>();
 }
 
 /******************************************************************************/

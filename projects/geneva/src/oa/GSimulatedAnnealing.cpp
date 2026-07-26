@@ -310,7 +310,7 @@ void GSimulatedAnnealing::selectBest_() {
   * @return A shared pointer to a freshly created GSimulatedAnnealing_PersonalityTraits object
   */
 std::shared_ptr<GPersonalityTraits> GSimulatedAnnealing::getPersonalityTraits_() const {
-    return std::make_shared<GSimulatedAnnealing_PersonalityTraits>();
+    return std::make_shared<personality_traits_type>();
 }
 
 /******************************************************************************/

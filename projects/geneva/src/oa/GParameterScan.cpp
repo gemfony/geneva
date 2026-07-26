@@ -917,7 +917,7 @@ void GParameterScan::finalize() {
  * @return A shared pointer to a new GParameterScan_PersonalityTraits object
  */
 std::shared_ptr<GPersonalityTraits> GParameterScan::getPersonalityTraits_() const {
-    return std::make_shared<GParameterScan_PersonalityTraits>();
+    return std::make_shared<personality_traits_type>();
 }
 
 /******************************************************************************/

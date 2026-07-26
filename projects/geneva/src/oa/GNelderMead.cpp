@@ -793,7 +793,7 @@ void GNelderMead::finalize() {
  * @return A shared pointer to a freshly created GNelderMead_PersonalityTraits object
  */
 std::shared_ptr<GPersonalityTraits> GNelderMead::getPersonalityTraits_() const {
-    return std::make_shared<GNelderMead_PersonalityTraits>();
+    return std::make_shared<personality_traits_type>();
 }
 
 /******************************************************************************/

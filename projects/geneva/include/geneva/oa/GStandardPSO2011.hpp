@@ -177,6 +177,9 @@ public:
     static constexpr std::string_view class_name = "GStandardPSO2011";
     static constexpr std::string_view oa_algorithm_name = "Standard PSO 2011";
     static constexpr std::string_view oa_personality_type = "PERSONALITY_SPSO2011";
+    /** @brief This algorithm's own personality traits -- what getPersonalityTraits_() hands out,
+     *  and the default second template argument of the algorithm factory scaffold. */
+    using personality_traits_type = GStandardPSO2011_PersonalityTraits;
 
 private:
     ///////////////////////////////////////////////////////////////////////
