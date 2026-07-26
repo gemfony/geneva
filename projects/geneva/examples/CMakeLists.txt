@@ -132,10 +132,10 @@ IF(GENEVA_UPDATE_CONFIGS)
 			GFunctionMinimizer             # 07
 			GPostProcessing                # 08
 			GNeuralNetwork                 # 09
-			GMetaOptimizer                 # 11
-			GPluggableOptimizationMonitors # 13
-			GDependentConstraints          # 14
-			GAlgorithmChaining)            # 18
+			GMetaOptimizer                 # 10
+			GPluggableOptimizationMonitors # 12
+			GDependentConstraints          # 13
+			GAlgorithmChaining)            # 17
 	ADD_CUSTOM_TARGET(geneva_update_configs
 			COMMENT "Refreshing eligible example configs in place via --update-configs (build tree only)")
 	FOREACH(_gpb_target IN LISTS GENEVA_UPDATE_CONFIG_TARGETS)

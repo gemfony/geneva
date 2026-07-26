@@ -6,7 +6,7 @@ single optimization run.
 
 Algorithms are appended to the Go2 object with the &-operator:
 
-    go & "ea" & "gd";
+    go & "ea" & "cgd";
 
 Go2 then executes them in sequence, handing the best individual(s) found by one
 algorithm to the next. Each algorithm runs its own full iteration budget (as
@@ -15,7 +15,7 @@ zero -- a chained algorithm does NOT inherit the previous algorithm's final
 iteration number.
 
 The chosen chain is a common pattern: an evolutionary algorithm ("ea") performs
-the global exploration first, then gradient descent ("gd") locally refines its
+the global exploration first, then conjugate gradient descent ("cgd") locally refines its
 best result.
 
 The optimized problem (a GFunctionIndividual) and its factory are reused from
