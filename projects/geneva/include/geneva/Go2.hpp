@@ -621,7 +621,10 @@ private:
     // config key and repeated --module options. Each may contribute optimization algorithms (usable by
     // mnemonic) and/or the optimization individual. Loaded before the algorithm mnemonics are resolved.
     std::vector<std::string> module_paths_;
-    // A user-defined means for information retrieval
+    // A user-defined means for information retrieval. Shared ownership is deliberate: on
+    // hand-over, every algorithm of a chain registers the SAME monitor object rather than a
+    // clone of it, so a monitor accumulates across the whole chain (which is what a progress
+    // plotter wants). Go2 and each algorithm are therefore co-owners for the run's duration.
     std::vector<std::shared_ptr<oa::GBasePluggableOM>> pluggable_monitors_cnt_;
 
     //---------------------------------------------------------------------------

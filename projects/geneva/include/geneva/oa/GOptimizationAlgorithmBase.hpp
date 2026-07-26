@@ -1109,8 +1109,11 @@ private:
     std::atomic<bool> halted_{true}; ///< Set to true when halt() has returned "true"
     std::vector<std::tuple<double, double>>
         worst_known_valids_cnt_; ///< Stores the worst known valid evaluations up to the current iteration (first entry: raw, second: tranformed)
-    std::vector<std::shared_ptr<GBasePluggableOM>>
-        pluggable_monitors_cnt_; ///< A collection of monitors
+    /// A collection of monitors. Shared, not owned: a monitor registered through Go2 is
+    /// co-owned by Go2 and by every algorithm of a chain, so that it observes the whole run
+    /// (see Go2::pluggable_monitors_cnt_). Deep-cloned only when one algorithm is loaded from
+    /// another, which is a different object and must not share the original's monitors.
+    std::vector<std::shared_ptr<GBasePluggableOM>> pluggable_monitors_cnt_;
 
     /**
      * @brief Submits the contiguous sub-range [start, end) of @p work_items through the one process-wide
