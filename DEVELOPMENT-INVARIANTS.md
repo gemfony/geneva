@@ -461,5 +461,31 @@ fact in exactly one place.
 
 ---
 
+## 26. Every commit compiles cleanly — on every compiler it was exercised with
+
+A commit is only allowed for code that **compiles cleanly on at least one of the supported compilers**
+— zero errors, and zero new warnings (Invariant 10) — verified against the *committed* state, not
+against a similar-looking earlier state of the tree. If **both** compilers were exercised for the change
+(a clean-build gate, a pre-push verification, a vtable/build-system change that mandates it), the commit
+must compile cleanly on **both**: a red second compiler is never stepped over by committing what the
+first one accepted.
+
+- **"Compiles" means the full affected build**, not a single target: for library/header changes the
+  libraries plus everything the change instantiates (a header-only breakage that only surfaces in an
+  example or test TU still counts as not compiling — cf. the full-Debug-build discipline).
+- **Intermediate states are not committable.** A multi-commit sequence is ordered so that every commit
+  builds on its own; if two halves of a change cannot build separately, they are one commit (an
+  unbuildable intermediate is never "fixed by the next commit").
+- This composes with Invariant 9 (green tests are likewise a per-commit precondition) and the false-green
+  discipline: compile evidence comes from real exit codes on a genuinely rebuilt tree.
+
+*Why:* every commit is a potential bisect point, review point, and rollback target. A commit that does
+not compile poisons `git bisect`, blocks reverts, and turns the history from a sequence of working states
+into a sequence of diffs. The one-compiler minimum keeps fast iteration honest (the per-commit gate runs
+one compiler); the both-if-exercised rule stops a known cross-compiler failure from being committed as
+if unknown.
+
+---
+
 *Add new invariants below as the maintainer establishes them. Keep each rule short, mandatory, and
 general — design decisions for a specific feature belong in that feature's design notes, not here.*
