@@ -43,8 +43,10 @@
 #include "geneva/individuals/GMetaOptimizerIndividualT.hpp"
 // The single facility for meta-optimization: it runs the umbrella-individuals on its own orchestration
 // thread pool, while their sub-optimizations submit to the one process-wide work consumer.
-#include "geneva/oa/GEvolutionaryAlgorithmFactory.hpp"
+#include "geneva/oa/GEvolutionaryAlgorithm.hpp"
+#include "geneva/oa/GEvolutionaryAlgorithm_PersonalityTraits.hpp"
 #include "geneva/oa/GMetaEvolutionaryAlgorithm.hpp"
+#include "geneva/oa/GOptimizationAlgorithmFactoryT.hpp"
 
 using namespace Gem::Geneva;
 
@@ -97,7 +99,9 @@ int main(int argc, char **argv) {
     // individual config and the (sub-)evolutionary-algorithm config the umbrella individuals run.
     if(go.updateConfigsMode()) {
         gfi_ptr->get();
-        oa::GEvolutionaryAlgorithmFactory("./config/GSubEvolutionaryAlgorithm.json")
+        oa::GOptimizationAlgorithmFactoryT<
+            oa::GEvolutionaryAlgorithm,
+            oa::GEvolutionaryAlgorithm_PersonalityTraits>("./config/GSubEvolutionaryAlgorithm.json")
             .get<oa::GOptimizationAlgorithmBase>();
     }
 

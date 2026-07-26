@@ -262,7 +262,7 @@ GBenchmarkRunResult.hpp
 `GenevaInitializer` is constructed once in `main()` and lives for the duration of
 the process. The `GGPUConsumerT` is registered as the single process consumer
 (`GConsumerRegistry`) once, before any optimization starts. Algorithm instances are
-created per-run via Geneva factories (`GEvolutionaryAlgorithmFactory`, etc.) and
+created per-run via Geneva factories (`GOptimizationAlgorithmFactoryT<…>`) and
 route all evaluations through that already-registered process consumer.
 This avoids the double-teardown problem that arises when multiple `Go2` instances
 each try to release the process consumer on destruction.
@@ -271,7 +271,8 @@ each try to release the process consumer on destruction.
 
 ## Adding a new algorithm
 
-1. Verify that Geneva has a factory for it (e.g. `GConjugateGradientDescentFactory`).
+1. Verify that Geneva ships the algorithm and its personality traits, so that
+   `GOptimizationAlgorithmFactoryT<GTheAlgorithm, GTheAlgorithm_PersonalityTraits>` builds it.
 2. Add a `case` to `GAlgorithmBenchmarkRunner::makeAlgorithm()` in
    `GAlgorithmBenchmarkRunner.cpp` with a new mnemonic string.
 3. Add a config file in `config/` and append a matching triple to the

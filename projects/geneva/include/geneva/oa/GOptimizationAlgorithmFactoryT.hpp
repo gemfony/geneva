@@ -54,13 +54,14 @@ namespace Gem::Geneva::OptimizationAlgorithms {
  * (= the algorithm's human-readable name) and getObject_() (construct the algorithm and register its
  * configuration options).
  *
- * For the great majority of algorithms that IS the whole factory, so the factory is this instantiation,
- * named:
+ * For the great majority of algorithms that IS the whole factory, so the factory is nothing but this
+ * instantiation and needs no name of its own -- every built-in algorithm is registered as
  *
- *   using GFooFactory = GOptimizationAlgorithmFactoryT<GFoo, GFoo_PersonalityTraits>;
+ *   GOptimizationAlgorithmFactoryT<GFoo, GFoo_PersonalityTraits>
  *
- * An algorithm that needs more -- extra command-line options, a postProcess_() step -- derives from the
- * instantiation instead (GParameterScanFactory is the one in-tree example):
+ * in src/oa/GBuiltinAlgorithms.cpp. An algorithm that needs more -- extra command-line options, a
+ * postProcess_() step -- derives from the instantiation instead (GParameterScanFactory is the one
+ * in-tree example):
  *
  *   class GFooFactory : public GOptimizationAlgorithmFactoryT<GFoo, GFoo_PersonalityTraits> { ... };
  *

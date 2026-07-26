@@ -49,9 +49,10 @@
 #include "geneva/genome/GGenomeBuilder.hpp"
 #include "geneva/oa/GAdaption.hpp"
 #include "geneva/oa/GAdaptionConfig.hpp"
-#include "geneva/oa/GEvolutionaryAlgorithmFactory.hpp"
 #include "geneva/oa/GEvolutionaryAlgorithm.hpp"
+#include "geneva/oa/GEvolutionaryAlgorithm_PersonalityTraits.hpp"
 #include "geneva/oa/GFactoryStore.hpp"
+#include "geneva/oa/GOptimizationAlgorithmFactoryT.hpp"
 
 namespace gen = Gem::Geneva::Genome;
 namespace oa = Gem::Geneva::OptimizationAlgorithms;
@@ -210,7 +211,10 @@ TEST_CASE("ea self-registers its mnemonic in the OA factory store", "[ea][oa]") 
     // (src/oa/GBuiltinAlgorithms.cpp) runs at library load and inserts the "ea" mnemonic into the global
     // store, so Go2 / the examples can select it by name.
     CHECK(oaFactoryStore()->exists("ea"));
-    CHECK(oa::GEvolutionaryAlgorithmFactory{}.getMnemonic() == "ea");
+    CHECK((oa::GOptimizationAlgorithmFactoryT<
+              oa::GEvolutionaryAlgorithm,
+              oa::GEvolutionaryAlgorithm_PersonalityTraits>{}
+               .getMnemonic() == "ea"));
 }
 
 /******************************************************************************/

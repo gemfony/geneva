@@ -167,7 +167,7 @@ ENDIF()
 # mnemonic simply disappears from the runtime selection (the '-a' option).
 #
 # Evolutionary algorithms (EA) are intentionally NOT optional and remain in the
-# core source list above: GEvolutionaryAlgorithmFactory is referenced directly
+# core source list above: the EA factory instantiation is referenced directly
 # by the post-processor (GPostProcessorT) and the meta-optimizer individual
 # (GMetaOptimizerIndividualT), both of which are always built. The shared
 # parent-child base (GParChild / GBaseParChildPersonalityTraits, used by EA and

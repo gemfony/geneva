@@ -44,7 +44,9 @@
 
 // The individual that should be optimized
 #include "geneva/individuals/GFunctionIndividual.hpp"
-#include "geneva/oa/GEvolutionaryAlgorithmFactory.hpp"
+#include "geneva/oa/GEvolutionaryAlgorithm.hpp"
+#include "geneva/oa/GEvolutionaryAlgorithm_PersonalityTraits.hpp"
+#include "geneva/oa/GOptimizationAlgorithmFactoryT.hpp"
 
 using namespace Gem::Geneva;
 namespace po = boost::program_options;
@@ -88,8 +90,11 @@ int main(int argc, char **argv) {
     // it. Materialize it here from its factory defaults; Go2 refreshes the rest and exits when optimize()
     // runs below.
     if(go.updateConfigsMode()) {
-        OptimizationAlgorithms::GEvolutionaryAlgorithmFactory("./config/GPostEvolutionaryAlgorithm.json")
-            .get<OptimizationAlgorithms::GOptimizationAlgorithmBase>();
+        OptimizationAlgorithms::GOptimizationAlgorithmFactoryT<
+            OptimizationAlgorithms::GEvolutionaryAlgorithm,
+            OptimizationAlgorithms::GEvolutionaryAlgorithm_PersonalityTraits>(
+            "./config/GPostEvolutionaryAlgorithm.json"
+        ).get<OptimizationAlgorithms::GOptimizationAlgorithmBase>();
     }
 
     //---------------------------------------------------------------------------

@@ -58,7 +58,8 @@
 #include "geneva/oa/GPluggableOptimizationMonitors.hpp"
 #include "geneva/oa/GAdaption.hpp"
 #include "geneva/oa/GEvolutionaryAlgorithm.hpp"
-#include "geneva/oa/GEvolutionaryAlgorithmFactory.hpp"
+#include "geneva/oa/GEvolutionaryAlgorithm_PersonalityTraits.hpp"
+#include "geneva/oa/GOptimizationAlgorithmFactoryT.hpp"
 #include "geneva/oa/GTunableManifest.hpp"
 #include "common/GSelfTestable.hpp"
 
@@ -682,7 +683,8 @@ protected:
     /** @brief Runs one sub-optimization (build population, drive adaption, optimize) and appends this
      *  run's solver-calls / iterations / best-evaluation to @p measurements. */
     void runOneSubOptimization(
-        oa::GEvolutionaryAlgorithmFactory &ea,
+        oa::GOptimizationAlgorithmFactoryT<
+            oa::GEvolutionaryAlgorithm, oa::GEvolutionaryAlgorithm_PersonalityTraits> &ea,
         std::uint32_t pop_size,
         std::uint32_t n_parents,
         std::uint32_t n_children,
@@ -778,7 +780,9 @@ protected:
         auto sub_adaption_config = buildSubAdaptionConfig(v);
 
         // Set up a population factory for serial execution
-        oa::GEvolutionaryAlgorithmFactory ea(sub_ea_config_);
+        oa::GOptimizationAlgorithmFactoryT<
+            oa::GEvolutionaryAlgorithm,
+            oa::GEvolutionaryAlgorithm_PersonalityTraits> ea(sub_ea_config_);
 
         // Run the required number of optimizations
         auto n_children = static_cast<std::uint32_t>(v.at(n::n_children));

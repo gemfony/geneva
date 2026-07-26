@@ -46,7 +46,9 @@
 #include "dietrich/GPlotDesigner.hpp"
 #include "common/concurrency/GThreadPool.hpp"
 #include "geneva/oa/GAdaption.hpp"
-#include "geneva/oa/GEvolutionaryAlgorithmFactory.hpp"
+#include "geneva/oa/GEvolutionaryAlgorithm.hpp"
+#include "geneva/oa/GEvolutionaryAlgorithm_PersonalityTraits.hpp"
+#include "geneva/oa/GOptimizationAlgorithmFactoryT.hpp"
 #include "geneva/Go2.hpp"
 
 // The individual that should be optimized
@@ -75,7 +77,10 @@ void startReferenceMeasurement(
     std::vector<std::tuple<double, double>> referenceExecutionTimes;
 
     // Create a factory for serial EA algorithms
-    oa::GEvolutionaryAlgorithmFactory ea_serial_factory("./config/GEvolutionaryAlgorithm.json");
+    oa::GOptimizationAlgorithmFactoryT<
+        oa::GEvolutionaryAlgorithm,
+        oa::GEvolutionaryAlgorithm_PersonalityTraits>
+        ea_serial_factory("./config/GEvolutionaryAlgorithm.json");
 
     // Create an evolutionary algorithm
     auto ea_alg_master = ea_serial_factory.get<oa::GEvolutionaryAlgorithm>();

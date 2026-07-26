@@ -42,27 +42,37 @@
 
 // Geneva headers go here
 #include "geneva/oa/GInitializerT.hpp"
+#include "geneva/oa/GOptimizationAlgorithmFactoryT.hpp"
 
-#include "geneva/oa/GAntColonyOptimizationFactory.hpp"
-#include "geneva/oa/GEvolutionaryAlgorithmFactory.hpp"
-#include "geneva/oa/GGeneralizedSimulatedAnnealingFactory.hpp"
-#include "geneva/oa/GSepCmaEvolutionStrategyFactory.hpp"
-#include "geneva/oa/GStandardPSO2011Factory.hpp"
+#include "geneva/oa/GAntColonyOptimization.hpp"
+#include "geneva/oa/GAntColonyOptimization_PersonalityTraits.hpp"
+#include "geneva/oa/GEvolutionaryAlgorithm.hpp"
+#include "geneva/oa/GEvolutionaryAlgorithm_PersonalityTraits.hpp"
+#include "geneva/oa/GGeneralizedSimulatedAnnealing.hpp"
+#include "geneva/oa/GGeneralizedSimulatedAnnealing_PersonalityTraits.hpp"
+#include "geneva/oa/GSepCmaEvolutionStrategy.hpp"
+#include "geneva/oa/GSepCmaEvolutionStrategy_PersonalityTraits.hpp"
+#include "geneva/oa/GStandardPSO2011.hpp"
+#include "geneva/oa/GStandardPSO2011_PersonalityTraits.hpp"
 
 #ifdef GENEVA_ALGO_CGD
-#include "geneva/oa/GConjugateGradientDescentFactory.hpp"
+#include "geneva/oa/GConjugateGradientDescent.hpp"
+#include "geneva/oa/GConjugateGradientDescent_PersonalityTraits.hpp"
 #endif
 #ifdef GENEVA_ALGO_NM
-#include "geneva/oa/GNelderMeadFactory.hpp"
+#include "geneva/oa/GNelderMead.hpp"
+#include "geneva/oa/GNelderMead_PersonalityTraits.hpp"
 #endif
 #ifdef GENEVA_ALGO_PS
 #include "geneva/oa/GParameterScanFactory.hpp"
 #endif
 #ifdef GENEVA_ALGO_SA
-#include "geneva/oa/GSimulatedAnnealingFactory.hpp"
+#include "geneva/oa/GSimulatedAnnealing.hpp"
+#include "geneva/oa/GSimulatedAnnealing_PersonalityTraits.hpp"
 #endif
 #ifdef GENEVA_ALGO_SWARM
-#include "geneva/oa/GSwarmAlgorithmFactory.hpp"
+#include "geneva/oa/GSwarmAlgorithm.hpp"
+#include "geneva/oa/GSwarmAlgorithm_PersonalityTraits.hpp"
 #endif
 
 namespace Gem::Geneva::OptimizationAlgorithms {
@@ -70,13 +80,21 @@ namespace Gem::Geneva::OptimizationAlgorithms {
 namespace {
 
 /******************************************************************************/
-// The algorithms that are always part of Geneva.
+// The algorithms that are always part of Geneva. Each factory is the GOptimizationAlgorithmFactoryT
+// scaffold instantiated for one algorithm and its personality traits -- that instantiation is the whole
+// factory, so it needs no name and no derived class of its own.
 
-const GInitializerT<GAntColonyOptimizationFactory> g_aco_registrant;
-const GInitializerT<GEvolutionaryAlgorithmFactory> g_ea_registrant;
-const GInitializerT<GGeneralizedSimulatedAnnealingFactory> g_gsa_registrant;
-const GInitializerT<GSepCmaEvolutionStrategyFactory> g_sepcma_registrant;
-const GInitializerT<GStandardPSO2011Factory> g_pso_registrant;
+const GInitializerT<GOptimizationAlgorithmFactoryT<
+    GAntColonyOptimization, GAntColonyOptimization_PersonalityTraits>> g_aco_registrant;
+const GInitializerT<GOptimizationAlgorithmFactoryT<
+    GEvolutionaryAlgorithm, GEvolutionaryAlgorithm_PersonalityTraits>> g_ea_registrant;
+const GInitializerT<GOptimizationAlgorithmFactoryT<
+    GGeneralizedSimulatedAnnealing,
+    GGeneralizedSimulatedAnnealing_PersonalityTraits>> g_gsa_registrant;
+const GInitializerT<GOptimizationAlgorithmFactoryT<
+    GSepCmaEvolutionStrategy, GSepCmaEvolutionStrategy_PersonalityTraits>> g_sepcma_registrant;
+const GInitializerT<GOptimizationAlgorithmFactoryT<
+    GStandardPSO2011, GStandardPSO2011_PersonalityTraits>> g_pso_registrant;
 
 /******************************************************************************/
 // The algorithms a slim-core build may leave out. Each switch is set by the build for exactly the
@@ -84,19 +102,25 @@ const GInitializerT<GStandardPSO2011Factory> g_pso_registrant;
 // exist at runtime.
 
 #ifdef GENEVA_ALGO_CGD
-const GInitializerT<GConjugateGradientDescentFactory> g_cgd_registrant;
+const GInitializerT<GOptimizationAlgorithmFactoryT<
+    GConjugateGradientDescent, GConjugateGradientDescent_PersonalityTraits>> g_cgd_registrant;
 #endif
 #ifdef GENEVA_ALGO_NM
-const GInitializerT<GNelderMeadFactory> g_nm_registrant;
+const GInitializerT<GOptimizationAlgorithmFactoryT<
+    GNelderMead, GNelderMead_PersonalityTraits>> g_nm_registrant;
 #endif
 #ifdef GENEVA_ALGO_PS
+// The one algorithm whose factory genuinely adds something (the parameter-spec command-line option),
+// so it is a class of its own rather than the bare scaffold instantiation.
 const GInitializerT<GParameterScanFactory> g_ps_registrant;
 #endif
 #ifdef GENEVA_ALGO_SA
-const GInitializerT<GSimulatedAnnealingFactory> g_sa_registrant;
+const GInitializerT<GOptimizationAlgorithmFactoryT<
+    GSimulatedAnnealing, GSimulatedAnnealing_PersonalityTraits>> g_sa_registrant;
 #endif
 #ifdef GENEVA_ALGO_SWARM
-const GInitializerT<GSwarmAlgorithmFactory> g_swarm_registrant;
+const GInitializerT<GOptimizationAlgorithmFactoryT<
+    GSwarmAlgorithm, GSwarmAlgorithm_PersonalityTraits>> g_swarm_registrant;
 #endif
 
 /******************************************************************************/

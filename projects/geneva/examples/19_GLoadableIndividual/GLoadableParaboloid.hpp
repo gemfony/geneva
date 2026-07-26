@@ -45,6 +45,7 @@
 #include "common/GParserBuilder.hpp"
 #include "geneva/genome/GGenomeT.hpp"
 #include "geneva/genome/GGenomeBuilder.hpp"
+#include "geneva/oa/GAdaption.hpp"        // makeAdaptionConfig()
 #include "geneva/oa/GAdaptionConfig.hpp"
 
 /******************************************************************************/

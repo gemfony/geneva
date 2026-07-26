@@ -198,10 +198,14 @@ are in `CHANGES` and `INSTALL`; this file is the practical upgrade guide.
   is gone, and a factory registers through one function, `Gem::Geneva::registerOptimizationAlgorithm()`
   — the same one whether the algorithm is built in (via `GInitializerT`) or loaded from a module (via
   `oaManifest<>` and the module loader). Consequences for existing code: the per-algorithm factory
-  types (`GEvolutionaryAlgorithmFactory`, `GSwarmAlgorithmFactory`, …) are unchanged as *names* but
-  are now aliases of `GOptimizationAlgorithmFactoryT<Algorithm, PersonalityTraits>`, so a
-  user-written factory that derived from one of them must derive from that instantiation instead;
-  a factory that only names an algorithm should simply be such an alias. `GOAFactoryT` gains
+  types and their headers (`GEvolutionaryAlgorithmFactory`, `GSwarmAlgorithmFactory`, … and
+  `geneva/oa/G*Factory.hpp`) are **gone**. For every algorithm but one the factory added nothing to
+  the scaffold, so the factory *is* the scaffold: write
+  `GOptimizationAlgorithmFactoryT<GTheAlgorithm, GTheAlgorithm_PersonalityTraits>` where the old type
+  name stood, and include the algorithm's header, its personality-traits header and
+  `geneva/oa/GOptimizationAlgorithmFactoryT.hpp`. `GParameterScanFactory` is the exception and remains
+  a class of its own — it adds the parameter-spec command-line option; a user-written factory that
+  derived from one of the removed types derives from the instantiation instead. `GOAFactoryT` gains
   `provide()` and a `final` `getName()` (the provider-interface spelling of `getAlgorithmName()`).
 
 ## 7. Renames and small API removals

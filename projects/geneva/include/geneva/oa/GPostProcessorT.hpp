@@ -42,7 +42,6 @@
 // Geneva headers go here
 #include "common/GSerializableFunctionObjectT.hpp"
 #include "geneva/genome/GGenome.hpp"
-#include "geneva/oa/GEvolutionaryAlgorithmFactory.hpp"
 
 namespace Gem::Geneva {
 

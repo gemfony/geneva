@@ -62,36 +62,27 @@ SET ( OA_INCLUDES
     oa/GBaseParChildPersonalityTraits.hpp
     oa/GPositionPersonalityTraits.hpp
     oa/GConjugateGradientDescent.hpp
-    oa/GConjugateGradientDescentFactory.hpp
     oa/GConjugateGradientDescent_PersonalityTraits.hpp
     oa/GHesseError.hpp
     oa/GLineSearch.hpp
     oa/GEvolutionaryAlgorithm.hpp
-    oa/GEvolutionaryAlgorithmFactory.hpp
     oa/GEvolutionaryAlgorithm_PersonalityTraits.hpp
     oa/GNelderMead.hpp
-    oa/GNelderMeadFactory.hpp
     oa/GNelderMead_PersonalityTraits.hpp
     oa/GParameterScan.hpp
     oa/GParameterScanFactory.hpp
     oa/GParameterScan_PersonalityTraits.hpp
     oa/GSimulatedAnnealing.hpp
-    oa/GSimulatedAnnealingFactory.hpp
     oa/GSimulatedAnnealing_PersonalityTraits.hpp
     oa/GSwarmAlgorithm.hpp
-    oa/GSwarmAlgorithmFactory.hpp
     oa/GSwarmAlgorithm_PersonalityTraits.hpp
     oa/GSepCmaEvolutionStrategy.hpp
-    oa/GSepCmaEvolutionStrategyFactory.hpp
     oa/GSepCmaEvolutionStrategy_PersonalityTraits.hpp
     oa/GStandardPSO2011.hpp
-    oa/GStandardPSO2011Factory.hpp
     oa/GStandardPSO2011_PersonalityTraits.hpp
     oa/GAntColonyOptimization.hpp
-    oa/GAntColonyOptimizationFactory.hpp
     oa/GAntColonyOptimization_PersonalityTraits.hpp
     oa/GGeneralizedSimulatedAnnealing.hpp
-    oa/GGeneralizedSimulatedAnnealingFactory.hpp
     oa/GGeneralizedSimulatedAnnealing_PersonalityTraits.hpp
 )
 
