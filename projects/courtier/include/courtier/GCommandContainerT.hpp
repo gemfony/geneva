@@ -41,7 +41,7 @@
 // Boost headers go here
 
 // Geneva headers go here
-#include "common/GArchiveNamed.hpp"      // archive_named (boost-vs-GArchive member emitter)
+#include "common/GArchiveNamed.hpp"      // archive_named (named-member emitter)
 #include "weft/GArchivePolymorphic.hpp"  // GArchive codecs for the GEM_BINARY / GEM_JSON wire arm
 #include "courtier/GCourtierEnums.hpp"
 #include "courtier/GProcessable.hpp"

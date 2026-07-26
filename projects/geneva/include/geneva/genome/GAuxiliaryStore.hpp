@@ -46,7 +46,7 @@
 // Boost headers go here
 
 // Geneva headers go here
-#include "common/GArchiveNamed.hpp" // archive_named / archive_named_binary (boost-vs-GArchive emitters)
+#include "common/GArchiveNamed.hpp" // archive_named / archive_named_binary (named member / base emitters)
 #include "common/GCommonHelperFunctionsT.hpp"
 #include "common/GExceptions.hpp"
 #include "geneva/GPersonalityTraits.hpp"

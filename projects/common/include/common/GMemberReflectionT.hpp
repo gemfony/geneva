@@ -42,14 +42,14 @@
 
 // Gemfony headers go here
 #include "weft/GArchive.hpp"
-#include "common/GArchiveNamed.hpp" // archive_named / archive_named_base (the boost-vs-GArchive member emitters)
+#include "common/GArchiveNamed.hpp" // archive_named / archive_named_base (the named member / base emitters)
 #include "common/GCommonHelperFunctionsT.hpp"
 
 namespace Gem::Common {
 
 /******************************************************************************/
-// archive_named / archive_named_base -- the single boost-vs-GArchive branch for
-// a plain member / a base slice -- now live in the low-dependency GArchiveNamed.hpp
+// archive_named / archive_named_base -- the named-member and named-base emitters for
+// a plain member / a base slice -- live in the low-dependency GArchiveNamed.hpp
 // (re-exported here via the include above) so hand-written serialize sites can pull
 // them in without this whole reflection header.
 

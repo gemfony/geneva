@@ -41,7 +41,7 @@
 #include <vector>
 
 // Geneva headers go here
-#include "common/GMemberReflectionT.hpp" // Gem::Common::archive_named (boost-vs-GArchive member emitter)
+#include "common/GMemberReflectionT.hpp" // Gem::Common::archive_named (named-member emitter)
 #include "weft/GBinaryArchive.hpp"        // Gem::Weft::GBinary[IO]Archive -- the wire-blob codec
 #include "geneva/genome/GAdaptionKernels.hpp"
 #include "geneva/genome/GGenomeLayout.hpp"

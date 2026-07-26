@@ -40,7 +40,7 @@
 #include <vector>
 
 // Geneva headers go here
-#include "common/GArchiveNamed.hpp" // archive_named (boost-vs-GArchive member emitter)
+#include "common/GArchiveNamed.hpp" // archive_named (named-member emitter)
 #include "common/GCommonInterfaceT.hpp"
 #include "common/GErrorStreamer.hpp"
 #include "common/GExceptions.hpp"

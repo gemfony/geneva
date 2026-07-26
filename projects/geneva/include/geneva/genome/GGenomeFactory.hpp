@@ -34,7 +34,7 @@
 // Boosrt headers go here
 
 // Geneva headers go here
-#include "common/GArchiveNamed.hpp" // archive_named / archive_named_base (boost-vs-GArchive emitters)
+#include "common/GArchiveNamed.hpp" // archive_named / archive_named_base (named member / base emitters)
 #include "common/GExceptions.hpp"
 #include "common/GFactoryT.hpp"
 #include "common/GLogger.hpp"

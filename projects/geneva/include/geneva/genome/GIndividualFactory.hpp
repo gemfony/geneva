@@ -41,7 +41,7 @@
 // Boost header files go here
 
 // Geneva headers go here
-#include "common/GArchiveNamed.hpp" // archive_named_base (boost-vs-GArchive base emitter)
+#include "common/GArchiveNamed.hpp" // archive_named_base (named-base emitter)
 #include "common/GExceptions.hpp"
 #include "common/GLogger.hpp"
 #include "common/GParserBuilder.hpp"

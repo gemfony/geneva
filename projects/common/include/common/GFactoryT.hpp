@@ -43,12 +43,12 @@
 #include <boost/json.hpp>
 
 // Geneva header files go here
-#include "common/GArchiveNamed.hpp" // archive_named (boost-vs-GArchive member emitter)
+#include "common/GArchiveNamed.hpp" // archive_named (named-member emitter)
 #include "common/GCommonHelperFunctionsT.hpp"
 #include "common/GErrorStreamer.hpp"
 #include "common/GExceptions.hpp"
 #include "common/GParserBuilder.hpp"
-#include "common/GSerializationHelperFunctionsT.hpp" // std::atomic<T> Boost serialization
+#include "common/GSerializationHelperFunctionsT.hpp" // serialization of std::atomic<T>
 
 namespace Gem::Common {
 

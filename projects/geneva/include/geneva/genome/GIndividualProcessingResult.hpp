@@ -38,7 +38,7 @@
 // Boost header files go here
 
 // Geneva header files go here
-#include "common/GArchiveNamed.hpp" // archive_named (boost-vs-GArchive member emitter)
+#include "common/GArchiveNamed.hpp" // archive_named (named-member emitter)
 #include "common/GExceptions.hpp"
 #include "common/GLogger.hpp"
 

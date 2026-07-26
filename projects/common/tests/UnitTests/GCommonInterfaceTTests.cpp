@@ -36,7 +36,7 @@
 #include <type_traits>
 
 
-#include "common/GArchiveNamed.hpp"       // archive_named (boost-vs-GArchive member emitter)
+#include "common/GArchiveNamed.hpp"       // archive_named (named-member emitter)
 #include "weft/GArchivePolymorphic.hpp"   // GEM_REGISTER_ARCHIVABLE
 
 #include "common/GCommonEnums.hpp"
