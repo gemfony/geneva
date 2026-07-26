@@ -87,7 +87,7 @@ int main(int argc, char **argv) {
     }
 
     // Perform the actual optimization
-    std::shared_ptr<GStarterIndividual> bestIndividual_ptr =
+    auto bestIndividual_ptr =
         go.optimize()->getBestGlobalIndividual<GStarterIndividual>();
 
     // Do something with the best result. Here we simply print the result to stdout.

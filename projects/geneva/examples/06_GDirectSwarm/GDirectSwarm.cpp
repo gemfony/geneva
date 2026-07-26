@@ -449,7 +449,7 @@ int main(int argc, char **argv) {
 
     /****************************************************************************/
     // Do something with the best individual found
-    std::shared_ptr<gind::GFunctionIndividual> const p =
+    auto const p =
         pop_ptr->getBestGlobalIndividual<gind::GFunctionIndividual>();
 
     // Here you can do something with the best individual ("p") found.

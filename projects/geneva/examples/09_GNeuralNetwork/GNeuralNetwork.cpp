@@ -154,7 +154,7 @@ int main(int argc, char **argv) {
     }
 
     // Perform the actual optimization and retrieve the best individual
-    std::shared_ptr<gind::GNeuralNetworkIndividual> const p =
+    auto const p =
         go.optimize()->getBestGlobalIndividual<gind::GNeuralNetworkIndividual>();
 
     //---------------------------------------------------------------------------

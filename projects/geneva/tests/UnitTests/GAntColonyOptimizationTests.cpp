@@ -81,9 +81,9 @@ protected:
 
 /** @brief Sphere value of the best individual, also asserting the constraints held. */
 template <std::size_t N_DIM>
-double bestSphere(const std::shared_ptr<SphereACOR<N_DIM>> &best) {
+double bestSphere(const SphereACOR<N_DIM> &best) {
     std::vector<double> v;
-    best->template streamline<double>(v);
+    best.template streamline<double>(v);
     double s = 0.;
     for(double const x : v) {
         s += x * x;
@@ -109,7 +109,7 @@ TEST_CASE("Ant Colony Optimization optimizes a 5-dim flat sphere", "[acor]") {
 
     auto best = pop->getBestGlobalIndividual<SphereACOR<5>>();
     REQUIRE(best);
-    CHECK(bestSphere<5>(best) < 1.e-2); // far below the f = 5 * 9 = 45 start
+    CHECK(bestSphere<5>(*best) < 1.e-2); // far below the f = 5 * 9 = 45 start
 }
 
 /******************************************************************************/
@@ -126,7 +126,7 @@ TEST_CASE("Ant Colony Optimization optimizes a 10-dim flat sphere", "[acor]") {
 
     auto best = pop->getBestGlobalIndividual<SphereACOR<10>>();
     REQUIRE(best);
-    CHECK(bestSphere<10>(best) < 1.0); // well below the f = 10 * 9 = 90 start
+    CHECK(bestSphere<10>(*best) < 1.0); // well below the f = 10 * 9 = 90 start
 }
 
 /******************************************************************************/

@@ -436,9 +436,9 @@ protected:
 };
 
 /** @brief Sphere value of the best individual, also asserting the constraints held. */
-double bestSphere(const std::shared_ptr<SphereOA> &best) {
+double bestSphere(const SphereOA &best) {
     std::vector<double> v;
-    best->streamline<double>(v);
+    best.streamline<double>(v);
     double s = 0.;
     for(double const x : v) {
         s += x * x;
@@ -464,7 +464,7 @@ TEST_CASE("Evolutionary algorithm optimizes a flat individual", "[flat][oa]") {
 
     auto best = pop->getBestGlobalIndividual<SphereOA>();
     REQUIRE(best);
-    CHECK(bestSphere(best) < 20.0); // far below the f=45 start
+    CHECK(bestSphere(*best) < 20.0); // far below the f=45 start
 }
 
 /******************************************************************************/
@@ -485,7 +485,7 @@ TEST_CASE("EA in a PARETO mode degenerates safely on a single-objective individu
 
     auto best = pop->getBestGlobalIndividual<SphereOA>();
     REQUIRE(best);
-    CHECK(bestSphere(best) < 20.0); // still converges via the single-eval fallback
+    CHECK(bestSphere(*best) < 20.0); // still converges via the single-eval fallback
 }
 
 /******************************************************************************/
@@ -633,7 +633,7 @@ TEST_CASE("EA adopts an externally-provided adaption config", "[flat][oa]") {
 
     auto best = pop->getBestGlobalIndividual<SphereOA>();
     REQUIRE(best);
-    CHECK(bestSphere(best) < 20.0); // the provided config drives a converging adaption (far below the f=45 start)
+    CHECK(bestSphere(*best) < 20.0); // the provided config drives a converging adaption (far below the f=45 start)
 }
 
 /******************************************************************************/
@@ -684,7 +684,7 @@ TEST_CASE("Simulated annealing optimizes a flat individual", "[flat][oa]") {
 
     auto best = pop->getBestGlobalIndividual<SphereOA>();
     REQUIRE(best);
-    CHECK(bestSphere(best) < 20.0);
+    CHECK(bestSphere(*best) < 20.0);
 }
 
 /******************************************************************************/
@@ -769,7 +769,7 @@ TEST_CASE("Swarm optimization optimizes a flat individual", "[flat][oa]") {
 
     auto best = pop->getBestGlobalIndividual<SphereOA>();
     REQUIRE(best);
-    CHECK(bestSphere(best) < 20.0);
+    CHECK(bestSphere(*best) < 20.0);
 }
 
 /******************************************************************************/
@@ -839,7 +839,7 @@ TEST_CASE("Swarm normalizes a non-canonical user population at setup", "[flat][o
         CHECK(pop->size() == default_pop_size); // filled to capacity, nothing discarded mid-setup
         auto best = pop->getBestGlobalIndividual<SphereOA>();
         REQUIRE(best);
-        CHECK(bestSphere(best) < 20.0);
+        CHECK(bestSphere(*best) < 20.0);
     }
 
     SECTION("above default_pop_size -> trim surplus to capacity") {
@@ -854,7 +854,7 @@ TEST_CASE("Swarm normalizes a non-canonical user population at setup", "[flat][o
         CHECK(pop->size() == default_pop_size); // surplus trimmed, topology intact (no last-neighborhood dump)
         auto best = pop->getBestGlobalIndividual<SphereOA>();
         REQUIRE(best);
-        CHECK(bestSphere(best) < 20.0);
+        CHECK(bestSphere(*best) < 20.0);
     }
 }
 
@@ -886,7 +886,7 @@ TEST_CASE("Swarm with many neighborhoods does not overflow its bookkeeping", "[f
 
     auto best = pop->getBestGlobalIndividual<SphereOA>();
     REQUIRE(best);
-    CHECK(bestSphere(best) < 20.0);
+    CHECK(bestSphere(*best) < 20.0);
 }
 
 /******************************************************************************/
@@ -997,7 +997,7 @@ TEST_CASE("Nelder-Mead optimizes a flat individual", "[flat][oa]") {
 
     auto best = pop->getBestGlobalIndividual<SphereOA>();
     REQUIRE(best);
-    CHECK(bestSphere(best) < 5.0); // simplex descent on a sphere converges well
+    CHECK(bestSphere(*best) < 5.0); // simplex descent on a sphere converges well
 }
 
 /******************************************************************************/
@@ -1015,7 +1015,7 @@ TEST_CASE("Nelder-Mead with oriented restart still converges", "[flat][oa]") {
     CHECK(pop->getRestartThreshold() == 5);
     auto best = pop->getBestGlobalIndividual<SphereOA>();
     REQUIRE(best);
-    CHECK(bestSphere(best) < 5.0);
+    CHECK(bestSphere(*best) < 5.0);
 }
 
 /******************************************************************************/
@@ -1058,7 +1058,7 @@ TEST_CASE("Parameter scan sweeps a flat individual", "[flat][oa]") {
     REQUIRE(best);
     // The scan swept the grid and returned the best grid point (near the origin); the grid's
     // resolution -- not the optimum -- bounds how close it gets.
-    CHECK(bestSphere(best) < 5.0);
+    CHECK(bestSphere(*best) < 5.0);
 }
 
 /******************************************************************************/
@@ -1084,7 +1084,7 @@ TEST_CASE("Parameter scan grid clone round-trip preserves the grid", "[flat][oa]
 
     auto best = clone->getBestGlobalIndividual<SphereOA>();
     REQUIRE(best);
-    CHECK(bestSphere(best) < 1.0e-6); // the 3-step grid (-5, 0, 5) per dim includes the origin
+    CHECK(bestSphere(*best) < 1.0e-6); // the 3-step grid (-5, 0, 5) per dim includes the origin
 }
 
 /******************************************************************************/
@@ -1381,9 +1381,9 @@ protected:
 };
 
 /** @brief Sum of squares of a flat individual's double parameters (its sphere value). */
-double sphereValue(const std::shared_ptr<gen::GGenome> &best) {
+double sphereValue(const gen::GGenome &best) {
     std::vector<double> v;
-    best->streamline<double>(v);
+    best.streamline<double>(v);
     double s = 0.;
     for(double const x : v) {
         s += x * x;
@@ -1442,7 +1442,7 @@ TEST_CASE("Separable CMA-ES optimizes a flat individual", "[flat][oa][sepcma]") 
 
     auto best = pop->getBestGlobalIndividual<SphereOA>();
     REQUIRE(best);
-    CHECK(bestSphere(best) < 1.0e-3); // sep-CMA drives the sphere far below the f=45 start
+    CHECK(bestSphere(*best) < 1.0e-3); // sep-CMA drives the sphere far below the f=45 start
 }
 
 /******************************************************************************/
@@ -1457,7 +1457,7 @@ TEST_CASE("Pure CSA-ES (no diagonal covariance) optimizes a flat individual", "[
 
     auto best = pop->getBestGlobalIndividual<SphereOA>();
     REQUIRE(best);
-    CHECK(bestSphere(best) < 1.0e-2); // CSA alone still converges the isotropic sphere
+    CHECK(bestSphere(*best) < 1.0e-2); // CSA alone still converges the isotropic sphere
 }
 
 /******************************************************************************/
@@ -1484,7 +1484,7 @@ TEST_CASE("Separable CMA-ES out-converges the stock EA at high dimension", "[fla
         pop->optimize();
         auto best = pop->getBestGlobalIndividual<Ind>();
         REQUIRE(best);
-        ea_best = sphereValue(best);
+        ea_best = sphereValue(*best);
     }
 
     // sepcma: auto lambda (4 + floor(3 ln 200) = 19) over the same kind of budget (~150 gens), no config.
@@ -1498,7 +1498,7 @@ TEST_CASE("Separable CMA-ES out-converges the stock EA at high dimension", "[fla
         pop->optimize();
         auto best = pop->getBestGlobalIndividual<Ind>();
         REQUIRE(best);
-        eab_best = sphereValue(best);
+        eab_best = sphereValue(*best);
     }
 
     INFO("n=" << N << " stock-ea best=" << ea_best << "  sepcma best=" << eab_best);

@@ -81,7 +81,7 @@ std::ostream &operator<<(std::ostream &s, const Gem::Geneva::GMultiCriterionPara
      */
 std::ostream &operator<<(
     std::ostream &s,
-    const std::shared_ptr<Gem::Geneva::GMultiCriterionParabolaIndividual> &f_ptr
+    const std::unique_ptr<Gem::Geneva::GMultiCriterionParabolaIndividual> &f_ptr
 ) {
     return operator<<(s, *f_ptr);
 }

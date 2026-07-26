@@ -161,7 +161,7 @@ int main(int argc, char **argv) {
     }
 
     // Perform the actual optimization
-    std::shared_ptr<gind::GFunctionIndividual> const p =
+    auto const p =
         go.optimize()->getBestGlobalIndividual<gind::GFunctionIndividual>();
 
     // Here you can do something with the best individual ("p") found.

@@ -83,7 +83,7 @@ int main(int argc, char **argv) {
     auto timeStart{std::chrono::system_clock::now()};
 
     // Perform the actual optimization
-    std::shared_ptr<GMPISubClientParaboloidIndividualMultiD> const bestIndividual_ptr =
+    auto const bestIndividual_ptr =
         optimizer.optimize()->getBestGlobalIndividual<GMPISubClientParaboloidIndividualMultiD>();
 
     auto timeElapsed{std::chrono::system_clock::now() - timeStart};

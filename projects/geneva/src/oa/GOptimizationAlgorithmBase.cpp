@@ -1714,9 +1714,9 @@ GOptimizationAlgorithmBase::extractOptAlgFromPath(const std::filesystem::path &p
  * @brief Retrieves the best individual found up to now (which is usually the best individual
  * in the priority queue).
  *
- * @return A cloned shared pointer to the globally best individual found so far
+ * @return A sole-ownership pointer to a clone of the globally best individual found so far
  */
-std::shared_ptr<gen::GGenome> GOptimizationAlgorithmBase::getBestGlobalIndividual_() const {
+std::unique_ptr<gen::GGenome> GOptimizationAlgorithmBase::getBestGlobalIndividual_() const {
     // best() throws on an empty archive and the archive never admits an empty handle, so the entry
     // is known to be there. Always clone: the archive solely owns its entries and callers get a copy.
     return best_global_individuals_pq_.best()->clone<gen::GGenome>();
@@ -1727,11 +1727,11 @@ std::shared_ptr<gen::GGenome> GOptimizationAlgorithmBase::getBestGlobalIndividua
  * @brief Retrieves a list of the best individuals found (equal to the content of
  * the priority queue)
  *
- * @return A vector of cloned shared pointers to the globally best individuals found so far
+ * @return A vector of sole-ownership pointers to clones of the globally best individuals found so far
  */
-std::vector<std::shared_ptr<gen::GGenome>>
+std::vector<std::unique_ptr<gen::GGenome>>
 GOptimizationAlgorithmBase::getBestGlobalIndividuals_() const {
-    std::vector<std::shared_ptr<gen::GGenome>> best_individuals_vec;
+    std::vector<std::unique_ptr<gen::GGenome>> best_individuals_vec;
     best_individuals_vec.reserve(best_global_individuals_pq_.size());
 
     for(const auto &ind_ptr : best_global_individuals_pq_) {
@@ -1746,9 +1746,9 @@ GOptimizationAlgorithmBase::getBestGlobalIndividuals_() const {
  * @brief Retrieves the best individual found in the iteration (which is the best individual
  * in the priority queue).
  *
- * @return A cloned shared pointer to the best individual found in the current iteration
+ * @return A sole-ownership pointer to a clone of the best individual of the current iteration
  */
-std::shared_ptr<gen::GGenome> GOptimizationAlgorithmBase::getBestIterationIndividual_() const {
+std::unique_ptr<gen::GGenome> GOptimizationAlgorithmBase::getBestIterationIndividual_() const {
     // See getBestGlobalIndividual_(): best() throws on an empty archive, and the caller gets a copy.
     return best_iteration_individuals_pq_.best()->clone<gen::GGenome>();
 }
@@ -1758,11 +1758,11 @@ std::shared_ptr<gen::GGenome> GOptimizationAlgorithmBase::getBestIterationIndivi
  * @brief Retrieves a list of the best individuals found in the iteration (equal to the content of
  * the priority queue)
  *
- * @return A vector of cloned shared pointers to the best individuals found in the current iteration
+ * @return A vector of sole-ownership pointers to clones of the current iteration's best individuals
  */
-std::vector<std::shared_ptr<gen::GGenome>>
+std::vector<std::unique_ptr<gen::GGenome>>
 GOptimizationAlgorithmBase::getBestIterationIndividuals_() const {
-    std::vector<std::shared_ptr<gen::GGenome>> best_individuals_vec;
+    std::vector<std::unique_ptr<gen::GGenome>> best_individuals_vec;
     best_individuals_vec.reserve(best_iteration_individuals_pq_.size());
 
     // Clone, exactly like the global-best accessor above: this used to hand out the archive's own

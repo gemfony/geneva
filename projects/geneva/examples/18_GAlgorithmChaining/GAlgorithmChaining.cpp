@@ -85,7 +85,7 @@ int main(int argc, char **argv) {
 
     //---------------------------------------------------------------------------
     // Perform the actual (chained) optimization
-    std::shared_ptr<gind::GFunctionIndividual> const p =
+    auto const p =
         go.optimize()->getBestGlobalIndividual<gind::GFunctionIndividual>();
 
     std::cout << "Best result found:" << '\n' << p << '\n';

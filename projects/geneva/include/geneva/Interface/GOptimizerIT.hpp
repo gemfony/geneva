@@ -34,8 +34,10 @@
 
 // Standard header files go here
 #include <concepts>
+#include <memory>
 #include <mutex>
 #include <string>
+#include <string_view>
 #include <thread>
 #include <utility>
 #include <vector>
@@ -87,44 +89,37 @@ public:
     /**
 	  * @brief Retrieves the best individual found so far and converts it to a given target type.
 	  *
-	  * Note that this function will not allow you to modify the best individual itself as it will
-	  * return a copy to you. Throws if the dynamic_pointer_cast to individual_type fails.
+	  * The individual handed back is a fresh copy, solely owned by the caller: it cannot be used to modify
+	  * the optimizer's own best. Throws if the cast to individual_type fails.
 	  *
 	  * @tparam individual_type The concrete individual type to cast the best individual to (must derive from gen::GGenome)
 	  * @return A copy of the best individual found in the optimization run
 	  */
     template <typename individual_type>
         requires std::derived_from<individual_type, gen::GGenome>
-    std::shared_ptr<individual_type> getBestGlobalIndividual() const {
+    std::unique_ptr<individual_type> getBestGlobalIndividual() const {
         std::scoped_lock<std::mutex> const iteration_best_lock(get_best_mutex_);
-        auto result = std::dynamic_pointer_cast<individual_type>(this->getBestGlobalIndividual_());
-        if(!result) {
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GOptimizerIT<>::getBestGlobalIndividual(): Error!" << '\n'
-                << "dynamic_pointer_cast to requested individual_type failed." << '\n'
-            );
-        }
-        return result;
+        return castBest_<individual_type>(
+            this->getBestGlobalIndividual_(), "getBestGlobalIndividual");
     }
 
     /***************************************************************************/
     /**
 	  * @brief Retrieves a list of the best individuals found so far and converts them to a given target type.
 	  *
-	  * Note that this function will not allow you to modify the best individuals themselves
-	  * as it will return copies to you. Throws if the collection is empty or if any cast fails.
+	  * The individuals handed back are fresh copies, solely owned by the caller: they cannot be used to
+	  * modify the optimizer's own bests. Throws if the collection is empty or if any cast fails.
 	  *
 	  * @tparam individual_type The concrete individual type to cast each best individual to (must derive from gen::GGenome)
 	  * @return A list of copies of the best individuals found in the optimization run
 	  */
     template <typename individual_type>
         requires std::derived_from<individual_type, gen::GGenome>
-    std::vector<std::shared_ptr<individual_type>> getBestGlobalIndividuals() const {
+    std::vector<std::unique_ptr<individual_type>> getBestGlobalIndividuals() const {
         std::scoped_lock<std::mutex> const iteration_best_lock(get_best_mutex_);
 
-        std::vector<std::shared_ptr<individual_type>> best_individuals;
-        std::vector<std::shared_ptr<gen::GGenome>> const best_base_individuals =
+        std::vector<std::unique_ptr<individual_type>> best_individuals;
+        std::vector<std::unique_ptr<gen::GGenome>> best_base_individuals =
             this->getBestGlobalIndividuals_();
 
         // Cross check that we indeed got a valid set of individuals
@@ -137,17 +132,9 @@ public:
             );
         }
 
-        for(auto const &ind_ptr : best_base_individuals) {
-            auto cast_ptr = std::dynamic_pointer_cast<individual_type>(ind_ptr);
-            if(!cast_ptr) {
-                throw geneva_exception(
-                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                    << "In GOptimizerIT<>::getBestGlobalIndividuals(): Error!" << '\n'
-                    << "dynamic_pointer_cast to requested individual_type failed." << '\n'
-                );
-            }
-            // clone() yields sole ownership; hand it to the shared_ptr collection this accessor returns
-            best_individuals.push_back(std::move(cast_ptr));
+        for(auto &ind_ptr : best_base_individuals) {
+            best_individuals.push_back(
+                castBest_<individual_type>(std::move(ind_ptr), "getBestGlobalIndividuals"));
         }
 
         return best_individuals;
@@ -157,47 +144,40 @@ public:
     /**
 	  * @brief Retrieves the best individual found in the iteration and converts it to a given target type.
 	  *
-	  * Note that this function will not allow you to modify the best individual itself as it will
-	  * return a copy to you. Retrieval of this copy is protected by a lock, so that potentially
+	  * The individual handed back is a fresh copy, solely owned by the caller: it cannot be used to modify
+	  * the optimizer's own best. Retrieval of this copy is protected by a lock, so that potentially
 	  * costly operations on results may be performed in parallel (i.e. a copy of the best individual
 	  * is retrieved under protection, any action on this individual may then be carried out in parallel).
-	  * Throws if the dynamic_pointer_cast to individual_type fails.
+	  * Throws if the cast to individual_type fails.
 	  *
 	  * @tparam individual_type The concrete individual type to cast the best individual to (must derive from gen::GGenome)
 	  * @return A copy of the best individual found in the iteration
 	  */
     template <typename individual_type>
         requires std::derived_from<individual_type, gen::GGenome>
-    std::shared_ptr<individual_type> getBestIterationIndividual() const {
+    std::unique_ptr<individual_type> getBestIterationIndividual() const {
         std::scoped_lock<std::mutex> const iteration_best_lock(get_best_mutex_);
-        auto result = std::dynamic_pointer_cast<individual_type>(getBestIterationIndividual_());
-        if(!result) {
-            throw geneva_exception(
-                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                << "In GOptimizerIT<>::getBestIterationIndividual(): Error!" << '\n'
-                << "dynamic_pointer_cast to requested individual_type failed." << '\n'
-            );
-        }
-        return result;
+        return castBest_<individual_type>(
+            this->getBestIterationIndividual_(), "getBestIterationIndividual");
     }
 
     /***************************************************************************/
     /**
 	  * @brief Retrieves a list of the best individuals found in the iteration and converts them to a given target type.
 	  *
-	  * Note that this function will not allow you to modify the best individuals
-	  * themselves as it will return copies to you. Throws if the collection is empty or if any clone fails.
+	  * The individuals handed back are fresh copies, solely owned by the caller: they cannot be used to
+	  * modify the optimizer's own bests. Throws if the collection is empty or if any cast fails.
 	  *
-	  * @tparam individual_type The concrete individual type to clone each best individual into (must derive from gen::GGenome)
+	  * @tparam individual_type The concrete individual type to cast each best individual to (must derive from gen::GGenome)
 	  * @return A list of copies of the best individuals found in the iteration
 	  */
     template <typename individual_type>
         requires std::derived_from<individual_type, gen::GGenome>
-    std::vector<std::shared_ptr<individual_type>> getBestIterationIndividuals() const {
+    std::vector<std::unique_ptr<individual_type>> getBestIterationIndividuals() const {
         std::scoped_lock<std::mutex> const iteration_best_lock(get_best_mutex_);
 
-        std::vector<std::shared_ptr<individual_type>> best_individuals;
-        std::vector<std::shared_ptr<gen::GGenome>> const best_base_individuals =
+        std::vector<std::unique_ptr<individual_type>> best_individuals;
+        std::vector<std::unique_ptr<gen::GGenome>> best_base_individuals =
             this->getBestIterationIndividuals_();
 
         // Cross check that we indeed got a valid set of individuals
@@ -211,17 +191,9 @@ public:
             );
         }
 
-        for(auto const &ind_ptr : best_base_individuals) {
-            auto cast_ptr = ind_ptr->template clone<individual_type>();
-            if(!cast_ptr) {
-                throw geneva_exception(
-                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
-                    << "In GOptimizerIT<>::getBestIterationIndividuals(): Error!" << '\n'
-                    << "clone<individual_type>() returned null." << '\n'
-                );
-            }
-            // clone() yields sole ownership; hand it to the shared_ptr collection this accessor returns
-            best_individuals.push_back(std::move(cast_ptr));
+        for(auto &ind_ptr : best_base_individuals) {
+            best_individuals.push_back(
+                castBest_<individual_type>(std::move(ind_ptr), "getBestIterationIndividuals"));
         }
 
         return best_individuals;
@@ -293,14 +265,14 @@ private:
     virtual void evaluatePopulation_() = 0;
 
     /** @brief Retrieves the best individual found globally */
-    virtual std::shared_ptr<gen::GGenome> getBestGlobalIndividual_() const = 0;
+    virtual std::unique_ptr<gen::GGenome> getBestGlobalIndividual_() const = 0;
     /** @brief Retrieves a list of the best individuals found globally*/
-    virtual std::vector<std::shared_ptr<gen::GGenome>>
+    virtual std::vector<std::unique_ptr<gen::GGenome>>
     getBestGlobalIndividuals_() const = 0;
     /** @brief Retrieves the best individual found in the current iteration*/
-    virtual std::shared_ptr<gen::GGenome> getBestIterationIndividual_() const = 0;
+    virtual std::unique_ptr<gen::GGenome> getBestIterationIndividual_() const = 0;
     /** @brief Retrieves a list of the best individuals found in the current iteration */
-    virtual std::vector<std::shared_ptr<gen::GGenome>>
+    virtual std::vector<std::unique_ptr<gen::GGenome>>
     getBestIterationIndividuals_() const = 0;
 
     /** @brief Returns one-word information about the type of optimization algorithm. */
@@ -309,6 +281,34 @@ private:
     virtual std::string getAlgorithmName_() const = 0;
     /** @brief Retrieves the current iteration of this object */
     virtual std::uint32_t getIteration_() const = 0;
+
+    /***************************************************************************/
+    /**
+     * @brief Converts a solely-owned best individual to the requested type, or throws.
+     *
+     * The four accessors above all receive sole ownership from their hooks, so the conversion is a
+     * dynamic_cast plus a transfer of ownership -- there is no pointer-cast helper for unique_ptr, and
+     * writing it once keeps the four accessors' failure diagnostics identical.
+     *
+     * @tparam individual_type The type the individual is converted to
+     * @param ind_ptr The individual to convert (ownership is taken)
+     * @param accessor The calling accessor's name, for the diagnostic
+     * @return The same individual, owned as an individual_type
+     */
+    template <typename individual_type>
+    static std::unique_ptr<individual_type> castBest_(
+        std::unique_ptr<gen::GGenome> ind_ptr, std::string_view accessor
+    ) {
+        if(auto *converted = dynamic_cast<individual_type *>(ind_ptr.get()); converted != nullptr) {
+            ind_ptr.release(); // ownership passes to the converted pointer
+            return std::unique_ptr<individual_type>(converted);
+        }
+        throw geneva_exception(
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+            << "In GOptimizerIT<>::" << accessor << "(): Error!" << '\n'
+            << "The best individual is not of the requested individual_type." << '\n'
+        );
+    }
 
     /***************************************************************************/
     // Data

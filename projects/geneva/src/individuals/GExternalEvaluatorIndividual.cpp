@@ -815,7 +815,7 @@ void GExternalEvaluatorIndividual::finalize(const Config &c) {
  * @param arch A vector of best individuals to archive; if empty the call is a no-op, otherwise the first element supplies the run metadata
  */
 void GExternalEvaluatorIndividual::archive(
-    const std::vector<std::shared_ptr<GExternalEvaluatorIndividual>> &arch
+    const std::vector<std::unique_ptr<GExternalEvaluatorIndividual>> &arch
 ) {
     namespace json = boost::json;
 

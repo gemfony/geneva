@@ -734,10 +734,10 @@ std::ostream &operator<<(std::ostream &s, const Gem::Geneva::Individuals::GFunct
  * @brief Provide an easy way to print the individual's content through a smart-pointer.
  *
  * @param s The output stream that is returned (the parameter dump itself is written to std::cout)
- * @param f_ptr A shared pointer to the GFunctionIndividual whose content is printed (dereferenced internally)
+ * @param f_ptr An owning pointer to the GFunctionIndividual whose content is printed (dereferenced internally)
  * @return The std::ostream object passed in as @p s
  */
-std::ostream &operator<<(std::ostream &s, const std::shared_ptr<Gem::Geneva::Individuals::GFunctionIndividual>& f_ptr) {
+std::ostream &operator<<(std::ostream &s, const std::unique_ptr<Gem::Geneva::Individuals::GFunctionIndividual>& f_ptr) {
     return operator<<(s, *f_ptr);
 }
 

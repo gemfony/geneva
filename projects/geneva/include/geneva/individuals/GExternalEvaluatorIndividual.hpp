@@ -315,7 +315,7 @@ public:
      *  Reads the program name / custom options / exchange base name / run-id from the individuals.
      * @param arch The batch of best individuals to be archived
      */
-    static void archive(const std::vector<std::shared_ptr<GExternalEvaluatorIndividual>> &arch);
+    static void archive(const std::vector<std::unique_ptr<GExternalEvaluatorIndividual>> &arch);
 
 protected:
     /***************************************************************************/

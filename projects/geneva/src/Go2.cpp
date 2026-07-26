@@ -894,8 +894,8 @@ void Go2::runAlgorithmChain(std::uint32_t first_algorithm_offset) {
 
         // Unload the individuals from the last algorithm and store them again in this object
         if(copy_best_individuals_only_) {
-            for(const auto &best_ind_ptr : alg_ptr->getBestGlobalIndividuals<gen::GGenome>()) {
-                this->push_back(best_ind_ptr);
+            for(auto &best_ind_ptr : alg_ptr->getBestGlobalIndividuals<gen::GGenome>()) {
+                this->push_back(std::move(best_ind_ptr));
             }
         }
         else { // copy all individuals
@@ -957,7 +957,7 @@ void Go2::sortIndividualsByFitness() {
  *
  * @return The best individual found
  */
-std::shared_ptr<gen::GGenome> Go2::getBestGlobalIndividual_() const {
+std::unique_ptr<gen::GGenome> Go2::getBestGlobalIndividual_() const {
     // Do some error checking
     if(this->empty()) {
         throw geneva_exception(
@@ -997,7 +997,7 @@ std::shared_ptr<gen::GGenome> Go2::getBestGlobalIndividual_() const {
  *
  * @return A vector holding the best individuals found
  */
-std::vector<std::shared_ptr<gen::GGenome>> Go2::getBestGlobalIndividuals_() const {
+std::vector<std::unique_ptr<gen::GGenome>> Go2::getBestGlobalIndividuals_() const {
     // Do some error checking
     if(this->empty()) {
         throw geneva_exception(
@@ -1007,7 +1007,7 @@ std::vector<std::shared_ptr<gen::GGenome>> Go2::getBestGlobalIndividuals_() cons
         );
     }
 
-    std::vector<std::shared_ptr<gen::GGenome>> best_individuals;
+    std::vector<std::unique_ptr<gen::GGenome>> best_individuals;
     for(auto const &[pos, ind_ptr] : *this | std::views::enumerate) {
         if(ind_ptr->is_due_for_processing() || ind_ptr->has_errors()) {
             throw geneva_exception(
@@ -1033,7 +1033,7 @@ std::vector<std::shared_ptr<gen::GGenome>> Go2::getBestGlobalIndividuals_() cons
  *
  * @return Never returns normally; always throws a geneva_exception
  */
-std::shared_ptr<gen::GGenome> Go2::getBestIterationIndividual_() const {
+std::unique_ptr<gen::GGenome> Go2::getBestIterationIndividual_() const {
     throw geneva_exception(
         g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
         << "In Go2::getBestIterationIndividual_(): Error!" << '\n'
@@ -1049,7 +1049,7 @@ std::shared_ptr<gen::GGenome> Go2::getBestIterationIndividual_() const {
  *
  * @return Never returns normally; always throws a geneva_exception
  */
-std::vector<std::shared_ptr<gen::GGenome>> Go2::getBestIterationIndividuals_() const {
+std::vector<std::unique_ptr<gen::GGenome>> Go2::getBestIterationIndividuals_() const {
     throw geneva_exception(
         g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
         << "In Go2::getBestIterationIndividuals_(): Error!" << '\n'

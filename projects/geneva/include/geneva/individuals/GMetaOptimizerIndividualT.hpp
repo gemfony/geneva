@@ -704,7 +704,7 @@ protected:
         ea_ptr->optimize();
 
         // Book-keeping from the completed run.
-        std::shared_ptr<gen::GGenome> const best_individual =
+        auto const best_individual =
             ea_ptr->getBestGlobalIndividual<gen::GGenome>();
         const std::uint32_t iterations_consumed = ea_ptr->getIteration();
         measurements.solver_calls.push_back(

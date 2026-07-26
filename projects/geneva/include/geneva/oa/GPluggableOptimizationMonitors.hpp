@@ -763,7 +763,7 @@ private:
 
         case Gem::Geneva::infoMode::INFOPROCESSING: {
             if(monitor_best_only_) { // Monitor the best individual only
-                std::shared_ptr<gen::GGenome> const p =
+                auto const p =
                     goa->Interface::GOptimizerIT<oa::GOptimizationAlgorithmBase>::getBestGlobalIndividual<gen::GGenome>();
                 this->logIndividual_(*p);
             }
@@ -1646,7 +1646,7 @@ private:
             std::uint32_t const iteration = goa->getIteration();
 
             // Record the current fitness
-            std::shared_ptr<gen::GGenome> const p =
+            auto const p =
                 goa->Interface::GOptimizerIT<oa::GOptimizationAlgorithmBase>::getBestGlobalIndividual<gen::GGenome>();
             fitness_store_.emplace_back(static_cast<double>(iteration), p->raw_fitness(0));
 

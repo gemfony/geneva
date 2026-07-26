@@ -165,7 +165,7 @@ bool GEvolutionaryAlgorithmPostOptimizer::raw_processing_(gen::GGenome &p) {
     ea_ptr->optimize();
 
     // Retrieve the best individual
-    std::shared_ptr<gen::GGenome> const p_opt_ptr = ea_ptr->getBestGlobalIndividual<gen::GGenome>();
+    auto const p_opt_ptr = ea_ptr->getBestGlobalIndividual<gen::GGenome>();
 
     // Make sure subsequent optimization cycles may generally perform post-optimization again.
     // This needs to be done on the optimized individual, as it will be loaded into the

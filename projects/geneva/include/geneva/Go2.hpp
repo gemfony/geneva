@@ -406,25 +406,25 @@ private:
     // widen access -- matches oa::GOptimizationAlgorithmBase and the base's NVI contract).
     /**
      * @brief Retrieves the best individual found globally across the whole run.
-     * @return A shared pointer to the globally best individual
+     * @return A sole-ownership pointer to a copy of the globally best individual
      */
-    std::shared_ptr<gen::GGenome> getBestGlobalIndividual_() const final;
+    std::unique_ptr<gen::GGenome> getBestGlobalIndividual_() const final;
     /**
      * @brief Retrieves a list of the globally best individuals found.
-     * @return A vector of shared pointers to the globally best individuals
+     * @return A vector of sole-ownership pointers to copies of the globally best individuals
      */
-    std::vector<std::shared_ptr<gen::GGenome>>
+    std::vector<std::unique_ptr<gen::GGenome>>
     getBestGlobalIndividuals_() const final;
     /**
      * @brief Retrieves the best individual found in the current iteration.
-     * @return A shared pointer to the best individual of the current iteration
+     * @return A sole-ownership pointer to a copy of the best individual of the current iteration
      */
-    std::shared_ptr<gen::GGenome> getBestIterationIndividual_() const final;
+    std::unique_ptr<gen::GGenome> getBestIterationIndividual_() const final;
     /**
      * @brief Retrieves a list of the best individuals found in the current iteration.
-     * @return A vector of shared pointers to the best individuals of the current iteration
+     * @return A vector of sole-ownership pointers to copies of the current iteration's best individuals
      */
-    std::vector<std::shared_ptr<gen::GGenome>>
+    std::vector<std::unique_ptr<gen::GGenome>>
     getBestIterationIndividuals_() const final;
 
     /**

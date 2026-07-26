@@ -83,11 +83,11 @@ int main(int argc, char **argv) {
     go.registerDefaultAlgorithm("ea");
 
     // Perform the actual optimization
-    std::shared_ptr<gind::GExternalEvaluatorIndividual> const p =
+    auto const p =
         go.optimize()->getBestGlobalIndividual<gind::GExternalEvaluatorIndividual>();
 
     // Extract the best individuals found
-    std::vector<std::shared_ptr<gind::GExternalEvaluatorIndividual>> const bestInds =
+    auto const bestInds =
         go.getBestGlobalIndividuals<gind::GExternalEvaluatorIndividual>();
 
     // Note that the "archive" call is specific to the GExternalEvaluatorIndividual (it is now a static

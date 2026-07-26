@@ -80,9 +80,9 @@ protected:
 
 /** @brief Sphere value of the best individual, also asserting the constraints held. */
 template <std::size_t N_DIM>
-double bestSphere(const std::shared_ptr<SpherePSO<N_DIM>> &best) {
+double bestSphere(const SpherePSO<N_DIM> &best) {
     std::vector<double> v;
-    best->template streamline<double>(v);
+    best.template streamline<double>(v);
     double s = 0.;
     for(double const x : v) {
         s += x * x;
@@ -107,7 +107,7 @@ TEST_CASE("Standard PSO 2011 optimizes a 5-dim flat sphere", "[spso2011]") {
 
     auto best = pop->getBestGlobalIndividual<SpherePSO<5>>();
     REQUIRE(best);
-    CHECK(bestSphere<5>(best) < 1.e-2); // far below the f = 5 * 9 = 45 start
+    CHECK(bestSphere<5>(*best) < 1.e-2); // far below the f = 5 * 9 = 45 start
 }
 
 /******************************************************************************/
@@ -123,7 +123,7 @@ TEST_CASE("Standard PSO 2011 optimizes a 10-dim flat sphere", "[spso2011]") {
 
     auto best = pop->getBestGlobalIndividual<SpherePSO<10>>();
     REQUIRE(best);
-    CHECK(bestSphere<10>(best) < 1.0); // well below the f = 10 * 9 = 90 start
+    CHECK(bestSphere<10>(*best) < 1.0); // well below the f = 10 * 9 = 90 start
 }
 
 /******************************************************************************/

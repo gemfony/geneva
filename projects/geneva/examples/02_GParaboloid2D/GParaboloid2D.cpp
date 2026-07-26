@@ -68,7 +68,7 @@ int main(int argc, char **argv) {
     go & "ea";
 
     // Perform the actual optimization
-    std::shared_ptr<GParaboloidIndividual2D> const bestIndividual_ptr =
+    auto const bestIndividual_ptr =
         go.optimize()->getBestGlobalIndividual<GParaboloidIndividual2D>();
 
     // Do something with the best result

@@ -116,9 +116,9 @@ protected:
 
 /** @brief Sphere value of the best individual, also asserting the constraints held. */
 template <std::size_t N_DIM>
-double bestSphere(const std::shared_ptr<SphereGSA<N_DIM>> &best) {
+double bestSphere(const SphereGSA<N_DIM> &best) {
     std::vector<double> v;
-    best->template streamline<double>(v);
+    best.template streamline<double>(v);
     double s = 0.;
     for(double const x : v) {
         s += x * x;
@@ -130,9 +130,9 @@ double bestSphere(const std::shared_ptr<SphereGSA<N_DIM>> &best) {
 
 /** @brief Rastrigin value of the best individual, also asserting the constraints held. */
 template <std::size_t N_DIM>
-double bestRastrigin(const std::shared_ptr<RastriginGSA<N_DIM>> &best) {
+double bestRastrigin(const RastriginGSA<N_DIM> &best) {
     std::vector<double> v;
-    best->template streamline<double>(v);
+    best.template streamline<double>(v);
     double s = 10. * static_cast<double>(v.size());
     for(double const x : v) {
         s += x * x - 10. * std::cos(2. * std::numbers::pi * x);
@@ -157,7 +157,7 @@ TEST_CASE("Generalized Simulated Annealing optimizes a 5-dim flat sphere", "[gsa
 
     auto best = pop->getBestGlobalIndividual<SphereGSA<5>>();
     REQUIRE(best);
-    CHECK(bestSphere<5>(best) < 1.e-2); // far below the f = 5 * 9 = 45 start
+    CHECK(bestSphere<5>(*best) < 1.e-2); // far below the f = 5 * 9 = 45 start
 }
 
 /******************************************************************************/
@@ -176,7 +176,7 @@ TEST_CASE("Generalized Simulated Annealing optimizes a 10-dim flat sphere", "[gs
     // Soft bound with margin: archive-free SA keeps a heavy tail (isolated runs reach ~1.2, in-suite ~1.9
     // depending on the shared-RNG state), so a < 1.0 bound flaked. < 5.0 is still a strong convergence
     // assertion from the f = 10 * 9 = 90 start (median lands near 0.1).
-    CHECK(bestSphere<10>(best) < 5.0);
+    CHECK(bestSphere<10>(*best) < 5.0);
 }
 
 /******************************************************************************/
@@ -198,7 +198,7 @@ TEST_CASE("Generalized Simulated Annealing: cooling timescale rescues a high-dim
         pop->setReportIteration(100000);
         pop->push_back(SphereGSA<N>().clone());
         pop->optimize();
-        return bestSphere<N>(pop->getBestGlobalIndividual<SphereGSA<N>>());
+        return bestSphere<N>(*pop->getBestGlobalIndividual<SphereGSA<N>>());
     };
 
     const double strict = run(1.0);    // faithful default: cools too fast at this dimension
@@ -226,7 +226,7 @@ TEST_CASE("Generalized Simulated Annealing reaches a good value on a multimodal 
         pop->optimize();
         auto best = pop->getBestGlobalIndividual<RastriginGSA<5>>();
         REQUIRE(best);
-        return bestRastrigin<5>(best);
+        return bestRastrigin<5>(*best);
     };
     // Achieved fitness is quantized on the Rastrigin lattice (steps of ~0.995); at this budget the
     // distribution is median ~3 / max ~6, but a rare unlucky run stays trapped one lattice level too high

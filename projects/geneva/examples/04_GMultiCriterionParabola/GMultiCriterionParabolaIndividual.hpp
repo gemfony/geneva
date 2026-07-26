@@ -138,7 +138,7 @@ using GMultiCriterionParabolaIndividualFactory =
  */
 std::ostream &operator<<(std::ostream &, const Gem::Geneva::GMultiCriterionParabolaIndividual &);
 std::ostream &
-operator<<(std::ostream &, const std::shared_ptr<Gem::Geneva::GMultiCriterionParabolaIndividual> &);
+operator<<(std::ostream &, const std::unique_ptr<Gem::Geneva::GMultiCriterionParabolaIndividual> &);
 
 /******************************************************************************/
 

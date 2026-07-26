@@ -275,7 +275,7 @@ private:
 };
 
 /** @brief Allows to output a GStarterIndividual (or convert it to a string) via its operator<< */
-std::ostream &operator<<(std::ostream &, std::shared_ptr<GStarterIndividual>);
+std::ostream &operator<<(std::ostream &, const std::unique_ptr<GStarterIndividual> &);
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////

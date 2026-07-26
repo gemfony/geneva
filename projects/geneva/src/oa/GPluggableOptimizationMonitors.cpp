@@ -1167,7 +1167,7 @@ void GNAdpationsLogger::informationFunction_(
         std::uint32_t const iteration = goa->getIteration();
 
         // Record the current fitness
-        std::shared_ptr<gen::GGenome> const p =
+        auto const p =
             goa->Interface::GOptimizerIT<oa::GOptimizationAlgorithmBase>::getBestGlobalIndividual<gen::GGenome>();
         fitness_store_.emplace_back(static_cast<double>(iteration), p->raw_fitness(0));
 
@@ -1177,7 +1177,7 @@ void GNAdpationsLogger::informationFunction_(
 
         // Do the actual logging
         if(monitor_best_only_) {
-            std::shared_ptr<gen::GGenome> const best =
+            auto const best =
                 goa->Interface::GOptimizerIT<oa::GOptimizationAlgorithmBase>::getBestGlobalIndividual<gen::GGenome>();
             n_adaptions_store_.emplace_back(static_cast<double>(iteration), static_cast<double>(best->getNAdaptions()));
         }

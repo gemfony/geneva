@@ -220,6 +220,24 @@ are in `CHANGES` and `INSTALL`; this file is the practical upgrade guide.
 
 ## 7. Renames and small API removals
 
+- **The best-individual accessors hand out sole ownership** (source-breaking; the return type
+  changed, the semantics did not — these accessors always returned a fresh clone). On every
+  optimization algorithm and on `Go2`:
+
+  | before | after |
+  |---|---|
+  | `std::shared_ptr<T> getBestGlobalIndividual<T>() const` | `std::unique_ptr<T> getBestGlobalIndividual<T>() const` |
+  | `std::vector<std::shared_ptr<T>> getBestGlobalIndividuals<T>() const` | `std::vector<std::unique_ptr<T>> getBestGlobalIndividuals<T>() const` |
+  | `std::shared_ptr<T> getBestIterationIndividual<T>() const` | `std::unique_ptr<T> getBestIterationIndividual<T>() const` |
+  | `std::vector<std::shared_ptr<T>> getBestIterationIndividuals<T>() const` | `std::vector<std::unique_ptr<T>> getBestIterationIndividuals<T>() const` |
+
+  Code that binds the result with `auto` needs no change; code that spells the type replaces it
+  with `auto` (or with the `unique_ptr` spelling). A caller that genuinely wants shared ownership
+  converts at its own site — `unique_ptr` converts to `shared_ptr` implicitly. Storing the result
+  in a container of `shared_ptr` needs a `std::move`. Two follow-on signatures moved with them: the
+  smart-pointer `operator<<` overloads of the example/library individuals take a
+  `const std::unique_ptr<T>&`, and `GExternalEvaluatorIndividual::archive()` takes a
+  `std::vector<std::unique_ptr<GExternalEvaluatorIndividual>>`.
 - **Several public headers moved to sit with the layer they belong to** (source-breaking
   `#include`-path changes; update the paths). The flat-genome / entity headers moved from
   `geneva/ind/` to `geneva/genome/`; the entity multi-constraint headers (`GMultiConstraintT`,

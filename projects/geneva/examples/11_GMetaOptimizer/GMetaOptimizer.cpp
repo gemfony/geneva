@@ -119,7 +119,7 @@ int main(int argc, char **argv) {
     go.registerDefaultAlgorithm(std::make_shared<oa::GMetaEvolutionaryAlgorithm>());
 
     // Perform the actual optimization
-    std::shared_ptr<gind::GMetaOptimizerIndividualT<gind::GFunctionIndividual>> const bestIndividual_ptr =
+    auto const bestIndividual_ptr =
         go.optimize()->getBestGlobalIndividual<gind::GMetaOptimizerIndividualT<gind::GFunctionIndividual>>();
 
     // Do something with the best result. Here we simply print the result to std-out.

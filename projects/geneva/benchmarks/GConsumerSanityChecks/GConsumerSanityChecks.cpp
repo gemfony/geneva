@@ -131,6 +131,6 @@ int main(int argc, char **argv) {
     go.registerDefaultAlgorithm("ea");
 
     // Perform the actual optimization
-    std::shared_ptr<gind::GDelayIndividual> const p =
+    auto const p =
         go.optimize()->getBestGlobalIndividual<gind::GDelayIndividual>();
 }

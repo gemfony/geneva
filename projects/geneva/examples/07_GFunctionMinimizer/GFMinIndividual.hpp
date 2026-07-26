@@ -198,7 +198,7 @@ private:
  * Provides an easy way to print the individual's content
  */
 std::ostream &operator<<(std::ostream &, const Gem::Geneva::GFMinIndividual &);
-std::ostream &operator<<(std::ostream &, const std::shared_ptr<Gem::Geneva::GFMinIndividual>&);
+std::ostream &operator<<(std::ostream &, const std::unique_ptr<Gem::Geneva::GFMinIndividual>&);
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
