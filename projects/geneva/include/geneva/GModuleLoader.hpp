@@ -52,9 +52,11 @@ namespace Gem::Geneva {
  * @c loadModule() below builds on it. It:
  *  - loads the shared object with @c RTLD_GLOBAL (one symbol namespace: a single GArchive
  *    registry and single Geneva singletons) and @c RTLD_NOW (eager resolution);
- *  - resolves @c geneva_module_manifest() and validates its @c GenevaCompat **before touching any C++
- *    contribution** -- a compiler/stdlib/Boost/build-mode mismatch is rejected with a diagnostic naming the
- *    offending axis, rather than being mis-loaded and crashing later;
+ *  - resolves @c geneva_module_manifest() and runs the two gates **before touching any C++ contribution**:
+ *    the @c GenevaCompat toolchain fingerprint (a compiler/stdlib/Boost/build-mode mismatch is rejected with
+ *    a diagnostic naming the offending axis, rather than being mis-loaded and crashing later) and then the
+ *    module-ABI stamp (@c GENEVA_MODULE_ABI_VERSION -- the module and this Geneva must agree on the manifest
+ *    layout, the kind numbering and each kind's payload type);
  *  - keeps the library resident for the process lifetime (its code + GArchive registrations back
  *    live objects) and never unloads it.
  *
@@ -92,9 +94,12 @@ struct LoadedModule {
  *  - the (at most one) @c INDIVIDUAL contribution's factory is returned in @c LoadedModule::individual for
  *    the caller to claim (the single content-creator slot lives in Go2, not here);
  *  - a @c MARSHALLER contribution is registered into the marshaller provider store;
- *  - reserved kinds (monitor / consumer) are not yet wired and are ignored.
- * A module without a manifest is rejected with a clear error (the former legacy two-symbol plugin
- * fallback has been removed).
+ *  - any other kind -- reserved-but-unwired (monitor / consumer) or unknown -- is REFUSED, naming the kind
+ *    and the kinds this Geneva serves; nothing a module advertises is ever silently dropped.
+ * Every other defect is a refusal too, each naming the module and what was wrong: no manifest entry point
+ * (the former legacy two-symbol plugin fallback has been removed), a null manifest, a stale ABI stamp, an
+ * empty contribution list, a contribution without its factory thunk, a factory that yields nothing, and a
+ * mnemonic / device target a built-in or another module already holds.
  *
  * @param module_path The filesystem path to the module shared object
  * @return The module's contributions (individual + OA count); throws on any load/compat/collision failure

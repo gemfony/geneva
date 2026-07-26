@@ -40,7 +40,7 @@
 # One source serves both: the individual supplies the Tier-2 factory hooks (Config / describeConfig /
 # buildGenome / buildAdaptionConfig) the module path needs while keeping its constructor and one-argument
 # buildAdaptionConfig for the compiled-in driver. The two artifacts are separate binaries (one process each),
-# so the single BOOST_CLASS_EXPORT registration is never duplicated.
+# so the single archive registration is never duplicated.
 
 # (1) The compiled-in variant -> executable GParaboloid2D-fixed.
 ADD_EXECUTABLE(GParaboloid2D-fixed

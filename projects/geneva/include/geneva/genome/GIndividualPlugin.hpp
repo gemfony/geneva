@@ -93,7 +93,7 @@ const GenevaModuleManifest *individualManifest() {
     };
     static const GenevaContribution contribution{GENEVA_CONTRIBUTION_INDIVIDUAL, Name.c_str(), factory_thunk};
     static const GenevaModuleManifest manifest{
-        GENEVA_BUILD_FINGERPRINT, Name.c_str(), GENEVA_VERSION_STRING, &contribution, 1u};
+        GENEVA_MODULE_ABI_STAMP, Name.c_str(), GENEVA_VERSION_STRING, &contribution, 1u};
     return &manifest;
 }
 

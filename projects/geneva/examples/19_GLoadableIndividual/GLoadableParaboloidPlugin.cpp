@@ -34,7 +34,7 @@
  * This whole translation unit is the "glue" a problem author writes to make an existing individual
  * loadable at runtime. It is exactly TWO pieces of registration:
  *
- *  1. BOOST_CLASS_EXPORT(GLoadableParaboloid): registers the individual's serialization GUID so it can
+ *  1. GEM_REGISTER_ARCHIVABLE(GLoadableParaboloid): registers the individual's archive tag so it can
  *     cross the networked wire and a checkpoint (the SAME registration a compiled-in individual needs; it
  *     lives here so it is compiled into the .so). Every node that (de)serializes this individual must have
  *     this plugin loaded -- which, since server and client are the same binary loading the same .so, is

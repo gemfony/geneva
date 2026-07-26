@@ -35,11 +35,12 @@ the binary in the cloud):
 2. **Add one translation unit** (`GLoadableParaboloidPlugin.cpp`) with exactly two registrations:
 
    ```cpp
-   #include "geneva/ind/GIndividualFactory.hpp"
-   #include "geneva/ind/GIndividualPlugin.hpp"
+   #include "geneva/genome/GIndividualFactory.hpp"
+   #include "geneva/genome/GIndividualPlugin.hpp"
+   #include "weft/GArchivePolymorphic.hpp"
    #include "MyProblem.hpp"
 
-   BOOST_CLASS_EXPORT(MyProblem)                                     // wire / checkpoint GUID
+   GEM_REGISTER_ARCHIVABLE(MyProblem)                                // wire / checkpoint tag
 
    extern "C" BOOST_SYMBOL_EXPORT const GenevaModuleManifest *geneva_module_manifest() {
        return Gem::Geneva::individualManifest<
@@ -51,13 +52,15 @@ the binary in the cloud):
    The `extern "C"` `geneva_module_manifest()` is the only irreducible boilerplate (the loader resolves this
    fixed, unmangled symbol via `dlsym`); everything else is the typed helper
    `Gem::Geneva::individualManifest<Factory, Config, Name>()` — no Geneva macro. It builds the module
-   manifest: the **toolchain-compatibility fingerprint** (`GenevaCompat`, which the loader validates first)
-   plus one **individual contribution** whose factory is built with the given config file (auto-created with
-   the individual's defaults if absent). `BOOST_CLASS_EXPORT` registers the serialization GUID so the
-   individual can cross the wire and a checkpoint — you write it yourself, exactly as for a compiled-in
-   individual.
+   manifest: the **toolchain-compatibility fingerprint** (`GenevaCompat`) and the **module-ABI stamp**, both
+   of which the loader validates before it touches anything else, plus one **individual contribution** whose
+   factory is built with the given config file (auto-created with the individual's defaults if absent).
+   `GEM_REGISTER_ARCHIVABLE` registers the serialization tag so the individual can cross the wire and a
+   checkpoint — you write it yourself, exactly as for a compiled-in individual.
 
-3. **Build it as a shared object** linking Geneva (see `CMakeLists.txt`).
+3. **Package it** with `GENEVA_DECLARE_INDIVIDUAL(... MODE load ...)` (see `CMakeLists.txt`). The module
+   links **none** of the Geneva libraries — it needs only their headers, and resolves their symbols from the
+   host process at load time.
 
 That is the entire author-facing surface.
 
@@ -66,9 +69,12 @@ That is the entire author-facing surface.
 - **Exactly one problem per process.** Compiling an individual in *and* passing `--individual` (or passing
   two plugins) is a hard error naming both sources. Providing none is a clear error listing the three ways
   to supply a problem.
-- **Version safety.** A plugin built against a different Geneva version is **rejected at load** with a
-  precise message (its ABI marker is checked before any individual is constructed) — no silent
-  mis-load. (Boost.DLL itself performs no compatibility check; this gate is Geneva's.)
+- **Version safety.** A plugin that does not fit is **rejected at load**, before any individual is
+  constructed, with a message naming what is wrong: a different compiler / standard library / Boost /
+  build mode / Geneva version (the `GenevaCompat` fingerprint, matched axis by axis), or a different module
+  ABI (`GENEVA_MODULE_ABI_VERSION`). A shared object that is not a Geneva module at all, a manifest that
+  advertises nothing, and a contribution of a kind this Geneva cannot serve are refused the same way — a
+  failed load is never silent. (Boost.DLL itself performs no compatibility check; these gates are Geneva's.)
 - **Checkpoints.** A checkpoint stores the concrete individuals, so resuming one requires the **same**
   individual provided the same way (compiled in, or the same `--individual` plugin) that wrote it. Resuming
   without it fails with actionable guidance instead of an opaque deserialization error.

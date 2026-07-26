@@ -84,6 +84,34 @@ TARGET_LINK_LIBRARIES (${EXECUTABLENAME}
 		${LIBRARIES_TO_LINK})
 
 
+#
+# Deliberately broken modules, for the loader's negative paths. Each is a real shared object, built with
+# exactly the recipe a genuine module uses (GENEVA_ADD_INDIVIDUAL_MODULE: no Geneva libraries linked,
+# -UGEM_TESTING, pinned ABI flags), carrying one specific defect. The unit tests really dlopen them, so the
+# rejection is proved through the whole loader path rather than against a hand-made in-process struct.
+# Their paths are handed to the test executable as compile definitions -- nothing has to be installed, and
+# the tests skip themselves if this wiring is ever dropped.
+#
+SET(GENEVA_BAD_MODULES
+	GStaleAbiModule
+	GUnknownKindModule
+	GNoContributionsModule
+	GNullFactoryModule)
+
+FOREACH(_bad_module ${GENEVA_BAD_MODULES})
+	GENEVA_ADD_INDIVIDUAL_MODULE(${_bad_module} badmodules/${_bad_module}.cpp)
+	ADD_DEPENDENCIES(${EXECUTABLENAME} ${_bad_module})
+ENDFOREACH()
+
+TARGET_COMPILE_DEFINITIONS(${EXECUTABLENAME} PRIVATE
+	"GENEVA_TEST_MODULE_STALE_ABI=\"$<TARGET_FILE:GStaleAbiModule>\""
+	"GENEVA_TEST_MODULE_UNKNOWN_KIND=\"$<TARGET_FILE:GUnknownKindModule>\""
+	"GENEVA_TEST_MODULE_NO_CONTRIBUTIONS=\"$<TARGET_FILE:GNoContributionsModule>\""
+	"GENEVA_TEST_MODULE_NULL_FACTORY=\"$<TARGET_FILE:GNullFactoryModule>\""
+	# A perfectly good shared library that is not a Geneva module at all -- the "you pointed me at
+	# something else" path. Geneva's own library is the one guaranteed to be there.
+	"GENEVA_TEST_NOT_A_MODULE=\"$<TARGET_FILE:${GENEVA_LIBNAME}>\"")
+
 ADD_TEST(${EXECUTABLENAME} ${EXECUTABLENAME})
 SET_TESTS_PROPERTIES(${EXECUTABLENAME} PROPERTIES LABELS "geneva")
 

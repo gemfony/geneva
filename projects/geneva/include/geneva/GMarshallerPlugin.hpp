@@ -98,7 +98,7 @@ const GenevaModuleManifest *marshallerManifest() {
     static const GenevaContribution contribution{
         GENEVA_CONTRIBUTION_MARSHALLER, DeviceTarget.c_str(), factory_thunk};
     static const GenevaModuleManifest manifest{
-        GENEVA_BUILD_FINGERPRINT, DeviceTarget.c_str(), GENEVA_VERSION_STRING, &contribution, 1u};
+        GENEVA_MODULE_ABI_STAMP, DeviceTarget.c_str(), GENEVA_VERSION_STRING, &contribution, 1u};
     return &manifest;
 }
 

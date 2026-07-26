@@ -29,25 +29,39 @@
 
 /**
  * @file
- * @brief Module "glue" that makes GMultiCriterionParabolaIndividual a runtime-loadable Geneva individual.
+ * @brief A deliberately broken module: its ABI stamp is one ahead of this Geneva's.
  *
- * This example ships its problem as a loadable module and runs it with the generic optimizer
- * (example 19's GGenericOptimizer) via --individual, instead of a bespoke main -- the load-from-disk model.
- * This translation unit holds only the fixed extern "C" entry point geneva_module_manifest(); it does NOT
- * re-emit GMultiCriterionParabolaIndividual's archive registration (that lives in GMultiCriterionParabolaIndividual.cpp).
+ * Part of the loader's negative-path coverage (see GGenomeTests.cpp, "[plugin][reject]"). It is a real
+ * shared object that really is dlopened, so the rejection is proved through the whole loader path rather
+ * than against a hand-made in-process struct. Everything about it is valid -- its toolchain fingerprint is
+ * this build's -- EXCEPT the module-ABI version, which is what a module built against a different
+ * common/GModuleManifest.hpp would look like. Nothing here is ever reached: the loader must refuse it
+ * before it reads a single field behind the stamp.
  */
 
+// Boost headers go here
 #include <boost/config.hpp> // BOOST_SYMBOL_EXPORT
 
-#include "common/GModuleManifest.hpp" // GenevaModuleManifest
-#include "geneva/genome/GIndividualFactory.hpp"
-#include "geneva/genome/GIndividualPlugin.hpp" // Gem::Geneva::individualManifest<>
+// Geneva headers go here
+#include "common/GModuleManifest.hpp"
 
-#include "GMultiCriterionParabolaIndividual.hpp"
+namespace {
+
+const GenevaContribution g_contribution{
+    GENEVA_CONTRIBUTION_INDIVIDUAL, "StaleAbi", []() -> void * { return nullptr; }};
+
+const GenevaModuleManifest g_manifest{
+    GENEVA_BUILD_FINGERPRINT,
+    GENEVA_MODULE_ABI_VERSION + 1u, // the defect: built against a later module ABI
+    static_cast<std::uint32_t>(sizeof(GenevaModuleManifest)),
+    "GStaleAbiModule",
+    GENEVA_VERSION_STRING,
+    &g_contribution,
+    1u};
+
+} // anonymous namespace
 
 extern "C" BOOST_SYMBOL_EXPORT const GenevaModuleManifest *geneva_module_manifest();
 extern "C" BOOST_SYMBOL_EXPORT const GenevaModuleManifest *geneva_module_manifest() {
-    return Gem::Geneva::individualManifest<
-        Gem::Geneva::Genome::GIndividualFactory<Gem::Geneva::GMultiCriterionParabolaIndividual>,
-        "./config/GMultiCriterionParabolaIndividual.json", "GMultiCriterionParabolaIndividual">();
+    return &g_manifest;
 }

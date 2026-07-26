@@ -42,7 +42,7 @@ ADD_CUSTOM_TARGET(CLION_EXAMPLE21_HEADERS SOURCES ${GLOADABLEOA_INCLUDES})
 
 SET(LIBRARIES_TO_LINK
 		# The individual (the parabola) is compiled in via its object library (before the Geneva/Boost
-		# libraries so its serialization objects resolve libboost_serialization). The ALGORITHM is not
+		# libraries, the in-tree convention for an object library carrying archive registrations). The ALGORITHM is not
 		# compiled in -- it comes from --module.
 		GFunctionIndividual-obj
 		${GENEVA_LIBRARIES}
@@ -63,7 +63,7 @@ GENEVA_ADD_INDIVIDUAL_MODULE(GRandomSearch
 	GRandomSearchPlugin.cpp)
 
 # (2) The generic optimizer -> loads an algorithm at runtime. ENABLE_EXPORTS so a module loaded RTLD_GLOBAL
-# resolves against one symbol namespace (single Boost.Serialization registry + single Geneva singletons).
+# resolves against one symbol namespace (single archive registry + single Geneva singletons).
 ADD_EXECUTABLE(GLoadableOAOptimizer GLoadableOAOptimizer.cpp)
 SET_TARGET_PROPERTIES(GLoadableOAOptimizer PROPERTIES ENABLE_EXPORTS TRUE)
 TARGET_LINK_LIBRARIES(GLoadableOAOptimizer ${LIBRARIES_TO_LINK})
@@ -87,6 +87,20 @@ ADD_TEST(
 	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 )
 SET_TESTS_PROPERTIES(GLoadableOA PROPERTIES LABELS "geneva" TIMEOUT 120)
+
+# The role check, through the same real path: this module is an ALGORITHM, so naming it as the optimization
+# problem (--individual) must be refused by name rather than surface much later as a missing problem. What
+# is asserted is the DIAGNOSTIC, not the exit status: the example installs no exception handler, so the
+# refusal reaches the user through the terminate handler and the process aborts -- which ctest scores as a
+# hard failure no matter what PASS_REGULAR_EXPRESSION says. Piping into grep makes the pipeline's status
+# grep's, so the test passes exactly when the message is there.
+ADD_TEST(
+	NAME GLoadableOA_WrongRole
+	COMMAND sh -c
+		"$<TARGET_FILE:GLoadableOAOptimizer> --individual $<TARGET_FILE:GRandomSearch> 2>&1 | grep -q 'carries no individual'"
+	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+)
+SET_TESTS_PROPERTIES(GLoadableOA_WrongRole PROPERTIES LABELS "geneva" TIMEOUT 120)
 
 INSTALL(TARGETS GLoadableOAOptimizer GRandomSearch
 	DESTINATION ${INSTALL_PREFIX_DATA}/examples/21_GLoadableOA)

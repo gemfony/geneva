@@ -39,6 +39,7 @@
 #include <memory>
 #include <random>
 #include <ranges>
+#include <string>
 #include <vector>
 #include <span>
 
@@ -2317,14 +2318,89 @@ TEST_CASE("EA over a websocket consumer with evaluation returns keeps full genom
 }
 
 /******************************************************************************/
-// Runtime individual-plugin mechanism: the loader's failure handling and the one-individual-per-process
-// rule. The successful load-and-optimize path is exercised end-to-end by example 19's integration test
-// (it must build a .so, which a unit test cannot).
-TEST_CASE("Module loader rejects a missing library cleanly", "[genome][plugin]") {
-    // A missing file must raise a clean geneva exception (a "could not load" diagnostic), never crash.
-    const std::filesystem::path missing =
-        std::filesystem::temp_directory_path() / "geneva_no_such_module_xyz.so";
-    CHECK_THROWS(Gem::Geneva::loadModule(missing));
+// Runtime module mechanism: the loader's failure handling and the one-individual-per-process rule. The
+// successful load-and-optimize path is exercised end-to-end by the three example integration tests
+// (GLoadableIndividual / GLoadableOA / GLoadableGPU_CPU).
+// The loader's negative paths, each against a REAL shared object built with the genuine module recipe and
+// really dlopened. A failed load must never be silent and never cryptic: every case below asserts that the
+// defect is DETECTED and that the diagnostic says which module and what is wrong with it. The four broken
+// modules live in badmodules/ and are wired in by this directory's CMakeLists.
+namespace {
+
+/** @brief Loads @p path, requires that it throws, and returns the diagnostic text.
+ *  @param path The module to load
+ *  @return The exception's message (empty if -- contrary to the requirement -- nothing was thrown) */
+std::string rejectionMessage(const std::filesystem::path &path) {
+    try {
+        (void)Gem::Geneva::loadModule(path);
+    }
+    catch(const std::exception &e) {
+        return e.what();
+    }
+    return {};
+}
+
+/** @brief Whether @p haystack contains @p needle (the diagnostics are checked by content, not by shape).
+ *  @param haystack The diagnostic text
+ *  @param needle The phrase the user needs to see
+ *  @return true if the phrase is present */
+bool mentions(const std::string &haystack, const std::string &needle) {
+    return haystack.find(needle) != std::string::npos;
+}
+
+} // anonymous namespace
+
+TEST_CASE("Module loader refuses a broken module and says why", "[genome][plugin][reject]") {
+    SECTION("a shared library that is not a Geneva module") {
+        // Geneva's own library: perfectly loadable, but it exports no manifest entry point.
+        const std::string msg = rejectionMessage(GENEVA_TEST_NOT_A_MODULE);
+        REQUIRE_FALSE(msg.empty());
+        CHECK(mentions(msg, "is not a Geneva module"));
+        CHECK(mentions(msg, "geneva_module_manifest"));
+        CHECK(mentions(msg, GENEVA_TEST_NOT_A_MODULE)); // names the file the user actually passed
+    }
+
+    SECTION("a module built against a different module ABI") {
+        // Gate 2. The module's toolchain fingerprint is this build's, so only the ABI stamp can catch it --
+        // which is the whole reason the stamp exists (GENEVA_VERSION alone cannot see this).
+        const std::string msg = rejectionMessage(GENEVA_TEST_MODULE_STALE_ABI);
+        REQUIRE_FALSE(msg.empty());
+        CHECK(mentions(msg, "different Geneva module ABI"));
+        CHECK(mentions(msg, "Rebuild the module"));
+        CHECK(mentions(msg, GENEVA_TEST_MODULE_STALE_ABI));
+    }
+
+    SECTION("a contribution of a kind this Geneva cannot load") {
+        const std::string msg = rejectionMessage(GENEVA_TEST_MODULE_UNKNOWN_KIND);
+        REQUIRE_FALSE(msg.empty());
+        CHECK(mentions(msg, "kind 99"));                    // names the offending kind
+        CHECK(mentions(msg, "GUnknownKindModule"));         // ... and the module, by its own name
+        CHECK(mentions(msg, "SomethingElse"));              // ... and the contribution
+        CHECK(mentions(msg, "Supported kinds"));            // ... and what this Geneva does serve
+    }
+
+    SECTION("a manifest that advertises nothing") {
+        const std::string msg = rejectionMessage(GENEVA_TEST_MODULE_NO_CONTRIBUTIONS);
+        REQUIRE_FALSE(msg.empty());
+        CHECK(mentions(msg, "contributes nothing"));
+        CHECK(mentions(msg, "GNoContributionsModule"));
+    }
+
+    SECTION("a contribution without its factory entry point") {
+        const std::string msg = rejectionMessage(GENEVA_TEST_MODULE_NULL_FACTORY);
+        REQUIRE_FALSE(msg.empty());
+        CHECK(mentions(msg, "no factory entry point"));
+        CHECK(mentions(msg, "nofactory"));
+        CHECK(mentions(msg, "GNullFactoryModule"));
+    }
+
+    SECTION("a path that does not exist") {
+        const std::string msg =
+            rejectionMessage(std::filesystem::temp_directory_path() / "geneva_no_such_module_xyz.so");
+        REQUIRE_FALSE(msg.empty());
+        CHECK(mentions(msg, "Could not load the module"));
+        CHECK(mentions(msg, "geneva_no_such_module_xyz.so"));
+    }
 }
 
 // Toolchain-compatibility gate (GenevaCompat). The loader validates a module's fingerprint before touching

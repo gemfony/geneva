@@ -202,12 +202,64 @@ void validateCompatOrThrow(const GenevaCompat &mod, const std::string &path_str)
     }
 }
 
+/**
+ * @brief Validates the module-ABI stamp -- gate 2, run right after the toolchain gate and before any field
+ * behind it is read. A mismatch means the module was built against a different version of
+ * common/GModuleManifest.hpp: the struct layout, a contribution kind's number, or the C++ type a kind's
+ * void* payload denotes may all differ, so every later field is untrustworthy.
+ *
+ * @param manifest The module's manifest (its compat gate has already passed)
+ * @param path_str The module path, for the error text
+ */
+void validateAbiStampOrThrow(const GenevaModuleManifest &manifest, const std::string &path_str) {
+    if(manifest.abi_version != GENEVA_MODULE_ABI_VERSION) {
+        throw geneva_exception(
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+            << "In Gem::Geneva::validateAbiStampOrThrow(): Error!" << '\n'
+            << "The module '" << path_str << "' was built against a different Geneva module ABI." << '\n'
+            << "  module ABI version: " << manifest.abi_version << '\n'
+            << "  this Geneva:        " << GENEVA_MODULE_ABI_VERSION << '\n'
+            << "The manifest layout, the contribution-kind numbering or a kind's payload type differ, so"
+            << " nothing beyond this point can be read safely. Rebuild the module against this Geneva."
+            << '\n'
+        );
+    }
+    if(manifest.manifest_size != static_cast<std::uint32_t>(sizeof(GenevaModuleManifest))) {
+        throw geneva_exception(
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+            << "In Gem::Geneva::validateAbiStampOrThrow(): Error!" << '\n'
+            << "The module '" << path_str << "' claims module ABI version " << manifest.abi_version
+            << " but carries a manifest of " << manifest.manifest_size << " bytes, where this Geneva's is "
+            << sizeof(GenevaModuleManifest) << "." << '\n'
+            << "The ABI version was not bumped for a layout change (a Geneva bug) or the module was built"
+            << " with mismatched headers. Rebuild the module against this Geneva." << '\n'
+        );
+    }
+}
+
+/** @brief The module, as the diagnostics name it: its path plus the self-description in its manifest.
+ *  Only called once both gates have passed, so the two strings can be trusted.
+ *  @param manifest The module's (fully gated) manifest
+ *  @param path_str The module path
+ *  @return A one-line human description, e.g. `'./libFoo.so' (module "Foo" 1.99.0-beta1)` */
+std::string describeModule(const GenevaModuleManifest &manifest, const std::string &path_str) {
+    std::ostringstream os;
+    os << '\'' << path_str << '\'';
+    if(manifest.module_name != nullptr) {
+        os << " (module \"" << manifest.module_name << '"';
+        if(manifest.module_version != nullptr) { os << ' ' << manifest.module_version; }
+        os << ')';
+    }
+    return os.str();
+}
+
 /** @brief The shared open-and-validate prologue of openModule() and loadModule(): opens (and keeps)
- *  the shared object, requires the unified manifest entry point, and validates GenevaCompat BEFORE
- *  any C++ contribution is touched. The caller must hold g_module_mutex.
+ *  the shared object, requires the unified manifest entry point, and runs both gates -- the GenevaCompat
+ *  toolchain fingerprint and the module-ABI stamp -- BEFORE any C++ contribution is touched. The caller
+ *  must hold g_module_mutex.
  *  @param path_str The module path (as a string, for the error texts)
  *  @param caller The calling function's name, used in the error texts
- *  @return The module's (non-null, compat-validated) manifest */
+ *  @return The module's (non-null, fully gated) manifest */
 const GenevaModuleManifest *openModuleLocked(const std::string &path_str, std::string_view caller) {
     boost::dll::shared_library  const&lib = openAndKeep(path_str);
 
@@ -230,7 +282,8 @@ const GenevaModuleManifest *openModuleLocked(const std::string &path_str, std::s
             << "The module '" << path_str << "' returned a null manifest." << '\n'
         );
     }
-    validateCompatOrThrow(manifest->compat, path_str); // BEFORE any C++ contribution is touched
+    validateCompatOrThrow(manifest->compat, path_str);  // gate 1 -- before any C++ contribution is touched
+    validateAbiStampOrThrow(*manifest, path_str);       // gate 2 -- before any field behind the stamp
     return manifest;
 }
 
@@ -340,17 +393,48 @@ LoadedModule loadModule(const std::filesystem::path &module_path) {
     // then dispatch every contribution by kind.
     const GenevaModuleManifest *manifest = openModuleLocked(path_str, "loadModule");
 
+    const std::string described = describeModule(*manifest, path_str);
+
+    // A module that contributes nothing is a build accident (a manifest whose contribution list was never
+    // filled in), not a legitimate no-op: say so rather than load it and let the caller fail later.
+    if(manifest->contributions_count == 0 || manifest->contributions == nullptr) {
+        throw geneva_exception(
+            g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+            << "In Gem::Geneva::loadModule(): Error!" << '\n'
+            << "The module " << described << " contributes nothing: its manifest lists "
+            << manifest->contributions_count << " contribution(s)"
+            << (manifest->contributions == nullptr ? " and has no contribution array" : "") << "." << '\n'
+            << "A module must carry at least one individual, optimization algorithm or marshaller -- see"
+            << " Gem::Geneva::individualManifest() / oaManifest() / marshallerManifest()." << '\n'
+        );
+    }
+
     LoadedModule result;
     for(std::uint32_t i = 0; i < manifest->contributions_count; ++i) {
         const GenevaContribution &contrib = manifest->contributions[i];
-        if(contrib.make_factory == nullptr) { continue; }
+
+        // A contribution without its factory thunk is a broken module, not something to skip silently: the
+        // thing the manifest advertises would simply never appear, and the user would hunt for a missing
+        // mnemonic with nothing to go on.
+        if(contrib.make_factory == nullptr) {
+            throw geneva_exception(
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+                << "In Gem::Geneva::loadModule(): Error!" << '\n'
+                << "Contribution " << i << " of the module " << described << " (kind " << contrib.kind
+                << ", name '" << (contrib.name_or_mnemonic != nullptr ? contrib.name_or_mnemonic : "<null>")
+                << "') has no factory entry point." << '\n'
+                << "Its manifest entry was built by hand and left make_factory null; use the typed author"
+                << " helpers (individualManifest() / oaManifest() / marshallerManifest()) instead." << '\n'
+            );
+        }
+
         switch(contrib.kind) {
             case GENEVA_CONTRIBUTION_INDIVIDUAL: {
                 if(result.individual) {
                     throw geneva_exception(
                         g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
                         << "In Gem::Geneva::loadModule(): Error!" << '\n'
-                        << "The module '" << path_str << "' contributes more than one individual;"
+                        << "The module " << described << " contributes more than one individual;"
                         << " a module may contribute at most one (one problem per process)." << '\n'
                     );
                 }
@@ -369,8 +453,23 @@ LoadedModule loadModule(const std::filesystem::path &module_path) {
                 break;
             }
             default:
-                // Reserved kinds (monitor / consumer) are not yet wired -- ignore them.
-                break;
+                // Every other kind number -- the reserved-but-unwired ones and anything unknown -- is
+                // refused rather than skipped. The ABI stamp above already guarantees the module and this
+                // Geneva agree on what the numbers MEAN, so a kind arriving here is one this Geneva cannot
+                // serve, and silently dropping it would leave the user's contribution missing without a word.
+                throw geneva_exception(
+                    g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+                    << "In Gem::Geneva::loadModule(): Error!" << '\n'
+                    << "Contribution " << i << " of the module " << described << " has kind "
+                    << contrib.kind << " (name '"
+                    << (contrib.name_or_mnemonic != nullptr ? contrib.name_or_mnemonic : "<null>")
+                    << "'), which this Geneva cannot load." << '\n'
+                    << "Supported kinds: " << GENEVA_CONTRIBUTION_INDIVIDUAL << " (individual), "
+                    << GENEVA_CONTRIBUTION_OA << " (optimization algorithm), "
+                    << GENEVA_CONTRIBUTION_MARSHALLER << " (GPU marshaller). Kinds "
+                    << GENEVA_CONTRIBUTION_MONITOR << " (monitor) and " << GENEVA_CONTRIBUTION_CONSUMER
+                    << " (consumer) are reserved and not yet wired." << '\n'
+                );
         }
     }
     return result;

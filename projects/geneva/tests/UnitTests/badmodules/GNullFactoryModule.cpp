@@ -29,25 +29,29 @@
 
 /**
  * @file
- * @brief Module "glue" that makes GMultiCriterionParabolaIndividual a runtime-loadable Geneva individual.
+ * @brief A deliberately broken module: an advertised contribution with no factory entry point.
  *
- * This example ships its problem as a loadable module and runs it with the generic optimizer
- * (example 19's GGenericOptimizer) via --individual, instead of a bespoke main -- the load-from-disk model.
- * This translation unit holds only the fixed extern "C" entry point geneva_module_manifest(); it does NOT
- * re-emit GMultiCriterionParabolaIndividual's archive registration (that lives in GMultiCriterionParabolaIndividual.cpp).
+ * Part of the loader's negative-path coverage (see GGenomeTests.cpp, "[plugin][reject]"). A hand-written
+ * manifest that names a contribution but leaves make_factory null used to be skipped in silence; it is now
+ * refused, naming the contribution.
  */
 
+// Boost headers go here
 #include <boost/config.hpp> // BOOST_SYMBOL_EXPORT
 
-#include "common/GModuleManifest.hpp" // GenevaModuleManifest
-#include "geneva/genome/GIndividualFactory.hpp"
-#include "geneva/genome/GIndividualPlugin.hpp" // Gem::Geneva::individualManifest<>
+// Geneva headers go here
+#include "common/GModuleManifest.hpp"
 
-#include "GMultiCriterionParabolaIndividual.hpp"
+namespace {
+
+const GenevaContribution g_contribution{GENEVA_CONTRIBUTION_OA, "nofactory", nullptr};
+
+const GenevaModuleManifest g_manifest{
+    GENEVA_MODULE_ABI_STAMP, "GNullFactoryModule", GENEVA_VERSION_STRING, &g_contribution, 1u};
+
+} // anonymous namespace
 
 extern "C" BOOST_SYMBOL_EXPORT const GenevaModuleManifest *geneva_module_manifest();
 extern "C" BOOST_SYMBOL_EXPORT const GenevaModuleManifest *geneva_module_manifest() {
-    return Gem::Geneva::individualManifest<
-        Gem::Geneva::Genome::GIndividualFactory<Gem::Geneva::GMultiCriterionParabolaIndividual>,
-        "./config/GMultiCriterionParabolaIndividual.json", "GMultiCriterionParabolaIndividual">();
+    return &g_manifest;
 }

@@ -69,7 +69,7 @@ ELSE ()
 ENDIF ()
 
 # (1) The loadable GPU-problem module -> libGImageIndividual.so. It carries the Mona-Lisa individual, its GPU
-# marshaller, the individual's serialization GUID (BOOST_CLASS_EXPORT_KEY/_IMPLEMENT live in the individual's
+# marshaller, the individual's archive registration (GEM_REGISTER_ARCHIVABLE lives in the individual's
 # own hpp/cpp) and a TWO-contribution manifest entry point (GImageIndividualPlugin.cpp) -- the same
 # individual-plus-marshaller module shape as the GPU North Star (example 22). It links none of the Geneva
 # libraries (their symbols resolve from the host process at load via RTLD_GLOBAL) and needs no libpng: the
@@ -82,7 +82,7 @@ ENDIF ()
 # (2) The thin launcher -> loads the problem module at runtime. It names only the flat-genome base and the
 # loaded factory; the image I/O (target load + PNG output via GImageHelperFunctions.cpp) and the host-side
 # render math stay here (a generic optimizer cannot provide the image POM / target). ENABLE_EXPORTS so a
-# module loaded RTLD_GLOBAL resolves against one symbol namespace (single Boost.Serialization registry +
+# module loaded RTLD_GLOBAL resolves against one symbol namespace (single archive registry +
 # single Geneva singletons, incl. the shared MonaLisa target store).
 SET ( EXECUTABLENAME GCUDAWorker )
 ADD_EXECUTABLE ( ${EXECUTABLENAME}

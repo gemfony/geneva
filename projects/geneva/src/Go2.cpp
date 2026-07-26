@@ -1509,19 +1509,37 @@ void Go2::setupChosenConsumer(boost::program_options::variables_map const &vm) {
  * without re-loading a module (which would collide on its already-registered OA mnemonics). A genuine
  * collision (a module's OA mnemonic already registered by another module or built-in, or a second individual)
  * throws from the loader / the content-creator guard.
+ *
+ * --individual states what the module is FOR, so it is checked against what the module turns out to carry:
+ * a module named there that contributes no individual is refused by name rather than left to surface much
+ * later as "no optimization problem was registered". --module makes no such promise (a module may carry any
+ * mix of contributions), so it is not checked -- the loader has already refused a module that contributes
+ * nothing at all.
  */
 void Go2::loadRequestedModules_() {
-    auto loadOne = [this](std::string const &path) {
+    auto loadOne = [this](std::string const &path, bool must_carry_individual) {
         if(path.empty()) { return; }
         if(not loaded_module_paths_.insert(path).second) { return; } // already loaded -> skip
         LoadedModule const loaded = loadModule(path);
+        if(must_carry_individual and not loaded.individual) {
+            throw geneva_exception(
+                g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
+                << "In Go2::loadRequestedModules_(): Error!" << '\n'
+                << "'" << path << "' was given as the optimization problem (--individual), but the module"
+                << " carries no individual." << '\n'
+                << "It contributes " << loaded.oa_count << " optimization algorithm(s) and "
+                << loaded.marshaller_count << " GPU marshaller(s)." << '\n'
+                << "A module that contributes algorithms rather than a problem is loaded with --module."
+                << '\n'
+            );
+        }
         if(loaded.individual) {
             this->claimContentCreator_(loaded.individual, individualSource::LOADED);
         }
     };
 
-    for(auto const &path : module_paths_) { loadOne(path); }
-    loadOne(individual_plugin_path_);
+    for(auto const &path : module_paths_) { loadOne(path, /* must_carry_individual = */ false); }
+    loadOne(individual_plugin_path_, /* must_carry_individual = */ true);
 }
 
 /******************************************************************************/

@@ -57,7 +57,7 @@ ENDIF()
 GENEVA_ADD_INDIVIDUAL_MODULE(GGPUParaboloid GGPUParaboloidPlugin.cpp)
 
 # (2) The generic optimizer -> loads the GPU problem at runtime. ENABLE_EXPORTS so a module loaded RTLD_GLOBAL
-# resolves against one symbol namespace (single Boost.Serialization registry + single Geneva singletons).
+# resolves against one symbol namespace (single archive registry + single Geneva singletons).
 ADD_EXECUTABLE(GGPUParaboloidOptimizer GGPUParaboloidOptimizer.cpp)
 SET_TARGET_PROPERTIES(GGPUParaboloidOptimizer PROPERTIES ENABLE_EXPORTS TRUE)
 TARGET_LINK_LIBRARIES(GGPUParaboloidOptimizer ${LIBRARIES_TO_LINK})

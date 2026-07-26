@@ -45,7 +45,7 @@ ENDIF()
 GENEVA_ADD_INDIVIDUAL_MODULE(GLoadableParaboloid GLoadableParaboloidPlugin.cpp)
 
 # (2) The generic optimizer -> loads a problem at runtime. ENABLE_EXPORTS so a plugin loaded RTLD_GLOBAL
-# resolves against one symbol namespace (single Boost.Serialization registry + single Geneva singletons).
+# resolves against one symbol namespace (single archive registry + single Geneva singletons).
 ADD_EXECUTABLE(GGenericOptimizer GGenericOptimizer.cpp)
 SET_TARGET_PROPERTIES(GGenericOptimizer PROPERTIES ENABLE_EXPORTS TRUE)
 TARGET_LINK_LIBRARIES(GGenericOptimizer ${LIBRARIES_TO_LINK})

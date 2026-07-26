@@ -40,7 +40,7 @@
  * building blocks, as shown here -- a plain array of GenevaContribution the loader walks by kind.
  *
  * Unlike example 19 / 22, the individual's serialization GUID is registered by its OWN translation unit
- * (BOOST_CLASS_EXPORT_KEY in GImageIndividual.hpp, BOOST_CLASS_EXPORT_IMPLEMENT in GImageIndividual.cpp,
+ * (GEM_REGISTER_ARCHIVABLE in GImageIndividual.cpp,
  * compiled into this same module), so this glue TU only assembles the manifest -- it must NOT export the
  * class again.
  */
@@ -92,7 +92,7 @@ const GenevaContribution g_contributions[] = {
 };
 
 const GenevaModuleManifest g_manifest{
-    GENEVA_BUILD_FINGERPRINT, "GImageIndividual", GENEVA_VERSION_STRING, g_contributions, 2u};
+    GENEVA_MODULE_ABI_STAMP, "GImageIndividual", GENEVA_VERSION_STRING, g_contributions, 2u};
 
 } // anonymous namespace
 

@@ -176,9 +176,33 @@ are in `CHANGES` and `INSTALL`; this file is the practical upgrade guide.
 - **Individuals, optimization algorithms and GPU marshallers can be shipped as
   runtime-loadable `.so` modules** (`GENEVA_DECLARE_INDIVIDUAL` /
   `GENEVA_ADD_INDIVIDUAL_MODULE`, `individualManifest<>` / `oaManifest<>` /
-  `marshallerManifest<>`), loaded with `--module <path>.so` (repeatable). Modules carry a
-  toolchain-compatibility fingerprint; an incompatible module is rejected at load with a
-  clear diagnostic.
+  `marshallerManifest<>`), loaded with `--module <path>.so` (repeatable) — or, for the one
+  module that carries the optimization problem, with `--individual <path>.so`. Example 21's
+  `README.md` is the reference author path for an algorithm module, example 19's for a problem.
+- **A module load either succeeds or says exactly what is wrong with the module.** Two gates run
+  before any of a module's C++ is touched: the toolchain-compatibility fingerprint
+  (`GenevaCompat` — compiler, standard library, Boost, build-mode ABI switches and Geneva version,
+  matched axis by axis) and the **module-ABI stamp** `GENEVA_MODULE_ABI_VERSION`, which covers this
+  release's manifest layout, contribution-kind numbering and per-kind payload types. The stamp is
+  what catches a module built against a different `common/GModuleManifest.hpp` within one Geneva
+  version — something the version number alone cannot see. Beyond the gates, every other defect is
+  a refusal naming the module and the fault rather than a silent partial load: a shared object with
+  no manifest entry point, a manifest that advertises nothing, a contribution without its factory
+  entry point, a contribution of a kind this Geneva cannot serve (previously skipped in silence),
+  a mnemonic or device target that is already taken, and a module named with `--individual` that
+  carries no individual. Module authors never write the stamp by hand — the manifest helpers, and
+  the `GENEVA_MODULE_ABI_STAMP` initializer prefix for a hand-written multi-contribution manifest,
+  supply it.
+- **An optimization-algorithm factory is now itself the provider the algorithm store holds.**
+  `GOAFactoryT` implements `Gem::Common::GProviderT` directly, so the wrapper `GOAFactoryProviderT`
+  is gone, and a factory registers through one function, `Gem::Geneva::registerOptimizationAlgorithm()`
+  — the same one whether the algorithm is built in (via `GInitializerT`) or loaded from a module (via
+  `oaManifest<>` and the module loader). Consequences for existing code: the per-algorithm factory
+  types (`GEvolutionaryAlgorithmFactory`, `GSwarmAlgorithmFactory`, …) are unchanged as *names* but
+  are now aliases of `GOptimizationAlgorithmFactoryT<Algorithm, PersonalityTraits>`, so a
+  user-written factory that derived from one of them must derive from that instantiation instead;
+  a factory that only names an algorithm should simply be such an alias. `GOAFactoryT` gains
+  `provide()` and a `final` `getName()` (the provider-interface spelling of `getAlgorithmName()`).
 
 ## 7. Renames and small API removals
 

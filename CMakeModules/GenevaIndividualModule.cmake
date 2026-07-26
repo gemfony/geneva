@@ -72,8 +72,8 @@ IF(NOT GENEVA_INDIVIDUAL_MODULE_INCLUDED)
 	# GENEVA_ADD_INDIVIDUAL_MODULE(<target> <source> [<source> ...])
 	#
 	# Builds a runtime-loadable individual (optimization-problem) plugin as a shared MODULE, following the
-	# reference pattern of example 19. The .so carries the problem code + its serialization GUID + the
-	# GENEVA_INDIVIDUAL_PLUGIN() entry points, and links NONE of the Geneva libraries -- it needs only their
+	# reference pattern of example 19. The .so carries the problem code + its archive registration + the
+	# geneva_module_manifest() entry point, and links NONE of the Geneva libraries -- it needs only their
 	# HEADERS at compile time and resolves their symbols from the host process at load (the loader uses
 	# RTLD_GLOBAL). Linking no Geneva libs also sidesteps the non-PIC static Catch2 that a testing-enabled
 	# Geneva pulls in as a usage requirement, which cannot go into a shared object.
@@ -126,11 +126,11 @@ IF(NOT GENEVA_INDIVIDUAL_MODULE_INCLUDED)
 	# The packaging declaration for a Geneva optimization individual. It encodes the maintainer's DA1b model:
 	# the SAME individual source can be packaged two ways at once, and the author states the intent at the
 	# definition site. It ONLY packages -- it never modifies or generates any C++ (serialization export stays
-	# the author's hand-written BOOST_CLASS_EXPORT_KEY/_IMPLEMENT, one per type, in the individual's own hpp/cpp).
+	# the author's hand-written GEM_REGISTER_ARCHIVABLE, one per serialized type, in the individual's own cpp).
 	#
 	#   MODE compile  -> an OBJECT library <name>-obj built from SOURCES. A binary that COMPILES the individual
-	#                    in links this target, so the individual's BOOST_CLASS_EXPORT_IMPLEMENT static
-	#                    initializers (serialization GUID registration) are pulled in and never stripped.
+	#                    in links this target, so the individual's GEM_REGISTER_ARCHIVABLE static
+	#                    initializers (archive-tag registration) are pulled in and never stripped.
 	#   MODE load     -> a shared MODULE lib<name>.so built from SOURCES + the PLUGIN glue TU. It links NONE of
 	#                    the Geneva libraries (their symbols resolve from the host process at load via
 	#                    RTLD_GLOBAL; only their headers are needed) and is loaded at runtime via --individual.
@@ -141,8 +141,8 @@ IF(NOT GENEVA_INDIVIDUAL_MODULE_INCLUDED)
 	# module .so ONLY, never the object library: the manifest symbol name is fixed, so a compile-in binary that
 	# links two individuals must not contain two definitions of it. Hence SOURCES = the individual (class +
 	# export, in both targets) and PLUGIN = the glue (module only). The ONE hard rule the author must honour
-	# (not enforceable in CMake): a single PROCESS must never both compile-in and load the same individual, or
-	# Boost.Serialization throws on the duplicate GUID registration.
+	# (not enforceable in CMake): a single PROCESS must never both compile-in and load the same individual --
+	# Geneva allows exactly one optimization problem per process and refuses the second claim, naming both.
 	#
 	# CONFIG, when given, is recorded on the module target (property GENEVA_INDIVIDUAL_CONFIG) for downstream
 	# config materialization; it is the same path the author passes to individualManifest<> in the glue TU.
@@ -187,7 +187,7 @@ IF(NOT GENEVA_INDIVIDUAL_MODULE_INCLUDED)
 			${GENEVA_INDIVIDUAL_INCLUDE_DIRS}
 			${Boost_INCLUDE_DIRS})
 
-		# (A) compile/both: the OBJECT library of the individual's own sources (class + BOOST_CLASS_EXPORT).
+		# (A) compile/both: the OBJECT library of the individual's own sources (class + archive registration).
 		# PIC so its objects are equally usable in the shared module (both) and in any consumer.
 		IF(_want_compile)
 			ADD_LIBRARY(${_name}-obj OBJECT ${GDI_SOURCES})
@@ -195,13 +195,12 @@ IF(NOT GENEVA_INDIVIDUAL_MODULE_INCLUDED)
 			TARGET_COMPILE_FEATURES(${_name}-obj PUBLIC cxx_std_${GENEVA_INDIVIDUAL_CXX_STANDARD})
 			TARGET_COMPILE_OPTIONS(${_name}-obj PRIVATE ${GENEVA_INDIVIDUAL_ABI_OPTIONS})
 			TARGET_INCLUDE_DIRECTORIES(${_name}-obj PUBLIC ${_gdi_incdirs})
-			# NOTE on link order: a compile-in consumer must list <name>-obj BEFORE the Geneva and Boost
-			# libraries. The object library's own objects instantiate Boost.Serialization for the individual's
-			# exported types; the linker's default --as-needed drops (shared) libboost_serialization if nothing
-			# preceding it needs it, so the object library's objects -- if placed last -- fail to resolve. CMake
-			# deduplicates a shared library to its first position, so a usage-requirement dependency here cannot
-			# reorder it; the consumer must order the object library first. The module .so is unaffected: it
-			# reuses $<TARGET_OBJECTS:...> (object files only) at the front of its own link.
+			# NOTE on link order: every in-tree consumer lists <name>-obj BEFORE the Geneva and Boost libraries.
+			# The reason this NOTE originally gave no longer holds -- it was about --as-needed dropping the
+			# shared libboost_serialization, and Geneva links no Boost.Serialization at all since the move to
+			# Gem::Weft. The convention is kept because it costs nothing and because CMake deduplicates a
+			# shared library to its FIRST position, so a usage requirement declared here could not reorder one
+			# anyway.
 		ENDIF()
 
 		# (B) load/both: the shared MODULE lib<name>.so. It reuses the object library's objects where they

@@ -53,7 +53,7 @@ TARGET_INCLUDE_DIRECTORIES ( ${EXECUTABLENAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DI
 # The Geneva libraries (the GPU consumer + its CUDA backend are folded into gemfony-courtier when
 # GENEVA_BUILD_WITH_GPU_CONSUMER is ON -- required for this example to be built at all) and Boost.
 # GFunctionIndividual is no longer in the geneva library; it is compiled in via its object library (before
-# the Geneva/Boost libraries so its serialization objects resolve libboost_serialization).
+# the Geneva/Boost libraries, the in-tree convention for an object library carrying archive registrations).
 TARGET_LINK_LIBRARIES ( ${EXECUTABLENAME} PRIVATE
 	GFunctionIndividual-obj
 	${GENEVA_LIBRARIES}

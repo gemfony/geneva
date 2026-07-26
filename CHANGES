@@ -2,9 +2,8 @@
 * Version 1.99.0-beta1 "Puente de Santiago" - May 02, 2026
 
 Version 1.99.0-beta1 is not an incremental release: it is a ground-up REDESIGN of Geneva and the
-start of a revived, actively developed code base. Relative to 1.11 "Hendaye" it is a
-single, large, breaking change. The 1.99.x betas stabilize this redesign toward its first
-production release, 2.0.
+start of a revived, actively developed code base. Relative to 1.11 "Hendaye" it is a single, large
+breaking change. The 1.99.x betas stabilize this redesign toward its first production release, 2.0.
 
 Why the redesign:
 - To revive active development of Geneva after a long quiet period, on a foundation that is
@@ -13,9 +12,10 @@ Why the redesign:
   individual model was replaced by a flat, data-only genome with mutation owned by the
   optimization algorithm, and long-standing structural debt (a per-algorithm broker layer,
   Boost.PropertyTree configuration, scattered per-individual state) was removed.
-- To add long-missing capabilities: runtime-loadable problem / algorithm / GPU modules, a
-  first-class GPU consumer, strict-JSON configuration with a generated reference, and a
-  unified local / remote / GPU evaluation path.
+- To add long-missing capabilities: runtime-loadable problem / algorithm / GPU modules --
+  gated at load on toolchain and module ABI, and refused with a diagnostic that names the
+  defect rather than mis-loaded -- a first-class GPU consumer, strict-JSON configuration
+  with a generated reference, and a unified local / remote / GPU evaluation path.
 - To draw the library boundaries where they belong: the networked transport layer
   (`courtier`) now carries frames and opaque payloads and knows nothing of optimization,
   and a processed work item returns its computed results rather than a copy of itself.

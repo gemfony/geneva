@@ -88,7 +88,7 @@ const GenevaContribution g_contributions[] = {
 };
 
 const GenevaModuleManifest g_manifest{
-    GENEVA_BUILD_FINGERPRINT, "GGPUParaboloid", GENEVA_VERSION_STRING, g_contributions, 2u};
+    GENEVA_MODULE_ABI_STAMP, "GGPUParaboloid", GENEVA_VERSION_STRING, g_contributions, 2u};
 
 } // anonymous namespace
 

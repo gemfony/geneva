@@ -65,7 +65,7 @@
  *    adaptors live on the algorithm, not the genome), which the factory exposes through its base so a
  *    generic launcher can wire it up WITHOUT knowing this concrete type;
  *  - @c evaluate() computing the objective;
- *  - @c serialize() + a BOOST_CLASS_EXPORT in the .cpp, so the individual can cross the wire / a checkpoint.
+ *  - @c serialize() + a GEM_REGISTER_ARCHIVABLE in the .cpp, so the individual can cross the wire / a checkpoint.
  */
 class GLoadableParaboloid : public Gem::Geneva::Genome::GGenomeT<GLoadableParaboloid> {
 public:
