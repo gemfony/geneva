@@ -38,26 +38,22 @@ SET ( OPTIMIZATIONSOURCES
     oa/GPluggableOptimizationMonitors.cpp
     oa/GPostProcessorT.cpp
     oa/GOptimizationAlgorithmBase.cpp
+    oa/GBuiltinAlgorithms.cpp
     oa/GLineSearch.cpp
     oa/GHesseError.cpp
     oa/GEvolutionaryAlgorithm.cpp
-    oa/GEvolutionaryAlgorithmFactory.cpp
     oa/GEvolutionaryAlgorithm_PersonalityTraits.cpp
     oa/GMetaEvolutionaryAlgorithm.cpp
     oa/GParChild.cpp
     oa/GBaseParChildPersonalityTraits.cpp
     oa/GPositionPersonalityTraits.cpp
     oa/GSepCmaEvolutionStrategy.cpp
-    oa/GSepCmaEvolutionStrategyFactory.cpp
     oa/GSepCmaEvolutionStrategy_PersonalityTraits.cpp
     oa/GStandardPSO2011.cpp
-    oa/GStandardPSO2011Factory.cpp
     oa/GStandardPSO2011_PersonalityTraits.cpp
     oa/GAntColonyOptimization.cpp
-    oa/GAntColonyOptimizationFactory.cpp
     oa/GAntColonyOptimization_PersonalityTraits.cpp
     oa/GGeneralizedSimulatedAnnealing.cpp
-    oa/GGeneralizedSimulatedAnnealingFactory.cpp
     oa/GGeneralizedSimulatedAnnealing_PersonalityTraits.cpp
 	GModuleLoader.cpp
 	genome/GParameterPropertyParser.cpp
@@ -164,11 +160,11 @@ ENDIF()
 #
 # Each option below gates the three source files of one optimization algorithm.
 # All default to ON, so the stock build is byte-for-byte identical to before:
-# every algorithm is compiled in and self-registers its factory with the
-# global optimization-algorithm store. Setting an option to OFF omits that
-# algorithm's sources; because registration happens from within those very
-# translation units, the algorithm then never registers and its mnemonic
-# simply disappears from the runtime selection (the '-a' option).
+# every algorithm is compiled in and its factory is registered with the global
+# optimization-algorithm store. Setting an option to OFF omits that algorithm's
+# sources AND its GENEVA_ALGO_* compile definition, so the single registration
+# translation unit (oa/GBuiltinAlgorithms.cpp) leaves it out too and its
+# mnemonic simply disappears from the runtime selection (the '-a' option).
 #
 # Evolutionary algorithms (EA) are intentionally NOT optional and remain in the
 # core source list above: GEvolutionaryAlgorithmFactory is referenced directly
@@ -208,38 +204,39 @@ IF (GENEVA_BUILD_TESTS AND NOT (GENEVA_ALGO_SA AND GENEVA_ALGO_SWARM
 ENDIF ()
 
 IF(GENEVA_ALGO_SA)
+	SET(GENEVA_ALGO_DEFINES ${GENEVA_ALGO_DEFINES} GENEVA_ALGO_SA)
 	SET(OPTIMIZATIONSOURCES
 			${OPTIMIZATIONSOURCES}
 			oa/GSimulatedAnnealing.cpp
-			oa/GSimulatedAnnealingFactory.cpp
 			oa/GSimulatedAnnealing_PersonalityTraits.cpp)
 ENDIF()
 
 IF(GENEVA_ALGO_SWARM)
+	SET(GENEVA_ALGO_DEFINES ${GENEVA_ALGO_DEFINES} GENEVA_ALGO_SWARM)
 	SET(OPTIMIZATIONSOURCES
 			${OPTIMIZATIONSOURCES}
 			oa/GSwarmAlgorithm.cpp
-			oa/GSwarmAlgorithmFactory.cpp
 			oa/GSwarmAlgorithm_PersonalityTraits.cpp)
 ENDIF()
 
 IF(GENEVA_ALGO_CGD)
+	SET(GENEVA_ALGO_DEFINES ${GENEVA_ALGO_DEFINES} GENEVA_ALGO_CGD)
 	SET(OPTIMIZATIONSOURCES
 			${OPTIMIZATIONSOURCES}
 			oa/GConjugateGradientDescent.cpp
-			oa/GConjugateGradientDescentFactory.cpp
 			oa/GConjugateGradientDescent_PersonalityTraits.cpp)
 ENDIF()
 
 IF(GENEVA_ALGO_NM)
+	SET(GENEVA_ALGO_DEFINES ${GENEVA_ALGO_DEFINES} GENEVA_ALGO_NM)
 	SET(OPTIMIZATIONSOURCES
 			${OPTIMIZATIONSOURCES}
 			oa/GNelderMead.cpp
-			oa/GNelderMeadFactory.cpp
 			oa/GNelderMead_PersonalityTraits.cpp)
 ENDIF()
 
 IF(GENEVA_ALGO_PS)
+	SET(GENEVA_ALGO_DEFINES ${GENEVA_ALGO_DEFINES} GENEVA_ALGO_PS)
 	SET(OPTIMIZATIONSOURCES
 			${OPTIMIZATIONSOURCES}
 			oa/GParameterScan.cpp
@@ -248,6 +245,12 @@ IF(GENEVA_ALGO_PS)
 ENDIF()
 
 ADD_LIBRARY ( ${GENEVA_LIBNAME} SHARED ${OPTIMIZATIONSOURCES} )
+
+# The optional algorithms' switches, handed to the compiler. Only the single registration translation
+# unit (oa/GBuiltinAlgorithms.cpp) reads them: it registers exactly the algorithms whose sources the
+# GENEVA_ALGO_* options above put into the library, so a slim-core build cannot reference an algorithm
+# it did not compile.
+TARGET_COMPILE_DEFINITIONS ( ${GENEVA_LIBNAME} PRIVATE ${GENEVA_ALGO_DEFINES} )
 
 SET_TARGET_PROPERTIES(
     ${GENEVA_LIBNAME}

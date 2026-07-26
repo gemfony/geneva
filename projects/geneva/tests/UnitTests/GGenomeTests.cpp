@@ -81,6 +81,9 @@
 #include "geneva/oa/GAdaption.hpp"
 #include "geneva/oa/GAdaptionConfig.hpp"
 #include "geneva/oa/GEvolutionaryAlgorithm.hpp"
+#include "geneva/oa/GEvolutionaryAlgorithmFactory.hpp"
+#include "geneva/oa/GFactoryStore.hpp"     // oaFactoryStore / registerOptimizationAlgorithm -- the one OA seam
+#include "geneva/oa/GOAPlugin.hpp"        // oaManifest -- the module half of that seam
 #include "geneva/oa/GEvolutionaryAlgorithm_PersonalityTraits.hpp"
 #include "geneva/oa/GSimulatedAnnealing_PersonalityTraits.hpp"
 #include "geneva/individuals/GNeuralNetworkIndividual.hpp"
@@ -2421,6 +2424,54 @@ TEST_CASE("Marshaller module manifest contributes a registrable GPU marshaller",
 
     store->remove("cuda"); // leave the process-global store as we found it
 }
+
+/******************************************************************************/
+// ONE registration seam for optimization algorithms, whatever their origin. A built-in registers at static
+// init through GInitializerT; a runtime-loaded algorithm registers at dlopen through the module loader.
+// Both hand registerOptimizationAlgorithm() the same thing -- the algorithm's FACTORY, which is itself the
+// provider the store holds (GOAFactoryT implements Gem::Common::GProviderT). This pins that: a wrapper
+// re-appearing between factory and store, or a second write path to oaFactoryStore(), breaks it.
+TEST_CASE("A built-in and a module register an algorithm through the same seam", "[oa][plugin]") {
+    using oa_provider_t = Gem::Common::GProviderT<oa::GOptimizationAlgorithmBase>;
+    using oa_factory_t = oa::GOAFactoryT<oa::GOptimizationAlgorithmBase>;
+
+    // (a) What the built-in path put into the store is the factory itself, not an adapter around it.
+    std::shared_ptr<oa_provider_t> stored;
+    REQUIRE(oaFactoryStore()->get("ea", stored));
+    REQUIRE(stored);
+    auto stored_factory = std::dynamic_pointer_cast<oa_factory_t>(stored);
+    REQUIRE(stored_factory); // would be null if a provider wrapper sat in between
+    CHECK(stored_factory->getMnemonic() == "ea");
+    CHECK(stored_factory->getName() == stored_factory->getAlgorithmName()); // one name, two spellings
+
+    // (b) The module path (the author helper an OA plugin's manifest entry point calls) produces the very
+    // same handle: one contribution, tagged as the OA kind, whose thunk hands back the factory across the
+    // plain-C void* boundary. Exercised here without a .so; example 21 covers the dlopen half.
+    const GenevaModuleManifest *manifest =
+        Gem::Geneva::oaManifest<oa::GEvolutionaryAlgorithmFactory, "EAProbe">();
+    REQUIRE(manifest != nullptr);
+    CHECK(Gem::Geneva::moduleCompatMismatch(manifest->compat).empty());
+    REQUIRE(manifest->contributions_count == 1);
+    CHECK(manifest->contributions[0].kind == GENEVA_CONTRIBUTION_OA);
+    REQUIRE(manifest->contributions[0].make_factory != nullptr);
+
+    void *raw = manifest->contributions[0].make_factory();
+    REQUIRE(raw != nullptr);
+    const std::unique_ptr<Gem::Geneva::GOAProviderPtr> holder(
+        static_cast<Gem::Geneva::GOAProviderPtr *>(raw));
+    Gem::Geneva::GOAProviderPtr const from_module = std::move(*holder);
+    REQUIRE(from_module);
+    CHECK(std::dynamic_pointer_cast<oa_factory_t>(from_module)); // a factory, exactly as in (a)
+
+    // (c) And it goes through the same registration function -- which refuses the clash, so a module can
+    // never shadow a built-in mnemonic. The store is left exactly as found.
+    CHECK_FALSE(Gem::Geneva::registerOptimizationAlgorithm(from_module));
+    std::shared_ptr<oa_provider_t> still_there;
+    REQUIRE(oaFactoryStore()->get("ea", still_there));
+    CHECK(still_there == stored);
+}
+
+/******************************************************************************/
 
 TEST_CASE("Go2 enforces exactly one individual (optimization problem) per process", "[flat][plugin][go2]") {
     namespace fs = std::filesystem;

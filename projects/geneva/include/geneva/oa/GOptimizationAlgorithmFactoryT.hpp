@@ -52,10 +52,21 @@ namespace Gem::Geneva::OptimizationAlgorithms {
  * optimization-algorithm factory repeats: the three constructors (the default one derives the config
  * path "./config/<class_name>.json"), getMnemonic() (= the personality nickname), getAlgorithmName()
  * (= the algorithm's human-readable name) and getObject_() (construct the algorithm and register its
- * configuration options). A concrete factory becomes a thin named subclass -- kept so the GInitializerT
- * self-registration has a concrete type and so Go2 / the examples can refer to it by name.
+ * configuration options).
+ *
+ * For the great majority of algorithms that IS the whole factory, so the factory is this instantiation,
+ * named:
+ *
+ *   using GFooFactory = GOptimizationAlgorithmFactoryT<GFoo, GFoo_PersonalityTraits>;
+ *
+ * An algorithm that needs more -- extra command-line options, a postProcess_() step -- derives from the
+ * instantiation instead (GParameterScanFactory is the one in-tree example):
  *
  *   class GFooFactory : public GOptimizationAlgorithmFactoryT<GFoo, GFoo_PersonalityTraits> { ... };
+ *
+ * Either way the result is the provider the algorithm store holds -- GOAFactoryT implements
+ * Gem::Common::GProviderT -- so registering it (GInitializerT for a built-in, oaManifest() for a module)
+ * needs no wrapper of any kind.
  *
  * @tparam oa_type                 The concrete algorithm. Must expose the GOptimizationAlgorithmT
  *                                 identifiers class_name and oa_algorithm_name.

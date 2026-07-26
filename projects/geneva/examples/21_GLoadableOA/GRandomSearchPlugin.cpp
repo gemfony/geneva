@@ -31,7 +31,7 @@
  * @file
  * The glue that turns GRandomSearch into a runtime-loadable Geneva module. It carries the two irreducible
  * pieces an OA plugin must provide:
- *   1. the BOOST_CLASS_EXPORT_IMPLEMENT registrations for the algorithm and its personality traits (the same
+ *   1. the GEM_REGISTER_ARCHIVABLE registrations for the algorithm and its personality traits (the same
  *      serialization registrations a compiled-in OA needs -- so a checkpoint written with this module loaded
  *      resumes with it loaded);
  *   2. the fixed, unmangled `geneva_module_manifest` entry point the loader resolves via dlsym, which

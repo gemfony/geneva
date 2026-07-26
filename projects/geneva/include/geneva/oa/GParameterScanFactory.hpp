@@ -39,12 +39,10 @@
 // Boost header files go here
 
 // Geneva headers go here
-#include "courtier/GCourtierEnums.hpp"
 #include "geneva/genome/GGenome.hpp"
 #include "geneva/oa/GOptimizationAlgorithmBase.hpp"
 #include "geneva/oa/GOAFactoryT.hpp"
 #include "geneva/oa/GOptimizationAlgorithmFactoryT.hpp"
-#include "geneva/oa/GInitializerT.hpp"
 #include "geneva/oa/GParameterScan.hpp"
 #include "geneva/oa/GParameterScan_PersonalityTraits.hpp"
 
@@ -94,8 +92,9 @@ public:
     ~GParameterScanFactory() override = default;
 
     // The constructors' config path, getMnemonic(), getAlgorithmName() and getObject_() are generated
-    // by the GOptimizationAlgorithmFactoryT scaffold. Parameter Scan adds a command-line parameter
-    // spec (the variables to scan), so it also overrides addCLOptions()/postProcess_() below.
+    // by the GOptimizationAlgorithmFactoryT scaffold, which is why the other built-in algorithms' factories
+    // are that instantiation outright. Parameter Scan is the one that needs more: a command-line parameter
+    // spec (the variables to scan), so it stays a subclass and overrides addCLOptions()/postProcess_().
 
     /**
      * @brief Adds local command line options to boost::program_options::options_description objects

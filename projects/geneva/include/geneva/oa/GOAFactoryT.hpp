@@ -47,6 +47,7 @@
 // Geneva headers go here
 #include "common/GCommonHelperFunctionsT.hpp"
 #include "common/GFactoryT.hpp"
+#include "common/GProviderT.hpp"
 #include "courtier/GCourtierEnums.hpp"
 #include "geneva/oa/GPluggableOptimizationMonitors.hpp"
 #include "geneva/genome/GGenome.hpp"
@@ -64,11 +65,19 @@ namespace Gem::Geneva::OptimizationAlgorithms {
 /**
  * This class is a specialization of the GFactoryT<> class for optimization algorithms.
  *
+ * It is at the same time the mnemonic-keyed *provider* the global algorithm store holds: an
+ * optimization-algorithm factory IS the thing that hands out algorithms by mnemonic, so it implements
+ * Gem::Common::GProviderT directly rather than being wrapped in a separate provider adapter. That makes the
+ * registration seam a single one: a built-in algorithm (GInitializerT, at static init) and a runtime-loaded
+ * algorithm module (oaManifest() -> GModuleLoader) both hand the very same object -- this factory -- to
+ * registerOptimizationAlgorithm().
+ *
  * @tparam oa_type The concrete optimization-algorithm type this factory produces
  */
 template <typename oa_type>
 class GOAFactoryT // NOLINT(cppcoreguidelines-special-member-functions)
-  : public Gem::Common::GFactoryT<oa_type> {
+  : public Gem::Common::GFactoryT<oa_type>
+  , public Gem::Common::GProviderT<oa_type> {
 public:
     /***************************************************************************/
     // Let the audience know what type of algorithm will be produced
@@ -153,11 +162,11 @@ public:
 	  * @param visible Command line options that should always be visible (currently unused here)
 	  * @param hidden Command line options that should only be visible upon request
 	  */
-    virtual void addCLOptions(
+    void addCLOptions(
         [[maybe_unused]] boost::program_options::options_description & visible
         ,
         boost::program_options::options_description &hidden
-    ) {
+    ) override {
         namespace po = boost::program_options;
 
         hidden.add_options()(
@@ -246,7 +255,7 @@ public:
 	  *
 	  * @return The short mnemonic / nickname identifying the algorithm (e.g. "ea")
 	  */
-    [[nodiscard]] virtual std::string getMnemonic() const = 0;
+    [[nodiscard]] std::string getMnemonic() const override = 0;
 
     /***************************************************************************/
     /**
@@ -255,6 +264,26 @@ public:
 	  * @return A human-readable, clear-text name of the algorithm
 	  */
     [[nodiscard]] virtual std::string getAlgorithmName() const = 0;
+
+    /***************************************************************************/
+    /**
+	  * The provider interface's spelling of getAlgorithmName(). Final, so the algorithm's clear-text name
+	  * has exactly one author-supplied source (getAlgorithmName()) no matter which of the two names a
+	  * caller uses.
+	  *
+	  * @return A human-readable, clear-text name of the algorithm
+	  */
+    [[nodiscard]] std::string getName() const final { return this->getAlgorithmName(); }
+
+    /***************************************************************************/
+    /**
+	  * Hands out a freshly configured algorithm -- the provider interface's spelling of the factory's
+	  * get(). Every call re-reads the configuration file and bumps the instance id, which is what
+	  * algorithm chaining (e.g. "ea,gd,swarm") relies on.
+	  *
+	  * @return A shared pointer to a newly created, configured optimization algorithm
+	  */
+    std::shared_ptr<oa_type> provide() override { return Gem::Common::GFactoryT<oa_type>::get(); }
 
     /***************************************************************************/
     /**

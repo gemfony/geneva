@@ -33,43 +33,27 @@
 #include "common/GGlobalDefines.hpp"
 
 // Standard header files go here
-#include <string>
 
 // Boost header files go here
 
 // Geneva headers go here
-#include "courtier/GCourtierEnums.hpp"
-#include "geneva/genome/GGenome.hpp"
-#include "geneva/oa/GOptimizationAlgorithmBase.hpp"
 #include "geneva/oa/GEvolutionaryAlgorithm.hpp"
-#include "geneva/oa/GOAFactoryT.hpp"
-#include "geneva/oa/GOptimizationAlgorithmFactoryT.hpp"
-#include "geneva/oa/GInitializerT.hpp"
 #include "geneva/oa/GEvolutionaryAlgorithm_PersonalityTraits.hpp"
+#include "geneva/oa/GOptimizationAlgorithmFactoryT.hpp"
 
 namespace Gem::Geneva::OptimizationAlgorithms {
 
 /******************************************************************************/
-////////////////////////////////////////////////////////////////////////////////
-/******************************************************************************/
 /**
- * This class is a specialization of the GFactoryT<> class for the dimension-aware adaptive evolutionary
- * algorithm ("ea"). It is a thin twin of GSepCmaEvolutionStrategyFactory carrying its own mnemonic.
+ * @brief The factory that builds the dimension-aware adaptive evolutionary algorithm ("ea") from a configuration file.
+ *
+ * The GOptimizationAlgorithmFactoryT scaffold generates everything such a factory needs -- the three
+ * constructors (the default one deriving the config path "./config/GEvolutionaryAlgorithm.json"), getMnemonic()
+ * (the personality nickname), getAlgorithmName() and getObject_() -- so the factory is that instantiation,
+ * under a name callers can spell. Registration with the global algorithm store happens once, for every
+ * built-in algorithm together, in src/oa/GBuiltinAlgorithms.cpp.
  */
-class GEvolutionaryAlgorithmFactory // NOLINT(cppcoreguidelines-special-member-functions)
-  : public GOptimizationAlgorithmFactoryT<GEvolutionaryAlgorithm, GEvolutionaryAlgorithm_PersonalityTraits> {
-    using Base = GOptimizationAlgorithmFactoryT<GEvolutionaryAlgorithm, GEvolutionaryAlgorithm_PersonalityTraits>;
-
-public:
-    /** @brief The default constructor */
-    GEvolutionaryAlgorithmFactory() = default;
-    // Inherit the config-file / (config-file, content-creator) constructors from the scaffold
-    using Base::Base;
-    /** @brief The copy constructor. @param The object to be copied */
-    GEvolutionaryAlgorithmFactory(const GEvolutionaryAlgorithmFactory &) = default;
-    /** @brief The destructor */
-    ~GEvolutionaryAlgorithmFactory() override = default;
-};
+using GEvolutionaryAlgorithmFactory = GOptimizationAlgorithmFactoryT<GEvolutionaryAlgorithm, GEvolutionaryAlgorithm_PersonalityTraits>;
 
 /******************************************************************************/
 

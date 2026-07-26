@@ -33,16 +33,12 @@
 #include "common/GGlobalDefines.hpp"
 
 // Standard header files go here
-#include <iostream>
+#include <memory>
 #include <type_traits>
 
 // Boost header files go here
 
 // Geneva headers go here
-#include "common/GGlobalOptionsT.hpp"
-#include "common/GLogger.hpp"
-#include "common/GProviderT.hpp"
-#include "geneva/genome/GGenome.hpp"
 #include "geneva/oa/GOptimizationAlgorithmBase.hpp"
 #include "geneva/oa/GFactoryStore.hpp"
 #include "geneva/oa/GOAFactoryT.hpp"
@@ -53,18 +49,20 @@ namespace Gem::Geneva::OptimizationAlgorithms {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * A provider that wraps a config-file-driven optimization-algorithm factory.
- * Each provide() call produces a freshly configured algorithm (the factory
- * re-reads its JSON config and bumps its instance id), which is what algorithm
- * chaining (e.g. "ea,gd,swarm") relies on. This is the factory flavour of the
- * shared Gem::Common::GProviderT abstraction.
+ * Registers one built-in optimization-algorithm factory with the global algorithm store. A static object
+ * of this type, one per algorithm, lives in the single registration translation unit
+ * (src/oa/GBuiltinAlgorithms.cpp), so the algorithms Geneva itself ships become selectable by mnemonic at
+ * library-load time and Go2 needs no explicit registration call.
  *
- * @tparam oaf_type The concrete optimization-algorithm factory type to wrap; must derive
- *         from GOAFactoryT<GOptimizationAlgorithmBase>.
+ * The factory IS the provider (GOAFactoryT implements Gem::Common::GProviderT), and registration goes
+ * through Gem::Geneva::registerOptimizationAlgorithm() -- the same function the module loader calls for a
+ * runtime-loaded algorithm. There is exactly one registration seam, whatever the algorithm's origin.
+ *
+ * @tparam oaf_type The concrete optimization-algorithm factory type to register.
  */
 template <typename oaf_type>
-class GOAFactoryProviderT : public Gem::Common::GProviderT<GOptimizationAlgorithmBase> {
-    // Make sure oaf_type has the expected type
+class GInitializerT {
+    // Make sure oaf_type is an optimization-algorithm factory over the algorithm base
     static_assert(
         std::is_base_of_v<GOAFactoryT<GOptimizationAlgorithmBase>, oaf_type>,
         "GOAFactoryT<GOptimizationAlgorithmBase> is not a base of oaf_type"
@@ -72,63 +70,16 @@ class GOAFactoryProviderT : public Gem::Common::GProviderT<GOptimizationAlgorith
 
 public:
     /**
-     * @brief Produces a freshly configured optimization algorithm from the wrapped factory.
-     * @return A shared pointer to a newly created, configured optimization algorithm.
-     */
-    std::shared_ptr<GOptimizationAlgorithmBase> provide() override {
-        return factory_->Gem::Common::GFactoryT<GOptimizationAlgorithmBase>::get();
-    }
-    /**
-     * @brief Retrieves the mnemonic of the wrapped algorithm factory.
-     * @return The factory's mnemonic (e.g. "ea", "cgd", "swarm").
-     */
-    [[nodiscard]] std::string getMnemonic() const override { return factory_->getMnemonic(); }
-    /**
-     * @brief Retrieves the human-readable name of the wrapped algorithm factory.
-     * @return The factory's algorithm name.
-     */
-    [[nodiscard]] std::string getName() const override { return factory_->getAlgorithmName(); }
-    /**
-     * @brief Adds the wrapped factory's command-line options to the given option descriptions.
-     * @param visible The options-description collecting options shown in the help text.
-     * @param hidden The options-description collecting options hidden from the help text.
-     */
-    void addCLOptions(
-        boost::program_options::options_description &visible,
-        boost::program_options::options_description &hidden
-    ) override {
-        factory_->addCLOptions(visible, hidden);
-    }
-
-private:
-    // Stored as the concrete factory base (GOptimizationAlgorithmBase is not dependent here), so the
-    // qualified GFactoryT<GOptimizationAlgorithmBase>::get() in provide() is well-formed; virtual
-    // dispatch still reaches oaf_type's overrides.
-    std::shared_ptr<GOAFactoryT<GOptimizationAlgorithmBase>> factory_{std::make_shared<oaf_type>()};
-};
-
-/******************************************************************************/
-/**
- * This base class registers an optimization-algorithm factory (wrapped in a
- * GOAFactoryProviderT) with the global algorithm store.
- *
- * @tparam oaf_type The concrete optimization-algorithm factory type to register.
- */
-template <typename oaf_type>
-class GInitializerT {
-public:
-    /**
-     * @brief The initializing constructor; registers the factory provider with the
-     *        global algorithm store (only once per mnemonic).
+     * @brief The initializing constructor; registers the factory with the global algorithm store.
+     *
+     * A false return means the mnemonic was already taken. For the built-ins that cannot happen (their
+     * mnemonics are distinct by construction, and this runs before any module can load); a module's clash
+     * is the loader's business and is reported there, so the result is deliberately dropped here rather
+     * than turned into a throw during static initialization.
      */
     GInitializerT() {
-        auto provider = std::make_shared<GOAFactoryProviderT<oaf_type>>();
-        // Add the provider to the store, if it hasn't been stored there yet
-        oaFactoryStore()->setOnce(provider->getMnemonic(), provider);
+        (void)registerOptimizationAlgorithm(std::make_shared<oaf_type>());
     }
-
-    /** @brief Defaulted destructor */
-    virtual ~GInitializerT() = default;
 };
 
 /******************************************************************************/

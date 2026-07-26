@@ -28,7 +28,6 @@
  ********************************************************************************/
 
 #include "geneva/oa/GParameterScanFactory.hpp"
-#include "geneva/oa/GInitializerT.hpp"
 #include "common/GCommonHelperFunctionsT.hpp"
 #include "common/GFactoryT.hpp"
 #include "common/GParserBuilder.hpp"
@@ -118,19 +117,6 @@ void GParameterScanFactory::postProcess_(std::shared_ptr<GOptimizationAlgorithmB
     // Call our parent class'es function
     GOAFactoryT<GOptimizationAlgorithmBase>::postProcess_(p_base);
 }
-
-/******************************************************************************/
-
-/******************************************************************************/
-/**
- * Self-registration of this optimization-algorithm factory with the global
- * factory store at library-load time, so that Go2 needs no explicit
- * registration call. (Geneva is always built as a shared library, so these
- * load-time initializers are never stripped.)
- */
-namespace {
-GInitializerT<GParameterScanFactory> g_oaf_registrant;
-} // anonymous namespace
 
 /******************************************************************************/
 

@@ -34,25 +34,18 @@
 
 // Standard headers go here
 #include <memory>
+#include <type_traits>
 
 // Boost headers go here
 #include <boost/config.hpp> // BOOST_SYMBOL_EXPORT
 
 // Geneva headers go here
 #include "common/GModuleManifest.hpp" // the unified module manifest (GenevaCompat + contributions)
-#include "common/GProviderT.hpp"
-#include "geneva/oa/GInitializerT.hpp" // GOAFactoryProviderT
+#include "geneva/oa/GFactoryStore.hpp" // GOAProviderPtr -- the handle the algorithm store holds
+#include "geneva/oa/GOAFactoryT.hpp"
 #include "geneva/oa/GOptimizationAlgorithmBase.hpp"
 
 namespace Gem::Geneva {
-
-/******************************************************************************/
-/**
- * @brief The type a loaded optimization-algorithm contribution hands back: a provider over the OA base,
- * i.e. the exact type @c oaFactoryStore() holds. The module builds the provider (where the concrete factory
- * type is known) and the loader registers it type-erased, so the loader stays free of the concrete OA.
- */
-using GOAProviderPtr = std::shared_ptr<Gem::Common::GProviderT<OptimizationAlgorithms::GOptimizationAlgorithmBase>>;
 
 /******************************************************************************/
 /**
@@ -69,28 +62,35 @@ using GOAProviderPtr = std::shared_ptr<Gem::Common::GProviderT<OptimizationAlgor
  * @c geneva_module_manifest via dlsym); everything else is this typed template.
  *
  * Unlike an individual (a claim-once single slot), an OA is resolved by mnemonic against a shared store, so
- * the contribution's factory thunk hands back a fully-built @c GOAFactoryProviderT (as a @c GOAProviderPtr on
- * the heap, the plain-C @c void* boundary); the loader moves it out and @c setOnce-registers it into
- * @c oaFactoryStore() under the provider's own mnemonic (the algorithm's personality nickname). Registering a
- * mnemonic a built-in (or another module) already holds is a hard error -- a module cannot shadow one.
+ * the contribution's factory thunk hands back the algorithm's factory itself (as a @c GOAProviderPtr on the
+ * heap, the plain-C @c void* boundary -- a @c GOAFactoryT IS the provider the store holds); the loader moves
+ * it out and hands it to @c registerOptimizationAlgorithm(), the very function a built-in algorithm's
+ * @c GInitializerT uses, under the factory's own mnemonic (the algorithm's personality nickname).
+ * Registering a mnemonic a built-in (or another module) already holds is a hard error -- a module cannot
+ * shadow one.
  *
- * This function does NOT emit the OA's @c BOOST_CLASS_EXPORT -- the OA's own translation unit carries the
- * @c BOOST_CLASS_EXPORT_IMPLEMENT for the algorithm and its personality traits (the same registrations a
+ * This function does NOT emit the OA's serialization registrations -- the OA's own translation unit carries
+ * the @c GEM_REGISTER_ARCHIVABLE for the algorithm and its personality traits (the same registrations a
  * compiled-in OA needs), so a checkpoint written with the module loaded resumes with it loaded.
  *
  * @tparam FactoryType The concrete OA factory (a @c GOAFactoryT<GOptimizationAlgorithmBase> subclass, e.g.
- *         @c GOptimizationAlgorithmFactoryT<MyOA, MyOA_PersonalityTraits>); default-constructed by the provider
+ *         @c GOptimizationAlgorithmFactoryT<MyOA, MyOA_PersonalityTraits>); default-constructed here
  * @tparam Name The module/contribution name, for diagnostics (a string literal); the store key is the
- *         provider's mnemonic, not this
+ *         factory's mnemonic, not this
  * @return A pointer to this module's process-lifetime manifest
  */
 template <typename FactoryType, Gem::Common::GFixedString Name>
 const GenevaModuleManifest *oaManifest() {
-    // Captureless thunk -> void*(*)(void): build the OA provider (which default-constructs the factory) on
-    // the heap; the loader moves-from and deletes it, then registers the provider in oaFactoryStore().
+    static_assert(
+        std::is_base_of_v<
+            OptimizationAlgorithms::GOAFactoryT<OptimizationAlgorithms::GOptimizationAlgorithmBase>,
+            FactoryType>,
+        "oaManifest(): FactoryType must derive from GOAFactoryT<GOptimizationAlgorithmBase>"
+    );
+    // Captureless thunk -> void*(*)(void): default-construct the OA factory (which is the store's provider)
+    // on the heap; the loader moves-from and deletes the holder, then registers the factory.
     static constexpr auto factory_thunk = +[]() -> void * {
-        return new GOAProviderPtr(
-            std::make_shared<OptimizationAlgorithms::GOAFactoryProviderT<FactoryType>>());
+        return new GOAProviderPtr(std::make_shared<FactoryType>());
     };
     static const GenevaContribution contribution{GENEVA_CONTRIBUTION_OA, Name.c_str(), factory_thunk};
     static const GenevaModuleManifest manifest{

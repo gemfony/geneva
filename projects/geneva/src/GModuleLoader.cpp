@@ -290,13 +290,13 @@ Ptr takeContribution(const GenevaContribution &contrib, const std::string &path_
     return result;
 }
 
-/** @brief Registers one OA contribution's provider into oaFactoryStore() under the algorithm's own
- *  mnemonic. A mnemonic already held (a built-in or another module) is a hard error -- a module
- *  cannot shadow one. */
+/** @brief Registers one OA contribution's factory through registerOptimizationAlgorithm() -- the same seam
+ *  a built-in algorithm's GInitializerT uses -- under the algorithm's own mnemonic. A mnemonic already
+ *  held (a built-in or another module) is a hard error -- a module cannot shadow one. */
 void registerOAContribution(const GenevaContribution &contrib, const std::string &path_str) {
     GOAProviderPtr const provider = takeContribution<GOAProviderPtr>(contrib, path_str, "OA provider");
     const std::string mnemonic = provider->getMnemonic();
-    if(not oaFactoryStore()->setOnce(mnemonic, provider)) {
+    if(not registerOptimizationAlgorithm(provider)) {
         throw geneva_exception(
             g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
             << "In Gem::Geneva::loadModule(): Error!" << '\n'
