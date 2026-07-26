@@ -34,7 +34,6 @@
 #include <cmath>
 #include <cstddef>
 #include <limits>
-#include <numeric>
 #include <random>
 #include <ranges>
 #include <tuple>
@@ -194,8 +193,7 @@ void GAntColonyOptimization::addConfigurationOptions_(Gem::Common::GParserBuilde
  */
 void GAntColonyOptimization::resetToOptimizationStart_() {
     n_fp_parms_ = 0;
-    archive_parms_.clear();
-    archive_fitness_.clear();
+    archive_.clear();
     selection_probabilities_.clear();
 
     GOptimizationAlgorithmT<GAntColonyOptimization>::resetToOptimizationStart_();
@@ -266,24 +264,36 @@ void GAntColonyOptimization::init() {
 
 /******************************************************************************/
 /**
- * Seeds the initial archive: archive member 0 keeps the registered start individual's parameters
- * (population slot 0); the remaining k-1 members are randomized uniformly within the parameter bounds.
- * The seeds are written into the first k population slots (where they are evaluated by the first
- * cycleLogic_() iteration). archive_parms_ is sized to k here; the fitnesses are filled after the first
- * evaluation.
+ * Seeds the k initial candidates into the first k population slots: slot 0 keeps the registered start
+ * individual unchanged, the remaining k-1 are randomized uniformly within the parameter bounds. The
+ * archive itself starts EMPTY and is sized to k here; it is filled from those slots once the first
+ * cycleLogic_() iteration has evaluated them (an unevaluated seed has no fitness to be ranked by).
  */
 void GAntColonyOptimization::seedInitialArchive() {
-    archive_parms_.assign(archive_size_, std::vector<double>(n_fp_parms_, 0.));
-    archive_fitness_.assign(archive_size_, this->at(0)->getWorstCase());
-
-    // Member 0: the (user-supplied) start individual, unchanged.
-    this->at(0)->streamlineFPInternal(archive_parms_[0], activityMode::ACTIVEONLY);
+    archive_.clear();
+    archive_.setMaxSize(archive_size_);
 
     // Members 1..k-1: random restarts within the bounds (reuses the genome's randomInit channel).
+    // Member 0 is the (user-supplied) start individual and stays untouched.
     for(std::size_t l = 1; l < archive_size_; ++l) {
         this->at(l)->randomInit(activityMode::ACTIVEONLY);
-        this->at(l)->streamlineFPInternal(archive_parms_[l], activityMode::ACTIVEONLY);
     }
+}
+
+/******************************************************************************/
+/**
+ * Reads an evaluated population slot back into an archivable record. The parameters are read back
+ * from the genome so that any constrained folding applied during evaluation is reflected in the
+ * archive, and the fitness is the EA/ES min-only transformed one, so maxMode is handled
+ * transparently (the archive is always ranked as a minimization).
+ */
+ACOSolution GAntColonyOptimization::solutionFromSlot(std::size_t pos) {
+    auto &ind = (*this->at(pos));
+
+    ACOSolution sol;
+    ind.streamlineFPInternal(sol.parms, activityMode::ACTIVEONLY);
+    sol.fitness = minOnly_transformed_fitness(ind);
+    return sol;
 }
 
 /******************************************************************************/
@@ -374,33 +384,6 @@ std::size_t GAntColonyOptimization::rouletteSelect() {
 
 /******************************************************************************/
 /**
- * Sorts the archive (parameter vectors and their min-only fitnesses jointly) best-first, i.e. by
- * ascending min-only transformed fitness. Reuses the EA/ES notion of a ranked parent set: the archive
- * after sorting is exactly the ranked elite set ACOR samples from.
- */
-void GAntColonyOptimization::sortArchive() {
-    const std::size_t n = archive_fitness_.size();
-
-    // Build an index permutation and sort it (cheaper than moving the vectors).
-    std::vector<std::size_t> order(n);
-    std::iota(order.begin(), order.end(), static_cast<std::size_t>(0));
-    // min-only: smaller fitness is better
-    std::ranges::sort(order, std::ranges::less{}, [this](std::size_t i) { return archive_fitness_[i]; });
-
-    std::vector<std::vector<double>> sorted_parms;
-    std::vector<double> sorted_fitness;
-    sorted_parms.reserve(n);
-    sorted_fitness.reserve(n);
-    for(std::size_t const idx : order) {
-        sorted_parms.push_back(std::move(archive_parms_[idx]));
-        sorted_fitness.push_back(archive_fitness_[idx]);
-    }
-    archive_parms_ = std::move(sorted_parms);
-    archive_fitness_ = std::move(sorted_fitness);
-}
-
-/******************************************************************************/
-/**
  * Constructs the m new ant solutions for this iteration and writes them into the first m population
  * slots. Each ant is built dimension by dimension and independently: a guiding archive member is chosen
  * by roulette wheel, its xi-scaled mean-distance bandwidth is computed, and the new coordinate is
@@ -412,9 +395,10 @@ void GAntColonyOptimization::constructAnts() {
         std::vector<double> x_new(n_fp_parms_, 0.);
 
         for(std::size_t i = 0; i < n_fp_parms_; ++i) {
-            // 1. Choose a guiding archive member l by roulette wheel on {p_l}.
+            // 1. Choose a guiding archive member by roulette wheel on {p_l}; l is its RANK in the
+            //    best-first archive, which is what the ranked weights are defined over.
             const std::size_t l = rouletteSelect();
-            const double mu = archive_parms_[l][i];
+            const double mu = archive_.at(l).parms[i];
 
             // 2. xi-scaled average distance of member l to all others in dim i.
             double sum_dist = 0.;
@@ -422,7 +406,7 @@ void GAntColonyOptimization::constructAnts() {
                 if(e == l) {
                     continue;
                 }
-                sum_dist += std::fabs(archive_parms_[e][i] - mu);
+                sum_dist += std::fabs(archive_.at(e).parms[i] - mu);
             }
             // The mean-distance bandwidth, floored against a dimensionless fraction of the (normalized)
             // range so a collapsed archive cannot drive sigma to zero and stall the search prematurely.
@@ -444,32 +428,18 @@ void GAntColonyOptimization::constructAnts() {
 
 /******************************************************************************/
 /**
- * Merges the freshly evaluated m ants (population slots 0..m-1) into the archive, re-sorts the union
- * best-first, and truncates back to the best k. The ant parameter vectors are read back from the genome
- * so that any constrained folding applied during evaluation is reflected in the archive. Reuses the
- * EA/ES min-only transformed fitness helper so that maxMode is handled transparently (the archive is
- * always ranked as a minimization).
+ * Merges the freshly evaluated m ants (population slots 0..m-1) into the archive. Ranking the union
+ * best-first and dropping everything past the best k is the bounded priority queue's own contract, so
+ * this is one bulk add rather than an append/sort/truncate sequence.
  */
 void GAntColonyOptimization::updateArchive() {
+    std::vector<ACOSolution> new_ants;
+    new_ants.reserve(n_ants_);
     for(std::size_t a = 0; a < n_ants_; ++a) {
-        auto &ind = (*this->at(a));
-
-        std::vector<double> parms;
-        ind.streamlineFPInternal(parms, activityMode::ACTIVEONLY);
-
-        const double fit = minOnly_transformed_fitness(ind);
-
-        archive_parms_.push_back(std::move(parms));
-        archive_fitness_.push_back(fit);
+        new_ants.push_back(solutionFromSlot(a));
     }
 
-    sortArchive();
-
-    // Truncate (merge + keep best k).
-    if(archive_parms_.size() > archive_size_) {
-        archive_parms_.resize(archive_size_);
-        archive_fitness_.resize(archive_size_);
-    }
+    archive_.add(std::move(new_ants), /* replace = */ false);
 }
 
 /******************************************************************************/
@@ -491,8 +461,8 @@ void GAntColonyOptimization::evaluatePopulation_() {
 /**
  * The actual business logic to be performed during each iteration.
  *
- *   - first iteration: the archive was seeded in init() and written into the first k population slots;
- *     evaluate all k, read their fitnesses and sort the archive best-first.
+ *   - first iteration: the k seed candidates were written into the first k population slots by
+ *     init(); evaluate all k and read them into the (empty) archive, which ranks them best-first.
  *   - later iterations: construct m new ants (sampling from the ranked archive), evaluate them, then
  *     merge them into the archive and truncate to k.
  *
@@ -510,15 +480,16 @@ std::tuple<double, double> GAntColonyOptimization::cycleLogic_() {
         updateArchive();
     }
     else {
-        // Initial archive evaluation: slots 0..k-1 already hold the seeds.
+        // Initial archive evaluation: slots 0..k-1 already hold the seeds. Reading them into the
+        // (still empty) archive ranks them best-first in the same step.
         evaluatePopulation_();
 
+        std::vector<ACOSolution> seeds;
+        seeds.reserve(archive_size_);
         for(std::size_t l = 0; l < archive_size_; ++l) {
-            auto &ind = (*this->at(l));
-            ind.streamlineFPInternal(archive_parms_[l], activityMode::ACTIVEONLY);
-            archive_fitness_[l] = minOnly_transformed_fitness(ind);
+            seeds.push_back(solutionFromSlot(l));
         }
-        sortArchive();
+        archive_.add(std::move(seeds), /* replace = */ true);
     }
 
     // Report the best (raw, transformed) fitness among the individuals actually evaluated this iteration,

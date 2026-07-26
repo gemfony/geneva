@@ -34,6 +34,7 @@
 
 // Standard headers go here
 #include <cstddef>
+#include <ostream>
 #include <string_view>
 #include <tuple>
 #include <vector>
@@ -43,6 +44,8 @@
 // Geneva headers go here
 #include "common/GCommonHelperFunctionsT.hpp"
 #include "common/GExceptions.hpp"
+#include "common/GFixedSizePriorityQueueT.hpp" // the solution archive IS the bounded top-k queue
+#include "common/GReflectiveInterfaceT.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/genome/GGenome.hpp"
 #include "geneva/oa/GOptimizationAlgorithmBase.hpp"
@@ -64,6 +67,91 @@ constexpr std::size_t DEFAULTACORARCHIVESIZE = 50; ///< Archive size k (the pher
 constexpr std::size_t DEFAULTACORNANTS = 2;        ///< Number of ants m constructed per iteration
 constexpr double DEFAULTACORQ = 1.e-4;             ///< Locality / intensification parameter q
 constexpr double DEFAULTACORXI = 0.85;             ///< Evaporation / convergence-speed parameter xi
+
+/******************************************************************************/
+/**
+ * @brief One archived ACOR solution: a candidate parameter vector plus the fitness it scored.
+ *
+ * The parameters are the individual's ACTIVE floating-point values in the normalized internal
+ * coordinate; the fitness is the min-only transformed one, so the archive always ranks as a
+ * minimization regardless of the problem's maxMode.
+ */
+struct ACOSolution {
+    std::vector<double> parms; ///< The candidate's active floating-point parameters
+    double fitness = 0.;       ///< Its min-only transformed fitness (smaller is better)
+
+    /** @brief Value equality over both members.
+     *  @param other The solution to compare against. @return true iff both records are equal. */
+    bool operator==(const ACOSolution &other) const = default;
+};
+
+/** @brief Streams a solution, so the comparison DSL can report a differing archive entry.
+ *  @param stream The stream to write to. @param sol The solution to write. @return The stream. */
+inline std::ostream &operator<<(std::ostream &stream, const ACOSolution &sol) {
+    stream << "ACOSolution{fitness=" << sol.fitness << ", n_parms=" << sol.parms.size() << "}";
+    return stream;
+}
+
+/** @brief Non-intrusive GArchive (de)serializer for a solution record.
+ *  @tparam Archive The GArchive codec type. @param ar The archive. @param sol The record. */
+template <class Archive>
+void gem_archive_serialize(Archive &ar, ACOSolution &sol) {
+    Gem::Common::archive_named(ar, "parms", sol.parms);
+    Gem::Common::archive_named(ar, "fitness", sol.fitness);
+}
+
+/******************************************************************************/
+/**
+ * @brief ACOR's solution archive: the k best solutions seen, ranked best-first.
+ *
+ * This is exactly the fixed-size priority queue's contract -- a runtime capacity, insertion that
+ * keeps the container ordered, eviction of the worst on overflow, and a bulk add that merges a batch
+ * and truncates in one call -- so it IS that queue rather than a second implementation of it. Value
+ * storage is the natural holder: a solution record is plain data with no identity of its own.
+ *
+ * The archive is transient run state, rebuilt in init() and excluded from the algorithm's serialized
+ * member list; the queue's own serialization support simply goes unused here.
+ */
+class GACOSolutionArchive // NOLINT(cppcoreguidelines-special-member-functions)
+  : public Gem::Common::GReflectiveInterfaceT<
+        GACOSolutionArchive,
+        Gem::Common::GPodFixedSizePriorityQueueT<ACOSolution>> {
+    ///////////////////////////////////////////////////////////////////////
+    friend struct Gem::Common::GReflectiveInterfaceAccess;
+
+    /** @brief This class adds no own members; the explicit empty declaration is required
+     *  (the mixin's deleted fallback rejects a missing one). */
+    template <typename Self>
+    auto localMembers_(this Self &) {
+        return std::make_tuple();
+    }
+    ///////////////////////////////////////////////////////////////////////
+
+public:
+    /** @brief The class name, consumed by the GReflectiveInterfaceT-generated name_() / compare token. */
+    static constexpr std::string_view class_name = "GACOSolutionArchive";
+
+    /** @brief The default constructor (an unsized archive; init() sets the capacity k). */
+    GACOSolutionArchive() = default;
+    /** @brief Initialization with the archive size k.
+     *  @param max_size The maximum number of solutions the archive keeps. */
+    explicit GACOSolutionArchive(std::size_t max_size)
+      : Gem::Common::GReflectiveInterfaceT<
+            GACOSolutionArchive,
+            Gem::Common::GPodFixedSizePriorityQueueT<ACOSolution>>(max_size) {
+    }
+    /** @brief The copy constructor. @param cp The archive to copy. */
+    GACOSolutionArchive(const GACOSolutionArchive &cp) = default;
+    /** @brief The destructor. */
+    ~GACOSolutionArchive() override = default;
+
+protected:
+    /** @brief The ranking criterion: the record's own (min-only) fitness.
+     *  @param sol The archived solution. @return Its fitness. */
+    [[nodiscard]] double evaluation(const ACOSolution &sol) const override {
+        return sol.fitness;
+    }
+};
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -306,11 +394,12 @@ private:
     // Algorithm-internal helpers
     /** @brief Computes the ranked selection probabilities p_l from the weights w_l */
     void computeSelectionProbabilities();
-    /** @brief Seeds (and randomizes) the initial archive into the first k population slots */
+    /** @brief Seeds (and randomizes) the initial candidates into the first k population slots */
     void seedInitialArchive();
-    /** @brief Sorts the archive (parameters + fitnesses) best-first by min-only fitness */
-    void sortArchive();
-    /** @brief Picks an archive index by roulette wheel over the selection probabilities */
+    /** @brief Reads an evaluated population slot back into an archivable solution record
+     *  @param pos The population slot to read. @return The slot's parameters and min-only fitness. */
+    ACOSolution solutionFromSlot(std::size_t pos);
+    /** @brief Picks an archive rank by roulette wheel over the selection probabilities */
     std::size_t rouletteSelect();
 
     /***************************************************************************/
@@ -326,10 +415,8 @@ private:
 
     std::size_t n_fp_parms_ = 0; ///< The number of active floating point parameters (set in init())
 
-    std::vector<std::vector<double>>
-        archive_parms_; ///< The k archived solution vectors (the pheromone), sorted best-first
-    std::vector<double>
-        archive_fitness_; ///< Min-only transformed fitness of each archived solution
+    GACOSolutionArchive
+        archive_; ///< The k archived solutions (the pheromone), ranked best-first; sized in init()
 
     std::vector<double>
         selection_probabilities_; ///< Cached roulette-wheel probabilities p_l
