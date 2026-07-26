@@ -214,8 +214,9 @@ Host: Ubuntu 26.04 LTS ("resolute"), Python 3.14.4, PyYAML 6.0.3.
   skipped solely on the NVML mismatch.
 
 Image guest OSes (verified package availability):
-* Ubuntu 24.04: gcc 13.2, clang 18.0, cmake 3.28.3 — all meet Geneva's
-  GCC>=13 / Clang>=18 / CMake>=3.27 requirements.
+* Ubuntu 24.04: gcc 13.2, clang 18.0, cmake 3.28.3 — clang and cmake meet
+  Geneva's GCC>=14 / Clang>=18 / CMake>=3.27 requirements, the distro gcc does
+  not (it predates the C++23 floor and is rejected at configure time).
 * Ubuntu 26.04: gcc 15.2, clang 21.1, cmake 4.2.3 — all meet the requirements.
 
 Passthrough notes (for when a GPU is available):
