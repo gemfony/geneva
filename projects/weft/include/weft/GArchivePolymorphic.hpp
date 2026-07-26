@@ -98,7 +98,15 @@ namespace detail {
  */
 using root_check_fn = void (*)(std::vector<std::string> &gaps);
 
-/** @brief Guards the process-wide checker list. */
+/**
+ * @brief Guards the process-wide checker list.
+ *
+ * Invariant 2 exception, recorded deliberately: this is a plain mutex over a leaked
+ * process-wide registry, not a concurrency primitive that common/concurrency should
+ * supply. The registry exists precisely to be reachable from static initializers and
+ * from plugin-time registration, so coupling it to a facility with its own static
+ * lifetime would recreate the initialization-order hazard it is built to defeat.
+ */
 inline std::mutex &root_check_mutex() {
     static std::mutex m;
     return m;
@@ -236,6 +244,8 @@ private:
         return *inst;
     }
 
+    /** @brief Guards @c map_. Invariant 2 exception for the same reason as
+     *  @ref detail::root_check_mutex(): a leaked, static-initialization-safe registry. */
     std::mutex mutex_;
     std::unordered_map<std::string, entry_t> map_;
 };

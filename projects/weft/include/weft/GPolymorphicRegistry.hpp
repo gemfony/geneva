@@ -303,6 +303,10 @@ private:
         return *inst;
     }
 
+    /** @brief Guards the two maps below. Invariant 2 exception, recorded deliberately: a
+     *  plain data guard over the leaked, never-destroyed registry described above -- a
+     *  common/concurrency store would bring its own static lifetime and reintroduce exactly
+     *  the initialization-order hazard this class is designed to defeat. */
     std::mutex mutex_;
     std::unordered_map<std::string, entry_t> tag_to_entry_;
     std::unordered_map<std::type_index, std::string> type_to_tag_;

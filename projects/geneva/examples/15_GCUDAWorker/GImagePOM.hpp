@@ -71,6 +71,14 @@ namespace Gem::Geneva {
  * writes so nothing is lost at shutdown. The host has spare cores here (the GPU path leaves it ~60%
  * idle). The mechanism is task-generic and could be lifted into a reusable sink for other
  * file-writing pluggable monitors.
+ *
+ * @par Invariant 2, recorded exception
+ * This is a mutex plus a vector of futures, i.e. a small bounded work queue, and Invariant 2
+ * asks for such a primitive to come from common/concurrency. It deliberately does not: the
+ * back-pressure this needs -- block on the OLDEST outstanding task once a cap is reached -- is
+ * not what GThreadPool offers, and extending the shared facility for a single example would be
+ * out of proportion. Revisit if a second caller ever wants the same shape; the note is here so
+ * the exception is visible rather than assumed.
  */
 class AsyncImageWriter {
 public:
@@ -327,7 +335,7 @@ private:
                                                "_" + std::to_string(fitness) + "_bestIndividual.png";
 
             if(not writer_) {
-                writer_ = std::make_shared<AsyncImageWriter>();
+                writer_ = std::make_unique<AsyncImageWriter>();
             }
             // Hand the rasterise + PNG write to a background thread; the optimizer continues at once.
             // The task is self-contained: parVec is moved in, the rest are copied by value, and it
@@ -368,9 +376,10 @@ private:
 
     /// Off-thread writer for the rasterise + PNG output. Transient runtime state: it is created
     /// lazily on first use and deliberately excluded from serialize/load_/compare_ (a std::future
-    /// is neither copyable nor comparable, and there is nothing meaningful to persist). Held by
-    /// shared_ptr so the monitor stays copyable/cloneable for the standard tests.
-    std::shared_ptr<AsyncImageWriter> writer_; // NOLINT(misc-non-private-member-variables-in-classes)
+    /// is neither copyable nor comparable, and there is nothing meaningful to persist). Sole
+    /// ownership: the copy constructor above deliberately does not carry the writer over, so no
+    /// second owner of one writer ever exists.
+    std::unique_ptr<AsyncImageWriter> writer_; // NOLINT(misc-non-private-member-variables-in-classes)
 };
 
 /******************************************************************************/
