@@ -79,9 +79,13 @@ ADD_CUSTOM_COMMAND ( TARGET ${EXECUTABLENAME} POST_BUILD
 # (config/config-overrides.json: the GPU-consumer kernel path), then install it.
 GENEVA_MATERIALIZE_CONFIGS ( ${EXECUTABLENAME} ${INSTALL_PREFIX_DATA}/benchmarks/${EXECUTABLENAME}/config )
 
-IF ( GENEVA_RUN_BENCHMARKS_AS_TESTS )
-	ADD_TEST ( ${EXECUTABLENAME} ${EXECUTABLENAME} )
-ENDIF ()
+# A throughput-scale run: it repeats the same optimization on each available backend and compares them,
+# so it takes minutes, not seconds. Registered like every other test -- this whole directory already
+# exists only in a GPU-consumer build, which is the real, configure-time-detected dependency -- and kept
+# out of the quick inner loop by its label rather than by a flag (see the tier comment in the top-level
+# CMakeLists.txt).
+ADD_TEST ( ${EXECUTABLENAME} ${EXECUTABLENAME} )
+SET_TESTS_PROPERTIES ( ${EXECUTABLENAME} PROPERTIES LABELS "benchmark" TIMEOUT 2500 )
 
 INSTALL ( TARGETS ${EXECUTABLENAME}
 	DESTINATION ${INSTALL_PREFIX_DATA}/benchmarks/${EXECUTABLENAME} )

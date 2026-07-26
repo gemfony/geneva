@@ -101,9 +101,10 @@ Deliverables:
      from the `BuildSpec` (primary; matches how releases are actually built);
   2. a direct `cmake` invocation (fallback / minimal-build case).
   Runs `make core`, `make gemfony-build-all`, `make doc` per the test plan.
-* `releaseharness/checks/ctest.py` — runs `ctest` in the build dir and parses
-  the pass/fail counts; also runs `GenevaStandardTests` directly and scans
-  for unexpected skips.
+* `releaseharness/checks/ctest.py` — runs `ctest -LE benchmark` in the build dir
+  (every tier but the benchmarks, which `benchmarks.py` already starts once each)
+  and parses the pass/fail counts; also runs `GenevaStandardTests` directly and
+  scans for unexpected skips.
 * These two are SHORT-tier for Debug/Release and LONG-tier for Sanitize and
   for the benchmark builds.
 

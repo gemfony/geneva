@@ -79,7 +79,7 @@ ADD_TEST(
 	COMMAND $<TARGET_FILE:GGenericOptimizer> --individual $<TARGET_FILE:GMultiCriterionParabolaIndividual>
 	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 )
-SET_TESTS_PROPERTIES(GMultiCriterionParabola PROPERTIES LABELS "geneva" TIMEOUT 120)
+SET_TESTS_PROPERTIES(GMultiCriterionParabola PROPERTIES LABELS "geneva;example" TIMEOUT 120)
 
 INSTALL ( TARGETS GMultiCriterionParabolaIndividual DESTINATION ${INSTALL_PREFIX_DATA}/examples/GMultiCriterionParabola )
 INSTALL ( DIRECTORY ${_mc_cfg_dir}/ DESTINATION ${INSTALL_PREFIX_DATA}/examples/GMultiCriterionParabola/config )

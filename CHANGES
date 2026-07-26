@@ -20,8 +20,8 @@ Why the redesign:
   (`courtier`) now carries frames and opaque payloads and knows nothing of optimization,
   and a processed work item returns its computed results rather than a copy of itself.
 - To greatly improve test coverage and build hygiene: Catch2 v3 unit tests across all
-  libraries, self-tests as an opt-in interface rather than an obligation of every class, a
-  self-contained installed header set, and out-of-source-only builds.
+  libraries, opt-in self-tests, a suite in which every test is registered and tiered by CTest
+  label, a self-contained installed header set, and out-of-source-only builds.
 
 Because this is one big breaking change, the behavioral, source- and serialization-breaking
 changes -- and how to adapt existing problem definitions, configuration files and

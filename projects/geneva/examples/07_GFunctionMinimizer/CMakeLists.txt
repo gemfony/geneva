@@ -49,6 +49,6 @@ ADD_TEST(
 	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 )
 # Configs auto-create on the first run and the stall criterion halts it in well under a second.
-SET_TESTS_PROPERTIES(GFunctionMinimizer PROPERTIES LABELS "geneva" TIMEOUT 120)
+SET_TESTS_PROPERTIES(GFunctionMinimizer PROPERTIES LABELS "geneva;example" TIMEOUT 120)
 
 INSTALL ( TARGETS GFMinIndividual DESTINATION ${INSTALL_PREFIX_DATA}/examples/GFunctionMinimizer )

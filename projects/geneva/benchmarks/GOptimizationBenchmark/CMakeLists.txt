@@ -63,8 +63,11 @@ TARGET_LINK_LIBRARIES (${EXECUTABLENAME}
 
 GENEVA_MATERIALIZE_CONFIGS ( ${EXECUTABLENAME} ${INSTALL_PREFIX_DATA}/tests/geneva/PerformanceTests/${EXECUTABLENAME}/config )
 
-IF( GENEVA_RUN_BENCHMARKS_AS_TESTS )
-	ADD_TEST(${EXECUTABLENAME} ${EXECUTABLENAME})
-ENDIF()
+# A convergence-scale run: it optimizes the same problem at a series of dimensions and reports the
+# quality reached at each, so it takes minutes, not seconds. Registered like every other test and kept
+# out of the quick inner loop by its label rather than by a flag (see the tier comment in the top-level
+# CMakeLists.txt).
+ADD_TEST(${EXECUTABLENAME} ${EXECUTABLENAME})
+SET_TESTS_PROPERTIES(${EXECUTABLENAME} PROPERTIES LABELS "benchmark" TIMEOUT 2500)
 
 INSTALL ( TARGETS ${EXECUTABLENAME} DESTINATION ${INSTALL_PREFIX_DATA}/benchmarks/geneva/PerformanceTests/${EXECUTABLENAME} )

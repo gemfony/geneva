@@ -55,9 +55,11 @@ TARGET_LINK_LIBRARIES (${EXECUTABLENAME}
 
 GENEVA_MATERIALIZE_CONFIGS ( ${EXECUTABLENAME} ${INSTALL_PREFIX_DATA}/tests/geneva/PerformanceTests/${EXECUTABLENAME}/config )
 
-IF( GENEVA_RUN_BENCHMARKS_AS_TESTS )
-	ADD_TEST(${EXECUTABLENAME} ${EXECUTABLENAME})
-	SET_TESTS_PROPERTIES(${EXECUTABLENAME} PROPERTIES TIMEOUT 2500)
-ENDIF()
+# A throughput-scale run: it sweeps the number of parallel workers against a deliberately delayed
+# evaluation, so it takes minutes, not seconds. Registered like every other test and kept out of the
+# quick inner loop by its label rather than by a flag (see the tier comment in the top-level
+# CMakeLists.txt).
+ADD_TEST(${EXECUTABLENAME} ${EXECUTABLENAME})
+SET_TESTS_PROPERTIES(${EXECUTABLENAME} PROPERTIES LABELS "benchmark" TIMEOUT 2500)
 
 INSTALL ( TARGETS ${EXECUTABLENAME} DESTINATION ${INSTALL_PREFIX_DATA}/benchmarks/geneva/PerformanceTests/${EXECUTABLENAME} )

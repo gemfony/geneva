@@ -379,15 +379,24 @@ if(CMAKE_CUDA_COMPILER_LOADED AND CMAKE_CXX_COMPILER)
 endif()
 
 ################################################################################
-# Set this variable to make all benchmarks run as part of the testing with CTest.
-# Benchmarks are convergence- and throughput-scale runs (minutes each), so they are
-# not part of the default suite.
+# Test tiers.
 #
-# There is deliberately no counterpart for the examples: every example registers its
-# test unconditionally (or conditionally on a real, configure-time-detected dependency
-# such as an MPI launcher or a Python interpreter), with a budget that keeps it short.
-
-SET(GENEVA_RUN_BENCHMARKS_AS_TESTS FALSE)
+# EVERY test is registered -- there is no flag that hides one (a disabled test is a
+# red that was hidden rather than diagnosed). What differs is how long a tier takes,
+# and that is expressed with CTest LABELS, which select rather than exclude at build
+# time:
+#
+#   example      -- the end-to-end runs of projects/*/examples/, all on a short budget
+#   benchmark    -- the three convergence- and throughput-scale programs (tens of
+#                   minutes for the tier)
+#   (unlabelled) -- the standard tier: unit tests, the short manual tests, and the
+#                   sub-second measuring programs that also live under benchmarks/
+#                   (a directory is not a tier -- runtime is)
+#
+# How to run each tier is documented in one place, the "Running the test suite"
+# section of INSTALL. Conditional registration remains reserved for a real,
+# configure-time-detected dependency (an MPI launcher, a Python interpreter, a GPU
+# consumer build), never for parking a failure.
 
 ################################################################################
 # Different subcomponents of the Geneva binary tree can be installed in

@@ -152,6 +152,51 @@ cmake $HOME/geneva -DBOOST_INCLUDEDIR="/opt/boost/include" \
 Adding -DCMAKE_VERBOSE_MAKEFILE="1" shows the compiler command lines.
 
 
+Running the test suite
+======================
+
+A build with the test code enabled (BUILDTESTCODE in the .gcfg,
+GENEVA_BUILD_TESTS in cmake -- both default to on) registers the entire suite
+with CTest. Run it from the build directory:
+
+cd $HOME/build
+ctest
+
+Every test is always registered; none is hidden behind a switch. The suite is
+divided into three tiers by CTest labels, so a tier is chosen when the tests are
+run rather than when the tree is configured:
+
+  example     the end-to-end runs of the examples under projects/*/examples/,
+              each on a short budget -- about a minute for all of them together
+  benchmark   the three convergence- and throughput-scale programs, tens of
+              minutes for the tier: GOptimizationBenchmark,
+              GParallelisationOverhead and (in a GPU-consumer build)
+              GCUDAOptBenchmark
+  (no label)  the standard tier: the unit tests, the short manual tests, and
+              the short measuring programs that also live under benchmarks/
+              (GConsumerOverhead, GConsumerSanityChecks, GSerializationOverhead
+              -- each well under a second)
+
+The quick "does it still work" loop while changing code is the standard tier on
+its own:
+
+ctest -LE "example|benchmark"
+
+Before a commit, run everything except the benchmarks:
+
+ctest -LE benchmark
+
+and run the benchmarks themselves at least once per larger piece of work:
+
+ctest -L benchmark
+
+A handful of tests are registered only when what they need was actually found at
+configure time -- the two MPI examples need an MPI launcher, example 12 needs a
+Python 3 interpreter, and the GPU examples and the GPU benchmark exist only in a
+build with the GPU consumer enabled. Configure says so for each one it leaves
+out, so a missing test always has a stated reason.
+
+
 Making the libraries known to the system on Linux
 =================================================
 

@@ -76,14 +76,14 @@ GENEVA_DECLARE_INDIVIDUAL(GParaboloid2D-module
 # the same answer by two different routes. Each halts on the stall criterion in well under a second.
 ADD_TEST(NAME GParaboloid2D-fixed COMMAND GParaboloid2D-fixed
 	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
-SET_TESTS_PROPERTIES(GParaboloid2D-fixed PROPERTIES LABELS "geneva" TIMEOUT 120)
+SET_TESTS_PROPERTIES(GParaboloid2D-fixed PROPERTIES LABELS "geneva;example" TIMEOUT 120)
 
 ADD_TEST(
 	NAME GParaboloid2D-module
 	COMMAND $<TARGET_FILE:GGenericOptimizer> --individual $<TARGET_FILE:GParaboloid2D-module>
 	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 )
-SET_TESTS_PROPERTIES(GParaboloid2D-module PROPERTIES LABELS "geneva" TIMEOUT 120)
+SET_TESTS_PROPERTIES(GParaboloid2D-module PROPERTIES LABELS "geneva;example" TIMEOUT 120)
 
 INSTALL ( TARGETS GParaboloid2D-fixed GParaboloid2D-module
 	DESTINATION ${INSTALL_PREFIX_DATA}/examples/GParaboloid2D )
