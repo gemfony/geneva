@@ -1,7 +1,14 @@
 This directory contains tests for all optimization-related Geneva classes.
 
 The tests are written with Catch2 v3 and are aggregated into the
-GenevaStandardTests executable, which CTest runs as part of the standard
-test suite (ctest -R GenevaStandardTests). Each source file covers one
-class or subsystem; generic per-class checks are additionally exercised
-through the standard-tests hooks of the common interface.
+GenevaStandardTests executable. Each source file covers one class or
+subsystem; generic per-class checks are additionally exercised through the
+standard-tests hooks of the common interface.
+
+CTest registers this one executable as several entries -- shards, each
+running a Catch2 test-spec subset of it -- so that the run parallelizes
+instead of being held up by the few convergence measurements that dominate
+its cost. "ctest -R GenevaStandardTests" runs all of them; running the
+executable by hand still runs everything. The shard table, and the
+completeness guard that stops a new TEST_CASE from falling outside every
+shard, are in CMakeLists.txt here.

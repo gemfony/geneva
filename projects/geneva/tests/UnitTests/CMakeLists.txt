@@ -112,8 +112,63 @@ TARGET_COMPILE_DEFINITIONS(${EXECUTABLENAME} PRIVATE
 	# something else" path. Geneva's own library is the one guaranteed to be there.
 	"GENEVA_TEST_NOT_A_MODULE=\"$<TARGET_FILE:${GENEVA_LIBNAME}>\"")
 
-ADD_TEST(${EXECUTABLENAME} ${EXECUTABLENAME})
-SET_TESTS_PROPERTIES(${EXECUTABLENAME} PROPERTIES LABELS "geneva")
+#
+# CTest registration: the binary is registered as SHARDS, not as one entry.
+#
+# As a single entry this suite was the serial long pole of the whole test run -- it took as long on
+# its own as every other test put together, so `ctest -j` could never finish faster than it. Nothing
+# in it is genuinely sequential: the cost is concentrated in a handful of convergence measurements.
+# Registering test-spec subsets of the SAME binary lets CTest overlap them. No test code moves; the
+# executable is unchanged and still runs everything when invoked by hand.
+#
+# The specs are chosen by measured cost, heaviest first, so the shards are balanced rather than
+# merely equal in case count. The two EA convergence cases are ~25 s and ~22 s EACH -- a single
+# TEST_CASE is atomic, so those two set the floor for the whole suite and are shards of their own.
+#
+#   spec                                  what it selects                        approx cost
+#   [highdim10k]                          one EA convergence case, n = 10000     ~26 s
+#   [highdim]                             one EA convergence case, high-dim      ~22 s
+#   [gsa]                                 the annealing convergence cases        ~14 s
+#   [net]                                 the cases that really open a loopback   ~8 s
+#                                         socket (own shard so the networked
+#                                         work overlaps the CPU-bound work)
+#   ~[highdim10k]~[highdim]~[gsa]~[net]   everything else                         ~8 s
+#
+# The last spec is a CATCH-ALL, deliberately written as the complement of the others: a newly added
+# TEST_CASE lands in it automatically instead of falling out of the suite. That the six specs really
+# do partition the case list is not assumed -- GenevaStandardTests-shard-completeness proves it on
+# every run (see CheckShardCompleteness.cmake).
+#
+SET(GENEVA_STANDARD_TEST_SHARDS
+	"ea-highdim10k"  "[highdim10k]"
+	"ea-highdim"     "[highdim]"
+	"gsa"            "[gsa]"
+	"net"            "[net]"
+	"core"           "~[highdim10k]~[highdim]~[gsa]~[net]")
+
+SET(GENEVA_STANDARD_TEST_SPECS "")
+LIST(LENGTH GENEVA_STANDARD_TEST_SHARDS _n_shard_entries)
+MATH(EXPR _last_shard_index "${_n_shard_entries} / 2 - 1")
+FOREACH(_i RANGE ${_last_shard_index})
+	MATH(EXPR _name_index "${_i} * 2")
+	MATH(EXPR _spec_index "${_i} * 2 + 1")
+	LIST(GET GENEVA_STANDARD_TEST_SHARDS ${_name_index} _shard_name)
+	LIST(GET GENEVA_STANDARD_TEST_SHARDS ${_spec_index} _shard_spec)
+	ADD_TEST(NAME ${EXECUTABLENAME}-${_shard_name} COMMAND ${EXECUTABLENAME} "${_shard_spec}")
+	SET_TESTS_PROPERTIES(${EXECUTABLENAME}-${_shard_name} PROPERTIES LABELS "geneva")
+	LIST(APPEND GENEVA_STANDARD_TEST_SPECS "${_shard_spec}")
+ENDFOREACH()
+
+# The guard that keeps the sharding honest: it fails if any case is selected by no shard or by more
+# than one. Cheap -- it only lists test cases, it does not run them.
+ADD_TEST(
+	NAME ${EXECUTABLENAME}-shard-completeness
+	COMMAND ${CMAKE_COMMAND}
+		-DTEST_EXE=$<TARGET_FILE:${EXECUTABLENAME}>
+		"-DSPECS=${GENEVA_STANDARD_TEST_SPECS}"
+		-P ${CMAKE_CURRENT_SOURCE_DIR}/CheckShardCompleteness.cmake
+)
+SET_TESTS_PROPERTIES(${EXECUTABLENAME}-shard-completeness PROPERTIES LABELS "geneva")
 
 INSTALL ( TARGETS ${EXECUTABLENAME} DESTINATION ${INSTALL_PREFIX_DATA}/tests/geneva/UnitTests )
 
