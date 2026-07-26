@@ -56,13 +56,12 @@ TARGET_LINK_LIBRARIES (${EXECUTABLENAME}
 GENEVA_MATERIALIZE_CONFIGS ( ${EXECUTABLENAME} ${INSTALL_PREFIX_DATA}/tests/geneva/PerformanceTests/${EXECUTABLENAME}/config )
 
 ADD_TEST(${EXECUTABLENAME} ${EXECUTABLENAME})
-SET_TESTS_PROPERTIES(${EXECUTABLENAME} PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+# The TIMEOUT is sized to the test, not inherited from the convergence-scale programs next door: this
+# one runs in half a second, so 120 s is ample and a hang is caught in two minutes rather than in
+# forty-one.
+SET_TESTS_PROPERTIES(${EXECUTABLENAME} PROPERTIES
+	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+	TIMEOUT 120)
+GENEVA_TEST_SIZE(${EXECUTABLENAME} S)
 
 INSTALL ( TARGETS ${EXECUTABLENAME} DESTINATION ${INSTALL_PREFIX_DATA}/benchmarks/geneva/PerformanceTests/${EXECUTABLENAME} )
-
-
-#
-# Take care of other particularities of this test
-#
-
-SET_TESTS_PROPERTIES(${EXECUTABLENAME} PROPERTIES TIMEOUT 2500)

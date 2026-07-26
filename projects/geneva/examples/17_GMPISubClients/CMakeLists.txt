@@ -73,5 +73,6 @@ ADD_TEST(NAME ${EXECUTABLENAME}
 # PROCESSORS 9 tells the `ctest -j` scheduler what this entry really costs: one CTest slot but nine
 # live ranks. Without it the scheduler counts it as one and oversubscribes the machine.
 SET_TESTS_PROPERTIES(${EXECUTABLENAME} PROPERTIES LABELS "geneva;example" TIMEOUT 600 PROCESSORS 9)
+GENEVA_TEST_SIZE(${EXECUTABLENAME} L)
 
 INSTALL ( TARGETS ${EXECUTABLENAME} DESTINATION ${INSTALL_PREFIX_DATA}/examples/${EXECUTABLENAME} )

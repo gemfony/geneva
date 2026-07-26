@@ -408,6 +408,11 @@ IF(NOT COMMON_GENEVA_BUILD_INCLUDED)
 	INCLUDE(${CMAKE_CURRENT_LIST_DIR}/GenevaConfigMaterialization.cmake)
 
 	###############################################################################
+	# The test-size label helper (GENEVA_TEST_SIZE). In-tree only: it is about how THIS suite is
+	# scheduled, not about anything an installed Geneva exposes.
+	INCLUDE(${CMAKE_CURRENT_LIST_DIR}/GenevaTestSize.cmake)
+
+	###############################################################################
 	# Runtime-loadable / compiled-in individual packaging helpers
 	# (GENEVA_ADD_INDIVIDUAL_MODULE / GENEVA_DECLARE_INDIVIDUAL). The function bodies live in the shared,
 	# installable GenevaIndividualModule.cmake so the SAME helpers are available to an out-of-tree project

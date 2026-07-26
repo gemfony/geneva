@@ -162,33 +162,50 @@ with CTest. Run it from the build directory:
 cd $HOME/build
 ctest
 
-Every test is always registered; none is hidden behind a switch. The suite is
-divided into three tiers by CTest labels, so a tier is chosen when the tests are
-run rather than when the tree is configured:
+The suite runs in parallel; give CTest as many jobs as you have cores:
 
-  example     the end-to-end runs of the examples under projects/*/examples/,
-              each on a short budget -- about a minute for all of them together
-  benchmark   the three convergence- and throughput-scale programs, tens of
-              minutes for the tier: GOptimizationBenchmark,
-              GParallelisationOverhead and (in a GPU-consumer build)
-              GCUDAOptBenchmark
-  (no label)  the standard tier: the unit tests, the short manual tests, and
-              the short measuring programs that also live under benchmarks/
-              (GConsumerOverhead, GConsumerSanityChecks, GSerializationOverhead
-              -- each well under a second)
+ctest -j$(nproc)
 
-The quick "does it still work" loop while changing code is the standard tier on
-its own:
+Every test is always registered; none is hidden behind a switch. What decides
+whether a given run includes a test is its SIZE -- one label per test, chosen
+from its measured runtime, so the choice is made when the tests are run rather
+than when the tree is configured:
 
-ctest -LE "example|benchmark"
+  S    under 1 second
+  M    1 to 10 seconds
+  L    10 to 60 seconds
+  XL   over a minute
 
-Before a commit, run everything except the benchmarks:
+Every registered test carries exactly one of these. The three commands worth
+remembering:
 
-ctest -LE benchmark
+ctest -j$(nproc) -LE "L|XL"     while changing code -- seconds
+ctest -j$(nproc) -LE XL         before a commit, and before a push
+ctest -j$(nproc) -L XL          once per larger piece of work, and not before
+                                a push -- it is a rot check, not a gate
 
-and run the benchmarks themselves at least once per larger piece of work:
+Tests also carry descriptive labels, which are informational only and never
+decide whether a test runs: the owning library (common, hap, weft, dietrich,
+courtier, geneva), "example" for the end-to-end runs of projects/*/examples/,
+and "benchmark" for the three programs whose whole purpose is a
+convergence- or throughput-scale measurement (GOptimizationBenchmark,
+GParallelisationOverhead and, in a GPU-consumer build, GCUDAOptBenchmark).
+Those three happen to be the XL set today, but it is their size that keeps them
+out of a commit gate, not their name -- a benchmark turned down to ten seconds
+would be an L and would gate like any other L.
 
-ctest -L benchmark
+Adding a test? Measure it and give it a size. Run it once on an otherwise idle
+machine with "ctest -j1 -R <name>" -- serial, because under -j a test's reported
+time includes whatever it was competing with -- and pass the letter to the
+registration:
+
+  GENEVA_TEST_SIZE(<test-name> <S|M|L|XL>)          for a plain ADD_TEST
+  geneva_<library>_test(<name> <size> <sources>)    for the per-library helpers
+
+A test within about 20 % of a boundary is rounded UP, so a borderline case
+lands in the more expensive class rather than sneaking into a fast loop. A size
+that turns out to be wrong is an ordinary review fix: correct the letter, do not
+work around it. Sizes are re-measured when a test's cost genuinely changes.
 
 A handful of tests are registered only when what they need was actually found at
 configure time -- the two MPI examples need an MPI launcher, example 12 needs a

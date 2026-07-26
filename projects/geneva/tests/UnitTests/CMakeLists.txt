@@ -125,37 +125,42 @@ TARGET_COMPILE_DEFINITIONS(${EXECUTABLENAME} PRIVATE
 # merely equal in case count. The two EA convergence cases are ~25 s and ~22 s EACH -- a single
 # TEST_CASE is atomic, so those two set the floor for the whole suite and are shards of their own.
 #
-#   spec                                  what it selects                        approx cost
-#   [highdim10k]                          one EA convergence case, n = 10000     ~26 s
-#   [highdim]                             one EA convergence case, high-dim      ~22 s
-#   [gsa]                                 the annealing convergence cases        ~14 s
-#   [net]                                 the cases that really open a loopback   ~8 s
-#                                         socket (own shard so the networked
-#                                         work overlaps the CPU-bound work)
-#   ~[highdim10k]~[highdim]~[gsa]~[net]   everything else                         ~8 s
+#   spec                    what it selects                                     measured  size
+#   [highdim10k]            one EA convergence case, n = 10000                    ~26 s     L
+#   [highdim]               one EA convergence case, high-dim                     ~22 s     L
+#   [gsa]                   the annealing convergence cases                       ~16 s     L
+#   [net]                   the cases that really open a loopback socket (own      ~7 s     M
+#                           shard so networked work overlaps CPU-bound work)
+#   [oa]~<the above>        the remaining algorithm-level cases                    ~4 s     M
+#   ~[oa]~<the above>       everything else                                        ~5 s     M
 #
-# The last spec is a CATCH-ALL, deliberately written as the complement of the others: a newly added
-# TEST_CASE lands in it automatically instead of falling out of the suite. That the six specs really
-# do partition the case list is not assumed -- GenevaStandardTests-shard-completeness proves it on
-# every run (see CheckShardCompleteness.cmake).
+# Each spec excludes the tags claimed before it, so the last two are complements of each other within
+# what the first four leave. The last one is the CATCH-ALL: a newly added TEST_CASE lands in it
+# automatically instead of falling out of the suite. That the six specs really do partition the case
+# list is not assumed -- GenevaStandardTests-shard-completeness proves it on every run (see
+# CheckShardCompleteness.cmake).
 #
 SET(GENEVA_STANDARD_TEST_SHARDS
-	"ea-highdim10k"  "[highdim10k]"
-	"ea-highdim"     "[highdim]"
-	"gsa"            "[gsa]"
-	"net"            "[net]"
-	"core"           "~[highdim10k]~[highdim]~[gsa]~[net]")
+	"ea-highdim10k"  L  "[highdim10k]"
+	"ea-highdim"     L  "[highdim]"
+	"gsa"            L  "[gsa]"
+	"net"            M  "[net]"
+	"oa"             M  "[oa]~[highdim10k]~[highdim]~[gsa]~[net]"
+	"core"           M  "~[oa]~[highdim10k]~[highdim]~[gsa]~[net]")
 
 SET(GENEVA_STANDARD_TEST_SPECS "")
 LIST(LENGTH GENEVA_STANDARD_TEST_SHARDS _n_shard_entries)
-MATH(EXPR _last_shard_index "${_n_shard_entries} / 2 - 1")
+MATH(EXPR _last_shard_index "${_n_shard_entries} / 3 - 1")
 FOREACH(_i RANGE ${_last_shard_index})
-	MATH(EXPR _name_index "${_i} * 2")
-	MATH(EXPR _spec_index "${_i} * 2 + 1")
+	MATH(EXPR _name_index "${_i} * 3")
+	MATH(EXPR _size_index "${_i} * 3 + 1")
+	MATH(EXPR _spec_index "${_i} * 3 + 2")
 	LIST(GET GENEVA_STANDARD_TEST_SHARDS ${_name_index} _shard_name)
+	LIST(GET GENEVA_STANDARD_TEST_SHARDS ${_size_index} _shard_size)
 	LIST(GET GENEVA_STANDARD_TEST_SHARDS ${_spec_index} _shard_spec)
 	ADD_TEST(NAME ${EXECUTABLENAME}-${_shard_name} COMMAND ${EXECUTABLENAME} "${_shard_spec}")
 	SET_TESTS_PROPERTIES(${EXECUTABLENAME}-${_shard_name} PROPERTIES LABELS "geneva")
+	GENEVA_TEST_SIZE(${EXECUTABLENAME}-${_shard_name} ${_shard_size})
 	LIST(APPEND GENEVA_STANDARD_TEST_SPECS "${_shard_spec}")
 ENDFOREACH()
 
@@ -169,6 +174,7 @@ ADD_TEST(
 		-P ${CMAKE_CURRENT_SOURCE_DIR}/CheckShardCompleteness.cmake
 )
 SET_TESTS_PROPERTIES(${EXECUTABLENAME}-shard-completeness PROPERTIES LABELS "geneva")
+GENEVA_TEST_SIZE(${EXECUTABLENAME}-shard-completeness M)
 
 INSTALL ( TARGETS ${EXECUTABLENAME} DESTINATION ${INSTALL_PREFIX_DATA}/tests/geneva/UnitTests )
 

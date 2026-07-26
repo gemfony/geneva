@@ -80,6 +80,7 @@ ADD_TEST(
 	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 )
 SET_TESTS_PROPERTIES(GMultiCriterionParabola PROPERTIES LABELS "geneva;example" TIMEOUT 120)
+GENEVA_TEST_SIZE(GMultiCriterionParabola S)
 
 INSTALL ( TARGETS GMultiCriterionParabolaIndividual DESTINATION ${INSTALL_PREFIX_DATA}/examples/GMultiCriterionParabola )
 INSTALL ( DIRECTORY ${_mc_cfg_dir}/ DESTINATION ${INSTALL_PREFIX_DATA}/examples/GMultiCriterionParabola/config )

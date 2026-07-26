@@ -74,6 +74,7 @@ ADD_TEST(
 # A dlopen smoke test that hangs (rather than fails) would otherwise stall the gate for CTest's 25-minute
 # default; a sub-second run gets a generous but finite bound.
 SET_TESTS_PROPERTIES(GLoadableIndividual PROPERTIES LABELS "geneva;example" TIMEOUT 120)
+GENEVA_TEST_SIZE(GLoadableIndividual S)
 
 # Regression guard (Inv 15) for the GCudaRNG teardown race fixed in hap/src/GCUDARng.cu. At process exit the
 # CUDA runtime unloads while the GRandomFactory's producer threads may still be refilling on the GPU; cuRAND
@@ -93,6 +94,7 @@ IF(GENEVA_USE_CUDA_RNG_ENABLED)
 			-P ${CMAKE_CURRENT_SOURCE_DIR}/CheckNoCudaShutdownNoise.cmake
 	)
 	SET_TESTS_PROPERTIES(GCudaRngShutdownNoise PROPERTIES LABELS "geneva;example")
+	GENEVA_TEST_SIZE(GCudaRngShutdownNoise M)
 ENDIF()
 
 INSTALL(TARGETS GGenericOptimizer GLoadableParaboloid

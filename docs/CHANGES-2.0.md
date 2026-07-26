@@ -36,11 +36,11 @@ are in `CHANGES` and `INSTALL`; this file is the practical upgrade guide.
   so a script that configured in place must be pointed at a separate build directory. The
   **installed header set is self-contained**: a consumer includes from the install prefix
   only and never reaches back into the source tree, so an install directory is now a
-  complete SDK. And the **test suite is registered with CTest in full and tiered by
-  label** — a subset is chosen with `ctest -L` / `-LE` rather than by rebuilding with a
-  different CMake flag; the flags that used to hide whole groups of tests behind an
-  always-false option are gone, so those tests simply run. `INSTALL` names the tiers and
-  the commands.
+  complete SDK. And the **test suite is registered with CTest in full and sized by
+  label** — every test carries one of S / M / L / XL, measured, and a subset is chosen with
+  `ctest -LE` rather than by rebuilding with a different CMake flag; the flags that used to
+  hide whole groups of tests behind an always-false option are gone, so those tests simply
+  run. `INSTALL` names the sizes and the commands.
 
 ## 2. Defining a problem (the individual model)
 

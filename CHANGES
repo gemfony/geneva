@@ -14,7 +14,7 @@ Why the redesign:
   modules, a first-class GPU consumer, strict-JSON configuration with a generated reference, and
   one evaluation path for local, remote and GPU work.
 - Test coverage and build hygiene: Catch2 v3 suites across all five libraries, every test
-  registered and tiered by CTest label, a self-contained installed header set, and C++23
+  registered and sized by CTest label, a self-contained installed header set, and C++23
   throughout.
 
 Because this is one big breaking change, read docs/CHANGES-2.0.md before upgrading: it is the

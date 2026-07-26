@@ -87,6 +87,7 @@ ADD_TEST(
 	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 )
 SET_TESTS_PROPERTIES(GLoadableOA PROPERTIES LABELS "geneva;example" TIMEOUT 120)
+GENEVA_TEST_SIZE(GLoadableOA S)
 
 # The role check, through the same real path: this module is an ALGORITHM, so naming it as the optimization
 # problem (--individual) must be refused by name rather than surface much later as a missing problem. What
@@ -101,6 +102,7 @@ ADD_TEST(
 	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 )
 SET_TESTS_PROPERTIES(GLoadableOA_WrongRole PROPERTIES LABELS "geneva;example" TIMEOUT 120)
+GENEVA_TEST_SIZE(GLoadableOA_WrongRole M)
 
 INSTALL(TARGETS GLoadableOAOptimizer GRandomSearch
 	DESTINATION ${INSTALL_PREFIX_DATA}/examples/21_GLoadableOA)

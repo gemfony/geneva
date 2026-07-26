@@ -1,6 +1,6 @@
 """Test checks (ReleaseTestplan.md: "Unit and integration tests").
 
-Runs the CTest suite (everything but the `benchmark` label -- see run_ctest) and
+Runs the CTest suite (everything but the XL size class -- see run_ctest) and
 the GenevaStandardTests executable directly, and scans for unexpected skips. The
 thread-sanitizer run is gated on the build type being Sanitize and is LONG-tier.
 """
@@ -29,12 +29,14 @@ def run_ctest(ctx: JobContext) -> CheckResult:
         return ctx.skipped("test/ctest", tier, "LONG tier skipped in --quick")
 
     started = time.monotonic()
-    # Everything except the `benchmark` label: the benchmarks are registered CTest
-    # tests, but they are convergence- and throughput-scale runs of many minutes
-    # each, and this harness already starts every one of them once through
-    # benchmarks.smoke_start(). Running them here would pay that cost a second
-    # time, at full length, in every cell.
-    res = ctx.exec_in_guest(["bash", "-lc", "ctest --output-on-failure -LE benchmark"],
+    # Everything except the XL size class (over a minute per test): those are
+    # convergence- and throughput-scale runs of many minutes each, and this harness
+    # already starts every one of them once through benchmarks.smoke_start().
+    # Running them here would pay that cost a second time, at full length, in every
+    # cell. Selecting by SIZE rather than by the `benchmark` label is deliberate:
+    # the size is what says a test is expensive, and a test that becomes expensive
+    # without living in benchmarks/ must drop out of this run too.
+    res = ctx.exec_in_guest(["bash", "-lc", "ctest --output-on-failure -j$(nproc) -LE XL"],
                             workdir=GUEST_BUILD, timeout=7200)
     result = ctx.record("test/ctest", tier, res, started=started)
     if not ctx.dry_run:

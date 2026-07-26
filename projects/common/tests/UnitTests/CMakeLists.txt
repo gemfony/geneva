@@ -30,16 +30,22 @@
 ################################################################################
 # Helper: declare a Common-library Catch2 test executable. Each call
 #
-#     geneva_common_test(<exe-name> <source-files...>)
+#     geneva_common_test(<exe-name> <size> <source-files...>)
 #
 # creates an executable, links it against the Geneva libraries + Boost +
 # Catch2::Catch2WithMain (+ MPI when GENEVA_BUILD_WITH_MPI_CONSUMER), registers
-# it with CTest under the "common" label, installs it, and appends it to the
-# `tests-common-unit` aggregate target. Used by every test below.
+# it with CTest under the "common" label plus its size label, installs it, and
+# appends it to the `tests-common-unit` aggregate target. Used by every test
+# below.
+#
+# <size> is S, M, L or XL, measured -- see the "Running the test suite" section
+# of INSTALL. It is a required argument on purpose: a new test cannot be added
+# without saying what it costs, because the size is what decides whether a gate
+# runs it.
 
 SET(_GENEVA_COMMON_TEST_TARGETS "")
 
-FUNCTION(geneva_common_test name)
+FUNCTION(geneva_common_test name size)
 	ADD_EXECUTABLE(${name} ${ARGN})
 
 	SET(_libs ${GENEVA_LIBRARIES} ${Boost_LIBRARIES} Catch2::Catch2WithMain)
@@ -50,6 +56,7 @@ FUNCTION(geneva_common_test name)
 
 	ADD_TEST(${name} ${name})
 	SET_TESTS_PROPERTIES(${name} PROPERTIES LABELS "common")
+	GENEVA_TEST_SIZE(${name} ${size})
 	INSTALL(TARGETS ${name}
 		DESTINATION ${INSTALL_PREFIX_DATA}/tests/geneva/UnitTests)
 
@@ -61,50 +68,50 @@ ENDFUNCTION()
 ################################################################################
 # Test executables — one per production file, alphabetical.
 
-geneva_common_test(GAgingStoreTTests              GAgingStoreTTests.cpp)
-geneva_common_test(GArchiveIntegrationTests       GArchiveIntegrationTests.cpp)
-geneva_common_test(GArchivePolymorphicTests       GArchivePolymorphicTests.cpp)
-geneva_common_test(GBlockingMPMCQueueTTests           GBlockingMPMCQueueTTests.cpp)
-geneva_common_test(GCommonEnumsTests              GCommonEnumsTests.cpp)
-geneva_common_test(GCompletionLatchTTests         GCompletionLatchTTests.cpp)
-geneva_common_test(GContentAddressedStoreTTests   GContentAddressedStoreTTests.cpp)
-geneva_common_test(GSPSCStagingRingTTests        GSPSCStagingRingTTests.cpp)
-geneva_common_test(GThreadBudgetTests            GThreadBudgetTests.cpp)
-geneva_common_test(GThreadSafeKeyedStoreTTests   GThreadSafeKeyedStoreTTests.cpp)
-geneva_common_test(GThreadSafeSetTTests          GThreadSafeSetTTests.cpp)
-geneva_common_test(GCommonHelperFunctionsTests    GCommonHelperFunctionsTests.cpp)
-geneva_common_test(GCommonHelperFunctionsTTests   GCommonHelperFunctionsTTests.cpp)
-geneva_common_test(GCommonInterfaceTTests         GCommonInterfaceTTests.cpp)
+geneva_common_test(GAgingStoreTTests              S  GAgingStoreTTests.cpp)
+geneva_common_test(GArchiveIntegrationTests       S  GArchiveIntegrationTests.cpp)
+geneva_common_test(GArchivePolymorphicTests       S  GArchivePolymorphicTests.cpp)
+geneva_common_test(GBlockingMPMCQueueTTests       S  GBlockingMPMCQueueTTests.cpp)
+geneva_common_test(GCommonEnumsTests              S  GCommonEnumsTests.cpp)
+geneva_common_test(GCompletionLatchTTests         S  GCompletionLatchTTests.cpp)
+geneva_common_test(GContentAddressedStoreTTests   S  GContentAddressedStoreTTests.cpp)
+geneva_common_test(GSPSCStagingRingTTests         S  GSPSCStagingRingTTests.cpp)
+geneva_common_test(GThreadBudgetTests             S  GThreadBudgetTests.cpp)
+geneva_common_test(GThreadSafeKeyedStoreTTests    S  GThreadSafeKeyedStoreTTests.cpp)
+geneva_common_test(GThreadSafeSetTTests           S  GThreadSafeSetTTests.cpp)
+geneva_common_test(GCommonHelperFunctionsTests    S  GCommonHelperFunctionsTests.cpp)
+geneva_common_test(GCommonHelperFunctionsTTests   S  GCommonHelperFunctionsTTests.cpp)
+geneva_common_test(GCommonInterfaceTTests         S  GCommonInterfaceTTests.cpp)
 geneva_common_test(GCommonMathHelperFunctionsTTests
-                                                  GCommonMathHelperFunctionsTTests.cpp)
-geneva_common_test(GContainerTTests               GContainerTTests.cpp)
-geneva_common_test(GDefaultValueTTests            GDefaultValueTTests.cpp)
-geneva_common_test(GErrorStreamerTests            GErrorStreamerTests.cpp)
-geneva_common_test(GExceptionsTests               GExceptionsTests.cpp)
-geneva_common_test(GExpectationChecksTTests       GExpectationChecksTTests.cpp)
-geneva_common_test(GFactoryTTests                 GFactoryTTests.cpp)
-geneva_common_test(GFixedSizePriorityQueueTTests  GFixedSizePriorityQueueTTests.cpp)
-geneva_common_test(GGlobalOptionsTTests           GGlobalOptionsTTests.cpp)
-geneva_common_test(GJsonIOTests                   GJsonIOTests.cpp)
-geneva_common_test(GLoadOnceCellTTests            GLoadOnceCellTTests.cpp)
-geneva_common_test(GLoggerTests                   GLoggerTests.cpp)
-geneva_common_test(GMPMCQueueConformanceTests     GMPMCQueueConformanceTests.cpp)
-geneva_common_test(GMPMCQueueShutdownStressTests  GMPMCQueueShutdownStressTests.cpp)
-geneva_common_test(GParserBuilderTests            GParserBuilderTests.cpp)
-geneva_common_test(GProviderStoreTTests           GProviderStoreTTests.cpp)
-geneva_common_test(GSelfTestableTests             GSelfTestableTests.cpp)
+                                                  S  GCommonMathHelperFunctionsTTests.cpp)
+geneva_common_test(GContainerTTests               S  GContainerTTests.cpp)
+geneva_common_test(GDefaultValueTTests            S  GDefaultValueTTests.cpp)
+geneva_common_test(GErrorStreamerTests            S  GErrorStreamerTests.cpp)
+geneva_common_test(GExceptionsTests               S  GExceptionsTests.cpp)
+geneva_common_test(GExpectationChecksTTests       S  GExpectationChecksTTests.cpp)
+geneva_common_test(GFactoryTTests                 S  GFactoryTTests.cpp)
+geneva_common_test(GFixedSizePriorityQueueTTests  S  GFixedSizePriorityQueueTTests.cpp)
+geneva_common_test(GGlobalOptionsTTests           S  GGlobalOptionsTTests.cpp)
+geneva_common_test(GJsonIOTests                   S  GJsonIOTests.cpp)
+geneva_common_test(GLoadOnceCellTTests            S  GLoadOnceCellTTests.cpp)
+geneva_common_test(GLoggerTests                   S  GLoggerTests.cpp)
+geneva_common_test(GMPMCQueueConformanceTests     M  GMPMCQueueConformanceTests.cpp)
+geneva_common_test(GMPMCQueueShutdownStressTests  L  GMPMCQueueShutdownStressTests.cpp)
+geneva_common_test(GParserBuilderTests            S  GParserBuilderTests.cpp)
+geneva_common_test(GProviderStoreTTests           S  GProviderStoreTTests.cpp)
+geneva_common_test(GSelfTestableTests             S  GSelfTestableTests.cpp)
 geneva_common_test(GSerializableFunctionObjectTTests
-                                                  GSerializableFunctionObjectTTests.cpp)
+                                                  S  GSerializableFunctionObjectTTests.cpp)
 geneva_common_test(GSerializationHelperFunctionsTTests
-                                                  GSerializationHelperFunctionsTTests.cpp)
-geneva_common_test(GSerializeTupleTTests          GSerializeTupleTTests.cpp)
-geneva_common_test(GSingletonTTests               GSingletonTTests.cpp)
-geneva_common_test(GThreadGroupTests              GThreadGroupTests.cpp)
-geneva_common_test(GThreadPoolTests               GThreadPoolTests.cpp)
-geneva_common_test(GTupleIOTests                  GTupleIOTests.cpp)
-geneva_common_test(GTypeToStringTTests            GTypeToStringTTests.cpp)
-geneva_common_test(GTypeTraitsTTests              GTypeTraitsTTests.cpp)
-geneva_common_test(GUnitTestFrameworkTTests       GUnitTestFrameworkTTests.cpp)
+                                                  S  GSerializationHelperFunctionsTTests.cpp)
+geneva_common_test(GSerializeTupleTTests          S  GSerializeTupleTTests.cpp)
+geneva_common_test(GSingletonTTests               S  GSingletonTTests.cpp)
+geneva_common_test(GThreadGroupTests              S  GThreadGroupTests.cpp)
+geneva_common_test(GThreadPoolTests               S  GThreadPoolTests.cpp)
+geneva_common_test(GTupleIOTests                  S  GTupleIOTests.cpp)
+geneva_common_test(GTypeToStringTTests            S  GTypeToStringTTests.cpp)
+geneva_common_test(GTypeTraitsTTests              S  GTypeTraitsTTests.cpp)
+geneva_common_test(GUnitTestFrameworkTTests       S  GUnitTestFrameworkTTests.cpp)
 
 ################################################################################
 # Aggregate `tests-common-unit` target builds every Common test exe at once.

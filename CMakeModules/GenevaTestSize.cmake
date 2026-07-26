@@ -22,44 +22,29 @@
 #
 ################################################################################
 #
-# See the NOTICE file in the top-level directory of the Geneva library
-# collection for a list of contributors and copyright information.
+# GENEVA_TEST_SIZE(<test-name> <S|M|L|XL>)
+#
+# Gives a registered CTest test its SIZE label -- the one label the gates select on.
+# Every registered test carries exactly one; the semantic labels it also carries
+# (the owning library, `example`, `benchmark`) stay purely informational.
+#
+# The rule for choosing the letter, the boundaries, and what the gates do with it
+# are documented in ONE place: the "Running the test suite" section of INSTALL.
+# This file deliberately does not restate them.
 #
 ################################################################################
 
-
-SET ( EXECUTABLENAME GHapStandardTests )
-
-SET ( ${EXECUTABLENAME}_SRCS
-    GHapStandardTests.cpp
-)
-
-ADD_EXECUTABLE(${EXECUTABLENAME}
-	${${EXECUTABLENAME}_SRCS}
-)
-
-# Hap is consumed in isolation here: link the Hap library + Common, not the
-# whole Geneva stack (and deliberately NOT gemfony-hap).
-SET(LIBRARIES_TO_LINK
-		${HAP_LIBNAME}
-		${COMMON_LIBNAME}
-		${Boost_LIBRARIES}
-		Catch2::Catch2WithMain)
-
-# Add MPI Libraries in case building with MPI-consumer
-IF(GENEVA_BUILD_WITH_MPI_CONSUMER)
-	SET(LIBRARIES_TO_LINK
-			${LIBRARIES_TO_LINK}
-			${MPI_LIBRARIES})
-ENDIF()
-
-TARGET_LINK_LIBRARIES (${EXECUTABLENAME}
-		${LIBRARIES_TO_LINK})
-
-ADD_TEST(${EXECUTABLENAME} ${EXECUTABLENAME})
-SET_TESTS_PROPERTIES(${EXECUTABLENAME} PROPERTIES LABELS "hap")
-GENEVA_TEST_SIZE(${EXECUTABLENAME} S)
-
-INSTALL ( TARGETS ${EXECUTABLENAME} DESTINATION ${INSTALL_PREFIX_DATA}/tests/hap/UnitTests )
-
-GENEVA_AGGREGATE_TARGET( "tests-hap-unit" )
+FUNCTION(GENEVA_TEST_SIZE _test _size)
+	IF(NOT "${_size}" MATCHES "^(S|M|L|XL)$")
+		MESSAGE(FATAL_ERROR
+			"GENEVA_TEST_SIZE(${_test} ${_size}): the size must be exactly one of S, M, L, XL. "
+			"See the \"Running the test suite\" section of INSTALL for what each means and how to "
+			"measure one.")
+	ENDIF()
+	IF(NOT TEST ${_test})
+		MESSAGE(FATAL_ERROR
+			"GENEVA_TEST_SIZE(${_test} ${_size}): no test named \"${_test}\" is registered in this "
+			"directory. Call this AFTER the ADD_TEST that registers it.")
+	ENDIF()
+	SET_PROPERTY(TEST ${_test} APPEND PROPERTY LABELS ${_size})
+ENDFUNCTION()

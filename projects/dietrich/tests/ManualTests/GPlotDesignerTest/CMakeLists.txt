@@ -45,6 +45,7 @@ TARGET_LINK_LIBRARIES (${EXECUTABLENAME}
 #ADD_SUBDIRECTORY (config)
 
 ADD_TEST(${EXECUTABLENAME} ${EXECUTABLENAME})
+GENEVA_TEST_SIZE(${EXECUTABLENAME} S)
 
 # Every test here -- this generator run plus each *Validity driver -- runs the SAME generator and
 # writes the same fixed output file names (result.C / result.gp / result.py / result.m /
@@ -53,10 +54,11 @@ ADD_TEST(${EXECUTABLENAME} ${EXECUTABLENAME})
 # shared file left to contend for and CTest can overlap them freely. Every driver already re-runs the
 # generator for itself, so a directory of its own costs nothing but the directory.
 #
-# GPD_VALIDITY_TEST(<test-name> <driver-script> [extra -D args...]) registers one such driver: it
-# creates the private directory at configure time (a -P script cannot be relied on to create its own
-# working directory before CTest chdir's into it) and passes it as WORKDIR.
-FUNCTION(GPD_VALIDITY_TEST _name _driver)
+# GPD_VALIDITY_TEST(<test-name> <size> <driver-script> [extra -D args...]) registers one such driver:
+# it creates the private directory at configure time (a -P script cannot be relied on to create its own
+# working directory before CTest chdir's into it) and passes it as WORKDIR. <size> is the measured
+# S/M/L/XL size -- see the "Running the test suite" section of INSTALL.
+FUNCTION(GPD_VALIDITY_TEST _name _size _driver)
 	SET(_workdir ${CMAKE_CURRENT_BINARY_DIR}/validity/${_name})
 	FILE(MAKE_DIRECTORY ${_workdir})
 	ADD_TEST(
@@ -67,6 +69,7 @@ FUNCTION(GPD_VALIDITY_TEST _name _driver)
 			${ARGN}
 			-P ${CMAKE_CURRENT_SOURCE_DIR}/${_driver}
 	)
+	GENEVA_TEST_SIZE(${_name} ${_size})
 ENDFUNCTION()
 
 # Optional ROOT-validity test: feed the generated macro to the real ROOT interpreter to confirm it is
@@ -77,7 +80,7 @@ ENDFUNCTION()
 FIND_PROGRAM(GENEVA_ROOT_EXECUTABLE NAMES root HINTS ENV ROOTSYS PATHS /opt/root/bin PATH_SUFFIXES bin)
 FIND_PROGRAM(GENEVA_XVFB_RUN NAMES xvfb-run)
 IF(GENEVA_ROOT_EXECUTABLE AND GENEVA_XVFB_RUN)
-	GPD_VALIDITY_TEST(GPlotDesignerRootValidity RunRootValidity.cmake
+	GPD_VALIDITY_TEST(GPlotDesignerRootValidity S RunRootValidity.cmake
 		-DROOT_EXE=${GENEVA_ROOT_EXECUTABLE}
 		-DXVFB_RUN=${GENEVA_XVFB_RUN})
 	MESSAGE(STATUS "GPlotDesigner: ROOT validity test ENABLED (root=${GENEVA_ROOT_EXECUTABLE})")
@@ -91,7 +94,7 @@ ENDIF()
 # off BOTH a produced PNG and a zero exit code.
 FIND_PROGRAM(GENEVA_GNUPLOT_EXECUTABLE NAMES gnuplot)
 IF(GENEVA_GNUPLOT_EXECUTABLE)
-	GPD_VALIDITY_TEST(GPlotDesignerGnuplotValidity RunGnuplotValidity.cmake
+	GPD_VALIDITY_TEST(GPlotDesignerGnuplotValidity S RunGnuplotValidity.cmake
 		-DGNUPLOT_EXE=${GENEVA_GNUPLOT_EXECUTABLE})
 	MESSAGE(STATUS "GPlotDesigner: gnuplot validity test ENABLED (gnuplot=${GENEVA_GNUPLOT_EXECUTABLE})")
 ELSE()
@@ -114,7 +117,7 @@ ELSE()
 	SET(GENEVA_MATPLOTLIB_RC 1)
 ENDIF()
 IF(GENEVA_PYTHON3_EXECUTABLE AND GENEVA_MATPLOTLIB_RC EQUAL 0)
-	GPD_VALIDITY_TEST(GPlotDesignerMatplotlibValidity RunMatplotlibValidity.cmake
+	GPD_VALIDITY_TEST(GPlotDesignerMatplotlibValidity S RunMatplotlibValidity.cmake
 		-DPYTHON_EXE=${GENEVA_PYTHON3_EXECUTABLE})
 	MESSAGE(STATUS "GPlotDesigner: matplotlib validity test ENABLED (python3=${GENEVA_PYTHON3_EXECUTABLE})")
 ELSE()
@@ -128,7 +131,7 @@ ENDIF()
 # otherwise.
 FIND_PROGRAM(GENEVA_OCTAVE_EXECUTABLE NAMES octave octave-cli)
 IF(GENEVA_OCTAVE_EXECUTABLE)
-	GPD_VALIDITY_TEST(GPlotDesignerOctaveValidity RunOctaveValidity.cmake
+	GPD_VALIDITY_TEST(GPlotDesignerOctaveValidity S RunOctaveValidity.cmake
 		-DOCTAVE_EXE=${GENEVA_OCTAVE_EXECUTABLE})
 	MESSAGE(STATUS "GPlotDesigner: Octave validity test ENABLED (octave=${GENEVA_OCTAVE_EXECUTABLE})")
 ELSE()
@@ -151,7 +154,7 @@ ELSE()
 	SET(GENEVA_NUMPY_RC 1)
 ENDIF()
 IF(GENEVA_PYTHON3_EXECUTABLE AND GENEVA_NUMPY_RC EQUAL 0)
-	GPD_VALIDITY_TEST(GPlotDesignerDataValidity RunDataValidity.cmake
+	GPD_VALIDITY_TEST(GPlotDesignerDataValidity S RunDataValidity.cmake
 		-DPYTHON_EXE=${GENEVA_PYTHON3_EXECUTABLE})
 	MESSAGE(STATUS "GPlotDesigner: data validity test ENABLED (python3=${GENEVA_PYTHON3_EXECUTABLE})")
 ELSE()
@@ -164,7 +167,7 @@ ENDIF()
 # numpy + matplotlib are all present; skipped gracefully otherwise. Keys off a produced (non-trivial) PNG,
 # a zero exit code AND the absence of a Python traceback.
 IF(GENEVA_PYTHON3_EXECUTABLE AND GENEVA_NUMPY_RC EQUAL 0 AND GENEVA_MATPLOTLIB_RC EQUAL 0)
-	GPD_VALIDITY_TEST(GPlotDesignerRenderValidity RunRenderValidity.cmake
+	GPD_VALIDITY_TEST(GPlotDesignerRenderValidity M RunRenderValidity.cmake
 		-DRENDER_PY=${CMAKE_SOURCE_DIR}/projects/dietrich/scripts/geneva_plot_render.py
 		-DPYTHON_EXE=${GENEVA_PYTHON3_EXECUTABLE})
 	MESSAGE(STATUS "GPlotDesigner: render validity test ENABLED (python3=${GENEVA_PYTHON3_EXECUTABLE})")

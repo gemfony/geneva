@@ -68,6 +68,7 @@ IF ( Python3_Interpreter_FOUND )
 	ADD_TEST(NAME ${EXECUTABLENAME} COMMAND ${EXECUTABLENAME}
 		WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 	SET_TESTS_PROPERTIES(${EXECUTABLENAME} PROPERTIES LABELS "geneva;example" TIMEOUT 300)
+	GENEVA_TEST_SIZE(${EXECUTABLENAME} M)
 ELSE ()
 	MESSAGE ( STATUS
 		"Example 12 (GExternalEvaluator): no Python 3 interpreter found -- its end-to-end test is not registered" )
