@@ -556,7 +556,7 @@ bool GAntColonyOptimization::modify_GUnitTests_() {
 #ifdef GEM_TESTING
     bool result = false;
 
-    if(GOptimizationAlgorithmT<GAntColonyOptimization>::modify_GUnitTests_()) {
+    if(GOptimizationAlgorithmBase::modify_GUnitTests_()) {
         result = true;
     }
 
@@ -577,7 +577,6 @@ bool GAntColonyOptimization::modify_GUnitTests_() {
 // NOLINTNEXTLINE(readability-function-size,readability-function-cognitive-complexity) -- self-test entry point for GAntColonyOptimization: a sequence of independent, self-scoped CHECK blocks, one per ACO strategy-parameter/operator scenario; same one-function-per-test-phase convention used identically across every OA self-test in this codebase
 void GAntColonyOptimization::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
-    GOptimizationAlgorithmT<GAntColonyOptimization>::specificTestsNoFailureExpected_GUnitTests_();
 
     { // Test setting and retrieval of basic strategy parameters
         auto const p_test = this->clone<GAntColonyOptimization>();
@@ -605,21 +604,6 @@ void GAntColonyOptimization::specificTestsNoFailureExpected_GUnitTests_() {
 #else  /* GEM_TESTING */
     Gem::Common::condnotset(
         "GAntColonyOptimization::specificTestsNoFailureExpected_GUnitTests",
-        "GEM_TESTING"
-    );
-#endif /* GEM_TESTING */
-}
-
-/******************************************************************************/
-/**
- * Performs self tests that are expected to fail. This is needed for testing purposes.
- */
-void GAntColonyOptimization::specificTestsFailuresExpected_GUnitTests_() {
-#ifdef GEM_TESTING
-    GOptimizationAlgorithmT<GAntColonyOptimization>::specificTestsFailuresExpected_GUnitTests_();
-#else  /* GEM_TESTING */
-    Gem::Common::condnotset(
-        "GAntColonyOptimization::specificTestsFailuresExpected_GUnitTests",
         "GEM_TESTING"
     );
 #endif /* GEM_TESTING */

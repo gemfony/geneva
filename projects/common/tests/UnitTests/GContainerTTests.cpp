@@ -216,65 +216,12 @@ public:
     ~ConcreteUniquePtrVec() override = default;
 };
 
-// Subclass that exercises the protected test-hook virtuals
-class InstrumentedPodVec : public Gem::Common::GPodContainerT<int> {
-public:
-    InstrumentedPodVec() = default;
-    ~InstrumentedPodVec() override = default;
-
-    bool runModify() { return modify_GUnitTests_(); }
-    void runNoFailure() { specificTestsNoFailureExpected_GUnitTests_(); }
-    void runFailures() { specificTestsFailuresExpected_GUnitTests_(); }
-};
-
-// Hook-exposing proxy for the deque instantiation
-class InstrumentedPodDeque
-    : public Gem::Common::GContainerT<int, Gem::Common::PodStorage<int, std::deque<int>>> {
-public:
-    InstrumentedPodDeque() = default;
-    ~InstrumentedPodDeque() override = default;
-    bool runModify() { return modify_GUnitTests_(); }
-    void runNoFailure() { specificTestsNoFailureExpected_GUnitTests_(); }
-    void runFailures() { specificTestsFailuresExpected_GUnitTests_(); }
-};
-
-// Hook-exposing proxy for the double/vector instantiation
-class InstrumentedPodVecDouble : public Gem::Common::GPodContainerT<double> {
-public:
-    InstrumentedPodVecDouble() = default;
-    ~InstrumentedPodVecDouble() override = default;
-    bool runModify() { return modify_GUnitTests_(); }
-    void runNoFailure() { specificTestsNoFailureExpected_GUnitTests_(); }
-    void runFailures() { specificTestsFailuresExpected_GUnitTests_(); }
-};
-
-// Hook-exposing proxy for the SharedPtrStorage/TestBase instantiation
-class InstrumentedPtrVec : public Gem::Common::GPtrContainerT<TestBase> {
-public:
-    InstrumentedPtrVec() = default;
-    ~InstrumentedPtrVec() override = default;
-    bool runModify() { return modify_GUnitTests_(); }
-    void runNoFailure() { specificTestsNoFailureExpected_GUnitTests_(); }
-    void runFailures() { specificTestsFailuresExpected_GUnitTests_(); }
-};
-
 // std::list-backed POD container
 class ConcretePodList
     : public Gem::Common::GContainerT<int, Gem::Common::PodStorage<int, std::list<int>>> {
 public:
     ConcretePodList() = default;
     ~ConcretePodList() override = default;
-};
-
-// Hook-exposing proxy for the list instantiation
-class InstrumentedPodList
-    : public Gem::Common::GContainerT<int, Gem::Common::PodStorage<int, std::list<int>>> {
-public:
-    InstrumentedPodList() = default;
-    ~InstrumentedPodList() override = default;
-    bool runModify() { return modify_GUnitTests_(); }
-    void runNoFailure() { specificTestsNoFailureExpected_GUnitTests_(); }
-    void runFailures() { specificTestsFailuresExpected_GUnitTests_(); }
 };
 
 // GPtrContainerT backed by the serializable SerBase type
@@ -818,14 +765,6 @@ TEST_CASE("GContainerT: GPodContainerT<int> with std::deque backend", "[GContain
         CHECK(loaded[1] == 99);
         CHECK(loaded[2] == 6);
     }
-
-    SECTION("protected test-hook virtuals — deque instantiation") {
-        InstrumentedPodDeque c;
-        c.assign({1, 2});
-        CHECK(c.runModify() == false);
-        CHECK_NOTHROW(c.runNoFailure());
-        CHECK_NOTHROW(c.runFailures());
-    }
 }
 
 /******************************************************************************/
@@ -1249,14 +1188,6 @@ TEST_CASE("GContainerT: GPtrContainerT<TestBase> with std::vector backend", "[GC
         CHECK(derivedVals[0] == 42);
         CHECK(derivedVals[1] == 99);
     }
-
-    SECTION("protected test-hook virtuals — SharedPtrStorage instantiation") {
-        InstrumentedPtrVec c;
-        c.push_back_noclone(std::make_shared<TestBase>(1));
-        CHECK(c.runModify() == false);
-        CHECK_NOTHROW(c.runNoFailure());
-        CHECK_NOTHROW(c.runFailures());
-    }
 }
 
 /******************************************************************************/
@@ -1511,14 +1442,6 @@ TEST_CASE("GContainerT: GPodContainerT<int> with std::list backend", "[GContaine
         CHECK(*std::next(loaded.begin(), 2) == 99);
         CHECK(loaded.back() == 44);
     }
-
-    SECTION("protected test-hook virtuals — list instantiation") {
-        InstrumentedPodList c;
-        c.assign({1, 2});
-        CHECK(c.runModify() == false);
-        CHECK_NOTHROW(c.runNoFailure());
-        CHECK_NOTHROW(c.runFailures());
-    }
 }
 
 /******************************************************************************/
@@ -1608,14 +1531,6 @@ TEST_CASE("GContainerT: edge cases", "[GContainerT][edge]") {
 #endif
     }
 
-    SECTION("protected test-hook virtuals return defaults") {
-        InstrumentedPodVec c;
-        c.assign({1, 2, 3});
-        CHECK(c.runModify() == false);
-        CHECK_NOTHROW(c.runNoFailure());
-        CHECK_NOTHROW(c.runFailures());
-    }
-
     SECTION("SharedPtrStorage emplaceBack not available — checked via type trait") {
         constexpr bool podHasEmplace = std::same_as<
             Gem::Common::PodStorage<int>::StoredType,
@@ -1625,14 +1540,6 @@ TEST_CASE("GContainerT: edge cases", "[GContainerT][edge]") {
             Gem::Common::SharedPtrStorage<TestBase>::ValueType>;
         CHECK(podHasEmplace);
         CHECK_FALSE(ptrHasEmplace);
-    }
-
-    SECTION("protected test-hook virtuals — double/vector instantiation") {
-        InstrumentedPodVecDouble c;
-        c.assign({1.0, 2.0});
-        CHECK(c.runModify() == false);
-        CHECK_NOTHROW(c.runNoFailure());
-        CHECK_NOTHROW(c.runFailures());
     }
 
     SECTION("const compare_base — double instantiation") {

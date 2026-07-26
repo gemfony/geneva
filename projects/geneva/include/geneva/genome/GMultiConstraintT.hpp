@@ -265,36 +265,6 @@ protected:
 #endif                  /* GEM_TESTING */
     }
 
-    /***************************************************************************/
-    /**
-     * @brief Performs self tests that are expected to succeed. This is needed for testing purposes.
-     */
-    void specificTestsNoFailureExpected_GUnitTests_() {
-#ifdef GEM_TESTING
-        // This is the category root; there is no GObject parent class to delegate to.
-#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-        Gem::Common::condnotset(
-            "GPreEvaluationValidityCheckT<>::specificTestsNoFailureExpected_GUnitTests",
-            "GEM_TESTING"
-        );
-#endif /* GEM_TESTING */
-    }
-
-    /***************************************************************************/
-    /**
-     * @brief Performs self tests that are expected to fail. This is needed for testing purposes.
-     */
-    void specificTestsFailuresExpected_GUnitTests_() {
-#ifdef GEM_TESTING
-        // This is the category root; there is no GObject parent class to delegate to.
-#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-        Gem::Common::condnotset(
-            "GPreEvaluationValidityCheckT<>::specificTestsFailuresExpected_GUnitTests",
-            "GEM_TESTING"
-        );
-#endif /* GEM_TESTING */
-    }
-
 private:
     /***************************************************************************/
 

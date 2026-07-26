@@ -835,7 +835,7 @@ bool GType::modify_GUnitTests_() {
 #ifdef GEM_TESTING
     bool result = false;
 
-    if(GParChild::modify_GUnitTests_()) {
+    if(GOptimizationAlgorithmBase::modify_GUnitTests_()) {
         result = true;
     }
 
@@ -880,12 +880,10 @@ void GType::fillWithObjects(const std::size_t &n_individuals) {
 // NOLINTNEXTLINE(readability-function-size) -- self-test entry point for GEvolutionaryAlgorithm: a sequence of independent, self-scoped CHECK blocks, one per EA-specific population/recombination scenario; same one-function-per-test-phase convention used identically across every OA self-test in this codebase
 void GType::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
-    GParChild::specificTestsNoFailureExpected_GUnitTests_();
 
     {
         auto const p_test = this->template clone<GType>();
         p_test->fillWithObjects(100);
-        p_test->GParChild::specificTestsNoFailureExpected_GUnitTests_();
     }
 
     {
@@ -910,17 +908,6 @@ void GType::specificTestsNoFailureExpected_GUnitTests_() {
 }
 
 /******************************************************************************/
-
-void GType::specificTestsFailuresExpected_GUnitTests_() {
-#ifdef GEM_TESTING
-    GParChild::specificTestsFailuresExpected_GUnitTests_();
-#else  /* GEM_TESTING */
-    Gem::Common::condnotset(
-        "GEvolutionaryAlgorithm::specificTestsFailuresExpected_GUnitTests",
-        "GEM_TESTING"
-    );
-#endif /* GEM_TESTING */
-}
 
 /******************************************************************************/
 

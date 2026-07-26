@@ -112,46 +112,5 @@ void GRandomSearch_PersonalityTraits::compare_(
 }
 
 /******************************************************************************/
-/**
- * @brief Applies modifications to this object. This is needed for testing purposes.
- *
- * @return A boolean which indicates whether modifications were made
- */
-bool GRandomSearch_PersonalityTraits::modify_GUnitTests_() {
-#ifdef GEM_TESTING
-    return GPersonalityTraits::modify_GUnitTests_();
-#else  /* GEM_TESTING */
-    Gem::Common::condnotset("GRandomSearch_PersonalityTraits::modify_GUnitTests", "GEM_TESTING");
-    return false;
-#endif /* GEM_TESTING */
-}
-
-/******************************************************************************/
-/**
- * @brief Performs self tests that are expected to succeed. This is needed for testing purposes.
- */
-void GRandomSearch_PersonalityTraits::specificTestsNoFailureExpected_GUnitTests_() {
-#ifdef GEM_TESTING
-    GPersonalityTraits::specificTestsNoFailureExpected_GUnitTests_();
-#else  /* GEM_TESTING */
-    Gem::Common::condnotset(
-        "GRandomSearch_PersonalityTraits::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
-#endif /* GEM_TESTING */
-}
-
-/******************************************************************************/
-/**
- * @brief Performs self tests that are expected to fail. This is needed for testing purposes.
- */
-void GRandomSearch_PersonalityTraits::specificTestsFailuresExpected_GUnitTests_() {
-#ifdef GEM_TESTING
-    GPersonalityTraits::specificTestsFailuresExpected_GUnitTests_();
-#else  /* GEM_TESTING */
-    Gem::Common::condnotset(
-        "GRandomSearch_PersonalityTraits::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
-#endif /* GEM_TESTING */
-}
-
-/******************************************************************************/
 
 } /* namespace Gem::Geneva::OptimizationAlgorithms */

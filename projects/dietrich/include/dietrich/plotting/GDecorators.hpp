@@ -294,8 +294,6 @@ protected:
         size_ += 1.0;
         return true;
     }
-    /** @brief Performs self-tests that are expected to succeed. This is needed for testing purposes */
-    /** @brief Performs self-tests that are expected to fail. This is needed for testing purposes */
 
 private:
     /***************************************************************************/
@@ -613,8 +611,6 @@ protected:
         ));
         return true;
     }
-    /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-    /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
 
     /***************************************************************************/
 };
@@ -759,8 +755,7 @@ class GDecoratorContainer_3D
   : public Gem::Common::GReflectiveInterfaceT<
         GDecoratorContainer_3D<coordinate_type>,
         GDecoratorContainer<dimensions::Dim3, coordinate_type>
-    >
-  , public Gem::Common::GSelfTestable {
+    > {
     ///////////////////////////////////////////////////////////////////////
     // Gem::Weft::access default-constructs this concrete type on load;
     // GReflectiveInterfaceAccess lets the GReflectiveInterfaceT base reach this class's (empty) localMembers_().
@@ -792,13 +787,6 @@ public:
     // Gem::Common::GReflectiveInterfaceT base from class_name and the empty localMembers_() declaration above.
 
 protected:
-    /***************************************************************************/
-    /** @brief Applies modifications to this object. This is needed for testing purposes */
-    bool modify_GUnitTests_() override {
-        return false;
-    }
-    /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-    /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
 
     /***************************************************************************/
 };

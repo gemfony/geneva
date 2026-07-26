@@ -104,14 +104,6 @@ protected:
         const double &limit
     ) const override;
 
-    /** @brief Applies modifications to this object. This is needed for testing purposes.
-     *  @return true if the object was modified, false otherwise */
-    bool modify_GUnitTests_();
-    /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-    void specificTestsNoFailureExpected_GUnitTests_();
-    /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-    void specificTestsFailuresExpected_GUnitTests_();
-
 private:
     /** @brief Emits a name for this class / object.
      *  @return The class name of this object */

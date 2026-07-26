@@ -99,15 +99,6 @@ protected:
     // Gem::Common::GReflectiveInterfaceBaseT base (clone_ stays pure -- this is the abstract
     // category root) from class_name and the empty localMembers_() declaration above.
 
-    /**
-     * @brief Applies modifications to this object. This is needed for testing purposes
-     * @return true if a modification was actually performed, false otherwise
-     */
-    bool modify_GUnitTests_();
-    /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-    void specificTestsNoFailureExpected_GUnitTests_();
-    /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-    void specificTestsFailuresExpected_GUnitTests_();
 };
 
 /******************************************************************************/

@@ -237,14 +237,6 @@ protected:
     /** @brief Does any necessary finalization work atfer the optimization loop has ended */
     void finalize() override;
 
-    /** @brief Applies modifications to this object
-     *  @return true if the object was modified, false otherwise */
-    bool modify_GUnitTests_();
-    /** @brief Performs self tests that are expected to succeed */
-    void specificTestsNoFailureExpected_GUnitTests_();
-    /** @brief Performs self tests that are expected to fail */
-    void specificTestsFailuresExpected_GUnitTests_();
-
     /***************************************************************************/
 
     /** @brief This function is called from GOptimizationAlgorithmBase::optimize() and performs the actual recombination */

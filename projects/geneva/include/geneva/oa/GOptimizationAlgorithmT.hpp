@@ -92,41 +92,6 @@ public:
     /** @brief The destructor */
     ~GOptimizationAlgorithmT() override = default;
 
-protected:
-    /** @brief Applies modifications to this object (test scaffold). Override for real tests. */
-    bool modify_GUnitTests_() {
-#ifdef GEM_TESTING
-        return Parent::modify_GUnitTests_();
-#else  /* GEM_TESTING */
-        Gem::Common::condnotset(std::string(Derived::class_name) + "::modify_GUnitTests", "GEM_TESTING");
-        return false;
-#endif /* GEM_TESTING */
-    }
-
-    /** @brief Performs self tests that are expected to succeed. Override for real tests. */
-    void specificTestsNoFailureExpected_GUnitTests_() {
-#ifdef GEM_TESTING
-        Parent::specificTestsNoFailureExpected_GUnitTests_();
-#else  /* GEM_TESTING */
-        Gem::Common::condnotset(
-            std::string(Derived::class_name) + "::specificTestsNoFailureExpected_GUnitTests",
-            "GEM_TESTING"
-        );
-#endif /* GEM_TESTING */
-    }
-
-    /** @brief Performs self tests that are expected to fail. Override for real tests. */
-    void specificTestsFailuresExpected_GUnitTests_() {
-#ifdef GEM_TESTING
-        Parent::specificTestsFailuresExpected_GUnitTests_();
-#else  /* GEM_TESTING */
-        Gem::Common::condnotset(
-            std::string(Derived::class_name) + "::specificTestsFailuresExpected_GUnitTests",
-            "GEM_TESTING"
-        );
-#endif /* GEM_TESTING */
-    }
-
 private:
     /**
      * @brief Returns the human-readable name of this optimization algorithm

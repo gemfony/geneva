@@ -1122,64 +1122,6 @@ void GParChild::valueRecombine(
 }
 
 /******************************************************************************/
-/**
- * @brief Applies modifications to this object. This is needed for testing purposes
- *
- * @return A boolean which indicates whether modifications were made
- */
-bool GParChild::modify_GUnitTests_() {
-#ifdef GEM_TESTING
-
-    bool result = false;
-
-    // Call the parent class'es function
-    if(GOptimizationAlgorithmBase::modify_GUnitTests_()) {
-        result = true;
-    }
-
-    return result;
-
-#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-    Gem::Common::condnotset("GParChild::modify_GUnitTests", "GEM_TESTING");
-    return false;
-#endif                  /* GEM_TESTING */
-}
-
-/******************************************************************************/
-/**
- * @brief Performs self tests that are expected to succeed. This is needed for testing purposes
- */
-void GParChild::specificTestsNoFailureExpected_GUnitTests_() {
-#ifdef GEM_TESTING
-    // Call the parent class'es function
-    GOptimizationAlgorithmBase::specificTestsNoFailureExpected_GUnitTests_();
-
-#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-    Gem::Common::condnotset(
-        "GParChild::specificTestsNoFailureExpected_GUnitTests",
-        "GEM_TESTING"
-    );
-#endif                  /* GEM_TESTING */
-}
-
-/******************************************************************************/
-/**
- * @brief Performs self tests that are expected to fail. This is needed for testing purposes
- */
-void GParChild::specificTestsFailuresExpected_GUnitTests_() {
-#ifdef GEM_TESTING
-    // Call the parent class'es function
-    GOptimizationAlgorithmBase::specificTestsFailuresExpected_GUnitTests_();
-
-#else  /* GEM_TESTING */
-    Gem::Common::condnotset(
-        "GParChild::specificTestsFailuresExpected_GUnitTests",
-        "GEM_TESTING"
-    );
-#endif /* GEM_TESTING */
-}
-
-/******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 

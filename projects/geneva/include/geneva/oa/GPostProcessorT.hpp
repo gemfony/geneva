@@ -156,61 +156,6 @@ protected:
         return raw_processing_(p);
     }
 
-    /**************************************************************************/
-    /**
-     * @brief Applies modifications to this object. This is needed for testing purposes
-     *
-     * @return A boolean which indicates whether modifications were made
-     */
-    bool modify_GUnitTests_() {
-#ifdef GEM_TESTING
-        bool result = false;
-
-        // Call the parent classes' functions
-        if(Gem::Common::GSerializableFunctionObjectT<base_type>::modify_GUnitTests_()) {
-            result = true;
-        }
-
-        return result;
-
-#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-        Gem::Common::condnotset("GPostProcessorBaseT<base_type>::modify_GUnitTests", "GEM_TESTING");
-        return false;
-#endif                  /* GEM_TESTING */
-    }
-
-    /**************************************************************************/
-    /**
-     * @brief Performs self tests that are expected to succeed. This is needed for testing purposes
-     */
-    void specificTestsNoFailureExpected_GUnitTests_() {
-#ifdef GEM_TESTING
-        // Nothing to delegate: the GSerializableFunctionObjectT root has no self-tests of its own.
-
-#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-        Gem::Common::condnotset(
-            "GPostProcessorBaseT<base_type>::specificTestsNoFailureExpected_GUnitTests",
-            "GEM_TESTING"
-        );
-#endif                  /* GEM_TESTING */
-    }
-
-    /**************************************************************************/
-    /**
-     * @brief Performs self tests that are expected to fail. This is needed for testing purposes
-     */
-    void specificTestsFailuresExpected_GUnitTests_() {
-#ifdef GEM_TESTING
-        // Nothing to delegate: the GSerializableFunctionObjectT root has no self-tests of its own.
-
-#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-        Gem::Common::condnotset(
-            "GPostProcessorBaseT<base_type>::specificTestsFailuresExpected_GUnitTests",
-            "GEM_TESTING"
-        );
-#endif                  /* GEM_TESTING */
-    }
-
 private:
     /**************************************************************************/
     /**
@@ -301,17 +246,6 @@ protected:
      * @return true if the individual was modified by the post-processing, false otherwise
      */
     bool raw_processing_(gen::GGenome &p) override;
-
-    /**
-     * @brief Applies modifications to this object. This is needed for testing purposes
-     *
-     * @return A boolean which indicates whether modifications were made
-     */
-    bool modify_GUnitTests_();
-    /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-    void specificTestsNoFailureExpected_GUnitTests_();
-    /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-    void specificTestsFailuresExpected_GUnitTests_();
 
 private:
     /** @brief The standard constructor */

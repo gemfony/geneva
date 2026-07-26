@@ -261,10 +261,6 @@ bool GSwarmAlgorithm_PersonalityTraits::modify_GUnitTests_() {
 #ifdef GEM_TESTING
     bool result = false;
 
-    // Call the parent class'es function
-    if(GPersonalityTraits::modify_GUnitTests_()) {
-        result = true;
-    }
 
     this->setNeighborhood(this->getNeighborhood() + 1);
     result = true;
@@ -285,8 +281,6 @@ bool GSwarmAlgorithm_PersonalityTraits::modify_GUnitTests_() {
 void GSwarmAlgorithm_PersonalityTraits::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 
-    // Call the parent class'es function
-    GPersonalityTraits::specificTestsNoFailureExpected_GUnitTests_();
 
     //---------------------------------------------------------------------------
 
@@ -329,27 +323,6 @@ void GSwarmAlgorithm_PersonalityTraits::specificTestsNoFailureExpected_GUnitTest
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
     Gem::Common::condnotset(
         "GSwarmAlgorithm_PersonalityTraits::specificTestsNoFailureExpected_GUnitTests",
-        "GEM_TESTING"
-    );
-#endif                  /* GEM_TESTING */
-}
-
-/******************************************************************************/
-/**
- * @brief Performs self tests that are expected to fail. This is needed for testing purposes
- */
-void GSwarmAlgorithm_PersonalityTraits::specificTestsFailuresExpected_GUnitTests_() {
-#ifdef GEM_TESTING
-
-    // Call the parent class'es function
-    GPersonalityTraits::specificTestsFailuresExpected_GUnitTests_();
-
-    //---------------------------------------------------------------------------
-    //---------------------------------------------------------------------------
-
-#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-    Gem::Common::condnotset(
-        "GSwarmAlgorithm_PersonalityTraits::specificTestsFailuresExpected_GUnitTests",
         "GEM_TESTING"
     );
 #endif                  /* GEM_TESTING */

@@ -527,7 +527,7 @@ bool GStandardPSO2011::modify_GUnitTests_() {
 #ifdef GEM_TESTING
     bool result = false;
 
-    if(GOptimizationAlgorithmT<GStandardPSO2011>::modify_GUnitTests_()) {
+    if(GOptimizationAlgorithmBase::modify_GUnitTests_()) {
         result = true;
     }
 
@@ -548,7 +548,6 @@ bool GStandardPSO2011::modify_GUnitTests_() {
 // NOLINTNEXTLINE(readability-function-size) -- self-test entry point for GStandardPSO2011: a sequence of independent, self-scoped CHECK blocks, one per PSO strategy-parameter scenario; same one-function-per-test-phase convention used identically across every OA self-test in this codebase
 void GStandardPSO2011::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
-    GOptimizationAlgorithmT<GStandardPSO2011>::specificTestsNoFailureExpected_GUnitTests_();
 
     { // Test setting and retrieval of basic strategy parameters
         auto const p_test = this->clone<GStandardPSO2011>();
@@ -568,21 +567,6 @@ void GStandardPSO2011::specificTestsNoFailureExpected_GUnitTests_() {
 #else  /* GEM_TESTING */
     Gem::Common::condnotset(
         "GStandardPSO2011::specificTestsNoFailureExpected_GUnitTests",
-        "GEM_TESTING"
-    );
-#endif /* GEM_TESTING */
-}
-
-/******************************************************************************/
-/**
- * Performs self tests that are expected to fail. This is needed for testing purposes.
- */
-void GStandardPSO2011::specificTestsFailuresExpected_GUnitTests_() {
-#ifdef GEM_TESTING
-    GOptimizationAlgorithmT<GStandardPSO2011>::specificTestsFailuresExpected_GUnitTests_();
-#else  /* GEM_TESTING */
-    Gem::Common::condnotset(
-        "GStandardPSO2011::specificTestsFailuresExpected_GUnitTests",
         "GEM_TESTING"
     );
 #endif /* GEM_TESTING */

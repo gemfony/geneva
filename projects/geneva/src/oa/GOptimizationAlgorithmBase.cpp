@@ -2351,11 +2351,6 @@ bool GOptimizationAlgorithmBase::modify_GUnitTests_() {
 #ifdef GEM_TESTING
     bool result = false;
 
-    // This is the category root; there is no modifiable GObject parent class.
-    // Call the stateful base class'es function
-    if(Gem::Common::GUniquePtrContainerT<gen::GGenome>::modify_GUnitTests_()) {
-        result = true;
-    }
 
     // Try to change the objects contained in the collection. The population is heterogeneous and
     // its element type -- the gen::GGenome category root -- deliberately does not carry the
@@ -2377,44 +2372,6 @@ bool GOptimizationAlgorithmBase::modify_GUnitTests_() {
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
     Gem::Common::condnotset("GOptimizationAlgorithmBase<>::modify_GUnitTests", "GEM_TESTING");
     return false;
-#endif                  /* GEM_TESTING */
-}
-
-/******************************************************************************/
-/**
- * @brief Performs self tests that are expected to succeed. This is needed for testing purposes
- */
-void GOptimizationAlgorithmBase::specificTestsNoFailureExpected_GUnitTests_() {
-#ifdef GEM_TESTING
-
-    // This is the category root; there is no GObject parent class to delegate to.
-    // Call the stateful base class'es function
-    Gem::Common::GUniquePtrContainerT<gen::GGenome>::specificTestsNoFailureExpected_GUnitTests_();
-
-#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-    Gem::Common::condnotset(
-        "GOptimizationAlgorithmBase<>::specificTestsNoFailureExpected_GUnitTests",
-        "GEM_TESTING"
-    );
-#endif                  /* GEM_TESTING */
-}
-
-/******************************************************************************/
-/**
- * @brief Performs self tests that are expected to fail. This is needed for testing purposes
- */
-void GOptimizationAlgorithmBase::specificTestsFailuresExpected_GUnitTests_() {
-#ifdef GEM_TESTING
-
-    // This is the category root; there is no GObject parent class to delegate to.
-    // Call the stateful base class'es function
-    Gem::Common::GUniquePtrContainerT<gen::GGenome>::specificTestsFailuresExpected_GUnitTests_();
-
-#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-    Gem::Common::condnotset(
-        "GOptimizationAlgorithmBase<>::specificTestsFailuresExpected_GUnitTests",
-        "GEM_TESTING"
-    );
 #endif                  /* GEM_TESTING */
 }
 

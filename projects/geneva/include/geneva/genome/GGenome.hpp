@@ -432,9 +432,6 @@ protected:
     bool modify_GUnitTests_();
     /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
     void specificTestsNoFailureExpected_GUnitTests_();
-    /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-    void specificTestsFailuresExpected_GUnitTests_();
-
 private:
 
     /** @brief Installs a new shared layout and invalidates the parameter-count cache.

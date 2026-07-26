@@ -975,37 +975,6 @@ protected:
         );
 #endif /* GEM_TESTING */
     }
-    /***************************************************************************/
-    /**
-     * Performs self tests that are expected to fail.
-     */
-    void specificTestsFailuresExpected_GUnitTests_() override {
-#ifdef GEM_TESTING
-        using namespace Gem::Geneva;
-
-        // Call the parent classes' functions
-        gen::GGenome::specificTestsFailuresExpected_GUnitTests_();
-
-        //------------------------------------------------------------------------------
-
-        {
-            /* Nothing. Add test cases here that are expected to fail.
-                Enclose with a BOOST_CHECK_THROW, using the expected
-                exception type as an additional argument. See the
-                documentation for the Boost.Test library for further
-                information */
-        }
-
-        //------------------------------------------------------------------------------
-
-#else  /* GEM_TESTING */
-        Gem::Common::condnotset(
-            "GMetaOptimizerIndividualT<ind_type>::specificTestsNoFailureExpected_GUnitTests()",
-            "GEM_TESTING"
-        );
-#endif /* GEM_TESTING */
-    }
-
 private:
     /***************************************************************************/
     /**
@@ -1770,40 +1739,6 @@ protected:
 #endif                  /* GEM_TESTING */
     }
 
-    /***************************************************************************/
-    /**
-     * Performs self tests that are expected to succeed. This is needed for testing purposes
-     */
-    void specificTestsNoFailureExpected_GUnitTests_() override {
-#ifdef GEM_TESTING
-
-        // Call the parent classes' functions
-        oa::GBasePluggableOM::specificTestsNoFailureExpected_GUnitTests_();
-#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-        Gem::Common::condnotset(
-            "GOptOptMonitorT<ind_type>::specificTestsNoFailureExpected_GUnitTests",
-            "GEM_TESTING"
-        );
-#endif                  /* GEM_TESTING */
-    }
-
-    /***************************************************************************/
-    /**
-     * Performs self tests that are expected to fail. This is needed for testing purposes
-     */
-    void specificTestsFailuresExpected_GUnitTests_() override {
-#ifdef GEM_TESTING
-
-        // Call the parent classes' functions
-        oa::GBasePluggableOM::specificTestsFailuresExpected_GUnitTests_();
-
-#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-        Gem::Common::condnotset(
-            "GOptOptMonitorT<ind_type>::specificTestsFailuresExpected_GUnitTests",
-            "GEM_TESTING"
-        );
-#endif                  /* GEM_TESTING */
-    }
     /***************************************************************************/
 
 private:

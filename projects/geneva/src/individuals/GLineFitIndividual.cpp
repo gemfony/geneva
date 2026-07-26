@@ -290,27 +290,6 @@ void GLineFitIndividual::specificTestsNoFailureExpected_GUnitTests_() {
 }
 
 /******************************************************************************/
-/**
- * @brief Performs self tests that are expected to fail. This is needed for testing purposes.
- */
-void GLineFitIndividual::specificTestsFailuresExpected_GUnitTests_() {
-#ifdef GEM_TESTING
-    using namespace Gem::Geneva;
-
-    // Call the parent classes' functions
-    gen::GGenome::specificTestsFailuresExpected_GUnitTests_();
-
-    //------------------------------------------------------------------------------
-    //------------------------------------------------------------------------------
-#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-    Gem::Common::condnotset(
-        "GLineFitIndividual::specificTestsFailuresExpected_GUnitTests",
-        "GEM_TESTING"
-    );
-#endif                  /* GEM_TESTING */
-}
-
-/******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 

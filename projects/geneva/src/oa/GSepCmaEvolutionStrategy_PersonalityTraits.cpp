@@ -90,9 +90,6 @@ bool GSepCmaEvolutionStrategy_PersonalityTraits::modify_GUnitTests_() {
 #ifdef GEM_TESTING
     bool result = false;
 
-    if(GPersonalityTraits::modify_GUnitTests_()) {
-        result = true;
-    }
 
     this->setRank(this->getRank() + 1);
     result = true;
@@ -113,7 +110,6 @@ bool GSepCmaEvolutionStrategy_PersonalityTraits::modify_GUnitTests_() {
  */
 void GSepCmaEvolutionStrategy_PersonalityTraits::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
-    GPersonalityTraits::specificTestsNoFailureExpected_GUnitTests_();
 
     {
         std::shared_ptr<GSepCmaEvolutionStrategy_PersonalityTraits> const p_test =
@@ -130,21 +126,6 @@ void GSepCmaEvolutionStrategy_PersonalityTraits::specificTestsNoFailureExpected_
 #else /* GEM_TESTING */
     Gem::Common::condnotset(
         "GSepCmaEvolutionStrategy_PersonalityTraits::specificTestsNoFailureExpected_GUnitTests",
-        "GEM_TESTING"
-    );
-#endif /* GEM_TESTING */
-}
-
-/******************************************************************************/
-/**
- * @brief Performs self tests that are expected to fail. This is needed for testing purposes
- */
-void GSepCmaEvolutionStrategy_PersonalityTraits::specificTestsFailuresExpected_GUnitTests_() {
-#ifdef GEM_TESTING
-    GPersonalityTraits::specificTestsFailuresExpected_GUnitTests_();
-#else /* GEM_TESTING */
-    Gem::Common::condnotset(
-        "GSepCmaEvolutionStrategy_PersonalityTraits::specificTestsFailuresExpected_GUnitTests",
         "GEM_TESTING"
     );
 #endif /* GEM_TESTING */

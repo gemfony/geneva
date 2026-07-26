@@ -326,8 +326,6 @@ void GStarterIndividual::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
     using namespace Gem::Geneva;
 
-    // Call the parent classes' functions
-    gen::GGenome::specificTestsFailuresExpected_GUnitTests_();
 
     //------------------------------------------------------------------------------
 

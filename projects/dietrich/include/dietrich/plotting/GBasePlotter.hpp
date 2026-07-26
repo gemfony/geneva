@@ -354,8 +354,6 @@ protected:
         ++id_;
         return true;
     }
-    /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-    /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
 
     /***************************************************************************/
 

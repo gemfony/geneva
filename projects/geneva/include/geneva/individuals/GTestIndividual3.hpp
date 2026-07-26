@@ -109,9 +109,6 @@ protected:
     bool modify_GUnitTests_() override;
     /** @brief Performs self tests that are expected to succeed. */
     void specificTestsNoFailureExpected_GUnitTests_() override;
-    /** @brief Performs self tests that are expected to fail. */
-    void specificTestsFailuresExpected_GUnitTests_() override;
-
 };
 
 /******************************************************************************/

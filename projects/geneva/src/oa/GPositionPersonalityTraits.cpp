@@ -51,9 +51,6 @@ bool GPositionPersonalityTraits::modify_GUnitTests_() {
 #ifdef GEM_TESTING
     bool result = false;
 
-    if(GPersonalityTraits::modify_GUnitTests_()) {
-        result = true;
-    }
 
     this->setPopulationPosition(this->getPopulationPosition() + 1);
     result = true;
@@ -63,40 +60,6 @@ bool GPositionPersonalityTraits::modify_GUnitTests_() {
 #else /* GEM_TESTING */
     Gem::Common::condnotset("GPositionPersonalityTraits::modify_GUnitTests", "GEM_TESTING");
     return false;
-#endif /* GEM_TESTING */
-}
-
-/******************************************************************************/
-/**
- * @brief Performs self tests that are expected to succeed. This is needed for testing purposes.
- */
-void GPositionPersonalityTraits::specificTestsNoFailureExpected_GUnitTests_() {
-#ifdef GEM_TESTING
-
-    GPersonalityTraits::specificTestsNoFailureExpected_GUnitTests_();
-
-#else /* GEM_TESTING */
-    Gem::Common::condnotset(
-        "GPositionPersonalityTraits::specificTestsNoFailureExpected_GUnitTests",
-        "GEM_TESTING"
-    );
-#endif /* GEM_TESTING */
-}
-
-/******************************************************************************/
-/**
- * @brief Performs self tests that are expected to fail. This is needed for testing purposes.
- */
-void GPositionPersonalityTraits::specificTestsFailuresExpected_GUnitTests_() {
-#ifdef GEM_TESTING
-
-    GPersonalityTraits::specificTestsFailuresExpected_GUnitTests_();
-
-#else /* GEM_TESTING */
-    Gem::Common::condnotset(
-        "GPositionPersonalityTraits::specificTestsFailuresExpected_GUnitTests",
-        "GEM_TESTING"
-    );
 #endif /* GEM_TESTING */
 }
 

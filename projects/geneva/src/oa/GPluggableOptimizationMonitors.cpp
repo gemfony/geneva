@@ -140,41 +140,6 @@ bool GStandardMonitor::modify_GUnitTests_() {
 }
 
 /******************************************************************************/
-/**
- * @brief Performs self tests that are expected to succeed. This is needed for testing purposes
- */
-void GStandardMonitor::specificTestsNoFailureExpected_GUnitTests_() {
-#ifdef GEM_TESTING
-
-    // Call the parent classes' functions
-    oa::GBasePluggableOM::specificTestsNoFailureExpected_GUnitTests_();
-#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-    Gem::Common::condnotset(
-        "GStandardMonitor::specificTestsNoFailureExpected_GUnitTests",
-        "GEM_TESTING"
-    );
-#endif                  /* GEM_TESTING */
-}
-
-/******************************************************************************/
-/**
- * @brief Performs self tests that are expected to fail. This is needed for testing purposes
- */
-void GStandardMonitor::specificTestsFailuresExpected_GUnitTests_() {
-#ifdef GEM_TESTING
-
-    // Call the parent classes' functions
-    oa::GBasePluggableOM::specificTestsFailuresExpected_GUnitTests_();
-
-#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-    Gem::Common::condnotset(
-        "GStandardMonitor::specificTestsFailuresExpected_GUnitTests",
-        "GEM_TESTING"
-    );
-#endif                  /* GEM_TESTING */
-}
-
-/******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
@@ -455,41 +420,6 @@ bool GFitnessMonitor::modify_GUnitTests_() {
 }
 
 /******************************************************************************/
-/**
- * @brief Performs self tests that are expected to succeed. This is needed for testing purposes
- */
-void GFitnessMonitor::specificTestsNoFailureExpected_GUnitTests_() {
-#ifdef GEM_TESTING
-
-    // Call the parent classes' functions
-    oa::GBasePluggableOM::specificTestsNoFailureExpected_GUnitTests_();
-#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-    Gem::Common::condnotset(
-        "GFitnessMonitor::specificTestsNoFailureExpected_GUnitTests",
-        "GEM_TESTING"
-    );
-#endif                  /* GEM_TESTING */
-}
-
-/******************************************************************************/
-/**
- * @brief Performs self tests that are expected to fail. This is needed for testing purposes
- */
-void GFitnessMonitor::specificTestsFailuresExpected_GUnitTests_() {
-#ifdef GEM_TESTING
-
-    // Call the parent classes' functions
-    oa::GBasePluggableOM::specificTestsFailuresExpected_GUnitTests_();
-
-#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-    Gem::Common::condnotset(
-        "GFitnessMonitor::specificTestsFailuresExpected_GUnitTests",
-        "GEM_TESTING"
-    );
-#endif                  /* GEM_TESTING */
-}
-
-/******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
@@ -586,41 +516,6 @@ bool GCollectiveMonitor::modify_GUnitTests_() {
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
     Gem::Common::condnotset("GCollectiveMonitor::modify_GUnitTests", "GEM_TESTING");
     return false;
-#endif                  /* GEM_TESTING */
-}
-
-/******************************************************************************/
-/**
- * @brief Performs self tests that are expected to succeed. This is needed for testing purposes
- */
-void GCollectiveMonitor::specificTestsNoFailureExpected_GUnitTests_() {
-#ifdef GEM_TESTING
-
-    // Call the parent classes' functions
-    oa::GBasePluggableOM::specificTestsNoFailureExpected_GUnitTests_();
-#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-    Gem::Common::condnotset(
-        "GCollectiveMonitor::specificTestsNoFailureExpected_GUnitTests",
-        "GEM_TESTING"
-    );
-#endif                  /* GEM_TESTING */
-}
-
-/******************************************************************************/
-/**
- * @brief Performs self tests that are expected to fail. This is needed for testing purposes
- */
-void GCollectiveMonitor::specificTestsFailuresExpected_GUnitTests_() {
-#ifdef GEM_TESTING
-
-    // Call the parent classes' functions
-    oa::GBasePluggableOM::specificTestsFailuresExpected_GUnitTests_();
-
-#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-    Gem::Common::condnotset(
-        "GCollectiveMonitor::specificTestsFailuresExpected_GUnitTests",
-        "GEM_TESTING"
-    );
 #endif                  /* GEM_TESTING */
 }
 
@@ -956,41 +851,6 @@ bool GAllSolutionFileLogger::modify_GUnitTests_() {
 }
 
 /******************************************************************************/
-/**
- * @brief Performs self tests that are expected to succeed. This is needed for testing purposes
- */
-void GAllSolutionFileLogger::specificTestsNoFailureExpected_GUnitTests_() {
-#ifdef GEM_TESTING
-
-    // Call the parent classes' functions
-    oa::GBasePluggableOM::specificTestsNoFailureExpected_GUnitTests_();
-#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-    Gem::Common::condnotset(
-        "GAllSolutionFileLogger::specificTestsNoFailureExpected_GUnitTests",
-        "GEM_TESTING"
-    );
-#endif                  /* GEM_TESTING */
-}
-
-/******************************************************************************/
-/**
- * @brief Performs self tests that are expected to fail. This is needed for testing purposes
- */
-void GAllSolutionFileLogger::specificTestsFailuresExpected_GUnitTests_() {
-#ifdef GEM_TESTING
-
-    // Call the parent classes' functions
-    oa::GBasePluggableOM::specificTestsFailuresExpected_GUnitTests_();
-
-#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-    Gem::Common::condnotset(
-        "GAllSolutionFileLogger::specificTestsFailuresExpected_GUnitTests",
-        "GEM_TESTING"
-    );
-#endif                  /* GEM_TESTING */
-}
-
-/******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
@@ -1145,41 +1005,6 @@ bool GIterationResultsFileLogger::modify_GUnitTests_() {
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
     Gem::Common::condnotset("GIterationResultsFileLogger::modify_GUnitTests", "GEM_TESTING");
     return false;
-#endif                  /* GEM_TESTING */
-}
-
-/******************************************************************************/
-/**
- * @brief Performs self tests that are expected to succeed. This is needed for testing purposes
- */
-void GIterationResultsFileLogger::specificTestsNoFailureExpected_GUnitTests_() {
-#ifdef GEM_TESTING
-
-    // Call the parent classes' functions
-    oa::GBasePluggableOM::specificTestsNoFailureExpected_GUnitTests_();
-#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-    Gem::Common::condnotset(
-        "GIterationResultsFileLogger::specificTestsNoFailureExpected_GUnitTests",
-        "GEM_TESTING"
-    );
-#endif                  /* GEM_TESTING */
-}
-
-/******************************************************************************/
-/**
- * @brief Performs self tests that are expected to fail. This is needed for testing purposes
- */
-void GIterationResultsFileLogger::specificTestsFailuresExpected_GUnitTests_() {
-#ifdef GEM_TESTING
-
-    // Call the parent classes' functions
-    oa::GBasePluggableOM::specificTestsFailuresExpected_GUnitTests_();
-
-#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-    Gem::Common::condnotset(
-        "GIterationResultsFileLogger::specificTestsFailuresExpected_GUnitTests",
-        "GEM_TESTING"
-    );
 #endif                  /* GEM_TESTING */
 }
 
@@ -1454,41 +1279,6 @@ bool GNAdpationsLogger::modify_GUnitTests_() {
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
     Gem::Common::condnotset("GNAdpationsLogger::modify_GUnitTests", "GEM_TESTING");
     return false;
-#endif                  /* GEM_TESTING */
-}
-
-/******************************************************************************/
-/**
- * @brief Performs self tests that are expected to succeed. This is needed for testing purposes
- */
-void GNAdpationsLogger::specificTestsNoFailureExpected_GUnitTests_() {
-#ifdef GEM_TESTING
-
-    // Call the parent classes' functions
-    oa::GBasePluggableOM::specificTestsNoFailureExpected_GUnitTests_();
-#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-    Gem::Common::condnotset(
-        "GNAdpationsLogger::specificTestsNoFailureExpected_GUnitTests",
-        "GEM_TESTING"
-    );
-#endif                  /* GEM_TESTING */
-}
-
-/******************************************************************************/
-/**
- * @brief Performs self tests that are expected to fail. This is needed for testing purposes
- */
-void GNAdpationsLogger::specificTestsFailuresExpected_GUnitTests_() {
-#ifdef GEM_TESTING
-
-    // Call the parent classes' functions
-    oa::GBasePluggableOM::specificTestsFailuresExpected_GUnitTests_();
-
-#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-    Gem::Common::condnotset(
-        "GNAdpationsLogger::specificTestsFailuresExpected_GUnitTests",
-        "GEM_TESTING"
-    );
 #endif                  /* GEM_TESTING */
 }
 
@@ -1911,41 +1701,6 @@ bool GProcessingTimesLogger::modify_GUnitTests_() {
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
     Gem::Common::condnotset("GProcessingTimesLogger::modify_GUnitTests", "GEM_TESTING");
     return false;
-#endif                  /* GEM_TESTING */
-}
-
-/******************************************************************************/
-/**
- * @brief Performs self tests that are expected to succeed. This is needed for testing purposes
- */
-void GProcessingTimesLogger::specificTestsNoFailureExpected_GUnitTests_() {
-#ifdef GEM_TESTING
-
-    // Call the parent classes' functions
-    oa::GBasePluggableOM::specificTestsNoFailureExpected_GUnitTests_();
-#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-    Gem::Common::condnotset(
-        "GProcessingTimesLogger::specificTestsNoFailureExpected_GUnitTests",
-        "GEM_TESTING"
-    );
-#endif                  /* GEM_TESTING */
-}
-
-/******************************************************************************/
-/**
- * @brief Performs self tests that are expected to fail. This is needed for testing purposes
- */
-void GProcessingTimesLogger::specificTestsFailuresExpected_GUnitTests_() {
-#ifdef GEM_TESTING
-
-    // Call the parent classes' functions
-    oa::GBasePluggableOM::specificTestsFailuresExpected_GUnitTests_();
-
-#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-    Gem::Common::condnotset(
-        "GProcessingTimesLogger::specificTestsFailuresExpected_GUnitTests",
-        "GEM_TESTING"
-    );
 #endif                  /* GEM_TESTING */
 }
 

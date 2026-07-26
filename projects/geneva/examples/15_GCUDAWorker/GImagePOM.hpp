@@ -259,26 +259,6 @@ protected:
 #endif /* GEM_TESTING */
     }
 
-    /***************************************************************************/
-    /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-    void specificTestsNoFailureExpected_GUnitTests_() override {
-#ifdef GEM_TESTING
-        oa::GBasePluggableOM::specificTestsNoFailureExpected_GUnitTests_();
-#else /* GEM_TESTING */
-        condnotset("GImagePOM::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
-#endif /* GEM_TESTING */
-    }
-
-    /***************************************************************************/
-    /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-    void specificTestsFailuresExpected_GUnitTests_() override {
-#ifdef GEM_TESTING
-        oa::GBasePluggableOM::specificTestsFailuresExpected_GUnitTests_();
-#else /* GEM_TESTING */
-        condnotset("GImagePOM::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
-#endif /* GEM_TESTING */
-    }
-
 private:
     /***************************************************************************/
     /** @brief Emits a name for this class / object */

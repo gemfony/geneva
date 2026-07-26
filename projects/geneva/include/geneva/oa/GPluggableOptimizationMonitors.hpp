@@ -112,11 +112,6 @@ protected:
 
     /** @brief Applies modifications to this object. */
     bool modify_GUnitTests_() override;
-    /** @brief Performs self tests that are expected to succeed. */
-    void specificTestsNoFailureExpected_GUnitTests_() override;
-    /** @brief Performs self tests that are expected to fail. */
-    void specificTestsFailuresExpected_GUnitTests_() override;
-
 private:
     /**
      * @brief Aggregates the work of all registered pluggable monitors
@@ -230,11 +225,6 @@ protected:
 
     /** @brief Applies modifications to this object. This is needed for testing purposes */
     bool modify_GUnitTests_() override;
-    /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-    void specificTestsNoFailureExpected_GUnitTests_() override;
-    /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-    void specificTestsFailuresExpected_GUnitTests_() override;
-
 private:
     /************************************************************************/
     /**
@@ -335,11 +325,6 @@ protected:
 
     /** @brief Applies modifications to this object */
     bool modify_GUnitTests_() override;
-    /** @brief Performs self tests that are expected to succeed */
-    void specificTestsNoFailureExpected_GUnitTests_() override;
-    /** @brief Performs self tests that are expected to fail */
-    void specificTestsFailuresExpected_GUnitTests_() override;
-
 private:
     /**
      * @brief Aggregates the work of all registered pluggable monitors
@@ -707,40 +692,6 @@ protected:
     }
 
     /***************************************************************************/
-    /**
-     * Performs self tests that are expected to succeed. This is needed for testing purposes
-     */
-    void specificTestsNoFailureExpected_GUnitTests_() override {
-#ifdef GEM_TESTING
-
-        // Call the parent classes' functions
-        oa::GBasePluggableOM::specificTestsNoFailureExpected_GUnitTests_();
-#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-        Gem::Common::condnotset(
-            "GProgressPlotterT<fp_type>::specificTestsNoFailureExpected_GUnitTests",
-            "GEM_TESTING"
-        );
-#endif                  /* GEM_TESTING */
-    }
-
-    /***************************************************************************/
-    /**
-     * Performs self tests that are expected to fail. This is needed for testing purposes
-     */
-    void specificTestsFailuresExpected_GUnitTests_() override {
-#ifdef GEM_TESTING
-
-        // Call the parent classes' functions
-        oa::GBasePluggableOM::specificTestsFailuresExpected_GUnitTests_();
-
-#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-        Gem::Common::condnotset(
-            "GProgressPlotterT<fp_type>::specificTestsFailuresExpected_GUnitTests",
-            "GEM_TESTING"
-        );
-#endif                  /* GEM_TESTING */
-    }
-    /***************************************************************************/
 
 private:
     /***************************************************************************/
@@ -1105,11 +1056,6 @@ protected:
 
     /** @brief Applies modifications to this object */
     bool modify_GUnitTests_() override;
-    /** @brief Performs self tests that are expected to succeed */
-    void specificTestsNoFailureExpected_GUnitTests_() override;
-    /** @brief Performs self tests that are expected to fail */
-    void specificTestsFailuresExpected_GUnitTests_() override;
-
 private:
     /**
      * @brief Allows to emit information in different stages of the information cycle
@@ -1239,11 +1185,6 @@ protected:
 
     /** @brief Applies modifications to this object */
     bool modify_GUnitTests_() override;
-    /** @brief Performs self tests that are expected to succeed */
-    void specificTestsNoFailureExpected_GUnitTests_() override;
-    /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-    void specificTestsFailuresExpected_GUnitTests_() override;
-
 private:
 
     /**
@@ -1383,11 +1324,6 @@ protected:
 
     /** @brief Applies modifications to this object */
     bool modify_GUnitTests_() override;
-    /** @brief Performs self tests that are expected to succeed */
-    void specificTestsNoFailureExpected_GUnitTests_() override;
-    /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-    void specificTestsFailuresExpected_GUnitTests_() override;
-
 private:
 
     /**
@@ -1677,41 +1613,6 @@ protected:
             "GEM_TESTING"
         );
         return false;
-#endif                  /* GEM_TESTING */
-    }
-
-    /***************************************************************************/
-    /**
-     * Performs self tests that are expected to succeed. This is needed for testing purposes
-     */
-    void specificTestsNoFailureExpected_GUnitTests_() override {
-#ifdef GEM_TESTING
-
-        // Call the parent classes' functions
-        oa::GBasePluggableOM::specificTestsNoFailureExpected_GUnitTests_();
-#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-        Gem::Common::condnotset(
-            "GAdaptorPropertyLoggerT<num_type>::specificTestsNoFailureExpected_GUnitTests",
-            "GEM_TESTING"
-        );
-#endif                  /* GEM_TESTING */
-    }
-
-    /***************************************************************************/
-    /**
-     * Performs self tests that are expected to fail. This is needed for testing purposes
-     */
-    void specificTestsFailuresExpected_GUnitTests_() override {
-#ifdef GEM_TESTING
-
-        // Call the parent classes' functions
-        oa::GBasePluggableOM::specificTestsFailuresExpected_GUnitTests_();
-
-#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-        Gem::Common::condnotset(
-            "GAdaptorPropertyLoggerT<num_type>::specificTestsFailuresExpected_GUnitTests",
-            "GEM_TESTING"
-        );
 #endif                  /* GEM_TESTING */
     }
 
@@ -2040,11 +1941,6 @@ protected:
 
     /** @brief Applies modifications to this object */
     bool modify_GUnitTests_() override;
-    /** @brief Performs self tests that are expected to succeed */
-    void specificTestsNoFailureExpected_GUnitTests_() override;
-    /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-    void specificTestsFailuresExpected_GUnitTests_() override;
-
 private:
 
     /**

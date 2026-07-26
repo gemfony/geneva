@@ -586,22 +586,6 @@ void GGenome::specificTestsNoFailureExpected_GUnitTests_() {
 }
 
 /******************************************************************************/
-/**
- * @brief Performs self tests that are expected to fail. This is needed for testing purposes
- */
-void GGenome::specificTestsFailuresExpected_GUnitTests_() {
-#ifdef GEM_TESTING
-    // no tests here yet
-#else  /* GEM_TESTING */
-    Gem::Common::condnotset(
-        "GGenome::specificTestsFailuresExpected_GUnitTests",
-        "GEM_TESTING"
-    );
-#endif /* GEM_TESTING */
-}
-
-
-/******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 

@@ -608,7 +608,7 @@ bool GGeneralizedSimulatedAnnealing::modify_GUnitTests_() {
 #ifdef GEM_TESTING
     bool result = false;
 
-    if(GOptimizationAlgorithmT<GGeneralizedSimulatedAnnealing>::modify_GUnitTests_()) {
+    if(GOptimizationAlgorithmBase::modify_GUnitTests_()) {
         result = true;
     }
 
@@ -629,7 +629,6 @@ bool GGeneralizedSimulatedAnnealing::modify_GUnitTests_() {
 // NOLINTNEXTLINE(readability-function-size,readability-function-cognitive-complexity) -- self-test entry point for GGeneralizedSimulatedAnnealing: a sequence of independent, self-scoped CHECK blocks, one per SA strategy-parameter/annealing scenario; same one-function-per-test-phase convention used identically across every OA self-test in this codebase
 void GGeneralizedSimulatedAnnealing::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
-    GOptimizationAlgorithmT<GGeneralizedSimulatedAnnealing>::specificTestsNoFailureExpected_GUnitTests_();
 
     { // Test setting and retrieval of basic strategy parameters
         auto const p_test = this->clone<GGeneralizedSimulatedAnnealing>();
@@ -661,21 +660,6 @@ void GGeneralizedSimulatedAnnealing::specificTestsNoFailureExpected_GUnitTests_(
 #else  /* GEM_TESTING */
     Gem::Common::condnotset(
         "GGeneralizedSimulatedAnnealing::specificTestsNoFailureExpected_GUnitTests",
-        "GEM_TESTING"
-    );
-#endif /* GEM_TESTING */
-}
-
-/******************************************************************************/
-/**
- * Performs self tests that are expected to fail. This is needed for testing purposes.
- */
-void GGeneralizedSimulatedAnnealing::specificTestsFailuresExpected_GUnitTests_() {
-#ifdef GEM_TESTING
-    GOptimizationAlgorithmT<GGeneralizedSimulatedAnnealing>::specificTestsFailuresExpected_GUnitTests_();
-#else  /* GEM_TESTING */
-    Gem::Common::condnotset(
-        "GGeneralizedSimulatedAnnealing::specificTestsFailuresExpected_GUnitTests",
         "GEM_TESTING"
     );
 #endif /* GEM_TESTING */

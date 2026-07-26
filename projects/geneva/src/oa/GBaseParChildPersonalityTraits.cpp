@@ -246,8 +246,6 @@ bool GBaseParChildPersonalityTraits::modify_GUnitTests_() {
 void GBaseParChildPersonalityTraits::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 
-    // Call the parent class'es function
-    GPositionPersonalityTraits::specificTestsNoFailureExpected_GUnitTests_();
 
     // --------------------------------------------------------------------------
 
@@ -335,8 +333,6 @@ void GBaseParChildPersonalityTraits::specificTestsNoFailureExpected_GUnitTests_(
 void GBaseParChildPersonalityTraits::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 
-    // Call the parent class'es function
-    GPositionPersonalityTraits::specificTestsFailuresExpected_GUnitTests_();
 
     // --------------------------------------------------------------------------
 

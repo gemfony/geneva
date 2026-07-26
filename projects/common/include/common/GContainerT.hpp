@@ -1644,32 +1644,6 @@ protected:
     // Test hooks (protected virtual)
     // ------------------------------------------------------------------
 
-    /**
-     * @brief Applies modifications for unit-test purposes.
-     *
-     * Subclasses should override to introduce changes that make subsequent
-     * equality checks fail.
-     *
-     * @return true if any modification was made, false otherwise.
-     */
-    bool modify_GUnitTests_() {
-        return false;
-    }
-
-    /**
-     * @brief Runs self-tests that are expected to pass without throwing.
-     *
-     * Override in subclasses to add test logic that must succeed.
-     */
-    void specificTestsNoFailureExpected_GUnitTests_() {}
-
-    /**
-     * @brief Runs self-tests that are expected to throw or trigger assertions.
-     *
-     * Override in subclasses to add test logic that must fail gracefully.
-     */
-    void specificTestsFailuresExpected_GUnitTests_() {}
-
     ContainerType data_cnt_; ///< The underlying sequence container holding the data.
 };
 

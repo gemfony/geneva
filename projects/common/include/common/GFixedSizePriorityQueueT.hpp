@@ -578,32 +578,6 @@ protected:
     [[nodiscard]] virtual double evaluation(const std::shared_ptr<T> &item_ptr) const = 0;
 
     /***************************************************************************/
-    /**
-             * @brief Applies modifications to this object. This is needed for testing purposes
-             *
-             * @return A boolean indicating whether the object was modified (always false here)
-             */
-    bool modify_GUnitTests_() {
-        return false;
-    }
-
-    /***************************************************************************/
-    /**
-             * @brief Performs self tests that are expected to succeed. This is needed for testing purposes
-             */
-    void specificTestsNoFailureExpected_GUnitTests_() {
-        /* nothing */
-    }
-
-    /***************************************************************************/
-    /**
-             * @brief Performs self tests that are expected to fail. This is needed for testing purposes
-             */
-    void specificTestsFailuresExpected_GUnitTests_() {
-        /* nothing */
-    }
-
-    /***************************************************************************/
 
     std::size_t max_size_{GFSPQ_DEF_MAX_SIZE}; ///< The maximum number of work-items
     sortOrder sort_order_{sortOrder::LOWERISBETTER};
