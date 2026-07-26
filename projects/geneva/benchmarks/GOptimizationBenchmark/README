@@ -1,3 +1,16 @@
 This directory contains a benchmark that aims to determine the ability of Geneva's
 optimization algorithms to get close to the global optimum of a given target function.
 It uses the GFunctionIndividual for its tests.
+
+The measurement is the quality reached, and the time taken, as a function of the
+problem's dimension: the same function is optimized at 2, 4, 8, ... 512 parameters,
+ten times per dimension, and the mean and spread of both quantities are plotted.
+
+For those numbers to be comparable across dimensions every row must get the same
+budget, so this directory's config-overrides.json fixes the run at 1000 iterations
+and switches the stall criterion off. Do not "fix" that back to the library
+defaults: with a stall halt in place each dimension stops wherever it happens to
+plateau, and the curve then measures the stall criterion as much as the problem.
+The dimension list itself is the benchmark's own default, in
+GOptimizationBenchmarkConfig.hpp, where the next rungs (1024 and up) sit commented
+out for a deliberate, longer study.

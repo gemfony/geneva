@@ -80,12 +80,16 @@ ADD_CUSTOM_COMMAND ( TARGET ${EXECUTABLENAME} POST_BUILD
 GENEVA_MATERIALIZE_CONFIGS ( ${EXECUTABLENAME} ${INSTALL_PREFIX_DATA}/benchmarks/${EXECUTABLENAME}/config )
 
 # A throughput-scale run: it repeats the same optimization on each available backend and compares them,
-# so it takes minutes, not seconds. Registered like every other test -- this whole directory already
-# exists only in a GPU-consumer build, which is the real, configure-time-detected dependency -- and kept
-# out of the quick inner loop by its label rather than by a flag (see the tier comment in the top-level
-# CMakeLists.txt).
+# so it takes minutes, not seconds -- 1372 s measured on the development host. Registered like every
+# other test (this whole directory already exists only in a GPU-consumer build, which is the real,
+# configure-time-detected dependency); what keeps it out of the development loop is its measured size
+# (XL), not a flag.
+#
+# The TIMEOUT is ~3x that measurement. The former 2500 s was only 1.8x, which is not enough margin for
+# a wall-clock comparison of BACKENDS: a slower or busier machine, or one whose GPU is shared, would
+# have tripped the clock and reported a defect that is not there.
 ADD_TEST ( ${EXECUTABLENAME} ${EXECUTABLENAME} )
-SET_TESTS_PROPERTIES ( ${EXECUTABLENAME} PROPERTIES LABELS "benchmark" TIMEOUT 2500 )
+SET_TESTS_PROPERTIES ( ${EXECUTABLENAME} PROPERTIES LABELS "benchmark" TIMEOUT 4500 )
 
 INSTALL ( TARGETS ${EXECUTABLENAME}
 	DESTINATION ${INSTALL_PREFIX_DATA}/benchmarks/${EXECUTABLENAME} )

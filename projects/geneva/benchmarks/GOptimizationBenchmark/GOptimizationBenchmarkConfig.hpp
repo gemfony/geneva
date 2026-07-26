@@ -88,9 +88,12 @@ public:
         def_pardim.push_back(32);
         def_pardim.push_back(64);
         def_pardim.push_back(128);
-        /* def_pardim.push_back(256);
-		def_pardim.push_back(512);
-		def_pardim.push_back(1024);
+        def_pardim.push_back(256);
+        def_pardim.push_back(512);
+        // Parked, not forgotten: the sweep is meant to be extendable, and these are the next rungs.
+        // Each doubling roughly doubles the run's cost, so they are turned on for a deliberate
+        // convergence study, not for the registered benchmark.
+        /* def_pardim.push_back(1024);
 		def_pardim.push_back(2048);
 		def_pardim.push_back(4096); */
 

@@ -1,0 +1,6 @@
+{
+    "GEvolutionaryAlgorithm.json": {
+        "max_iteration": 1000,
+        "max_stall_iteration": 0
+    }
+}

@@ -56,10 +56,14 @@ TARGET_LINK_LIBRARIES (${EXECUTABLENAME}
 GENEVA_MATERIALIZE_CONFIGS ( ${EXECUTABLENAME} ${INSTALL_PREFIX_DATA}/tests/geneva/PerformanceTests/${EXECUTABLENAME}/config )
 
 # A throughput-scale run: it sweeps the number of parallel workers against a deliberately delayed
-# evaluation, so it takes minutes, not seconds. Registered like every other test and kept out of the
-# quick inner loop by its label rather than by a flag (see the tier comment in the top-level
-# CMakeLists.txt).
+# evaluation, so it takes minutes, not seconds -- 1144 s measured on the development host. Registered
+# like every other test; what keeps it out of the development loop is its measured size (XL), not a
+# flag.
+#
+# The TIMEOUT is ~3x that measurement. The former 2500 s was only 2.2x, which is not enough margin for
+# a wall-clock measurement of PARALLEL throughput: a slower or busier machine would have tripped the
+# clock and reported a defect that is not there.
 ADD_TEST(${EXECUTABLENAME} ${EXECUTABLENAME})
-SET_TESTS_PROPERTIES(${EXECUTABLENAME} PROPERTIES LABELS "benchmark" TIMEOUT 2500)
+SET_TESTS_PROPERTIES(${EXECUTABLENAME} PROPERTIES LABELS "benchmark" TIMEOUT 3600)
 
 INSTALL ( TARGETS ${EXECUTABLENAME} DESTINATION ${INSTALL_PREFIX_DATA}/benchmarks/geneva/PerformanceTests/${EXECUTABLENAME} )
