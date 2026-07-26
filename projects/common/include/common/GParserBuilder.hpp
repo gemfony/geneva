@@ -1872,12 +1872,7 @@ public:
     template <typename fileParsableDerivative>
     std::shared_ptr<fileParsableDerivative>
     file_at(std::string const &option_name) { // NOLINT(misc-unused-parameters)
-        auto it = std::ranges::find_if(
-            file_parameter_proxies_,
-            [&](std::shared_ptr<GFileParsableI> const &candidate_ptr) {
-                return (candidate_ptr->GParsableI::optionName(0) == option_name);
-            }
-        );
+        auto it = findProxyByName_(file_parameter_proxies_, option_name);
         if(it != file_parameter_proxies_.end()) {
             return std::dynamic_pointer_cast<fileParsableDerivative>(*it);
         }
@@ -2366,6 +2361,24 @@ public:
 
 private:
     /***************************************************************************/
+    /** @brief Locates the proxy registered under @p option_name, or the end iterator.
+     *
+     *  The one place that states how a proxy is identified: by its FIRST option name. Both users --
+     *  the duplicate-registration guard below and file_at()'s retrieval -- ask exactly that
+     *  question, and spelling the predicate twice is how the two would eventually come to disagree
+     *  about it.
+     *  @tparam proxy_vector_type The proxy-vector type (file or command-line proxies; const or not)
+     *  @param proxies The proxy store to search
+     *  @param option_name The (first) option name to look for
+     *  @return An iterator to the matching proxy, or proxies.end() if there is none */
+    template <typename proxy_vector_type>
+    static auto findProxyByName_(proxy_vector_type &proxies, std::string const &option_name) {
+        return std::ranges::find_if(proxies, [&](auto const &candidate_ptr) {
+            return (candidate_ptr->GParsableI::optionName(0) == option_name);
+        });
+    }
+
+    /***************************************************************************/
     /** @brief DEBUG-build helper shared by every registration overload: throws if an option of
      *  the given name was already registered in @p proxies (formerly an identical 15-line
      *  #ifdef DEBUG block per overload).
@@ -2379,9 +2392,7 @@ private:
         proxy_vector_type const &proxies,
         char const *caller
     ) {
-        auto it = std::ranges::find_if(proxies, [&](auto const &candidate_ptr) {
-            return (candidate_ptr->GParsableI::optionName(0) == option_name);
-        });
+        auto it = findProxyByName_(proxies, option_name);
         if(it != proxies.end()) {
             throw geneva_exception(
                 g_error_streamer(DO_LOG, Gem::Common::timeAndPlace())
@@ -2393,10 +2404,16 @@ private:
 
     /***************************************************************************/
 
+    // Plain ordered vectors on purpose, not a keyed store: REGISTRATION ORDER IS THE CONTRACT --
+    // it is the order options are emitted in a written configuration file, which a user reads and
+    // diffs. A hash map would destroy it, and lookup is not the hot path (a handful of options,
+    // consulted at registration and at retrieval, never in an iteration loop), so the linear
+    // findProxyByName_() above is the right shape. Single-threaded by construction: a parser
+    // builder belongs to the one object being configured (Inv 2 governs thread-safe primitives).
     std::vector<std::shared_ptr<GFileParsableI>>
-        file_parameter_proxies_; ///< Holds file parameter proxies
+        file_parameter_proxies_; ///< Holds file parameter proxies, in registration order
     std::vector<std::shared_ptr<GCLParsableI>>
-        cl_parameter_proxies_; ///< Holds command line parameter proxies
+        cl_parameter_proxies_; ///< Holds command line parameter proxies, in registration order
 
     std::filesystem::path config_base_dir_;
 

@@ -662,6 +662,15 @@ std::vector<double> GConjugateGradientDescent::lbfgsDirection_(
                        static_cast<long double>(gradient[j] - prev_gradient[j]);
         }
         if(s_dot_y > std::numeric_limits<long double>::min()) {
+            // The curvature history is a fixed-capacity ring laid out in a flat GAuxiliaryStore
+            // block, kept bespoke: no common/ facility fits (GSPSCStagingRingT is a lock-free RNG
+            // staging ring, unrelated), and the two-loop recursion below wants the pairs in
+            // oldest-to-newest order in contiguous memory.
+            // Eviction is therefore a shift rather than a modular head index: O(m*n) instead of
+            // O(1) per accepted pair. Deliberate -- m is the L-BFGS memory (single digits) and the
+            // shift happens at most once per iteration, against a two-loop recursion that is
+            // already O(m*n), so a head index would buy nothing and would spread modular
+            // arithmetic across both loops and the gamma scaling.
             if(count == lbfgs_memory_) { // ring is full: drop the oldest pair (shift down by one)
                 std::copy(s_hist.begin() + n, s_hist.end(), s_hist.begin());
                 std::copy(y_hist.begin() + n, y_hist.end(), y_hist.begin());

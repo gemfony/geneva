@@ -193,6 +193,11 @@ private:
 
     std::vector<scalar_type> params_;     ///< Reused host parameter buffer (avoids per-round reallocation)
     std::vector<scalar_type> fitness_;    ///< Reused host fitness buffer
+    // A value plus a "has it been built" flag, kept as two members rather than folded into a
+    // std::optional or a load-once cell. Neither fits: the blob is REBUILT every round when the
+    // marshaller reports it as non-static, so this is not a load-once constant, and the flag is
+    // read together with problemConstantsStatic() rather than on its own. The pair also lets the
+    // vector keep its capacity across rounds, which an optional's reset would throw away.
     std::vector<std::byte> pconst_;  ///< Cached problem-constant blob (built once when static)
     bool pconst_built_ = false;      ///< Whether pconst_ has been built
 };

@@ -122,6 +122,12 @@ struct GCUDABackend<scalar_type>::Impl {
     CUfunction kernel = nullptr;
 
     // Device buffers, grown lazily to fit the largest batch seen.
+    //
+    // The "device pointer + host-side capacity, grown on demand" pair is written a second time in
+    // hap (GCUDARng's d_buf_ / d_words_). That duplication is deliberate: courtier and hap share no
+    // CUDA layer, and a common facility for it would carry a driver-API dependency across a library
+    // boundary that otherwise has none -- for six lines of bookkeeping each. If a third site ever
+    // appears, or the two libraries grow a shared CUDA layer for other reasons, revisit it there.
     CUdeviceptr d_params = 0;
     CUdeviceptr d_pconst = 0;
     CUdeviceptr d_fitness = 0;

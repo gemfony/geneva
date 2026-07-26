@@ -70,6 +70,10 @@ public:
     static bool deviceAvailable() noexcept;
 
 private:
+    // d_buf_ / d_words_ is the "device pointer + host-side capacity, grown on demand" pair, which
+    // courtier's CUDA backend also spells out (GCUDABackend's d_* / cap_* members). Kept separate
+    // on purpose: the two libraries share no CUDA layer, and a common facility would drag the
+    // driver API across a library boundary for six lines of bookkeeping. See the note there.
     void       *gen_{nullptr};    ///< curandGenerator_t
     void       *stream_{nullptr}; ///< cudaStream_t
     void       *d_buf_{nullptr};  ///< device buffer (32-bit words)
