@@ -53,6 +53,7 @@ namespace Gem::Geneva {
  * The default constructor. This function will add two double parameters to this individual,
  * each of which has a constrained value range [-10:10].
  */
+//! [problem-constructor]
 GParaboloidIndividual2D::GParaboloidIndividual2D()
   : M_PAR_MIN(-10.)
   , M_PAR_MAX(10.) {
@@ -67,6 +68,7 @@ GParaboloidIndividual2D::GParaboloidIndividual2D()
     // Per-parameter random initialization within bounds.
     this->randomInit(activityMode::ALLPARAMETERS);
 }
+//! [problem-constructor]
 
 /********************************************************************************************/
 /**
@@ -162,6 +164,7 @@ GParaboloidIndividual2D::~GParaboloidIndividual2D() { /* nothing */
  *
  * @return The raw fitness as a one-element vector
  */
+//! [problem-evaluate]
 std::vector<double> GParaboloidIndividual2D::evaluate() {
     std::vector<double> parVec; // Will hold the parameters
 
@@ -171,6 +174,7 @@ std::vector<double> GParaboloidIndividual2D::evaluate() {
     return {std::ranges::fold_left(
         parVec | std::views::transform([](double d) { return d * d; }), 0., std::plus{})};
 }
+//! [problem-evaluate]
 
 /********************************************************************************************/
 
