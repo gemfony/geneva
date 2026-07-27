@@ -74,7 +74,7 @@ int main(int argc, char **argv) {
     // Assemble command line options
     boost::program_options::options_description user_options;
     user_options.add_options()(
-        "traininDataType",
+        "trainingDataType",
         po::value<gind::trainingDataType>(&tdt)->default_value(gind::trainingDataType::TDTNONE),
         "Specify training data to be produced: HYPERCUBE=1, HYPERSPHERE=2, AXISCENTRIC=3, SINUS=4"
     )(
@@ -125,8 +125,7 @@ int main(int argc, char **argv) {
     }
 
     // Store the trainingDataFile in the global options, so they can be accessed by the individuals
-        neuralNetworkOptions()->set("trainingDataFile", trainingDataFile);
-   
+    neuralNetworkOptions()->set("trainingDataFile", trainingDataFile);
 
     //---------------------------------------------------------------------------
     // Client mode
