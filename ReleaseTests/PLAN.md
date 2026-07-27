@@ -101,9 +101,11 @@ Deliverables:
      from the `BuildSpec` (primary; matches how releases are actually built);
   2. a direct `cmake` invocation (fallback / minimal-build case).
   Runs `make core`, `make gemfony-build-all`, `make doc` per the test plan.
-* `releaseharness/checks/ctest.py` — runs `ctest` in the build dir and parses
-  the pass/fail counts; also runs `GenevaStandardTests` directly and scans
-  for unexpected skips.
+* `releaseharness/checks/ctest.py` — runs `ctest -j$(nproc) -LE XL` in the build dir
+  (every size class but XL; the XL programs are the benchmarks, which
+  `benchmarks.py` already starts once each)
+  and parses the pass/fail counts; also runs `GenevaStandardTests` directly and
+  scans for unexpected skips.
 * These two are SHORT-tier for Debug/Release and LONG-tier for Sanitize and
   for the benchmark builds.
 
@@ -136,8 +138,9 @@ are structured stubs with explicit TODOs:
   round-trip; checkpoint
   save/restore identity. Wiring + example mapping present; checkpoint-identity
   comparison is a STUB (TODO: byte/objective compare of two runs).
-* `checks/examples.py` — `10_GStarter` build+run; one networked example
-  (client+server on localhost); CUDA example `15_GCUDAWorker` (GPU-gated).
+* `checks/examples.py` — `01_GSimpleOptimizer` build+run; one networked example
+  (client+server on localhost); CUDA example `14_GCUDAWorker` (GPU-gated). The
+  quickstart's own build+run is `checks/outoftree.py` (it is not built in-tree).
 
 ## Phase 6 — Install / out-of-tree / linking (STUBBED)
 
@@ -205,14 +208,15 @@ Host: Ubuntu 26.04 LTS ("resolute"), Python 3.14.4, PyYAML 6.0.3.
   `sudo usermod -aG docker $USER && newgrp docker` (or simply use Podman).
 * `multipass`: present but not used; the container backends cover the matrix.
 * GPU: `nvidia-smi` reports a **driver/library version mismatch** (NVML stale),
-  but CUDA compute still works (example 15 runs). `doctor` reports this as
+  but CUDA compute still works (example 14 runs). `doctor` reports this as
   VERSION_MISMATCH (usable-with-warning) and recommends a reboot / kernel-module
   reload, plus `video`/`render` group membership. CUDA matrix entries are NOT
   skipped solely on the NVML mismatch.
 
 Image guest OSes (verified package availability):
-* Ubuntu 24.04: gcc 13.2, clang 18.0, cmake 3.28.3 — all meet Geneva's
-  GCC>=13 / Clang>=18 / CMake>=3.27 requirements.
+* Ubuntu 24.04: gcc 13.2, clang 18.0, cmake 3.28.3 — clang and cmake meet
+  Geneva's GCC>=14 / Clang>=18 / CMake>=3.27 requirements, the distro gcc does
+  not (it predates the C++23 floor and is rejected at configure time).
 * Ubuntu 26.04: gcc 15.2, clang 21.1, cmake 4.2.3 — all meet the requirements.
 
 Passthrough notes (for when a GPU is available):

@@ -62,9 +62,21 @@ find_dependency(Boost @GENEVA_MIN_BOOST_VERSION@ COMPONENTS
     atomic
 )
 
-# If this Geneva was installed with testing support, the geneva library embeds
-# Catch2-based test scaffolding and references Catch2 symbols. Such an install
-# can only be consumed by linking Catch2 as well.
+# The build flavor of this installation: TRUE if it was built with testing
+# support (GENEVA_BUILD_TESTS / the gcfg BUILDTESTCODE knob), FALSE otherwise.
+# It matters to a consumer twice:
+#
+#   - a testing-enabled libgemfony-geneva embeds Catch2-based test scaffolding
+#     and references Catch2 symbols, so it can only be consumed by linking
+#     Catch2 as well (handled right here);
+#   - only a testing-enabled install carries working self-test hook bodies. The
+#     hooks are declared unconditionally for ABI stability, but a non-testing
+#     build compiles their throwing "no test code" branch into the library, and
+#     a consumer defining GEM_TESTING for its own sources cannot change that.
+#     A consumer that drives the hooks therefore has to gate on this variable
+#     (see the quickstart's unit-test guard for the canonical example).
+#
+# FindGeneva.cmake, the MODULE-mode fallback, exports the same variable.
 set(GENEVA_TESTING @GENEVA_INSTALLED_WITH_TESTING@)
 if(GENEVA_TESTING)
     find_dependency(Catch2 3)
@@ -75,7 +87,7 @@ include("${CMAKE_CURRENT_LIST_DIR}/GenevaTargets.cmake")
 
 # Individual-packaging helpers (GENEVA_ADD_INDIVIDUAL_MODULE / GENEVA_DECLARE_INDIVIDUAL) for a downstream
 # project that packages its own optimization individuals as a compiled-in object library and/or a
-# runtime-loadable module (like example 19 / example 10). The helpers need the Geneva header include
+# runtime-loadable module (like the GLoadableIndividual example / the quickstart). The helpers need the Geneva header include
 # directory; take it from the imported Geneva::geneva target's interface (the concrete installed include
 # prefix). Boost's include dirs are added by the helpers at call time (find_dependency(Boost) above set
 # Boost_INCLUDE_DIRS). This is the same GenevaIndividualModule.cmake the in-tree build uses.

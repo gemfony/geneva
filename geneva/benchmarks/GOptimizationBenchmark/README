@@ -1,3 +1,0 @@
-This directory contains a benchmark that aims to determine the ability of Geneva's
-optimization algorithms to get close to the global optimum of a given target function.
-It uses the GFunctionIndividual for its tests.

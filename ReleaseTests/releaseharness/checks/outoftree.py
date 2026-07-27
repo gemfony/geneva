@@ -2,7 +2,7 @@
 build").
 
 ``build_against_install`` is the real out-of-tree consumer test: it configures
-and builds the shipped 10_GStarter example as a standalone CMake project that
+and builds the shipped quickstart as a standalone CMake project that
 locates the *installed* Geneva via ``find_package(Geneva)`` (the installed
 CONFIG package, with the bundled FindGeneva.cmake as fallback) and links the
 ``Geneva::geneva`` imported target, then runs the resulting binary. It depends
@@ -17,14 +17,14 @@ import time
 from ..model import BuildType, Compiler, CheckResult, Tier
 from ..runner import GUEST_BUILD, GUEST_SRC, JobContext
 
-# 10_GStarter is the canonical downstream template: it is NOT built in-tree and
-# exists precisely to be consumed via find_package(Geneva) from an install.
-_OOT_SRC = f"{GUEST_SRC}/geneva/examples/10_GStarter"
+# The quickstart is the canonical downstream template: it is NOT built in-tree
+# and exists precisely to be consumed via find_package(Geneva) from an install.
+_OOT_SRC = f"{GUEST_SRC}/projects/geneva/quickstart"
 _OOT_BUILD = f"{GUEST_BUILD}/oot-gstarter"
 
 
 def build_against_install(ctx: JobContext) -> CheckResult:
-    """Configure+build+run 10_GStarter standalone via find_package(Geneva)."""
+    """Configure+build+run the quickstart standalone via find_package(Geneva)."""
     tier = Tier.SHORT
     if not ctx.should_run(tier):
         return ctx.skipped("outoftree/findgeneva", tier, "skipped")
@@ -58,7 +58,7 @@ def build_against_install(ctx: JobContext) -> CheckResult:
         # Build only the GStarter executable (skip the optional Catch2 test).
         "make -j$(nproc) GStarter\n"
         "test -x ./GStarter || { echo 'MISSING GStarter binary'; exit 1; }\n"
-        # Run it against the installed shared libraries. The example runs a full
+        # Run it against the installed shared libraries. The quickstart runs a full
         # optimization and exits on its own; cap the wall-clock as a safety net
         # (a clean finish OR a timeout both prove it started and linked).
         f"LD_LIBRARY_PATH='{prefix}'/lib:\"$LD_LIBRARY_PATH\" "

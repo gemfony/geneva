@@ -91,8 +91,12 @@ benchmarks/MPI/CUDA OFF):
 
 | Guest OS    | Toolchain in image           | CMake  | Compilers built |
 |-------------|------------------------------|--------|-----------------|
-| Ubuntu 24.04| gcc 13.2, clang 18.0         | 3.28.3 | gcc + clang     |
+| Ubuntu 24.04| gcc 13.2 (*), clang 18.0     | 3.28.3 | gcc + clang     |
 | Ubuntu 26.04| gcc 15.2, clang 21.1         | 4.2.3  | gcc + clang     |
+
+(*) The images install the distro `g++`, which on Ubuntu 24.04 is GCC 13 --
+below Geneva's C++23 floor of GCC 14 (see below), so that image needs a newer
+GCC provisioned before its gcc cells can configure.
 
 `--quick` expands to OS x compiler x {Debug, Release}, i.e. **both Debug and
 Release are built for every supported compiler on every guest OS** (8 base
@@ -130,8 +134,10 @@ cells). The value is a comma-separated list of CMake build-type names
 (`Debug`, `Release`, `RelWithDebInfo`, `MinSizeRel`, `Sanitize`); matching is
 case-insensitive.
 
-All in-image toolchains satisfy Geneva's requirements (GCC >= 13, Clang >= 18,
-CMake >= 3.27, Boost >= 1.91).
+Geneva's requirements are GCC >= 14, Clang >= 18, CMake >= 3.27 and
+Boost >= 1.91; the floor is enforced at configure time by
+`CMakeModules/IdentifySystemParameters.cmake`. Every in-image toolchain meets
+it except the Ubuntu 24.04 `g++` (GCC 13), as noted with the matrix above.
 
 ---
 

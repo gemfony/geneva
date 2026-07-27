@@ -1,0 +1,132 @@
+/********************************************************************************
+ *
+ * This file is part of the Geneva library collection. The following license
+ * applies to this file:
+ *
+ * ------------------------------------------------------------------------------
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * ------------------------------------------------------------------------------
+ *
+ * Note that other files in the Geneva library collection may use a different
+ * license. Please see the licensing information in each file.
+ *
+ ********************************************************************************
+ *
+ * See the NOTICE file in the top-level directory of the Geneva library
+ * collection for a list of contributors and copyright information.
+ *
+ ********************************************************************************/
+
+#pragma once
+
+// Global checks, defines and includes needed for all of Geneva
+#include "common/GGlobalDefines.hpp"
+
+// Standard headers go here
+#include <string>
+#include <tuple>
+
+// Boost headers go here
+
+// Geneva headers go here
+#include "geneva/genome/GGenome.hpp"
+#include "geneva/GPersonalityTraits.hpp"
+#include "geneva/oa/GParetoTag.hpp"
+#include "common/GSelfTestable.hpp"
+
+namespace Gem::Geneva::OptimizationAlgorithms {
+
+/******************************************************************************/
+/**
+ * This class adds variables and functions to GPersonalityTraits that are specific
+ * to the separable CMA / CSA evolution strategy. It carries the offspring's
+ * selection rank (best == 0) and a pareto-front tag for the NSGA-II selection mode,
+ * mirroring the informational tags the other algorithms' personalities carry.
+ */
+class GSepCmaEvolutionStrategy_PersonalityTraits // NOLINT(cppcoreguidelines-special-member-functions)
+  : public Gem::Common::GReflectiveInterfaceT<GSepCmaEvolutionStrategy_PersonalityTraits, GPersonalityTraits>
+  , public GParetoTag
+  , public Gem::Common::GSelfTestable {
+    ///////////////////////////////////////////////////////////////////////
+    // Gem::Weft::access default-constructs this concrete type on load;
+    // GReflectiveInterfaceAccess lets the GReflectiveInterfaceT base reach localMembers_(). GParetoTag
+    // is a plain mixin (no quartet); its is_on_pareto_front_ rides in localMembers_.
+    friend struct Gem::Common::GReflectiveInterfaceAccess;
+
+    /** @brief Single declaration of this class'es local data members */
+    template <typename Self>
+    auto localMembers_(this Self &self) {
+        return std::make_tuple(
+            Gem::Common::make_member("rank_", self.rank_),
+            Gem::Common::make_member("is_on_pareto_front_", self.is_on_pareto_front_)
+        );
+    }
+    ///////////////////////////////////////////////////////////////////////
+
+public:
+    /** @brief The class name, consumed by the GReflectiveInterfaceT-generated name_() / compare token. */
+    static constexpr std::string_view class_name = "GSepCmaEvolutionStrategy_PersonalityTraits";
+
+    /** @brief An easy identifier for the class */
+    static const std::string nickname; // Initialized in the .cpp definition file
+
+    /** @brief The default constructor */
+    GSepCmaEvolutionStrategy_PersonalityTraits() = default;
+    /** @brief The copy constructor */
+    GSepCmaEvolutionStrategy_PersonalityTraits(
+        const GSepCmaEvolutionStrategy_PersonalityTraits &
+    ) = default;
+    /** @brief The standard destructor */
+    ~GSepCmaEvolutionStrategy_PersonalityTraits() override = default;
+
+    /**
+     * @brief Sets the offspring's selection rank in the current generation (0 == best).
+     * @param rank The selection rank to store
+     */
+    void setRank(std::size_t rank);
+    /**
+     * @brief Retrieves the offspring's selection rank in the current generation.
+     * @return The stored selection rank (0 == best)
+     */
+    [[nodiscard]] std::size_t getRank() const;
+
+    // The pareto-front tag (isOnParetoFront / resetParetoTag / setIsNotOnParetoFront)
+    // is inherited from the GParetoTag mixin; the member is serialized below under
+    // its historical NVP name.
+
+    /**
+     * @brief Retrieves the mnemonic of the optimization algorithm.
+     * @return The short mnemonic string identifying this personality
+     */
+    [[nodiscard]] std::string getMnemonic() const override;
+
+protected:
+    /***************************************************************************/
+    // load_(), compare_(), name_() and clone_() are generated by the
+    // Gem::Common::GReflectiveInterfaceT base from class_name and localMembers_().
+
+    /** @brief Applies modifications to this object. This is needed for testing purposes */
+    bool modify_GUnitTests_() override;
+    /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
+    void specificTestsNoFailureExpected_GUnitTests_() override;
+    /***************************************************************************/
+
+private:
+    /** @brief The offspring's selection rank in the current generation (0 == best) */
+    std::size_t rank_ = 0;
+};
+
+/******************************************************************************/
+
+} /* namespace Gem::Geneva::OptimizationAlgorithms */
+

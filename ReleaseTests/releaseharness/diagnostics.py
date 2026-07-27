@@ -14,7 +14,7 @@ Backend states:
 GPU states:
   * WORKING            — nvidia-smi succeeds and lists a GPU.
   * VERSION_MISMATCH   — nvidia-smi reports a driver/library version mismatch.
-                         CUDA may still work (e.g. example 15 runs); recommend a
+                         CUDA may still work (e.g. example 14 runs); recommend a
                          reboot or kernel-module reload to clear NVML.
   * UNREACHABLE        — nvidia-smi present but cannot talk to the driver.
   * ABSENT             — no nvidia-smi at all.

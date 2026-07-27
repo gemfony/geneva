@@ -5,7 +5,7 @@ fixed structure) from **how** it is mutated (the adaptors — owned by the optim
 the genome). This guide covers the current API after the "config-strip": the genome builder is
 **structure-only**, and adaptors live on an **OA-owned `GAdaptionConfig`**.
 
-Canonical examples: `examples/10_GStarter` (minimal), `examples/03_GParameterObjectUsagePatterns`
+Canonical examples: `quickstart/` (minimal), `examples/03_GParameterObjectUsagePatterns`
 (parameter patterns), `examples/09_GNeuralNetwork` (an architecture-decoded flat genome).
 
 ## 1. Subclass `GGenomeT` and override `evaluate()`
@@ -166,9 +166,9 @@ handle or memory-map as a member and streams in `evaluate()`; `GLineFitIndividua
 
 ### The module "glue" translation unit
 
-Serialization export stays **your** job and lives once with the individual (the same registration a
-compiled-in individual needs): `BOOST_CLASS_EXPORT_KEY(MyProblem)` in the `.hpp` and
-`BOOST_CLASS_EXPORT_IMPLEMENT(MyProblem)` in the `.cpp` (one pair per serialized type).
+Serialization registration stays **your** job and lives once with the individual (the same registration a
+compiled-in individual needs): `GEM_REGISTER_ARCHIVABLE(MyProblem)` (`weft/GArchivePolymorphic.hpp`), one
+per serialized type.
 
 The module adds one small **glue** TU carrying the fixed entry point the loader resolves via `dlsym`.
 It does *not* repeat the export:
@@ -176,8 +176,8 @@ It does *not* repeat the export:
 ```cpp
 #include <boost/config.hpp>                     // BOOST_SYMBOL_EXPORT
 #include "common/GModuleManifest.hpp"           // GenevaModuleManifest
-#include "geneva/ind/GIndividualFactory.hpp"
-#include "geneva/ind/GIndividualPlugin.hpp"     // Gem::Geneva::individualManifest<>
+#include "geneva/genome/GIndividualFactory.hpp"
+#include "geneva/genome/GIndividualPlugin.hpp"  // Gem::Geneva::individualManifest<>
 #include "MyProblem.hpp"
 
 extern "C" BOOST_SYMBOL_EXPORT const GenevaModuleManifest *geneva_module_manifest();
@@ -190,9 +190,9 @@ extern "C" BOOST_SYMBOL_EXPORT const GenevaModuleManifest *geneva_module_manifes
 
 The `extern "C"` wrapper is the only irreducible boilerplate — its symbol name is fixed for the loader,
 so no template can synthesize it. Everything else is the typed `individualManifest<>` helper, which
-stamps the module's toolchain-compatibility fingerprint (validated before any C++ contribution runs)
-and one INDIVIDUAL contribution. The config path is auto-created with the individual's defaults if
-absent.
+stamps the module's toolchain-compatibility fingerprint and its module-ABI version (both validated before
+any C++ contribution runs) and one INDIVIDUAL contribution. The config path is auto-created with the
+individual's defaults if absent.
 
 ### Declaring the package in CMake
 
@@ -202,21 +202,23 @@ target types and **never modifies or generates any C++**:
 ```cmake
 GENEVA_DECLARE_INDIVIDUAL(MyProblem
     MODE    both                       # load | compile | both
-    SOURCES MyProblem.cpp              # the individual (class + BOOST_CLASS_EXPORT); into both targets
+    SOURCES MyProblem.cpp              # the individual (class + its archive tag); into both targets
     PLUGIN  MyProblemPlugin.cpp        # the glue TU above; into the module .so ONLY
     CONFIG  ./config/MyProblem.json)   # recorded for config materialization
 ```
 
 - `MODE compile` / `both` builds an **object library** `MyProblem-obj` that a compile-in consumer
-  links (so the `BOOST_CLASS_EXPORT_IMPLEMENT` initializers are never stripped).
+  links (so the `GEM_REGISTER_ARCHIVABLE` initializers are never stripped).
 - `MODE load` / `both` builds the module `libMyProblem.so` (object files + the `PLUGIN` glue), linking
   **no** Geneva libraries — their symbols resolve from the host at load time.
 - `PLUGIN` goes into the module only: the manifest symbol name is fixed, so a compile-in binary that
   links two individuals must not contain two copies of it.
 
-**The one hard rule:** a single *process* must never both compile-in and load the same individual —
-Boost.Serialization throws on the duplicate GUID registration. (The same `.cpp` compiled into several
-*separate* binaries is fine; each is its own process.)
+**The one hard rule:** a single *process* must never both compile-in and load the same individual — Geneva
+allows exactly one optimization problem per process and refuses the second claim, naming both sources. (The
+same `.cpp` compiled into several *separate* binaries is fine; each is its own process.)
 
-See `examples/19_GLoadableIndividual/` for the end-to-end reference: a loadable problem `.so`, a
-generic optimizer that loads it, and the CTest that doubles as the single-process-singleton proof.
+See `examples/18_GLoadableIndividual/` for the end-to-end reference: a loadable problem `.so`, a
+generic optimizer that loads it, and the CTest that doubles as the single-process-singleton proof. To ship
+an *optimization algorithm* rather than a problem, `examples/20_GLoadableOA/README.md` is the same story one
+layer up.

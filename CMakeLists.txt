@@ -67,7 +67,7 @@ set_property(CACHE GENEVA_USE_CUDA_RNG PROPERTY STRINGS auto on off)
 # the "gpu" consumer mnemonic: auto|on|off (legacy 0/1 still accepted). Like the MPI consumer this
 # is an opt-in add-on: when enabled the courtier library dynamically links the CUDA (NVRTC + driver
 # API) device backend when present; when disabled no GPU code is compiled and "gpu" is not a
-# selectable consumer (example 15 and the GPU benchmark are skipped too). A CPU backend is always
+# selectable consumer (example 14 and the GPU benchmark are skipped too). A CPU backend is always
 # available when the consumer is built. Independent of GENEVA_USE_CUDA_RNG (a separate Hap feature);
 # honours GENEVA_SKIP_CUDA, which forces the whole consumer off.
 #   auto -> build the consumer when a CUDA toolkit is present (and GENEVA_SKIP_CUDA is OFF), else off
@@ -84,7 +84,7 @@ set_property(CACHE GENEVA_BUILD_WITH_GPU_CONSUMER PROPERTY STRINGS auto on off)
 #   staged     -> chunks from a shared, bulk-filled staging pool into a per-proxy double buffer
 #   quarantine -> read in place from N rotating, bulk-filled pools (benign-race, aligned-64-bit)
 # Every other source remains usable explicitly via GRandomT<randomSource::...>; this only
-# picks what the GRandom alias maps to. Consumed in hap/src/CMakeLists.txt.
+# picks what the GRandom alias maps to. Consumed in projects/hap/src/CMakeLists.txt.
 set(HAP_RANDOM_SOURCE "queue" CACHE STRING "Source for the default Gem::Hap::GRandom proxy: queue|local|staged|quarantine")
 set_property(CACHE HAP_RANDOM_SOURCE PROPERTY STRINGS queue local staged quarantine)
 if(NOT HAP_RANDOM_SOURCE MATCHES "^(queue|local|staged|quarantine)$")
@@ -379,13 +379,24 @@ if(CMAKE_CUDA_COMPILER_LOADED AND CMAKE_CXX_COMPILER)
 endif()
 
 ################################################################################
-# Set these variables to make all examples and/or benchmarks run as part of the
-# testing with CTest.
-
-# NOTE: Not yet functional
-
-SET(GENEVA_RUN_EXAMPLES_AS_TESTS FALSE)
-SET(GENEVA_RUN_BENCHMARKS_AS_TESTS FALSE)
+# Test sizes.
+#
+# EVERY test is registered -- there is no flag that hides one (a disabled test is a
+# red that was hidden rather than diagnosed). What decides whether a given run
+# includes a test is its measured SIZE, carried as a CTest label: S (< 1 s),
+# M (1-10 s), L (10-60 s), XL (> 60 s). Every registered test carries exactly one,
+# assigned with GENEVA_TEST_SIZE (CMakeModules/GenevaTestSize.cmake).
+#
+# The other labels -- the owning library, `example`, `benchmark` -- are descriptive
+# and never decide anything. A benchmark is a program whose purpose is a
+# convergence- or throughput-scale measurement; that it is currently also XL is a
+# fact about its configuration, not about its name.
+#
+# The size rule, how to measure one, and the commands that select by size are
+# documented in one place, the "Running the test suite" section of INSTALL.
+# Conditional registration remains reserved for a real, configure-time-detected
+# dependency (an MPI launcher, a Python interpreter, a GPU consumer build), never
+# for parking a failure.
 
 ################################################################################
 # Different subcomponents of the Geneva binary tree can be installed in
@@ -419,7 +430,7 @@ ENDIF ()
 # Set preprocessor define to use in source code if building with the GPU consumer.
 # This gates the "gpu" mnemonic in GConsumerSetup just as GENEVA_BUILD_WITH_MPI_CONSUMER
 # gates "mpi". The CUDA/OpenCL backend selection inside courtier uses the separate
-# GPUGEN_HAVE_CUDA / GPUGEN_HAVE_OPENCL feature macros (see courtier/src/CMakeLists.txt).
+# GPUGEN_HAVE_CUDA / GPUGEN_HAVE_OPENCL feature macros (see projects/courtier/src/CMakeLists.txt).
 IF (GENEVA_GPU_CONSUMER_ENABLED)
 	ADD_COMPILE_DEFINITIONS(GENEVA_BUILD_WITH_GPU_CONSUMER)
 ENDIF ()
@@ -480,7 +491,7 @@ ENDIF()
 #
 # IMPORTANT: When bumping the version here, also update the two macros
 #   GENEVA_VERSION components (+ GENEVA_VERSION_PRERELEASE)  and  MIN_BOOST_VERSION
-# in common/include/common/GGlobalDefines.hpp accordingly.
+# in projects/common/include/common/GGlobalDefines.hpp accordingly.
 
 SET(VERSION_MAJOR "1")
 SET(VERSION_MINOR "99")
@@ -502,11 +513,12 @@ ENDIF()
 # Include directories, libraries
 
 INCLUDE_DIRECTORIES (
-	${PROJECT_SOURCE_DIR}/common/include
-	${PROJECT_SOURCE_DIR}/dietrich/include
-	${PROJECT_SOURCE_DIR}/hap/include
-	${PROJECT_SOURCE_DIR}/courtier/include
-	${PROJECT_SOURCE_DIR}/geneva/include
+	${PROJECT_SOURCE_DIR}/projects/weft/include
+	${PROJECT_SOURCE_DIR}/projects/common/include
+	${PROJECT_SOURCE_DIR}/projects/dietrich/include
+	${PROJECT_SOURCE_DIR}/projects/hap/include
+	${PROJECT_SOURCE_DIR}/projects/courtier/include
+	${PROJECT_SOURCE_DIR}/projects/geneva/include
 )
 
 # Custom targets for building single libraries only
@@ -539,8 +551,8 @@ IF (GENEVA_BUILD_WITH_COVERAGE)
     # Filter: only the Common library's headers and sources count. (The plotting
     # code now lives in the separate dietrich library and is covered there.)
     SET(_GENEVA_COV_FILTER
-        "--filter=${PROJECT_SOURCE_DIR}/common/include/common/.*"
-        "--filter=${PROJECT_SOURCE_DIR}/common/src/.*")
+        "--filter=${PROJECT_SOURCE_DIR}/projects/common/include/common/.*"
+        "--filter=${PROJECT_SOURCE_DIR}/projects/common/src/.*")
     ADD_CUSTOM_TARGET( "coverage"
         COMMAND ${CMAKE_COMMAND} -E make_directory
                 "${CMAKE_BINARY_DIR}/coverage/common"
@@ -594,13 +606,15 @@ ENDIF ()
 # Self-contained per-library subtrees. All four libraries now live under
 # their own top-level directory; the legacy split-by-kind include/, src/,
 # tests/, examples/, benchmarks/ trees no longer exist. Order matches the
-# dependency chain (common <- hap <- courtier <- geneva) so every library's
-# targets exist when its dependents configure.
-ADD_SUBDIRECTORY (common)
-ADD_SUBDIRECTORY (dietrich)
-ADD_SUBDIRECTORY (hap)
-ADD_SUBDIRECTORY (courtier)
-ADD_SUBDIRECTORY (geneva)
+# dependency chain (weft <- common <- hap <- courtier <- geneva) so every
+# library's targets exist when its dependents configure. Weft (the standalone
+# serialization engine) is the deepest layer, added before common.
+ADD_SUBDIRECTORY (projects/weft)
+ADD_SUBDIRECTORY (projects/common)
+ADD_SUBDIRECTORY (projects/dietrich)
+ADD_SUBDIRECTORY (projects/hap)
+ADD_SUBDIRECTORY (projects/courtier)
+ADD_SUBDIRECTORY (projects/geneva)
 
 ################################################################################
 # Installed CMake config-file package.
@@ -631,9 +645,11 @@ INSTALL(
 	FILE GenevaTargets.cmake
 )
 
-# Record whether this install was built with testing support. A testing-enabled
-# libgemfony-geneva references Catch2 symbols, so the config package must re-find
-# Catch2 for consumers in that case (see GenevaConfig.cmake.in).
+# Record whether this install was built with testing support, so the config
+# package can report the build flavor to consumers as GENEVA_TESTING: a
+# testing-enabled libgemfony-geneva references Catch2 symbols and must re-find
+# Catch2, and only a testing-enabled install carries working self-test hook
+# bodies for a consumer to drive (see GenevaConfig.cmake.in).
 IF (GENEVA_BUILD_TESTS)
 	SET(GENEVA_INSTALLED_WITH_TESTING TRUE)
 ELSE ()
@@ -651,7 +667,7 @@ CONFIGURE_PACKAGE_CONFIG_FILE(
 # Version compatibility policy: SameMinorVersion. Geneva's minor version encodes
 # release vs. development series (even = production, odd = development) and the
 # ABI of the shared libraries may change between minor releases, so a consumer
-# that requested e.g. 1.12 must not silently be satisfied by 1.14.
+# that requested e.g. 2.0 must not silently be satisfied by 2.2.
 WRITE_BASIC_PACKAGE_VERSION_FILE(
 	${CMAKE_CURRENT_BINARY_DIR}/GenevaConfigVersion.cmake
 	VERSION ${GENEVA_VERSION}
@@ -705,7 +721,7 @@ ADD_CUSTOM_TARGET(
 # Additional information files to be copied
 
 SET ( INFORMATIONFILES
-	BEHAVIORAL-CHANGES.md
+	docs/CHANGES-2.0.md
 	CHANGES
 	INSTALL
 	LICENSE
@@ -768,10 +784,8 @@ SET(CPACK_DEBIAN_PACKAGE_PRIORITY "Extra")
 SET(
 	CPACK_DEBIAN_PACKAGE_DEPENDS
 	"libboost-dev (>= ${GENEVA_MIN_BOOST_VERSION}.0),
-	libboost-filesystem-dev (>= ${GENEVA_MIN_BOOST_VERSION}.0),
 	libboost-program-options-dev (>= ${GENEVA_MIN_BOOST_VERSION}.0),
 	libboost-regex-dev (>= ${GENEVA_MIN_BOOST_VERSION}.0),
-	libboost-serialization-dev (>= ${GENEVA_MIN_BOOST_VERSION}.0),
 	libboost-system-dev (>= ${GENEVA_MIN_BOOST_VERSION}.0),
 	libcatch2-dev (>= 3.0)"
 )

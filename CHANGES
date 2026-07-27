@@ -1,46 +1,39 @@
 //------------------------------------------------------------------------------------------------------
-* Version 1.12.0 "Puente de Santiago" - May 02, 2026
+* Version 1.99.0-beta1 "Puente de Santiago" - May 02, 2026
 
-Version 1.12 is not an incremental release: it is a ground-up REDESIGN of Geneva and the
-start of a revived, actively developed code base. Relative to 1.11 "Hendaye" it is a
-single, large, breaking change.
+Version 1.99.0-beta1 is not an incremental release: it is a ground-up REDESIGN of Geneva and the
+start of a revived, actively developed code base. Relative to 1.11 "Hendaye" it is a single, large
+breaking change. The 1.99.x betas stabilize this redesign toward its first production release, 2.0.
 
 Why the redesign:
-- To revive active development of Geneva after a long quiet period, on a foundation that is
-  pleasant to build on rather than to work around.
-- To start from a clean, modern (C++23) code base: the tangled tree-of-parameter-objects
-  individual model was replaced by a flat, data-only genome with mutation owned by the
-  optimization algorithm, and long-standing structural debt (a per-algorithm broker layer,
-  Boost.PropertyTree configuration, scattered per-individual state) was removed.
-- To add long-missing capabilities: runtime-loadable problem / algorithm / GPU modules, a
-  first-class GPU consumer, strict-JSON configuration with a generated reference, and a
-  unified local / remote / GPU evaluation path.
-- To greatly improve test coverage and build hygiene: Catch2 v3 unit tests across all
-  libraries, a self-contained installed header set, and out-of-source-only builds.
+- A foundation to build on rather than to work around. The tangled tree of parameter objects gave
+  way to a flat, data-only genome whose mutation the algorithm owns; the debt around it -- a
+  per-algorithm broker layer, Boost.PropertyTree configuration, scattered per-individual state --
+  is gone; and courtier now carries frames and opaque payloads, knowing nothing of optimization.
+- Capabilities the old code base could not offer: runtime-loadable problem, algorithm and GPU
+  modules, a first-class GPU consumer, strict-JSON configuration with a generated reference, and
+  one evaluation path for local, remote and GPU work.
+- Test coverage and build hygiene: Catch2 v3 suites across all five libraries, every test
+  registered and sized by CTest label, a self-contained installed header set, and C++23
+  throughout.
 
-Because this is one big breaking change, the behavioral, source- and serialization-breaking
-changes -- and how to adapt existing problem definitions, configuration files and
-checkpoints -- are collected in their own file: see BEHAVIORAL-CHANGES.md, and read it
-before upgrading. In short: checkpoints and binary archives from 1.11 do not load; problem
-definitions must be ported to the flat-genome / evaluate() model; and configuration files
-are now strict JSON.
+Because this is one big breaking change, read docs/CHANGES-2.0.md before upgrading: it is the
+practical porting guide and the one place the behavioral, source- and serialization-breaking
+changes are itemized. In short -- checkpoints and binary archives from 1.11 do not load, problem
+definitions must move to the flat-genome / evaluate() model, configuration files are strict JSON.
 
-Preconditions (see INSTALL for the full details and build instructions):
-- Processors: a 64-bit x86-64 or AArch64 CPU. SIMD (AVX2 / NEON) and a CUDA GPU are used
-  when present but are never required.
-- Compiler: a C++23 compiler -- GCC >= 14 or Clang >= 18. Earlier compilers are rejected at
-  configure time, and downstream consumers of the Geneva:: CMake targets are built as C++23.
-- Boost >= 1.91, compiled from source in C++23 mode.
-- CMake >= 3.27.
-- Catch2 v3, only when building the test code.
-- Optional: a CUDA toolkit >= 13.3 AND a matching GPU driver, for the GPU consumer and/or
-  the CUDA random-number backend; an MPI implementation, for the MPI consumer; and a plotting
-  viewer (ROOT, gnuplot, matplotlib or octave) to render the plot scripts some examples emit
-  -- none is needed to run Geneva or to produce the scripts, only to view them.
+The GStarter starting point is now the self-contained quickstart in projects/geneva/quickstart/,
+built standalone against an installed Geneva; the numbered examples are renumbered contiguously.
 
-The complete, itemized development history of the redesign is preserved in the git log; this
-release note is deliberately kept to the redesign rationale, the preconditions, and the
-migration pointer above.
+Preconditions (INSTALL has the full details and the build instructions):
+- A 64-bit x86-64 or AArch64 CPU. SIMD (AVX2 / NEON) and a CUDA GPU are used when present, never
+  required.
+- A C++23 compiler -- GCC >= 14 or Clang >= 18 -- rejected at configure time otherwise; consumers
+  of the Geneva:: CMake targets are compiled as C++23 too. Boost >= 1.91 built from source in
+  C++23 mode, CMake >= 3.27, and Catch2 v3 when building the test code.
+- Optional: a CUDA toolkit >= 13.3 with a matching driver, for the GPU consumer and the CUDA
+  random-number backend; an MPI implementation, for the MPI consumer; a plotting viewer, to render
+  the scripts some examples emit.
 
 //------------------------------------------------------------------------------------------------------
 * Version 1.11, "Hendaye" - March 16, 2026

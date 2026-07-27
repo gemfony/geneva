@@ -162,10 +162,8 @@ IF(NOT COMMON_GENEVA_BUILD_INCLUDED)
 	SET (
 			GENEVA_BOOST_LIBS
 			atomic
-			filesystem
 			json
 			regex
-			serialization
 			program_options
 	)
 
@@ -208,6 +206,7 @@ IF(NOT COMMON_GENEVA_BUILD_INCLUDED)
 	################################################################################
 	# The names of the Geneva libraries
 
+	SET ( WEFT_LIBNAME              "gemfony-weft" )
 	SET ( COMMON_LIBNAME            "gemfony-common" )
 	SET ( DIETRICH_LIBNAME          "gemfony-dietrich" )
 	SET ( HAP_LIBNAME               "gemfony-hap" )
@@ -225,6 +224,8 @@ IF(NOT COMMON_GENEVA_BUILD_INCLUDED)
 	# order in TARGET_LINK_LIBRARIES() later...
 	# Dietrich (plotting) is a leaf peer on top of common, used by geneva; it links
 	# after hap so geneva -> dietrich -> common resolves left-to-right.
+	# Weft (the standalone serialization engine) is the deepest layer: common depends
+	# on it, so it links LAST, after common.
 	SET (
 			GENEVA_LIBNAMES
 			${GENEVA_LIBNAME}
@@ -232,6 +233,7 @@ IF(NOT COMMON_GENEVA_BUILD_INCLUDED)
 			${HAP_LIBNAME}
 			${DIETRICH_LIBNAME}
 			${COMMON_LIBNAME}
+			${WEFT_LIBNAME}
 	)
 
 	# This variable contains the library names.
@@ -406,17 +408,23 @@ IF(NOT COMMON_GENEVA_BUILD_INCLUDED)
 	INCLUDE(${CMAKE_CURRENT_LIST_DIR}/GenevaConfigMaterialization.cmake)
 
 	###############################################################################
+	# The test-size label helper (GENEVA_TEST_SIZE). In-tree only: it is about how THIS suite is
+	# scheduled, not about anything an installed Geneva exposes.
+	INCLUDE(${CMAKE_CURRENT_LIST_DIR}/GenevaTestSize.cmake)
+
+	###############################################################################
 	# Runtime-loadable / compiled-in individual packaging helpers
 	# (GENEVA_ADD_INDIVIDUAL_MODULE / GENEVA_DECLARE_INDIVIDUAL). The function bodies live in the shared,
 	# installable GenevaIndividualModule.cmake so the SAME helpers are available to an out-of-tree project
 	# that consumes an installed Geneva via find_package(Geneva). Here (the in-tree build) we point them at
 	# the in-tree source include layout; the installed GenevaConfig.cmake points them at the install prefix.
 	SET(GENEVA_INDIVIDUAL_INCLUDE_DIRS
-		${PROJECT_SOURCE_DIR}/common/include
-		${PROJECT_SOURCE_DIR}/hap/include
-		${PROJECT_SOURCE_DIR}/courtier/include
-		${PROJECT_SOURCE_DIR}/dietrich/include
-		${PROJECT_SOURCE_DIR}/geneva/include)
+		${PROJECT_SOURCE_DIR}/projects/weft/include
+		${PROJECT_SOURCE_DIR}/projects/common/include
+		${PROJECT_SOURCE_DIR}/projects/hap/include
+		${PROJECT_SOURCE_DIR}/projects/courtier/include
+		${PROJECT_SOURCE_DIR}/projects/dietrich/include
+		${PROJECT_SOURCE_DIR}/projects/geneva/include)
 	SET(GENEVA_INDIVIDUAL_CXX_STANDARD ${CMAKE_CXX_STANDARD})
 
 	# ABI-affecting compile options a loadable individual module MUST match: it links none of the Geneva

@@ -1,0 +1,76 @@
+# AI Invariants
+
+Mandatory rules for **AI-driven work** in this repository — orchestration, model selection, and the
+division of labour between AI tiers. They complement [`DEVELOPMENT-INVARIANTS.md`](DEVELOPMENT-INVARIANTS.md),
+which binds **all** work (human or AI) and remains the sole source of the engineering invariants; nothing
+here weakens or duplicates a rule there. Every AI working in this repository reads **both** files before
+making any change. An AI invariant is changed only by an explicit maintainer decision, recorded here.
+
+(Cross-check 2026-07-26: no invariant in `DEVELOPMENT-INVARIANTS.md` is purely AI-specific — all bind human
+and AI work alike — so none was moved; this file starts with the rules below.)
+
+---
+
+## AI-1. The sweep rule — supervision, mechanical work, and intermediate work run on different tiers
+
+Large parallel efforts are split by the kind of judgment they need, and each kind runs on the tier suited
+to it:
+
+- **Mechanical work → Haiku (many agents in parallel).** High-volume, pattern-shaped detection: scanning
+  for stale vocabulary, copy-paste identity errors, narration comments, convention drift, sibling
+  asymmetries. Mechanical scanners are *detection-only*: they never change code, never decide fixes, and
+  every finding must carry the repo-relative file, line, and a **verbatim quote** (the machine-validation
+  hook — a finding whose quote does not match the tree is discarded unread).
+- **Intermediate work → Sonnet or Opus (one fresh agent per phase).** Executing a reviewed design or plan
+  phase: gated refactors, implementation, test writing, per-phase handoff documents.
+- **Supervision → Fable (the supervising model).** Design review, ruling preparation for the maintainer,
+  independent gate verification before any push, and — critically — **verification of every load-bearing
+  finding** a lower tier produced. The supervisor reads the code itself; it does not vote on summaries.
+
+*Why:* the tiers fail differently. Haiku is reliable at pattern detection and unreliable at judgment —
+its severity labels are noise and its design/concurrency claims are often confidently wrong; Fable's
+attention is the scarce resource and is spent where wrongness is expensive. Matching work to tier makes
+the sweep both cheap and safe; mismatching it produces either wasted tokens or plausible-but-wrong changes.
+
+## AI-2. Scanner findings are evidence, never actions
+
+No fix, migration, or deletion is ever executed from a mechanical scan result alone:
+
+- Quotes are validated mechanically against the tree before a finding is even read.
+- Scanner severity labels are **untrusted**; the supervisor re-classifies.
+- Any finding whose fix would touch behaviour — concurrency, ownership, protocol, ABI, public API — is
+  verified **at the supervisor tier, in the code**, before it becomes work. Calibration from the first
+  sweep (2026-07-26): of ~15 scanner claims that mutex use violated Invariant 2, **zero** survived
+  supervisor verification as migrations — the "violations" were bespoke coordination logic, deliberately
+  leaked registries, and plain data guards. Executing them blindly would have damaged the most delicate
+  infrastructure in the tree.
+- "Unused" claims from scanners compose with Invariants 11 and 23: they are input for a maintainer
+  exposure decision, never a licence to delete.
+
+## AI-3. One writer in the checkout; fresh contexts; all state in files
+
+At most **one** AI agent writes in the working tree at a time (read-only work may run in parallel). Each
+plan phase is executed by a **fresh** agent that inherits no conversation state; everything a successor
+needs lives in persistent files — the active plan with its progress ledger, the per-phase handoff
+documents, and the git history. An agent's context is perishable by design; work that exists only in a
+conversation does not exist.
+
+## AI-4. AI work is never attributed in the repository
+
+Commit messages, code comments, and documentation carry **no** AI attribution of any kind: no
+`Co-Authored-By` trailers naming an AI, no "Generated with …" lines, no session links, no model names in
+prose. The git author is the maintainer; the work stands on its own.
+
+## AI-5. The supervisor verifies gates independently before anything is pushed
+
+An executing agent's green report is a claim, not a fact. Before a push, the supervising tier re-runs or
+independently confirms the gates (build exit codes, warning greps, test counts, the dlopen/e2e evidence
+appropriate to the change) on the actual trees. The false-green discipline of the engineering invariants
+(separate configure/make/ctest exit codes; a stale tree proves nothing) applies to this verification
+exactly as to the original run.
+
+---
+
+*Add new AI invariants below as the maintainer establishes them. Keep each rule short, mandatory, and
+about HOW AI work is organized — engineering rules for the code itself belong in
+`DEVELOPMENT-INVARIANTS.md`.*

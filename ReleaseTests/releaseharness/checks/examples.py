@@ -14,19 +14,19 @@ from ..runner import GUEST_BUILD, JobContext
 # Examples read/write ./config/Go2.json relative to the CWD, so run each from
 # its own build directory where the config/ folder is installed.
 #
-# NOTE: 10_GStarter is deliberately NOT built in-tree -- it ships as the
-# canonical out-of-tree find_package(Geneva) example (see
-# geneva/examples/10_GStarter/README and geneva/examples/CMakeLists.txt). The
-# in-tree "run an example to completion" smoke therefore uses
-# 01_GSimpleOptimizer, the canonical minimal in-tree optimizer (covering 10's
-# out-of-tree role belongs to the outoftree/findgeneva check).
-_SIMPLE_DIR = "geneva/examples/01_GSimpleOptimizer"
+# NOTE: the quickstart is deliberately NOT built in-tree -- it ships as the
+# canonical out-of-tree find_package(Geneva) project (see
+# projects/geneva/quickstart/README). The in-tree "run an example to completion"
+# smoke therefore uses 01_GSimpleOptimizer, the canonical minimal in-tree
+# optimizer (the quickstart's out-of-tree role belongs to the
+# outoftree/findgeneva check).
+_SIMPLE_DIR = "projects/geneva/examples/01_GSimpleOptimizer"
 _SIMPLE = "./GSimpleOptimizer"
-_GCUDA_DIR = "geneva/examples/15_GCUDAWorker"
+_GCUDA_DIR = "projects/geneva/examples/14_GCUDAWorker"
 _GCUDA = "./GCUDAWorker"
 
 
-def gstarter(ctx: JobContext) -> CheckResult:
+def simple_optimizer(ctx: JobContext) -> CheckResult:
     """01_GSimpleOptimizer builds (via gemfony-build-all) and runs to completion."""
     tier = Tier.SHORT
     if not ctx.job.spec.build_examples:
@@ -52,7 +52,7 @@ def networked(ctx: JobContext) -> CheckResult:
 
 
 def cuda(ctx: JobContext) -> CheckResult:
-    """CUDA example 15 — runs only when a GPU is available and CUDA was built."""
+    """CUDA example 14 — runs only when a GPU is available and CUDA was built."""
     tier = Tier.LONG
     if not ctx.job.spec.with_cuda_rng:
         return ctx.skipped("example/cuda", tier, "CUDA not enabled / no GPU on host")

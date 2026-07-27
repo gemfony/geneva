@@ -97,7 +97,7 @@ BUILDMPICONSUMER="1"
 # expose the "gpu" consumer mnemonic. Like the MPI consumer this is an opt-in add-on:
 # when enabled, courtier dynamically links the CUDA (NVRTC + driver API) device backend
 # present on the system (a CPU backend is always available); when disabled, no GPU code is
-# compiled and "gpu" is not a selectable consumer. Example 15 (GCUDAWorker) and the GPU
+# compiled and "gpu" is not a selectable consumer. Example 14 (GCUDAWorker) and the GPU
 # optimisation benchmark are built only when this is enabled. Independent of USECUDARNG (a
 # separate Hap feature). SKIPALLCUDA still forces the whole consumer off.
 # Tri-state: "auto" (use a found CUDA toolkit, else off) | "on" (require CUDA, fail if absent)
@@ -173,8 +173,8 @@ CUDA_ROOT=""
 # (require CUDA, fail if absent) | "off" (never use CUDA). Legacy "0"/"1" still accepted.
 USECUDARNG="auto"
 
-# Build example 15 (GCUDAWorker) with float parameters + a float GPU kernel instead of
-# double. Only affects example 15. Default 1 (float): FP32 is ~14x faster than FP64 at the
+# Build example 14 (GCUDAWorker) with float parameters + a float GPU kernel instead of
+# double. Only affects example 14. Default 1 (float): FP32 is ~14x faster than FP64 at the
 # 1000-triangle workload on consumer GPUs (few FP64 units). Set to 0 for the double variant.
 GIMAGE_USE_FLOAT="1"
 

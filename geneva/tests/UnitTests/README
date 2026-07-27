@@ -1,7 +1,0 @@
-This directory contains tests for all optimization-related Geneva classes.
-
-The tests are written with Catch2 v3 and are aggregated into the
-GenevaStandardTests executable, which CTest runs as part of the standard
-test suite (ctest -R GenevaStandardTests). Each source file covers one
-class or subsystem; generic per-class checks are additionally exercised
-through the standard-tests hooks of the common interface.

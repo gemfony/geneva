@@ -28,7 +28,7 @@ example of this rule; apply the same reflex everywhere.
 All concurrency building blocks — **thread pools, thread groups, thread-safe queues, thread-safe keyed
 stores, completion latches, content-addressed/aging stores, and any lock-free structures** — come from
 Geneva's shared concurrency facilities, consolidated in the distinct sub-module
-`common/include/common/concurrency/` (namespace `Gem::Common::Concurrency`) — mirroring geneva's
+`projects/common/include/common/concurrency/` (namespace `Gem::Common::Concurrency`) — mirroring geneva's
 `par`/`ind`/`oa`, so they stay able to use `common`'s facilities yet are clearly separated and impossible to
 overlook. These include `GBlockingMPMCQueueT`, `GPreallocatedMPMCQueueT`, the `GMPMCQueueT` facade + the
 `MPMCQueue` concept, the thread pool/group, `GContentAddressedStoreT`, `GThreadSafeKeyedStoreT`,
@@ -53,7 +53,12 @@ Never configure or build inside the source tree. Use an external build directory
 Every class that adds data members implements `serialize()` and `load_()` / `save_()` (required for
 checkpointing and network transport). Keep the compared/serialized member list **single-sourced** (the
 `localMembers_` pattern) so that `serialize()`, `load_()`, and `compare_()` can never drift apart — a member
-forgotten in one list is silent data loss.
+forgotten in one list is silent data loss. Serialization runs entirely through the in-house **GArchive**
+(`Gem::Weft`) codecs — the flat binary codec (`GEM_BINARY`, the networked-wire default) and the
+self-describing JSON codec (`GEM_JSON`, the checkpoint default). A `serialize()` body is written once,
+codec-agnostic, against `Gem::Common::archive_named` / `archive_named_base` (never `boost::serialization`);
+a polymorphic wire/checkpoint type is registered with `GEM_REGISTER_ARCHIVABLE`. Boost.Serialization has
+been removed — do not reintroduce `boost::serialization`, `boost::archive`, or `BOOST_CLASS_EXPORT`.
 
 ## 5. One consumer per process
 
@@ -109,6 +114,15 @@ still governs *how* — fix the code for a genuine failure, amend the test for a
 the failure is always addressed, never left red.) A green test suite is the precondition for continuing, and
 for every commit.
 
+The same discipline denies **silent disabling** in every form: commenting a test out, gating it behind a flag
+that is never true, marking it skipped without a machine-detectable reason, or leaving it registered but
+unrun "for now". A disabled test is a red that has been hidden instead of diagnosed. A test that cannot stay
+green has exactly two honest exits: it is **fixed** (Invariant 7 decides whether the code or the test moves),
+or — when it genuinely no longer makes sense — it is **removed outright**, as a visible, reviewable deletion
+whose commit says why. Removal is a legitimate outcome; hiding never is. Conditional registration is
+acceptable only for real, configure-time-detectable external dependencies (no MPI launcher, no GPU device on
+the host), never as a place to park failures.
+
 ## 10. Newly discovered compilation warnings must be investigated
 
 A warning that appears during a build is a signal, not noise: **investigate every newly surfaced compiler
@@ -163,8 +177,8 @@ When a **genuine defect surfaces during development** — a compilation error, a
 logical/numeric failure — fixing it is **not enough**: add a test that pins the problem down so it cannot
 silently return. The test must **fail on the unfixed code and pass once the fix is in** (verify both when
 practical), and it lives with the code it guards (a unit test in the owning library's suite; the existing
-per-class `specificTests*_GUnitTests_` hooks and the `[net]`/serialization round-trip suites are the natural
-homes). This applies to problems *found while working*, not only to tickets — the moment you understand why
+per-class `specificTests*_GUnitTests_` hooks — the opt-in `Gem::Common::GSelfTestable` facet — and the
+`[net]`/serialization round-trip suites are the natural homes). This applies to problems *found while working*, not only to tickets — the moment you understand why
 something broke, encode that understanding as a test. A defect you cannot yet reproduce is triaged first
 (Invariant 7); once reproduced, the reproduction becomes the regression test.
 
@@ -331,6 +345,145 @@ an invariant stops a naked `new`, an owning raw pointer, or a hand-rolled cleanu
 where it would leak or double-free on an error path far from its cause. This is the ownership-level complement
 of Invariant 2 (shared concurrency machinery comes from the shared facilities) and composes with Invariant 4 (a
 resource-owning class states its special members and its serialized members consistently).
+
+## 22. Development runs are short by default; convergence-scale runs are the rare exception
+
+Every optimization run made to exercise or validate a change — in a unit test, a manual test, a demo, a
+benchmark used as a check, or an ad-hoc run — uses **few iterations and a small population** (the smallest
+that still exercises the code path under test). A change is verified by whether the machinery *runs
+correctly* — serializes, compares, clones, adapts, distributes, checkpoints, halts — not by whether it
+*converges*, so a handful of iterations over a handful of individuals is sufficient and is the default.
+
+The **only** exception is a change to an optimization algorithm's own search behaviour (a new or altered
+adaptor, selection rule, step controller, velocity update, constraint handler, …) whose very purpose is
+*convergence quality*. There, and only there, a longer run with a realistic population is warranted — and
+the outcome is still gated **behaviourally** (a tolerance band / best-of-N, per Invariant 18), never by a
+fixed iteration count reproduced for its own sake.
+
+*Why:* full-scale optimizations dominate the wall-clock of the test suite and of every developer gate, yet a
+contract-level change (serialization, comparison, cloning, the consumer transport, the halt logic) is fully
+exercised in a few short iterations — the convergence tail adds minutes and verifies nothing the change
+touched. Keeping runs short by default makes the green-suite precondition (Invariant 9) cheap enough to
+honour on every change; reserving long runs for genuine convergence questions spends that time only where it
+actually buys information. In practice this also means gating a contract-level change on the relevant test
+subset (e.g. the serialization/comparison contract cases) rather than re-running the convergence suites that
+the change cannot affect.
+
+## 23. Geneva is a library — a complete public API is the contract, not "used" code
+
+Geneva is a **toolkit**: it is linked into downstream applications whose needs this repository does not know
+and cannot see. A public API therefore exists to serve callers who are **not** in this tree, and its value is
+not measured by the presence of a local caller.
+
+- **"No caller inside Geneva" is not a defect, and not grounds for deletion.** A public function, overload,
+  accessor, or class that no example/test/benchmark happens to call is still part of the shipped interface and
+  may be exactly what an out-of-tree consumer relies on. Do **not** treat a whole-tree "unused" result
+  (Invariant 11) as a licence to remove a *public* API — that search proves only that *this repository* has no
+  caller, which is the expected condition for a general-purpose library, not evidence the API is dead.
+- **Buggy-but-public → fix it, don't delete it.** If a public API is discovered to be broken (a re-init trap,
+  a wrong default, a lifecycle hazard), the correct response is to **repair** it (and add the regression test
+  Invariant 15 requires), not to excise it because "nothing here calls it." Deleting a broken public entry
+  point silently narrows the contract and breaks the very downstream callers who most needed the fix.
+- **Completeness and symmetry are themselves API value.** A public setter implies a getter, an `add` implies a
+  `remove`, a `reset` completes a factory/singleton accessor — the rounded-out surface is part of what makes
+  the toolkit usable, even where the in-tree code exercises only one direction.
+
+This does **not** license dead **internal** machinery: a genuinely private helper, an inner-workings detail
+with no public exposure, or the periphery of a *replaced* mechanism (Invariant 20) is still removed once the
+whole-tree search comes back empty. The distinction is exposure, not local call count — public interface is
+kept and fixed; private orphans and abandoned peripheries are deleted.
+
+*Why:* a library curated down to "only what our own examples call" is a library that fails its actual users —
+the ones downstream. Confusing "no local caller" with "obsolete" would strip the interface of exactly the
+general, reusable entry points a toolkit exists to provide, and would turn a discovered bug in a public API
+into a reason to amputate rather than heal it. This is the public-interface complement of Invariant 19 (ship
+the whole public header tree, not a curated subset): ship — and maintain — the whole public API, not a subset
+justified by in-tree usage.
+
+## 24. The tree carries only intentional, tracked configuration — never scattered or generated config litter
+
+The source tree is not a scratch pad for configuration any more than for build output (Inv 3, Inv 17). A
+configuration or dotfile is allowed in the tree **only** if it is (a) genuinely a repository input, (b)
+tracked in git, and (c) still serving a live purpose. Everything else — tool/IDE state, run-generated config,
+and configuration for a mechanism that no longer exists — is litter and does not belong.
+
+- **Every in-tree config is tracked and justified.** A committed config is a deliberate repository input (the
+  shared `.clang-format` / `.clang-tidy` / `.gitignore` / `CMakePresets.json`, an example's
+  `config/config-overrides.json`, the `docs/config-reference/` reference set). If a file is not something a
+  fresh clone needs, it does not get committed.
+- **Generated and tool-local config never lands in the tree.** IDE project state (`.idea/`, `.vscode/`),
+  Python caches (`__pycache__/`), in-source build directories (`cmake-build-*/`, `build/`), run-emitted config
+  (`config/*.json` written by a `Go2` program), logs (`GENEVA-EXCEPTION.log`) and coverage artefacts are
+  generated *outside* the checkout — the direct consequence of running every build and binary from an external
+  working directory (Inv 3, Inv 17). When one appears in-tree, it is removed and the activity relocated, not
+  gitignored-and-tolerated in place. (`.gitignore` is a backstop against accidental commits, not a licence to
+  let generated files accumulate on disk.)
+- **A config is removed when the mechanism it configures is gone.** Replacing or retiring a mechanism deletes
+  its configuration in the same change (Inv 20 applied to config): a `.project` for a build system abandoned a
+  decade ago, a config key for a removed option, a preset for a deleted target. An orphaned config outlives
+  its purpose only to mislead.
+- **Centralize; do not scatter.** Configuration that must live in the repository lives at the fewest,
+  best-known locations — the tree root for tree-wide tooling, one reference directory for the config schema —
+  never the same fact copied into many per-directory files (Inv 20, "state each fact once"). Prefer one
+  central source a tool reads over a per-subdirectory sprinkling.
+
+*Why:* scattered and stale configuration is the same disease as a littered build tree — it makes "what does a
+clean checkout actually contain?" unanswerable, hides the few configs that matter among generated noise, and
+lets a dead mechanism's settings linger long enough to be mistaken for live ones. A tree whose every config
+file is tracked, justified, and current is one a newcomer (or a tool) can trust at face value. Note that some
+inert dotfiles at the tree root may be **environment/sandbox mounts** (read-only, empty, and un-removable —
+`rm` reports "busy"); those are harness infrastructure, not tree content, and are left untouched.
+
+---
+
+## 25. `CHANGES` is an overview — at most 50 lines per version, detail lives in a per-version file
+
+`CHANGES` exists so a reader can see, at a glance, what each release is about. That only works while it
+stays short. **A single version's entry may not exceed 50 lines.** When a release genuinely has more to
+say, the surplus does not get squeezed in or trimmed to a stub — it moves into its own file.
+
+- **The overflow file is `docs/CHANGES-<version>.md`.** It lives under the top-level `docs/` directory and
+  its name carries the version it documents (`docs/CHANGES-2.0.md` for the 2.0 redesign). One file per
+  version that needs one; a release that fits in 50 lines needs none.
+- **The `CHANGES` entry then points at it.** The entry keeps the rationale, the preconditions and a
+  one-line pointer; it never duplicates what the per-version file says (Inv 20, "state each fact once").
+- **Count before committing a release note.** 50 lines is the ceiling for the whole entry — heading,
+  prose, bullets and blank lines together — not a per-section budget.
+- **Historical entries are frozen.** Release notes for versions already shipped are a record of what was
+  said at the time; several pre-1.99 entries predate this rule and exceed the limit. They are left as
+  they are. The rule binds every entry written or revised from now on.
+
+*Why:* a release-note file that grows without bound stops being read, and the one thing it is for — "what
+changed in this version?" — becomes the hardest question to answer from it. A hard line count forces the
+choice the writer would otherwise avoid: what is genuinely the headline, and what is migration detail that
+a porting reader wants in full but a browsing reader does not. Splitting them serves both, and keeps each
+fact in exactly one place.
+
+---
+
+## 26. Every commit compiles cleanly — on every compiler it was exercised with
+
+A commit is only allowed for code that **compiles cleanly on at least one of the supported compilers**
+— zero errors, and zero new warnings (Invariant 10) — verified against the *committed* state, not
+against a similar-looking earlier state of the tree. If **both** compilers were exercised for the change
+(a clean-build gate, a pre-push verification, a vtable/build-system change that mandates it), the commit
+must compile cleanly on **both**: a red second compiler is never stepped over by committing what the
+first one accepted.
+
+- **"Compiles" means the full affected build**, not a single target: for library/header changes the
+  libraries plus everything the change instantiates (a header-only breakage that only surfaces in an
+  example or test TU still counts as not compiling — cf. the full-Debug-build discipline).
+- **Intermediate states are not committable.** A multi-commit sequence is ordered so that every commit
+  builds on its own; if two halves of a change cannot build separately, they are one commit (an
+  unbuildable intermediate is never "fixed by the next commit").
+- This composes with Invariant 9 (green tests are likewise a per-commit precondition) and the false-green
+  discipline: compile evidence comes from real exit codes on a genuinely rebuilt tree.
+
+*Why:* every commit is a potential bisect point, review point, and rollback target. A commit that does
+not compile poisons `git bisect`, blocks reverts, and turns the history from a sequence of working states
+into a sequence of diffs. The one-compiler minimum keeps fast iteration honest (the per-commit gate runs
+one compiler); the both-if-exercised rule stops a known cross-compiler failure from being committed as
+if unknown.
 
 ---
 
