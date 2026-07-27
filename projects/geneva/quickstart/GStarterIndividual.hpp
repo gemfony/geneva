@@ -108,7 +108,9 @@ class GStarterIndividual
     ///////////////////////////////////////////////////////////////////////
     // The archive still default-constructs the concrete type on load; GReflectiveInterfaceAccess lets the mixin
     // reach the private localMembers_() below (from which serialize/load_/compare_/clone_/name_ derive).
+    //! [weft-local-members#1]
     friend struct Gem::Common::GReflectiveInterfaceAccess;
+    //! [weft-local-members#1]
 
     /**
      * @brief Single declaration of this class'es local data members. The GReflectiveInterfaceT mixin (via
@@ -117,16 +119,20 @@ class GStarterIndividual
      * hand-written quartet, no silently-dropped member.
      * @return A tuple of named member references
      */
+    //! [weft-local-members#2]
     template <typename Self>
     auto localMembers_(this Self &self) {
         return std::make_tuple(Gem::Common::make_member("targetFunction_", self.targetFunction_));
     }
+    //! [weft-local-members#2]
 
     ///////////////////////////////////////////////////////////////////////
 
 public:
     /** @brief The class name, consumed by the GReflectiveInterfaceT-generated name_() and the compare token. */
+    //! [weft-local-members#3]
     static constexpr std::string_view class_name = "GStarterIndividual";
+    //! [weft-local-members#3]
 
     /** @brief The default constructor */
     GStarterIndividual();

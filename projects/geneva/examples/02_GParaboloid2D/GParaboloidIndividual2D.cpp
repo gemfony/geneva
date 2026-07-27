@@ -34,14 +34,18 @@
 #include "GParaboloidIndividual2D.hpp"
 
 #include "geneva/oa/GAdaption.hpp"
+//! [weft-register-archivable#1]
 #include "weft/GArchivePolymorphic.hpp" // GEM_REGISTER_ARCHIVABLE (GArchive polymorphic-pointer dispatch)
+//! [weft-register-archivable#1]
 #include "geneva/oa/GAdaptionConfig.hpp"
 
 #include <algorithm>
 #include <functional>
 #include <ranges>
 
+//! [weft-register-archivable#2]
 GEM_REGISTER_ARCHIVABLE(Gem::Geneva::GParaboloidIndividual2D) // NOLINT
+//! [weft-register-archivable#2]
 namespace Gem::Geneva {
 
 /********************************************************************************************/
